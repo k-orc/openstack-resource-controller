@@ -1,0 +1,214 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackflavors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackflavors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackflavors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackfloatingips
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackfloatingips/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackfloatingips/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackimages
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackimages/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackimages/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacknetworks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacknetworks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacknetworks/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksecuritygrouprules
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksecuritygrouprules/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksecuritygrouprules/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksecuritygroups
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksecuritygroups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksecuritygroups/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackservers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackservers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackservers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksubnets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksubnets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstacksubnets/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -1,0 +1,27 @@
+# permissions for end users to view openstackimages.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: openstackimage-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: gophercloud-operator
+    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: openstackimage-viewer-role
+rules:
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackimages
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackimages/status
+  verbs:
+  - get

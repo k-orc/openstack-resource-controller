@@ -1,0 +1,12 @@
+apiVersion: openstack.gophercloud.io/v1
+kind: OpenStackFlavor
+metadata:
+  labels:
+    app.kubernetes.io/name: openstackflavor
+    app.kubernetes.io/instance: openstackflavor-sample
+    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gophercloud-operator
+  name: openstackflavor-sample
+spec:
+  # TODO(user): Add fields here

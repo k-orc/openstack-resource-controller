@@ -1,0 +1,27 @@
+apiVersion: openstack.gophercloud.io/v1
+kind: OpenStackNetwork
+metadata:
+  labels:
+    app.kubernetes.io/name: openstacknetwork
+    app.kubernetes.io/instance: openstacknetwork-sample
+    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gophercloud-operator
+  name: network-1
+spec:
+  cloud: osp1
+  name: my-new-network
+---
+apiVersion: openstack.gophercloud.io/v1
+kind: OpenStackNetwork
+metadata:
+  labels:
+    app.kubernetes.io/name: openstacknetwork
+    app.kubernetes.io/instance: openstacknetwork-sample
+    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gophercloud-operator
+  name: external
+spec:
+  cloud: osp1
+  id: 7abff1a9-a103-46d0-979a-1f1e599f4f41

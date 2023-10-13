@@ -1,0 +1,174 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstacksecuritygrouprules.openstack.gophercloud.io
+spec:
+  group: openstack.gophercloud.io
+  names:
+    kind: OpenStackSecurityGroupRule
+    listKind: OpenStackSecurityGroupRuleList
+    plural: openstacksecuritygrouprules
+    singular: openstacksecuritygrouprule
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackSecurityGroupRule is the Schema for the openstacksecuritygrouprules
+          API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackSecurityGroupRuleSpec defines the desired state
+              of OpenStackSecurityGroupRule
+            properties:
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              description:
+                description: Description of the rule
+                type: string
+              direction:
+                description: The direction in which the security group rule is applied.
+                  The only values allowed are "ingress" or "egress". For a compute
+                  instance, an ingress security group rule is applied to incoming
+                  (ingress) traffic for that instance. An egress rule is applied to
+                  traffic leaving the instance.
+                type: string
+              etherType:
+                description: Must be IPv4 or IPv6, and addresses represented in CIDR
+                  must match the ingress or egress rules.
+                type: string
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              portRangeMax:
+                description: The maximum port number in the range that is matched
+                  by the security group rule. The PortRangeMin attribute constrains
+                  the PortRangeMax attribute. If the protocol is ICMP, this value
+                  must be an ICMP type.
+                type: integer
+              portRangeMin:
+                description: The minimum port number in the range that is matched
+                  by the security group rule. If the protocol is TCP or UDP, this
+                  value must be less than or equal to the value of the PortRangeMax
+                  attribute. If the protocol is ICMP, this value must be an ICMP type.
+                type: integer
+              projectID:
+                description: ProjectID is the project owner of this security group
+                  rule.
+                type: string
+              protocol:
+                description: The protocol that is matched by the security group rule.
+                  Valid values are "tcp", "udp", "icmp" or an empty string.
+                type: string
+              remoteGroupID:
+                description: The remote group ID to be associated with this security
+                  group rule. You can specify either RemoteGroupID or RemoteIPPrefix.
+                type: string
+              remoteIPPrefix:
+                description: The remote IP prefix to be associated with this security
+                  group rule. You can specify either RemoteGroupID or RemoteIPPrefix
+                  . This attribute matches the specified IP prefix as the source IP
+                  address of the IP packet.
+                type: string
+              securityGroup:
+                description: The OpenStackSecrurityGroup to associate with this security
+                  group rule.
+                type: string
+              tenantID:
+                description: TenantID is the project owner of this security group
+                  rule.
+                type: string
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+            required:
+            - cloud
+            type: object
+          status:
+            description: OpenStackSecurityGroupRuleStatus defines the observed state
+              of OpenStackSecurityGroupRule
+            properties:
+              description:
+                description: Description of the rule
+                type: string
+              direction:
+                description: The direction in which the security group rule is applied.
+                  The only values allowed are "ingress" or "egress". For a compute
+                  instance, an ingress security group rule is applied to incoming
+                  (ingress) traffic for that instance. An egress rule is applied to
+                  traffic leaving the instance.
+                type: string
+              etherType:
+                description: Must be IPv4 or IPv6, and addresses represented in CIDR
+                  must match the ingress or egress rules.
+                type: string
+              id:
+                description: The UUID for the security group.
+                type: string
+              portRangeMax:
+                description: The maximum port number in the range that is matched
+                  by the security group rule. The PortRangeMin attribute constrains
+                  the PortRangeMax attribute. If the protocol is ICMP, this value
+                  must be an ICMP type.
+                type: integer
+              portRangeMin:
+                description: The minimum port number in the range that is matched
+                  by the security group rule. If the protocol is TCP or UDP, this
+                  value must be less than or equal to the value of the PortRangeMax
+                  attribute. If the protocol is ICMP, this value must be an ICMP type.
+                type: integer
+              projectID:
+                description: ProjectID is the project owner of this security group
+                  rule.
+                type: string
+              protocol:
+                description: The protocol that is matched by the security group rule.
+                  Valid values are "tcp", "udp", "icmp" or an empty string.
+                type: string
+              remoteGroupID:
+                description: The remote group ID to be associated with this security
+                  group rule. You can specify either RemoteGroupID or RemoteIPPrefix.
+                type: string
+              remoteIPPrefix:
+                description: The remote IP prefix to be associated with this security
+                  group rule. You can specify either RemoteGroupID or RemoteIPPrefix
+                  . This attribute matches the specified IP prefix as the source IP
+                  address of the IP packet.
+                type: string
+              securityGroupID:
+                description: The security group ID to associate with this security
+                  group rule.
+                type: string
+              tenantID:
+                description: TenantID is the project owner of this security group
+                  rule.
+                type: string
+            required:
+            - id
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

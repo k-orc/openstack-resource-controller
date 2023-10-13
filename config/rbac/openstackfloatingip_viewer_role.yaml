@@ -1,0 +1,27 @@
+# permissions for end users to view openstackfloatingips.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: openstackfloatingip-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: gophercloud-operator
+    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: openstackfloatingip-viewer-role
+rules:
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackfloatingips
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackfloatingips/status
+  verbs:
+  - get

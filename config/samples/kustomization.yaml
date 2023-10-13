@@ -1,0 +1,17 @@
+generatorOptions:
+  disableNameSuffixHash: true
+secretGenerator:
+- name: openstack-clouds
+  files:
+  - clouds.yaml
+resources:
+- openstack_v1_openstackcloud.yaml
+- openstack_v1_openstacknetwork.yaml
+- openstack_v1_openstackfloatingip.yaml
+- openstack_v1_openstacksecuritygroup.yaml
+- openstack_v1_openstacksecuritygrouprule.yaml
+- openstack_v1_openstackserver.yaml
+- openstack_v1_openstackflavor.yaml
+- openstack_v1_openstackimage.yaml
+- openstack_v1_openstacksubnet.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

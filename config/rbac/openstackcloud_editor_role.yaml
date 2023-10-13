@@ -1,0 +1,31 @@
+# permissions for end users to edit openstackclouds.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: openstackcloud-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: gophercloud-operator
+    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: openstackcloud-editor-role
+rules:
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackclouds
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gophercloud.io
+  resources:
+  - openstackclouds/status
+  verbs:
+  - get

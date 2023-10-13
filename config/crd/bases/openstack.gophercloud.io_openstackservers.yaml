@@ -1,0 +1,203 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstackservers.openstack.gophercloud.io
+spec:
+  group: openstack.gophercloud.io
+  names:
+    kind: OpenStackServer
+    listKind: OpenStackServerList
+    plural: openstackservers
+    singular: openstackserver
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackServer is the Schema for the openstackservers API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackServerSpec defines the desired state of OpenStackServer
+            properties:
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              flavor:
+                description: Flavor indicates the OpenStackFlavor of the deployed
+                  server.
+                type: string
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              image:
+                description: Image indicates the OpenStackImage used to deploy the
+                  server.
+                type: string
+              keyName:
+                description: Key indicates an OpenStackKey to injected into the server
+                  on launch.
+                type: string
+              metadata:
+                additionalProperties:
+                  type: string
+                description: Metadata includes a list of all user-specified key-value
+                  pairs attached to the server.
+                type: object
+              name:
+                description: Name contains the human-readable name for the server.
+                type: string
+              networks:
+                description: Networks indicates the OpenStackNetworks to attach the
+                  server to.
+                items:
+                  type: string
+                type: array
+              securityGroups:
+                description: SecurityGroups sets the security groups to apply to this
+                  instance.
+                items:
+                  type: string
+                type: array
+              tags:
+                description: Tags is a slice/list of string tags in a server. The
+                  requires microversion 2.26 or later.
+                items:
+                  type: string
+                type: array
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+              userData:
+                description: UserData contains configuration information or scripts
+                  to use upon launch. Create will base64-encode it for you, if it
+                  isn't already.
+                format: byte
+                type: string
+            required:
+            - cloud
+            - networks
+            type: object
+          status:
+            description: OpenStackServerStatus defines the observed state of OpenStackServer
+            properties:
+              accessIPv4:
+                description: AccessIPv4 contains the IPv4 addresses of the server,
+                  suitable for remote access for administration.
+                type: string
+              accessIPv6:
+                description: AccessIPv6 contains the IPv6 addresses of the server,
+                  suitable for remote access for administration.
+                type: string
+              addresses:
+                description: Addresses includes a list of all IP addresses assigned
+                  to the server, keyed by pool.
+                type: string
+              createdAt:
+                description: CreatedAt contains the timestamp of when the resource
+                  was created.
+                type: string
+              fault:
+                description: Fault contains failure information about a server.
+                type: string
+              flavorID:
+                description: FlavorID indicates the hardware configuration of the
+                  deployed server.
+                type: string
+              hostID:
+                description: HostID is the host where the server is located in the
+                  cloud.
+                type: string
+              id:
+                description: ID uniquely identifies this server amongst all other
+                  servers, including those not accessible to the current tenant.
+                type: string
+              imageID:
+                description: ImageID indicates the OS image used to deploy the server.
+                type: string
+              keyName:
+                description: KeyName indicates which public key was injected into
+                  the server on launch.
+                type: string
+              links:
+                description: Links includes HTTP references to the itself, useful
+                  for passing along to other APIs that might want a server reference.
+                items:
+                  type: string
+                type: array
+              metadata:
+                description: Metadata includes all user-specified key-value pairs
+                  attached to the server.
+                type: string
+              name:
+                description: Name contains the human-readable name for the server.
+                type: string
+              progress:
+                description: Progress ranges from 0..100. A request made against the
+                  server completes only once Progress reaches 100.
+                type: integer
+              securityGroupIDs:
+                description: SecurityGroupIDs includes the security groups that this
+                  instance has applied to it.
+                type: string
+              serverGroupIDs:
+                description: ServerGroupIDs is a slice of strings containing the UUIDs
+                  of the server groups to which the server belongs. Currently this
+                  can contain at most one entry. New in microversion 2.71
+                items:
+                  type: string
+                type: array
+              status:
+                description: Status contains the current operational status of the
+                  server, such as IN_PROGRESS or ACTIVE.
+                type: string
+              tags:
+                description: Tags is a slice/list of string tags in a server. The
+                  requires microversion 2.26 or later.
+                items:
+                  type: string
+                type: array
+              tenantID:
+                description: TenantID identifies the tenant owning this server resource.
+                type: string
+              updatedAt:
+                description: UpdatedAt contains the timestamp of when the resource
+                  was last changed.
+                type: string
+              userID:
+                description: UserID uniquely identifies the user account owning the
+                  tenant.
+                type: string
+              volumesAttached:
+                description: AttachedVolumes includes the volume attachments of this
+                  instance
+                items:
+                  type: string
+                type: array
+            required:
+            - id
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
