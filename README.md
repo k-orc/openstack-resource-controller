@@ -1,3 +1,6 @@
+# EXPERIMENTAL
+# DO NOT USE IN A PRODUCTION SETUP
+
 # gophercloud-operator
 // TODO(user): Add simple overview of use/purpose
 
