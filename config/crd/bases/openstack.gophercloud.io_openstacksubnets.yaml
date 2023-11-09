@@ -14,7 +14,7 @@ spec:
     singular: openstacksubnet
   scope: Namespaced
   versions:
-  - name: v1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: OpenStackSubnet is the Schema for the openstacksubnets API
