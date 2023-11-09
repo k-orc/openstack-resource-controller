@@ -14,7 +14,7 @@ spec:
     singular: openstackflavor
   scope: Namespaced
   versions:
-  - name: v1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: OpenStackFlavor is the Schema for the openstackflavors API

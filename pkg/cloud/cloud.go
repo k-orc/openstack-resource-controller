@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1"
+	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1alpha1"
 )
 
 func NewClient(ctx context.Context, k8sClient client.Client, openStackCloud *openstackv1.OpenStackCloud, service string) (*gophercloud.ServiceClient, error) {

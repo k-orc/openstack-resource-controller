@@ -14,7 +14,7 @@ spec:
     singular: openstackserver
   scope: Namespaced
   versions:
-  - name: v1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: OpenStackServer is the Schema for the openstackservers API

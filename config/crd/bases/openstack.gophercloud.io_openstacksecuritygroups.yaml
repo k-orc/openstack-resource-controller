@@ -14,7 +14,7 @@ spec:
     singular: openstacksecuritygroup
   scope: Namespaced
   versions:
-  - name: v1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: OpenStackSecurityGroup is the Schema for the openstacksecuritygroups

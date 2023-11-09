@@ -34,7 +34,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/gophercloud/gophercloud"
-	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1"
+	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1alpha1"
 	"github.com/gophercloud/gophercloud-operator/pkg/cloud"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 )

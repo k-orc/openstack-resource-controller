@@ -14,7 +14,7 @@ spec:
     singular: openstackcloud
   scope: Namespaced
   versions:
-  - name: v1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: OpenStackCloud is the Schema for the openstackclouds API

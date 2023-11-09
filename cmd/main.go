@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1"
+	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1alpha1"
 	"github.com/gophercloud/gophercloud-operator/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
