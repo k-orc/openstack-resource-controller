@@ -43,9 +43,9 @@ type OpenStackSecurityGroupRuleReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstacksecuritygrouprules,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstacksecuritygrouprules/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstacksecuritygrouprules/finalizers,verbs=update
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstacksecuritygrouprules,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstacksecuritygrouprules/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstacksecuritygrouprules/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

@@ -20,5 +20,5 @@ const (
 	// Finalizer allows Reconcile to clean up OpenStack resources
 	// associated with OpenStackNetwork before removing it from the
 	// apiserver.
-	Finalizer = "openstackresource.openstack.gophercloud.io"
+	Finalizer = "openstackresource.gopherkube.dev"
 )

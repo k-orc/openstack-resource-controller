@@ -2,7 +2,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: openstackservers.openstack.gophercloud.io
+  name: openstackservers.gopherkube.dev
 spec:
   conversion:
     strategy: Webhook

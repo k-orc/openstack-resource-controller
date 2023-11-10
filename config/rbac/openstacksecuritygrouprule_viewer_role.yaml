@@ -12,7 +12,7 @@ metadata:
   name: openstacksecuritygrouprule-viewer-role
 rules:
 - apiGroups:
-  - openstack.gophercloud.io
+  - gopherkube.dev
   resources:
   - openstacksecuritygrouprules
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - openstack.gophercloud.io
+  - gopherkube.dev
   resources:
   - openstacksecuritygrouprules/status
   verbs:

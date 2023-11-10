@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: openstackfloatingips.openstack.gophercloud.io
+  name: openstackfloatingips.gopherkube.dev
 spec:
-  group: openstack.gophercloud.io
+  group: gopherkube.dev
   names:
     kind: OpenStackFloatingIP
     listKind: OpenStackFloatingIPList

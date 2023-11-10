@@ -1,4 +1,4 @@
-apiVersion: openstack.gophercloud.io/v1
+apiVersion: gopherkube.dev/v1
 kind: OpenStackFloatingIP
 metadata:
   labels:

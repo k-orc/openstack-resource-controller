@@ -1,4 +1,4 @@
-apiVersion: openstack.gophercloud.io/v1
+apiVersion: gopherkube.dev/v1
 kind: OpenStackNetwork
 metadata:
   labels:
@@ -12,7 +12,7 @@ spec:
   cloud: osp1
   name: my-new-network
 ---
-apiVersion: openstack.gophercloud.io/v1
+apiVersion: gopherkube.dev/v1
 kind: OpenStackNetwork
 metadata:
   labels:

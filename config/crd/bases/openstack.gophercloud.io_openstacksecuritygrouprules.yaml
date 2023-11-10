@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: openstacksecuritygrouprules.openstack.gophercloud.io
+  name: openstacksecuritygrouprules.gopherkube.dev
 spec:
-  group: openstack.gophercloud.io
+  group: gopherkube.dev
   names:
     kind: OpenStackSecurityGroupRule
     listKind: OpenStackSecurityGroupRuleList
