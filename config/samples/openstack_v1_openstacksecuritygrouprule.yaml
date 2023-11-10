@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygrouprule
     app.kubernetes.io/instance: openstacksecuritygrouprule-sample
-    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gophercloud-operator
+    app.kubernetes.io/created-by: gopherkube
   name: openstacksecuritygrouprule-sample
 spec:
   # TODO(user): Add fields here

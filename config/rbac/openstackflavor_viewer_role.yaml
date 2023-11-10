@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: openstackflavor-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: gophercloud-operator
-    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/created-by: gopherkube
+    app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
   name: openstackflavor-viewer-role
 rules:

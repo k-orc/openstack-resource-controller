@@ -5,8 +5,8 @@
 domain: gophercloud.io
 layout:
 - go.kubebuilder.io/v4
-projectName: gophercloud-operator
-repo: github.com/gophercloud/gophercloud-operator
+projectName: gopherkube
+repo: github.com/gophercloud/gopherkube
 resources:
 - api:
     crdVersion: v1
@@ -14,7 +14,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackCloud
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -23,7 +23,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackNetwork
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -32,7 +32,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackFloatingIP
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -41,7 +41,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackSecurityGroup
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -50,7 +50,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackSecurityGroupRule
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -59,7 +59,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackServer
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -68,7 +68,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackFlavor
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -77,7 +77,7 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackImage
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 - api:
     crdVersion: v1
@@ -86,6 +86,6 @@ resources:
   domain: gophercloud.io
   group: openstack
   kind: OpenStackSubnet
-  path: github.com/gophercloud/gophercloud-operator/api/v1
+  path: github.com/gophercloud/gopherkube/api/v1
   version: v1
 version: "3"
