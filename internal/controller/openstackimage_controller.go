@@ -33,9 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
 	"github.com/gophercloud/gopherkube/pkg/cloud"
-	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 )
 
 // OpenStackImageReconciler reconciles a OpenStackImage object

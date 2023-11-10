@@ -1,0 +1,126 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstacknetworks.gopherkube.dev
+spec:
+  group: gopherkube.dev
+  names:
+    kind: OpenStackNetwork
+    listKind: OpenStackNetworkList
+    plural: openstacknetworks
+    singular: openstacknetwork
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackNetwork is the Schema for the openstacknetworks API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackNetworkSpec defines the desired state of OpenStackNetwork
+            properties:
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              description:
+                type: string
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              name:
+                description: Name of the OpenStack resource.
+                type: string
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+            required:
+            - cloud
+            type: object
+          status:
+            description: OpenStackNetworkStatus defines the observed state of OpenStackNetwork
+            properties:
+              adminStateUp:
+                description: The administrative state of network. If false (down),
+                  the network does not forward packets.
+                type: boolean
+              availabilityZoneHints:
+                description: Availability zone hints groups network nodes that run
+                  services like DHCP, L3, FW, and others. Used to make network resources
+                  highly available.
+                items:
+                  type: string
+                type: array
+              createdAt:
+                description: CreatedAt contains the timestamp of when the resource
+                  was created.
+                type: string
+              description:
+                description: Description for the network
+                type: string
+              id:
+                description: UUID for the network
+                type: string
+              name:
+                description: Human-readable name for the network. Might not be unique.
+                type: string
+              projectID:
+                description: ProjectID is the project owner of the network.
+                type: string
+              revisionNumber:
+                description: RevisionNumber optionally set via extensions/standard-attr-revisions
+                type: integer
+              shared:
+                description: Specifies whether the network resource can be accessed
+                  by any tenant.
+                type: boolean
+              status:
+                description: Indicates whether network is currently operational. Possible
+                  values include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might
+                  define additional values.
+                type: string
+              subnets:
+                description: Subnets associated with this network.
+                items:
+                  type: string
+                type: array
+              tags:
+                description: Tags optionally set via extensions/attributestags
+                items:
+                  type: string
+                type: array
+              tenantID:
+                description: TenantID is the project owner of the network.
+                type: string
+              updatedAt:
+                description: UpdatedAt contains the timestamp of when the resource
+                  was last changed.
+                type: string
+            required:
+            - id
+            - name
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

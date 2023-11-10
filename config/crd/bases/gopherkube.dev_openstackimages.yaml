@@ -1,0 +1,213 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstackimages.gopherkube.dev
+spec:
+  group: gopherkube.dev
+  names:
+    kind: OpenStackImage
+    listKind: OpenStackImageList
+    plural: openstackimages
+    singular: openstackimage
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackImage is the Schema for the openstackimages API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackImageSpec defines the desired state of OpenStackImage
+            properties:
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              containerFormat:
+                description: ContainerFormat is the format of the container. Valid
+                  values are ami, ari, aki, bare, and ovf.
+                type: string
+              diskFormat:
+                description: DiskFormat is the format of the disk. If set, valid values
+                  are ami, ari, aki, vhd, vmdk, raw, qcow2, vdi, and iso.
+                type: string
+              hidden:
+                description: Hidden is whether the image is listed in default image
+                  list or not.
+                type: boolean
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              minDisk:
+                description: MinDisk is the amount of disk space in GB that is required
+                  to boot the image.
+                type: integer
+              minRam:
+                description: MinRAM is the amount of RAM in MB that is required to
+                  boot the image.
+                type: integer
+              name:
+                description: Name of the OpenStack resource.
+                type: string
+              protected:
+                description: protected is whether the image is not deletable.
+                type: boolean
+              source:
+                description: Source defines the content of the image. If not set,
+                  the image is left empty.
+                properties:
+                  http:
+                    description: HTTP requests the controller to download an image
+                      using HTTP(S) and upload it to Glance.
+                    properties:
+                      sha512sum:
+                        description: Sha512sum if set will be checked against the
+                          candidate image.
+                        type: string
+                      url:
+                        type: string
+                    required:
+                    - url
+                    type: object
+                type: object
+              tags:
+                description: Tags is a set of image tags.
+                items:
+                  type: string
+                type: array
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+            required:
+            - cloud
+            type: object
+          status:
+            description: OpenStackImageStatus defines the observed state of OpenStackImage
+            properties:
+              checksum:
+                description: Checksum is the checksum of the data that's associated
+                  with the image.
+                type: string
+              containerFormat:
+                description: ContainerFormat is the format of the container. Valid
+                  values are ami, ari, aki, bare, and ovf.
+                type: string
+              createdAt:
+                description: CreatedAt contains the timestamp of when the resource
+                  was created.
+                type: string
+              diskFormat:
+                description: DiskFormat is the format of the disk. If set, valid values
+                  are ami, ari, aki, vhd, vmdk, raw, qcow2, vdi, and iso.
+                type: string
+              file:
+                description: File is the trailing path after the glance endpoint that
+                  represent the location of the image or the path to retrieve it.
+                type: string
+              hidden:
+                description: Hidden is whether the image is listed in default image
+                  list or not.
+                type: boolean
+              id:
+                description: ID is the image UUID.
+                type: string
+              importMethods:
+                description: OpenStackImageImportMethods is a slice listing the types
+                  of import methods available in the cloud.
+                items:
+                  type: string
+                type: array
+              metadata:
+                additionalProperties:
+                  type: string
+                description: Metadata is a set of metadata associated with the image.
+                  Image metadata allow for meaningfully define the image properties
+                  and tags. See http://docs.openstack.org/developer/glance/metadefs-concepts.html.
+                type: object
+              minDisk:
+                description: MinDisk is the amount of disk space in GB that is required
+                  to boot the image.
+                type: integer
+              minRam:
+                description: MinRAM is the amount of RAM in MB that is required to
+                  boot the image.
+                type: integer
+              name:
+                description: Name is the human-readable display name for the image.
+                type: string
+              owner:
+                description: Owner is the tenant ID the image belongs to.
+                type: string
+              properties:
+                additionalProperties:
+                  type: string
+                description: Properties is a set of key-value pairs, if any, that
+                  are associated with the image.
+                type: object
+              protected:
+                description: Protected is whether the image is deletable or not.
+                type: boolean
+              schema:
+                description: Schema is the path to the JSON-schema that represent
+                  the image or image entity.
+                type: string
+              size:
+                description: Size is the size in bytes of the data that's associated
+                  with the image.
+                format: int64
+                type: integer
+              status:
+                description: Status is the image status. It can be "queued" or "active"
+                  See imageservice/v2/images/type.go
+                type: string
+              storeIDs:
+                description: StoreIDs is a slice listing the store IDs available in
+                  the cloud.
+                items:
+                  type: string
+                type: array
+              tags:
+                description: Tags is a list of image tags. Tags are arbitrarily defined
+                  strings attached to an image.
+                items:
+                  type: string
+                type: array
+              updatedAt:
+                description: UpdatedAt contains the timestamp of when the resource
+                  was last changed.
+                type: string
+              virtualSize:
+                description: VirtualSize is the virtual size of the image
+                format: int64
+                type: integer
+              visibility:
+                description: Visibility defines who can see/use the image.
+                type: string
+            required:
+            - id
+            - name
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

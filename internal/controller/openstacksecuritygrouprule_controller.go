@@ -32,9 +32,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/security/rules"
 	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
 	"github.com/gophercloud/gopherkube/pkg/cloud"
-	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/security/rules"
 )
 
 // OpenStackSecurityGroupRuleReconciler reconciles a OpenStackSecurityGroupRule object

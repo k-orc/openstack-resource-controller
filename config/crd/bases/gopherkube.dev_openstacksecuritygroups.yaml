@@ -1,0 +1,108 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstacksecuritygroups.gopherkube.dev
+spec:
+  group: gopherkube.dev
+  names:
+    kind: OpenStackSecurityGroup
+    listKind: OpenStackSecurityGroupList
+    plural: openstacksecuritygroups
+    singular: openstacksecuritygroup
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackSecurityGroup is the Schema for the openstacksecuritygroups
+          API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackSecurityGroupSpec defines the desired state of OpenStackSecurityGroup
+            properties:
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              description:
+                type: string
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              name:
+                description: Name of the OpenStack resource.
+                type: string
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+            required:
+            - cloud
+            type: object
+          status:
+            description: OpenStackSecurityGroupStatus defines the observed state of
+              OpenStackSecurityGroup
+            properties:
+              createdAt:
+                description: CreatedAt contains the timestamp of when the resource
+                  was created.
+                type: string
+              description:
+                description: The security group description.
+                type: string
+              id:
+                description: The UUID for the security group.
+                type: string
+              name:
+                description: Human-readable name for the security group. Might not
+                  be unique. Cannot be named "default" as that is automatically created
+                  for a tenant.
+                type: string
+              projectID:
+                description: ProjectID is the project owner of the security group.
+                type: string
+              securityGroupRulesID:
+                description: A slice of security group rule IDs that dictate the permitted
+                  behaviour for traffic entering and leaving the group.
+                items:
+                  type: string
+                type: array
+              tags:
+                description: Tags optionally set via extensions/attributestags
+                items:
+                  type: string
+                type: array
+              tenantID:
+                description: TenantID is the project owner of the security group.
+                type: string
+              updatedAt:
+                description: UpdatedAt contains the timestamp of when the resource
+                  was last changed.
+                type: string
+            required:
+            - id
+            - name
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

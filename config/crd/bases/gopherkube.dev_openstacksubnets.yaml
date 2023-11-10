@@ -1,0 +1,236 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstacksubnets.gopherkube.dev
+spec:
+  group: gopherkube.dev
+  names:
+    kind: OpenStackSubnet
+    listKind: OpenStackSubnetList
+    plural: openstacksubnets
+    singular: openstacksubnet
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackSubnet is the Schema for the openstacksubnets API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackSubnetSpec defines the desired state of OpenStackSubnet
+            properties:
+              allocationPools:
+                description: AllocationPools are IP Address pools that will be available
+                  for DHCP.
+                items:
+                  description: 'OpenStackSubnetAllocationPool represents a sub-range
+                    of cidr available for dynamic allocation to ports, e.g. {Start:
+                    "10.0.0.2", End: "10.0.0.254"}'
+                  properties:
+                    end:
+                      type: string
+                    start:
+                      type: string
+                  required:
+                  - end
+                  - start
+                  type: object
+                type: array
+              cidr:
+                description: CIDR is the address CIDR of the subnet.
+                type: string
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              description:
+                description: Description of the subnet.
+                type: string
+              dnsNameservers:
+                description: DNSNameservers are the nameservers to be set via DHCP.
+                items:
+                  type: string
+                type: array
+              enableDHCP:
+                description: EnableDHCP will either enable to disable the DHCP service.
+                type: boolean
+              gatewayIP:
+                description: GatewayIP sets gateway information for the subnet. Setting
+                  to nil will cause a default gateway to automatically be created.
+                  Setting to an empty string will cause the subnet to be created with
+                  no gateway. Setting to an explicit address will set that address
+                  as the gateway.
+                type: string
+              hostRoutes:
+                description: HostRoutes are any static host routes to be set via DHCP.
+                items:
+                  description: OpenStackSubnetHostRoute represents a route that should
+                    be used by devices with IPs from a subnet (not including local
+                    subnet route).
+                  properties:
+                    destination:
+                      type: string
+                    nexthop:
+                      type: string
+                  required:
+                  - destination
+                  - nexthop
+                  type: object
+                type: array
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              ipVersion:
+                description: IPVersion is the IP version for the subnet.
+                type: string
+              ipv6AddressMode:
+                description: The IPv6 address modes specifies mechanisms for assigning
+                  IPv6 IP addresses.
+                type: string
+              ipv6RAMode:
+                description: The IPv6 router advertisement specifies whether the networking
+                  service should transmit ICMPv6 packets.
+                type: string
+              name:
+                description: Name is a human-readable name of the subnet.
+                type: string
+              network:
+                description: NetworkID is the OpenStackNetwork the subnet will be
+                  associated with.
+                type: string
+              serviceTypes:
+                description: ServiceTypes are the service types associated with the
+                  subnet.
+                items:
+                  type: string
+                type: array
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+            required:
+            - cloud
+            type: object
+          status:
+            description: OpenStackSubnetStatus defines the observed state of OpenStackSubnet
+            properties:
+              allocationPools:
+                description: Sub-ranges of CIDR available for dynamic allocation to
+                  ports. See AllocationPool.
+                items:
+                  description: 'OpenStackSubnetAllocationPool represents a sub-range
+                    of cidr available for dynamic allocation to ports, e.g. {Start:
+                    "10.0.0.2", End: "10.0.0.254"}'
+                  properties:
+                    end:
+                      type: string
+                    start:
+                      type: string
+                  required:
+                  - end
+                  - start
+                  type: object
+                type: array
+              cidr:
+                description: CIDR representing IP range for this subnet, based on
+                  IP version.
+                type: string
+              description:
+                description: Description for the subnet.
+                type: string
+              dnsNameservers:
+                description: DNS name servers used by hosts in this subnet.
+                items:
+                  type: string
+                type: array
+              enableDHCP:
+                description: Specifies whether DHCP is enabled for this subnet or
+                  not.
+                type: boolean
+              gatewayIP:
+                description: Default gateway used by devices in this subnet.
+                type: string
+              hostRoutes:
+                description: Routes that should be used by devices with IPs from this
+                  subnet (not including local subnet route).
+                items:
+                  description: OpenStackSubnetHostRoute represents a route that should
+                    be used by devices with IPs from a subnet (not including local
+                    subnet route).
+                  properties:
+                    destination:
+                      type: string
+                    nexthop:
+                      type: string
+                  required:
+                  - destination
+                  - nexthop
+                  type: object
+                type: array
+              id:
+                description: UUID representing the subnet.
+                type: string
+              ipVersion:
+                description: IP version, either `4' or `6'.
+                type: integer
+              ipv6AddressMode:
+                description: The IPv6 address modes specifies mechanisms for assigning
+                  IPv6 IP addresses.
+                type: string
+              ipv6RAMode:
+                description: The IPv6 router advertisement specifies whether the networking
+                  service should transmit ICMPv6 packets.
+                type: string
+              name:
+                description: Human-readable name for the subnet. Might not be unique.
+                type: string
+              networkID:
+                description: UUID of the parent network.
+                type: string
+              projectID:
+                description: ProjectID is the project owner of the subnet.
+                type: string
+              revisionNumber:
+                description: RevisionNumber optionally set via extensions/standard-attr-revisions
+                type: integer
+              serviceTypes:
+                description: Service types associated with the subnet.
+                items:
+                  type: string
+                type: array
+              subnetpoolID:
+                description: SubnetPoolID is the id of the subnet pool associated
+                  with the subnet.
+                type: string
+              tags:
+                description: Tags optionally set via extensions/attributestags
+                items:
+                  type: string
+                type: array
+              tenantID:
+                description: TenantID is the project owner of the subnet.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
