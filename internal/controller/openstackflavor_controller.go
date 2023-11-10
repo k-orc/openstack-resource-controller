@@ -33,9 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/gophercloud/gophercloud"
-	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1alpha1"
-	"github.com/gophercloud/gophercloud-operator/pkg/cloud"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
+	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	"github.com/gophercloud/gopherkube/pkg/cloud"
 )
 
 // OpenStackFlavorReconciler reconciles a OpenStackFlavor object
@@ -44,9 +44,9 @@ type OpenStackFlavorReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstackflavors,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstackflavors/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstackflavors/finalizers,verbs=update
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackflavors,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackflavors/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackflavors/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

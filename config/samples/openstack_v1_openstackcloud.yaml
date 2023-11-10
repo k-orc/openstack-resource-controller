@@ -1,12 +1,12 @@
-apiVersion: openstack.gophercloud.io/v1
+apiVersion: gopherkube.dev/v1
 kind: OpenStackCloud
 metadata:
   labels:
     app.kubernetes.io/name: openstackcloud
     app.kubernetes.io/instance: openstackcloud-sample
-    app.kubernetes.io/part-of: gophercloud-operator
+    app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gophercloud-operator
+    app.kubernetes.io/created-by: gopherkube
   name: osp1
 spec:
   cloud: osp1

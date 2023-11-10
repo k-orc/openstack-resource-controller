@@ -33,9 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/gophercloud/gophercloud"
-	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1alpha1"
-	"github.com/gophercloud/gophercloud-operator/pkg/cloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/floatingips"
+	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	"github.com/gophercloud/gopherkube/pkg/cloud"
 )
 
 // OpenStackFloatingIPReconciler reconciles a OpenStackFloatingIP object
@@ -44,9 +44,9 @@ type OpenStackFloatingIPReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstackfloatingips,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstackfloatingips/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstackfloatingips/finalizers,verbs=update
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackfloatingips,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackfloatingips/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackfloatingips/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

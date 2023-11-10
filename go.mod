@@ -1,4 +1,4 @@
-module github.com/gophercloud/gophercloud-operator
+module github.com/gophercloud/gopherkube
 
 go 1.20
 

@@ -33,9 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/gophercloud/gophercloud"
-	openstackv1 "github.com/gophercloud/gophercloud-operator/api/v1alpha1"
-	"github.com/gophercloud/gophercloud-operator/pkg/cloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
+	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	"github.com/gophercloud/gopherkube/pkg/cloud"
 )
 
 // OpenStackNetworkReconciler reconciles a OpenStackNetwork object
@@ -44,9 +44,9 @@ type OpenStackNetworkReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstacknetworks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstacknetworks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gophercloud.io,resources=openstacknetworks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstacknetworks,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstacknetworks/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstacknetworks/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
