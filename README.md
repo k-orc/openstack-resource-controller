@@ -1,33 +1,31 @@
-# EXPERIMENTAL
-# DO NOT USE IN A PRODUCTION SETUP
+# Gopherkube
+Gopherkube is a set of Kubernetes controllers that manage your OpenStack tenant infrastructure.
 
-# gophercloud-operator
-// TODO(user): Add simple overview of use/purpose
+You declare your OpenStack resource as a YAML file, you `kubectl apply` it and Gopherkube provisions it on your OpenStack cloud.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+Gopherkube defines each OpenStack resource type as a CRD (see [./api/v1alpha1/](https://github.com/gophercloud/gopherkube/tree/main/api/v1alpha1)). Each resource type has its own controller (see [./internal/controller/](https://github.com/gophercloud/gopherkube/tree/main/internal/controller)). Controllers are responsible for creating and deleting resources in OpenStack when a CRD is created or deleted in their Kubernetes namespace.
+
+## State of the project
+
+**This project is currently in a prototype phase. Do NOT use in production.**
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
 ### Running on the cluster
-1. Install Instances of Custom Resources:
+1. Deploy the controller to the cluster with the image specified by `IMG`:
+
+```sh
+make deploy IMG=quay.io/gopherkube/gopherkube:v1alpha1
+```
+
+2. Install Instances of Custom Resources:
 
 ```sh
 kubectl apply -k config/samples/
-```
-
-2. Build and push your image to the location specified by `IMG`:
-
-```sh
-make docker-build docker-push IMG=<some-registry>/gophercloud-operator:tag
-```
-
-3. Deploy the controller to the cluster with the image specified by `IMG`:
-
-```sh
-make deploy IMG=<some-registry>/gophercloud-operator:tag
 ```
 
 ### Uninstall CRDs
@@ -45,39 +43,13 @@ make undeploy
 ```
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
 
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
 which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
-
-### Test It Out
-1. Install the CRDs into the cluster:
-
-```sh
-make install
-```
-
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
-
-```sh
-make run
-```
-
-**NOTE:** You can also run this in one step by running: `make install run`
-
-### Modifying the API definitions
-If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
-
-```sh
-make manifests
-```
-
-**NOTE:** Run `make --help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
 ## License
 
@@ -94,4 +66,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
