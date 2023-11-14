@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: gopherkube
-  name: openstackimage-sample
+  name: ubuntu
 spec:
-  # TODO(user): Add fields here
+  cloud: osp1
+  id: da314c41-19bf-486a-b8da-39ca51fd17de # REPLACE with the ID of an existing image

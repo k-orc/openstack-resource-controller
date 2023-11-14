@@ -1,4 +1,10 @@
 ## Append samples of your project ##
+generatorOptions:
+  disableNameSuffixHash: true
+secretGenerator:
+- name: openstack-clouds
+  files:
+  - clouds.yaml
 resources:
 - openstack_v1alpha1_openstackcloud.yaml
 - openstack_v1alpha1_openstackflavor.yaml

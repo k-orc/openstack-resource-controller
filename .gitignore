@@ -24,5 +24,6 @@ Dockerfile.cross
 *.swp
 *.swo
 *~
+
+# secrets
 clouds.yaml
-/clouds
