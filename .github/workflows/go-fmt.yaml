@@ -4,7 +4,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  go-fmt:
     runs-on: ubuntu-latest
 
     steps:

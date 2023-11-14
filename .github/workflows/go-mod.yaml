@@ -4,7 +4,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  go-mod:
     runs-on: ubuntu-latest
 
     steps:
