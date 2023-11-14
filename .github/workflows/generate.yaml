@@ -1,0 +1,19 @@
+on: [push, pull_request]
+name: generate
+permissions:
+  contents: read
+
+jobs:
+  make-manifests-generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          make manifests
+          git diff --exit-code
+
+      - run: |
+          make generate
+          git diff --exit-code
