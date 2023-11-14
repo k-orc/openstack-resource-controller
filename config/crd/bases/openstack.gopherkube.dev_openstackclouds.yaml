@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: openstackclouds.gopherkube.dev
+  name: openstackclouds.openstack.gopherkube.dev
 spec:
-  group: gopherkube.dev
+  group: openstack.gopherkube.dev
   names:
     kind: OpenStackCloud
     listKind: OpenStackCloudList

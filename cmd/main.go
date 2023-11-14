@@ -71,7 +71,7 @@ func main() {
 		Metrics:                metricsserver.Options{BindAddress: metricsAddr},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "67b99e25.gophercloud.io",
+		LeaderElectionID:       "3cdff001.gopherkube.dev",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -89,11 +89,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.OpenStackNetworkReconciler{
+	if err = (&controller.OpenStackFlavorReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OpenStackNetwork")
+		setupLog.Error(err, "unable to create controller", "controller", "OpenStackFlavor")
 		os.Exit(1)
 	}
 	if err = (&controller.OpenStackFloatingIPReconciler{
@@ -103,11 +103,18 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "OpenStackFloatingIP")
 		os.Exit(1)
 	}
-	if err = (&controller.OpenStackSecurityGroupReconciler{
+	if err = (&controller.OpenStackImageReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OpenStackSecurityGroup")
+		setupLog.Error(err, "unable to create controller", "controller", "OpenStackImage")
+		os.Exit(1)
+	}
+	if err = (&controller.OpenStackNetworkReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OpenStackNetwork")
 		os.Exit(1)
 	}
 	if err = (&controller.OpenStackSecurityGroupRuleReconciler{
@@ -117,25 +124,18 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "OpenStackSecurityGroupRule")
 		os.Exit(1)
 	}
+	if err = (&controller.OpenStackSecurityGroupReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OpenStackSecurityGroup")
+		os.Exit(1)
+	}
 	if err = (&controller.OpenStackServerReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "OpenStackServer")
-		os.Exit(1)
-	}
-	if err = (&controller.OpenStackFlavorReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OpenStackFlavor")
-		os.Exit(1)
-	}
-	if err = (&controller.OpenStackImageReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OpenStackImage")
 		os.Exit(1)
 	}
 	if err = (&controller.OpenStackSubnetReconciler{

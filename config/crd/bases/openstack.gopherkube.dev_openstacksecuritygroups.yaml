@@ -4,20 +4,21 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: openstacknetworks.gopherkube.dev
+  name: openstacksecuritygroups.openstack.gopherkube.dev
 spec:
-  group: gopherkube.dev
+  group: openstack.gopherkube.dev
   names:
-    kind: OpenStackNetwork
-    listKind: OpenStackNetworkList
-    plural: openstacknetworks
-    singular: openstacknetwork
+    kind: OpenStackSecurityGroup
+    listKind: OpenStackSecurityGroupList
+    plural: openstacksecuritygroups
+    singular: openstacksecuritygroup
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OpenStackNetwork is the Schema for the openstacknetworks API
+        description: OpenStackSecurityGroup is the Schema for the openstacksecuritygroups
+          API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -32,7 +33,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpenStackNetworkSpec defines the desired state of OpenStackNetwork
+            description: OpenStackSecurityGroupSpec defines the desired state of OpenStackSecurityGroup
             properties:
               cloud:
                 description: Cloud is the OpenStackCloud hosting this resource
@@ -57,49 +58,30 @@ spec:
             - cloud
             type: object
           status:
-            description: OpenStackNetworkStatus defines the observed state of OpenStackNetwork
+            description: OpenStackSecurityGroupStatus defines the observed state of
+              OpenStackSecurityGroup
             properties:
-              adminStateUp:
-                description: The administrative state of network. If false (down),
-                  the network does not forward packets.
-                type: boolean
-              availabilityZoneHints:
-                description: Availability zone hints groups network nodes that run
-                  services like DHCP, L3, FW, and others. Used to make network resources
-                  highly available.
-                items:
-                  type: string
-                type: array
               createdAt:
                 description: CreatedAt contains the timestamp of when the resource
                   was created.
                 type: string
               description:
-                description: Description for the network
+                description: The security group description.
                 type: string
               id:
-                description: UUID for the network
+                description: The UUID for the security group.
                 type: string
               name:
-                description: Human-readable name for the network. Might not be unique.
+                description: Human-readable name for the security group. Might not
+                  be unique. Cannot be named "default" as that is automatically created
+                  for a tenant.
                 type: string
               projectID:
-                description: ProjectID is the project owner of the network.
+                description: ProjectID is the project owner of the security group.
                 type: string
-              revisionNumber:
-                description: RevisionNumber optionally set via extensions/standard-attr-revisions
-                type: integer
-              shared:
-                description: Specifies whether the network resource can be accessed
-                  by any tenant.
-                type: boolean
-              status:
-                description: Indicates whether network is currently operational. Possible
-                  values include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might
-                  define additional values.
-                type: string
-              subnets:
-                description: Subnets associated with this network.
+              securityGroupRulesID:
+                description: A slice of security group rule IDs that dictate the permitted
+                  behaviour for traffic entering and leaving the group.
                 items:
                   type: string
                 type: array
@@ -109,7 +91,7 @@ spec:
                   type: string
                 type: array
               tenantID:
-                description: TenantID is the project owner of the network.
+                description: TenantID is the project owner of the security group.
                 type: string
               updatedAt:
                 description: UpdatedAt contains the timestamp of when the resource

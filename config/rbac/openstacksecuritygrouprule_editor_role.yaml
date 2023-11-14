@@ -12,7 +12,7 @@ metadata:
   name: openstacksecuritygrouprule-editor-role
 rules:
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygrouprules
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygrouprules/status
   verbs:
