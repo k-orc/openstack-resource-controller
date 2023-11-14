@@ -89,4 +89,13 @@ resources:
   kind: OpenStackSubnet
   path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: OpenStackRouter
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
 version: "3"

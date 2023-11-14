@@ -1,0 +1,218 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: openstackrouters.openstack.k-orc.cloud
+spec:
+  group: openstack.k-orc.cloud
+  names:
+    kind: OpenStackRouter
+    listKind: OpenStackRouterList
+    plural: openstackrouters
+    singular: openstackrouter
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: OpenStackRouter is the Schema for the openstackrouters API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: OpenStackRouterSpec defines the desired state of OpenStackRouter
+            properties:
+              adminStateUp:
+                description: AdminStateUp is the administrative state of the router.
+                type: boolean
+              availabilityZoneHints:
+                description: Availability zone hints groups router nodes. Used to
+                  make router resources highly available.
+                items:
+                  type: string
+                type: array
+              cloud:
+                description: Cloud is the OpenStackCloud hosting this resource
+                type: string
+              description:
+                type: string
+              distributed:
+                description: Distributed is whether router is distributed or not.
+                type: boolean
+              externalGatewayInfo:
+                description: OpenStackRouterSpecExternalGatewayInfo represents the
+                  information of an external gateway for any particular network router.
+                properties:
+                  enableSNAT:
+                    type: boolean
+                  externalFixedIps:
+                    items:
+                      description: OpenStackRouterExternalFixedIP is the IP address
+                        and subnet of the external gateway of a router.
+                      properties:
+                        ipAddress:
+                          type: string
+                        subnet:
+                          type: string
+                      required:
+                      - subnet
+                      type: object
+                    type: array
+                  network:
+                    type: string
+                type: object
+              id:
+                description: ID is the OpenStack UUID of the resource. If left empty,
+                  the controller will create a new resource and populate this field.
+                  If manually populated, the controller will adopt the corresponding
+                  resource.
+                type: string
+              name:
+                description: Name of the OpenStack resource.
+                type: string
+              projectID:
+                description: ProjectID is the project owner of the router.
+                type: string
+              subnets:
+                description: All the subnets that will be added as router interfaces
+                items:
+                  type: string
+                type: array
+              tenantID:
+                description: TenantID is the project owner of the router. Only admin
+                  users can specify a project identifier other than its own.
+                type: string
+              unmanaged:
+                description: Unmanaged, when true, means that no action will be performed
+                  in OpenStack against this resource. This is false by default, except
+                  for pre-existing resources that are adopted by passing ID on creation.
+                type: boolean
+            required:
+            - cloud
+            type: object
+          status:
+            description: OpenStackRouterStatus defines the observed state of OpenStackRouter
+            properties:
+              ID:
+                description: ID is the unique identifier for the router.
+                type: string
+              adminStateUp:
+                description: AdminStateUp is the administrative state of the router.
+                type: boolean
+              availabilityZoneHints:
+                description: Availability zone hints groups network nodes that run
+                  services like DHCP, L3, FW, and others. Used to make network resources
+                  highly available.
+                items:
+                  type: string
+                type: array
+              description:
+                description: Description for the router.
+                type: string
+              distributed:
+                description: Distributed is whether router is disitrubted or not.
+                type: boolean
+              externalGatewayInfo:
+                description: GatewayInfo provides information on external gateway
+                  for the router.
+                properties:
+                  enableSNAT:
+                    type: boolean
+                  externalFixedIps:
+                    items:
+                      description: OpenStackRouterExternalFixedIP is the IP address
+                        and subnet of the external gateway of a router.
+                      properties:
+                        ipAddress:
+                          type: string
+                        subnet:
+                          type: string
+                      required:
+                      - subnet
+                      type: object
+                    type: array
+                  networkID:
+                    type: string
+                type: object
+              interfacesInfo:
+                description: InterfacesInfo provides information on the interfaces
+                  connected to this router
+                items:
+                  description: OpenStackRouterInterfaceInfo represents information
+                    about a particular router interface. As mentioned above, in order
+                    for a router to forward to a subnet, it needs an interface.
+                  properties:
+                    ID:
+                      description: ID is the UUID of the interface.
+                      type: string
+                    portID:
+                      description: PortID is the ID of the port that is a part of
+                        the subnet.
+                      type: string
+                    subnetID:
+                      description: SubnetID is the ID of the subnet which this interface
+                        is associated with.
+                      type: string
+                    tenantID:
+                      description: TenantID is the owner of the interface.
+                      type: string
+                  required:
+                  - ID
+                  - portID
+                  - subnetID
+                  - tenantID
+                  type: object
+                type: array
+              name:
+                description: Name is the human readable name for the router. It does
+                  not have to be unique.
+                type: string
+              projectID:
+                description: ProjectID is the project owner of the router.
+                type: string
+              routes:
+                description: Routes are a collection of static routes that the router
+                  will host.
+                items:
+                  description: OpenStackRouterRoute is a possible route in a router.
+                  properties:
+                    destination:
+                      type: string
+                    nextHop:
+                      type: string
+                  required:
+                  - destination
+                  - nextHop
+                  type: object
+                type: array
+              status:
+                description: Status indicates whether or not a router is currently
+                  operational.
+                type: string
+              tags:
+                description: Tags optionally set via extensions/attributestags
+                items:
+                  type: string
+                type: array
+              tenantID:
+                description: TenantID is the project owner of the router. Only admin
+                  users can specify a project identifier other than its own.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
