@@ -30,11 +30,11 @@ type OpenStackCloudSpec struct {
 }
 
 type OpenStackCloudCredentials struct {
-	Source    string                            `json:"source"`
-	SecretRef OpenStackCloudCrdentialsSecretRef `json:"secretRef"`
+	Source    string                             `json:"source"`
+	SecretRef OpenStackCloudCredentialsSecretRef `json:"secretRef"`
 }
 
-type OpenStackCloudCrdentialsSecretRef struct {
+type OpenStackCloudCredentialsSecretRef struct {
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
