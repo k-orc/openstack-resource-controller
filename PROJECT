@@ -2,7 +2,7 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: gophercloud.io
+
 layout:
 - go.kubebuilder.io/v4
 projectName: gopherkube
@@ -11,8 +11,7 @@ resources:
 - api:
     crdVersion: v1
     namespaced: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackCloud
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -20,8 +19,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackNetwork
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -29,8 +27,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackFloatingIP
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -38,8 +35,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackSecurityGroup
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -47,8 +43,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackSecurityGroupRule
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -56,8 +51,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackServer
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -65,8 +59,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackFlavor
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -74,8 +67,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackImage
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
@@ -83,8 +75,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gophercloud.io
-  group: openstack
+  group: gophercloud.dev
   kind: OpenStackSubnet
   path: github.com/gophercloud/gopherkube/api/v1
   version: v1
