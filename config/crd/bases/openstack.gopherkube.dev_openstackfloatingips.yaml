@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: openstacksecuritygroups.gopherkube.dev
+  name: openstackfloatingips.openstack.gopherkube.dev
 spec:
-  group: gopherkube.dev
+  group: openstack.gopherkube.dev
   names:
-    kind: OpenStackSecurityGroup
-    listKind: OpenStackSecurityGroupList
-    plural: openstacksecuritygroups
-    singular: openstacksecuritygroup
+    kind: OpenStackFloatingIP
+    listKind: OpenStackFloatingIPList
+    plural: openstackfloatingips
+    singular: openstackfloatingip
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OpenStackSecurityGroup is the Schema for the openstacksecuritygroups
+        description: OpenStackFloatingIP is the Schema for the openstackfloatingips
           API
         properties:
           apiVersion:
@@ -33,12 +33,20 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpenStackSecurityGroupSpec defines the desired state of OpenStackSecurityGroup
+            description: OpenStackFloatingIPSpec defines the desired state of OpenStackFloatingIP
             properties:
               cloud:
                 description: Cloud is the OpenStackCloud hosting this resource
                 type: string
               description:
+                type: string
+              fixedIPAddress:
+                type: string
+              floatingIPAddress:
+                type: string
+              floatingNetwork:
+                description: FloatingNetwork is the external OpenStackNetwork where
+                  the floating IP is to be created.
                 type: string
               id:
                 description: ID is the OpenStack UUID of the resource. If left empty,
@@ -46,8 +54,13 @@ spec:
                   If manually populated, the controller will adopt the corresponding
                   resource.
                 type: string
-              name:
-                description: Name of the OpenStack resource.
+              portID:
+                type: string
+              projectID:
+                type: string
+              subnetID:
+                type: string
+              tenantID:
                 type: string
               unmanaged:
                 description: Unmanaged, when true, means that no action will be performed
@@ -58,48 +71,57 @@ spec:
             - cloud
             type: object
           status:
-            description: OpenStackSecurityGroupStatus defines the observed state of
-              OpenStackSecurityGroup
+            description: OpenStackFloatingIPStatus defines the observed state of OpenStackFloatingIP
             properties:
               createdAt:
                 description: CreatedAt contains the timestamp of when the resource
                   was created.
                 type: string
               description:
-                description: The security group description.
+                description: Description for the floating IP instance.
+                type: string
+              fixedIPAddress:
+                description: FixedIP is the specific IP address of the internal port
+                  which should be associated with the floating IP.
+                type: string
+              floatingIPAddress:
+                description: FloatingIP is the address of the floating IP on the external
+                  network.
+                type: string
+              floatingNetworkID:
+                description: FloatingNetworkID is the UUID of the external network
+                  where the floating IP is to be created.
                 type: string
               id:
-                description: The UUID for the security group.
+                description: ID is the unique identifier for the floating IP instance.
                 type: string
-              name:
-                description: Human-readable name for the security group. Might not
-                  be unique. Cannot be named "default" as that is automatically created
-                  for a tenant.
+              portIP:
+                description: PortID is the UUID of the port on an internal network
+                  that is associated with the floating IP.
                 type: string
               projectID:
-                description: ProjectID is the project owner of the security group.
+                description: ProjectID is the project owner of the floating IP.
                 type: string
-              securityGroupRulesID:
-                description: A slice of security group rule IDs that dictate the permitted
-                  behaviour for traffic entering and leaving the group.
-                items:
-                  type: string
-                type: array
+              routerID:
+                description: RouterID is the ID of the router used for this floating
+                  IP.
+                type: string
+              status:
+                description: Status is the condition of the API resource.
+                type: string
               tags:
                 description: Tags optionally set via extensions/attributestags
                 items:
                   type: string
                 type: array
               tenantID:
-                description: TenantID is the project owner of the security group.
+                description: TenantID is the project owner of the floating IP. Only
+                  admin users can specify a project identifier other than its own.
                 type: string
               updatedAt:
                 description: UpdatedAt contains the timestamp of when the resource
                   was last changed.
                 type: string
-            required:
-            - id
-            - name
             type: object
         type: object
     served: true

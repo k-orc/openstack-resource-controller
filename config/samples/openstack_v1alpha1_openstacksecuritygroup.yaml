@@ -1,4 +1,4 @@
-apiVersion: gopherkube.dev/v1
+apiVersion: openstack.gopherkube.dev/v1alpha1
 kind: OpenStackSecurityGroup
 metadata:
   labels:

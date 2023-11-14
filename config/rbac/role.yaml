@@ -5,7 +5,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackflavors
   verbs:
@@ -17,13 +17,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackflavors/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackflavors/status
   verbs:
@@ -31,7 +31,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackfloatingips
   verbs:
@@ -43,13 +43,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackfloatingips/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackfloatingips/status
   verbs:
@@ -57,7 +57,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackimages
   verbs:
@@ -69,13 +69,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackimages/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackimages/status
   verbs:
@@ -83,7 +83,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacknetworks
   verbs:
@@ -95,13 +95,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacknetworks/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacknetworks/status
   verbs:
@@ -109,7 +109,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygrouprules
   verbs:
@@ -121,13 +121,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygrouprules/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygrouprules/status
   verbs:
@@ -135,7 +135,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygroups
   verbs:
@@ -147,13 +147,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygroups/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksecuritygroups/status
   verbs:
@@ -161,7 +161,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackservers
   verbs:
@@ -173,13 +173,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackservers/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackservers/status
   verbs:
@@ -187,7 +187,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksubnets
   verbs:
@@ -199,13 +199,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksubnets/finalizers
   verbs:
   - update
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksubnets/status
   verbs:

@@ -12,7 +12,7 @@ metadata:
   name: openstacksubnet-viewer-role
 rules:
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksubnets
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstacksubnets/status
   verbs:

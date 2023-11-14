@@ -12,7 +12,7 @@ metadata:
   name: openstackserver-editor-role
 rules:
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackservers
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - gopherkube.dev
+  - openstack.gopherkube.dev
   resources:
   - openstackservers/status
   verbs:

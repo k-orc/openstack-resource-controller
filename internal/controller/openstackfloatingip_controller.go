@@ -44,9 +44,9 @@ type OpenStackFloatingIPReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackfloatingips,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackfloatingips/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=gopherkube.dev,resources=openstackfloatingips/finalizers,verbs=update
+//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackfloatingips,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackfloatingips/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackfloatingips/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

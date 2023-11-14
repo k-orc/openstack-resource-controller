@@ -1,4 +1,4 @@
-apiVersion: gopherkube.dev/v1
+apiVersion: openstack.gopherkube.dev/v1alpha1
 kind: OpenStackFloatingIP
 metadata:
   labels:
@@ -7,8 +7,6 @@ metadata:
     app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: gopherkube
-  name: fip-1
+  name: openstackfloatingip-sample
 spec:
-  cloud: osp1
-  description: Provisioned by gopherkube
-  floatingNetwork: external
+  # TODO(user): Add fields here
