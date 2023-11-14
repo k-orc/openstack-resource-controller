@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: gopherkube
-  name: openstackflavor-sample
+  name: small
 spec:
-  # TODO(user): Add fields here
+  cloud: osp1
+  id: 889ef5ab-92c2-4701-bf82-8209da1d29f4 # REPLACE with the ID of an existing flavor

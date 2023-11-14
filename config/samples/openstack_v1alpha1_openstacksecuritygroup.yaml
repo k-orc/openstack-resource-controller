@@ -7,6 +7,23 @@ metadata:
     app.kubernetes.io/part-of: gopherkube
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: gopherkube
-  name: openstacksecuritygroup-sample
+  name: default
 spec:
-  # TODO(user): Add fields here
+  cloud: osp1
+  id: 01951585-93f7-42c9-9dee-37ce0d476bb2 # REPLACE with the ID of the existing "default" security group
+  unmanaged: true
+---
+apiVersion: openstack.gopherkube.dev/v1alpha1
+kind: OpenStackSecurityGroup
+metadata:
+  labels:
+    app.kubernetes.io/name: openstacksecuritygroup
+    app.kubernetes.io/instance: openstacksecuritygroup-sample
+    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gopherkube
+  name: workstation
+spec:
+  cloud: osp1
+  name: workstation
+  description: 'For remote work'
