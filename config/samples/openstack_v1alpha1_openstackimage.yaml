@@ -10,4 +10,4 @@ metadata:
   name: ubuntu
 spec:
   cloud: osp1
-  id: da314c41-19bf-486a-b8da-39ca51fd17de # REPLACE with the ID of an existing image
+  id: e5519f68-857d-4aef-91f2-b52e4c0f3c42 # REPLACE with the ID of an existing image

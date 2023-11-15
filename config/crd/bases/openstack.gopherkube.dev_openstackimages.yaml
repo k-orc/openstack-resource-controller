@@ -45,10 +45,6 @@ spec:
                 description: DiskFormat is the format of the disk. If set, valid values
                   are ami, ari, aki, vhd, vmdk, raw, qcow2, vdi, and iso.
                 type: string
-              hidden:
-                description: Hidden is whether the image is listed in default image
-                  list or not.
-                type: boolean
               id:
                 description: ID is the OpenStack UUID of the resource. If left empty,
                   the controller will create a new resource and populate this field.
@@ -67,28 +63,12 @@ spec:
                 description: Name of the OpenStack resource.
                 type: string
               protected:
+                default: false
                 description: protected is whether the image is not deletable.
                 type: boolean
-              source:
-                description: Source defines the content of the image. If not set,
-                  the image is left empty.
-                properties:
-                  http:
-                    description: HTTP requests the controller to download an image
-                      using HTTP(S) and upload it to Glance.
-                    properties:
-                      sha512sum:
-                        description: Sha512sum if set will be checked against the
-                          candidate image.
-                        type: string
-                      url:
-                        type: string
-                    required:
-                    - url
-                    type: object
-                type: object
               tags:
-                description: Tags is a set of image tags.
+                description: Tags is a set of image tags. Each tag is a string of
+                  at most 255 chars.
                 items:
                   type: string
                 type: array
@@ -97,6 +77,14 @@ spec:
                   in OpenStack against this resource. This is false by default, except
                   for pre-existing resources that are adopted by passing ID on creation.
                 type: boolean
+              visibility:
+                description: Visibility defines who can see/use the image.
+                enum:
+                - public
+                - private
+                - shared
+                - community
+                type: string
             required:
             - cloud
             type: object

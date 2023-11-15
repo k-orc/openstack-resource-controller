@@ -149,14 +149,12 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 		var err error
 		openstackResource, err = images.Create(imageClient, images.CreateOpts{
 			Name:            resource.Spec.Name,
-			Hidden:          &resource.Spec.Hidden,
 			Tags:            resource.Spec.Tags,
 			ContainerFormat: resource.Spec.ContainerFormat,
 			DiskFormat:      resource.Spec.DiskFormat,
 			MinDisk:         resource.Spec.MinDisk,
 			MinRAM:          resource.Spec.MinRAM,
-			Protected:       resource.Spec.Protected,
-			// Properties:      resource.Spec.Properties,
+			Protected:       &resource.Spec.Protected,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
