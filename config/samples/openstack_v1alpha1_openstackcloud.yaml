@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/created-by: gopherkube
   name: osp1
 spec:
-  cloud: openstack # REPLACE with the name of the target cloud in clouds.yaml
+  cloud: cloud # REPLACE with the name of the target cloud in clouds.yaml
   credentials:
     source: secret
     secretRef:

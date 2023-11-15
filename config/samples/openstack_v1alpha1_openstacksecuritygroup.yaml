@@ -10,7 +10,7 @@ metadata:
   name: default
 spec:
   cloud: osp1
-  id: 4fa1f154-9730-4d9a-8cc3-da0001ec9f86 # REPLACE with the ID of the existing "default" security group
+  id: 01951585-93f7-42c9-9dee-37ce0d476bb2 # REPLACE with the ID of the existing "default" security group
   unmanaged: true
 ---
 apiVersion: openstack.gopherkube.dev/v1alpha1

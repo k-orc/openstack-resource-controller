@@ -10,4 +10,4 @@ metadata:
   name: small
 spec:
   cloud: osp1
-  id: 2550ff80-8b69-4697-b020-f8c22ed33495 # REPLACE with the ID of an existing flavor
+  id: 889ef5ab-92c2-4701-bf82-8209da1d29f4 # REPLACE with the ID of an existing flavor
