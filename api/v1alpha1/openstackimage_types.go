@@ -63,7 +63,8 @@ type OpenStackImageSpec struct {
 	Tags []string `json:"tags,omitempty"`
 
 	// Visibility defines who can see/use the image.
-	// +kubebuilder:validation:Enum:="public";"private";"shared";"community"
+	// +kubebuilder:validation:Enum:="default";"public";"private";"shared";"community"
+	// +kubebuilder:default:="default"
 	Visibility string `json:"visibility,omitempty"`
 
 	// Unmanaged, when true, means that no action will be performed in
