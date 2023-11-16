@@ -1,0 +1,17 @@
+apiVersion: openstack.gopherkube.dev/v1alpha1
+kind: OpenStackCloud
+metadata:
+  labels:
+    app.kubernetes.io/name: openstackcloud
+    app.kubernetes.io/instance: openstackcloud-sample
+    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: gopherkube
+  name: osp1
+spec:
+  cloud: openstack
+  credentials:
+    source: secret
+    secretRef:
+      name: openstack-clouds
+      key: clouds.yaml
