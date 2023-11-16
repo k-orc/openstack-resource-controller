@@ -160,10 +160,10 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 				}
 				return ctrl.Result{}, err
 			}
-			if flavor.Status.ID == "" {
+			if flavor.Status.Resource.ID == "" {
 				return ctrl.Result{}, fmt.Errorf("flavor %q not found in OpenStack", resource.Spec.Flavor)
 			}
-			flavorID = flavor.Status.ID
+			flavorID = flavor.Status.Resource.ID
 		}
 
 		var imageID string

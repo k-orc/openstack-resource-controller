@@ -20,11 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OpenStackFlavorSpec defines the desired state of OpenStackFlavor
-type OpenStackFlavorSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
+// OpenStackFlavorResourceSpec defines the desired state of OpenStackFlavor
+type OpenStackFlavorResourceSpec struct {
 	// ID is the OpenStack UUID of the resource. If left empty, the
 	// controller will create a new resource and populate this field. If
 	// manually populated, the controller will adopt the corresponding
@@ -59,16 +56,10 @@ type OpenStackFlavorSpec struct {
 	// 65535 characters in length. Only printable characters are allowed.
 	// New in version 2.55
 	Description string `json:"description,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
 }
 
-// OpenStackFlavorStatus defines the observed state of OpenStackFlavor
-type OpenStackFlavorStatus struct {
+// OpenStackFlavorResourceStatus defines the observed state of OpenStackFlavor
+type OpenStackFlavorResourceStatus struct {
 	// ID is the flavor's unique ID.
 	ID string `json:"id,omitempty"`
 
@@ -106,6 +97,18 @@ type OpenStackFlavorStatus struct {
 	// index flavor extra_specs
 	// New in version 2.61
 	ExtraSpecs map[string]string `json:"extraSpecs,omitempty"`
+}
+
+type OpenStackFlavorSpec struct {
+	CommonSpec `json:",inline"`
+
+	Resource OpenStackFlavorResourceSpec `json:"resource,omitempty"`
+}
+
+type OpenStackFlavorStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackFlavorResourceStatus `json:"resource,omitempty"`
 }
 
 //+kubebuilder:object:root=true

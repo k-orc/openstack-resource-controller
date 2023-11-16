@@ -48,15 +48,6 @@ type OpenStackFlavorReconciler struct {
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackflavors/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackflavors/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the OpenStackFlavor object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.0/pkg/reconcile
 func (r *OpenStackFlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 	logger = logger.WithValues("OpenStackFlavor", req.Name)
@@ -128,7 +119,7 @@ func (r *OpenStackFlavorReconciler) reconcile(ctx context.Context, computeClient
 	// it's unmanaged by default.
 	if resource.Spec.Unmanaged == nil {
 		var unmanaged bool
-		if resource.Spec.ID != "" && resource.Status.ID == "" {
+		if resource.Spec.Resource.ID != "" && resource.Status.Resource.ID == "" {
 			unmanaged = true
 		}
 		resource.Spec.Unmanaged = &unmanaged
@@ -136,51 +127,53 @@ func (r *OpenStackFlavorReconciler) reconcile(ctx context.Context, computeClient
 	}
 
 	var openstackResource *flavors.Flavor
-	if resource.Spec.ID != "" {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
+	if resource.Spec.Resource.ID != "" {
+		logger = logger.WithValues("OpenStackID", resource.Spec.Resource.ID)
 
 		var err error
-		openstackResource, err = flavors.Get(computeClient, resource.Spec.ID).Extract()
+		openstackResource, err = flavors.Get(computeClient, resource.Spec.Resource.ID).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		logger.Info("resouce exists in OpenStack")
 	} else {
-		rxtxFactor, err := strconv.ParseFloat(resource.Spec.RxTxFactor, 64)
+		rxtxFactor, err := strconv.ParseFloat(resource.Spec.Resource.RxTxFactor, 64)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("error parsing rxtxFactor: %v", err)
 		}
 		openstackResource, err = flavors.Create(computeClient, flavors.CreateOpts{
-			ID:          resource.Spec.ID,
-			Name:        resource.Spec.Name,
-			RAM:         resource.Spec.RAM,
-			VCPUs:       resource.Spec.VCPUs,
-			Disk:        resource.Spec.Disk,
-			Swap:        resource.Spec.Swap,
+			ID:          resource.Spec.Resource.ID,
+			Name:        resource.Spec.Resource.Name,
+			RAM:         resource.Spec.Resource.RAM,
+			VCPUs:       resource.Spec.Resource.VCPUs,
+			Disk:        resource.Spec.Resource.Disk,
+			Swap:        resource.Spec.Resource.Swap,
 			RxTxFactor:  rxtxFactor,
-			IsPublic:    resource.Spec.IsPublic,
-			Ephemeral:   resource.Spec.Ephemeral,
-			Description: resource.Spec.Description,
+			IsPublic:    resource.Spec.Resource.IsPublic,
+			Ephemeral:   resource.Spec.Resource.Ephemeral,
+			Description: resource.Spec.Resource.Description,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		resource.Spec.ID = openstackResource.ID
+		resource.Spec.Resource.ID = openstackResource.ID
 		logger = logger.WithValues("OpenStackID", openstackResource.ID)
 		logger.Info("OpenStack resource created")
 	}
 
 	resource.Status = openstackv1.OpenStackFlavorStatus{
-		ID:          openstackResource.ID,
-		Disk:        openstackResource.Disk,
-		RAM:         openstackResource.RAM,
-		Name:        openstackResource.Name,
-		RxTxFactor:  strconv.FormatFloat(openstackResource.RxTxFactor, 'f', -1, 64),
-		Swap:        openstackResource.Swap,
-		VCPUs:       openstackResource.VCPUs,
-		IsPublic:    openstackResource.IsPublic,
-		Ephemeral:   openstackResource.Ephemeral,
-		Description: openstackResource.Description,
+		Resource: openstackv1.OpenStackFlavorResourceStatus{
+			ID:          openstackResource.ID,
+			Disk:        openstackResource.Disk,
+			RAM:         openstackResource.RAM,
+			Name:        openstackResource.Name,
+			RxTxFactor:  strconv.FormatFloat(openstackResource.RxTxFactor, 'f', -1, 64),
+			Swap:        openstackResource.Swap,
+			VCPUs:       openstackResource.VCPUs,
+			IsPublic:    openstackResource.IsPublic,
+			Ephemeral:   openstackResource.Ephemeral,
+			Description: openstackResource.Description,
+		},
 	}
 
 	return ctrl.Result{}, nil
@@ -189,12 +182,12 @@ func (r *OpenStackFlavorReconciler) reconcile(ctx context.Context, computeClient
 func (r *OpenStackFlavorReconciler) reconcileDelete(ctx context.Context, computeClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackFlavor) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	if resource.Spec.ID == "" {
+	if resource.Spec.Resource.ID == "" {
 		logger.Info("deletion was requested on a resource that hasn't been created yet.")
 	} else {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
+		logger = logger.WithValues("OpenStackID", resource.Spec.Resource.ID)
 		if resource.Spec.Unmanaged != nil && !*resource.Spec.Unmanaged {
-			if err := flavors.Delete(computeClient, resource.Spec.ID).ExtractErr(); err != nil {
+			if err := flavors.Delete(computeClient, resource.Spec.Resource.ID).ExtractErr(); err != nil {
 				var gerr gophercloud.ErrDefault404
 				if errors.As(err, &gerr) {
 					logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
