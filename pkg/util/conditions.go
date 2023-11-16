@@ -28,9 +28,10 @@ import (
 )
 
 const (
-	OpenStackConditionReasonReady    = "Ready"
-	OpenStackConditionReadonNotReady = "NotReady"
-	OpenStackConditionReasonNoError  = "NoError"
+	OpenStackConditionReasonReady          = "Ready"
+	OpenStackConditionReadonNotReady       = "NotReady"
+	OpenStackConditionReasonNoError        = "NoError"
+	OpenStackConditionReasonBadCredentials = "BadCredentials"
 )
 
 // GetCondition returns the condition with the given type on the OpenStack resource, or nil if it does not exist.
@@ -111,6 +112,20 @@ func SetNotReadyConditionTransientError(openStackResource, patch openstackv1.Ope
 	return SetCondition(openStackResource, patch, NotReadyTransientError(errorMessage))
 }
 
+func NotReadyError(errorMessage string) metav1.Condition {
+	return metav1.Condition{
+		Type:               string(openstackv1.OpenStackConditionReady),
+		Status:             metav1.ConditionFalse,
+		Reason:             "Error",
+		Message:            errorMessage,
+		LastTransitionTime: metav1.Now(),
+	}
+}
+
+func SetNotReadyConditionError(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorMessage string) (bool, *metav1.Condition) {
+	return SetCondition(openStackResource, patch, NotReadyTransientError(errorMessage))
+}
+
 func NotReadyPending() metav1.Condition {
 	return metav1.Condition{
 		Type:               string(openstackv1.OpenStackConditionReady),
@@ -171,6 +186,7 @@ func ErrorCondition(errorReason, errorMessage string) metav1.Condition {
 
 // SetErrorCondition sets the Error condition on an OpenStack resource. It returns the condition that was set.
 func SetErrorCondition(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorReason, errorMessage string) (bool, *metav1.Condition) {
+	SetNotReadyConditionError(openStackResource, patch, errorMessage)
 	return SetCondition(openStackResource, patch, ErrorCondition(errorReason, errorMessage))
 }
 

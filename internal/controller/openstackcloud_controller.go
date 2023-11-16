@@ -33,7 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/go-logr/logr"
+	"github.com/gophercloud/gophercloud"
 	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	"github.com/gophercloud/gopherkube/pkg/cloud"
 	"github.com/gophercloud/gopherkube/pkg/util"
 )
 
@@ -78,7 +80,12 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	defer func() {
 		// If we're returning an error, report it as a TransientError in the Ready condition
 		if reterr != nil {
-			util.SetNotReadyConditionTransientError(openStackResource, patchResource, reterr.Error())
+			updated, condition := util.SetNotReadyConditionTransientError(openStackResource, patchResource, reterr.Error())
+
+			// Emit an event if we're setting the condition for the first time
+			if updated {
+				util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+			}
 		}
 
 		primaryPatch := &openstackv1.OpenStackCloud{}
@@ -170,6 +177,26 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		controllerutil.AddFinalizer(patchSecret, finalizerName(openStackResource))
 		if err := util.Apply(ctx, r.Client, secret, patchSecret); err != nil {
 			return ctrl.Result{}, err
+		}
+	}
+
+	// Test the credentials
+	{
+		_, _, err := cloud.NewProviderClient(ctx, r.Client, openStackResource)
+		if err != nil {
+			switch err.(type) {
+			// Set BadCredentials for any non-transient error
+			case cloud.BadCredentialsError, gophercloud.ErrDefault400, gophercloud.ErrDefault401, gophercloud.ErrDefault403, gophercloud.ErrDefault404, gophercloud.ErrDefault405:
+				updated, condition := util.SetErrorCondition(openStackResource, patchResource, util.OpenStackConditionReasonBadCredentials, err.Error())
+
+				// Emit an event if we're setting the condition for the first time
+				if updated {
+					util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+				}
+				return ctrl.Result{}, nil
+			default:
+				return ctrl.Result{}, fmt.Errorf("validating credentials: %w", err)
+			}
 		}
 	}
 
