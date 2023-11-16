@@ -89,6 +89,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	recorder := mgr.GetEventRecorderFor("gopherkube-controller")
+
+	if err = (&controller.OpenStackCloudReconciler{
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Recorder: recorder,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OpenStackFlavor")
+		os.Exit(1)
+	}
 	if err = (&controller.OpenStackFlavorReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),

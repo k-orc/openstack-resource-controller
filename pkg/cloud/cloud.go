@@ -17,7 +17,7 @@ import (
 )
 
 func NewClient(ctx context.Context, k8sClient client.Client, openStackCloud *openstackv1.OpenStackCloud, service string) (*gophercloud.ServiceClient, error) {
-	if source := openStackCloud.Spec.Credentials.Source; source != "secret" {
+	if source := openStackCloud.Spec.Credentials.Source; source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
 		return nil, fmt.Errorf("unknown credentials source %q", source)
 	}
 	secret := &corev1.Secret{}
