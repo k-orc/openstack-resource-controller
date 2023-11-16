@@ -39,6 +39,10 @@ import (
 	"github.com/gophercloud/gopherkube/pkg/util"
 )
 
+const (
+	OpenStackCloudFinalizer = "openstackcloud.gopherkube.dev"
+)
+
 // OpenStackCloudReconciler reconciles a OpenStackImage object
 type OpenStackCloudReconciler struct {
 	client.Client
@@ -47,7 +51,7 @@ type OpenStackCloudReconciler struct {
 }
 
 func finalizerName(cloud *openstackv1.OpenStackCloud) string {
-	return openstackv1.Finalizer + "/" + cloud.Name
+	return OpenStackCloudFinalizer + "/" + cloud.Name
 }
 
 //+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackclouds,verbs=get;list;watch;create;update;patch;delete
@@ -75,7 +79,7 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	patchResource := &openstackv1.OpenStackCloud{}
 	patchResource.TypeMeta = openStackResource.TypeMeta
 	util.InitialiseRequiredConditions(patchResource)
-	controllerutil.AddFinalizer(patchResource, openstackv1.Finalizer)
+	controllerutil.AddFinalizer(patchResource, OpenStackCloudFinalizer)
 
 	defer func() {
 		// If we're returning an error, report it as a TransientError in the Ready condition
@@ -116,7 +120,7 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	}
 
 	// If our finalizer isn't set, ensure it is persisted before make any changes
-	if !controllerutil.ContainsFinalizer(openStackResource, openstackv1.Finalizer) {
+	if !controllerutil.ContainsFinalizer(openStackResource, OpenStackCloudFinalizer) {
 		// We will be reconciled again immediately because we're adding the finalizer
 		return ctrl.Result{}, nil
 	}
