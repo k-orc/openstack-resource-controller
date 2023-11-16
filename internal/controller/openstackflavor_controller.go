@@ -98,7 +98,7 @@ func (r *OpenStackFlavorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		})
 	}()
 
-	networkClient, err := cloud.NewClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "compute")
+	networkClient, err := cloud.NewServiceClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "compute")
 	if err != nil {
 		err = fmt.Errorf("unable to build an OpenStack client: %w", err)
 		logger.Info(err.Error())

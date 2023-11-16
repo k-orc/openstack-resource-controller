@@ -4,6 +4,42 @@ kind: ClusterRole
 metadata:
   name: manager-role
 rules:
+- resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- resources:
+  - secrets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gopherkube.dev
+  resources:
+  - openstackclouds
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.gopherkube.dev
+  resources:
+  - openstackclouds/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.gopherkube.dev
+  resources:
+  - openstackclouds/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - openstack.gopherkube.dev
   resources:

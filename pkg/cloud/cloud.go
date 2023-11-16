@@ -16,9 +16,11 @@ import (
 	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
 )
 
-func NewClient(ctx context.Context, k8sClient client.Client, openStackCloud *openstackv1.OpenStackCloud, service string) (*gophercloud.ServiceClient, error) {
-	if source := openStackCloud.Spec.Credentials.Source; source != "secret" {
-		return nil, fmt.Errorf("unknown credentials source %q", source)
+type BadCredentialsError error
+
+func NewProviderClient(ctx context.Context, k8sClient client.Client, openStackCloud *openstackv1.OpenStackCloud) (*gophercloud.ProviderClient, *clientconfig.Cloud, error) {
+	if source := openStackCloud.Spec.Credentials.Source; source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
+		return nil, nil, fmt.Errorf("unknown credentials source %q", source)
 	}
 	secret := &corev1.Secret{}
 	if err := k8sClient.Get(ctx, types.NamespacedName{
@@ -26,25 +28,25 @@ func NewClient(ctx context.Context, k8sClient client.Client, openStackCloud *ope
 		Name:      openStackCloud.Spec.Credentials.SecretRef.Name,
 	}, secret); err != nil {
 		if apierrors.IsNotFound(err) {
-			return nil, fmt.Errorf("cloud secret %q not found: %w", openStackCloud.Spec.Credentials.SecretRef.Name, err)
+			return nil, nil, fmt.Errorf("cloud secret %q not found: %w", openStackCloud.Spec.Credentials.SecretRef.Name, err)
 		}
-		return nil, fmt.Errorf("error retrieving cloud secret %q: %w", openStackCloud.Spec.Credentials.SecretRef.Name, err)
+		return nil, nil, fmt.Errorf("error retrieving cloud secret %q: %w", openStackCloud.Spec.Credentials.SecretRef.Name, err)
 	}
 
 	cloudBytes, ok := secret.Data[openStackCloud.Spec.Credentials.SecretRef.Key]
 	if !ok {
-		return nil, fmt.Errorf("key %q not found in cloud secret %q", openStackCloud.Spec.Credentials.SecretRef.Key, openStackCloud.Spec.Credentials.SecretRef.Name)
+		return nil, nil, BadCredentialsError(fmt.Errorf("key %q not found in cloud secret %q", openStackCloud.Spec.Credentials.SecretRef.Key, openStackCloud.Spec.Credentials.SecretRef.Name))
 	}
 
 	var clouds clientconfig.Clouds
 
 	if err := yaml.Unmarshal(cloudBytes, &clouds); err != nil {
-		return nil, fmt.Errorf("unmarshaling clouds.yaml: %w", err)
+		return nil, nil, BadCredentialsError(fmt.Errorf("unmarshaling clouds.yaml: %w", err))
 	}
 
 	cloud, ok := clouds.Clouds[openStackCloud.Spec.Cloud]
 	if !ok {
-		return nil, fmt.Errorf("cloud %q not found in clouds.yaml", openStackCloud.Spec.Cloud)
+		return nil, nil, BadCredentialsError(fmt.Errorf("cloud %q not found in clouds.yaml", openStackCloud.Spec.Cloud))
 	}
 
 	providerClient, err := openstack.AuthenticatedClient(gophercloud.AuthOptions{
@@ -62,6 +64,11 @@ func NewClient(ctx context.Context, k8sClient client.Client, openStackCloud *ope
 		ApplicationCredentialName:   cloud.AuthInfo.ApplicationCredentialName,
 		ApplicationCredentialSecret: cloud.AuthInfo.ApplicationCredentialSecret,
 	})
+	return providerClient, &cloud, err
+}
+
+func NewServiceClient(ctx context.Context, k8sClient client.Client, openStackCloud *openstackv1.OpenStackCloud, service string) (*gophercloud.ServiceClient, error) {
+	providerClient, cloud, err := NewProviderClient(ctx, k8sClient, openStackCloud)
 	if err != nil {
 		return nil, fmt.Errorf("error creating an OpenStack provider client: %w", err)
 	}

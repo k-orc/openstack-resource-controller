@@ -98,7 +98,7 @@ func (r *OpenStackImageReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		})
 	}()
 
-	imageClient, err := cloud.NewClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "image")
+	imageClient, err := cloud.NewServiceClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "image")
 	if err != nil {
 		err = fmt.Errorf("unable to build an OpenStack client: %w", err)
 		logger.Info(err.Error())
