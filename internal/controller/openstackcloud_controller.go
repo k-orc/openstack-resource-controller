@@ -236,7 +236,7 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, logger l
 		return ctrl.Result{}, fmt.Errorf("removing secret finalizer: %w", err)
 	}
 
-	controllerutil.RemoveFinalizer(patchResource, openstackv1.Finalizer)
+	controllerutil.RemoveFinalizer(patchResource, OpenStackCloudFinalizer)
 	return ctrl.Result{}, nil
 }
 
