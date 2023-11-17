@@ -102,7 +102,7 @@ type OpenStackFlavorResourceStatus struct {
 type OpenStackFlavorSpec struct {
 	CommonSpec `json:",inline"`
 
-	Resource OpenStackFlavorResourceSpec `json:"resource,omitempty"`
+	Resource *OpenStackFlavorResourceSpec `json:"resource,omitempty"`
 }
 
 type OpenStackFlavorStatus struct {
@@ -111,8 +111,18 @@ type OpenStackFlavorStatus struct {
 	Resource OpenStackFlavorResourceStatus `json:"resource,omitempty"`
 }
 
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackFlavor) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackFlavor{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackFlavor is the Schema for the openstackflavors API
 type OpenStackFlavor struct {

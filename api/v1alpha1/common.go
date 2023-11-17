@@ -25,6 +25,10 @@ type OpenStackConditionType string
 const (
 	OpenStackConditionReady OpenStackConditionType = "Ready"
 	OpenStackConditionError OpenStackConditionType = "Error"
+
+	OpenStackErrorReasonInvalidSpec = "InvalidSpec"
+
+	OpenStackLabelPrefix = "openstack.k-orc.cloud/"
 )
 
 type CommonSpec struct {

@@ -32,6 +32,7 @@ const (
 	OpenStackConditionReadonNotReady       = "NotReady"
 	OpenStackConditionReasonNoError        = "NoError"
 	OpenStackConditionReasonBadCredentials = "BadCredentials"
+	OpenStackConditionReasonDeleting       = "Deleting"
 )
 
 // GetCondition returns the condition with the given type on the OpenStack resource, or nil if it does not exist.
@@ -140,6 +141,20 @@ func SetNotReadyConditionPending(openStackResource, patch openstackv1.OpenStackR
 	return SetCondition(openStackResource, patch, NotReadyPending())
 }
 
+func NotReadyConditionDeleting(status string) metav1.Condition {
+	return metav1.Condition{
+		Type:               string(openstackv1.OpenStackConditionReady),
+		Status:             metav1.ConditionFalse,
+		Reason:             OpenStackConditionReasonDeleting,
+		Message:            status,
+		LastTransitionTime: metav1.Now(),
+	}
+}
+
+func SetNotReadyConditionDeleting(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, status string) (bool, *metav1.Condition) {
+	return SetCondition(openStackResource, patch, NotReadyConditionDeleting(status))
+}
+
 func ReadyCondition(ready bool) metav1.Condition {
 	var status metav1.ConditionStatus
 	var reason string
@@ -211,4 +226,9 @@ func ConditionMatches(a, b *metav1.Condition) bool {
 // EmitEventForCondition emits an event for the given condition on the OpenStack resource.
 func EmitEventForCondition(recorder record.EventRecorder, openStackResource runtime.Object, eventType string, condition *metav1.Condition) {
 	recorder.Event(openStackResource, eventType, condition.Reason, condition.Message)
+}
+
+func IsReady(openStackResource openstackv1.OpenStackResourceCommonStatus) bool {
+	readyCondition := GetCondition(openStackResource, string(openstackv1.OpenStackConditionReady))
+	return readyCondition != nil && readyCondition.Status == metav1.ConditionTrue
 }
