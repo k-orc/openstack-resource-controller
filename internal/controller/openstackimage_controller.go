@@ -148,10 +148,10 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 	} else {
 		var err error
 
-		var imageVisibility images.ImageVisibility
-
+		var imageVisibility *images.ImageVisibility
 		if resource.Spec.Visibility != "default" {
-			imageVisibility = images.ImageVisibility(resource.Spec.Visibility)
+			v := images.ImageVisibility(resource.Spec.Visibility)
+			imageVisibility = &v
 		}
 
 		openstackResource, err = images.Create(imageClient, images.CreateOpts{
