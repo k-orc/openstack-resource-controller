@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package util
+package conditions
 
 import (
 	"strings"
@@ -34,8 +34,8 @@ const (
 	OpenStackConditionReasonBadCredentials = "BadCredentials"
 )
 
-// GetCondition returns the condition with the given type on the OpenStack resource, or nil if it does not exist.
-func GetCondition(openStackResource openstackv1.OpenStackResourceCommonStatus, conditionType string) *metav1.Condition {
+// Get returns the condition with the given type on the OpenStack resource, or nil if it does not exist.
+func Get(openStackResource openstackv1.OpenStackResourceCommonStatus, conditionType string) *metav1.Condition {
 	for i := range openStackResource.OpenStackCommonStatus().Conditions {
 		condition := &openStackResource.OpenStackCommonStatus().Conditions[i]
 		if condition.Type == conditionType {
@@ -45,18 +45,18 @@ func GetCondition(openStackResource openstackv1.OpenStackResourceCommonStatus, c
 	return nil
 }
 
-// SetCondition sets a condition on an OpenStack resource. Returns true if the condition was updated from the original resource.
-func SetCondition(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, condition metav1.Condition) (bool, *metav1.Condition) {
+// Set sets a condition on an OpenStack resource. Returns true if the condition was updated from the original resource.
+func Set(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, condition metav1.Condition) (bool, *metav1.Condition) {
 	updated := true
 
-	origCondition := GetCondition(openStackResource, condition.Type)
-	if ConditionMatches(origCondition, &condition) {
+	origCondition := Get(openStackResource, condition.Type)
+	if Matches(origCondition, &condition) {
 		// Copy of the original maintains LastTransitionTime
 		condition = *origCondition
 		updated = false
 	}
 
-	current := GetCondition(patch, condition.Type)
+	current := Get(patch, condition.Type)
 	if current != nil {
 		*current = condition
 	} else {
@@ -77,7 +77,7 @@ func (d Dependency) String() string {
 	return d.Resource + ":" + d.Namespace + "/" + d.Name
 }
 
-func NotReadyWaiting(objects []Dependency) metav1.Condition {
+func ConditionNotReadyWaiting(objects []Dependency) metav1.Condition {
 	deps := make([]string, len(objects))
 	for i, obj := range objects {
 		deps[i] = obj.String()
@@ -93,12 +93,12 @@ func NotReadyWaiting(objects []Dependency) metav1.Condition {
 	}
 }
 
-// SetNotReadyConditionWaiting sets the WaitingFor condition on an OpenStack resource. It returns the condition that was set.
-func SetNotReadyConditionWaiting(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, objects []Dependency) (bool, *metav1.Condition) {
-	return SetCondition(openStackResource, patch, NotReadyWaiting(objects))
+// SetNotReadyWaiting sets the WaitingFor condition on an OpenStack resource. It returns the condition that was set.
+func SetNotReadyWaiting(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, objects []Dependency) (bool, *metav1.Condition) {
+	return Set(openStackResource, patch, ConditionNotReadyWaiting(objects))
 }
 
-func NotReadyTransientError(errorMessage string) metav1.Condition {
+func ConditionNotReadyTransientError(errorMessage string) metav1.Condition {
 	return metav1.Condition{
 		Type:               string(openstackv1.OpenStackConditionReady),
 		Status:             metav1.ConditionFalse,
@@ -108,11 +108,11 @@ func NotReadyTransientError(errorMessage string) metav1.Condition {
 	}
 }
 
-func SetNotReadyConditionTransientError(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorMessage string) (bool, *metav1.Condition) {
-	return SetCondition(openStackResource, patch, NotReadyTransientError(errorMessage))
+func SetNotReadyTransientError(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorMessage string) (bool, *metav1.Condition) {
+	return Set(openStackResource, patch, ConditionNotReadyTransientError(errorMessage))
 }
 
-func NotReadyError(errorMessage string) metav1.Condition {
+func ConditionNotReadyError(errorMessage string) metav1.Condition {
 	return metav1.Condition{
 		Type:               string(openstackv1.OpenStackConditionReady),
 		Status:             metav1.ConditionFalse,
@@ -122,8 +122,8 @@ func NotReadyError(errorMessage string) metav1.Condition {
 	}
 }
 
-func SetNotReadyConditionError(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorMessage string) (bool, *metav1.Condition) {
-	return SetCondition(openStackResource, patch, NotReadyTransientError(errorMessage))
+func SetNotReadyError(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorMessage string) (bool, *metav1.Condition) {
+	return Set(openStackResource, patch, ConditionNotReadyTransientError(errorMessage))
 }
 
 func NotReadyPending() metav1.Condition {
@@ -136,11 +136,11 @@ func NotReadyPending() metav1.Condition {
 	}
 }
 
-func SetNotReadyConditionPending(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) (bool, *metav1.Condition) {
-	return SetCondition(openStackResource, patch, NotReadyPending())
+func SetNotReadyPending(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) (bool, *metav1.Condition) {
+	return Set(openStackResource, patch, NotReadyPending())
 }
 
-func ReadyCondition(ready bool) metav1.Condition {
+func ConditionReady(ready bool) metav1.Condition {
 	var status metav1.ConditionStatus
 	var reason string
 	if ready {
@@ -160,12 +160,12 @@ func ReadyCondition(ready bool) metav1.Condition {
 	}
 }
 
-// SetReadyCondition sets the Ready condition on an OpenStack resource. It returns the condition that was set.
-func SetReadyCondition(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) (bool, *metav1.Condition) {
-	return SetCondition(openStackResource, patch, ReadyCondition(true))
+// SetReady sets the Ready condition on an OpenStack resource. It returns the condition that was set.
+func SetReady(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) (bool, *metav1.Condition) {
+	return Set(openStackResource, patch, ConditionReady(true))
 }
 
-func ErrorCondition(errorReason, errorMessage string) metav1.Condition {
+func ConditionError(errorReason, errorMessage string) metav1.Condition {
 	if errorReason == "" {
 		errorReason = OpenStackConditionReasonNoError
 	}
@@ -184,21 +184,21 @@ func ErrorCondition(errorReason, errorMessage string) metav1.Condition {
 	}
 }
 
-// SetErrorCondition sets the Error condition on an OpenStack resource. It returns the condition that was set.
-func SetErrorCondition(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorReason, errorMessage string) (bool, *metav1.Condition) {
-	SetNotReadyConditionError(openStackResource, patch, errorMessage)
-	return SetCondition(openStackResource, patch, ErrorCondition(errorReason, errorMessage))
+// SetError sets the Error condition on an OpenStack resource. It returns the condition that was set.
+func SetError(openStackResource, patch openstackv1.OpenStackResourceCommonStatus, errorReason, errorMessage string) (bool, *metav1.Condition) {
+	SetNotReadyError(openStackResource, patch, errorMessage)
+	return Set(openStackResource, patch, ConditionError(errorReason, errorMessage))
 }
 
-// InitialiseRequiredConditions initialises an empty set of required conditions in an OpenStack resource.
-func InitialiseRequiredConditions(openStackResource openstackv1.OpenStackResourceCommonStatus) {
+// InitialiseRequired initialises an empty set of required conditions in an OpenStack resource.
+func InitialiseRequired(openStackResource openstackv1.OpenStackResourceCommonStatus) {
 	openStackResource.OpenStackCommonStatus().Conditions = []metav1.Condition{
 		NotReadyPending(),
-		ErrorCondition("", ""),
+		ConditionError("", ""),
 	}
 }
 
-func ConditionMatches(a, b *metav1.Condition) bool {
+func Matches(a, b *metav1.Condition) bool {
 	if a == nil || b == nil {
 		return a == b
 	}
@@ -206,7 +206,7 @@ func ConditionMatches(a, b *metav1.Condition) bool {
 	return a.Status == b.Status && a.Reason == b.Reason && a.Message == b.Message
 }
 
-// EmitEventForCondition emits an event for the given condition on the OpenStack resource.
-func EmitEventForCondition(recorder record.EventRecorder, openStackResource runtime.Object, eventType string, condition *metav1.Condition) {
+// EmitEvent emits an event for the given condition on the OpenStack resource.
+func EmitEvent(recorder record.EventRecorder, openStackResource runtime.Object, eventType string, condition *metav1.Condition) {
 	recorder.Event(openStackResource, eventType, condition.Reason, condition.Message)
 }

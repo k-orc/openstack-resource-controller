@@ -35,8 +35,9 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud"
 	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	"github.com/gophercloud/gopherkube/pkg/apply"
 	"github.com/gophercloud/gopherkube/pkg/cloud"
-	"github.com/gophercloud/gopherkube/pkg/util"
+	"github.com/gophercloud/gopherkube/pkg/conditions"
 )
 
 const (
@@ -78,17 +79,17 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	patchResource := &openstackv1.OpenStackCloud{}
 	patchResource.TypeMeta = openStackResource.TypeMeta
-	util.InitialiseRequiredConditions(patchResource)
+	conditions.InitialiseRequired(patchResource)
 	controllerutil.AddFinalizer(patchResource, OpenStackCloudFinalizer)
 
 	defer func() {
 		// If we're returning an error, report it as a TransientError in the Ready condition
 		if reterr != nil {
-			updated, condition := util.SetNotReadyConditionTransientError(openStackResource, patchResource, reterr.Error())
+			updated, condition := conditions.SetNotReadyTransientError(openStackResource, patchResource, reterr.Error())
 
 			// Emit an event if we're setting the condition for the first time
 			if updated {
-				util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+				conditions.EmitEvent(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
 			}
 		}
 
@@ -98,13 +99,13 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		primaryPatch.Finalizers = patchResource.Finalizers
 		// We must exclude the spec from the patch as it
 		// contains required fields which must not be included
-		applyerr := util.Apply(ctx, r.Client, openStackResource, primaryPatch, "spec")
+		applyerr := apply.Apply(ctx, r.Client, openStackResource, primaryPatch, "spec")
 
 		if applyerr == nil {
 			statusPatch := &openstackv1.OpenStackCloud{}
 			statusPatch.TypeMeta = openStackResource.TypeMeta
 			statusPatch.Status = patchResource.Status
-			applyerr = util.ApplyStatus(ctx, r.Client, openStackResource, statusPatch)
+			applyerr = apply.ApplyStatus(ctx, r.Client, openStackResource, statusPatch)
 
 			// Ignore the error if we get NotFound after removing the finalizer
 			if applyerr != nil && apierrors.IsNotFound(applyerr) && len(primaryPatch.Finalizers) == 0 {
@@ -127,12 +128,12 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	// Ensure the secret label is set
 	if openStackResource.Spec.Credentials.Source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
-		updated, condition := util.SetErrorCondition(openStackResource, patchResource, openstackv1.OpenStackCloudCredentialsSourceInvalid,
+		updated, condition := conditions.SetError(openStackResource, patchResource, openstackv1.OpenStackCloudCredentialsSourceInvalid,
 			"invalid credentials source "+openStackResource.Spec.Credentials.Source)
 
 		// Emit an event if we're setting the condition for the first time
 		if updated {
-			util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+			conditions.EmitEvent(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
 		}
 
 		return ctrl.Result{}, nil
@@ -159,12 +160,12 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		if err != nil || !secret.DeletionTimestamp.IsZero() {
 			logger.Info("waiting for secret")
 
-			updated, condition := util.SetNotReadyConditionWaiting(openStackResource, patchResource, []util.Dependency{
+			updated, condition := conditions.SetNotReadyWaiting(openStackResource, patchResource, []conditions.Dependency{
 				{ObjectKey: secretRef, Resource: "secret"}})
 
 			// Emit an event if we're setting the condition for the first time
 			if updated {
-				util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeNormal, condition)
+				conditions.EmitEvent(r.Recorder, openStackResource, corev1.EventTypeNormal, condition)
 			}
 
 			return ctrl.Result{}, nil
@@ -179,7 +180,7 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		patchSecret.APIVersion = "v1"
 		patchSecret.Kind = "Secret"
 		controllerutil.AddFinalizer(patchSecret, finalizerName(openStackResource))
-		if err := util.Apply(ctx, r.Client, secret, patchSecret); err != nil {
+		if err := apply.Apply(ctx, r.Client, secret, patchSecret); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -191,11 +192,11 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 			switch err.(type) {
 			// Set BadCredentials for any non-transient error
 			case cloud.BadCredentialsError, gophercloud.ErrDefault400, gophercloud.ErrDefault401, gophercloud.ErrDefault403, gophercloud.ErrDefault404, gophercloud.ErrDefault405:
-				updated, condition := util.SetErrorCondition(openStackResource, patchResource, util.OpenStackConditionReasonBadCredentials, err.Error())
+				updated, condition := conditions.SetError(openStackResource, patchResource, conditions.OpenStackConditionReasonBadCredentials, err.Error())
 
 				// Emit an event if we're setting the condition for the first time
 				if updated {
-					util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+					conditions.EmitEvent(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
 				}
 				return ctrl.Result{}, nil
 			default:
@@ -206,11 +207,11 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	// Set the Ready condition
 	{
-		updated, condition := util.SetReadyCondition(openStackResource, patchResource)
+		updated, condition := conditions.SetReady(openStackResource, patchResource)
 
 		// Emit an event if we're setting the condition for the first time
 		if updated {
-			util.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeNormal, condition)
+			conditions.EmitEvent(r.Recorder, openStackResource, corev1.EventTypeNormal, condition)
 		}
 	}
 
@@ -232,7 +233,7 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, logger l
 	patchSecret.Kind = "Secret"
 	patchSecret.Name = openStackResource.Spec.Credentials.SecretRef.Name
 	patchSecret.Namespace = openStackResource.Namespace
-	if err := util.Apply(ctx, r.Client, patchSecret, patchSecret); err != nil {
+	if err := apply.Apply(ctx, r.Client, patchSecret, patchSecret); err != nil {
 		return ctrl.Result{}, fmt.Errorf("removing secret finalizer: %w", err)
 	}
 
