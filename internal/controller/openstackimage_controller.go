@@ -162,7 +162,7 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 			MinDisk:         resource.Spec.MinDisk,
 			MinRAM:          resource.Spec.MinRAM,
 			Protected:       &resource.Spec.Protected,
-			Visibility:      &imageVisibility,
+			Visibility:      imageVisibility,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
