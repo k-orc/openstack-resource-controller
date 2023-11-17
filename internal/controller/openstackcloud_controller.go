@@ -78,7 +78,7 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	patchResource := &openstackv1.OpenStackCloud{}
 	patchResource.TypeMeta = openStackResource.TypeMeta
-	util.InitialiseRequiredConditions(patchResource)
+	util.InitialiseRequiredConditions(openStackResource, patchResource)
 	controllerutil.AddFinalizer(patchResource, OpenStackCloudFinalizer)
 
 	defer func() {
@@ -119,12 +119,6 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return r.reconcileDelete(ctx, logger, openStackResource, patchResource)
 	}
 
-	// If our finalizer isn't set, ensure it is persisted before make any changes
-	if !controllerutil.ContainsFinalizer(openStackResource, OpenStackCloudFinalizer) {
-		// We will be reconciled again immediately because we're adding the finalizer
-		return ctrl.Result{}, nil
-	}
-
 	// Ensure the secret label is set
 	if openStackResource.Spec.Credentials.Source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
 		updated, condition := util.SetErrorCondition(openStackResource, patchResource, openstackv1.OpenStackCloudCredentialsSourceInvalid,
@@ -143,6 +137,12 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	// Label the cloud resource with the secret name so we can trigger a reconcile on secret changes
 	patchResource.Labels = make(map[string]string)
 	patchResource.Labels[openstackv1.OpenStackCloudSecretNameLabel] = secretName
+
+	// If our finalizer isn't set, ensure it is persisted before make any changes
+	if !controllerutil.ContainsFinalizer(openStackResource, OpenStackCloudFinalizer) {
+		// We will be reconciled again immediately because we're adding the finalizer
+		return ctrl.Result{}, nil
+	}
 
 	// Fetch the secret
 	secret := &corev1.Secret{}
@@ -236,6 +236,8 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, logger l
 		return ctrl.Result{}, fmt.Errorf("removing secret finalizer: %w", err)
 	}
 
+	logger.V(4).Info("Removing finalizer from cloud")
+
 	controllerutil.RemoveFinalizer(patchResource, OpenStackCloudFinalizer)
 	return ctrl.Result{}, nil
 }
@@ -244,7 +246,10 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, logger l
 func (r *OpenStackCloudReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openstackv1.OpenStackCloud{}).
+		WithEventFilter(util.IgnoreManagedFieldsOnly{}).
 		Watches(&corev1.Secret{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			logger := mgr.GetLogger()
+
 			// Fetch a list of all OpenStackClouds that reference this secret.
 			kclient := mgr.GetClient()
 
@@ -253,7 +258,7 @@ func (r *OpenStackCloudReconciler) SetupWithManager(mgr ctrl.Manager) error {
 				client.InNamespace(o.GetNamespace()),
 				client.MatchingLabels{openstackv1.OpenStackCloudSecretNameLabel: o.GetName()},
 			); err != nil {
-				mgr.GetLogger().Error(err, "unable to list OpenStackClouds")
+				logger.Error(err, "unable to list OpenStackClouds")
 			}
 
 			// Reconcile each OpenStackCloud that references this secret.
@@ -266,7 +271,12 @@ func (r *OpenStackCloudReconciler) SetupWithManager(mgr ctrl.Manager) error {
 						Name:      cloud.GetName(),
 					},
 				}
+				logger.V(5).Info("update of Secret triggers reconcile of OpenStackCloud",
+					"namespace", o.GetNamespace(),
+					"secret", o.GetName(),
+					"cloud", cloud.GetName())
 			}
 			return reqs
-		})).Complete(r)
+		})).
+		Complete(r)
 }

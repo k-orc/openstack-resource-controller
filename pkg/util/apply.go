@@ -22,9 +22,12 @@ import (
 	"fmt"
 	"strings"
 
+	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
 const (
@@ -89,3 +92,34 @@ func removePath(obj map[string]interface{}, path []string) {
 	// programming error.
 	removePath(field.(map[string]interface{}), path[1:])
 }
+
+type IgnoreManagedFieldsOnly struct {
+	predicate.Funcs
+}
+
+func (i IgnoreManagedFieldsOnly) Update(e event.UpdateEvent) bool {
+	// A change to managedFields also updates the resourceVersion, so we must ignore that too
+	e.ObjectOld.SetManagedFields(nil)
+	e.ObjectOld.SetResourceVersion("")
+	e.ObjectNew.SetManagedFields(nil)
+	e.ObjectNew.SetResourceVersion("")
+
+	// The new object doesn't contain kind and apiVersion, so we must remove them before comparison
+	oldU, err := runtime.DefaultUnstructuredConverter.ToUnstructured(e.ObjectOld)
+	if err != nil {
+		return true
+	}
+	newU, err := runtime.DefaultUnstructuredConverter.ToUnstructured(e.ObjectNew)
+	if err != nil {
+		return true
+	}
+
+	delete(oldU, "kind")
+	delete(oldU, "apiVersion")
+	delete(newU, "kind")
+	delete(newU, "apiVersion")
+
+	return !apiequality.Semantic.DeepEqual(oldU, newU)
+}
+
+var _ predicate.Predicate = IgnoreManagedFieldsOnly{}
