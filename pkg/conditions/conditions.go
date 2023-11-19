@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package util
+package conditions
 
 import (
 	"strings"
@@ -191,10 +191,12 @@ func SetErrorCondition(openStackResource, patch openstackv1.OpenStackResourceCom
 }
 
 // InitialiseRequiredConditions initialises an empty set of required conditions in an OpenStack resource.
-func InitialiseRequiredConditions(openStackResource openstackv1.OpenStackResourceCommonStatus) {
-	openStackResource.OpenStackCommonStatus().Conditions = []metav1.Condition{
+func InitialiseRequiredConditions(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) {
+	for _, condition := range []metav1.Condition{
 		NotReadyPending(),
 		ErrorCondition("", ""),
+	} {
+		SetCondition(openStackResource, patch, condition)
 	}
 }
 
