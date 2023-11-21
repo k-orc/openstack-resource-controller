@@ -25,7 +25,22 @@ type OpenStackConditionType string
 const (
 	OpenStackConditionReady OpenStackConditionType = "Ready"
 	OpenStackConditionError OpenStackConditionType = "Error"
+
+	OpenStackErrorReasonInvalidSpec = "InvalidSpec"
+
+	OpenStackLabelPrefix = "openstack.k-orc.cloud/"
 )
+
+type CommonSpec struct {
+	// Cloud is the OpenStackCloud hosting this resource
+	Cloud string `json:"cloud"`
+
+	// Unmanaged, when true, means that no action will be performed in
+	// OpenStack against this resource. This is false by default, except
+	// for pre-existing resources that are adopted by passing ID on
+	// creation.
+	Unmanaged *bool `json:"unmanaged,omitempty"`
+}
 
 // OpenStackResourceCommonStatus returns status fields common to all OpenStack resources
 // +kubebuilder:object:generate=false

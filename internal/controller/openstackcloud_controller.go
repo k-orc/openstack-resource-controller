@@ -20,19 +20,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
@@ -64,6 +67,7 @@ func finalizerName(cloud *openstackv1.OpenStackCloud) string {
 func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 	logger = logger.WithValues("OpenStackCloud", req.Name)
+	ctx = log.IntoContext(ctx, logger)
 
 	openStackResource := &openstackv1.OpenStackCloud{}
 	err := r.Client.Get(ctx, req.NamespacedName, openStackResource)
@@ -118,11 +122,10 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 				return nil
 			}(),
 		)
-
 	}()
 
 	if !openStackResource.DeletionTimestamp.IsZero() {
-		return r.reconcileDelete(ctx, logger, openStackResource, patchResource)
+		return r.reconcileDelete(ctx, openStackResource, patchResource)
 	}
 
 	// Ensure the secret label is set
@@ -181,9 +184,10 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	if !controllerutil.ContainsFinalizer(secret, finalizerName(openStackResource)) {
 		logger.Info("adding finalizer to secret")
 
-		patchSecret := &corev1.Secret{}
-		patchSecret.APIVersion = "v1"
-		patchSecret.Kind = "Secret"
+		patchSecret, err := r.getEmptySecretPatch()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 		controllerutil.AddFinalizer(patchSecret, finalizerName(openStackResource))
 		if err := apply.Apply(ctx, r.Client, secret, patchSecret); err != nil {
 			return ctrl.Result{}, err
@@ -194,6 +198,8 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	{
 		_, _, err := cloud.NewProviderClient(ctx, r.Client, openStackResource)
 		if err != nil {
+			logger.Error(err, "validating credentials")
+
 			switch err.(type) {
 			// Set BadCredentials for any non-transient error
 			case cloud.BadCredentialsError, gophercloud.ErrDefault400, gophercloud.ErrDefault401, gophercloud.ErrDefault403, gophercloud.ErrDefault404, gophercloud.ErrDefault405:
@@ -223,19 +229,72 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, logger logr.Logger, openStackResource, patchResource *openstackv1.OpenStackCloud) (ctrl.Result, error) {
+func (r *OpenStackCloudReconciler) getEmptySecretPatch() (*corev1.Secret, error) {
+	patchSecret := &corev1.Secret{}
+	gvk, err := apiutil.GVKForObject(patchSecret, r.Client.Scheme())
+	if err != nil {
+		return nil, fmt.Errorf("getting GVK for secret: %w", err)
+	}
+	patchSecret.APIVersion = gvk.GroupVersion().String()
+	patchSecret.Kind = gvk.Kind
+	return patchSecret, nil
+}
+
+func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStackResource, patchResource *openstackv1.OpenStackCloud) (ctrl.Result, error) {
+	logger := log.FromContext(ctx)
 	logger.Info("Reconciling delete")
+
+	logger.V(4).Info("Checking for OpenStack resources which reference this cloud")
+
+	referencingResources := []string{}
+	for _, resourceList := range []client.ObjectList{
+		&openstackv1.OpenStackFlavorList{},
+	} {
+		list := &unstructured.UnstructuredList{}
+		gvk, err := apiutil.GVKForObject(resourceList, r.Client.Scheme())
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting GVK for resource list: %w", err)
+		}
+		list.SetGroupVersionKind(gvk)
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(openStackResource.GetNamespace()),
+			client.MatchingLabels{openstackv1.OpenStackCloudLabel: openStackResource.GetName()},
+			client.Limit(1),
+		); err != nil {
+			logger.Error(err, "unable to list resources", "type", list.GetKind())
+			return ctrl.Result{}, err
+		}
+
+		if len(list.Items) > 0 {
+			referencingResources = append(referencingResources, list.GetKind())
+		}
+	}
+
+	if len(referencingResources) > 0 {
+		logger.Info("OpenStack resources still referencing this cloud", "resources", referencingResources)
+
+		message := fmt.Sprintf("Resources of the following types still reference this cloud: %s", strings.Join(referencingResources, ", "))
+		updated, condition := conditions.SetNotReadyConditionDeleting(openStackResource, patchResource, message)
+
+		if updated {
+			conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+		}
+
+		// We don't have (and probably don't want) watches on every resource type, so we just have poll here
+		return ctrl.Result{RequeueAfter: time.Second * 10}, nil
+	}
+
+	logger.V(4).Info("Removing finalizer from secret")
 
 	if openStackResource.Spec.Credentials.Source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
 		return ctrl.Result{}, nil
 	}
 
-	logger.V(4).Info("Removing finalizer from secret")
-
 	// Remove all our fields from the secret
-	patchSecret := &corev1.Secret{}
-	patchSecret.APIVersion = "v1"
-	patchSecret.Kind = "Secret"
+	patchSecret, err := r.getEmptySecretPatch()
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 	patchSecret.Name = openStackResource.Spec.Credentials.SecretRef.Name
 	patchSecret.Namespace = openStackResource.Namespace
 	if err := apply.Apply(ctx, r.Client, patchSecret, patchSecret); err != nil {

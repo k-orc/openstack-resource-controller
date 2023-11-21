@@ -21,7 +21,8 @@ import (
 )
 
 const (
-	OpenStackCloudSecretNameLabel = "openstack.k-orc.cloud/secret-ref"
+	OpenStackCloudLabel           = OpenStackLabelPrefix + "cloud"
+	OpenStackCloudSecretNameLabel = OpenStackLabelPrefix + "secret-ref"
 
 	OpenStackCloudCredentialsSourceTypeSecret = "secret"
 	OpenStackCloudCredentialsSourceInvalid    = "SourceTypeInvalid"
@@ -59,7 +60,6 @@ type OpenStackCloudStatus struct {
 }
 
 // Implement OpenStackResourceCommonStatus interface
-
 func (c *OpenStackCloud) OpenStackCommonStatus() *CommonStatus {
 	return &c.Status.CommonStatus
 }
