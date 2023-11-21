@@ -24,7 +24,7 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 )
 
 const (

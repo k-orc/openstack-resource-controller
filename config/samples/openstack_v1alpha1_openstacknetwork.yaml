@@ -1,27 +1,27 @@
-apiVersion: openstack.gopherkube.dev/v1alpha1
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackNetwork
 metadata:
   labels:
     app.kubernetes.io/name: openstacknetwork
     app.kubernetes.io/instance: openstacknetwork-sample
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/part-of: openstack-resource-controller
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gopherkube
+    app.kubernetes.io/created-by: openstack-resource-controller
   name: external
 spec:
   cloud: osp1
   id: 43613b84-e1fb-44a4-b1ea-c530edc49018 # REPLACE with the ID of the existing external network
   unmanaged: true
 ---
-apiVersion: openstack.gopherkube.dev/v1alpha1
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackNetwork
 metadata:
   labels:
     app.kubernetes.io/name: openstacknetwork
     app.kubernetes.io/instance: openstacknetwork-sample
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/part-of: openstack-resource-controller
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gopherkube
+    app.kubernetes.io/created-by: openstack-resource-controller
   name: network-1
 spec:
   cloud: osp1

@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	OpenStackCloudSecretNameLabel = "openstack.gopherkube.dev/secret-ref"
+	OpenStackCloudSecretNameLabel = "openstack.k-orc.cloud/secret-ref"
 
 	OpenStackCloudCredentialsSourceTypeSecret = "secret"
 	OpenStackCloudCredentialsSourceInvalid    = "SourceTypeInvalid"

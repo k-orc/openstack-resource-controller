@@ -34,8 +34,8 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
-	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
-	"github.com/gophercloud/gopherkube/pkg/cloud"
+	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
 )
 
 // OpenStackImageReconciler reconciles a OpenStackImage object
@@ -44,9 +44,9 @@ type OpenStackImageReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackimages,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackimages/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackimages/finalizers,verbs=update
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackimages,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackimages/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackimages/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

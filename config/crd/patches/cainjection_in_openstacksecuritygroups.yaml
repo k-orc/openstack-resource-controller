@@ -4,4 +4,4 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: CERTIFICATE_NAMESPACE/CERTIFICATE_NAME
-  name: openstacksecuritygroups.openstack.gopherkube.dev
+  name: openstacksecuritygroups.openstack.k-orc.cloud

@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	OpenStackFieldOwner = "openstack.gopherkube.dev"
+	OpenStackFieldOwner = "openstack.k-orc.cloud"
 )
 
 func Apply(ctx context.Context, kclient client.Client, obj client.Object, patch client.Object, excludePaths ...string) error {

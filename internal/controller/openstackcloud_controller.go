@@ -34,14 +34,14 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud"
-	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
-	"github.com/gophercloud/gopherkube/pkg/apply"
-	"github.com/gophercloud/gopherkube/pkg/cloud"
-	"github.com/gophercloud/gopherkube/pkg/conditions"
+	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
+	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
+	"github.com/gophercloud/openstack-resource-controller/pkg/conditions"
 )
 
 const (
-	OpenStackCloudFinalizer = "openstackcloud.gopherkube.dev"
+	OpenStackCloudFinalizer = "openstackcloud.k-orc.cloud"
 )
 
 // OpenStackCloudReconciler reconciles a OpenStackImage object
@@ -55,9 +55,9 @@ func finalizerName(cloud *openstackv1.OpenStackCloud) string {
 	return OpenStackCloudFinalizer + "/" + cloud.Name
 }
 
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackclouds,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackclouds/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstackclouds/finalizers,verbs=update
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackclouds,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackclouds/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackclouds/finalizers,verbs=update
 //+kubebuilder:rbac:resources=secrets,verbs=get;list;watch
 //+kubebuilder:rbac:resources=secrets/finalizers,verbs=update
 
