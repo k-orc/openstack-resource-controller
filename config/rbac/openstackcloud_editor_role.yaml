@@ -6,13 +6,13 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: openstackcloud-editor-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: gopherkube
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/part-of: openstack-resource-controller
     app.kubernetes.io/managed-by: kustomize
   name: openstackcloud-editor-role
 rules:
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackclouds
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackclouds/status
   verbs:

@@ -2,90 +2,91 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: gopherkube.dev
+domain: k-orc.cloud
 layout:
 - go.kubebuilder.io/v4
-projectName: gopherkube
-repo: github.com/gophercloud/gopherkube
+projectName: openstack-resource-controller
+repo: github.com/gophercloud/openstack-resource-controller
 resources:
 - api:
     crdVersion: v1
     namespaced: true
-  domain: gopherkube.dev
+  controller: true
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackCloud
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackFlavor
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackFloatingIP
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackImage
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackNetwork
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackSecurityGroupRule
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackSecurityGroup
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackServer
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: gopherkube.dev
+  domain: k-orc.cloud
   group: openstack
   kind: OpenStackSubnet
-  path: github.com/gophercloud/gopherkube/api/v1alpha1
+  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 version: "3"

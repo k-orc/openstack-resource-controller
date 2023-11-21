@@ -1,17 +1,17 @@
-apiVersion: openstack.gopherkube.dev/v1alpha1
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackServer
 metadata:
   labels:
     app.kubernetes.io/name: openstackserver
     app.kubernetes.io/instance: openstackserver-sample
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/part-of: openstack-resource-controller
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gopherkube
+    app.kubernetes.io/created-by: openstack-resource-controller
   name: workstation
 spec:
   cloud: osp1
   name: workstation
-  image: ubuntu
+  image: fedora
   flavor: small
   networks:
   - network-1

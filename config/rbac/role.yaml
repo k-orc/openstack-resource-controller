@@ -15,7 +15,7 @@ rules:
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackclouds
   verbs:
@@ -27,13 +27,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackclouds/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackclouds/status
   verbs:
@@ -41,7 +41,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackflavors
   verbs:
@@ -53,13 +53,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackflavors/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackflavors/status
   verbs:
@@ -67,7 +67,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackfloatingips
   verbs:
@@ -79,13 +79,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackfloatingips/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackfloatingips/status
   verbs:
@@ -93,7 +93,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackimages
   verbs:
@@ -105,13 +105,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackimages/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackimages/status
   verbs:
@@ -119,7 +119,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacknetworks
   verbs:
@@ -131,13 +131,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacknetworks/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacknetworks/status
   verbs:
@@ -145,7 +145,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksecuritygrouprules
   verbs:
@@ -157,13 +157,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksecuritygrouprules/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksecuritygrouprules/status
   verbs:
@@ -171,7 +171,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksecuritygroups
   verbs:
@@ -183,13 +183,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksecuritygroups/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksecuritygroups/status
   verbs:
@@ -197,7 +197,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackservers
   verbs:
@@ -209,13 +209,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackservers/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackservers/status
   verbs:
@@ -223,7 +223,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksubnets
   verbs:
@@ -235,13 +235,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksubnets/finalizers
   verbs:
   - update
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstacksubnets/status
   verbs:

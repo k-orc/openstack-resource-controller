@@ -1,4 +1,4 @@
-module github.com/gophercloud/gopherkube
+module github.com/gophercloud/openstack-resource-controller
 
 go 1.20
 
@@ -12,7 +12,7 @@ require (
 	k8s.io/api v0.28.0
 	k8s.io/apimachinery v0.28.0
 	k8s.io/client-go v0.28.0
-	sigs.k8s.io/cluster-api v1.5.2
+	sigs.k8s.io/cluster-api v1.5.3
 	sigs.k8s.io/controller-runtime v0.16.0
 )
 

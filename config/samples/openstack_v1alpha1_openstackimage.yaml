@@ -1,13 +1,13 @@
-apiVersion: openstack.gopherkube.dev/v1alpha1
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackImage
 metadata:
   labels:
     app.kubernetes.io/name: openstackimage
     app.kubernetes.io/instance: openstackimage-sample
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/part-of: openstack-resource-controller
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gopherkube
-  name: ubuntu
+    app.kubernetes.io/created-by: openstack-resource-controller
+  name: fedora
 spec:
   cloud: osp1
   id: da314c41-19bf-486a-b8da-39ca51fd17de # REPLACE with the ID of an existing image

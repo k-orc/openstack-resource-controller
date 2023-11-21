@@ -32,7 +32,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
+	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

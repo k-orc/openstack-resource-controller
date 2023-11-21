@@ -32,8 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
-	"github.com/gophercloud/gopherkube/internal/controller"
+	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -71,7 +71,7 @@ func main() {
 		Metrics:                metricsserver.Options{BindAddress: metricsAddr},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "3cdff001.gopherkube.dev",
+		LeaderElectionID:       "c0d3fbcd.k-orc.cloud",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -89,14 +89,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	recorder := mgr.GetEventRecorderFor("gopherkube-controller")
+	recorder := mgr.GetEventRecorderFor("openstack-resource-controller")
 
 	if err = (&controller.OpenStackCloudReconciler{
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
 		Recorder: recorder,
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OpenStackFlavor")
+		setupLog.Error(err, "unable to create controller", "controller", "OpenStackCloud")
 		os.Exit(1)
 	}
 	if err = (&controller.OpenStackFlavorReconciler{
