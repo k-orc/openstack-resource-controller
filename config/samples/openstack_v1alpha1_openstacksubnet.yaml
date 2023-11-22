@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksubnet
     app.kubernetes.io/instance: openstacksubnet-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: network-1-subnet-1
 spec:
   cloud: osp1

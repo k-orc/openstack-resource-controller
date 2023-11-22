@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygrouprule
     app.kubernetes.io/instance: openstacksecuritygrouprule-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: workstation-ssh-ipv4
 spec:
   cloud: osp1
@@ -24,9 +24,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygrouprule
     app.kubernetes.io/instance: openstacksecuritygrouprule-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: workstation-mosh-ipv4
 spec:
   cloud: osp1
@@ -44,9 +44,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygrouprule
     app.kubernetes.io/instance: openstacksecuritygrouprule-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: workstation-ssh-ipv6
 spec:
   cloud: osp1
@@ -64,9 +64,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygrouprule
     app.kubernetes.io/instance: openstacksecuritygrouprule-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: workstation-mosh-ipv6
 spec:
   cloud: osp1
