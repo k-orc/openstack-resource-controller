@@ -4,16 +4,22 @@ kind: ClusterRole
 metadata:
   name: manager-role
 rules:
-- resources:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
   - secrets
   verbs:
   - get
   - list
+  - patch
   - watch
-- resources:
-  - secrets/finalizers
-  verbs:
-  - update
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
