@@ -19,20 +19,13 @@ You’ll need a Kubernetes cluster to run against. You can use [KIND](https://si
 1. Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=quay.io/orc/orc:main
+make deploy IMG=quay.io/orc/openstack-resource-controller
 ```
 
 2. Install Instances of Custom Resources:
 
 ```sh
 kubectl apply -k config/samples/
-```
-
-### Uninstall CRDs
-To delete the CRDs from the cluster:
-
-```sh
-make uninstall
 ```
 
 ### Undeploy controller
