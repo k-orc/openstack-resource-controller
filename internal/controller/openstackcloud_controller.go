@@ -61,8 +61,9 @@ func finalizerName(cloud *openstackv1.OpenStackCloud) string {
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackclouds,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackclouds/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackclouds/finalizers,verbs=update
-//+kubebuilder:rbac:resources=secrets,verbs=get;list;watch
-//+kubebuilder:rbac:resources=secrets/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=patch
+//+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
 func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
