@@ -23,5 +23,5 @@ jobs:
         docker push ${{ env.image }}:main
         docker push ${{ env.image }}:latest
 
-        docker build -t ${{ env.image }}:${GITHUB_SHA::7} --label quay.expires-after=4w .
-        docker push ${{ env.image }}:${GITHUB_SHA::7}
+        docker build -t ${{ env.image }}:commit-${GITHUB_SHA::7} --label quay.expires-after=4w .
+        docker push ${{ env.image }}:commit-${GITHUB_SHA::7}
