@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygroup
     app.kubernetes.io/instance: openstacksecuritygroup-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: default
 spec:
   cloud: osp1
@@ -19,9 +19,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstacksecuritygroup
     app.kubernetes.io/instance: openstacksecuritygroup-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: workstation
 spec:
   cloud: osp1

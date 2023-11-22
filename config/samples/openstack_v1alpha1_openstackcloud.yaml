@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstackcloud
     app.kubernetes.io/instance: openstackcloud-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: osp1
 spec:
   cloud: openstack # REPLACE with the name of the target cloud in clouds.yaml

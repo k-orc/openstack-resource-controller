@@ -5,7 +5,7 @@
 domain: k-orc.cloud
 layout:
 - go.kubebuilder.io/v4
-projectName: openstack-resource-controller
+projectName: orc
 repo: github.com/gophercloud/openstack-resource-controller
 resources:
 - api:

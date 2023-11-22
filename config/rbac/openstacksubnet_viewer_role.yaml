@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: openstacksubnet-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: openstack-resource-controller
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
   name: openstacksubnet-viewer-role
 rules:

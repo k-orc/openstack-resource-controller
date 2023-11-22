@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: openstackflavor
     app.kubernetes.io/instance: openstackflavor-sample
-    app.kubernetes.io/part-of: openstack-resource-controller
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: openstack-resource-controller
+    app.kubernetes.io/created-by: orc
   name: small
 spec:
   cloud: osp1
