@@ -1,0 +1,32 @@
+name: container image
+on:
+  push:
+    branches:
+    - main
+env:
+  image: quay.io/orc/openstack-resource-controller
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - run: |
+        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
+
+        # Build and push "image:commit_sha"
+        docker build -t "${{ env.image }}:${GITHUB_SHA}" \
+          && docker push "${{ env.image }}:${GITHUB_SHA}"
+
+        # Tag and push "image:branch"
+        docker tag "${{ env.image }}:${GITHUB_SHA}" "${{ env.image }}:${GITHUB_REF_NAME}" \
+          && docker push "${{ env.image }}:${GITHUB_REF_NAME}"
+
+        # Tag and push "image:latest"
+        docker tag "${{ env.image }}:${GITHUB_SHA}" "${{ env.image }}" \
+          && docker push "${{ env.image }}"
