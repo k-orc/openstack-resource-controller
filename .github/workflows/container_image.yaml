@@ -19,14 +19,9 @@ jobs:
     - run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
 
-        # Build and push "image:commit_sha"
-        docker build -t "${{ env.image }}:${GITHUB_SHA}" \
-          && docker push "${{ env.image }}:${GITHUB_SHA}"
+        docker build -t ${{ env.image }}:main -t ${{ env.image }}:latest .
+        docker push ${{ env.image }}:main
+        docker push ${{ env.image }}:latest
 
-        # Tag and push "image:branch"
-        docker tag "${{ env.image }}:${GITHUB_SHA}" "${{ env.image }}:${GITHUB_REF_NAME}" \
-          && docker push "${{ env.image }}:${GITHUB_REF_NAME}"
-
-        # Tag and push "image:latest"
-        docker tag "${{ env.image }}:${GITHUB_SHA}" "${{ env.image }}" \
-          && docker push "${{ env.image }}"
+        docker build -t ${{ env.image }}:${GITHUB_SHA::7} --label quay.expires-after=4w .
+        docker push ${{ env.image }}:${GITHUB_SHA::7}
