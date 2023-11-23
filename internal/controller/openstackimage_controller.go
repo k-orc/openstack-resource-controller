@@ -149,8 +149,8 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 		var err error
 
 		var imageVisibility *images.ImageVisibility
-		if resource.Spec.Visibility != "default" {
-			v := images.ImageVisibility(resource.Spec.Visibility)
+		if resource.Spec.Visibility != nil {
+			v := images.ImageVisibility(*resource.Spec.Visibility)
 			imageVisibility = &v
 		}
 
@@ -161,7 +161,7 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 			DiskFormat:      resource.Spec.DiskFormat,
 			MinDisk:         resource.Spec.MinDisk,
 			MinRAM:          resource.Spec.MinRAM,
-			Protected:       &resource.Spec.Protected,
+			Protected:       resource.Spec.Protected,
 			Visibility:      imageVisibility,
 		}).Extract()
 		if err != nil {

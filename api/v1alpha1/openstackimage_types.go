@@ -55,17 +55,15 @@ type OpenStackImageSpec struct {
 	Name string `json:"name,omitempty"`
 
 	// protected is whether the image is not deletable.
-	// +kubebuilder:default:=false
-	Protected bool `json:"protected,omitempty"`
+	Protected *bool `json:"protected,omitempty"`
 
 	// Tags is a set of image tags.
 	// Each tag is a string of at most 255 chars.
 	Tags []string `json:"tags,omitempty"`
 
 	// Visibility defines who can see/use the image.
-	// +kubebuilder:validation:Enum:="default";"public";"private";"shared";"community"
-	// +kubebuilder:default:="default"
-	Visibility string `json:"visibility,omitempty"`
+	// +kubebuilder:validation:Enum:="public";"private";"shared";"community"
+	Visibility *string `json:"visibility,omitempty"`
 
 	// Unmanaged, when true, means that no action will be performed in
 	// OpenStack against this resource. This is false by default, except
