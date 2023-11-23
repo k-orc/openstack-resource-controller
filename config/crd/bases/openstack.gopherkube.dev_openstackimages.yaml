@@ -63,7 +63,6 @@ spec:
                 description: Name of the OpenStack resource.
                 type: string
               protected:
-                default: false
                 description: protected is whether the image is not deletable.
                 type: boolean
               tags:
@@ -78,10 +77,8 @@ spec:
                   for pre-existing resources that are adopted by passing ID on creation.
                 type: boolean
               visibility:
-                default: default
                 description: Visibility defines who can see/use the image.
                 enum:
-                - default
                 - public
                 - private
                 - shared
