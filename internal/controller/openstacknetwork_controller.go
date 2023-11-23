@@ -34,8 +34,8 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
-	openstackv1 "github.com/gophercloud/gopherkube/api/v1alpha1"
-	"github.com/gophercloud/gopherkube/pkg/cloud"
+	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
 )
 
 // OpenStackNetworkReconciler reconciles a OpenStackNetwork object
@@ -44,9 +44,9 @@ type OpenStackNetworkReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstacknetworks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstacknetworks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=openstack.gopherkube.dev,resources=openstacknetworks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacknetworks,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacknetworks/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacknetworks/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -98,7 +98,7 @@ func (r *OpenStackNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		})
 	}()
 
-	networkClient, err := cloud.NewClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "network")
+	networkClient, err := cloud.NewServiceClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "network")
 	if err != nil {
 		err = fmt.Errorf("unable to build an OpenStack client: %w", err)
 		logger.Info(err.Error())

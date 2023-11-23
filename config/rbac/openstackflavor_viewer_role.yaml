@@ -6,13 +6,13 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: openstackflavor-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: gopherkube
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/created-by: orc
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
   name: openstackflavor-viewer-role
 rules:
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackflavors
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - openstack.gopherkube.dev
+  - openstack.k-orc.cloud
   resources:
   - openstackflavors/status
   verbs:

@@ -1,15 +1,15 @@
-apiVersion: openstack.gopherkube.dev/v1alpha1
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackCloud
 metadata:
   labels:
     app.kubernetes.io/name: openstackcloud
     app.kubernetes.io/instance: openstackcloud-sample
-    app.kubernetes.io/part-of: gopherkube
+    app.kubernetes.io/part-of: orc
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: gopherkube
+    app.kubernetes.io/created-by: orc
   name: osp1
 spec:
-  cloud: cloud # REPLACE with the name of the target cloud in clouds.yaml
+  cloud: openstack # REPLACE with the name of the target cloud in clouds.yaml
   credentials:
     source: secret
     secretRef:

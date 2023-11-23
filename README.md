@@ -1,11 +1,11 @@
-# Gopherkube
-Gopherkube is a set of Kubernetes controllers that manage your OpenStack tenant infrastructure.
+# openstack-resource-controller
+ORC is a set of Kubernetes controllers that manage your OpenStack tenant infrastructure.
 
-You declare your OpenStack resource as a YAML file, you `kubectl apply` it and Gopherkube provisions it on your OpenStack cloud.
+You declare your OpenStack resource as a YAML file, you `kubectl apply` it and ORC provisions it on your OpenStack cloud.
 
 ## Description
 
-Gopherkube defines each OpenStack resource type as a CRD (see [./api/v1alpha1/](https://github.com/gophercloud/gopherkube/tree/main/api/v1alpha1)). Each resource type has its own controller (see [./internal/controller/](https://github.com/gophercloud/gopherkube/tree/main/internal/controller)). Controllers are responsible for creating and deleting resources in OpenStack when a CRD is created or deleted in their Kubernetes namespace.
+ORC defines each OpenStack resource type as a CRD (see [./api/v1alpha1/](https://github.com/gophercloud/openstack-resource-controller/tree/main/api/v1alpha1)). Each resource type has its own controller (see [./internal/controller/](https://github.com/gophercloud/openstack-resource-controller/tree/main/internal/controller)). Controllers are responsible for creating and deleting resources in OpenStack when a CRD is created or deleted in their Kubernetes namespace.
 
 ## State of the project
 
@@ -19,20 +19,13 @@ You’ll need a Kubernetes cluster to run against. You can use [KIND](https://si
 1. Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=quay.io/gopherkube/gopherkube:v1alpha1
+make deploy IMG=quay.io/orc/openstack-resource-controller
 ```
 
 2. Install Instances of Custom Resources:
 
 ```sh
 kubectl apply -k config/samples/
-```
-
-### Uninstall CRDs
-To delete the CRDs from the cluster:
-
-```sh
-make uninstall
 ```
 
 ### Undeploy controller

@@ -2,15 +2,15 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/openstack.gopherkube.dev_openstackclouds.yaml
-- bases/openstack.gopherkube.dev_openstackflavors.yaml
-- bases/openstack.gopherkube.dev_openstackfloatingips.yaml
-- bases/openstack.gopherkube.dev_openstackimages.yaml
-- bases/openstack.gopherkube.dev_openstacknetworks.yaml
-- bases/openstack.gopherkube.dev_openstacksecuritygrouprules.yaml
-- bases/openstack.gopherkube.dev_openstacksecuritygroups.yaml
-- bases/openstack.gopherkube.dev_openstackservers.yaml
-- bases/openstack.gopherkube.dev_openstacksubnets.yaml
+- bases/openstack.k-orc.cloud_openstackclouds.yaml
+- bases/openstack.k-orc.cloud_openstackflavors.yaml
+- bases/openstack.k-orc.cloud_openstackfloatingips.yaml
+- bases/openstack.k-orc.cloud_openstackimages.yaml
+- bases/openstack.k-orc.cloud_openstacknetworks.yaml
+- bases/openstack.k-orc.cloud_openstacksecuritygrouprules.yaml
+- bases/openstack.k-orc.cloud_openstacksecuritygroups.yaml
+- bases/openstack.k-orc.cloud_openstackservers.yaml
+- bases/openstack.k-orc.cloud_openstacksubnets.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patches:

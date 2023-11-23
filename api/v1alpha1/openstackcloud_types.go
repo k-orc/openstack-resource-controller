@@ -20,6 +20,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	OpenStackCloudLabel           = OpenStackLabelPrefix + "cloud"
+	OpenStackCloudSecretNameLabel = OpenStackLabelPrefix + "secret-ref"
+
+	OpenStackCloudCredentialsSourceTypeSecret = "secret"
+	OpenStackCloudCredentialsSourceInvalid    = "SourceTypeInvalid"
+)
+
 // OpenStackCloudSpec defines the desired state of OpenStackCloud
 type OpenStackCloudSpec struct {
 	// Cloud is the key to look for in the "clouds" object in clouds.yaml.
@@ -30,21 +38,39 @@ type OpenStackCloudSpec struct {
 }
 
 type OpenStackCloudCredentials struct {
-	Source    string                             `json:"source"`
+	// Source defines the source type of the credentials. The only supported value is "secret".
+	// +kubebuilder:validation:Enum=secret
+	Source string `json:"source"`
+
+	// SecretRef defines the reference to the secret containing the credentials.
 	SecretRef OpenStackCloudCredentialsSecretRef `json:"secretRef"`
 }
 
 type OpenStackCloudCredentialsSecretRef struct {
+	// Name is the name of the secret containing the credentials.
 	Name string `json:"name"`
-	Key  string `json:"key"`
+
+	// Key is the key in the secret containing the credentials.
+	Key string `json:"key"`
 }
 
 // OpenStackCloudStatus defines the observed state of OpenStackCloud
 type OpenStackCloudStatus struct {
+	CommonStatus `json:",inline"`
 }
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackCloud) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackCloud{}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackCloud is the Schema for the openstackclouds API
 type OpenStackCloud struct {
