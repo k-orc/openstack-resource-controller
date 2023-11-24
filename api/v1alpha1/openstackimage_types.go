@@ -28,24 +28,6 @@ type OpenStackImageSpec struct {
 	// Cloud is the OpenStackCloud hosting this resource
 	Cloud string `json:"cloud"`
 
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
-	ID string `json:"id,omitempty"`
-
-	// Name of the OpenStack resource.
-	Name string `json:"name,omitempty"`
-
-	// Visibility defines who can see/use the image.
-	// Visibility *ImageVisibility `json:"visibility,omitempty"`
-
-	// Hidden is whether the image is listed in default image list or not.
-	Hidden bool `json:"hidden,omitempty"`
-
-	// Tags is a set of image tags.
-	Tags []string `json:"tags,omitempty"`
-
 	// ContainerFormat is the format of the
 	// container. Valid values are ami, ari, aki, bare, and ovf.
 	ContainerFormat string `json:"containerFormat,omitempty"`
@@ -55,6 +37,12 @@ type OpenStackImageSpec struct {
 	// and iso.
 	DiskFormat string `json:"diskFormat,omitempty"`
 
+	// ID is the OpenStack UUID of the resource. If left empty, the
+	// controller will create a new resource and populate this field. If
+	// manually populated, the controller will adopt the corresponding
+	// resource.
+	ID string `json:"id,omitempty"`
+
 	// MinDisk is the amount of disk space in GB that is required to boot
 	// the image.
 	MinDisk int `json:"minDisk,omitempty"`
@@ -63,35 +51,25 @@ type OpenStackImageSpec struct {
 	// image.
 	MinRAM int `json:"minRam,omitempty"`
 
+	// Name of the OpenStack resource.
+	Name string `json:"name,omitempty"`
+
 	// protected is whether the image is not deletable.
 	Protected *bool `json:"protected,omitempty"`
 
-	// properties is a set of properties, if any, that are associated with
-	// the image.
-	// Properties map[string]string `json:"-"`
+	// Tags is a set of image tags.
+	// Each tag is a string of at most 255 chars.
+	Tags []string `json:"tags,omitempty"`
 
-	// Source defines the content of the image. If not set, the image is
-	// left empty.
-	Source *OpenStackImageSource `json:"source,omitempty"`
+	// Visibility defines who can see/use the image.
+	// +kubebuilder:validation:Enum:="public";"private";"shared";"community"
+	Visibility *string `json:"visibility,omitempty"`
 
 	// Unmanaged, when true, means that no action will be performed in
 	// OpenStack against this resource. This is false by default, except
 	// for pre-existing resources that are adopted by passing ID on
 	// creation.
 	Unmanaged *bool `json:"unmanaged,omitempty"`
-}
-
-type OpenStackImageSource struct {
-	// HTTP requests the controller to download an image using HTTP(S) and
-	// upload it to Glance.
-	HTTP *OpenStackImageWebDownload `json:"http,omitempty"`
-}
-
-type OpenStackImageWebDownload struct {
-	URL string `json:"url"`
-
-	// Sha512sum if set will be checked against the candidate image.
-	Sha512Sum string `json:"sha512sum,omitempty"`
 }
 
 // OpenStackImageStatus defines the observed state of OpenStackImage

@@ -147,16 +147,22 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 		logger.Info("resouce exists in OpenStack")
 	} else {
 		var err error
+
+		var imageVisibility *images.ImageVisibility
+		if resource.Spec.Visibility != nil {
+			v := images.ImageVisibility(*resource.Spec.Visibility)
+			imageVisibility = &v
+		}
+
 		openstackResource, err = images.Create(imageClient, images.CreateOpts{
 			Name:            resource.Spec.Name,
-			Hidden:          &resource.Spec.Hidden,
 			Tags:            resource.Spec.Tags,
 			ContainerFormat: resource.Spec.ContainerFormat,
 			DiskFormat:      resource.Spec.DiskFormat,
 			MinDisk:         resource.Spec.MinDisk,
 			MinRAM:          resource.Spec.MinRAM,
 			Protected:       resource.Spec.Protected,
-			// Properties:      resource.Spec.Properties,
+			Visibility:      imageVisibility,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
