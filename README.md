@@ -35,6 +35,13 @@ UnDeploy the controller from the cluster:
 make undeploy
 ```
 
+## How to attach a port
+
+The OpenStack API offers several options for attaching a port to a device, for
+example a server instance or a logical router. However in ORC, you can only
+define a port attachment on the receiving device. The `OpenStackPort` resource
+consequently doesn't expose the `device_id` field.
+
 ## Contributing
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
 

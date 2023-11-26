@@ -206,13 +206,16 @@ func SetErrorCondition(openStackResource, patch openstackv1.OpenStackResourceCom
 }
 
 // InitialiseRequiredConditions initialises an empty set of required conditions in an OpenStack resource.
-func InitialiseRequiredConditions(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) {
+func InitialiseRequiredConditions(openStackResource, patch openstackv1.OpenStackResourceCommonStatus) (updated bool) {
 	for _, condition := range []metav1.Condition{
 		NotReadyPending(),
 		ErrorCondition("", ""),
 	} {
-		SetCondition(openStackResource, patch, condition)
+		if upd, _ := SetCondition(openStackResource, patch, condition); upd {
+			updated = true
+		}
 	}
+	return
 }
 
 func ConditionMatches(a, b *metav1.Condition) bool {

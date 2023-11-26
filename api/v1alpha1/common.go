@@ -31,6 +31,14 @@ const (
 	OpenStackLabelPrefix = "openstack.k-orc.cloud/"
 )
 
+func OpenStackDependencyLabelPort(name string) string {
+	return openStackDependencyLabel("port", name)
+}
+
+func openStackDependencyLabel(resource, name string) string {
+	return resource + "." + OpenStackLabelPrefix + name
+}
+
 type CommonSpec struct {
 	// Cloud is the OpenStackCloud hosting this resource
 	Cloud string `json:"cloud"`
@@ -57,4 +65,11 @@ type CommonStatus struct {
 	// +listType=map
 	// +listMapKey=type
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+}
+
+// FixedIP is a data structure used in multiple resources to identify an IP
+// address on a subnet.
+type FixedIP struct {
+	IPAddress string `json:"ipAddress,omitempty"`
+	Subnet    string `json:"subnet,omitempty"`
 }

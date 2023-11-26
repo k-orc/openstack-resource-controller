@@ -153,6 +153,32 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - openstackports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - openstackports/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - openstackports/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
   - openstackrouters
   verbs:
   - create
