@@ -158,10 +158,10 @@ func (r *OpenStackSubnetReconciler) reconcile(ctx context.Context, networkClient
 				}
 				return ctrl.Result{}, err
 			}
-			if network.Status.ID == "" {
+			if network.Status.Resource.ID == "" {
 				return ctrl.Result{}, fmt.Errorf("network %q not found in OpenStack", network.GetName())
 			}
-			networkID = network.Status.ID
+			networkID = network.Status.Resource.ID
 		}
 
 		allocationPools := make([]subnets.AllocationPool, len(resource.Spec.AllocationPools))

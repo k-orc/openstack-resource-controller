@@ -25,4 +25,5 @@ metadata:
   name: network-1
 spec:
   cloud: osp1
-  name: my-new-network
+  resource:
+    name: my-new-network

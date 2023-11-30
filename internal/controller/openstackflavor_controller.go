@@ -81,7 +81,7 @@ func (r *OpenStackFlavorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	conditions.InitialiseRequiredConditions(openStackResource, patchResource)
 	controllerutil.AddFinalizer(patchResource, OpenStackFlavorFinalizer)
 	patchResource.Labels = map[string]string{
-		openstackv1.OpenStackCloudLabel: openStackResource.Spec.Cloud,
+		openstackv1.OpenStackDependencyLabelCloud(openStackResource.Spec.Cloud): "",
 	}
 	patchResource.Status.Resource = openstackv1.OpenStackFlavorResourceStatus{
 		// XXX: This is a hack because the apiserver won't let us patch the status subresource witn an empty resource object
@@ -273,7 +273,7 @@ func (r *OpenStackFlavorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			flavors := openstackv1.OpenStackFlavorList{}
 			if err := kclient.List(ctx, &flavors,
 				client.InNamespace(o.GetNamespace()),
-				client.MatchingLabels{openstackv1.OpenStackCloudLabel: o.GetName()},
+				client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(o.GetName())},
 			); err != nil {
 				logger.Error(err, "unable to list OpenStackClouds")
 				return nil

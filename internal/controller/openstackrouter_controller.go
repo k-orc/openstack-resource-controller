@@ -180,7 +180,7 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 			TenantID:     resource.Spec.TenantID,
 			ProjectID:    resource.Spec.ProjectID,
 			GatewayInfo: &routers.GatewayInfo{
-				NetworkID:        externalNetwork.Status.ID,
+				NetworkID:        externalNetwork.Status.Resource.ID,
 				EnableSNAT:       resource.Spec.ExternalGatewayInfo.EnableSNAT,
 				ExternalFixedIPs: externalFixedIPs,
 			},

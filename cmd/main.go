@@ -124,8 +124,9 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&controller.OpenStackNetworkReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Recorder: recorder,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "OpenStackNetwork")
 		os.Exit(1)

@@ -81,15 +81,15 @@ func (r *OpenStackPortReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		finalizerUpdated := controllerutil.AddFinalizer(resource, OpenStackPortFinalizer)
 
 		newLabels := map[string]string{
-			openstackv1.OpenStackCloudLabel:       resource.Spec.Cloud,
-			openstackv1.OpenStackPortLabelNetwork: resource.Spec.Resource.Network,
+			openstackv1.OpenStackDependencyLabelCloud(resource.Spec.Cloud):              "",
+			openstackv1.OpenStackDependencyLabelNetwork(resource.Spec.Resource.Network): "",
 		}
 		for _, sg := range resource.Spec.Resource.SecurityGroups {
-			newLabels[openstackv1.OpenStackPortLabelSecurityGroup(sg)] = ""
+			newLabels[openstackv1.OpenStackDependencyLabelSecurityGroup(sg)] = ""
 		}
 		for _, ip := range resource.Spec.Resource.FixedIPs {
 			if ip.Subnet != "" {
-				newLabels[openstackv1.OpenStackPortLabelSubnet(ip.Subnet)] = ""
+				newLabels[openstackv1.OpenStackDependencyLabelSubnet(ip.Subnet)] = ""
 			}
 		}
 
@@ -191,7 +191,7 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 			}
 
 			// Dependency either doesn't exist, or is being deleted
-			if err != nil || !dependency.DeletionTimestamp.IsZero() {
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
 				logger.Info("waiting for network")
 
 				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
@@ -202,18 +202,7 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 				}
 				return ctrl.Result{}, nil
 			}
-
-			// TODO: Check for the dependency's condition Ready
-			if dependency.Status.ID == "" {
-				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
-					{ObjectKey: dependencyKey, Resource: "OpenStack network"},
-				}); updated {
-					// Emit an event if we're setting the condition for the first time
-					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-				}
-				return ctrl.Result{RequeueAfter: OpenStackResourceNotReadyRequeueAfter}, nil
-			}
-			networkID = dependency.Status.ID
+			networkID = dependency.Status.Resource.ID
 		}
 
 		securityGroupIDs := make([]string, len(resource.Spec.Resource.SecurityGroups))
@@ -454,7 +443,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			ports := openstackv1.OpenStackPortList{}
 			if err := kclient.List(ctx, &ports,
 				client.InNamespace(o.GetNamespace()),
-				client.MatchingLabels{openstackv1.OpenStackCloudLabel: o.GetName()},
+				client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(o.GetName())},
 			); err != nil {
 				logger.Error(err, "unable to list OpenStackPorts")
 				return nil
@@ -487,7 +476,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			ports := openstackv1.OpenStackPortList{}
 			if err := kclient.List(ctx, &ports,
 				client.InNamespace(o.GetNamespace()),
-				client.MatchingLabels{openstackv1.OpenStackPortLabelNetwork: o.GetName()},
+				client.HasLabels{openstackv1.OpenStackDependencyLabelNetwork(o.GetName())},
 			); err != nil {
 				logger.Error(err, "unable to list OpenStackPorts")
 				return nil
@@ -520,7 +509,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			ports := openstackv1.OpenStackPortList{}
 			if err := kclient.List(ctx, &ports,
 				client.InNamespace(o.GetNamespace()),
-				client.HasLabels{openstackv1.OpenStackPortLabelSecurityGroup(o.GetName())},
+				client.HasLabels{openstackv1.OpenStackDependencyLabelSecurityGroup(o.GetName())},
 			); err != nil {
 				logger.Error(err, "unable to list OpenStackPorts")
 				return nil
@@ -553,7 +542,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			ports := openstackv1.OpenStackPortList{}
 			if err := kclient.List(ctx, &ports,
 				client.InNamespace(o.GetNamespace()),
-				client.HasLabels{openstackv1.OpenStackPortLabelSubnet(o.GetName())},
+				client.HasLabels{openstackv1.OpenStackDependencyLabelSubnet(o.GetName())},
 			); err != nil {
 				logger.Error(err, "unable to list OpenStackPorts")
 				return nil
@@ -579,14 +568,4 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			return reqs
 		})).
 		Complete(r)
-}
-
-// coalesce returns the first non-empty string, or the empty string.
-func coalesce(args ...string) string {
-	for _, s := range args {
-		if s != "" {
-			return s
-		}
-	}
-	return ""
 }

@@ -17,23 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"crypto/md5"
-	"fmt"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-const (
-	OpenStackPortLabelNetwork = OpenStackLabelPrefix + "network"
-)
-
-func OpenStackPortLabelSecurityGroup(securityGroupName string) string {
-	return fmt.Sprintf("%s%s%x", OpenStackLabelPrefix, "secgroup-", md5.Sum([]byte(securityGroupName)))
-}
-
-func OpenStackPortLabelSubnet(subnetName string) string {
-	return fmt.Sprintf("%s%s%x", OpenStackLabelPrefix, "subnet-", md5.Sum([]byte(subnetName)))
-}
 
 type OpenStackPortResourceSpec struct {
 	// The administrative state of the resource, which is up (true) or down (false). Default is true.

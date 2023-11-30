@@ -21,3 +21,13 @@ import "time"
 const (
 	OpenStackResourceNotReadyRequeueAfter = 5 * time.Second
 )
+
+// coalesce returns the first non-empty string, or the empty string.
+func coalesce(args ...string) string {
+	for _, s := range args {
+		if s != "" {
+			return s
+		}
+	}
+	return ""
+}

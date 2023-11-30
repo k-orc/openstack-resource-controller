@@ -21,10 +21,7 @@ import (
 )
 
 // OpenStackNetworkSpec defines the desired state of OpenStackNetwork
-type OpenStackNetworkSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
+type OpenStackNetworkResourceSpec struct {
 	// ID is the OpenStack UUID of the resource. If left empty, the
 	// controller will create a new resource and populate this field. If
 	// manually populated, the controller will adopt the corresponding
@@ -35,16 +32,10 @@ type OpenStackNetworkSpec struct {
 	Name string `json:"name,omitempty"`
 
 	Description string `json:"description,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
 }
 
 // OpenStackNetworkStatus defines the observed state of OpenStackNetwork
-type OpenStackNetworkStatus struct {
+type OpenStackNetworkResourceStatus struct {
 	// UUID for the network
 	ID string `json:"id"`
 
@@ -93,8 +84,37 @@ type OpenStackNetworkStatus struct {
 	RevisionNumber int `json:"revisionNumber,omitempty"`
 }
 
+// OpenStackNetworkSpec defines the desired state of OpenStackNetwork
+type OpenStackNetworkSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackNetworkResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackNetworkStatus defines the observed state of OpenStackNetwork
+type OpenStackNetworkStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackNetworkResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackNetwork) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackNetwork{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackNetwork is the Schema for the openstacknetworks API
 type OpenStackNetwork struct {

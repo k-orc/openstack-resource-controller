@@ -248,11 +248,11 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStac
 	logger.Info("Reconciling delete")
 
 	logger.V(4).Info("Checking for OpenStack resources which reference this cloud")
-
 	referencingResources := []string{}
 	for _, resourceList := range []client.ObjectList{
 		&openstackv1.OpenStackFlavorList{},
 		&openstackv1.OpenStackPortList{},
+		&openstackv1.OpenStackNetworkList{},
 	} {
 		list := &unstructured.UnstructuredList{}
 		gvk, err := apiutil.GVKForObject(resourceList, r.Client.Scheme())
@@ -262,7 +262,7 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStac
 		list.SetGroupVersionKind(gvk)
 		if err := r.Client.List(ctx, list,
 			client.InNamespace(openStackResource.GetNamespace()),
-			client.MatchingLabels{openstackv1.OpenStackCloudLabel: openStackResource.GetName()},
+			client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(openStackResource.GetName())},
 			client.Limit(1),
 		); err != nil {
 			logger.Error(err, "unable to list resources", "type", list.GetKind())

@@ -35,6 +35,22 @@ func OpenStackDependencyLabelPort(name string) string {
 	return openStackDependencyLabel("port", name)
 }
 
+func OpenStackDependencyLabelCloud(name string) string {
+	return openStackDependencyLabel("cloud", name)
+}
+
+func OpenStackDependencyLabelNetwork(name string) string {
+	return openStackDependencyLabel("network", name)
+}
+
+func OpenStackDependencyLabelSecurityGroup(name string) string {
+	return openStackDependencyLabel("secgroup", name)
+}
+
+func OpenStackDependencyLabelSubnet(name string) string {
+	return openStackDependencyLabel("subnet", name)
+}
+
 func openStackDependencyLabel(resource, name string) string {
 	return resource + "." + OpenStackLabelPrefix + name
 }

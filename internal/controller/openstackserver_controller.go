@@ -217,10 +217,10 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 				}
 				return ctrl.Result{}, err
 			}
-			if network.Status.ID == "" {
+			if network.Status.Resource.ID == "" {
 				return ctrl.Result{}, fmt.Errorf("network %q not found in OpenStack", network.GetName())
 			}
-			gophercloudNetworks[i] = servers.Network{UUID: network.Status.ID}
+			gophercloudNetworks[i] = servers.Network{UUID: network.Status.Resource.ID}
 		}
 
 		var err error
