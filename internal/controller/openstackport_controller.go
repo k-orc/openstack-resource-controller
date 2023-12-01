@@ -355,7 +355,9 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 		UpdatedAt:             port.UpdatedAt.UTC().Format(time.RFC3339),
 	}
 
-	conditions.SetReadyCondition(resource, statusPatchResource)
+	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
+		conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -385,7 +387,7 @@ func (r *OpenStackPortReconciler) reconcileDelete(ctx context.Context, networkCl
 		}
 
 		if len(list.Items) > 0 {
-			referencingResources = append(referencingResources, list.GetKind())
+			referencingResources = append(referencingResources, list.Items[0].GetKind())
 		}
 	}
 
@@ -402,19 +404,17 @@ func (r *OpenStackPortReconciler) reconcileDelete(ctx context.Context, networkCl
 	}
 
 	if resource.Status.Resource.ID == "" {
-		logger.Info("deletion was requested on a resource that hasn't been created yet.")
+		logger.Info("deletion was requested on a resource that hasn't been successfully created or adopted yet.")
 	} else {
 		logger = logger.WithValues("OpenStackID", resource.Status.Resource.ID)
-		if resource.Spec.Unmanaged == nil || !*resource.Spec.Unmanaged {
-			if resource.Status.Resource.ID != "" {
-				if err := ports.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
-					var gerr gophercloud.ErrDefault404
-					if errors.As(err, &gerr) {
-						logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
-					} else {
-						logger.Info("failed to delete resource in OpenStack; requeuing.")
-						return ctrl.Result{}, err
-					}
+		if !resource.Spec.Unmanaged {
+			if err := ports.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
+				var gerr gophercloud.ErrDefault404
+				if errors.As(err, &gerr) {
+					logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
+				} else {
+					logger.Info("failed to delete resource in OpenStack; requeuing.")
+					return ctrl.Result{}, err
 				}
 			}
 		}
@@ -422,6 +422,9 @@ func (r *OpenStackPortReconciler) reconcileDelete(ctx context.Context, networkCl
 
 	if updated := controllerutil.RemoveFinalizer(resource, OpenStackPortFinalizer); updated {
 		logger.Info("removing finalizer")
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, "Removing finalizer"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
 		patch := &openstackv1.OpenStackPort{}
 		patch.TypeMeta = resource.TypeMeta
 		patch.Finalizers = resource.GetFinalizers()
@@ -440,8 +443,8 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			kclient := mgr.GetClient()
 			logger := mgr.GetLogger()
 
-			ports := openstackv1.OpenStackPortList{}
-			if err := kclient.List(ctx, &ports,
+			ports := &openstackv1.OpenStackPortList{}
+			if err := kclient.List(ctx, ports,
 				client.InNamespace(o.GetNamespace()),
 				client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(o.GetName())},
 			); err != nil {
@@ -452,7 +455,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			// Reconcile each OpenStackPort that is not Ready and that references this OpenStackCloud.
 			reqs := make([]reconcile.Request, 0, len(ports.Items))
 			for _, port := range ports.Items {
-				if port.Status.IsReady() {
+				if conditions.IsReady(&port) {
 					continue
 				}
 				reqs = append(reqs, reconcile.Request{
@@ -473,8 +476,8 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			kclient := mgr.GetClient()
 			logger := mgr.GetLogger()
 
-			ports := openstackv1.OpenStackPortList{}
-			if err := kclient.List(ctx, &ports,
+			ports := &openstackv1.OpenStackPortList{}
+			if err := kclient.List(ctx, ports,
 				client.InNamespace(o.GetNamespace()),
 				client.HasLabels{openstackv1.OpenStackDependencyLabelNetwork(o.GetName())},
 			); err != nil {
@@ -485,7 +488,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			// Reconcile each OpenStackPort that is not Ready and that references this OpenStackNetwork.
 			reqs := make([]reconcile.Request, 0, len(ports.Items))
 			for _, port := range ports.Items {
-				if port.Status.IsReady() {
+				if conditions.IsReady(&port) {
 					continue
 				}
 				reqs = append(reqs, reconcile.Request{
@@ -506,8 +509,8 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			kclient := mgr.GetClient()
 			logger := mgr.GetLogger()
 
-			ports := openstackv1.OpenStackPortList{}
-			if err := kclient.List(ctx, &ports,
+			ports := &openstackv1.OpenStackPortList{}
+			if err := kclient.List(ctx, ports,
 				client.InNamespace(o.GetNamespace()),
 				client.HasLabels{openstackv1.OpenStackDependencyLabelSecurityGroup(o.GetName())},
 			); err != nil {
@@ -518,7 +521,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			// Reconcile each OpenStackPort that is not Ready and that references this OpenStackSecurityGroup.
 			reqs := make([]reconcile.Request, 0, len(ports.Items))
 			for _, port := range ports.Items {
-				if port.Status.IsReady() {
+				if conditions.IsReady(&port) {
 					continue
 				}
 				reqs = append(reqs, reconcile.Request{
@@ -539,8 +542,8 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			kclient := mgr.GetClient()
 			logger := mgr.GetLogger()
 
-			ports := openstackv1.OpenStackPortList{}
-			if err := kclient.List(ctx, &ports,
+			ports := &openstackv1.OpenStackPortList{}
+			if err := kclient.List(ctx, ports,
 				client.InNamespace(o.GetNamespace()),
 				client.HasLabels{openstackv1.OpenStackDependencyLabelSubnet(o.GetName())},
 			); err != nil {
@@ -551,7 +554,7 @@ func (r *OpenStackPortReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			// Reconcile each OpenStackPort that is not Ready and that references this OpenStackSubnet.
 			reqs := make([]reconcile.Request, 0, len(ports.Items))
 			for _, port := range ports.Items {
-				if port.Status.IsReady() {
+				if conditions.IsReady(&port) {
 					continue
 				}
 				reqs = append(reqs, reconcile.Request{

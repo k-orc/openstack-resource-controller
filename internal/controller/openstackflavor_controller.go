@@ -27,7 +27,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
-	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -173,12 +172,6 @@ func (r *OpenStackFlavorReconciler) reconcile(ctx context.Context, computeClient
 		return ctrl.Result{}, nil
 	}
 
-	// If the resource has an ID set but hasn't been created by us, then
-	// it's unmanaged by default.
-	if resource.Spec.Resource.ID != "" {
-		patchResource.Spec.Unmanaged = pointer.Bool(true)
-	}
-
 	var flavor *flavors.Flavor
 	if resource.Spec.Resource.ID != "" {
 		logger = logger.WithValues("OpenStackID", resource.Spec.Resource.ID)
@@ -239,7 +232,7 @@ func (r *OpenStackFlavorReconciler) reconcileDelete(ctx context.Context, compute
 		logger.Info("deletion was requested on a resource that hasn't been created yet.")
 	} else {
 		logger = logger.WithValues("OpenStackID", resource.Spec.Resource.ID)
-		if resource.Spec.Unmanaged != nil && !*resource.Spec.Unmanaged {
+		if !resource.Spec.Unmanaged {
 			if resource.Status.Resource.ID != "" {
 				if err := flavors.Delete(computeClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
 					var gerr gophercloud.ErrDefault404

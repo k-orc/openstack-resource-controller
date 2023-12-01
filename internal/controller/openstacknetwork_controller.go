@@ -246,19 +246,17 @@ func (r *OpenStackNetworkReconciler) reconcileDelete(ctx context.Context, networ
 	}
 
 	if resource.Status.Resource.ID == "" {
-		logger.Info("deletion was requested on a resource that hasn't been created yet.")
+		logger.Info("deletion was requested on a resource that hasn't been successfully created or adopted yet.")
 	} else {
 		logger = logger.WithValues("OpenStackID", resource.Status.Resource.ID)
-		if resource.Spec.Unmanaged == nil || !*resource.Spec.Unmanaged {
-			if resource.Status.Resource.ID != "" {
-				if err := networks.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
-					var gerr gophercloud.ErrDefault404
-					if errors.As(err, &gerr) {
-						logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
-					} else {
-						logger.Info("failed to delete resource in OpenStack; requeuing.")
-						return ctrl.Result{}, err
-					}
+		if !resource.Spec.Unmanaged {
+			if err := networks.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
+				var gerr gophercloud.ErrDefault404
+				if errors.As(err, &gerr) {
+					logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
+				} else {
+					logger.Info("failed to delete resource in OpenStack; requeuing.")
+					return ctrl.Result{}, err
 				}
 			}
 		}
