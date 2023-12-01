@@ -5,7 +5,7 @@ import (
 )
 
 // ReplacePrefixed returns a copy of originalLabels after:
-//   - removing all keys with the given prefix;
+//   - removing all keys with the given prefix, or a subdomain of it;
 //   - merging newLabels.
 //
 // Inputs are not modified. The returned labels map is guaranteed to be
@@ -15,7 +15,9 @@ func ReplacePrefixed(prefix string, originalLabels map[string]string, newLabels 
 	labels = make(map[string]string)
 
 	for k := range originalLabels {
-		if currentPrefix, _, hasPrefix := strings.Cut(k, "/"); hasPrefix && currentPrefix != prefix || !hasPrefix && prefix != "" {
+		currentPrefix, _, hasPrefix := strings.Cut(k, "/")
+		if hasPrefix && currentPrefix != prefix && !strings.HasSuffix(currentPrefix, "."+prefix) || !hasPrefix && prefix != "" {
+			// prefix doesn't match: copy to the new map
 			labels[k] = originalLabels[k]
 		}
 	}

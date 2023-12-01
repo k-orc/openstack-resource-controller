@@ -110,6 +110,31 @@ func TestReplacePrefixed(t *testing.T) {
 				updated(true),
 			),
 		},
+		{
+			name:           "has subdomain",
+			prefix:         "prefix1",
+			originalLabels: map[string]string{"sub.prefix1/key1": "value1", "sub.moresub.prefix1/key2": "value2"},
+			newLabels:      map[string]string{"prefix1/keyA": "valueA"},
+			checks: check(
+				mapEquals(map[string]string{
+					"prefix1/keyA": "valueA",
+				}),
+				updated(true),
+			),
+		},
+		{
+			name:           "preserves higher-level domains",
+			prefix:         "sub.prefix1",
+			originalLabels: map[string]string{"sub.prefix1/key1": "value1", "prefix1/key2": "value2"},
+			newLabels:      map[string]string{"sub.prefix1/keyA": "valueA"},
+			checks: check(
+				mapEquals(map[string]string{
+					"prefix1/key2":     "value2",
+					"sub.prefix1/keyA": "valueA",
+				}),
+				updated(true),
+			),
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			defer func() {
