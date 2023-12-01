@@ -22,10 +22,7 @@ import (
 
 // OpenStackFlavorResourceSpec defines the desired state of OpenStackFlavor
 type OpenStackFlavorResourceSpec struct {
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
+	// ID is the flavor's unique ID.
 	ID string `json:"id,omitempty"`
 
 	// Name is the name of the flavor.
@@ -101,6 +98,11 @@ type OpenStackFlavorResourceStatus struct {
 
 type OpenStackFlavorSpec struct {
 	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
 
 	Resource *OpenStackFlavorResourceSpec `json:"resource,omitempty"`
 }

@@ -46,6 +46,11 @@ spec:
               cloud:
                 description: Cloud is the OpenStackCloud hosting this resource
                 type: string
+              id:
+                description: ID is the UUID of the existing OpenStack resource to
+                  be adopted. If left empty, the controller will create a new resource
+                  using the information in the "resource" stanza.
+                type: string
               resource:
                 description: OpenStackFlavorResourceSpec defines the desired state
                   of OpenStackFlavor
@@ -63,10 +68,7 @@ spec:
                       measured in GB.
                     type: integer
                   id:
-                    description: ID is the OpenStack UUID of the resource. If left
-                      empty, the controller will create a new resource and populate
-                      this field. If manually populated, the controller will adopt
-                      the corresponding resource.
+                    description: ID is the flavor's unique ID.
                     type: string
                   isPublic:
                     description: IsPublic flags a flavor as being available to all

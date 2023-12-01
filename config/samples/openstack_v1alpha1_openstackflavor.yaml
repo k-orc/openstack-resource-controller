@@ -10,5 +10,5 @@ metadata:
   name: small
 spec:
   cloud: osp1
-  resource:
-    id: 889ef5ab-92c2-4701-bf82-8209da1d29f4 # REPLACE with the ID of an existing flavor
+  id: 889ef5ab-92c2-4701-bf82-8209da1d29f4 # REPLACE with the ID of an existing flavor
+  unmanaged: true
