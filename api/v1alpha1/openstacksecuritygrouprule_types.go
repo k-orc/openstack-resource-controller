@@ -20,17 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OpenStackSecurityGroupRuleSpec defines the desired state of OpenStackSecurityGroupRule
-type OpenStackSecurityGroupRuleSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
-	ID string `json:"id,omitempty"`
-
+// OpenStackSecurityGroupRuleResourceSpec defines the desired state of OpenStackSecurityGroupRule
+type OpenStackSecurityGroupRuleResourceSpec struct {
 	// The direction in which the security group rule is applied. The only values
 	// allowed are "ingress" or "egress". For a compute instance, an ingress
 	// security group rule is applied to incoming (ingress) traffic for that
@@ -85,7 +76,7 @@ type OpenStackSecurityGroupRuleSpec struct {
 }
 
 // OpenStackSecurityGroupRuleStatus defines the observed state of OpenStackSecurityGroupRule
-type OpenStackSecurityGroupRuleStatus struct {
+type OpenStackSecurityGroupRuleResourceStatus struct {
 	// The UUID for the security group.
 	ID string `json:"id"`
 
@@ -136,8 +127,37 @@ type OpenStackSecurityGroupRuleStatus struct {
 	ProjectID string `json:"projectID,omitempty"`
 }
 
+// OpenStackPortSpec defines the desired state of OpenStackSecurityGroupRule
+type OpenStackSecurityGroupRuleSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackSecurityGroupRuleResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackSecurityGroupRuleStatus defines the observed state of OpenStackSecurityGroupRule
+type OpenStackSecurityGroupRuleStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackSecurityGroupRuleResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackSecurityGroupRule) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackSecurityGroupRule{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackSecurityGroupRule is the Schema for the openstacksecuritygrouprules API
 type OpenStackSecurityGroupRule struct {

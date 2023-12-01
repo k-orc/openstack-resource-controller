@@ -21,41 +21,42 @@ import (
 	"errors"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	"sigs.k8s.io/cluster-api/util/patch"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/security/rules"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
+	"github.com/gophercloud/openstack-resource-controller/pkg/conditions"
+	"github.com/gophercloud/openstack-resource-controller/pkg/labels"
+)
+
+const (
+	OpenStackSecurityGroupRuleFinalizer = "openstacksecuritygrouprule.k-orc.cloud"
 )
 
 // OpenStackSecurityGroupRuleReconciler reconciles a OpenStackSecurityGroupRule object
 type OpenStackSecurityGroupRuleReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksecuritygrouprules,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksecuritygrouprules/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksecuritygrouprules/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the OpenStackSecurityGroupRule object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.0/pkg/reconcile
 func (r *OpenStackSecurityGroupRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 	logger = logger.WithValues("OpenStackSecurityGroupRule", req.Name)
@@ -70,34 +71,70 @@ func (r *OpenStackSecurityGroupRuleReconciler) Reconcile(ctx context.Context, re
 		return ctrl.Result{}, err
 	}
 
-	openStackCloud := &openstackv1.OpenStackCloud{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: req.Namespace,
-		Name:      resource.Spec.Cloud,
-	}, openStackCloud); err != nil {
-		if apierrors.IsNotFound(err) {
-			err = fmt.Errorf("OpenStackCloud %q not found: %w", resource.Spec.Cloud, err)
-			logger.Info(err.Error())
-			return ctrl.Result{}, err
+	if resource.DeletionTimestamp.IsZero() {
+		finalizerUpdated := controllerutil.AddFinalizer(resource, OpenStackSecurityGroupRuleFinalizer)
+
+		newLabels := map[string]string{
+			openstackv1.OpenStackDependencyLabelCloud(resource.Spec.Cloud):                          "",
+			openstackv1.OpenStackDependencyLabelSecurityGroup(resource.Spec.Resource.SecurityGroup): "",
 		}
-		return ctrl.Result{}, err
+
+		labelsMerger, labelsUpdated := labels.ReplacePrefixed(openstackv1.OpenStackLabelPrefix, resource.Labels, newLabels)
+
+		if finalizerUpdated || labelsUpdated {
+			logger.Info("applying labels and finalizer")
+			patch := &openstackv1.OpenStackSecurityGroupRule{}
+			patch.TypeMeta = resource.TypeMeta
+			patch.Finalizers = resource.GetFinalizers()
+			patch.Labels = labelsMerger
+			return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+		}
 	}
 
-	// Initialize the patch helper
-	resourcePatchHelper, err := patch.NewHelper(resource, r.Client)
-	if err != nil {
-		return ctrl.Result{}, err
+	statusPatchResource := &openstackv1.OpenStackSecurityGroupRule{
+		Status:   *resource.Status.DeepCopy(),
+		TypeMeta: resource.TypeMeta,
 	}
-
-	// Always patch the resource when exiting this function.
 	defer func() {
-		reterr = kerrors.NewAggregate([]error{
-			reterr,
-			resourcePatchHelper.Patch(ctx, resource),
-		})
-	}()
+		// If we're returning an error, report it as a TransientError in the Ready condition
+		if reterr != nil {
+			if updated, condition := conditions.SetNotReadyConditionTransientError(resource, statusPatchResource, reterr.Error()); updated {
+				// Emit an event if we're setting the condition for the first time
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
+			}
+		}
+		if err := apply.ApplyStatus(ctx, r.Client, resource, statusPatchResource); err != nil && !(apierrors.IsNotFound(err) && len(resource.Finalizers) == 0) {
+			reterr = errors.Join(reterr, err)
+		}
 
-	networkClient, err := cloud.NewServiceClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "network")
+	}()
+	if len(resource.Status.Conditions) == 0 {
+		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
+	}
+
+	// Get the OpenStackCloud resource
+	openStackCloud := &openstackv1.OpenStackCloud{}
+	{
+		openStackCloudRef := client.ObjectKey{
+			Namespace: req.Namespace,
+			Name:      resource.Spec.Cloud,
+		}
+		err := r.Client.Get(ctx, openStackCloudRef, openStackCloud)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return ctrl.Result{}, fmt.Errorf("fetching OpenStackCloud %s: %w", resource.Spec.Cloud, err)
+		}
+
+		// XXX(mbooth): We should check IsReady(openStackCloud) here, but we can't because this breaks us while the cloud is Deleting.
+		// We probably need another Condition 'Deleting' so an object can be both Ready and Deleting during the cleanup phase.
+		if err != nil {
+			conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+				{ObjectKey: openStackCloudRef, Resource: "OpenStackCloud"},
+			})
+			return ctrl.Result{}, nil
+		}
+	}
+
+	networkClient, err := cloud.NewServiceClient(ctx, r.Client, openStackCloud, "network")
 	if err != nil {
 		err = fmt.Errorf("unable to build an OpenStack client: %w", err)
 		logger.Info(err.Error())
@@ -105,121 +142,125 @@ func (r *OpenStackSecurityGroupRuleReconciler) Reconcile(ctx context.Context, re
 	}
 
 	if !resource.DeletionTimestamp.IsZero() {
-		return r.reconcileDelete(log.IntoContext(ctx, logger), networkClient, resource)
+		return r.reconcileDelete(log.IntoContext(ctx, logger), networkClient, resource, statusPatchResource)
 	}
 
-	return r.reconcile(log.IntoContext(ctx, logger), networkClient, resource)
+	return r.reconcile(log.IntoContext(ctx, logger), networkClient, resource, statusPatchResource)
 }
 
 // reconcile handles creation. No modification is accepted.
 // TODO: restrict unhandled modification through a webhook
-// TODO: potentially handle (some?) modifications accepted in OpenStack, as in `openstack network set`
-func (r *OpenStackSecurityGroupRuleReconciler) reconcile(ctx context.Context, networkClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackSecurityGroupRule) (ctrl.Result, error) {
+// TODO: potentially handle (some?) modifications accepted in OpenStack
+func (r *OpenStackSecurityGroupRuleReconciler) reconcile(ctx context.Context, networkClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackSecurityGroupRule) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 
-	// If the resource doesn't have our finalizer, add it.
-	if controllerutil.AddFinalizer(resource, openstackv1.Finalizer) {
-		// Register the finalizer immediately to avoid orphaning OpenStack resources on delete
-		return ctrl.Result{}, nil
-	}
+	var (
+		securityGroupRule *rules.SecGroupRule
+		err               error
+	)
+	if openstackID := coalesce(resource.Spec.ID, resource.Status.Resource.ID); openstackID != "" {
+		logger = logger.WithValues("OpenStackID", openstackID)
 
-	// If the resource has an ID set but hasn't been created by us, then
-	// it's unmanaged by default.
-	if resource.Spec.Unmanaged == nil {
-		var unmanaged bool
-		if resource.Spec.ID != "" && resource.Status.ID == "" {
-			unmanaged = true
-		}
-		resource.Spec.Unmanaged = &unmanaged
-		return ctrl.Result{}, nil
-	}
-
-	var openstackResource *rules.SecGroupRule
-	if resource.Spec.ID != "" {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
-
-		var err error
-		openstackResource, err = rules.Get(networkClient, resource.Spec.ID).Extract()
+		securityGroupRule, err = rules.Get(networkClient, openstackID).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
+		logger.V(4).Info("resource exists in OpenStack")
 	} else {
-		securityGroup := &openstackv1.OpenStackSecurityGroup{}
-		err := r.Client.Get(ctx, types.NamespacedName{
-			Namespace: resource.GetNamespace(),
-			Name:      resource.Spec.SecurityGroup,
-		}, securityGroup)
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				logger.Info("parent security group %q not found in the API. Requeuing", resource.Spec.SecurityGroup)
-				return ctrl.Result{}, fmt.Errorf("parent security group %q not found", resource.Spec.SecurityGroup)
+		var securityGroupID string
+		{
+			dependency := &openstackv1.OpenStackSecurityGroup{}
+			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: resource.Spec.Resource.SecurityGroup}
+			err = r.Client.Get(ctx, dependencyKey, dependency)
+			if err != nil && !apierrors.IsNotFound(err) {
+				return ctrl.Result{}, err
 			}
-			return ctrl.Result{}, err
-		}
-		if securityGroup.Status.Resource.ID == "" {
-			return ctrl.Result{}, fmt.Errorf("parent security group %q not found in OpenStack", resource.Spec.SecurityGroup)
+
+			// Dependency either doesn't exist, or is being deleted, or is not ready
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+				logger.Info("waiting for security group")
+
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "security group"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{}, nil
+			}
+			securityGroupID = dependency.Status.Resource.ID
 		}
 
-		openstackResource, err = rules.Create(networkClient, rules.CreateOpts{
-			Direction:      rules.RuleDirection(resource.Spec.Direction),
-			Description:    resource.Spec.Description,
-			EtherType:      rules.RuleEtherType(resource.Spec.EtherType),
-			SecGroupID:     securityGroup.Status.Resource.ID,
-			PortRangeMax:   resource.Spec.PortRangeMax,
-			PortRangeMin:   resource.Spec.PortRangeMin,
-			Protocol:       rules.RuleProtocol(resource.Spec.Protocol),
-			RemoteGroupID:  resource.Spec.RemoteGroupID,
-			RemoteIPPrefix: resource.Spec.RemoteIPPrefix,
-			ProjectID:      resource.Spec.ProjectID,
+		securityGroupRule, err = rules.Create(networkClient, rules.CreateOpts{
+			Direction:      rules.RuleDirection(resource.Spec.Resource.Direction),
+			Description:    resource.Spec.Resource.Description,
+			EtherType:      rules.RuleEtherType(resource.Spec.Resource.EtherType),
+			SecGroupID:     securityGroupID,
+			PortRangeMax:   resource.Spec.Resource.PortRangeMax,
+			PortRangeMin:   resource.Spec.Resource.PortRangeMin,
+			Protocol:       rules.RuleProtocol(resource.Spec.Resource.Protocol),
+			RemoteGroupID:  resource.Spec.Resource.RemoteGroupID,
+			RemoteIPPrefix: resource.Spec.Resource.RemoteIPPrefix,
+			ProjectID:      resource.Spec.Resource.ProjectID,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		resource.Spec.ID = openstackResource.ID
-		logger = logger.WithValues("OpenStackID", openstackResource.ID)
+		logger = logger.WithValues("OpenStackID", securityGroupRule.ID)
+		logger.Info("OpenStack resource created")
 	}
 
-	resource.Status = openstackv1.OpenStackSecurityGroupRuleStatus{
-		ID:              openstackResource.ID,
-		Direction:       openstackResource.Direction,
-		Description:     openstackResource.Description,
-		EtherType:       openstackResource.EtherType,
-		SecurityGroupID: openstackResource.SecGroupID,
-		PortRangeMin:    openstackResource.PortRangeMin,
-		PortRangeMax:    openstackResource.PortRangeMax,
-		Protocol:        openstackResource.Protocol,
-		RemoteGroupID:   openstackResource.RemoteGroupID,
-		RemoteIPPrefix:  openstackResource.RemoteIPPrefix,
-		TenantID:        openstackResource.TenantID,
-		ProjectID:       openstackResource.ProjectID,
+	statusPatchResource.Status.Resource = openstackv1.OpenStackSecurityGroupRuleResourceStatus{
+		ID:              securityGroupRule.ID,
+		Direction:       securityGroupRule.Direction,
+		Description:     securityGroupRule.Description,
+		EtherType:       securityGroupRule.EtherType,
+		SecurityGroupID: securityGroupRule.SecGroupID,
+		PortRangeMin:    securityGroupRule.PortRangeMin,
+		PortRangeMax:    securityGroupRule.PortRangeMax,
+		Protocol:        securityGroupRule.Protocol,
+		RemoteGroupID:   securityGroupRule.RemoteGroupID,
+		RemoteIPPrefix:  securityGroupRule.RemoteIPPrefix,
+		TenantID:        securityGroupRule.TenantID,
+		ProjectID:       securityGroupRule.ProjectID,
 	}
 
-	logger.Info("reconcile succeeded.")
+	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
+		conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+	}
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackSecurityGroupRuleReconciler) reconcileDelete(ctx context.Context, networkClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackSecurityGroupRule) (ctrl.Result, error) {
+func (r *OpenStackSecurityGroupRuleReconciler) reconcileDelete(ctx context.Context, networkClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackSecurityGroupRule) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	if resource.Spec.ID == "" {
-		logger.Info("deletion was requested on a resource that hasn't been created yet.")
+	if resource.Status.Resource.ID == "" {
+		logger.Info("deletion was requested on a resource that hasn't been successfully created or adopted yet.")
 	} else {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
-		if resource.Spec.Unmanaged != nil && !*resource.Spec.Unmanaged {
-			if err := rules.Delete(networkClient, resource.Spec.ID).ExtractErr(); err != nil {
+		logger = logger.WithValues("OpenStackID", resource.Status.Resource.ID)
+		if !resource.Spec.Unmanaged {
+			if err := rules.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
 				var gerr gophercloud.ErrDefault404
 				if errors.As(err, &gerr) {
 					logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
 				} else {
-					logger.Info("failed to delete resouce in OpenStack; requeuing.")
+					logger.Info("failed to delete resource in OpenStack; requeuing.")
 					return ctrl.Result{}, err
 				}
 			}
 		}
 	}
 
-	controllerutil.RemoveFinalizer(resource, openstackv1.Finalizer)
-	logger.Info("reconcileDelete succeeded.")
+	if updated := controllerutil.RemoveFinalizer(resource, OpenStackSecurityGroupRuleFinalizer); updated {
+		logger.Info("removing finalizer")
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, "Removing finalizer"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		patch := &openstackv1.OpenStackSecurityGroupRule{}
+		patch.TypeMeta = resource.TypeMeta
+		patch.Finalizers = resource.GetFinalizers()
+		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -227,5 +268,72 @@ func (r *OpenStackSecurityGroupRuleReconciler) reconcileDelete(ctx context.Conte
 func (r *OpenStackSecurityGroupRuleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openstackv1.OpenStackSecurityGroupRule{}).
+		WithEventFilter(apply.IgnoreManagedFieldsOnly{}).
+		Watches(&openstackv1.OpenStackCloud{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackSecurityGroupRules that reference this OpenStackCloud.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			securityGroupRules := &openstackv1.OpenStackSecurityGroupRuleList{}
+			if err := kclient.List(ctx, securityGroupRules,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackSecurityGroupRules")
+				return nil
+			}
+
+			// Reconcile each OpenStackSecurityGroupRule that is not Ready and that references this OpenStackCloud.
+			reqs := make([]reconcile.Request, 0, len(securityGroupRules.Items))
+			for _, securityGroupRule := range securityGroupRules.Items {
+				if conditions.IsReady(&securityGroupRule) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: securityGroupRule.GetNamespace(),
+						Name:      securityGroupRule.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackCloud triggers reconcile of OpenStackSecurityGroupRule",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"security group rule", securityGroupRule.GetName())
+			}
+			return reqs
+		})).
+		Watches(&openstackv1.OpenStackSecurityGroup{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackSecurityGroupRules that reference this OpenStackSecurityGroup.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			securityGroupRules := &openstackv1.OpenStackSecurityGroupRuleList{}
+			if err := kclient.List(ctx, securityGroupRules,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelSecurityGroup(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackSecurityGroupRules")
+				return nil
+			}
+
+			// Reconcile each OpenStackSecurityGroupRule that is not Ready and that references this OpenStackSecurityGroup.
+			reqs := make([]reconcile.Request, 0, len(securityGroupRules.Items))
+			for _, securityGroupRule := range securityGroupRules.Items {
+				if conditions.IsReady(&securityGroupRule) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: securityGroupRule.GetNamespace(),
+						Name:      securityGroupRule.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackSecurityGroup triggers reconcile of OpenStackSecurityGroupRule",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"security group rule", securityGroupRule.GetName())
+			}
+			return reqs
+		})).
 		Complete(r)
 }

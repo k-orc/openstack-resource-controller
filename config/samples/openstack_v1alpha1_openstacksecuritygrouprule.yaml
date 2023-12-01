@@ -10,13 +10,14 @@ metadata:
   name: workstation-ssh-ipv4
 spec:
   cloud: osp1
-  securityGroup: workstation
-  direction: ingress
-  description: ssh
-  portRangeMin: 22
-  portRangeMax: 22
-  protocol: TCP
-  etherType: IPv4
+  resource:
+    securityGroup: workstation
+    direction: ingress
+    description: ssh
+    portRangeMin: 22
+    portRangeMax: 22
+    protocol: TCP
+    etherType: IPv4
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackSecurityGroupRule
@@ -30,13 +31,14 @@ metadata:
   name: workstation-mosh-ipv4
 spec:
   cloud: osp1
-  securityGroup: workstation
-  direction: ingress
-  description: mosh
-  portRangeMin: 60000
-  portRangeMax: 61000
-  protocol: UDP
-  etherType: IPv4
+  resource:
+    securityGroup: workstation
+    direction: ingress
+    description: mosh
+    portRangeMin: 60000
+    portRangeMax: 61000
+    protocol: UDP
+    etherType: IPv4
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackSecurityGroupRule
@@ -50,13 +52,14 @@ metadata:
   name: workstation-ssh-ipv6
 spec:
   cloud: osp1
-  securityGroup: workstation
-  direction: ingress
-  description: ssh
-  portRangeMin: 22
-  portRangeMax: 22
-  protocol: TCP
-  etherType: IPv6
+  resource:
+    securityGroup: workstation
+    direction: ingress
+    description: ssh
+    portRangeMin: 22
+    portRangeMax: 22
+    protocol: TCP
+    etherType: IPv6
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackSecurityGroupRule
@@ -70,10 +73,11 @@ metadata:
   name: workstation-mosh-ipv6
 spec:
   cloud: osp1
-  securityGroup: workstation
-  direction: ingress
-  description: mosh
-  portRangeMin: 60000
-  portRangeMax: 61000
-  protocol: UDP
-  etherType: IPv6
+  resource:
+    securityGroup: workstation
+    direction: ingress
+    description: mosh
+    portRangeMin: 60000
+    portRangeMax: 61000
+    protocol: UDP
+    etherType: IPv6
