@@ -179,10 +179,10 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 				}
 				return ctrl.Result{}, err
 			}
-			if image.Status.ID == "" {
+			if image.Status.Resource.ID == "" {
 				return ctrl.Result{}, fmt.Errorf("image %q not found in OpenStack", resource.Spec.Flavor)
 			}
-			imageID = image.Status.ID
+			imageID = image.Status.Resource.ID
 		}
 
 		securityGroupIDs := make([]string, len(resource.Spec.SecurityGroups))

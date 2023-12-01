@@ -31,8 +31,8 @@ const (
 	OpenStackLabelPrefix = "openstack.k-orc.cloud/"
 )
 
-func OpenStackDependencyLabelPort(name string) string {
-	return openStackDependencyLabel("port", name)
+func OpenStackDependencyLabelImage(name string) string {
+	return openStackDependencyLabel("image", name)
 }
 
 func OpenStackDependencyLabelSecret(name string) string {

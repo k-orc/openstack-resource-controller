@@ -20,14 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // OpenStackImageSpec defines the desired state of OpenStackImage
-type OpenStackImageSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
+type OpenStackImageResourceSpec struct {
 	// ContainerFormat is the format of the
 	// container. Valid values are ami, ari, aki, bare, and ovf.
 	ContainerFormat string `json:"containerFormat,omitempty"`
@@ -64,16 +58,10 @@ type OpenStackImageSpec struct {
 	// Visibility defines who can see/use the image.
 	// +kubebuilder:validation:Enum:="public";"private";"shared";"community"
 	Visibility *string `json:"visibility,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
 }
 
 // OpenStackImageStatus defines the observed state of OpenStackImage
-type OpenStackImageStatus struct {
+type OpenStackImageResourceStatus struct {
 	// ID is the image UUID.
 	ID string `json:"id"`
 
@@ -161,8 +149,37 @@ type OpenStackImageStatus struct {
 	StoreIDs []string `json:"storeIDs,omitempty"`
 }
 
+// OpenStackImageSpec defines the desired state of OpenStackImage
+type OpenStackImageSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackImageResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackImageStatus defines the observed state of OpenStackImage
+type OpenStackImageStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackImageResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackImage) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackImage{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackImage is the Schema for the openstackimages API
 type OpenStackImage struct {
