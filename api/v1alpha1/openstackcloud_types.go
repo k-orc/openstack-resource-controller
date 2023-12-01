@@ -21,8 +21,6 @@ import (
 )
 
 const (
-	OpenStackCloudSecretNameLabel = OpenStackLabelPrefix + "secret-ref"
-
 	OpenStackCloudCredentialsSourceTypeSecret = "secret"
 	OpenStackCloudCredentialsSourceInvalid    = "SourceTypeInvalid"
 )

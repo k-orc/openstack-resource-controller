@@ -41,6 +41,7 @@ import (
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
 	"github.com/gophercloud/openstack-resource-controller/pkg/conditions"
+	"github.com/gophercloud/openstack-resource-controller/pkg/labels"
 )
 
 const (
@@ -70,10 +71,9 @@ func finalizerName(cloud *openstackv1.OpenStackCloud) string {
 func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 	logger = logger.WithValues("OpenStackCloud", req.Name)
-	ctx = log.IntoContext(ctx, logger)
 
-	openStackResource := &openstackv1.OpenStackCloud{}
-	err := r.Client.Get(ctx, req.NamespacedName, openStackResource)
+	resource := &openstackv1.OpenStackCloud{}
+	err := r.Client.Get(ctx, req.NamespacedName, resource)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			logger.Info("resource not found in the API")
@@ -82,84 +82,67 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return ctrl.Result{}, err
 	}
 
-	logger.Info("reconciling resource")
+	secretName := resource.Spec.Credentials.SecretRef.Name
 
-	patchResource := &openstackv1.OpenStackCloud{}
-	patchResource.TypeMeta = openStackResource.TypeMeta
-	conditions.InitialiseRequiredConditions(openStackResource, patchResource)
-	controllerutil.AddFinalizer(patchResource, OpenStackCloudFinalizer)
+	if resource.DeletionTimestamp.IsZero() {
+		finalizerUpdated := controllerutil.AddFinalizer(resource, OpenStackCloudFinalizer)
 
+		newLabels := map[string]string{
+			openstackv1.OpenStackDependencyLabelSecret(secretName): "",
+		}
+
+		labelsMerger, labelsUpdated := labels.ReplacePrefixed(openstackv1.OpenStackLabelPrefix, resource.Labels, newLabels)
+
+		if finalizerUpdated || labelsUpdated {
+			logger.Info("applying labels and finalizer")
+			patch := &openstackv1.OpenStackCloud{}
+			patch.TypeMeta = resource.TypeMeta
+			patch.Finalizers = resource.GetFinalizers()
+			patch.Labels = labelsMerger
+			return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+		}
+	}
+
+	statusPatchResource := &openstackv1.OpenStackCloud{
+		Status:   *resource.Status.DeepCopy(),
+		TypeMeta: resource.TypeMeta,
+	}
 	defer func() {
 		// If we're returning an error, report it as a TransientError in the Ready condition
 		if reterr != nil {
-			updated, condition := conditions.SetNotReadyConditionTransientError(openStackResource, patchResource, reterr.Error())
-
-			// Emit an event if we're setting the condition for the first time
-			if updated {
-				conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+			if updated, condition := conditions.SetNotReadyConditionTransientError(resource, statusPatchResource, reterr.Error()); updated {
+				// Emit an event if we're setting the condition for the first time
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
 			}
 		}
+		if err := apply.ApplyStatus(ctx, r.Client, resource, statusPatchResource); err != nil && !(apierrors.IsNotFound(err) && len(resource.Finalizers) == 0) {
+			reterr = errors.Join(reterr, err)
+		}
 
-		primaryPatch := &openstackv1.OpenStackCloud{}
-		primaryPatch.TypeMeta = patchResource.TypeMeta
-		primaryPatch.Labels = patchResource.Labels
-		primaryPatch.Finalizers = patchResource.Finalizers
-
-		statusPatch := &openstackv1.OpenStackCloud{}
-		statusPatch.TypeMeta = openStackResource.TypeMeta
-		statusPatch.Status = patchResource.Status
-
-		reterr = errors.Join(
-			reterr,
-
-			// We must exclude the spec from the patch as it
-			// contains required fields which must not be included
-			apply.Apply(ctx, r.Client, openStackResource, primaryPatch, "spec"),
-
-			// Ignore a NotFound error after removing the finalizer
-			func() error {
-				err := apply.ApplyStatus(ctx, r.Client, openStackResource, statusPatch)
-				if err != nil && (!apierrors.IsNotFound(err) || len(primaryPatch.Finalizers) != 0) {
-					return err
-				}
-				return nil
-			}(),
-		)
 	}()
-
-	if !openStackResource.DeletionTimestamp.IsZero() {
-		return r.reconcileDelete(ctx, openStackResource, patchResource)
+	if len(resource.Status.Conditions) == 0 {
+		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
-	// Ensure the secret label is set
-	if openStackResource.Spec.Credentials.Source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
-		updated, condition := conditions.SetErrorCondition(openStackResource, patchResource, openstackv1.OpenStackCloudCredentialsSourceInvalid,
-			"invalid credentials source "+openStackResource.Spec.Credentials.Source)
+	if !resource.DeletionTimestamp.IsZero() {
+		return r.reconcileDelete(log.IntoContext(ctx, logger), resource, statusPatchResource)
+	}
+
+	if resource.Spec.Credentials.Source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
+		updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackCloudCredentialsSourceInvalid,
+			"invalid credentials source "+resource.Spec.Credentials.Source)
 
 		// Emit an event if we're setting the condition for the first time
 		if updated {
-			conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
 		}
-
-		return ctrl.Result{}, nil
-	}
-
-	secretName := openStackResource.Spec.Credentials.SecretRef.Name
-
-	// Label the cloud resource with the secret name so we can trigger a reconcile on secret changes
-	patchResource.Labels = make(map[string]string)
-	patchResource.Labels[openstackv1.OpenStackCloudSecretNameLabel] = secretName
-
-	// If our finalizer isn't set, ensure it is persisted before make any changes
-	if !controllerutil.ContainsFinalizer(openStackResource, OpenStackCloudFinalizer) {
-		// We will be reconciled again immediately because we're adding the finalizer
 		return ctrl.Result{}, nil
 	}
 
 	// Fetch the secret
 	secret := &corev1.Secret{}
 	{
-		secretRef := client.ObjectKey{Namespace: openStackResource.Namespace, Name: secretName}
+		secretRef := client.ObjectKey{Namespace: resource.Namespace, Name: secretName}
 		err := r.Client.Get(ctx, secretRef, secret)
 		if err != nil {
 			if !apierrors.IsNotFound(err) {
@@ -171,27 +154,25 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		if err != nil || !secret.DeletionTimestamp.IsZero() {
 			logger.Info("waiting for secret")
 
-			updated, condition := conditions.SetNotReadyConditionWaiting(openStackResource, patchResource, []conditions.Dependency{
-				{ObjectKey: secretRef, Resource: "secret"}})
-
-			// Emit an event if we're setting the condition for the first time
-			if updated {
-				conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeNormal, condition)
+			if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+				{ObjectKey: secretRef, Resource: "secret"},
+			}); updated {
+				// Emit an event if we're setting the condition for the first time
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
 			}
-
 			return ctrl.Result{}, nil
 		}
 	}
 
 	// Set our finalizer on the secret
-	if !controllerutil.ContainsFinalizer(secret, finalizerName(openStackResource)) {
+	if finalizer := finalizerName(resource); !controllerutil.ContainsFinalizer(secret, finalizer) {
 		logger.Info("adding finalizer to secret")
 
 		patchSecret, err := r.getEmptySecretPatch()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		controllerutil.AddFinalizer(patchSecret, finalizerName(openStackResource))
+		controllerutil.AddFinalizer(patchSecret, finalizer)
 		if err := apply.Apply(ctx, r.Client, secret, patchSecret); err != nil {
 			return ctrl.Result{}, err
 		}
@@ -199,18 +180,16 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	// Test the credentials
 	{
-		_, _, err := cloud.NewProviderClient(ctx, r.Client, openStackResource)
+		_, _, err := cloud.NewProviderClient(ctx, r.Client, resource)
 		if err != nil {
 			logger.Error(err, "validating credentials")
 
 			switch err.(type) {
 			// Set BadCredentials for any non-transient error
 			case cloud.BadCredentialsError, gophercloud.ErrDefault400, gophercloud.ErrDefault401, gophercloud.ErrDefault403, gophercloud.ErrDefault404, gophercloud.ErrDefault405:
-				updated, condition := conditions.SetErrorCondition(openStackResource, patchResource, conditions.OpenStackConditionReasonBadCredentials, err.Error())
-
-				// Emit an event if we're setting the condition for the first time
-				if updated {
-					conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+				if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, conditions.OpenStackConditionReasonBadCredentials, err.Error()); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
 				}
 				return ctrl.Result{}, nil
 			default:
@@ -219,16 +198,9 @@ func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		}
 	}
 
-	// Set the Ready condition
-	{
-		updated, condition := conditions.SetReadyCondition(openStackResource, patchResource)
-
-		// Emit an event if we're setting the condition for the first time
-		if updated {
-			conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeNormal, condition)
-		}
+	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
+		conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
 	}
-
 	return ctrl.Result{}, nil
 }
 
@@ -243,7 +215,7 @@ func (r *OpenStackCloudReconciler) getEmptySecretPatch() (*corev1.Secret, error)
 	return patchSecret, nil
 }
 
-func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStackResource, patchResource *openstackv1.OpenStackCloud) (ctrl.Result, error) {
+func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, resource, statusPatchResource *openstackv1.OpenStackCloud) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 	logger.Info("Reconciling delete")
 
@@ -261,8 +233,8 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStac
 		}
 		list.SetGroupVersionKind(gvk)
 		if err := r.Client.List(ctx, list,
-			client.InNamespace(openStackResource.GetNamespace()),
-			client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(openStackResource.GetName())},
+			client.InNamespace(resource.GetNamespace()),
+			client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(resource.GetName())},
 			client.Limit(1),
 		); err != nil {
 			logger.Error(err, "unable to list resources", "type", list.GetKind())
@@ -270,7 +242,7 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStac
 		}
 
 		if len(list.Items) > 0 {
-			referencingResources = append(referencingResources, list.GetKind())
+			referencingResources = append(referencingResources, list.Items[0].GetKind())
 		}
 	}
 
@@ -278,10 +250,8 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStac
 		logger.Info("OpenStack resources still referencing this cloud", "resources", referencingResources)
 
 		message := fmt.Sprintf("Resources of the following types still reference this cloud: %s", strings.Join(referencingResources, ", "))
-		updated, condition := conditions.SetNotReadyConditionDeleting(openStackResource, patchResource, message)
-
-		if updated {
-			conditions.EmitEventForCondition(r.Recorder, openStackResource, corev1.EventTypeWarning, condition)
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, message); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
 		}
 
 		// We don't have (and probably don't want) watches on every resource type, so we just have poll here
@@ -290,24 +260,29 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, openStac
 
 	logger.V(4).Info("Removing finalizer from secret")
 
-	if openStackResource.Spec.Credentials.Source != openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
-		return ctrl.Result{}, nil
+	if resource.Spec.Credentials.Source == openstackv1.OpenStackCloudCredentialsSourceTypeSecret {
+		// Remove all our fields from the secret
+		patchSecret, err := r.getEmptySecretPatch()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		patchSecret.Name = resource.Spec.Credentials.SecretRef.Name
+		patchSecret.Namespace = resource.Namespace
+		if err := apply.Apply(ctx, r.Client, patchSecret, patchSecret); err != nil {
+			return ctrl.Result{}, fmt.Errorf("removing secret finalizer: %w", err)
+		}
 	}
 
-	// Remove all our fields from the secret
-	patchSecret, err := r.getEmptySecretPatch()
-	if err != nil {
-		return ctrl.Result{}, err
+	if updated := controllerutil.RemoveFinalizer(resource, OpenStackCloudFinalizer); updated {
+		logger.Info("removing finalizer")
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, "Removing finalizer"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		patch := &openstackv1.OpenStackCloud{}
+		patch.TypeMeta = resource.TypeMeta
+		patch.Finalizers = resource.GetFinalizers()
+		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
-	patchSecret.Name = openStackResource.Spec.Credentials.SecretRef.Name
-	patchSecret.Namespace = openStackResource.Namespace
-	if err := apply.Apply(ctx, r.Client, patchSecret, patchSecret); err != nil {
-		return ctrl.Result{}, fmt.Errorf("removing secret finalizer: %w", err)
-	}
-
-	logger.V(4).Info("Removing finalizer from cloud")
-
-	controllerutil.RemoveFinalizer(patchResource, OpenStackCloudFinalizer)
 	return ctrl.Result{}, nil
 }
 
@@ -322,25 +297,27 @@ func (r *OpenStackCloudReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			// Fetch a list of all OpenStackClouds that reference this secret.
 			kclient := mgr.GetClient()
 
-			clouds := openstackv1.OpenStackCloudList{}
-			if err := kclient.List(ctx, &clouds,
+			clouds := &openstackv1.OpenStackCloudList{}
+			if err := kclient.List(ctx, clouds,
 				client.InNamespace(o.GetNamespace()),
-				client.MatchingLabels{openstackv1.OpenStackCloudSecretNameLabel: o.GetName()},
+				client.HasLabels{openstackv1.OpenStackDependencyLabelSecret(o.GetName())},
 			); err != nil {
 				logger.Error(err, "unable to list OpenStackClouds")
 				return nil
 			}
 
 			// Reconcile each OpenStackCloud that references this secret.
-			reqs := make([]reconcile.Request, len(clouds.Items))
-			for i := range clouds.Items {
-				cloud := clouds.Items[i]
-				reqs[i] = reconcile.Request{
+			reqs := make([]reconcile.Request, 0, len(clouds.Items))
+			for _, cloud := range clouds.Items {
+				if conditions.IsReady(&cloud) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
 					NamespacedName: client.ObjectKey{
 						Namespace: cloud.GetNamespace(),
 						Name:      cloud.GetName(),
 					},
-				}
+				})
 				logger.V(5).Info("update of Secret triggers reconcile of OpenStackCloud",
 					"namespace", o.GetNamespace(),
 					"secret", o.GetName(),
