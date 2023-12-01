@@ -22,47 +22,48 @@ import (
 	"fmt"
 	"time"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	"sigs.k8s.io/cluster-api/util/patch"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/floatingips"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
+	"github.com/gophercloud/openstack-resource-controller/pkg/conditions"
+	"github.com/gophercloud/openstack-resource-controller/pkg/labels"
+)
+
+const (
+	OpenStackFloatingIPFinalizer = "openstackfloatingip.k-orc.cloud"
 )
 
 // OpenStackFloatingIPReconciler reconciles a OpenStackFloatingIP object
 type OpenStackFloatingIPReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackfloatingips,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackfloatingips/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackfloatingips/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the OpenStackFloatingIP object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.0/pkg/reconcile
 func (r *OpenStackFloatingIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 	logger = logger.WithValues("OpenStackFloatingIP", req.Name)
 
-	openStackFloatingIP := &openstackv1.OpenStackFloatingIP{}
-	err := r.Client.Get(ctx, req.NamespacedName, openStackFloatingIP)
+	resource := &openstackv1.OpenStackFloatingIP{}
+	err := r.Client.Get(ctx, req.NamespacedName, resource)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			logger.Info("resource not found in the API")
@@ -71,154 +72,260 @@ func (r *OpenStackFloatingIPReconciler) Reconcile(ctx context.Context, req ctrl.
 		return ctrl.Result{}, err
 	}
 
-	openStackCloud := &openstackv1.OpenStackCloud{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: req.Namespace,
-		Name:      openStackFloatingIP.Spec.Cloud,
-	}, openStackCloud); err != nil {
-		if apierrors.IsNotFound(err) {
-			err = fmt.Errorf("OpenStackCloud %q not found: %w", openStackFloatingIP.Spec.Cloud, err)
-			logger.Info(err.Error())
-			return ctrl.Result{}, err
+	if resource.DeletionTimestamp.IsZero() {
+		finalizerUpdated := controllerutil.AddFinalizer(resource, OpenStackFloatingIPFinalizer)
+
+		newLabels := map[string]string{
+			openstackv1.OpenStackDependencyLabelCloud(resource.Spec.Cloud):                      "",
+			openstackv1.OpenStackDependencyLabelNetwork(resource.Spec.Resource.FloatingNetwork): "",
 		}
-		return ctrl.Result{}, err
+		if port := resource.Spec.Resource.Port; port != "" {
+			newLabels[openstackv1.OpenStackDependencyLabelPort(port)] = ""
+		}
+		if subnet := resource.Spec.Resource.Subnet; subnet != "" {
+			newLabels[openstackv1.OpenStackDependencyLabelSubnet(subnet)] = ""
+		}
+
+		labelsMerger, labelsUpdated := labels.ReplacePrefixed(openstackv1.OpenStackLabelPrefix, resource.Labels, newLabels)
+
+		if finalizerUpdated || labelsUpdated {
+			logger.Info("applying labels and finalizer")
+			patch := &openstackv1.OpenStackFloatingIP{}
+			patch.TypeMeta = resource.TypeMeta
+			patch.Finalizers = resource.GetFinalizers()
+			patch.Labels = labelsMerger
+			return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+		}
 	}
 
-	// Initialize the patch helper
-	resourcePatchHelper, err := patch.NewHelper(openStackFloatingIP, r.Client)
-	if err != nil {
-		return ctrl.Result{}, err
+	statusPatchResource := &openstackv1.OpenStackFloatingIP{
+		Status:   *resource.Status.DeepCopy(),
+		TypeMeta: resource.TypeMeta,
 	}
-
-	// Always patch the resource when exiting this function.
 	defer func() {
-		reterr = kerrors.NewAggregate([]error{
-			reterr,
-			resourcePatchHelper.Patch(ctx, openStackFloatingIP),
-		})
-	}()
+		// If we're returning an error, report it as a TransientError in the Ready condition
+		if reterr != nil {
+			if updated, condition := conditions.SetNotReadyConditionTransientError(resource, statusPatchResource, reterr.Error()); updated {
+				// Emit an event if we're setting the condition for the first time
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
+			}
+		}
+		if err := apply.ApplyStatus(ctx, r.Client, resource, statusPatchResource); err != nil && !(apierrors.IsNotFound(err) && len(resource.Finalizers) == 0) {
+			reterr = errors.Join(reterr, err)
+		}
 
-	networkClient, err := cloud.NewServiceClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "network")
+	}()
+	if len(resource.Status.Conditions) == 0 {
+		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
+	}
+
+	// Get the OpenStackCloud resource
+	openStackCloud := &openstackv1.OpenStackCloud{}
+	{
+		openStackCloudRef := client.ObjectKey{
+			Namespace: req.Namespace,
+			Name:      resource.Spec.Cloud,
+		}
+		err := r.Client.Get(ctx, openStackCloudRef, openStackCloud)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return ctrl.Result{}, fmt.Errorf("fetching OpenStackCloud %s: %w", resource.Spec.Cloud, err)
+		}
+
+		// XXX(mbooth): We should check IsReady(openStackCloud) here, but we can't because this breaks us while the cloud is Deleting.
+		// We probably need another Condition 'Deleting' so an object can be both Ready and Deleting during the cleanup phase.
+		if err != nil {
+			conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+				{ObjectKey: openStackCloudRef, Resource: "OpenStackCloud"},
+			})
+			return ctrl.Result{}, nil
+		}
+	}
+
+	networkClient, err := cloud.NewServiceClient(ctx, r.Client, openStackCloud, "network")
 	if err != nil {
 		err = fmt.Errorf("unable to build an OpenStack client: %w", err)
 		logger.Info(err.Error())
 		return ctrl.Result{}, err
 	}
 
-	if !openStackFloatingIP.DeletionTimestamp.IsZero() {
-		return r.reconcileDelete(log.IntoContext(ctx, logger), networkClient, openStackFloatingIP)
+	if !resource.DeletionTimestamp.IsZero() {
+		return r.reconcileDelete(log.IntoContext(ctx, logger), networkClient, resource, statusPatchResource)
 	}
 
-	return r.reconcile(log.IntoContext(ctx, logger), networkClient, openStackFloatingIP)
+	return r.reconcile(log.IntoContext(ctx, logger), networkClient, resource, statusPatchResource)
 }
 
 // reconcile handles creation. No modification is accepted.
 // TODO: restrict unhandled modification through a webhook
 // TODO: potentially handle (some?) modifications accepted in OpenStack, as in `openstack network set`
-func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackFloatingIP) (ctrl.Result, error) {
+func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackFloatingIP) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	// If the resource doesn't have our finalizer, add it.
-	if controllerutil.AddFinalizer(resource, openstackv1.Finalizer) {
-		// Register the finalizer immediately to avoid orphaning OpenStack resources on delete
-		return ctrl.Result{}, nil
-	}
+	var (
+		floatingIP *floatingips.FloatingIP
+		err        error
+	)
+	if openstackID := coalesce(resource.Spec.ID, resource.Status.Resource.ID); openstackID != "" {
+		logger = logger.WithValues("OpenStackID", openstackID)
 
-	// If the resource has an ID set but hasn't been created by us, then
-	// it's unmanaged by default.
-	if resource.Spec.Unmanaged == nil {
-		var unmanaged bool
-		if resource.Spec.ID != "" && resource.Status.ID == "" {
-			unmanaged = true
-		}
-		resource.Spec.Unmanaged = &unmanaged
-		return ctrl.Result{}, nil
-	}
-
-	externalNetwork := &openstackv1.OpenStackNetwork{}
-	err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: resource.GetNamespace(),
-		Name:      resource.Spec.FloatingNetwork,
-	}, externalNetwork)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			logger.Info("external network resource not found in the API")
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, err
-	}
-
-	var openstackResource *floatingips.FloatingIP
-	if resource.Spec.ID != "" {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
-
-		var err error
-		openstackResource, err = floatingips.Get(networkClient, resource.Spec.ID).Extract()
+		floatingIP, err = floatingips.Get(networkClient, openstackID).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.Info("resouce exists in OpenStack")
+		logger.V(4).Info("resource exists in OpenStack")
 	} else {
-		var err error
-		openstackResource, err = floatingips.Create(networkClient, floatingips.CreateOpts{
-			Description:       resource.Spec.Description,
-			FloatingNetworkID: externalNetwork.Spec.ID,
-			FloatingIP:        resource.Spec.FloatingIP,
-			PortID:            resource.Spec.PortID,
-			FixedIP:           resource.Spec.FixedIP,
-			SubnetID:          resource.Spec.SubnetID,
-			TenantID:          resource.Spec.TenantID,
-			ProjectID:         resource.Spec.ProjectID,
+		var networkID string
+		{
+			dependency := &openstackv1.OpenStackNetwork{}
+			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: resource.Spec.Resource.FloatingNetwork}
+			err = r.Client.Get(ctx, dependencyKey, dependency)
+			if err != nil && !apierrors.IsNotFound(err) {
+				return ctrl.Result{}, err
+			}
+
+			// Dependency either doesn't exist, or is being deleted, or is not ready
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+				logger.Info("waiting for network")
+
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "network"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{}, nil
+			}
+			networkID = dependency.Status.Resource.ID
+		}
+
+		var subnetID string
+		if subnetName := resource.Spec.Resource.Subnet; subnetName != "" {
+			dependency := &openstackv1.OpenStackSubnet{}
+			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: subnetName}
+			err = r.Client.Get(ctx, dependencyKey, dependency)
+			if err != nil && !apierrors.IsNotFound(err) {
+				return ctrl.Result{}, err
+			}
+
+			// Dependency either doesn't exist, or is being deleted
+			if err != nil || !dependency.DeletionTimestamp.IsZero() {
+				logger.Info("waiting for subnet")
+
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "subnet"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{}, nil
+			}
+
+			// TODO: Check for the dependency's condition Ready
+			if dependency.Status.ID == "" {
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "OpenStack subnet"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{RequeueAfter: OpenStackResourceNotReadyRequeueAfter}, nil
+			}
+			subnetID = dependency.Status.ID
+		}
+
+		var portID string
+		if portName := resource.Spec.Resource.Port; portName != "" {
+			dependency := &openstackv1.OpenStackPort{}
+			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: portName}
+			err = r.Client.Get(ctx, dependencyKey, dependency)
+			if err != nil && !apierrors.IsNotFound(err) {
+				return ctrl.Result{}, err
+			}
+
+			// Dependency either doesn't exist, or is being deleted, or is not ready
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+				logger.Info("waiting for port")
+
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "port"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{}, nil
+			}
+			portID = dependency.Status.Resource.ID
+		}
+
+		floatingIP, err = floatingips.Create(networkClient, floatingips.CreateOpts{
+			Description:       resource.Spec.Resource.Description,
+			FloatingNetworkID: networkID,
+			FloatingIP:        resource.Spec.Resource.FloatingIPAddress,
+			PortID:            portID,
+			FixedIP:           resource.Spec.Resource.FixedIPAddress,
+			SubnetID:          subnetID,
+			TenantID:          resource.Spec.Resource.TenantID,
+			ProjectID:         resource.Spec.Resource.ProjectID,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		resource.Spec.ID = openstackResource.ID
-		logger = logger.WithValues("OpenStackID", openstackResource.ID)
+		logger = logger.WithValues("OpenStackID", floatingIP.ID)
 		logger.Info("OpenStack resource created")
 	}
 
-	resource.Status = openstackv1.OpenStackFloatingIPStatus{
-		ID:                openstackResource.ID,
-		Description:       openstackResource.Description,
-		FloatingNetworkID: openstackResource.FloatingNetworkID,
-		FloatingIP:        openstackResource.FloatingIP,
-		PortID:            openstackResource.PortID,
-		FixedIP:           openstackResource.FixedIP,
-		TenantID:          openstackResource.TenantID,
-		UpdatedAt:         openstackResource.UpdatedAt.UTC().Format(time.RFC3339),
-		CreatedAt:         openstackResource.CreatedAt.UTC().Format(time.RFC3339),
-		ProjectID:         openstackResource.ProjectID,
-		Status:            openstackResource.Status,
-		RouterID:          openstackResource.RouterID,
-		Tags:              openstackResource.Tags,
+	statusPatchResource.Status.Resource = openstackv1.OpenStackFloatingIPResourceStatus{
+		ID:                floatingIP.ID,
+		Description:       floatingIP.Description,
+		FloatingNetworkID: floatingIP.FloatingNetworkID,
+		FloatingIP:        floatingIP.FloatingIP,
+		PortID:            floatingIP.PortID,
+		FixedIP:           floatingIP.FixedIP,
+		TenantID:          floatingIP.TenantID,
+		UpdatedAt:         floatingIP.UpdatedAt.UTC().Format(time.RFC3339),
+		CreatedAt:         floatingIP.CreatedAt.UTC().Format(time.RFC3339),
+		ProjectID:         floatingIP.ProjectID,
+		Status:            floatingIP.Status,
+		RouterID:          floatingIP.RouterID,
+		Tags:              floatingIP.Tags,
 	}
 
+	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
+		conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+	}
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackFloatingIPReconciler) reconcileDelete(ctx context.Context, networkClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackFloatingIP) (ctrl.Result, error) {
+func (r *OpenStackFloatingIPReconciler) reconcileDelete(ctx context.Context, networkClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackFloatingIP) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	if resource.Spec.ID == "" {
-		logger.Info("deletion was requested on a resource that hasn't been created yet.")
+	if resource.Status.Resource.ID == "" {
+		logger.Info("deletion was requested on a resource that hasn't been successfully created or adopted yet.")
 	} else {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
-		if resource.Spec.Unmanaged != nil && !*resource.Spec.Unmanaged {
-			if err := floatingips.Delete(networkClient, resource.Spec.ID).ExtractErr(); err != nil {
+		logger = logger.WithValues("OpenStackID", resource.Status.Resource.ID)
+		if !resource.Spec.Unmanaged {
+			if err := floatingips.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
 				var gerr gophercloud.ErrDefault404
 				if errors.As(err, &gerr) {
 					logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
 				} else {
-					logger.Info("failed to delete resouce in OpenStack")
+					logger.Info("failed to delete resource in OpenStack; requeuing.")
 					return ctrl.Result{}, err
 				}
 			}
 		}
 	}
 
-	controllerutil.RemoveFinalizer(resource, openstackv1.Finalizer)
-	logger.Info("reconcileDelete succeeded.")
+	if updated := controllerutil.RemoveFinalizer(resource, OpenStackFloatingIPFinalizer); updated {
+		logger.Info("removing finalizer")
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, "Removing finalizer"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		patch := &openstackv1.OpenStackFloatingIP{}
+		patch.TypeMeta = resource.TypeMeta
+		patch.Finalizers = resource.GetFinalizers()
+		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -226,5 +333,105 @@ func (r *OpenStackFloatingIPReconciler) reconcileDelete(ctx context.Context, net
 func (r *OpenStackFloatingIPReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openstackv1.OpenStackFloatingIP{}).
+		WithEventFilter(apply.IgnoreManagedFieldsOnly{}).
+		Watches(&openstackv1.OpenStackCloud{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackFloatingIPs that reference this OpenStackCloud.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			floatingIPs := &openstackv1.OpenStackFloatingIPList{}
+			if err := kclient.List(ctx, floatingIPs,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackFloatingIPs")
+				return nil
+			}
+
+			// Reconcile each OpenStackFloatingIP that is not Ready and that references this OpenStackCloud.
+			reqs := make([]reconcile.Request, 0, len(floatingIPs.Items))
+			for _, floatingIP := range floatingIPs.Items {
+				if conditions.IsReady(&floatingIP) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: floatingIP.GetNamespace(),
+						Name:      floatingIP.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackCloud triggers reconcile of OpenStackFloatingIP",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"floating ip", floatingIP.GetName())
+			}
+			return reqs
+		})).
+		Watches(&openstackv1.OpenStackPort{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackFloatingIPs that reference this OpenStackPort.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			floatingIPs := &openstackv1.OpenStackFloatingIPList{}
+			if err := kclient.List(ctx, floatingIPs,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelPort(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackFloatingIPs")
+				return nil
+			}
+
+			// Reconcile each OpenStackFloatingIP that is not Ready and that references this OpenStackPort.
+			reqs := make([]reconcile.Request, 0, len(floatingIPs.Items))
+			for _, floatingIP := range floatingIPs.Items {
+				if conditions.IsReady(&floatingIP) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: floatingIP.GetNamespace(),
+						Name:      floatingIP.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackPort triggers reconcile of OpenStackFloatingIP",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"floating ip", floatingIP.GetName())
+			}
+			return reqs
+		})).
+		Watches(&openstackv1.OpenStackSubnet{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackFloatingIPs that reference this OpenStackSubnet.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			floatingIPs := &openstackv1.OpenStackFloatingIPList{}
+			if err := kclient.List(ctx, floatingIPs,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelSubnet(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackFloatingIPs")
+				return nil
+			}
+
+			// Reconcile each OpenStackFloatingIP that is not Ready and that references this OpenStackSubnet.
+			reqs := make([]reconcile.Request, 0, len(floatingIPs.Items))
+			for _, floatingIP := range floatingIPs.Items {
+				if conditions.IsReady(&floatingIP) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: floatingIP.GetNamespace(),
+						Name:      floatingIP.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackSubnet triggers reconcile of OpenStackFloatingIP",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"floating ip", floatingIP.GetName())
+			}
+			return reqs
+		})).
 		Complete(r)
 }

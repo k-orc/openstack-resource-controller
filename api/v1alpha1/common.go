@@ -59,6 +59,10 @@ func OpenStackDependencyLabelSubnet(name string) string {
 	return openStackDependencyLabel("subnet", name)
 }
 
+func OpenStackDependencyLabelPort(name string) string {
+	return openStackDependencyLabel("port", name)
+}
+
 func openStackDependencyLabel(resource, name string) string {
 	return resource + "." + OpenStackLabelPrefix + name
 }

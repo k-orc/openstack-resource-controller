@@ -14,7 +14,17 @@ spec:
     singular: openstackfloatingip
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Error")].status
+      name: Error
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+      name: Status
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: OpenStackFloatingIP is the Schema for the openstackfloatingips
@@ -33,95 +43,179 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpenStackFloatingIPSpec defines the desired state of OpenStackFloatingIP
             properties:
               cloud:
                 description: Cloud is the OpenStackCloud hosting this resource
                 type: string
-              description:
-                type: string
-              fixedIPAddress:
-                type: string
-              floatingIPAddress:
-                type: string
-              floatingNetwork:
-                description: FloatingNetwork is the external OpenStackNetwork where
-                  the floating IP is to be created.
-                type: string
               id:
-                description: ID is the OpenStack UUID of the resource. If left empty,
-                  the controller will create a new resource and populate this field.
-                  If manually populated, the controller will adopt the corresponding
-                  resource.
+                description: ID is the UUID of the existing OpenStack resource to
+                  be adopted. If left empty, the controller will create a new resource
+                  using the information in the "resource" stanza.
                 type: string
-              portID:
-                type: string
-              projectID:
-                type: string
-              subnetID:
-                type: string
-              tenantID:
-                type: string
+              resource:
+                description: OpenStackFloatingIPResourceSpec defines the desired state
+                  of OpenStackFloatingIP
+                properties:
+                  description:
+                    type: string
+                  fixedIPAddress:
+                    type: string
+                  floatingIPAddress:
+                    type: string
+                  floatingNetwork:
+                    description: FloatingNetwork is the external OpenStackNetwork
+                      where the floating IP is to be created.
+                    type: string
+                  id:
+                    description: ID is the unique identifier for the floating IP instance.
+                    type: string
+                  port:
+                    type: string
+                  projectID:
+                    type: string
+                  subnetID:
+                    type: string
+                  tenantID:
+                    type: string
+                type: object
               unmanaged:
                 description: Unmanaged, when true, means that no action will be performed
-                  in OpenStack against this resource. This is false by default, except
-                  for pre-existing resources that are adopted by passing ID on creation.
+                  in OpenStack against this resource.
                 type: boolean
             required:
             - cloud
             type: object
           status:
-            description: OpenStackFloatingIPStatus defines the observed state of OpenStackFloatingIP
             properties:
-              createdAt:
-                description: CreatedAt contains the timestamp of when the resource
-                  was created.
-                type: string
-              description:
-                description: Description for the floating IP instance.
-                type: string
-              fixedIPAddress:
-                description: FixedIP is the specific IP address of the internal port
-                  which should be associated with the floating IP.
-                type: string
-              floatingIPAddress:
-                description: FloatingIP is the address of the floating IP on the external
-                  network.
-                type: string
-              floatingNetworkID:
-                description: FloatingNetworkID is the UUID of the external network
-                  where the floating IP is to be created.
-                type: string
-              id:
-                description: ID is the unique identifier for the floating IP instance.
-                type: string
-              portIP:
-                description: PortID is the UUID of the port on an internal network
-                  that is associated with the floating IP.
-                type: string
-              projectID:
-                description: ProjectID is the project owner of the floating IP.
-                type: string
-              routerID:
-                description: RouterID is the ID of the router used for this floating
-                  IP.
-                type: string
-              status:
-                description: Status is the condition of the API resource.
-                type: string
-              tags:
-                description: Tags optionally set via extensions/attributestags
+              conditions:
+                description: 'Represents the observations of an OpenStack resource''s
+                  current state. All resources must define: "Ready", "WaitingFor",
+                  "Error"'
                 items:
-                  type: string
+                  description: "Condition contains details for one aspect of the current
+                    state of this API Resource. --- This struct is intended for direct
+                    use as an array at the field path .status.conditions.  For example,
+                    \n type FooStatus struct{ // Represents the observations of a
+                    foo's current state. // Known .status.conditions.type are: \"Available\",
+                    \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
+                    // +listType=map // +listMapKey=type Conditions []metav1.Condition
+                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
+                    protobuf:\"bytes,1,rep,name=conditions\"` \n // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition
+                        transitioned from one status to another. This should be when
+                        the underlying condition changed.  If that is not known, then
+                        using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating
+                        details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation
+                        that the condition was set based upon. For instance, if .metadata.generation
+                        is currently 12, but the .status.conditions[x].observedGeneration
+                        is 9, the condition is out of date with respect to the current
+                        state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating
+                        the reason for the condition's last transition. Producers
+                        of specific condition types may define expected values and
+                        meanings for this field, and whether the values are considered
+                        a guaranteed API. The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        --- Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
                 type: array
-              tenantID:
-                description: TenantID is the project owner of the floating IP. Only
-                  admin users can specify a project identifier other than its own.
-                type: string
-              updatedAt:
-                description: UpdatedAt contains the timestamp of when the resource
-                  was last changed.
-                type: string
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              resource:
+                description: OpenStackFloatingIPResourceStatus defines the observed
+                  state of OpenStackFloatingIP
+                properties:
+                  createdAt:
+                    description: CreatedAt contains the timestamp of when the resource
+                      was created.
+                    type: string
+                  description:
+                    description: Description for the floating IP instance.
+                    type: string
+                  fixedIPAddress:
+                    description: FixedIP is the specific IP address of the internal
+                      port which should be associated with the floating IP.
+                    type: string
+                  floatingIPAddress:
+                    description: FloatingIP is the address of the floating IP on the
+                      external network.
+                    type: string
+                  floatingNetworkID:
+                    description: FloatingNetworkID is the UUID of the external network
+                      where the floating IP is to be created.
+                    type: string
+                  id:
+                    description: ID is the unique identifier for the floating IP instance.
+                    type: string
+                  portIP:
+                    description: PortID is the UUID of the port on an internal network
+                      that is associated with the floating IP.
+                    type: string
+                  projectID:
+                    description: ProjectID is the project owner of the floating IP.
+                    type: string
+                  routerID:
+                    description: RouterID is the ID of the router used for this floating
+                      IP.
+                    type: string
+                  status:
+                    description: Status is the condition of the API resource.
+                    type: string
+                  tags:
+                    description: Tags optionally set via extensions/attributestags
+                    items:
+                      type: string
+                    type: array
+                  tenantID:
+                    description: TenantID is the project owner of the floating IP.
+                      Only admin users can specify a project identifier other than
+                      its own.
+                    type: string
+                  updatedAt:
+                    description: UpdatedAt contains the timestamp of when the resource
+                      was last changed.
+                    type: string
+                type: object
             type: object
         type: object
     served: true

@@ -20,39 +20,28 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OpenStackFloatingIPSpec defines the desired state of OpenStackFloatingIP
-type OpenStackFloatingIPSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
+// OpenStackFloatingIPResourceSpec defines the desired state of OpenStackFloatingIP
+type OpenStackFloatingIPResourceSpec struct {
+	// ID is the unique identifier for the floating IP instance.
 	ID string `json:"id,omitempty"`
 
 	Description string `json:"description,omitempty"`
 
 	// FloatingNetwork is the external OpenStackNetwork where the floating
 	// IP is to be created.
+	// +kubebuilder:validation:Required
 	FloatingNetwork string `json:"floatingNetwork,omitempty"`
 
-	FloatingIP string `json:"floatingIPAddress,omitempty"`
-	PortID     string `json:"portID,omitempty"`
-	FixedIP    string `json:"fixedIPAddress,omitempty"`
-	SubnetID   string `json:"subnetID,omitempty"`
-	TenantID   string `json:"tenantID,omitempty"`
-	ProjectID  string `json:"projectID,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
+	FloatingIPAddress string `json:"floatingIPAddress,omitempty"`
+	Port              string `json:"port,omitempty"`
+	FixedIPAddress    string `json:"fixedIPAddress,omitempty"`
+	Subnet            string `json:"subnetID,omitempty"`
+	TenantID          string `json:"tenantID,omitempty"`
+	ProjectID         string `json:"projectID,omitempty"`
 }
 
-// OpenStackFloatingIPStatus defines the observed state of OpenStackFloatingIP
-type OpenStackFloatingIPStatus struct {
+// OpenStackFloatingIPResourceStatus defines the observed state of OpenStackFloatingIP
+type OpenStackFloatingIPResourceStatus struct {
 	// ID is the unique identifier for the floating IP instance.
 	ID string `json:"id,omitempty"`
 
@@ -98,8 +87,35 @@ type OpenStackFloatingIPStatus struct {
 	Tags []string `json:"tags,omitempty"`
 }
 
+type OpenStackFloatingIPSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackFloatingIPResourceSpec `json:"resource,omitempty"`
+}
+
+type OpenStackFloatingIPStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackFloatingIPResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackFloatingIP) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackFlavor{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackFloatingIP is the Schema for the openstackfloatingips API
 type OpenStackFloatingIP struct {

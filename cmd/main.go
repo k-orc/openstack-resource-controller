@@ -110,8 +110,9 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&controller.OpenStackFloatingIPReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Recorder: recorder,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "OpenStackFloatingIP")
 		os.Exit(1)
