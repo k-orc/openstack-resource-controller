@@ -198,10 +198,10 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 				}
 				return ctrl.Result{}, err
 			}
-			if securityGroup.Status.ID == "" {
+			if securityGroup.Status.Resource.ID == "" {
 				return ctrl.Result{}, fmt.Errorf("security group %q not found in OpenStack", securityGroup.GetName())
 			}
-			securityGroupIDs[i] = securityGroup.Status.ID
+			securityGroupIDs[i] = securityGroup.Status.Resource.ID
 		}
 
 		gophercloudNetworks := make([]servers.Network, len(resource.Spec.Networks))

@@ -207,15 +207,15 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 
 		securityGroupIDs := make([]string, len(resource.Spec.Resource.SecurityGroups))
 		for i, securityGroupName := range resource.Spec.Resource.SecurityGroups {
-			depencency := &openstackv1.OpenStackSecurityGroup{}
+			dependency := &openstackv1.OpenStackSecurityGroup{}
 			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: securityGroupName}
-			err = r.Client.Get(ctx, dependencyKey, depencency)
+			err = r.Client.Get(ctx, dependencyKey, dependency)
 			if err != nil && !apierrors.IsNotFound(err) {
 				return ctrl.Result{}, err
 			}
 
-			// Dependency either doesn't exist, or is being deleted
-			if err != nil || !depencency.DeletionTimestamp.IsZero() {
+			// Dependency either doesn't exist, or is being deleted, or is not ready
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
 				logger.Info("waiting for security group")
 
 				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
@@ -226,18 +226,7 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 				}
 				return ctrl.Result{}, nil
 			}
-
-			// TODO: Check for the dependency's condition Ready
-			if depencency.Status.ID == "" {
-				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
-					{ObjectKey: dependencyKey, Resource: "OpenStack security group"},
-				}); updated {
-					// Emit an event if we're setting the condition for the first time
-					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-				}
-				return ctrl.Result{RequeueAfter: OpenStackResourceNotReadyRequeueAfter}, nil
-			}
-			securityGroupIDs[i] = depencency.Status.ID
+			securityGroupIDs[i] = dependency.Status.Resource.ID
 		}
 
 		type FixedIP struct {

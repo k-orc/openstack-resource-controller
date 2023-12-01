@@ -156,7 +156,7 @@ func (r *OpenStackSecurityGroupRuleReconciler) reconcile(ctx context.Context, ne
 			}
 			return ctrl.Result{}, err
 		}
-		if securityGroup.Status.ID == "" {
+		if securityGroup.Status.Resource.ID == "" {
 			return ctrl.Result{}, fmt.Errorf("parent security group %q not found in OpenStack", resource.Spec.SecurityGroup)
 		}
 
@@ -164,7 +164,7 @@ func (r *OpenStackSecurityGroupRuleReconciler) reconcile(ctx context.Context, ne
 			Direction:      rules.RuleDirection(resource.Spec.Direction),
 			Description:    resource.Spec.Description,
 			EtherType:      rules.RuleEtherType(resource.Spec.EtherType),
-			SecGroupID:     securityGroup.Status.ID,
+			SecGroupID:     securityGroup.Status.Resource.ID,
 			PortRangeMax:   resource.Spec.PortRangeMax,
 			PortRangeMin:   resource.Spec.PortRangeMin,
 			Protocol:       rules.RuleProtocol(resource.Spec.Protocol),

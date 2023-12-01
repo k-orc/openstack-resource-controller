@@ -20,31 +20,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OpenStackSecurityGroupSpec defines the desired state of OpenStackSecurityGroup
-type OpenStackSecurityGroupSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
-	ID string `json:"id,omitempty"`
-
+// OpenStackSecurityGroupResourceSpec defines the desired state of OpenStackSecurityGroup
+type OpenStackSecurityGroupResourceSpec struct {
 	// Name of the OpenStack resource.
 	Name string `json:"name,omitempty"`
 
 	Description string `json:"description,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
 }
 
-// OpenStackSecurityGroupStatus defines the observed state of OpenStackSecurityGroup
-type OpenStackSecurityGroupStatus struct {
+// OpenStackSecurityGroupResourceStatus defines the observed state of OpenStackSecurityGroup
+type OpenStackSecurityGroupResourceStatus struct {
 	// The UUID for the security group.
 	ID string `json:"id"`
 
@@ -76,8 +61,37 @@ type OpenStackSecurityGroupStatus struct {
 	Tags []string `json:"tags,omitempty"`
 }
 
+// OpenStackPortSpec defines the desired state of OpenStackPort
+type OpenStackSecurityGroupSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackSecurityGroupResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackPortStatus defines the observed state of OpenStackPort
+type OpenStackSecurityGroupStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackSecurityGroupResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackSecurityGroup) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackSecurityGroup{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackSecurityGroup is the Schema for the openstacksecuritygroups API
 type OpenStackSecurityGroup struct {
