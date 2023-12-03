@@ -66,7 +66,15 @@ func finalizerName(cloud *openstackv1.OpenStackCloud) string {
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=patch
 //+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackflavors,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackfloatingips,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackimages,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacknetworks,verbs=list
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackports,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackrouters,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksecuritygrouprules,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksecuritygroups,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackservers,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksubnets,verbs=list
 
 func (r *OpenStackCloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
@@ -223,8 +231,15 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, resource
 	referencingResources := []string{}
 	for _, resourceList := range []client.ObjectList{
 		&openstackv1.OpenStackFlavorList{},
-		&openstackv1.OpenStackPortList{},
+		&openstackv1.OpenStackFloatingIPList{},
+		&openstackv1.OpenStackImageList{},
 		&openstackv1.OpenStackNetworkList{},
+		&openstackv1.OpenStackPortList{},
+		&openstackv1.OpenStackRouterList{},
+		&openstackv1.OpenStackSecurityGroupRuleList{},
+		&openstackv1.OpenStackSecurityGroupList{},
+		&openstackv1.OpenStackServerList{},
+		&openstackv1.OpenStackSubnetList{},
 	} {
 		list := &unstructured.UnstructuredList{}
 		gvk, err := apiutil.GVKForObject(resourceList, r.Client.Scheme())
