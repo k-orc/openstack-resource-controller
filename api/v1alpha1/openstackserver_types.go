@@ -20,17 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// OpenStackServerSpec defines the desired state of OpenStackServer
-type OpenStackServerSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
-	ID string `json:"id,omitempty"`
-
+// OpenStackServerResourceSpec defines the desired state of OpenStackServer
+type OpenStackServerResourceSpec struct {
 	// Name contains the human-readable name for the server.
 	Name string `json:"name,omitempty"`
 
@@ -41,7 +32,7 @@ type OpenStackServerSpec struct {
 	Flavor string `json:"flavor,omitempty"`
 
 	// Networks indicates the OpenStackNetworks to attach the server to.
-	Networks []string `json:"networks"`
+	Networks []OpenStackServerSpecNetworks `json:"networks"`
 
 	// Metadata includes a list of all user-specified key-value pairs attached
 	// to the server.
@@ -69,16 +60,17 @@ type OpenStackServerSpec struct {
 	// contain at most one entry.
 	// New in microversion 2.71
 	// ServerGroups []string `json:"serverGroups,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
 }
 
-// OpenStackServerStatus defines the observed state of OpenStackServer
-type OpenStackServerStatus struct {
+type OpenStackServerSpecNetworks struct {
+	Network string `json:"network,omitempty"`
+	Port    string `json:"port,omitempty"`
+	FixedIP string `json:"fixedIP,omitempty"`
+	Tag     string `json:"tag,omitempty"`
+}
+
+// OpenStackServerResourceStatus defines the observed state of OpenStackServer
+type OpenStackServerResourceStatus struct {
 	// ID uniquely identifies this server amongst all other servers,
 	// including those not accessible to the current tenant.
 	ID string `json:"id"`
@@ -160,8 +152,37 @@ type OpenStackServerStatus struct {
 	ServerGroupIDs []string `json:"serverGroupIDs,omitempty"`
 }
 
+// OpenStackServerSpec defines the desired state of OpenStackPort
+type OpenStackServerSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackServerResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackServerStatus defines the observed state of OpenStackPort
+type OpenStackServerStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackServerResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackServer) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackPort{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackServer is the Schema for the openstackservers API
 type OpenStackServer struct {
