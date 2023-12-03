@@ -10,8 +10,7 @@ metadata:
   name: router-1
 spec:
   cloud: osp1
-  name: router-1
-  externalGatewayInfo:
-    network: external
-  subnets:
-    - network-1
+  resource:
+    name: router-1
+    externalGatewayInfo:
+      network: external

@@ -20,26 +20,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // OpenStackRouterSpec defines the desired state of OpenStackRouter
-type OpenStackRouterSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
-	ID string `json:"id,omitempty"`
-
+type OpenStackRouterResourceSpec struct {
 	// Name of the OpenStack resource.
 	Name string `json:"name,omitempty"`
 
 	Description string `json:"description,omitempty"`
 
-	ExternalGatewayInfo *OpenStackRouterSpecExternalGatewayInfo `json:"externalGatewayInfo,omitempty"`
+	ExternalGateway *OpenStackRouterSpecExternalGateway `json:"externalGatewayInfo,omitempty"`
 
 	// AdminStateUp is the administrative state of the router.
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
@@ -58,26 +46,20 @@ type OpenStackRouterSpec struct {
 	// ProjectID is the project owner of the router.
 	ProjectID string `json:"projectID,omitempty"`
 
-	// All the subnets that will be added as router interfaces
-	Subnets []string `json:"subnets,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
+	// All the ports that will be added as router interfaces
+	Ports []string `json:"ports,omitempty"`
 }
 
 // OpenStackRouterStatus defines the observed state of OpenStackRouter
-type OpenStackRouterStatus struct {
+type OpenStackRouterResourceStatus struct {
 	// Status indicates whether or not a router is currently operational.
 	Status string `json:"status,omitempty"`
 
 	// GatewayInfo provides information on external gateway for the router.
 	GatewayInfo OpenStackRouterStatusExternalGatewayInfo `json:"externalGatewayInfo,omitempty"`
 
-	// InterfacesInfo provides information on the interfaces connected to this router
-	InterfacesInfo []OpenStackRouterInterfaceInfo `json:"interfacesInfo,omitempty"`
+	// Ports provides information on the interfaces connected to this router
+	Ports []string `json:"ports,omitempty"`
 
 	// AdminStateUp is the administrative state of the router.
 	AdminStateUp bool `json:"adminStateUp,omitempty"`
@@ -113,9 +95,9 @@ type OpenStackRouterStatus struct {
 	Tags []string `json:"tags,omitempty"`
 }
 
-// OpenStackRouterSpecExternalGatewayInfo represents the information of an external gateway for any
+// OpenStackRouterSpecExternalGateway represents the information of an external gateway for any
 // particular network router.
-type OpenStackRouterSpecExternalGatewayInfo struct {
+type OpenStackRouterSpecExternalGateway struct {
 	Network          string                           `json:"network,omitempty"`
 	EnableSNAT       *bool                            `json:"enableSNAT,omitempty"`
 	ExternalFixedIPs []OpenStackRouterExternalFixedIP `json:"externalFixedIps,omitempty"`
@@ -133,7 +115,7 @@ type OpenStackRouterStatusExternalGatewayInfo struct {
 // router.
 type OpenStackRouterExternalFixedIP struct {
 	IPAddress string `json:"ipAddress,omitempty"`
-	Subnet    string `json:"subnet"`
+	Subnet    string `json:"subnet,omitempty"`
 }
 
 // OpenStackRouterRoute is a possible route in a router.
@@ -147,20 +129,49 @@ type OpenStackRouterRoute struct {
 // interface.
 type OpenStackRouterInterfaceInfo struct {
 	// SubnetID is the ID of the subnet which this interface is associated with.
-	SubnetID string `json:"subnetID"`
+	SubnetID string `json:"subnetID,omitempty"`
 
 	// PortID is the ID of the port that is a part of the subnet.
-	PortID string `json:"portID"`
+	PortID string `json:"portID,omitempty"`
 
 	// ID is the UUID of the interface.
-	ID string `json:"ID"`
+	ID string `json:"ID,omitempty"`
 
 	// TenantID is the owner of the interface.
-	TenantID string `json:"tenantID"`
+	TenantID string `json:"tenantID,omitempty"`
 }
+
+// OpenStackRouterSpec defines the desired state of OpenStackPort
+type OpenStackRouterSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackRouterResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackRouterStatus defines the observed state of OpenStackPort
+type OpenStackRouterStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackRouterResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackRouter) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackRouter{}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackRouter is the Schema for the openstackrouters API
 type OpenStackRouter struct {
