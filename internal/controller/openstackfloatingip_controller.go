@@ -207,8 +207,8 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 				return ctrl.Result{}, err
 			}
 
-			// Dependency either doesn't exist, or is being deleted
-			if err != nil || !dependency.DeletionTimestamp.IsZero() {
+			// Dependency either doesn't exist, or is being deleted, or is not ready
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
 				logger.Info("waiting for subnet")
 
 				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
@@ -220,17 +220,7 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 				return ctrl.Result{}, nil
 			}
 
-			// TODO: Check for the dependency's condition Ready
-			if dependency.Status.ID == "" {
-				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
-					{ObjectKey: dependencyKey, Resource: "OpenStack subnet"},
-				}); updated {
-					// Emit an event if we're setting the condition for the first time
-					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-				}
-				return ctrl.Result{RequeueAfter: OpenStackResourceNotReadyRequeueAfter}, nil
-			}
-			subnetID = dependency.Status.ID
+			subnetID = dependency.Status.Resource.ID
 		}
 
 		var portID string

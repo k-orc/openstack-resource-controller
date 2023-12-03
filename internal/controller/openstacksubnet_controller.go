@@ -20,48 +20,57 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	"sigs.k8s.io/cluster-api/util/patch"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
+	"github.com/gophercloud/openstack-resource-controller/pkg/conditions"
+	"github.com/gophercloud/openstack-resource-controller/pkg/labels"
+)
+
+const (
+	OpenStackSubnetFinalizer = "openstacksubnet.k-orc.cloud"
 )
 
 // OpenStackSubnetReconciler reconciles a OpenStackSubnet object
 type OpenStackSubnetReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksubnets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksubnets/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacksubnets/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackfloatingips,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackservers,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackports,verbs=list
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the OpenStackSubnet object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.0/pkg/reconcile
 func (r *OpenStackSubnetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 	logger = logger.WithValues("OpenStackSubnet", req.Name)
 
-	openStackResource := &openstackv1.OpenStackSubnet{}
-	err := r.Client.Get(ctx, req.NamespacedName, openStackResource)
+	resource := &openstackv1.OpenStackSubnet{}
+	err := r.Client.Get(ctx, req.NamespacedName, resource)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			logger.Info("resource not found in the API")
@@ -70,213 +79,285 @@ func (r *OpenStackSubnetReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, err
 	}
 
-	openStackCloud := &openstackv1.OpenStackCloud{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: req.Namespace,
-		Name:      openStackResource.Spec.Cloud,
-	}, openStackCloud); err != nil {
-		if apierrors.IsNotFound(err) {
-			err = fmt.Errorf("OpenStackCloud %q not found: %w", openStackResource.Spec.Cloud, err)
-			logger.Info(err.Error())
-			return ctrl.Result{}, err
+	if resource.DeletionTimestamp.IsZero() {
+		finalizerUpdated := controllerutil.AddFinalizer(resource, OpenStackSubnetFinalizer)
+
+		newLabels := map[string]string{
+			openstackv1.OpenStackDependencyLabelCloud(resource.Spec.Cloud):              "",
+			openstackv1.OpenStackDependencyLabelNetwork(resource.Spec.Resource.Network): "",
 		}
-		return ctrl.Result{}, err
+
+		labelsMerger, labelsUpdated := labels.ReplacePrefixed(openstackv1.OpenStackLabelPrefix, resource.Labels, newLabels)
+
+		if finalizerUpdated || labelsUpdated {
+			logger.Info("applying labels and finalizer")
+			patch := &openstackv1.OpenStackPort{}
+			patch.TypeMeta = resource.TypeMeta
+			patch.Finalizers = resource.GetFinalizers()
+			patch.Labels = labelsMerger
+			return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+		}
 	}
 
-	// Initialize the patch helper
-	resourcePatchHelper, err := patch.NewHelper(openStackResource, r.Client)
-	if err != nil {
-		return ctrl.Result{}, err
+	statusPatchResource := &openstackv1.OpenStackSubnet{
+		Status:   *resource.Status.DeepCopy(),
+		TypeMeta: resource.TypeMeta,
 	}
-
-	// Always patch the resource when exiting this function.
 	defer func() {
-		reterr = kerrors.NewAggregate([]error{
-			reterr,
-			resourcePatchHelper.Patch(ctx, openStackResource),
-		})
-	}()
+		// If we're returning an error, report it as a TransientError in the Ready condition
+		if reterr != nil {
+			if updated, condition := conditions.SetNotReadyConditionTransientError(resource, statusPatchResource, reterr.Error()); updated {
+				// Emit an event if we're setting the condition for the first time
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
+			}
+		}
+		if err := apply.ApplyStatus(ctx, r.Client, resource, statusPatchResource); err != nil && !(apierrors.IsNotFound(err) && len(resource.Finalizers) == 0) {
+			reterr = errors.Join(reterr, err)
+		}
 
-	networkClient, err := cloud.NewServiceClient(log.IntoContext(ctx, logger), r.Client, openStackCloud, "network")
+	}()
+	if len(resource.Status.Conditions) == 0 {
+		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
+	}
+
+	// Get the OpenStackCloud resource
+	openStackCloud := &openstackv1.OpenStackCloud{}
+	{
+		openStackCloudRef := client.ObjectKey{
+			Namespace: req.Namespace,
+			Name:      resource.Spec.Cloud,
+		}
+		err := r.Client.Get(ctx, openStackCloudRef, openStackCloud)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return ctrl.Result{}, fmt.Errorf("fetching OpenStackCloud %s: %w", resource.Spec.Cloud, err)
+		}
+
+		// XXX(mbooth): We should check IsReady(openStackCloud) here, but we can't because this breaks us while the cloud is Deleting.
+		// We probably need another Condition 'Deleting' so an object can be both Ready and Deleting during the cleanup phase.
+		if err != nil {
+			conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+				{ObjectKey: openStackCloudRef, Resource: "OpenStackCloud"},
+			})
+			return ctrl.Result{}, nil
+		}
+	}
+
+	networkClient, err := cloud.NewServiceClient(ctx, r.Client, openStackCloud, "network")
 	if err != nil {
 		err = fmt.Errorf("unable to build an OpenStack client: %w", err)
 		logger.Info(err.Error())
 		return ctrl.Result{}, err
 	}
 
-	if !openStackResource.DeletionTimestamp.IsZero() {
-		return r.reconcileDelete(log.IntoContext(ctx, logger), networkClient, openStackResource)
+	if !resource.DeletionTimestamp.IsZero() {
+		return r.reconcileDelete(log.IntoContext(ctx, logger), networkClient, resource, statusPatchResource)
 	}
 
-	return r.reconcile(log.IntoContext(ctx, logger), networkClient, openStackResource)
+	return r.reconcile(log.IntoContext(ctx, logger), networkClient, resource, statusPatchResource)
 }
 
 // reconcile handles creation. No modification is accepted.
 // TODO: restrict unhandled modification through a webhook
-// TODO: potentially handle (some?) modifications accepted in OpenStack, as in `openstack network set`
-func (r *OpenStackSubnetReconciler) reconcile(ctx context.Context, networkClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackSubnet) (ctrl.Result, error) {
+// TODO: potentially handle (some?) modifications accepted in OpenStack
+func (r *OpenStackSubnetReconciler) reconcile(ctx context.Context, networkClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackSubnet) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
 
-	// If the resource doesn't have our finalizer, add it.
-	if controllerutil.AddFinalizer(resource, openstackv1.Finalizer) {
-		// Register the finalizer immediately to avoid orphaning OpenStack resources on delete
-		return ctrl.Result{}, nil
-	}
+	var (
+		subnet *subnets.Subnet
+		err    error
+	)
+	if openstackID := coalesce(resource.Spec.ID, resource.Status.Resource.ID); openstackID != "" {
+		logger = logger.WithValues("OpenStackID", openstackID)
 
-	// If the resource has an ID set but hasn't been created by us, then
-	// it's unmanaged by default.
-	if resource.Spec.Unmanaged == nil {
-		var unmanaged bool
-		if resource.Spec.ID != "" && resource.Status.ID == "" {
-			unmanaged = true
-		}
-		resource.Spec.Unmanaged = &unmanaged
-		return ctrl.Result{}, nil
-	}
-
-	var openstackResource *subnets.Subnet
-	if resource.Spec.ID != "" {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
-
-		var err error
-		openstackResource, err = subnets.Get(networkClient, resource.Spec.ID).Extract()
+		subnet, err = subnets.Get(networkClient, openstackID).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.Info("resouce exists in OpenStack")
+		logger.V(4).Info("resource exists in OpenStack")
 	} else {
 		var networkID string
 		{
-			network := &openstackv1.OpenStackNetwork{}
-			err := r.Client.Get(ctx, types.NamespacedName{
-				Namespace: resource.GetNamespace(),
-				Name:      resource.Spec.Network,
-			}, network)
-			if err != nil {
-				if apierrors.IsNotFound(err) {
-					return ctrl.Result{}, fmt.Errorf("network %q not found", resource.Spec.Network)
-				}
+			dependency := &openstackv1.OpenStackNetwork{}
+			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: resource.Spec.Resource.Network}
+			err = r.Client.Get(ctx, dependencyKey, dependency)
+			if err != nil && !apierrors.IsNotFound(err) {
 				return ctrl.Result{}, err
 			}
-			if network.Status.Resource.ID == "" {
-				return ctrl.Result{}, fmt.Errorf("network %q not found in OpenStack", network.GetName())
+
+			// Dependency either doesn't exist, or is being deleted
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+				logger.Info("waiting for network")
+
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "network"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{}, nil
 			}
-			networkID = network.Status.Resource.ID
+			networkID = dependency.Status.Resource.ID
 		}
 
-		allocationPools := make([]subnets.AllocationPool, len(resource.Spec.AllocationPools))
-		for i := range resource.Spec.AllocationPools {
+		allocationPools := make([]subnets.AllocationPool, len(resource.Spec.Resource.AllocationPools))
+		for i := range resource.Spec.Resource.AllocationPools {
 			allocationPools[i] = subnets.AllocationPool{
-				Start: resource.Spec.AllocationPools[i].Start,
-				End:   resource.Spec.AllocationPools[i].End,
+				Start: resource.Spec.Resource.AllocationPools[i].Start,
+				End:   resource.Spec.Resource.AllocationPools[i].End,
 			}
 		}
 
 		var ipVersion gophercloud.IPVersion
-		switch resource.Spec.IPVersion {
+		switch v := resource.Spec.Resource.IPVersion; v {
 		case "IPv4":
 			ipVersion = gophercloud.IPv4
 		case "IPv6":
 			ipVersion = gophercloud.IPv6
 		default:
-			return ctrl.Result{}, fmt.Errorf("invalid IP version %q. Valid instances are %q and %q", resource.Spec.IPVersion, "IPv4", "IPv6")
+			return ctrl.Result{}, fmt.Errorf("invalid IP version %q. Valid instances are %q and %q", v, "IPv4", "IPv6")
 		}
 
-		hostRoutes := make([]subnets.HostRoute, len(resource.Spec.HostRoutes))
-		for i := range resource.Spec.HostRoutes {
+		hostRoutes := make([]subnets.HostRoute, len(resource.Spec.Resource.HostRoutes))
+		for i := range resource.Spec.Resource.HostRoutes {
 			hostRoutes[i] = subnets.HostRoute{
-				DestinationCIDR: resource.Spec.HostRoutes[i].DestinationCIDR,
-				NextHop:         resource.Spec.HostRoutes[i].NextHop,
+				DestinationCIDR: resource.Spec.Resource.HostRoutes[i].DestinationCIDR,
+				NextHop:         resource.Spec.Resource.HostRoutes[i].NextHop,
 			}
 		}
 
-		var err error
-		openstackResource, err = subnets.Create(networkClient, subnets.CreateOpts{
+		subnet, err = subnets.Create(networkClient, subnets.CreateOpts{
 			NetworkID:       networkID,
-			CIDR:            resource.Spec.CIDR,
-			Name:            resource.Spec.Name,
-			Description:     resource.Spec.Description,
+			CIDR:            resource.Spec.Resource.CIDR,
+			Name:            resource.Spec.Resource.Name,
+			Description:     resource.Spec.Resource.Description,
 			AllocationPools: allocationPools,
-			GatewayIP:       resource.Spec.GatewayIP,
+			GatewayIP:       resource.Spec.Resource.GatewayIP,
 			IPVersion:       ipVersion,
-			EnableDHCP:      resource.Spec.EnableDHCP,
-			DNSNameservers:  resource.Spec.DNSNameservers,
-			ServiceTypes:    resource.Spec.ServiceTypes,
+			EnableDHCP:      resource.Spec.Resource.EnableDHCP,
+			DNSNameservers:  resource.Spec.Resource.DNSNameservers,
+			ServiceTypes:    resource.Spec.Resource.ServiceTypes,
 			HostRoutes:      hostRoutes,
-			IPv6AddressMode: resource.Spec.IPv6AddressMode,
-			IPv6RAMode:      resource.Spec.IPv6RAMode,
+			IPv6AddressMode: resource.Spec.Resource.IPv6AddressMode,
+			IPv6RAMode:      resource.Spec.Resource.IPv6RAMode,
 		}).Extract()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		resource.Spec.ID = openstackResource.ID
-		logger = logger.WithValues("OpenStackID", openstackResource.ID)
+		logger = logger.WithValues("OpenStackID", subnet.ID)
 		logger.Info("OpenStack resource created")
 	}
 
-	allocationPools := make([]openstackv1.OpenStackSubnetAllocationPool, len(openstackResource.AllocationPools))
-	for i := range openstackResource.AllocationPools {
+	allocationPools := make([]openstackv1.OpenStackSubnetAllocationPool, len(subnet.AllocationPools))
+	for i := range subnet.AllocationPools {
 		allocationPools[i] = openstackv1.OpenStackSubnetAllocationPool{
-			Start: openstackResource.AllocationPools[i].Start,
-			End:   openstackResource.AllocationPools[i].End,
+			Start: subnet.AllocationPools[i].Start,
+			End:   subnet.AllocationPools[i].End,
 		}
 	}
 
-	hostRoutes := make([]openstackv1.OpenStackSubnetHostRoute, len(openstackResource.HostRoutes))
-	for i := range openstackResource.HostRoutes {
+	hostRoutes := make([]openstackv1.OpenStackSubnetHostRoute, len(subnet.HostRoutes))
+	for i := range subnet.HostRoutes {
 		hostRoutes[i] = openstackv1.OpenStackSubnetHostRoute{
-			DestinationCIDR: openstackResource.HostRoutes[i].DestinationCIDR,
-			NextHop:         openstackResource.HostRoutes[i].NextHop,
+			DestinationCIDR: subnet.HostRoutes[i].DestinationCIDR,
+			NextHop:         subnet.HostRoutes[i].NextHop,
 		}
 	}
 
-	resource.Status = openstackv1.OpenStackSubnetStatus{
-		ID:              openstackResource.ID,
-		NetworkID:       openstackResource.NetworkID,
-		Name:            openstackResource.Name,
-		Description:     openstackResource.Description,
-		IPVersion:       openstackResource.IPVersion,
-		CIDR:            openstackResource.CIDR,
-		GatewayIP:       openstackResource.GatewayIP,
-		DNSNameservers:  openstackResource.DNSNameservers,
-		ServiceTypes:    openstackResource.ServiceTypes,
+	statusPatchResource.Status.Resource = openstackv1.OpenStackSubnetResourceStatus{
+		ID:              subnet.ID,
+		NetworkID:       subnet.NetworkID,
+		Name:            subnet.Name,
+		Description:     subnet.Description,
+		IPVersion:       subnet.IPVersion,
+		CIDR:            subnet.CIDR,
+		GatewayIP:       subnet.GatewayIP,
+		DNSNameservers:  subnet.DNSNameservers,
+		ServiceTypes:    subnet.ServiceTypes,
 		AllocationPools: allocationPools,
 		HostRoutes:      hostRoutes,
-		EnableDHCP:      openstackResource.EnableDHCP,
-		TenantID:        openstackResource.TenantID,
-		ProjectID:       openstackResource.ProjectID,
-		IPv6AddressMode: openstackResource.IPv6AddressMode,
-		IPv6RAMode:      openstackResource.IPv6RAMode,
-		SubnetPoolID:    openstackResource.SubnetPoolID,
-		Tags:            openstackResource.Tags,
-		RevisionNumber:  openstackResource.RevisionNumber,
+		EnableDHCP:      subnet.EnableDHCP,
+		TenantID:        subnet.TenantID,
+		ProjectID:       subnet.ProjectID,
+		IPv6AddressMode: subnet.IPv6AddressMode,
+		IPv6RAMode:      subnet.IPv6RAMode,
+		SubnetPoolID:    subnet.SubnetPoolID,
+		Tags:            subnet.Tags,
+		RevisionNumber:  subnet.RevisionNumber,
 	}
 
+	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
+		conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+	}
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackSubnetReconciler) reconcileDelete(ctx context.Context, networkClient *gophercloud.ServiceClient, resource *openstackv1.OpenStackSubnet) (ctrl.Result, error) {
+func (r *OpenStackSubnetReconciler) reconcileDelete(ctx context.Context, networkClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackSubnet) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	if resource.Spec.ID == "" {
-		logger.Info("deletion was requested on a resource that hasn't been created yet.")
+	logger.V(4).Info("Checking for dependant OpenStack resources")
+	referencingResources := []string{}
+	for _, resourceList := range []client.ObjectList{
+		&openstackv1.OpenStackPortList{},
+	} {
+		list := &unstructured.UnstructuredList{}
+		gvk, err := apiutil.GVKForObject(resourceList, r.Client.Scheme())
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting GVK for resource list: %w", err)
+		}
+		list.SetGroupVersionKind(gvk)
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+			client.HasLabels{openstackv1.OpenStackDependencyLabelSubnet(resource.GetName())},
+			client.Limit(1),
+		); err != nil {
+			logger.Error(err, "unable to list resources", "type", list.GetKind())
+			return ctrl.Result{}, err
+		}
+
+		if len(list.Items) > 0 {
+			referencingResources = append(referencingResources, list.Items[0].GetKind())
+		}
+	}
+
+	if len(referencingResources) > 0 {
+		logger.Info("OpenStack resources still referencing this subnet", "resources", referencingResources)
+
+		message := fmt.Sprintf("Resources of the following types still reference this subnet: %s", strings.Join(referencingResources, ", "))
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, message); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeWarning, condition)
+		}
+
+		// We don't have (and probably don't want) watches on every resource type, so we just have poll here
+		return ctrl.Result{RequeueAfter: time.Second * 10}, nil
+	}
+
+	if resource.Status.Resource.ID == "" {
+		logger.Info("deletion was requested on a resource that hasn't been successfully created or adopted yet.")
 	} else {
-		logger = logger.WithValues("OpenStackID", resource.Spec.ID)
-		if resource.Spec.Unmanaged != nil && !*resource.Spec.Unmanaged {
-			if err := subnets.Delete(networkClient, resource.Spec.ID).ExtractErr(); err != nil {
+		logger = logger.WithValues("OpenStackID", resource.Status.Resource.ID)
+		if !resource.Spec.Unmanaged {
+			if err := ports.Delete(networkClient, resource.Status.Resource.ID).ExtractErr(); err != nil {
 				var gerr gophercloud.ErrDefault404
 				if errors.As(err, &gerr) {
 					logger.Info("deletion was requested on a resource that can't be found in OpenStack.")
 				} else {
-					logger.Info("failed to delete resouce in OpenStack; requeuing.")
+					logger.Info("failed to delete resource in OpenStack; requeuing.")
 					return ctrl.Result{}, err
 				}
 			}
 		}
 	}
 
-	controllerutil.RemoveFinalizer(resource, openstackv1.Finalizer)
-	logger.Info("resouce deleted in OpenStack.")
+	if updated := controllerutil.RemoveFinalizer(resource, OpenStackSubnetFinalizer); updated {
+		logger.Info("removing finalizer")
+		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, "Removing finalizer"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		patch := &openstackv1.OpenStackSubnet{}
+		patch.TypeMeta = resource.TypeMeta
+		patch.Finalizers = resource.GetFinalizers()
+		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -284,5 +365,72 @@ func (r *OpenStackSubnetReconciler) reconcileDelete(ctx context.Context, network
 func (r *OpenStackSubnetReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openstackv1.OpenStackSubnet{}).
+		WithEventFilter(apply.IgnoreManagedFieldsOnly{}).
+		Watches(&openstackv1.OpenStackCloud{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackSubnets that reference this OpenStackCloud.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			subnets := &openstackv1.OpenStackSubnetList{}
+			if err := kclient.List(ctx, subnets,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelCloud(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackSubnets")
+				return nil
+			}
+
+			// Reconcile each OpenStackSubnet that is not Ready and that references this OpenStackCloud.
+			reqs := make([]reconcile.Request, 0, len(subnets.Items))
+			for _, subnet := range subnets.Items {
+				if conditions.IsReady(&subnet) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: subnet.GetNamespace(),
+						Name:      subnet.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackCloud triggers reconcile of OpenStackSubnet",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"subnet", subnet.GetName())
+			}
+			return reqs
+		})).
+		Watches(&openstackv1.OpenStackNetwork{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackSubnets that reference this OpenStackNetwork.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			subnets := &openstackv1.OpenStackSubnetList{}
+			if err := kclient.List(ctx, subnets,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelNetwork(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackSubnets")
+				return nil
+			}
+
+			// Reconcile each OpenStackSubnet that is not Ready and that references this OpenStackNetwork.
+			reqs := make([]reconcile.Request, 0, len(subnets.Items))
+			for _, subnet := range subnets.Items {
+				if conditions.IsReady(&subnet) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: subnet.GetNamespace(),
+						Name:      subnet.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackNetwork triggers reconcile of OpenStackSubnet",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"subnet", subnet.GetName())
+			}
+			return reqs
+		})).
 		Complete(r)
 }

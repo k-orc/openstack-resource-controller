@@ -278,7 +278,7 @@ func (r *OpenStackRouterReconciler) addInterfacesInfo(ctx context.Context, netwo
 			}
 		}
 		interfaceInfo, err := routers.AddInterface(networkClient, instance.ID, routers.AddInterfaceOpts{
-			SubnetID: subnet.Status.ID,
+			SubnetID: subnet.Status.Resource.ID,
 		}).Extract()
 		if err != nil {
 			logger.Info("interface already exists")

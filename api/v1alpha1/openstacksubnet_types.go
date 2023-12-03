@@ -20,20 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // OpenStackSubnetSpec defines the desired state of OpenStackSubnet
-type OpenStackSubnetSpec struct {
-	// Cloud is the OpenStackCloud hosting this resource
-	Cloud string `json:"cloud"`
-
-	// ID is the OpenStack UUID of the resource. If left empty, the
-	// controller will create a new resource and populate this field. If
-	// manually populated, the controller will adopt the corresponding
-	// resource.
-	ID string `json:"id,omitempty"`
-
+type OpenStackSubnetResourceSpec struct {
 	// NetworkID is the OpenStackNetwork the subnet will be associated with.
 	Network string `json:"network,omitempty"`
 
@@ -83,12 +71,6 @@ type OpenStackSubnetSpec struct {
 	// Prefixlen is used when user creates a subnet from the subnetpool. It will
 	// overwrite the "default_prefixlen" value of the referenced subnetpool.
 	// Prefixlen int `json:"prefixlen,omitempty"`
-
-	// Unmanaged, when true, means that no action will be performed in
-	// OpenStack against this resource. This is false by default, except
-	// for pre-existing resources that are adopted by passing ID on
-	// creation.
-	Unmanaged *bool `json:"unmanaged,omitempty"`
 }
 
 // OpenStackSubnetAllocationPool represents a sub-range of cidr available for
@@ -106,7 +88,7 @@ type OpenStackSubnetHostRoute struct {
 }
 
 // OpenStackSubnetStatus defines the observed state of OpenStackSubnet
-type OpenStackSubnetStatus struct {
+type OpenStackSubnetResourceStatus struct {
 	// UUID representing the subnet.
 	ID string `json:"id,omitempty"`
 
@@ -168,8 +150,37 @@ type OpenStackSubnetStatus struct {
 	RevisionNumber int `json:"revisionNumber,omitempty"`
 }
 
+// OpenStackSubnetSpec defines the desired state of OpenStackPort
+type OpenStackSubnetSpec struct {
+	CommonSpec `json:",inline"`
+
+	// ID is the UUID of the existing OpenStack resource to be adopted. If
+	// left empty, the controller will create a new resource using the
+	// information in the "resource" stanza.
+	ID string `json:"id,omitempty"`
+
+	Resource *OpenStackSubnetResourceSpec `json:"resource,omitempty"`
+}
+
+// OpenStackSubnetStatus defines the observed state of OpenStackPort
+type OpenStackSubnetStatus struct {
+	CommonStatus `json:",inline"`
+
+	Resource OpenStackSubnetResourceStatus `json:"resource,omitempty"`
+}
+
+// Implement OpenStackResourceCommonStatus interface
+func (c *OpenStackSubnet) OpenStackCommonStatus() *CommonStatus {
+	return &c.Status.CommonStatus
+}
+
+var _ OpenStackResourceCommonStatus = &OpenStackSubnet{}
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
+//+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
+//+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
 
 // OpenStackSubnet is the Schema for the openstacksubnets API
 type OpenStackSubnet struct {

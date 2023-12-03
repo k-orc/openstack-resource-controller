@@ -10,10 +10,11 @@ metadata:
   name: network-1-subnet-1
 spec:
   cloud: osp1
-  name: subnet-1
-  network: network-1
-  allocationPools:
-  - start: 192.168.1.5
-    end: 192.168.1.60
-  cidr: 192.168.1.0/24
-  ipVersion: IPv4
+  resource:
+    name: subnet-1
+    network: network-1
+    allocationPools:
+    - start: 192.168.1.5
+      end: 192.168.1.60
+    cidr: 192.168.1.0/24
+    ipVersion: IPv4
