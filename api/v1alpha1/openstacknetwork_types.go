@@ -32,6 +32,83 @@ type OpenStackNetworkResourceSpec struct {
 	Name string `json:"name,omitempty"`
 
 	Description string `json:"description,omitempty"`
+
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// DNSDomain string `json:"dnsDomain,omitempty"`
+
+	// MTU is the the maximum transmission unit value to address
+	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// MTU int32 `json:"mtu,omitempty"`
+
+	// PortSecurityEnabled is the port security status of the network.
+	// Valid values are enabled (true) and disabled (false). This value is
+	// used as the default value of port_security_enabled field of a newly
+	// created port.
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
+
+	// TenantID is the project owner of the resource. Only admin users can
+	// specify a project identifier other than its own.
+	TenantID string `json:"tenantID,omitempty"`
+
+	// ProjectID is the project owner of the resource.
+	ProjectID string `json:"projectID,omitempty"`
+
+	// QOSPolicyID is the ID of the QoS policy associated with the network.
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// QOSPolicyID string `json:"qosPolicyID,omitempty"`
+
+	// External indicates whether the network has an external routing
+	// facility that’s not managed by the networking service.
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// External bool `json:"external,omitempty"`
+
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// Segment OpenStackNetworkSegment `json:",inline"`
+
+	// Segment is a list of provider segment objects.
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// Segments []OpenStackNetworkSegment `json:"segments,omitempty"`
+
+	// Shared indicates whether this resource is shared across all
+	// projects. By default, only administrative users can change this
+	// value.
+	Shared *bool `json:"shared,omitempty"`
+
+	// VLANTransparent indicates the VLAN transparency mode of the network,
+	// which is VLAN transparent (true) or not VLAN transparent (false).
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// VLANTransparent *bool `json:"vlanTransparent"`
+
+	// TODO: absent in Gophercloud's networks.CreateOpts
+	// IsDefault *bool `json:"isDefault,omitempty"`
+
+	// AvailabilityZoneHints is the availability zone candidate for the network.
+	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
+}
+
+type OpenStackNetworkSegment struct {
+	// ProviderNetworkType is the type of physical network that this
+	// network should be mapped to. For example, flat, vlan, vxlan, or gre.
+	// Valid values depend on a networking back-end.
+	ProviderNetworkType string `json:"providerNetworkType,omitempty"`
+
+	// ProviderPhysicalNetwork is the physical network where this network
+	// should be implemented. The Networking API v2.0 does not provide a
+	// way to list available physical networks. For example, the Open
+	// vSwitch plug-in configuration file defines a symbolic name that maps
+	// to specific bridges on each compute host.
+	ProviderPhysicalNetwork string `json:"providerPhysicalNetwork,omitempty"`
+
+	// ProviderSegmentationID is the ID of the isolated segment on the
+	// physical network. The network_type attribute defines the
+	// segmentation model. For example, if the network_type value is vlan,
+	// this ID is a vlan identifier. If the network_type value is gre, this
+	// ID is a gre key.
+	ProviderSegmentationID string `json:"providerSegmentationID,omitempty"`
 }
 
 // OpenStackNetworkStatus defines the observed state of OpenStackNetwork

@@ -38,6 +38,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
+	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
@@ -114,6 +115,13 @@ func (r *OpenStackNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -167,17 +175,32 @@ func (r *OpenStackNetworkReconciler) reconcile(ctx context.Context, networkClien
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
-		network, err = networks.Create(networkClient, networks.CreateOpts{
-			Name:        resource.Spec.Resource.Name,
-			Description: resource.Spec.Resource.Description,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
+		createOpts := networks.CreateOpts{
+			AdminStateUp:          resource.Spec.Resource.AdminStateUp,
+			Name:                  resource.Spec.Resource.Name,
+			Description:           resource.Spec.Resource.Description,
+			Shared:                resource.Spec.Resource.Shared,
+			TenantID:              resource.Spec.Resource.TenantID,
+			ProjectID:             resource.Spec.Resource.ProjectID,
+			AvailabilityZoneHints: resource.Spec.Resource.AvailabilityZoneHints,
 		}
-		logger = logger.WithValues("OpenStackID", network.ID)
-		logger.Info("OpenStack resource created")
+		network, err = r.networkFind(log.IntoContext(ctx, logger), networkClient, resource, createOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if network != nil {
+			logger = logger.WithValues("OpenStackID", network.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			network, err = networks.Create(networkClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", network.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	statusPatchResource.Status.Resource = openstackv1.OpenStackNetworkResourceStatus{
@@ -273,6 +296,47 @@ func (r *OpenStackNetworkReconciler) reconcileDelete(ctx context.Context, networ
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func (r *OpenStackNetworkReconciler) networkFind(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts networks.CreateOpts) (network *networks.Network, err error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		networks := &openstackv1.OpenStackNetworkList{}
+		if err := r.Client.List(ctx, networks,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackNetworks: %w", err)
+		}
+		for _, item := range networks.Items {
+			if item.GetName() != resource.GetName() && item.Status.Resource.ID != "" {
+				adoptedIDs[item.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+
+	listOpts := networks.ListOpts{
+		Name:         createOpts.Name,
+		Description:  createOpts.Description,
+		AdminStateUp: createOpts.AdminStateUp,
+		TenantID:     createOpts.TenantID,
+		ProjectID:    createOpts.ProjectID,
+		Shared:       createOpts.Shared,
+	}
+	err = networks.List(networkClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := networks.ExtractNetworks(page)
+		if err != nil {
+			return false, err
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok {
+				network = &items[i]
+				return false, nil
+			}
+		}
+
+		return true, nil
+	})
+	return
 }
 
 // SetupWithManager sets up the controller with the Manager.
