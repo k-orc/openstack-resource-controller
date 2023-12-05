@@ -31,3 +31,28 @@ func coalesce(args ...string) string {
 	}
 	return ""
 }
+
+// sliceContentEquals checks two slices for equivalence, discarding
+// the order of the items. Accepts comparable items.
+func sliceContentEquals[T comparable](slice1, slice2 []T) bool {
+	return sliceContentCompare(slice1, slice2, func(item1, item2 T) bool {
+		return item1 == item2
+	})
+}
+
+// sliceContentCompare attemps to pair the contents of two slices with the provided
+// function, discarding the order of the items. Returns true if successful.
+func sliceContentCompare[T any](slice1, slice2 []T, comparingFunc func(T, T) bool) bool {
+	paired := make(map[int]struct{})
+Candidate:
+	for i := range slice1 {
+		for j := range slice2 {
+			if _, ok := paired[j]; !ok && comparingFunc(slice1[i], slice2[j]) {
+				paired[j] = struct{}{}
+				continue Candidate
+			}
+		}
+		return false
+	}
+	return true
+}
