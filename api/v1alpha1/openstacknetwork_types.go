@@ -35,20 +35,17 @@ type OpenStackNetworkResourceSpec struct {
 
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// DNSDomain string `json:"dnsDomain,omitempty"`
+	DNSDomain string `json:"dnsDomain,omitempty"`
 
 	// MTU is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// MTU int32 `json:"mtu,omitempty"`
+	MTU int32 `json:"mtu,omitempty"`
 
 	// PortSecurityEnabled is the port security status of the network.
 	// Valid values are enabled (true) and disabled (false). This value is
 	// used as the default value of port_security_enabled field of a newly
 	// created port.
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
+	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 
 	// TenantID is the project owner of the resource. Only admin users can
 	// specify a project identifier other than its own.
@@ -57,21 +54,17 @@ type OpenStackNetworkResourceSpec struct {
 	// ProjectID is the project owner of the resource.
 	ProjectID string `json:"projectID,omitempty"`
 
-	// QOSPolicyID is the ID of the QoS policy associated with the network.
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// QOSPolicyID string `json:"qosPolicyID,omitempty"`
+	// QoSPolicyID is the ID of the QoS policy associated with the network.
+	QoSPolicyID string `json:"qosPolicyID,omitempty"`
 
 	// External indicates whether the network has an external routing
 	// facility that’s not managed by the networking service.
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// External bool `json:"external,omitempty"`
+	External *bool `json:"external,omitempty"`
 
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// Segment OpenStackNetworkSegment `json:",inline"`
+	Segment OpenStackNetworkSegment `json:",inline"`
 
 	// Segment is a list of provider segment objects.
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// Segments []OpenStackNetworkSegment `json:"segments,omitempty"`
+	Segments []OpenStackNetworkSegment `json:"segments,omitempty"`
 
 	// Shared indicates whether this resource is shared across all
 	// projects. By default, only administrative users can change this
@@ -80,11 +73,9 @@ type OpenStackNetworkResourceSpec struct {
 
 	// VLANTransparent indicates the VLAN transparency mode of the network,
 	// which is VLAN transparent (true) or not VLAN transparent (false).
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// VLANTransparent *bool `json:"vlanTransparent"`
+	VLANTransparent *bool `json:"vlanTransparent,omitempty"`
 
-	// TODO: absent in Gophercloud's networks.CreateOpts
-	// IsDefault *bool `json:"isDefault,omitempty"`
+	IsDefault *bool `json:"isDefault,omitempty"`
 
 	// AvailabilityZoneHints is the availability zone candidate for the network.
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
@@ -108,27 +99,84 @@ type OpenStackNetworkSegment struct {
 	// segmentation model. For example, if the network_type value is vlan,
 	// this ID is a vlan identifier. If the network_type value is gre, this
 	// ID is a gre key.
-	ProviderSegmentationID string `json:"providerSegmentationID,omitempty"`
+	ProviderSegmentationID int32 `json:"providerSegmentationID,omitempty"`
 }
 
 // OpenStackNetworkStatus defines the observed state of OpenStackNetwork
 type OpenStackNetworkResourceStatus struct {
-	// UUID for the network
-	ID string `json:"id"`
-
-	// Human-readable name for the network. Might not be unique.
-	Name string `json:"name"`
-
-	// Description for the network
-	Description string `json:"description,omitempty"`
-
-	// The administrative state of network. If false (down), the network does not
-	// forward packets.
+	// AdminStateUp is the administrative state of the network, which is up
+	// (true) or down (false).
 	AdminStateUp bool `json:"adminStateUp,omitempty"`
 
-	// Indicates whether network is currently operational. Possible values include
-	// `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define additional
-	// values.
+	// AvailabilityZoneHints is the availability zone candidate for the
+	// network.
+	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
+
+	// Availability is the availability zone for the network.
+	AvailabilityZones []string `json:"availabilityZones,omitempty"`
+
+	// CreatedAt contains the timestamp of when the resource was created.
+	CreatedAt string `json:"createdAt,omitempty"`
+
+	DNSDomain string `json:"dnsDomain,omitempty"`
+
+	// UUID for the network
+	ID string `json:"id,omitempty"`
+
+	// IPV4AddressScope is the ID of the IPv4 address scope that the
+	// network is associated with.
+	IPV4AddressScope string `json:"ipv4AddressScope,omitempty"`
+
+	// IPV6AddressScope is the ID of the IPv6 address scope that the
+	// network is associated with.
+	IPV6AddressScope string `json:"ipv6AddressScope,omitempty"`
+
+	// L2Adjacency indicates whether L2 connectivity is available
+	// throughout the network.
+	L2Adjacency *bool `json:"l2Adjacency,omitempty"`
+
+	// MTU is the the maximum transmission unit value to address
+	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+	MTU int32 `json:"mtu,omitempty"`
+
+	// Human-readable name for the network. Might not be unique.
+	Name string `json:"name,omitempty"`
+
+	// PortSecurityEnabled is the port security status of the network.
+	// Valid values are enabled (true) and disabled (false). This value is
+	// used as the default value of port_security_enabled field of a newly
+	// created port.
+	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
+
+	// ProjectID is the project owner of the network.
+	ProjectID string `json:"projectID,omitempty"`
+
+	Segment OpenStackNetworkSegment `json:",inline"`
+
+	// QoSPolicyID is the ID of the QoS policy associated with the network.
+	QoSPolicyID string `json:"qosPolicyID,omitempty"`
+
+	// RevisionNumber is the revision number of the resource.
+	RevisionNumber int32 `json:"revisionNumber,omitempty"`
+
+	// External defines whether the network may be used for creation of
+	// floating IPs. Only networks with this flag may be an external
+	// gateway for routers. The network must have an external routing
+	// facility that is not managed by the networking service. If the
+	// network is updated from external to internal the unused floating IPs
+	// of this network are automatically deleted when extension
+	// floatingip-autodelete-internal is present.
+	External bool `json:"external,omitempty"`
+
+	// Segment is a list of provider segment objects.
+	Segments []OpenStackNetworkSegment `json:"segments,omitempty"`
+
+	// Specifies whether the network resource can be accessed by any tenant.
+	Shared bool `json:"shared,omitempty"`
+
+	// Indicates whether network is currently operational. Possible values
+	// include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
+	// additional values.
 	Status string `json:"status,omitempty"`
 
 	// Subnets associated with this network.
@@ -141,24 +189,17 @@ type OpenStackNetworkResourceStatus struct {
 	// changed.
 	UpdatedAt string `json:"updatedAt,omitempty"`
 
-	// CreatedAt contains the timestamp of when the resource was created.
-	CreatedAt string `json:"createdAt,omitempty"`
+	// VLANTransparent indicates the VLAN transparency mode of the network,
+	// which is VLAN transparent (true) or not VLAN transparent (false).
+	VLANTransparent bool `json:"vlanTransparent,omitempty"`
 
-	// ProjectID is the project owner of the network.
-	ProjectID string `json:"projectID,omitempty"`
+	// Description is a human-readable description for the resource.
+	Description string `json:"description,omitempty"`
 
-	// Specifies whether the network resource can be accessed by any tenant.
-	Shared bool `json:"shared,omitempty"`
+	IsDefault *bool `json:"isDefault,omitempty"`
 
-	// Availability zone hints groups network nodes that run services like DHCP, L3, FW, and others.
-	// Used to make network resources highly available.
-	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
-
-	// Tags optionally set via extensions/attributestags
+	// Tags is the list of tags on the resource.
 	Tags []string `json:"tags,omitempty"`
-
-	// RevisionNumber optionally set via extensions/standard-attr-revisions
-	RevisionNumber int `json:"revisionNumber,omitempty"`
 }
 
 // OpenStackNetworkSpec defines the desired state of OpenStackNetwork

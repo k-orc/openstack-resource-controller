@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,6 +38,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/dns"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/external"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/mtu"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/provider"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/qos/policies"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/vlantransparent"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
@@ -165,27 +173,51 @@ func (r *OpenStackNetworkReconciler) reconcile(ctx context.Context, networkClien
 	logger := log.FromContext(ctx)
 
 	var (
-		network *networks.Network
+		network *networkExtended
 		err     error
 	)
 	if openstackID := coalesce(resource.Spec.ID, resource.Status.Resource.ID); openstackID != "" {
 		logger = logger.WithValues("OpenStackID", openstackID)
 
-		network, err = networks.Get(networkClient, openstackID).Extract()
+		var n networkExtended
+		err = networks.Get(networkClient, openstackID).ExtractInto(&n)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
+		network = &n
 		logger.Info("OpenStack resource found")
 	} else {
-		createOpts := networks.CreateOpts{
-			AdminStateUp:          resource.Spec.Resource.AdminStateUp,
-			Name:                  resource.Spec.Resource.Name,
-			Description:           resource.Spec.Resource.Description,
-			Shared:                resource.Spec.Resource.Shared,
-			TenantID:              resource.Spec.Resource.TenantID,
-			ProjectID:             resource.Spec.Resource.ProjectID,
-			AvailabilityZoneHints: resource.Spec.Resource.AvailabilityZoneHints,
+		segments := make([]provider.Segment, len(resource.Spec.Resource.Segments))
+		for i := range resource.Spec.Resource.Segments {
+			segments[i] = provider.Segment{
+				PhysicalNetwork: resource.Spec.Resource.Segments[i].ProviderPhysicalNetwork,
+				NetworkType:     resource.Spec.Resource.Segments[i].ProviderNetworkType,
+				SegmentationID:  int(resource.Spec.Resource.Segments[i].ProviderSegmentationID),
+			}
 		}
+		createOpts := networkOpts{
+			CreateOpts: networks.CreateOpts{
+				AdminStateUp:          resource.Spec.Resource.AdminStateUp,
+				Name:                  resource.Spec.Resource.Name,
+				Description:           resource.Spec.Resource.Description,
+				Shared:                resource.Spec.Resource.Shared,
+				TenantID:              resource.Spec.Resource.TenantID,
+				ProjectID:             resource.Spec.Resource.ProjectID,
+				AvailabilityZoneHints: resource.Spec.Resource.AvailabilityZoneHints,
+			},
+			MTU:                     int(resource.Spec.Resource.MTU),
+			DNSDomain:               resource.Spec.Resource.DNSDomain,
+			PortSecurityEnabled:     resource.Spec.Resource.PortSecurityEnabled,
+			QoSPolicyID:             resource.Spec.Resource.QoSPolicyID,
+			External:                resource.Spec.Resource.External,
+			ProviderPhysicalNetwork: resource.Spec.Resource.Segment.ProviderPhysicalNetwork,
+			ProviderNetworkType:     resource.Spec.Resource.Segment.ProviderNetworkType,
+			ProviderSegmentationID:  int(resource.Spec.Resource.Segment.ProviderSegmentationID),
+			Segments:                segments,
+			VLANTransparent:         resource.Spec.Resource.VLANTransparent,
+			IsDefault:               resource.Spec.Resource.IsDefault,
+		}
+
 		network, err = r.networkFind(log.IntoContext(ctx, logger), networkClient, resource, createOpts)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
@@ -194,30 +226,56 @@ func (r *OpenStackNetworkReconciler) reconcile(ctx context.Context, networkClien
 			logger = logger.WithValues("OpenStackID", network.ID)
 			logger.Info("OpenStack resource adopted")
 		} else {
-			network, err = networks.Create(networkClient, createOpts).Extract()
+			var wrapper struct {
+				Resource networkExtended `json:"network"`
+			}
+			err = networks.Create(networkClient, createOpts).ExtractInto(&wrapper)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
+			network = &wrapper.Resource
 			logger = logger.WithValues("OpenStackID", network.ID)
 			logger.Info("OpenStack resource created")
 		}
 	}
 
+	segments := make([]openstackv1.OpenStackNetworkSegment, len(network.Segments))
+	for i := range network.Segments {
+		segments[i] = openstackv1.OpenStackNetworkSegment{
+			ProviderNetworkType:     network.Segments[i].NetworkType,
+			ProviderPhysicalNetwork: network.Segments[i].PhysicalNetwork,
+			ProviderSegmentationID:  int32(network.Segments[i].SegmentationID),
+		}
+	}
+
 	statusPatchResource.Status.Resource = openstackv1.OpenStackNetworkResourceStatus{
-		ID:                    network.ID,
-		Name:                  network.Name,
-		Description:           network.Description,
 		AdminStateUp:          network.AdminStateUp,
+		AvailabilityZoneHints: network.AvailabilityZoneHints,
+		AvailabilityZones:     network.AvailabilityZones,
+		CreatedAt:             network.CreatedAt.UTC().Format(time.RFC3339),
+		DNSDomain:             network.DNSDomain,
+		ID:                    network.ID,
+		IPV4AddressScope:      network.IPV4AddressScope,
+		IPV6AddressScope:      network.IPV6AddressScope,
+		L2Adjacency:           network.L2Adjacency,
+		MTU:                   int32(network.MTU),
+		Name:                  network.Name,
+		PortSecurityEnabled:   network.PortSecurityEnabled,
+		ProjectID:             network.ProjectID,
+		Segment:               openstackv1.OpenStackNetworkSegment{},
+		QoSPolicyID:           network.QoSPolicyID,
+		RevisionNumber:        int32(network.RevisionNumber),
+		External:              network.External,
+		Segments:              segments,
+		Shared:                network.Shared,
 		Status:                network.Status,
 		Subnets:               network.Subnets,
 		TenantID:              network.TenantID,
 		UpdatedAt:             network.UpdatedAt.UTC().Format(time.RFC3339),
-		CreatedAt:             network.CreatedAt.UTC().Format(time.RFC3339),
-		ProjectID:             network.ProjectID,
-		Shared:                network.Shared,
-		AvailabilityZoneHints: network.AvailabilityZoneHints,
+		VLANTransparent:       network.VLANTransparent,
+		Description:           network.Description,
+		IsDefault:             network.IsDefault,
 		Tags:                  network.Tags,
-		RevisionNumber:        network.RevisionNumber,
 	}
 
 	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
@@ -298,7 +356,7 @@ func (r *OpenStackNetworkReconciler) reconcileDelete(ctx context.Context, networ
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackNetworkReconciler) networkFind(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts networks.CreateOpts) (network *networks.Network, err error) {
+func (r *OpenStackNetworkReconciler) networkFind(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts networkOpts) (*networkExtended, error) {
 	adoptedIDs := make(map[string]struct{})
 	{
 		networks := &openstackv1.OpenStackNetworkList{}
@@ -314,29 +372,32 @@ func (r *OpenStackNetworkReconciler) networkFind(ctx context.Context, networkCli
 		}
 	}
 
-	listOpts := networks.ListOpts{
-		Name:         createOpts.Name,
-		Description:  createOpts.Description,
-		AdminStateUp: createOpts.AdminStateUp,
-		TenantID:     createOpts.TenantID,
-		ProjectID:    createOpts.ProjectID,
-		Shared:       createOpts.Shared,
-	}
-	err = networks.List(networkClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
-		items, err := networks.ExtractNetworks(page)
-		if err != nil {
-			return false, err
-		}
-		for i := range items {
-			if _, ok := adoptedIDs[items[i].ID]; !ok {
-				network = &items[i]
-				return false, nil
-			}
+	var candidates []*networkExtended
+	err := networks.List(networkClient, createOpts).EachPage(func(page pagination.Page) (bool, error) {
+		var items []*networkExtended
+		if err := networks.ExtractNetworksInto(page, &items); err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
 		}
 
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok && items[i].Equals(createOpts) {
+				candidates = append(candidates, items[i])
+			}
+		}
 		return true, nil
 	})
-	return
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -378,4 +439,183 @@ func (r *OpenStackNetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			return reqs
 		})).
 		Complete(r)
+}
+
+type networkOpts struct {
+	networks.CreateOpts
+	MTU                     int
+	DNSDomain               string
+	PortSecurityEnabled     *bool
+	QoSPolicyID             string
+	External                *bool
+	ProviderPhysicalNetwork string
+	ProviderNetworkType     string
+	ProviderSegmentationID  int
+	Segments                []provider.Segment
+	VLANTransparent         *bool
+	IsDefault               *bool
+}
+
+func (opts networkOpts) ToNetworkCreateMap() (map[string]interface{}, error) {
+	var createOpts networks.CreateOptsBuilder = opts.CreateOpts
+	if opts.MTU != 0 {
+		createOpts = mtu.CreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			MTU:               opts.MTU,
+		}
+	}
+	if opts.DNSDomain != "" {
+		createOpts = dns.NetworkCreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			DNSDomain:         opts.DNSDomain,
+		}
+	}
+	if opts.PortSecurityEnabled != nil {
+		createOpts = portsecurity.NetworkCreateOptsExt{
+			CreateOptsBuilder:   createOpts,
+			PortSecurityEnabled: opts.PortSecurityEnabled,
+		}
+	}
+	if opts.QoSPolicyID != "" {
+		createOpts = policies.NetworkCreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			QoSPolicyID:       opts.QoSPolicyID,
+		}
+	}
+	if opts.External != nil {
+		createOpts = external.CreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			External:          opts.External,
+		}
+	}
+	if len(opts.Segments) > 0 {
+		createOpts = provider.CreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			Segments:          opts.Segments,
+		}
+	}
+	if opts.VLANTransparent != nil {
+		createOpts = vlantransparent.CreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			VLANTransparent:   opts.VLANTransparent,
+		}
+	}
+
+	base, err := createOpts.ToNetworkCreateMap()
+	if err != nil {
+		return nil, err
+	}
+
+	providerMap := base["network"].(map[string]interface{})
+	if opts.ProviderPhysicalNetwork != "" {
+		providerMap["provider:physical_network"] = opts.ProviderPhysicalNetwork
+	}
+	if opts.ProviderNetworkType != "" {
+		providerMap["provider:network_type"] = opts.ProviderNetworkType
+	}
+	if opts.ProviderSegmentationID != 0 {
+		providerMap["provider:segmentation_id"] = opts.ProviderSegmentationID
+	}
+	if opts.IsDefault != nil {
+		providerMap["is_default"] = opts.IsDefault
+	}
+
+	return base, nil
+}
+
+func (opts networkOpts) ToNetworkListQuery() (string, error) {
+	// missing: mtu, dns, policies, portsecurity, provider
+	var listOpts networks.ListOptsBuilder = networks.ListOpts{
+		Name:         opts.Name,
+		Description:  opts.Description,
+		AdminStateUp: opts.AdminStateUp,
+		TenantID:     opts.TenantID,
+		ProjectID:    opts.ProjectID,
+		Shared:       opts.Shared,
+	}
+
+	if opts.VLANTransparent != nil {
+		listOpts = vlantransparent.ListOptsExt{
+			ListOptsBuilder: listOpts,
+			VLANTransparent: opts.VLANTransparent,
+		}
+	}
+
+	if opts.External != nil {
+		listOpts = external.ListOptsExt{
+			ListOptsBuilder: listOpts,
+			External:        opts.External,
+		}
+	}
+	return listOpts.ToNetworkListQuery()
+}
+
+type networkExtended struct {
+	networks.Network
+	mtu.NetworkMTUExt
+	dns.NetworkDNSExt
+	external.NetworkExternalExt
+	policies.NetworkCreateOptsExt
+	provider.NetworkProviderExt
+	vlantransparent.TransparentExt
+	AvailabilityZones   []string `json:"availability_zones"`
+	PortSecurityEnabled *bool    `json:"port_security_enabled"`
+	QoSPolicyID         string   `json:"qos_policy_id"`
+	IsDefault           *bool    `json:"is_default"`
+	IPV4AddressScope    string   `json:"ipv4_address_scope"`
+	IPV6AddressScope    string   `json:"ipv6_address_scope"`
+	L2Adjacency         *bool    `json:"l2_adjacency"`
+}
+
+// Equals checks for equality the fields that coulnd't be added to the List
+// query
+func (n *networkExtended) Equals(opts networkOpts) bool {
+	// mtu
+	if opts.MTU != 0 && n.MTU != opts.MTU {
+		return false
+	}
+
+	// dns
+	if opts.DNSDomain != "" && n.DNSDomain != opts.DNSDomain {
+		return false
+	}
+
+	// policies
+	if opts.QoSPolicyID != "" && n.QoSPolicyID != opts.QoSPolicyID {
+		return false
+	}
+
+	// portsecurity
+	if opts.PortSecurityEnabled != nil && n.PortSecurityEnabled != opts.PortSecurityEnabled {
+		return false
+	}
+
+	// provider
+	if n.PhysicalNetwork != opts.ProviderPhysicalNetwork {
+		return false
+	}
+	if n.NetworkType != opts.ProviderNetworkType {
+		return false
+	}
+	if opts.ProviderSegmentationID != 0 && n.SegmentationID != strconv.Itoa(opts.ProviderSegmentationID) {
+		return false
+	}
+	if len(n.Segments) != len(opts.Segments) {
+		return false
+	}
+	reciprocated := make(map[int]struct{})
+	for i := range n.Segments {
+		var foundInOpts bool
+		for j := range opts.Segments {
+			if _, ok := reciprocated[j]; !ok && n.Segments[i].NetworkType == opts.Segments[j].NetworkType && n.Segments[i].PhysicalNetwork == opts.Segments[j].PhysicalNetwork && n.Segments[i].SegmentationID == opts.Segments[j].SegmentationID {
+				foundInOpts = true
+				reciprocated[j] = struct{}{}
+				break
+			}
+		}
+		if !foundInOpts {
+			return false
+		}
+	}
+	return true
 }

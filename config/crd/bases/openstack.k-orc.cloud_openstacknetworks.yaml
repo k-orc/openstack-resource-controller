@@ -65,18 +65,91 @@ spec:
                     type: array
                   description:
                     type: string
+                  dnsDomain:
+                    type: string
+                  external:
+                    description: External indicates whether the network has an external
+                      routing facility that’s not managed by the networking service.
+                    type: boolean
                   id:
                     description: ID is the OpenStack UUID of the resource. If left
                       empty, the controller will create a new resource and populate
                       this field. If manually populated, the controller will adopt
                       the corresponding resource.
                     type: string
+                  isDefault:
+                    type: boolean
+                  mtu:
+                    description: MTU is the the maximum transmission unit value to
+                      address fragmentation. Minimum value is 68 for IPv4, and 1280
+                      for IPv6.
+                    format: int32
+                    type: integer
                   name:
                     description: Name of the OpenStack resource.
                     type: string
+                  portSecurityEnabled:
+                    description: PortSecurityEnabled is the port security status of
+                      the network. Valid values are enabled (true) and disabled (false).
+                      This value is used as the default value of port_security_enabled
+                      field of a newly created port.
+                    type: boolean
                   projectID:
                     description: ProjectID is the project owner of the resource.
                     type: string
+                  providerNetworkType:
+                    description: ProviderNetworkType is the type of physical network
+                      that this network should be mapped to. For example, flat, vlan,
+                      vxlan, or gre. Valid values depend on a networking back-end.
+                    type: string
+                  providerPhysicalNetwork:
+                    description: ProviderPhysicalNetwork is the physical network where
+                      this network should be implemented. The Networking API v2.0
+                      does not provide a way to list available physical networks.
+                      For example, the Open vSwitch plug-in configuration file defines
+                      a symbolic name that maps to specific bridges on each compute
+                      host.
+                    type: string
+                  providerSegmentationID:
+                    description: ProviderSegmentationID is the ID of the isolated
+                      segment on the physical network. The network_type attribute
+                      defines the segmentation model. For example, if the network_type
+                      value is vlan, this ID is a vlan identifier. If the network_type
+                      value is gre, this ID is a gre key.
+                    format: int32
+                    type: integer
+                  qosPolicyID:
+                    description: QoSPolicyID is the ID of the QoS policy associated
+                      with the network.
+                    type: string
+                  segments:
+                    description: Segment is a list of provider segment objects.
+                    items:
+                      properties:
+                        providerNetworkType:
+                          description: ProviderNetworkType is the type of physical
+                            network that this network should be mapped to. For example,
+                            flat, vlan, vxlan, or gre. Valid values depend on a networking
+                            back-end.
+                          type: string
+                        providerPhysicalNetwork:
+                          description: ProviderPhysicalNetwork is the physical network
+                            where this network should be implemented. The Networking
+                            API v2.0 does not provide a way to list available physical
+                            networks. For example, the Open vSwitch plug-in configuration
+                            file defines a symbolic name that maps to specific bridges
+                            on each compute host.
+                          type: string
+                        providerSegmentationID:
+                          description: ProviderSegmentationID is the ID of the isolated
+                            segment on the physical network. The network_type attribute
+                            defines the segmentation model. For example, if the network_type
+                            value is vlan, this ID is a vlan identifier. If the network_type
+                            value is gre, this ID is a gre key.
+                          format: int32
+                          type: integer
+                      type: object
+                    type: array
                   shared:
                     description: Shared indicates whether this resource is shared
                       across all projects. By default, only administrative users can
@@ -87,6 +160,11 @@ spec:
                       admin users can specify a project identifier other than its
                       own.
                     type: string
+                  vlanTransparent:
+                    description: VLANTransparent indicates the VLAN transparency mode
+                      of the network, which is VLAN transparent (true) or not VLAN
+                      transparent (false).
+                    type: boolean
                 type: object
               unmanaged:
                 description: Unmanaged, when true, means that no action will be performed
@@ -177,13 +255,17 @@ spec:
                   OpenStackNetwork
                 properties:
                   adminStateUp:
-                    description: The administrative state of network. If false (down),
-                      the network does not forward packets.
+                    description: AdminStateUp is the administrative state of the network,
+                      which is up (true) or down (false).
                     type: boolean
                   availabilityZoneHints:
-                    description: Availability zone hints groups network nodes that
-                      run services like DHCP, L3, FW, and others. Used to make network
-                      resources highly available.
+                    description: AvailabilityZoneHints is the availability zone candidate
+                      for the network.
+                    items:
+                      type: string
+                    type: array
+                  availabilityZones:
+                    description: Availability is the availability zone for the network.
                     items:
                       type: string
                     type: array
@@ -192,21 +274,113 @@ spec:
                       was created.
                     type: string
                   description:
-                    description: Description for the network
+                    description: Description is a human-readable description for the
+                      resource.
                     type: string
+                  dnsDomain:
+                    type: string
+                  external:
+                    description: External defines whether the network may be used
+                      for creation of floating IPs. Only networks with this flag may
+                      be an external gateway for routers. The network must have an
+                      external routing facility that is not managed by the networking
+                      service. If the network is updated from external to internal
+                      the unused floating IPs of this network are automatically deleted
+                      when extension floatingip-autodelete-internal is present.
+                    type: boolean
                   id:
                     description: UUID for the network
                     type: string
+                  ipv4AddressScope:
+                    description: IPV4AddressScope is the ID of the IPv4 address scope
+                      that the network is associated with.
+                    type: string
+                  ipv6AddressScope:
+                    description: IPV6AddressScope is the ID of the IPv6 address scope
+                      that the network is associated with.
+                    type: string
+                  isDefault:
+                    type: boolean
+                  l2Adjacency:
+                    description: L2Adjacency indicates whether L2 connectivity is
+                      available throughout the network.
+                    type: boolean
+                  mtu:
+                    description: MTU is the the maximum transmission unit value to
+                      address fragmentation. Minimum value is 68 for IPv4, and 1280
+                      for IPv6.
+                    format: int32
+                    type: integer
                   name:
                     description: Human-readable name for the network. Might not be
                       unique.
                     type: string
+                  portSecurityEnabled:
+                    description: PortSecurityEnabled is the port security status of
+                      the network. Valid values are enabled (true) and disabled (false).
+                      This value is used as the default value of port_security_enabled
+                      field of a newly created port.
+                    type: boolean
                   projectID:
                     description: ProjectID is the project owner of the network.
                     type: string
-                  revisionNumber:
-                    description: RevisionNumber optionally set via extensions/standard-attr-revisions
+                  providerNetworkType:
+                    description: ProviderNetworkType is the type of physical network
+                      that this network should be mapped to. For example, flat, vlan,
+                      vxlan, or gre. Valid values depend on a networking back-end.
+                    type: string
+                  providerPhysicalNetwork:
+                    description: ProviderPhysicalNetwork is the physical network where
+                      this network should be implemented. The Networking API v2.0
+                      does not provide a way to list available physical networks.
+                      For example, the Open vSwitch plug-in configuration file defines
+                      a symbolic name that maps to specific bridges on each compute
+                      host.
+                    type: string
+                  providerSegmentationID:
+                    description: ProviderSegmentationID is the ID of the isolated
+                      segment on the physical network. The network_type attribute
+                      defines the segmentation model. For example, if the network_type
+                      value is vlan, this ID is a vlan identifier. If the network_type
+                      value is gre, this ID is a gre key.
+                    format: int32
                     type: integer
+                  qosPolicyID:
+                    description: QoSPolicyID is the ID of the QoS policy associated
+                      with the network.
+                    type: string
+                  revisionNumber:
+                    description: RevisionNumber is the revision number of the resource.
+                    format: int32
+                    type: integer
+                  segments:
+                    description: Segment is a list of provider segment objects.
+                    items:
+                      properties:
+                        providerNetworkType:
+                          description: ProviderNetworkType is the type of physical
+                            network that this network should be mapped to. For example,
+                            flat, vlan, vxlan, or gre. Valid values depend on a networking
+                            back-end.
+                          type: string
+                        providerPhysicalNetwork:
+                          description: ProviderPhysicalNetwork is the physical network
+                            where this network should be implemented. The Networking
+                            API v2.0 does not provide a way to list available physical
+                            networks. For example, the Open vSwitch plug-in configuration
+                            file defines a symbolic name that maps to specific bridges
+                            on each compute host.
+                          type: string
+                        providerSegmentationID:
+                          description: ProviderSegmentationID is the ID of the isolated
+                            segment on the physical network. The network_type attribute
+                            defines the segmentation model. For example, if the network_type
+                            value is vlan, this ID is a vlan identifier. If the network_type
+                            value is gre, this ID is a gre key.
+                          format: int32
+                          type: integer
+                      type: object
+                    type: array
                   shared:
                     description: Specifies whether the network resource can be accessed
                       by any tenant.
@@ -222,7 +396,7 @@ spec:
                       type: string
                     type: array
                   tags:
-                    description: Tags optionally set via extensions/attributestags
+                    description: Tags is the list of tags on the resource.
                     items:
                       type: string
                     type: array
@@ -233,9 +407,11 @@ spec:
                     description: UpdatedAt contains the timestamp of when the resource
                       was last changed.
                     type: string
-                required:
-                - id
-                - name
+                  vlanTransparent:
+                    description: VLANTransparent indicates the VLAN transparency mode
+                      of the network, which is VLAN transparent (true) or not VLAN
+                      transparent (false).
+                    type: boolean
                 type: object
             type: object
         type: object
