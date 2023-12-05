@@ -55,6 +55,14 @@ spec:
               resource:
                 description: OpenStackNetworkSpec defines the desired state of OpenStackNetwork
                 properties:
+                  adminStateUp:
+                    type: boolean
+                  availabilityZoneHints:
+                    description: AvailabilityZoneHints is the availability zone candidate
+                      for the network.
+                    items:
+                      type: string
+                    type: array
                   description:
                     type: string
                   id:
@@ -65,6 +73,19 @@ spec:
                     type: string
                   name:
                     description: Name of the OpenStack resource.
+                    type: string
+                  projectID:
+                    description: ProjectID is the project owner of the resource.
+                    type: string
+                  shared:
+                    description: Shared indicates whether this resource is shared
+                      across all projects. By default, only administrative users can
+                      change this value.
+                    type: boolean
+                  tenantID:
+                    description: TenantID is the project owner of the resource. Only
+                      admin users can specify a project identifier other than its
+                      own.
                     type: string
                 type: object
               unmanaged:
