@@ -34,20 +34,33 @@ type OpenStackFlavorResourceSpec struct {
 	// VCPUs is the number of vcpus for the flavor.
 	VCPUs int `json:"vcpus,omitempty"`
 
-	// Disk the amount of root disk space, measured in GB.
-	Disk *int `json:"disk,omitempty"`
+	// Disk is the size of the root disk that will be created in GiB. If 0
+	// the root disk will be set to exactly the size of the image used to
+	// deploy the instance. However, in this case the scheduler cannot
+	// select the compute host based on the virtual image size. Therefore,
+	// 0 should only be used for volume booted instances or for testing
+	// purposes. Volume-backed instances can be enforced for flavors with
+	// zero root disk via the
+	// os_compute_api:servers:create:zero_disk_flavor policy rule.
+	Disk int `json:"disk,omitempty"`
 
-	// Swap is the amount of swap space for the flavor, measured in MB.
-	Swap *int `json:"swap,omitempty"`
+	// Swap is the size of a dedicated swap disk that will be allocated, in
+	// MiB. If 0 (the default), no dedicated swap disk will be created.
+	Swap int `json:"swap,omitempty"`
 
-	// RxTxFactor alters the network bandwidth of a flavor.
+	// RxTxFactor is the receive / transmit factor (as a float) that will
+	// be set on ports if the network backend supports the QOS extension.
+	// Otherwise it will be ignored. It defaults to 1.0.
 	RxTxFactor string `json:"rxtxFactor,omitempty"`
 
 	// IsPublic flags a flavor as being available to all projects or not.
 	IsPublic *bool `json:"isPublic,omitempty"`
 
-	// Ephemeral is the amount of ephemeral disk space, measured in GB.
-	Ephemeral *int `json:"ephemeral,omitempty"`
+	// Ephemeral is the size of the ephemeral disk that will be created, in GiB.
+	// Ephemeral disks may be written over on server state changes. So should only
+	// be used as a scratch space for applications that are aware of its
+	// limitations. Defaults to 0.
+	Ephemeral int `json:"ephemeral,omitempty"`
 
 	// Description is a free form description of the flavor. Limited to
 	// 65535 characters in length. Only printable characters are allowed.
