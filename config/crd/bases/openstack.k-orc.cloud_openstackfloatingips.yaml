@@ -66,9 +66,6 @@ spec:
                     description: FloatingNetwork is the external OpenStackNetwork
                       where the floating IP is to be created.
                     type: string
-                  id:
-                    description: ID is the unique identifier for the floating IP instance.
-                    type: string
                   port:
                     type: string
                   projectID:

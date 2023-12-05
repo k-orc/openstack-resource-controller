@@ -35,6 +35,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/floatingips"
+	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
@@ -119,6 +120,13 @@ func (r *OpenStackFloatingIPReconciler) Reconcile(ctx context.Context, req ctrl.
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -172,7 +180,7 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
 		var networkID string
 		{
@@ -247,7 +255,7 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 			portID = dependency.Status.Resource.ID
 		}
 
-		floatingIP, err = floatingips.Create(networkClient, floatingips.CreateOpts{
+		createOpts := floatingips.CreateOpts{
 			Description:       resource.Spec.Resource.Description,
 			FloatingNetworkID: networkID,
 			FloatingIP:        resource.Spec.Resource.FloatingIPAddress,
@@ -256,12 +264,23 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 			SubnetID:          subnetID,
 			TenantID:          resource.Spec.Resource.TenantID,
 			ProjectID:         resource.Spec.Resource.ProjectID,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
 		}
-		logger = logger.WithValues("OpenStackID", floatingIP.ID)
-		logger.Info("OpenStack resource created")
+
+		floatingIP, err = r.findAdoptee(log.IntoContext(ctx, logger), networkClient, resource, createOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if floatingIP != nil {
+			logger = logger.WithValues("OpenStackID", floatingIP.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			floatingIP, err = floatingips.Create(networkClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", floatingIP.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	statusPatchResource.Status.Resource = openstackv1.OpenStackFloatingIPResourceStatus{
@@ -317,6 +336,58 @@ func (r *OpenStackFloatingIPReconciler) reconcileDelete(ctx context.Context, net
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func (r *OpenStackFloatingIPReconciler) findAdoptee(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts floatingips.CreateOpts) (*floatingips.FloatingIP, error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		list := &openstackv1.OpenStackFloatingIPList{}
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackFloatingIPs: %w", err)
+		}
+		for _, fip := range list.Items {
+			if fip.GetName() != resource.GetName() && fip.Status.Resource.ID != "" {
+				adoptedIDs[fip.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+
+	var candidates []floatingips.FloatingIP
+	err := floatingips.List(networkClient, floatingips.ListOpts{
+		Description:       createOpts.Description,
+		FloatingNetworkID: createOpts.FloatingNetworkID,
+		PortID:            createOpts.PortID,
+		FixedIP:           createOpts.FixedIP,
+		FloatingIP:        createOpts.FloatingIP,
+		TenantID:          createOpts.TenantID,
+		ProjectID:         createOpts.ProjectID,
+	}).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := floatingips.ExtractFloatingIPs(page)
+		if err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok {
+				candidates = append(candidates, items[i])
+			}
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return &candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.

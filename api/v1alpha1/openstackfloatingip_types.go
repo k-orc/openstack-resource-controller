@@ -22,9 +22,6 @@ import (
 
 // OpenStackFloatingIPResourceSpec defines the desired state of OpenStackFloatingIP
 type OpenStackFloatingIPResourceSpec struct {
-	// ID is the unique identifier for the floating IP instance.
-	ID string `json:"id,omitempty"`
-
 	Description string `json:"description,omitempty"`
 
 	// FloatingNetwork is the external OpenStackNetwork where the floating
