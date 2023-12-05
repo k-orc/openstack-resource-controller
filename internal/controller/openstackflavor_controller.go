@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
@@ -39,6 +40,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
+	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
@@ -116,6 +118,13 @@ func (r *OpenStackFlavorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -169,30 +178,42 @@ func (r *OpenStackFlavorReconciler) reconcile(ctx context.Context, computeClient
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
 		rxtxFactor, err := strconv.ParseFloat(resource.Spec.Resource.RxTxFactor, 64)
 		if err != nil {
 			conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackErrorReasonInvalidSpec, "error parsing rxtxFactor: "+err.Error())
 			return ctrl.Result{}, nil
 		}
-		flavor, err = flavors.Create(computeClient, flavors.CreateOpts{
+
+		createOpts := flavors.CreateOpts{
 			ID:          resource.Spec.Resource.ID,
 			Name:        resource.Spec.Resource.Name,
 			RAM:         resource.Spec.Resource.RAM,
 			VCPUs:       resource.Spec.Resource.VCPUs,
-			Disk:        resource.Spec.Resource.Disk,
-			Swap:        resource.Spec.Resource.Swap,
+			Disk:        &resource.Spec.Resource.Disk,
+			Swap:        &resource.Spec.Resource.Swap,
 			RxTxFactor:  rxtxFactor,
 			IsPublic:    resource.Spec.Resource.IsPublic,
-			Ephemeral:   resource.Spec.Resource.Ephemeral,
+			Ephemeral:   &resource.Spec.Resource.Ephemeral,
 			Description: resource.Spec.Resource.Description,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
 		}
-		logger = logger.WithValues("OpenStackID", flavor.ID)
-		logger.Info("OpenStack resource created")
+
+		flavor, err = r.findAdoptee(log.IntoContext(ctx, logger), computeClient, resource, createOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if flavor != nil {
+			logger = logger.WithValues("OpenStackID", flavor.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			flavor, err = flavors.Create(computeClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", flavor.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	statusPatchResource.Status.Resource = openstackv1.OpenStackFlavorResourceStatus{
@@ -282,6 +303,89 @@ func (r *OpenStackFlavorReconciler) reconcileDelete(ctx context.Context, compute
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func flavorEquals(candidate flavors.Flavor, resource flavors.CreateOpts) bool {
+	if candidate.VCPUs != resource.VCPUs {
+		return false
+	}
+	if resource.ID != "" && resource.ID != candidate.ID {
+		return false
+	}
+	if candidate.Name != resource.Name {
+		return false
+	}
+	if candidate.RAM != resource.RAM {
+		return false
+	}
+	if candidate.Disk != pointer.IntDeref(resource.Disk, 0) {
+		return false
+	}
+	if candidate.Swap != pointer.IntDeref(resource.Swap, 0) {
+		return false
+	}
+	if candidate.RxTxFactor != resource.RxTxFactor {
+		return false
+	}
+	if candidate.Ephemeral != pointer.IntDeref(resource.Ephemeral, 0) {
+		return false
+	}
+	if candidate.Description != resource.Description {
+		return false
+	}
+	return true
+}
+
+func (r *OpenStackFlavorReconciler) findAdoptee(ctx context.Context, computeClient *gophercloud.ServiceClient, resource client.Object, createOpts flavors.CreateOpts) (*flavors.Flavor, error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		list := &openstackv1.OpenStackFlavorList{}
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackFlavors: %w", err)
+		}
+		for _, item := range list.Items {
+			if item.GetName() != resource.GetName() && item.Status.Resource.ID != "" {
+				adoptedIDs[item.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+
+	var candidates []flavors.Flavor
+	err := flavors.ListDetail(computeClient, flavors.ListOpts{
+		MinDisk: pointer.IntDeref(createOpts.Disk, 0),
+		MinRAM:  createOpts.RAM,
+		SortDir: "asc",
+		SortKey: "vcpus",
+	}).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := flavors.ExtractFlavors(page)
+		if err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok && flavorEquals(items[i], createOpts) {
+				candidates = append(candidates, items[i])
+			}
+		}
+
+		// The list is requested in ascending number of VCPUs; stop
+		// listing when the number of VCPUs surpasses our target
+		// flavor's.
+		return items[len(items)-1].VCPUs == createOpts.VCPUs, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return &candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.

@@ -61,11 +61,21 @@ spec:
                       are allowed. New in version 2.55
                     type: string
                   disk:
-                    description: Disk the amount of root disk space, measured in GB.
+                    description: Disk is the size of the root disk that will be created
+                      in GiB. If 0 the root disk will be set to exactly the size of
+                      the image used to deploy the instance. However, in this case
+                      the scheduler cannot select the compute host based on the virtual
+                      image size. Therefore, 0 should only be used for volume booted
+                      instances or for testing purposes. Volume-backed instances can
+                      be enforced for flavors with zero root disk via the os_compute_api:servers:create:zero_disk_flavor
+                      policy rule.
                     type: integer
                   ephemeral:
-                    description: Ephemeral is the amount of ephemeral disk space,
-                      measured in GB.
+                    description: Ephemeral is the size of the ephemeral disk that
+                      will be created, in GiB. Ephemeral disks may be written over
+                      on server state changes. So should only be used as a scratch
+                      space for applications that are aware of its limitations. Defaults
+                      to 0.
                     type: integer
                   id:
                     description: ID is the flavor's unique ID.
@@ -81,11 +91,15 @@ spec:
                     description: RAM is the memory of the flavor, measured in MB.
                     type: integer
                   rxtxFactor:
-                    description: RxTxFactor alters the network bandwidth of a flavor.
+                    description: RxTxFactor is the receive / transmit factor (as a
+                      float) that will be set on ports if the network backend supports
+                      the QOS extension. Otherwise it will be ignored. It defaults
+                      to 1.0.
                     type: string
                   swap:
-                    description: Swap is the amount of swap space for the flavor,
-                      measured in MB.
+                    description: Swap is the size of a dedicated swap disk that will
+                      be allocated, in MiB. If 0 (the default), no dedicated swap
+                      disk will be created.
                     type: integer
                   vcpus:
                     description: VCPUs is the number of vcpus for the flavor.
