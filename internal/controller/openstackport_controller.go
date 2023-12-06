@@ -38,6 +38,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
+	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
@@ -126,6 +127,13 @@ func (r *OpenStackPortReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -179,7 +187,7 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
 		var networkID string
 		{
@@ -270,7 +278,7 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 			}
 		}
 
-		port, err = ports.Create(networkClient, ports.CreateOpts{
+		createOpts := ports.CreateOpts{
 			NetworkID:             networkID,
 			Name:                  resource.Spec.Resource.Name,
 			Description:           resource.Spec.Resource.Description,
@@ -285,13 +293,32 @@ func (r *OpenStackPortReconciler) reconcile(ctx context.Context, networkClient *
 			PropagateUplinkStatus: resource.Spec.Resource.PropagateUplinkStatus,
 			// TODO: What is ValueSpecs? Can it be a way to set the
 			// properties I'm missing in Gophercloud?
-			ValueSpecs: nil,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
+			// ValueSpecs: nil,
 		}
-		logger = logger.WithValues("OpenStackID", port.ID)
-		logger.Info("OpenStack resource created")
+
+		fixedIPOpts := make([]ports.FixedIPOpts, len(fixedIPs))
+		for i := range fixedIPs {
+			fixedIPOpts[i] = ports.FixedIPOpts{
+				IPAddress: fixedIPs[i].IPAddress,
+				SubnetID:  fixedIPs[i].SubnetID,
+			}
+		}
+
+		port, err = r.findAdoptee(log.IntoContext(ctx, logger), networkClient, resource, createOpts, fixedIPOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if port != nil {
+			logger = logger.WithValues("OpenStackID", port.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			port, err = ports.Create(networkClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", port.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	fixedIPs := make([]openstackv1.OpenStackPortStatusFixedIP, len(port.FixedIPs))
@@ -409,6 +436,83 @@ func (r *OpenStackPortReconciler) reconcileDelete(ctx context.Context, networkCl
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func portEquals(candidate ports.Port, resource ports.CreateOpts) bool {
+	if len(candidate.AllowedAddressPairs) != len(resource.AllowedAddressPairs) {
+		return false
+	}
+	if !sliceContentEquals(candidate.AllowedAddressPairs, resource.AllowedAddressPairs) {
+		return false
+	}
+	if resource.SecurityGroups != nil {
+		if len(candidate.SecurityGroups) != len(*resource.SecurityGroups) {
+			return false
+		}
+		if !sliceContentEquals(candidate.SecurityGroups, *resource.SecurityGroups) {
+			return false
+		}
+	}
+	if resource.PropagateUplinkStatus != nil && candidate.PropagateUplinkStatus != *resource.PropagateUplinkStatus {
+		return false
+	}
+	return true
+}
+
+func (r *OpenStackPortReconciler) findAdoptee(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts ports.CreateOpts, fixedIPOpts []ports.FixedIPOpts) (*ports.Port, error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		list := &openstackv1.OpenStackPortList{}
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackPorts: %w", err)
+		}
+		for _, port := range list.Items {
+			if port.GetName() != resource.GetName() && port.Status.Resource.ID != "" {
+				adoptedIDs[port.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+
+	listOpts := ports.ListOpts{
+		Name:         createOpts.Name,
+		Description:  createOpts.Description,
+		AdminStateUp: createOpts.AdminStateUp,
+		NetworkID:    createOpts.NetworkID,
+		TenantID:     createOpts.TenantID,
+		ProjectID:    createOpts.ProjectID,
+		DeviceOwner:  createOpts.DeviceOwner,
+		MACAddress:   createOpts.MACAddress,
+		DeviceID:     createOpts.DeviceID,
+		FixedIPs:     fixedIPOpts,
+	}
+	var candidates []ports.Port
+	err := ports.List(networkClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := ports.ExtractPorts(page)
+		if err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok && portEquals(items[i], createOpts) {
+				candidates = append(candidates, items[i])
+			}
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return &candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.
