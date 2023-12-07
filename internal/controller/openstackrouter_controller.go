@@ -124,6 +124,13 @@ func (r *OpenStackRouterReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -178,7 +185,7 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
 		var gatewayInfo *routers.GatewayInfo
 		if gateway := resource.Spec.Resource.ExternalGateway; gateway != nil {
@@ -236,7 +243,7 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 			created = true
 		}
 
-		router, err = routers.Create(networkClient, routers.CreateOpts{
+		createOpts := routers.CreateOpts{
 			Name:                  resource.Spec.Resource.Name,
 			Description:           resource.Spec.Resource.Description,
 			AdminStateUp:          resource.Spec.Resource.AdminStateUp,
@@ -245,12 +252,22 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 			ProjectID:             resource.Spec.Resource.ProjectID,
 			GatewayInfo:           gatewayInfo,
 			AvailabilityZoneHints: resource.Spec.Resource.AvailabilityZoneHints,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
 		}
-		logger = logger.WithValues("OpenStackID", router.ID)
-		logger.Info("OpenStack resource created")
+		router, err = r.findAdoptee(log.IntoContext(ctx, logger), networkClient, resource, createOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if router != nil {
+			logger = logger.WithValues("OpenStackID", router.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			router, err = routers.Create(networkClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", router.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	routes := make([]openstackv1.OpenStackRouterRoute, len(router.Routes))
@@ -408,6 +425,84 @@ func (r *OpenStackRouterReconciler) reconcileDelete(ctx context.Context, network
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func routerEquals(candidate routers.Router, opts routers.CreateOpts) bool {
+	if opts.GatewayInfo != nil {
+		if candidate.GatewayInfo.NetworkID != opts.GatewayInfo.NetworkID {
+			return false
+		}
+		if opts.GatewayInfo.EnableSNAT != nil && candidate.GatewayInfo.EnableSNAT != opts.GatewayInfo.EnableSNAT {
+			return false
+		}
+		if len(candidate.GatewayInfo.ExternalFixedIPs) != len(opts.GatewayInfo.ExternalFixedIPs) {
+			return false
+		}
+		if !sliceContentEquals(candidate.GatewayInfo.ExternalFixedIPs, opts.GatewayInfo.ExternalFixedIPs) {
+			return false
+		}
+	}
+	if len(candidate.AvailabilityZoneHints) != len(opts.AvailabilityZoneHints) {
+		return false
+	}
+	if opts.AvailabilityZoneHints != nil {
+		if !sliceContentEquals(candidate.AvailabilityZoneHints, opts.AvailabilityZoneHints) {
+			return false
+		}
+	}
+	return true
+}
+
+func (r *OpenStackRouterReconciler) findAdoptee(ctx context.Context, imageClient *gophercloud.ServiceClient, resource client.Object, createOpts routers.CreateOpts) (*routers.Router, error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		list := &openstackv1.OpenStackRouterList{}
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackRouters: %w", err)
+		}
+		for _, port := range list.Items {
+			if port.GetName() != resource.GetName() && port.Status.Resource.ID != "" {
+				adoptedIDs[port.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+	listOpts := routers.ListOpts{
+		Name:         createOpts.Name,
+		Description:  createOpts.Description,
+		AdminStateUp: createOpts.AdminStateUp,
+		Distributed:  createOpts.Distributed,
+		TenantID:     createOpts.TenantID,
+		ProjectID:    createOpts.ProjectID,
+	}
+
+	var candidates []routers.Router
+	err := routers.List(imageClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := routers.ExtractRouters(page)
+		if err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok && routerEquals(items[i], createOpts) {
+				candidates = append(candidates, items[i])
+			}
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return &candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.
