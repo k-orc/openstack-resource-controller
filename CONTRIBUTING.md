@@ -23,6 +23,16 @@ make install
 make run
 ```
 
+How to follow logs:
+```sh
+kubectl logs --follow -n orc-system "$(kubectl -n orc-system get pods -o NAME)"
+```
+
+The controllers also output user-facing events:
+```sh
+kubectl get events
+```
+
 3. Once done, to delete the CRDs from the cluster:
 
 ```sh
