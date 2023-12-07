@@ -42,7 +42,7 @@ func sliceContentEquals[T comparable](slice1, slice2 []T) bool {
 
 // sliceContentCompare attemps to pair the contents of two slices with the provided
 // function, discarding the order of the items. Returns true if successful.
-func sliceContentCompare[T any](slice1, slice2 []T, comparingFunc func(T, T) bool) bool {
+func sliceContentCompare[T1, T2 any](slice1 []T1, slice2 []T2, comparingFunc func(T1, T2) bool) bool {
 	paired := make(map[int]struct{})
 Candidate:
 	for i := range slice1 {

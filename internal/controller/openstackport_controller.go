@@ -438,7 +438,7 @@ func (r *OpenStackPortReconciler) reconcileDelete(ctx context.Context, networkCl
 	return ctrl.Result{}, nil
 }
 
-func portEquals(candidate ports.Port, resource ports.CreateOpts) bool {
+func portEquals(candidate ports.Port, resource ports.CreateOpts, fixedIPOpts []ports.FixedIPOpts) bool {
 	if len(candidate.AllowedAddressPairs) != len(resource.AllowedAddressPairs) {
 		return false
 	}
@@ -456,6 +456,13 @@ func portEquals(candidate ports.Port, resource ports.CreateOpts) bool {
 	if resource.PropagateUplinkStatus != nil && candidate.PropagateUplinkStatus != *resource.PropagateUplinkStatus {
 		return false
 	}
+
+	if !sliceContentCompare(candidate.FixedIPs, fixedIPOpts, func(f1 ports.IP, f2 ports.FixedIPOpts) bool {
+		return f1.SubnetID == f2.SubnetID && f1.IPAddress == f2.IPAddress
+	}) {
+		return false
+	}
+
 	return true
 }
 
@@ -485,8 +492,8 @@ func (r *OpenStackPortReconciler) findAdoptee(ctx context.Context, networkClient
 		DeviceOwner:  createOpts.DeviceOwner,
 		MACAddress:   createOpts.MACAddress,
 		DeviceID:     createOpts.DeviceID,
-		FixedIPs:     fixedIPOpts,
 	}
+
 	var candidates []ports.Port
 	err := ports.List(networkClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
 		items, err := ports.ExtractPorts(page)
@@ -494,7 +501,7 @@ func (r *OpenStackPortReconciler) findAdoptee(ctx context.Context, networkClient
 			return false, fmt.Errorf("extracting resources: %w", err)
 		}
 		for i := range items {
-			if _, ok := adoptedIDs[items[i].ID]; !ok && portEquals(items[i], createOpts) {
+			if _, ok := adoptedIDs[items[i].ID]; !ok && portEquals(items[i], createOpts, fixedIPOpts) {
 				candidates = append(candidates, items[i])
 			}
 		}
