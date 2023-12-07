@@ -188,15 +188,9 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 		}
 		logger.Info("OpenStack resource found")
 	} else {
-		type serverNetwork struct {
-			NetworkID string `json:"uuid,omitempty"`
-			PortID    string `json:"port,omitempty"`
-			FixedIP   string `json:"fixed_ip,omitempty"`
-			Tag       string `json:"tag,omitempty"`
-		}
-		serverNetworks := make([]serverNetwork, len(resource.Spec.Resource.Networks))
+		serverNetworks := make([]servers.Network, len(resource.Spec.Resource.Networks))
 		for i := range resource.Spec.Resource.Networks {
-			n := serverNetwork{
+			n := servers.Network{
 				FixedIP: resource.Spec.Resource.Networks[i].FixedIP,
 				Tag:     resource.Spec.Resource.Networks[i].Tag,
 			}
@@ -220,7 +214,7 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 					}
 					return ctrl.Result{}, nil
 				}
-				n.NetworkID = dependency.Status.Resource.ID
+				n.UUID = dependency.Status.Resource.ID
 			}
 			if port := resource.Spec.Resource.Networks[i].Port; port != "" {
 				dependency := &openstackv1.OpenStackPort{}
@@ -242,7 +236,7 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 					}
 					return ctrl.Result{}, nil
 				}
-				n.PortID = dependency.Status.Resource.ID
+				n.Port = dependency.Status.Resource.ID
 			}
 			serverNetworks[i] = n
 		}
