@@ -36,6 +36,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
@@ -125,6 +126,13 @@ func (r *OpenStackServerReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -178,7 +186,7 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
 		type serverNetwork struct {
 			NetworkID string `json:"uuid,omitempty"`
@@ -260,7 +268,6 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 				}
 				return ctrl.Result{}, nil
 			}
-
 			imageID = dependency.Status.Resource.ID
 		}
 
@@ -285,7 +292,6 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 				}
 				return ctrl.Result{}, nil
 			}
-
 			flavorID = dependency.Status.Resource.ID
 		}
 
@@ -313,19 +319,29 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 			securityGroupIDs[i] = dependency.Status.Resource.ID
 		}
 
-		server, err = servers.Create(computeClient, servers.CreateOpts{
+		createOpts := servers.CreateOpts{
 			Name:           resource.Spec.Resource.Name,
 			ImageRef:       imageID,
 			FlavorRef:      flavorID,
 			Networks:       serverNetworks,
 			SecurityGroups: securityGroupIDs,
 			UserData:       resource.Spec.Resource.UserData,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
 		}
-		logger = logger.WithValues("OpenStackID", server.ID)
-		logger.Info("OpenStack resource created")
+		server, err = r.findAdoptee(log.IntoContext(ctx, logger), computeClient, resource, createOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if server != nil {
+			logger = logger.WithValues("OpenStackID", server.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			server, err = servers.Create(computeClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", server.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	jsonImage, err := json.Marshal(server.Image)
@@ -400,7 +416,7 @@ func (r *OpenStackServerReconciler) reconcileDelete(ctx context.Context, network
 		}
 	}
 
-	if updated := controllerutil.RemoveFinalizer(resource, OpenStackPortFinalizer); updated {
+	if updated := controllerutil.RemoveFinalizer(resource, OpenStackServerFinalizer); updated {
 		logger.Info("removing finalizer")
 		if updated, condition := conditions.SetNotReadyConditionDeleting(resource, statusPatchResource, "Removing finalizer"); updated {
 			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
@@ -411,6 +427,58 @@ func (r *OpenStackServerReconciler) reconcileDelete(ctx context.Context, network
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func (r *OpenStackServerReconciler) findAdoptee(ctx context.Context, computeClient *gophercloud.ServiceClient, resource client.Object, createOpts servers.CreateOpts) (*servers.Server, error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		list := &openstackv1.OpenStackServerList{}
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackServers: %w", err)
+		}
+		for _, port := range list.Items {
+			if port.GetName() != resource.GetName() && port.Status.Resource.ID != "" {
+				adoptedIDs[port.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+
+	listOpts := servers.ListOpts{
+		Image:            createOpts.ImageRef,
+		Flavor:           createOpts.FlavorRef,
+		IP:               createOpts.AccessIPv4,
+		IP6:              createOpts.AccessIPv6,
+		Name:             createOpts.Name,
+		AvailabilityZone: createOpts.AvailabilityZone,
+	}
+	var candidates []servers.Server
+	err := servers.List(computeClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := servers.ExtractServers(page)
+		if err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok {
+				candidates = append(candidates, items[i])
+			}
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return &candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.

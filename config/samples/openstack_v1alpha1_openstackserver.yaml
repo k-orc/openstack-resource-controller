@@ -15,6 +15,6 @@ spec:
     image: fedora
     flavor: small
     networks:
-    - network: network-1
+    - port: port-1
     securityGroups:
     - workstation
