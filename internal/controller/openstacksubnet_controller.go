@@ -39,6 +39,7 @@ import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
 	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
 	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
@@ -120,6 +121,13 @@ func (r *OpenStackSubnetReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		conditions.InitialiseRequiredConditions(resource, statusPatchResource)
 	}
 
+	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	}
+
 	// Get the OpenStackCloud resource
 	openStackCloud := &openstackv1.OpenStackCloud{}
 	{
@@ -173,7 +181,7 @@ func (r *OpenStackSubnetReconciler) reconcile(ctx context.Context, networkClient
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		logger.V(4).Info("resource exists in OpenStack")
+		logger.Info("OpenStack resource found")
 	} else {
 		var networkID string
 		{
@@ -225,7 +233,7 @@ func (r *OpenStackSubnetReconciler) reconcile(ctx context.Context, networkClient
 			}
 		}
 
-		subnet, err = subnets.Create(networkClient, subnets.CreateOpts{
+		createOpts := subnets.CreateOpts{
 			NetworkID:       networkID,
 			CIDR:            resource.Spec.Resource.CIDR,
 			Name:            resource.Spec.Resource.Name,
@@ -239,12 +247,22 @@ func (r *OpenStackSubnetReconciler) reconcile(ctx context.Context, networkClient
 			HostRoutes:      hostRoutes,
 			IPv6AddressMode: resource.Spec.Resource.IPv6AddressMode,
 			IPv6RAMode:      resource.Spec.Resource.IPv6RAMode,
-		}).Extract()
-		if err != nil {
-			return ctrl.Result{}, err
 		}
-		logger = logger.WithValues("OpenStackID", subnet.ID)
-		logger.Info("OpenStack resource created")
+		subnet, err = r.findAdoptee(log.IntoContext(ctx, logger), networkClient, resource, createOpts)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
+		}
+		if subnet != nil {
+			logger = logger.WithValues("OpenStackID", subnet.ID)
+			logger.Info("OpenStack resource adopted")
+		} else {
+			subnet, err = subnets.Create(networkClient, createOpts).Extract()
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			logger = logger.WithValues("OpenStackID", subnet.ID)
+			logger.Info("OpenStack resource created")
+		}
 	}
 
 	allocationPools := make([]openstackv1.OpenStackSubnetAllocationPool, len(subnet.AllocationPools))
@@ -359,6 +377,67 @@ func (r *OpenStackSubnetReconciler) reconcileDelete(ctx context.Context, network
 		return ctrl.Result{}, apply.Apply(ctx, r.Client, resource, patch, "spec")
 	}
 	return ctrl.Result{}, nil
+}
+
+func (r *OpenStackSubnetReconciler) findAdoptee(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts subnets.CreateOpts) (*subnets.Subnet, error) {
+	adoptedIDs := make(map[string]struct{})
+	{
+		list := &openstackv1.OpenStackSubnetList{}
+		if err := r.Client.List(ctx, list,
+			client.InNamespace(resource.GetNamespace()),
+		); err != nil {
+			return nil, fmt.Errorf("listing OpenStackSubnets: %w", err)
+		}
+		for _, port := range list.Items {
+			if port.GetName() != resource.GetName() && port.Status.Resource.ID != "" {
+				adoptedIDs[port.Status.Resource.ID] = struct{}{}
+			}
+		}
+	}
+	listOpts := subnets.ListOpts{
+		Name:            createOpts.Name,
+		Description:     createOpts.Description,
+		EnableDHCP:      createOpts.EnableDHCP,
+		NetworkID:       createOpts.NetworkID,
+		TenantID:        createOpts.TenantID,
+		ProjectID:       createOpts.ProjectID,
+		IPVersion:       int(createOpts.IPVersion),
+		CIDR:            createOpts.CIDR,
+		IPv6AddressMode: createOpts.IPv6AddressMode,
+		IPv6RAMode:      createOpts.IPv6RAMode,
+		// TODO: SubnetPoolID
+	}
+
+	if createOpts.GatewayIP != nil {
+		listOpts.GatewayIP = *createOpts.GatewayIP
+	}
+
+	var candidates []subnets.Subnet
+	err := subnets.List(networkClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
+		items, err := subnets.ExtractSubnets(page)
+		if err != nil {
+			return false, fmt.Errorf("extracting resources: %w", err)
+		}
+		for i := range items {
+			if _, ok := adoptedIDs[items[i].ID]; !ok {
+				candidates = append(candidates, items[i])
+			}
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	switch n := len(candidates); n {
+	case 0:
+		return nil, nil
+	case 1:
+		return &candidates[0], nil
+	default:
+		return nil, fmt.Errorf("found %d possible candidates", n)
+	}
 }
 
 // SetupWithManager sets up the controller with the Manager.
