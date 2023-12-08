@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imageimport"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
@@ -242,10 +243,45 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 		StoreIDs:        image.OpenStackImageStoreIDs,
 	}
 
-	if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
-		conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+	switch image.Status {
+	case images.ImageStatusImporting, images.ImageStatusSaving, "uploading":
+		if updated, condition := conditions.SetNotReadyConditionPending(resource, statusPatchResource); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
+	case images.ImageStatusQueued, images.ImageStatusKilled:
+		if resource.Spec.Resource.Method == string(imageimport.WebDownloadMethod) && resource.Spec.Resource.WebDownload != nil {
+			if err := imageimport.Create(imageClient, image.ID, imageimport.CreateOpts{
+				Name: imageimport.WebDownloadMethod,
+				URI:  resource.Spec.Resource.WebDownload.URL,
+			}).ExtractErr(); err != nil {
+				return ctrl.Result{}, err
+			}
+			if updated, condition := conditions.SetNotReadyConditionPending(resource, statusPatchResource); updated {
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+			}
+			return ctrl.Result{Requeue: true}, nil
+		}
+		return ctrl.Result{}, nil
+	case images.ImageStatusDeactivated, images.ImageStatusPendingDelete, images.ImageStatusDeleted:
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackErrorReasonImageNotAvailable, "Image "+string(image.Status)); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	case images.ImageStatusActive:
+		if expected := resource.Status.Resource.Checksum; expected != "" && expected != image.Checksum {
+			if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackErrorReasonImageImportFailed, "checksum mismatch"); updated {
+				conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+			}
+			return ctrl.Result{}, nil
+		}
+		if updated, condition := conditions.SetReadyCondition(resource, statusPatchResource); updated {
+			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+		}
+		return ctrl.Result{}, nil
+	default:
+		return ctrl.Result{}, fmt.Errorf("unknown status %q", image.Status)
 	}
-	return ctrl.Result{}, nil
 }
 
 func (r *OpenStackImageReconciler) reconcileDelete(ctx context.Context, imageClient *gophercloud.ServiceClient, resource, statusPatchResource *openstackv1.OpenStackImage) (ctrl.Result, error) {
