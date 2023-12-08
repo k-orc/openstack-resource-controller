@@ -174,9 +174,8 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 	logger := log.FromContext(ctx)
 
 	var (
-		router  *routers.Router
-		err     error
-		created bool
+		router *routers.Router
+		err    error
 	)
 	if openstackID := coalesce(resource.Spec.ID, resource.Status.Resource.ID); openstackID != "" {
 		logger = logger.WithValues("OpenStackID", openstackID)
@@ -240,7 +239,6 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 				EnableSNAT:       gateway.EnableSNAT,
 				ExternalFixedIPs: externalFixedIPs,
 			}
-			created = true
 		}
 
 		createOpts := routers.CreateOpts{
@@ -305,13 +303,6 @@ func (r *OpenStackRouterReconciler) reconcile(ctx context.Context, networkClient
 		Status:                router.Status,
 		Tags:                  router.Tags,
 		Routes:                routes,
-	}
-
-	if created {
-		if updated, condition := conditions.SetNotReadyConditionPending(resource, statusPatchResource); updated {
-			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-		}
-		return ctrl.Result{Requeue: true}, nil
 	}
 
 	currentPortSet := make(map[string]struct{})
