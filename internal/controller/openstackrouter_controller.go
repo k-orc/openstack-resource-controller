@@ -435,11 +435,12 @@ func routerEquals(candidate routers.Router, opts routers.CreateOpts) bool {
 		if opts.GatewayInfo.EnableSNAT != nil && candidate.GatewayInfo.EnableSNAT != opts.GatewayInfo.EnableSNAT {
 			return false
 		}
-		if len(candidate.GatewayInfo.ExternalFixedIPs) != len(opts.GatewayInfo.ExternalFixedIPs) {
-			return false
-		}
-		if !sliceContentEquals(candidate.GatewayInfo.ExternalFixedIPs, opts.GatewayInfo.ExternalFixedIPs) {
-			return false
+		if len(opts.GatewayInfo.ExternalFixedIPs) > 0 {
+			if !sliceContentEquals(candidate.GatewayInfo.ExternalFixedIPs, opts.GatewayInfo.ExternalFixedIPs) {
+				fmt.Printf("%+v\n", candidate.GatewayInfo.ExternalFixedIPs)
+				fmt.Printf("%+v\n", opts.GatewayInfo.ExternalFixedIPs)
+				return false
+			}
 		}
 	}
 	if len(candidate.AvailabilityZoneHints) != len(opts.AvailabilityZoneHints) {
