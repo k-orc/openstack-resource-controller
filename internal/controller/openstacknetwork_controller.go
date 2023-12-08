@@ -290,6 +290,7 @@ func (r *OpenStackNetworkReconciler) reconcileDelete(ctx context.Context, networ
 	logger.V(4).Info("Checking for dependant OpenStack resources")
 	referencingResources := []string{}
 	for _, resourceList := range []client.ObjectList{
+		&openstackv1.OpenStackNetworkList{},
 		&openstackv1.OpenStackSubnetList{},
 		&openstackv1.OpenStackPortList{},
 		&openstackv1.OpenStackFloatingIPList{},
