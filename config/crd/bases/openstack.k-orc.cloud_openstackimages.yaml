@@ -55,6 +55,8 @@ spec:
               resource:
                 description: OpenStackImageSpec defines the desired state of OpenStackImage
                 properties:
+                  checksum:
+                    type: string
                   containerFormat:
                     description: ContainerFormat is the format of the container. Valid
                       values are ami, ari, aki, bare, and ovf.
@@ -68,6 +70,13 @@ spec:
                       empty, the controller will create a new resource and populate
                       this field. If manually populated, the controller will adopt
                       the corresponding resource.
+                    type: string
+                  method:
+                    description: Method is the Glance Interoperable Import method
+                      to use. The only supported method is currently "web-download".
+                    enum:
+                    - ""
+                    - web-download
                     type: string
                   minDisk:
                     description: MinDisk is the amount of disk space in GB that is
@@ -97,6 +106,12 @@ spec:
                     - shared
                     - community
                     type: string
+                  webDownload:
+                    description: WebDownload can be populated if Method is "web-download".
+                    properties:
+                      url:
+                        type: string
+                    type: object
                 type: object
               unmanaged:
                 description: Unmanaged, when true, means that no action will be performed

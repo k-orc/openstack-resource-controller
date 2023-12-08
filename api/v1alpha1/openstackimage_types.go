@@ -20,6 +20,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	OpenStackErrorReasonImageImportFailed = "FailedImageImport"
+	OpenStackErrorReasonImageNotAvailable = "ImageNotAvailable"
+)
+
 // OpenStackImageSpec defines the desired state of OpenStackImage
 type OpenStackImageResourceSpec struct {
 	// ContainerFormat is the format of the
@@ -58,6 +63,20 @@ type OpenStackImageResourceSpec struct {
 	// Visibility defines who can see/use the image.
 	// +kubebuilder:validation:Enum:="public";"private";"shared";"community"
 	Visibility *string `json:"visibility,omitempty"`
+
+	// Method is the Glance Interoperable Import method to use. The only
+	// supported method is currently "web-download".
+	// +kubebuilder:validation:Enum:="";"web-download"
+	Method string `json:"method,omitempty"`
+
+	// WebDownload can be populated if Method is "web-download".
+	WebDownload *OpenStackImageResourceWebDownload `json:"webDownload,omitempty"`
+
+	Checksum string `json:"checksum,omitempty"`
+}
+
+type OpenStackImageResourceWebDownload struct {
+	URL string `json:"url,omitempty"`
 }
 
 // OpenStackImageStatus defines the observed state of OpenStackImage

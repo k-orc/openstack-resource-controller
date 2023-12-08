@@ -80,6 +80,7 @@ func (r *OpenStackServerReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		newLabels := map[string]string{
 			openstackv1.OpenStackDependencyLabelCloud(resource.Spec.Cloud):            "",
 			openstackv1.OpenStackDependencyLabelFlavor(resource.Spec.Resource.Flavor): "",
+			openstackv1.OpenStackDependencyLabelImage(resource.Spec.Resource.Image):   "",
 		}
 		for _, sg := range resource.Spec.Resource.SecurityGroups {
 			newLabels[openstackv1.OpenStackDependencyLabelSecurityGroup(sg)] = ""
@@ -540,6 +541,39 @@ func (r *OpenStackServerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 					},
 				})
 				logger.V(5).Info("update of OpenStackFlavor triggers reconcile of OpenStackServer",
+					"namespace", o.GetNamespace(),
+					"cloud", o.GetName(),
+					"server", server.GetName())
+			}
+			return reqs
+		})).
+		Watches(&openstackv1.OpenStackImage{}, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, o client.Object) []reconcile.Request {
+			// Fetch a list of all OpenStackServers that reference this OpenStackImage.
+			kclient := mgr.GetClient()
+			logger := mgr.GetLogger()
+
+			servers := &openstackv1.OpenStackServerList{}
+			if err := kclient.List(ctx, servers,
+				client.InNamespace(o.GetNamespace()),
+				client.HasLabels{openstackv1.OpenStackDependencyLabelImage(o.GetName())},
+			); err != nil {
+				logger.Error(err, "unable to list OpenStackServers")
+				return nil
+			}
+
+			// Reconcile each OpenStackServer that is not Ready and that references this OpenStackImage.
+			reqs := make([]reconcile.Request, 0, len(servers.Items))
+			for _, server := range servers.Items {
+				if conditions.IsReady(&server) {
+					continue
+				}
+				reqs = append(reqs, reconcile.Request{
+					NamespacedName: client.ObjectKey{
+						Namespace: server.GetNamespace(),
+						Name:      server.GetName(),
+					},
+				})
+				logger.V(5).Info("update of OpenStackImage triggers reconcile of OpenStackServer",
 					"namespace", o.GetNamespace(),
 					"cloud", o.GetName(),
 					"server", server.GetName())
