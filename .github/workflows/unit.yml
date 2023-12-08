@@ -12,11 +12,11 @@ jobs:
           - '1'
 
     steps:
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-
-      - uses: actions/checkout@v4
 
       - run: |
           go test -v ./...
