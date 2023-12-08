@@ -180,10 +180,13 @@ func (r *OpenStackFlavorReconciler) reconcile(ctx context.Context, computeClient
 		}
 		logger.Info("OpenStack resource found")
 	} else {
-		rxtxFactor, err := strconv.ParseFloat(resource.Spec.Resource.RxTxFactor, 64)
-		if err != nil {
-			conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackErrorReasonInvalidSpec, "error parsing rxtxFactor: "+err.Error())
-			return ctrl.Result{}, nil
+		var rxtxFactor float64
+		if resource.Spec.Resource.RxTxFactor != "" {
+			rxtxFactor, err = strconv.ParseFloat(resource.Spec.Resource.RxTxFactor, 64)
+			if err != nil {
+				conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackErrorReasonInvalidSpec, "error parsing rxtxFactor: "+err.Error())
+				return ctrl.Result{}, nil
+			}
 		}
 
 		createOpts := flavors.CreateOpts{
@@ -324,7 +327,7 @@ func flavorEquals(candidate flavors.Flavor, resource flavors.CreateOpts) bool {
 	if candidate.Swap != pointer.IntDeref(resource.Swap, 0) {
 		return false
 	}
-	if candidate.RxTxFactor != resource.RxTxFactor {
+	if resource.RxTxFactor != 0 && candidate.RxTxFactor != resource.RxTxFactor {
 		return false
 	}
 	if candidate.Ephemeral != pointer.IntDeref(resource.Ephemeral, 0) {
