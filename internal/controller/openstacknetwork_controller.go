@@ -124,7 +124,7 @@ func (r *OpenStackNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	if resource.Spec.ID == "" && resource.Spec.Resource == nil {
-		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, "BadRequest", "One of spec.id or spec.resource must be set"); updated {
+		if updated, condition := conditions.SetErrorCondition(resource, statusPatchResource, openstackv1.OpenStackErrorReasonInvalidSpec, "One of spec.id or spec.resource must be set"); updated {
 			conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
 		}
 		return ctrl.Result{}, nil
