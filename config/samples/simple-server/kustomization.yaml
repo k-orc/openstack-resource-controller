@@ -1,0 +1,8 @@
+generatorOptions:
+  disableNameSuffixHash: true
+secretGenerator:
+- name: openstack-clouds
+  files:
+  - clouds.yaml
+resources:
+- simple-server.yaml
