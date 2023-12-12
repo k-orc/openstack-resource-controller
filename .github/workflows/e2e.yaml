@@ -1,12 +1,12 @@
-on:
-  push:
-    branches:
-    - main
-  pull_request:
 name: e2e
-
+on:
+  pull_request:
+env:
+  image_tag_commit: quay.io/orc/orc-pr:commit-${GITHUB_SHA::7}
+permissions:
+  contents: read
 jobs:
-  functional-compute:
+  e2e:
     strategy:
       matrix:
         include:
@@ -19,45 +19,53 @@ jobs:
           - name: "bobcat"
             openstack_version: "stable/2023.2"
             ubuntu_version: "22.04"
+
     runs-on: ubuntu-${{ matrix.ubuntu_version }}
-    name: Deploy OpenStack ${{ matrix.name }} and run acceptance tests
+
+    name: Run acceptance tests against OpenStack ${{ matrix.name }}
+
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Deploy devstack
-        uses: EmilienM/devstack-action@40c77372dbc135a17adc877eb77fc226a134305c
-        with:
-          enable_workaround_docker_io: 'false'
-          branch: ${{ matrix.openstack_version }}
+    - name: Build and push a container image
+      run: |
+        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
+        docker build -t ${{ env.image_tag_commit }} --label quay.expires-after=4h .
+        docker push ${{ env.image_tag_commit }}
 
-      - name: Kind Cluster
-        uses: helm/kind-action@dda0770415bac9fc20092cacbc54aa298604d140
-        with:
-          cluster_name: orc
+    - name: Deploy devstack
+      uses: EmilienM/devstack-action@40c77372dbc135a17adc877eb77fc226a134305c
+      with:
+        enable_workaround_docker_io: 'false'
+        branch: ${{ matrix.openstack_version }}
 
-      - name: Explore the cloud
-        run: |
-          echo NETWORKS
-          openstack network list
-          echo PUBLIC
-          openstack network show public
-          echo FLAVORS
-          openstack flavor list
-          echo IMAGE
-          openstack image list
-        env:
-          OS_CLOUD: devstack
+    - name: Deploy a Kind Cluster
+      uses: helm/kind-action@dda0770415bac9fc20092cacbc54aa298604d140
+      with:
+        cluster_name: orc
 
-      - name: Prepare kubebuilder
-        run: make
+    - name: Deploy orc
+      run: |
+        kubectl config use-context kind-orc
+        make deploy IMG=${{ env.image_tag_commit }}
 
-      - name: Get a clouds.yaml
-        run: cp /etc/openstack/clouds.yaml config/samples/simple-server/
+    - name: Apply simple-server
+      run: |
+        cp /etc/openstack/clouds.yaml config/samples/simple-server/
+        kubectl apply -k config/samples/simple-server
+        kubectl wait --timeout=10m --for=condition=ready OpenStackServer workstation
 
-      - name: Run orc
-        run: |
-          kubectl config use-context kind-orc
-          make install
-          make run & sleep 5
-          kubectl apply -k config/samples/simple-server
-          kubectl wait --timeout=10m --for=condition=ready OpenStackServer workstation
+    - name: Explore the cloud
+      run: |
+        echo NETWORKS
+        openstack network list
+        echo PUBLIC
+        openstack network show public
+        echo FLAVORS
+        openstack flavor list
+        echo IMAGE
+        openstack image list
+        echo SERVER
+        openstack server list
+      env:
+        OS_CLOUD: devstack
