@@ -49,13 +49,27 @@ func NewProviderClient(ctx context.Context, k8sClient client.Client, openStackCl
 		return nil, nil, BadCredentialsError(fmt.Errorf("cloud %q not found in clouds.yaml", openStackCloud.Spec.Cloud))
 	}
 
+	domainID := cloud.AuthInfo.UserDomainID
+	if domainID == "" {
+		domainID = cloud.AuthInfo.ProjectDomainID
+	}
+	if domainID == "" {
+		domainID = cloud.AuthInfo.DomainID
+	}
+	domainName := cloud.AuthInfo.UserDomainName
+	if domainName == "" {
+		domainName = cloud.AuthInfo.ProjectDomainName
+	}
+	if domainID == "" {
+		domainName = cloud.AuthInfo.DomainName
+	}
 	providerClient, err := openstack.AuthenticatedClient(gophercloud.AuthOptions{
 		IdentityEndpoint:            cloud.AuthInfo.AuthURL,
 		Username:                    cloud.AuthInfo.Username,
 		UserID:                      cloud.AuthInfo.UserID,
 		Password:                    cloud.AuthInfo.Password,
-		DomainID:                    cloud.AuthInfo.DomainID,
-		DomainName:                  cloud.AuthInfo.UserDomainName,
+		DomainID:                    domainID,
+		DomainName:                  domainName,
 		TenantID:                    cloud.AuthInfo.ProjectID,
 		TenantName:                  cloud.AuthInfo.ProjectName,
 		AllowReauth:                 cloud.AuthInfo.AllowReauth,
