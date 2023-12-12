@@ -63,6 +63,10 @@ func OpenStackDependencyLabelPort(name string) string {
 	return openStackDependencyLabel("port", name)
 }
 
+func OpenStackDependencyLabelKey(name string) string {
+	return openStackDependencyLabel("key", name)
+}
+
 func openStackDependencyLabel(resource, name string) string {
 	return resource + "." + OpenStackLabelPrefix + name
 }

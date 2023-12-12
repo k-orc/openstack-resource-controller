@@ -64,7 +64,7 @@ spec:
                     description: Image indicates the OpenStackImage used to deploy
                       the server.
                     type: string
-                  keyName:
+                  key:
                     description: Key indicates an OpenStackKey to injected into the
                       server on launch.
                     type: string

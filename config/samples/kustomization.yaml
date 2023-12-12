@@ -16,4 +16,5 @@ resources:
 - openstack_v1alpha1_openstacksubnet.yaml
 - openstack_v1alpha1_openstackrouter.yaml
 - openstack_v1alpha1_openstackport.yaml
+- openstack_v1alpha1_openstackkeypair.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

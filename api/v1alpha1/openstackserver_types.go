@@ -39,7 +39,7 @@ type OpenStackServerResourceSpec struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 
 	// Key indicates an OpenStackKey to injected into the server on launch.
-	Key string `json:"keyName,omitempty"`
+	Key string `json:"key,omitempty"`
 
 	// SecurityGroups sets the security groups to apply to this instance.
 	SecurityGroups []string `json:"securityGroups,omitempty"`

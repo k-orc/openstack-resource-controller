@@ -68,6 +68,7 @@ func finalizerName(cloud *openstackv1.OpenStackCloud) string {
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackflavors,verbs=list
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackfloatingips,verbs=list
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackimages,verbs=list
+//+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackkeypairs,verbs=list
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstacknetworks,verbs=list
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackports,verbs=list
 //+kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=openstackrouters,verbs=list
@@ -233,11 +234,12 @@ func (r *OpenStackCloudReconciler) reconcileDelete(ctx context.Context, resource
 		&openstackv1.OpenStackFlavorList{},
 		&openstackv1.OpenStackFloatingIPList{},
 		&openstackv1.OpenStackImageList{},
+		&openstackv1.OpenStackKeypairList{},
 		&openstackv1.OpenStackNetworkList{},
 		&openstackv1.OpenStackPortList{},
 		&openstackv1.OpenStackRouterList{},
-		&openstackv1.OpenStackSecurityGroupRuleList{},
 		&openstackv1.OpenStackSecurityGroupList{},
+		&openstackv1.OpenStackSecurityGroupRuleList{},
 		&openstackv1.OpenStackServerList{},
 		&openstackv1.OpenStackSubnetList{},
 	} {
