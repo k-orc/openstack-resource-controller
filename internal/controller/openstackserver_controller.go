@@ -35,6 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
@@ -81,6 +82,7 @@ func (r *OpenStackServerReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			openstackv1.OpenStackDependencyLabelCloud(resource.Spec.Cloud):            "",
 			openstackv1.OpenStackDependencyLabelFlavor(resource.Spec.Resource.Flavor): "",
 			openstackv1.OpenStackDependencyLabelImage(resource.Spec.Resource.Image):   "",
+			openstackv1.OpenStackDependencyLabelKey(resource.Spec.Resource.Key):       "",
 		}
 		for _, sg := range resource.Spec.Resource.SecurityGroups {
 			newLabels[openstackv1.OpenStackDependencyLabelSecurityGroup(sg)] = ""
@@ -290,6 +292,30 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 			flavorID = dependency.Status.Resource.ID
 		}
 
+		var keyID string
+		{
+			dependency := &openstackv1.OpenStackKeypair{}
+			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: resource.Spec.Resource.Key}
+			err = r.Client.Get(ctx, dependencyKey, dependency)
+			if err != nil && !apierrors.IsNotFound(err) {
+				return ctrl.Result{}, err
+			}
+
+			// Dependency either doesn't exist, or is being deleted, or is not ready
+			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.Name == "" {
+				logger.Info("waiting for keypair")
+
+				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+					{ObjectKey: dependencyKey, Resource: "keypair"},
+				}); updated {
+					// Emit an event if we're setting the condition for the first time
+					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+				}
+				return ctrl.Result{}, nil
+			}
+			keyID = dependency.Status.Resource.Name
+		}
+
 		securityGroupIDs := make([]string, len(resource.Spec.Resource.SecurityGroups))
 		for i, securityGroupName := range resource.Spec.Resource.SecurityGroups {
 			dependency := &openstackv1.OpenStackSecurityGroup{}
@@ -322,6 +348,10 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 			SecurityGroups: securityGroupIDs,
 			UserData:       resource.Spec.Resource.UserData,
 		}
+		createOptsExt := keypairs.CreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			KeyName:           keyID,
+		}
 		server, err = r.findAdoptee(log.IntoContext(ctx, logger), computeClient, resource, createOpts)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
@@ -330,7 +360,7 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 			logger = logger.WithValues("OpenStackID", server.ID)
 			logger.Info("OpenStack resource adopted")
 		} else {
-			server, err = servers.Create(computeClient, createOpts).Extract()
+			server, err = servers.Create(computeClient, createOptsExt).Extract()
 			if err != nil {
 				return ctrl.Result{}, err
 			}

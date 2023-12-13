@@ -137,6 +137,7 @@ spec:
     - port: port-1
     securityGroups:
     - workstation
+    key: mykey
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: OpenStackFloatingIP
@@ -323,3 +324,18 @@ spec:
     description: ping
     protocol: ICMP
     etherType: IPv6
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: OpenStackKeypair
+metadata:
+  labels:
+    app.kubernetes.io/name: openstackkeypair
+    app.kubernetes.io/instance: openstackkeypair-mykey
+    app.kubernetes.io/part-of: simple-server
+    app.kubernetes.io/managed-by: kustomize
+  name: mykey
+spec:
+  cloud: osp1
+  resource:
+    name: mykey
+    publicKey: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFlYK/koCWHk203WOT8tA8PQtUx1ox+bJZMt9wQrcAa+'
