@@ -29,7 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
@@ -321,16 +321,16 @@ func flavorEquals(candidate flavors.Flavor, resource flavors.CreateOpts) bool {
 	if candidate.RAM != resource.RAM {
 		return false
 	}
-	if candidate.Disk != pointer.IntDeref(resource.Disk, 0) {
+	if candidate.Disk != ptr.Deref(resource.Disk, 0) {
 		return false
 	}
-	if candidate.Swap != pointer.IntDeref(resource.Swap, 0) {
+	if candidate.Swap != ptr.Deref(resource.Swap, 0) {
 		return false
 	}
 	if resource.RxTxFactor != 0 && candidate.RxTxFactor != resource.RxTxFactor {
 		return false
 	}
-	if candidate.Ephemeral != pointer.IntDeref(resource.Ephemeral, 0) {
+	if candidate.Ephemeral != ptr.Deref(resource.Ephemeral, 0) {
 		return false
 	}
 	if candidate.Description != resource.Description {
@@ -357,7 +357,7 @@ func (r *OpenStackFlavorReconciler) findAdoptee(ctx context.Context, computeClie
 
 	var candidates []flavors.Flavor
 	err := flavors.ListDetail(computeClient, flavors.ListOpts{
-		MinDisk: pointer.IntDeref(createOpts.Disk, 0),
+		MinDisk: ptr.Deref(createOpts.Disk, 0),
 		MinRAM:  createOpts.RAM,
 		SortDir: "asc",
 		SortKey: "vcpus",
