@@ -6,21 +6,7 @@ on:
 permissions:
   contents: read
 
-env:
-  image_tag_commit: quay.io/orc/ci:commit-${GITHUB_SHA::7}
-
 jobs:
-  image:
-    name: Push a CI image to Quay
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build and push a container image
-      run: |
-        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
-        docker build -t ${{ env.image_tag_commit }} --label quay.expires-after=30m .
-        docker push ${{ env.image_tag_commit }}
-
   e2e:
     name: Run acceptance tests against OpenStack ${{ matrix.name }}
     strategy:
@@ -32,6 +18,8 @@ jobs:
           - name: "bobcat"
             openstack_version: "stable/2023.2"
             ubuntu_version: "22.04"
+    env:
+      image_tag: virtual-registry.k-orc.cloud/ci:commit-${GITHUB_SHA::7}
 
     runs-on: ubuntu-${{ matrix.ubuntu_version }}
 
@@ -49,10 +37,15 @@ jobs:
       with:
         cluster_name: orc
 
+    - name: Build and push a container image to Kind
+      run: |
+        docker build -t ${{ env.image_tag }} .
+        kind load docker-image ${{ env.image_tag }} ${{ env.image_tag }} --name orc
+
     - name: Deploy orc
       run: |
         kubectl config use-context kind-orc
-        make deploy IMG=${{ env.image_tag_commit }}
+        make deploy IMG=${{ env.image_tag }}
 
     - name: Apply simple-server
       run: |
