@@ -1,4 +1,4 @@
-module github.com/gophercloud/openstack-resource-controller
+module github.com/k-orc/openstack-resource-controller
 
 go 1.20
 

@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
+	openstackv1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 type BadCredentialsError error

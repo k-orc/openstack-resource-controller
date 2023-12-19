@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gophercloud/openstack-resource-controller/pkg/labels"
+	"github.com/k-orc/openstack-resource-controller/pkg/labels"
 )
 
 func TestReplacePrefixed(t *testing.T) {
