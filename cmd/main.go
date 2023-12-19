@@ -32,9 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
-	openstackv1alpha1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
-	"github.com/gophercloud/openstack-resource-controller/internal/controller"
+	openstackv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -46,7 +45,6 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(openstackv1.AddToScheme(scheme))
 	utilruntime.Must(openstackv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }

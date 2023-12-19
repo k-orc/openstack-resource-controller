@@ -40,11 +40,11 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	"github.com/gophercloud/gophercloud/pagination"
-	openstackv1 "github.com/gophercloud/openstack-resource-controller/api/v1alpha1"
-	"github.com/gophercloud/openstack-resource-controller/pkg/apply"
-	"github.com/gophercloud/openstack-resource-controller/pkg/cloud"
-	"github.com/gophercloud/openstack-resource-controller/pkg/conditions"
-	"github.com/gophercloud/openstack-resource-controller/pkg/labels"
+	openstackv1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/pkg/apply"
+	"github.com/k-orc/openstack-resource-controller/pkg/cloud"
+	"github.com/k-orc/openstack-resource-controller/pkg/conditions"
+	"github.com/k-orc/openstack-resource-controller/pkg/labels"
 )
 
 const (

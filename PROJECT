@@ -6,7 +6,7 @@ domain: k-orc.cloud
 layout:
 - go.kubebuilder.io/v4
 projectName: orc
-repo: github.com/gophercloud/openstack-resource-controller
+repo: github.com/k-orc/openstack-resource-controller
 resources:
 - api:
     crdVersion: v1
@@ -15,7 +15,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackCloud
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -24,7 +24,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackFlavor
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -33,7 +33,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackFloatingIP
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -42,7 +42,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackImage
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -51,7 +51,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackNetwork
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -60,7 +60,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackSecurityGroupRule
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -69,7 +69,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackSecurityGroup
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -78,7 +78,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackServer
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -87,7 +87,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackSubnet
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -96,7 +96,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackPort
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -105,7 +105,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackRouter
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -114,6 +114,6 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: OpenStackKeypair
-  path: github.com/gophercloud/openstack-resource-controller/api/v1alpha1
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 version: "3"
