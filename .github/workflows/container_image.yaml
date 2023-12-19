@@ -10,7 +10,7 @@ permissions:
 
 env:
   image_tag_latest: quay.io/orc/openstack-resource-controller:latest
-  image_tag_branch: quay.io/orc/openstack-resource-controller:main
+  image_tag_branch: quay.io/orc/openstack-resource-controller:branch-${GITHUB_REF_NAME}
   image_tag_commit: quay.io/orc/openstack-resource-controller:commit-${GITHUB_SHA::7}
 
 jobs:
