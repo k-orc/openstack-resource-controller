@@ -113,6 +113,7 @@ var _ OpenStackResourceCommonStatus = &OpenStackFlavor{}
 //+kubebuilder:printcolumn:name="Ready",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
 //+kubebuilder:printcolumn:name="Error",type=string,JSONPath=`.status.conditions[?(@.type=="Error")].status`
 //+kubebuilder:printcolumn:name="Status",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].message`
+//+kubebuilder:printcolumn:name="OpenStackID",type=string,JSONPath=`.status.resource.id`
 
 // OpenStackFloatingIP is the Schema for the openstackfloatingips API
 type OpenStackFloatingIP struct {

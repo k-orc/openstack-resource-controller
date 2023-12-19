@@ -24,6 +24,9 @@ spec:
     - jsonPath: .status.conditions[?(@.type=="Ready")].message
       name: Status
       type: string
+    - jsonPath: .status.resource.name
+      name: OpenStackID
+      type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
