@@ -16,6 +16,8 @@ extra:
       link: https://github.com/k-orc/openstack-resource-controller
     - icon: fontawesome/brands/slack
       link: slack://channel?team=T09NY5SBT&id=C05G4NJ6P6X
+hooks:
+  - hooks.py
 theme:
   name: material
   custom_dir: overrides
