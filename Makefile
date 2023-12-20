@@ -162,6 +162,8 @@ envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
+##@ Website
+
 venv: venv/touchfile
 
 venv/touchfile: website/requirements.txt
@@ -169,13 +171,13 @@ venv/touchfile: website/requirements.txt
 	source venv/bin/activate && pip install -Ur website/requirements.txt
 	touch venv/touchfile
 
-website/docs/reference.md: api/v1alpha1 website/crd-ref-docs-config.yaml
+website/docs/reference.md: website/crd-ref-docs-config.yaml $(shell find api/v1alpha1 -type f)
 	crd-ref-docs --config=website/crd-ref-docs-config.yaml --output-path=website/docs/reference.md --source-path=api/v1alpha1 --renderer=markdown
 
 .PHONY: website-serve
-website-serve: venv website/docs/reference.md
+website-serve: venv website/docs/reference.md ## Run the documentation website on a local development server
 	source venv/bin/activate; mkdocs serve --config-file website/mkdocs.yml
 
 .PHONY: website-build
-website-build: venv website/docs/reference.md
+website-build: venv website/docs/reference.md ## Build the documentation website to a local directory
 	source venv/bin/activate; mkdocs build --config-file website/mkdocs.yml --site-dir rendered
