@@ -27,3 +27,8 @@ Dockerfile.cross
 
 # secrets
 clouds.yaml
+
+# website dynamic assets
+/venv
+/website/docs/reference.md
+/website/rendered
