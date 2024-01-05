@@ -18,6 +18,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/gofrs/uuid/v5"
 )
 
 // OpenStackFlavorResourceSpec defines the desired state of OpenStackFlavor
@@ -147,6 +149,13 @@ type OpenStackFlavor struct {
 
 	Spec   OpenStackFlavorSpec   `json:"spec,omitempty"`
 	Status OpenStackFlavorStatus `json:"status,omitempty"`
+}
+
+func (r *OpenStackFlavor) ComputedSpecID() string {
+	if r.Spec.Resource.ID != "" {
+		return r.Spec.Resource.ID
+	}
+	return uuid.NewV5(UuidNamespace, r.GetName()).String()
 }
 
 //+kubebuilder:object:root=true
