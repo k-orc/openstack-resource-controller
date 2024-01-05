@@ -6,6 +6,7 @@ nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Reference: reference.md
+  - Design decisions: design-decisions.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
   analytics:
