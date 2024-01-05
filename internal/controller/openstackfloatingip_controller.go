@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -182,91 +183,7 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 		}
 		logger.Info("OpenStack resource found")
 	} else {
-		var networkID string
-		{
-			dependency := &openstackv1.OpenStackNetwork{}
-			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: resource.Spec.Resource.FloatingNetwork}
-			err = r.Client.Get(ctx, dependencyKey, dependency)
-			if err != nil && !apierrors.IsNotFound(err) {
-				return ctrl.Result{}, err
-			}
-
-			// Dependency either doesn't exist, or is being deleted, or is not ready
-			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
-				logger.Info("waiting for network")
-
-				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
-					{ObjectKey: dependencyKey, Resource: "network"},
-				}); updated {
-					// Emit an event if we're setting the condition for the first time
-					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-				}
-				return ctrl.Result{}, nil
-			}
-			networkID = dependency.Status.Resource.ID
-		}
-
-		var subnetID string
-		if subnetName := resource.Spec.Resource.Subnet; subnetName != "" {
-			dependency := &openstackv1.OpenStackSubnet{}
-			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: subnetName}
-			err = r.Client.Get(ctx, dependencyKey, dependency)
-			if err != nil && !apierrors.IsNotFound(err) {
-				return ctrl.Result{}, err
-			}
-
-			// Dependency either doesn't exist, or is being deleted, or is not ready
-			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
-				logger.Info("waiting for subnet")
-
-				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
-					{ObjectKey: dependencyKey, Resource: "subnet"},
-				}); updated {
-					// Emit an event if we're setting the condition for the first time
-					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-				}
-				return ctrl.Result{}, nil
-			}
-
-			subnetID = dependency.Status.Resource.ID
-		}
-
-		var portID string
-		if portName := resource.Spec.Resource.Port; portName != "" {
-			dependency := &openstackv1.OpenStackPort{}
-			dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: portName}
-			err = r.Client.Get(ctx, dependencyKey, dependency)
-			if err != nil && !apierrors.IsNotFound(err) {
-				return ctrl.Result{}, err
-			}
-
-			// Dependency either doesn't exist, or is being deleted, or is not ready
-			if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
-				logger.Info("waiting for port")
-
-				if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
-					{ObjectKey: dependencyKey, Resource: "port"},
-				}); updated {
-					// Emit an event if we're setting the condition for the first time
-					conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
-				}
-				return ctrl.Result{}, nil
-			}
-			portID = dependency.Status.Resource.ID
-		}
-
-		createOpts := floatingips.CreateOpts{
-			Description:       resource.Spec.Resource.Description,
-			FloatingNetworkID: networkID,
-			FloatingIP:        resource.Spec.Resource.FloatingIPAddress,
-			PortID:            portID,
-			FixedIP:           resource.Spec.Resource.FixedIPAddress,
-			SubnetID:          subnetID,
-			TenantID:          resource.Spec.Resource.TenantID,
-			ProjectID:         resource.Spec.Resource.ProjectID,
-		}
-
-		floatingIP, err = r.findAdoptee(log.IntoContext(ctx, logger), networkClient, resource, createOpts)
+		floatingIP, err = r.findAdoptee(log.IntoContext(ctx, logger), networkClient, resource)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
 		}
@@ -274,7 +191,94 @@ func (r *OpenStackFloatingIPReconciler) reconcile(ctx context.Context, networkCl
 			logger = logger.WithValues("OpenStackID", floatingIP.ID)
 			logger.Info("OpenStack resource adopted")
 		} else {
-			floatingIP, err = floatingips.Create(networkClient, createOpts).Extract()
+			var networkID string
+			{
+				dependency := &openstackv1.OpenStackNetwork{}
+				dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: resource.Spec.Resource.FloatingNetwork}
+				err = r.Client.Get(ctx, dependencyKey, dependency)
+				if err != nil && !apierrors.IsNotFound(err) {
+					return ctrl.Result{}, err
+				}
+
+				// Dependency either doesn't exist, or is being deleted, or is not ready
+				if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+					logger.Info("waiting for network")
+
+					if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+						{ObjectKey: dependencyKey, Resource: "network"},
+					}); updated {
+						// Emit an event if we're setting the condition for the first time
+						conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+					}
+					return ctrl.Result{}, nil
+				}
+				networkID = dependency.Status.Resource.ID
+			}
+
+			var subnetID string
+			if subnetName := resource.Spec.Resource.Subnet; subnetName != "" {
+				dependency := &openstackv1.OpenStackSubnet{}
+				dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: subnetName}
+				err = r.Client.Get(ctx, dependencyKey, dependency)
+				if err != nil && !apierrors.IsNotFound(err) {
+					return ctrl.Result{}, err
+				}
+
+				// Dependency either doesn't exist, or is being deleted, or is not ready
+				if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+					logger.Info("waiting for subnet")
+
+					if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+						{ObjectKey: dependencyKey, Resource: "subnet"},
+					}); updated {
+						// Emit an event if we're setting the condition for the first time
+						conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+					}
+					return ctrl.Result{}, nil
+				}
+
+				subnetID = dependency.Status.Resource.ID
+			}
+
+			var portID string
+			if portName := resource.Spec.Resource.Port; portName != "" {
+				dependency := &openstackv1.OpenStackPort{}
+				dependencyKey := client.ObjectKey{Namespace: resource.GetNamespace(), Name: portName}
+				err = r.Client.Get(ctx, dependencyKey, dependency)
+				if err != nil && !apierrors.IsNotFound(err) {
+					return ctrl.Result{}, err
+				}
+
+				// Dependency either doesn't exist, or is being deleted, or is not ready
+				if err != nil || !dependency.DeletionTimestamp.IsZero() || !conditions.IsReady(dependency) || dependency.Status.Resource.ID == "" {
+					logger.Info("waiting for port")
+
+					if updated, condition := conditions.SetNotReadyConditionWaiting(resource, statusPatchResource, []conditions.Dependency{
+						{ObjectKey: dependencyKey, Resource: "port"},
+					}); updated {
+						// Emit an event if we're setting the condition for the first time
+						conditions.EmitEventForCondition(r.Recorder, resource, corev1.EventTypeNormal, condition)
+					}
+					return ctrl.Result{}, nil
+				}
+				portID = dependency.Status.Resource.ID
+			}
+
+			description := orcTag(resource)
+			if resource.Spec.Resource.Description != "" {
+				description = resource.Spec.Resource.Description + " " + description
+			}
+
+			floatingIP, err = floatingips.Create(networkClient, floatingips.CreateOpts{
+				Description:       description,
+				FloatingNetworkID: networkID,
+				FloatingIP:        resource.Spec.Resource.FloatingIPAddress,
+				PortID:            portID,
+				FixedIP:           resource.Spec.Resource.FixedIPAddress,
+				SubnetID:          subnetID,
+				TenantID:          resource.Spec.Resource.TenantID,
+				ProjectID:         resource.Spec.Resource.ProjectID,
+			}).Extract()
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -338,7 +342,7 @@ func (r *OpenStackFloatingIPReconciler) reconcileDelete(ctx context.Context, net
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackFloatingIPReconciler) findAdoptee(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object, createOpts floatingips.CreateOpts) (*floatingips.FloatingIP, error) {
+func (r *OpenStackFloatingIPReconciler) findAdoptee(ctx context.Context, networkClient *gophercloud.ServiceClient, resource client.Object) (*floatingips.FloatingIP, error) {
 	adoptedIDs := make(map[string]struct{})
 	{
 		list := &openstackv1.OpenStackFloatingIPList{}
@@ -354,22 +358,24 @@ func (r *OpenStackFloatingIPReconciler) findAdoptee(ctx context.Context, network
 		}
 	}
 
+	tag := orcTag(resource)
+	isTagged := func(f floatingips.FloatingIP) bool {
+		for _, s := range strings.Split(f.Description, " ") {
+			if strings.Contains(s, tag) {
+				return true
+			}
+		}
+		return false
+	}
+
 	var candidates []floatingips.FloatingIP
-	err := floatingips.List(networkClient, floatingips.ListOpts{
-		Description:       createOpts.Description,
-		FloatingNetworkID: createOpts.FloatingNetworkID,
-		PortID:            createOpts.PortID,
-		FixedIP:           createOpts.FixedIP,
-		FloatingIP:        createOpts.FloatingIP,
-		TenantID:          createOpts.TenantID,
-		ProjectID:         createOpts.ProjectID,
-	}).EachPage(func(page pagination.Page) (bool, error) {
+	err := floatingips.List(networkClient, nil).EachPage(func(page pagination.Page) (bool, error) {
 		items, err := floatingips.ExtractFloatingIPs(page)
 		if err != nil {
 			return false, fmt.Errorf("extracting resources: %w", err)
 		}
 		for i := range items {
-			if _, ok := adoptedIDs[items[i].ID]; !ok {
+			if _, ok := adoptedIDs[items[i].ID]; !ok && isTagged(items[i]) {
 				candidates = append(candidates, items[i])
 			}
 		}

@@ -16,7 +16,11 @@ limitations under the License.
 
 package controller
 
-import "time"
+import (
+	"time"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
+)
 
 const (
 	OpenStackResourceNotReadyRequeueAfter = 5 * time.Second
@@ -30,6 +34,10 @@ func coalesce(args ...string) string {
 		}
 	}
 	return ""
+}
+
+func orcTag(obj client.Object) string {
+	return "orc-name:" + obj.GetName()
 }
 
 // sliceContentEquals checks two slices for equivalence, discarding

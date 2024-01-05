@@ -39,7 +39,6 @@ import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imageimport"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
-	"github.com/gophercloud/gophercloud/pagination"
 	openstackv1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/apply"
 	"github.com/k-orc/openstack-resource-controller/pkg/cloud"
@@ -180,22 +179,8 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 		}
 		logger.Info("OpenStack resource found")
 	} else {
-		var imageVisibility *images.ImageVisibility
-		if visibility := resource.Spec.Resource.Visibility; visibility != nil {
-			v := images.ImageVisibility(*visibility)
-			imageVisibility = &v
-		}
-		createOpts := images.CreateOpts{
-			Name:            resource.Spec.Resource.Name,
-			Tags:            resource.Spec.Resource.Tags,
-			ContainerFormat: resource.Spec.Resource.ContainerFormat,
-			DiskFormat:      resource.Spec.Resource.DiskFormat,
-			MinDisk:         resource.Spec.Resource.MinDisk,
-			MinRAM:          resource.Spec.Resource.MinRAM,
-			Protected:       resource.Spec.Resource.Protected,
-			Visibility:      imageVisibility,
-		}
-		image, err = r.findAdoptee(log.IntoContext(ctx, logger), imageClient, resource, createOpts)
+		id := resource.ComputedSpecID()
+		image, err = r.findOrphan(log.IntoContext(ctx, logger), imageClient, resource, id)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
 		}
@@ -203,7 +188,22 @@ func (r *OpenStackImageReconciler) reconcile(ctx context.Context, imageClient *g
 			logger = logger.WithValues("OpenStackID", image.ID)
 			logger.Info("OpenStack resource adopted")
 		} else {
-			image, err = images.Create(imageClient, createOpts).Extract()
+			var imageVisibility *images.ImageVisibility
+			if visibility := resource.Spec.Resource.Visibility; visibility != nil {
+				v := images.ImageVisibility(*visibility)
+				imageVisibility = &v
+			}
+			image, err = images.Create(imageClient, images.CreateOpts{
+				ID:              id,
+				Name:            resource.Spec.Resource.Name,
+				Tags:            append(resource.Spec.Resource.Tags, orcTag(resource)),
+				ContainerFormat: resource.Spec.Resource.ContainerFormat,
+				DiskFormat:      resource.Spec.Resource.DiskFormat,
+				MinDisk:         resource.Spec.Resource.MinDisk,
+				MinRAM:          resource.Spec.Resource.MinRAM,
+				Protected:       resource.Spec.Resource.Protected,
+				Visibility:      imageVisibility,
+			}).Extract()
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -354,8 +354,7 @@ func (r *OpenStackImageReconciler) reconcileDelete(ctx context.Context, imageCli
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackImageReconciler) findAdoptee(ctx context.Context, imageClient *gophercloud.ServiceClient, resource client.Object, createOpts images.CreateOpts) (*images.Image, error) {
-	adoptedIDs := make(map[string]struct{})
+func (r *OpenStackImageReconciler) findOrphan(ctx context.Context, imageClient *gophercloud.ServiceClient, resource client.Object, id string) (*images.Image, error) {
 	{
 		list := &openstackv1.OpenStackImageList{}
 		if err := r.Client.List(ctx, list,
@@ -364,54 +363,23 @@ func (r *OpenStackImageReconciler) findAdoptee(ctx context.Context, imageClient 
 			return nil, fmt.Errorf("listing OpenStackImages: %w", err)
 		}
 		for _, image := range list.Items {
-			if image.GetName() != resource.GetName() && image.Status.Resource.ID != "" {
-				adoptedIDs[image.Status.Resource.ID] = struct{}{}
+			if image.GetName() != resource.GetName() && image.Status.Resource.ID == id {
+				return nil, nil
 			}
 		}
 	}
-	listOpts := images.ListOpts{
-		ID:              createOpts.ID,
-		Name:            createOpts.Name,
-		SortKey:         "created_at",
-		SortDir:         "desc",
-		Tags:            createOpts.Tags,
-		ContainerFormat: createOpts.ContainerFormat,
-		DiskFormat:      createOpts.DiskFormat,
-	}
 
-	if createOpts.Visibility != nil {
-		listOpts.Visibility = *createOpts.Visibility
-	}
-	if createOpts.Hidden != nil {
-		listOpts.Hidden = *createOpts.Hidden
-	}
-
-	var candidates []images.Image
-	err := images.List(imageClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
-		items, err := images.ExtractImages(page)
-		if err != nil {
-			return false, fmt.Errorf("extracting resources: %w", err)
-		}
-		for i := range items {
-			if _, ok := adoptedIDs[items[i].ID]; !ok {
-				candidates = append(candidates, items[i])
-			}
-		}
-
-		return true, nil
-	})
+	image, err := images.Get(imageClient, id).Extract()
 	if err != nil {
-		return nil, err
+		var gerr gophercloud.ErrDefault404
+		if errors.As(err, &gerr) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
 	}
 
-	switch n := len(candidates); n {
-	case 0:
-		return nil, nil
-	case 1:
-		return &candidates[0], nil
-	default:
-		return nil, fmt.Errorf("found %d possible candidates", n)
-	}
+	return image, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

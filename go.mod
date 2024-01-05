@@ -3,6 +3,7 @@ module github.com/k-orc/openstack-resource-controller
 go 1.20
 
 require (
+	github.com/gofrs/uuid/v5 v5.0.0
 	github.com/gophercloud/gophercloud v1.8.0
 	github.com/gophercloud/utils v0.0.0-20231010081019-80377eca5d56
 	github.com/onsi/ginkgo/v2 v2.11.0

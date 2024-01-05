@@ -165,15 +165,7 @@ func (r *OpenStackKeypairReconciler) reconcile(ctx context.Context, computeClien
 		}
 		logger.Info("OpenStack resource found")
 	} else {
-
-		createOpts := keypairs.CreateOpts{
-			Name:      resource.Spec.Resource.Name,
-			UserID:    resource.Spec.Resource.UserID,
-			Type:      resource.Spec.Resource.Type,
-			PublicKey: resource.Spec.Resource.PublicKey,
-		}
-
-		keypair, err = r.findAdoptee(log.IntoContext(ctx, logger), computeClient, resource, createOpts)
+		keypair, err = r.findOrphan(log.IntoContext(ctx, logger), computeClient, resource, resource.Spec.Resource.UserID, resource.Spec.Resource.Name)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("unable to find adoption candidates: %w", err)
 		}
@@ -181,6 +173,13 @@ func (r *OpenStackKeypairReconciler) reconcile(ctx context.Context, computeClien
 			logger = logger.WithValues("OpenStackID", keypair.Name)
 			logger.Info("OpenStack resource adopted")
 		} else {
+			createOpts := keypairs.CreateOpts{
+				Name:      resource.Spec.Resource.Name,
+				UserID:    resource.Spec.Resource.UserID,
+				Type:      resource.Spec.Resource.Type,
+				PublicKey: resource.Spec.Resource.PublicKey,
+			}
+
 			keypair, err = keypairs.Create(computeClient, createOpts).Extract()
 			if err != nil {
 				return ctrl.Result{}, err
@@ -239,7 +238,7 @@ func (r *OpenStackKeypairReconciler) reconcileDelete(ctx context.Context, comput
 	return ctrl.Result{}, nil
 }
 
-func (r *OpenStackKeypairReconciler) findAdoptee(ctx context.Context, computeClient *gophercloud.ServiceClient, resource client.Object, createOpts keypairs.CreateOpts) (*keypairs.KeyPair, error) {
+func (r *OpenStackKeypairReconciler) findOrphan(ctx context.Context, computeClient *gophercloud.ServiceClient, resource client.Object, userID, name string) (*keypairs.KeyPair, error) {
 	adoptedIDs := make(map[string]struct{})
 	{
 		list := &openstackv1.OpenStackKeypairList{}
@@ -255,18 +254,16 @@ func (r *OpenStackKeypairReconciler) findAdoptee(ctx context.Context, computeCli
 		}
 	}
 
-	listOpts := keypairs.ListOpts{
-		UserID: createOpts.UserID,
-	}
-
 	var candidates []keypairs.KeyPair
-	err := keypairs.List(computeClient, listOpts).EachPage(func(page pagination.Page) (bool, error) {
+	err := keypairs.List(computeClient, keypairs.ListOpts{
+		UserID: userID,
+	}).EachPage(func(page pagination.Page) (bool, error) {
 		items, err := keypairs.ExtractKeyPairs(page)
 		if err != nil {
 			return false, fmt.Errorf("extracting resources: %w", err)
 		}
 		for i := range items {
-			if _, ok := adoptedIDs[items[i].Name]; !ok && items[i].Name == createOpts.Name {
+			if _, ok := adoptedIDs[items[i].Name]; !ok && items[i].Name == name {
 				candidates = append(candidates, items[i])
 			}
 		}

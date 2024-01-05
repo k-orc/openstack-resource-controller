@@ -18,6 +18,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/gofrs/uuid/v5"
 )
 
 const (
@@ -208,6 +210,13 @@ type OpenStackImage struct {
 
 	Spec   OpenStackImageSpec   `json:"spec,omitempty"`
 	Status OpenStackImageStatus `json:"status,omitempty"`
+}
+
+func (r *OpenStackImage) ComputedSpecID() string {
+	if r.Spec.Resource.ID != "" {
+		return r.Spec.Resource.ID
+	}
+	return uuid.NewV5(UuidNamespace, r.GetName()).String()
 }
 
 //+kubebuilder:object:root=true
