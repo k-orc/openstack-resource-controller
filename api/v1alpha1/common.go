@@ -17,7 +17,12 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/gofrs/uuid/v5"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+var (
+	UuidNamespace = uuid.UUID{56, 237, 119, 111, 66, 211, 75, 156, 170, 37, 100, 120, 183, 56, 27, 191}
 )
 
 type OpenStackConditionType string
