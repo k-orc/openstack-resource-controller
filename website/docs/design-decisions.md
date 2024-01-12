@@ -15,6 +15,7 @@ For floating IPs, ORC appens a marker to the resource description.
 For the other resources, orphan are retrieved by their properties.
 
 Here's how ORC retrieves orphan resources for each type:
+
 * Image: id
 * Flavor: id
 * Keypair: name
