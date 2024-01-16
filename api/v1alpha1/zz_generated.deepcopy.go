@@ -1852,11 +1852,6 @@ func (in *OpenStackServerResourceSpec) DeepCopyInto(out *OpenStackServerResource
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
-	if in.UserData != nil {
-		in, out := &in.UserData, &out.UserData
-		*out = make([]byte, len(*in))
-		copy(*out, *in)
-	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]string, len(*in))

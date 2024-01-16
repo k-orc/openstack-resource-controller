@@ -109,9 +109,7 @@ spec:
                     type: array
                   userData:
                     description: UserData contains configuration information or scripts
-                      to use upon launch. Create will base64-encode it for you, if
-                      it isn't already.
-                    format: byte
+                      to use upon launch.
                     type: string
                 required:
                 - networks

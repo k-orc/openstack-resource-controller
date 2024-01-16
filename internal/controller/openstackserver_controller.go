@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -340,13 +341,17 @@ func (r *OpenStackServerReconciler) reconcile(ctx context.Context, computeClient
 			securityGroupIDs[i] = dependency.Status.Resource.ID
 		}
 
+		userData := []byte(resource.Spec.Resource.UserData)
+		encodedUserData := make([]byte, base64.StdEncoding.EncodedLen(len(userData)))
+		base64.StdEncoding.Encode(encodedUserData, []byte(userData))
+
 		createOpts := servers.CreateOpts{
 			Name:           resource.Spec.Resource.Name,
 			ImageRef:       imageID,
 			FlavorRef:      flavorID,
 			Networks:       serverNetworks,
 			SecurityGroups: securityGroupIDs,
-			UserData:       resource.Spec.Resource.UserData,
+			UserData:       encodedUserData,
 		}
 		createOptsExt := keypairs.CreateOptsExt{
 			CreateOptsBuilder: createOpts,
