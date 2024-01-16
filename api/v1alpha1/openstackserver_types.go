@@ -45,8 +45,7 @@ type OpenStackServerResourceSpec struct {
 	SecurityGroups []string `json:"securityGroups,omitempty"`
 
 	// UserData contains configuration information or scripts to use upon launch.
-	// Create will base64-encode it for you, if it isn't already.
-	UserData []byte `json:"userData,omitempty"`
+	UserData string `json:"userData,omitempty"`
 
 	// AttachedVolumes sets the volume attachments of this instance.
 	// AttachedVolumes []string `json:"volumesAttached,omitempty"`
