@@ -6,7 +6,7 @@ Before creating any resources, ORC checks that it doesn't already exist in the O
 
 Because the OpenStack API is not the same for every resource, ORC must use different strategies based on the available tools.
 
-For some resources, the API allows the caller to set an arbitrary ID upon creation. When that is possible, ORC uses it for retrieval. If the ID is not set in the resource spec, ORC computes one deterministically based on the name of the Kubernetes resource.
+For some resources, the API allows the caller to set an arbitrary ID upon creation. When that is possible, ORC uses it for retrieval. If the ID is not set in the resource spec, ORC computes one deterministically based on the name of the Kubernetes resource and the timestamp of its creation.
 
 For some resources, the name is guaranteed to be unique. When that is the case, ORC uses it for retrieval.
 

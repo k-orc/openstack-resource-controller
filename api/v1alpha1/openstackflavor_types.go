@@ -155,7 +155,7 @@ func (r *OpenStackFlavor) ComputedSpecID() string {
 	if r.Spec.Resource.ID != "" {
 		return r.Spec.Resource.ID
 	}
-	return uuid.NewV5(UuidNamespace, r.GetName()).String()
+	return uuid.NewV5(UuidNamespace, r.GetCreationTimestamp().String()+r.GetName()).String()
 }
 
 //+kubebuilder:object:root=true
