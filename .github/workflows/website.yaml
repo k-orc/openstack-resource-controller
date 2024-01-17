@@ -5,10 +5,6 @@ on:
     paths:
     - 'website/**'
     - 'api/v1alpha1/**'
-  pull_request:
-    paths:
-    - 'website/**'
-    - 'api/v1alpha1/**'
 name: website
 
 jobs:
