@@ -5,6 +5,7 @@ on:
     paths:
     - 'website/**'
     - 'api/v1alpha1/**'
+    - '.github/workflows/website.yaml'
 name: website
 
 jobs:
