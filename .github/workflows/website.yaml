@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install crd docs generator
-      run: go install github.com/elastic/crd-ref-docs@9a3105b6ca763ea03393fa6f396046ad7b5d4e38
+      run: go install github.com/elastic/crd-ref-docs@15438a197f339a5b68be2e622725327c3e367811
 
     - name: Pip install
       run: pip install -Ur website/requirements.txt
