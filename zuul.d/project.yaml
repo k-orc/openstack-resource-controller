@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 - project:
-    merge-mode: squash-merge
     check:
       jobs:
         - openstack-resource-controller-go-test
@@ -11,3 +10,4 @@
       jobs:
         - openstack-resource-controller-go-test
         - openstack-resource-controller-go-vet
+``
