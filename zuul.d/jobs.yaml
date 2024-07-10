@@ -1,0 +1,20 @@
+# Copyright (c) 2024 VEXXHOST, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+- job:
+    name: openstack-resource-controller-go
+    parent: golang-go
+    vars:
+      go_version: "1.20"
+
+- job:
+    name: openstack-resource-controller-go-vet
+    parent: openstack-resource-controller-go
+    vars:
+      go_command: vet ./...
+
+- job:
+    name: openstack-resource-controller-go-test
+    parent: openstack-resource-controller-go
+    vars:
+      go_command: test -v ./...
