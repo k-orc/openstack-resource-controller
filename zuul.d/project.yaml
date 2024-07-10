@@ -10,4 +10,3 @@
       jobs:
         - openstack-resource-controller-go-test
         - openstack-resource-controller-go-vet
-``
