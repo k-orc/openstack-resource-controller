@@ -16,6 +16,20 @@ make deploy IMG=quay.io/orc/openstack-resource-controller
 ```
 
 ## Create a Kubernetes secret containing a `clouds.yaml`
+An example for a clouds.yaml file:
+```
+clouds:
+    mycloud:
+        auth:
+            auth_url: http://192.168.20.20:5000
+            password: guess
+            project_name: myproject
+            domain_name: Default
+            username: myuser
+        identity_api_version: '3'
+        region_name: regionOne
+```
+Create the secret:
 
 ```sh
 kubectl create secret generic openstack-clouds \
