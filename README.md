@@ -1,59 +1,104 @@
-# openstack-resource-controller
-ORC is a set of Kubernetes controllers that manage your OpenStack tenant infrastructure.
-
-You declare your OpenStack resource as a YAML file, you `kubectl apply` it and ORC provisions it on your OpenStack cloud.
+# orc
+// TODO(user): Add simple overview of use/purpose
 
 ## Description
-
-ORC defines each OpenStack resource type as a CRD (see [./api/v1alpha1/](./api/v1alpha1)). Each resource type has its own controller (see [./internal/controller/](./internal/controller)). Controllers are responsible for creating and deleting resources in OpenStack when a CRD is created or deleted in their Kubernetes namespace.
-
-## State of the project
-
-**This project is currently in a prototype phase. Do NOT use in production.**
+// TODO(user): An in-depth paragraph about your project and overview of use
 
 ## Getting Started
-You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
-**Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
-### Running on the cluster
-1. Deploy the controller to the cluster with the image specified by `IMG`:
+### Prerequisites
+- go version v1.22.0+
+- docker version 17.03+.
+- kubectl version v1.11.3+.
+- Access to a Kubernetes v1.11.3+ cluster.
+
+### To Deploy on the cluster
+**Build and push your image to the location specified by `IMG`:**
 
 ```sh
-make deploy IMG=quay.io/orc/openstack-resource-controller
+make docker-build docker-push IMG=<some-registry>/orc:tag
 ```
 
-2. Install Instances of Custom Resources:
+**NOTE:** This image ought to be published in the personal registry you specified.
+And it is required to have access to pull the image from the working environment.
+Make sure you have the proper permission to the registry if the above commands don’t work.
+
+**Install the CRDs into the cluster:**
+
+```sh
+make install
+```
+
+**Deploy the Manager to the cluster with the image specified by `IMG`:**
+
+```sh
+make deploy IMG=<some-registry>/orc:tag
+```
+
+> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
+privileges or be logged in as admin.
+
+**Create instances of your solution**
+You can apply the samples (examples) from the config/sample:
 
 ```sh
 kubectl apply -k config/samples/
 ```
 
-### Undeploy controller
-UnDeploy the controller from the cluster:
+>**NOTE**: Ensure that the samples has default values to test it out.
+
+### To Uninstall
+**Delete the instances (CRs) from the cluster:**
+
+```sh
+kubectl delete -k config/samples/
+```
+
+**Delete the APIs(CRDs) from the cluster:**
+
+```sh
+make uninstall
+```
+
+**UnDeploy the controller from the cluster:**
 
 ```sh
 make undeploy
 ```
 
-## How to attach a port
+## Project Distribution
 
-The OpenStack API offers several options for attaching a port to a device, for
-example a server instance or a logical router. However in ORC, you can only
-define a port attachment on the receiving device. The `OpenStackPort` resource
-consequently doesn't expose the `device_id` field.
+Following are the steps to build the installer and distribute this project to users.
+
+1. Build the installer for the image built and published in the registry:
+
+```sh
+make build-installer IMG=<some-registry>/orc:tag
+```
+
+NOTE: The makefile target mentioned above generates an 'install.yaml'
+file in the dist directory. This file contains all the resources built
+with Kustomize, which are necessary to install this project without
+its dependencies.
+
+2. Using the installer
+
+Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/<org>/orc/<tag or branch>/dist/install.yaml
+```
 
 ## Contributing
-See [CONTRIBUTING.md](./CONTRIBUTING.md).
+// TODO(user): Add detailed information on how you would like others to contribute to this project
 
-### How it works
-This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
+**NOTE:** Run `make help` for more information on all potential `make` targets
 
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
-which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
+More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
 ## License
 
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -66,3 +111,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+

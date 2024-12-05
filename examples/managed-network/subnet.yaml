@@ -1,0 +1,17 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: orc-managed-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  networkRef: orc-managed-network
+  resource:
+    description: |
+      Blah blah blah
+    tags:
+    - orc-test
+    ipVersion: 4
+    cidr: 192.168.0.0/24
