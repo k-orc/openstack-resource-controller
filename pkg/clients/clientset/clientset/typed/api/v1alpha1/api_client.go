@@ -28,7 +28,15 @@ import (
 
 type OpenstackV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	FlavorsGetter
 	ImagesGetter
+	NetworksGetter
+	PortsGetter
+	RoutersGetter
+	RouterInterfacesGetter
+	SecurityGroupsGetter
+	ServersGetter
+	SubnetsGetter
 }
 
 // OpenstackV1alpha1Client is used to interact with features provided by the openstack.k-orc.cloud group.
@@ -36,8 +44,40 @@ type OpenstackV1alpha1Client struct {
 	restClient rest.Interface
 }
 
+func (c *OpenstackV1alpha1Client) Flavors(namespace string) FlavorInterface {
+	return newFlavors(c, namespace)
+}
+
 func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {
 	return newImages(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Networks(namespace string) NetworkInterface {
+	return newNetworks(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Ports(namespace string) PortInterface {
+	return newPorts(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Routers(namespace string) RouterInterface {
+	return newRouters(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) RouterInterfaces(namespace string) RouterInterfaceInterface {
+	return newRouterInterfaces(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) SecurityGroups(namespace string) SecurityGroupInterface {
+	return newSecurityGroups(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Servers(namespace string) ServerInterface {
+	return newServers(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Subnets(namespace string) SubnetInterface {
+	return newSubnets(c, namespace)
 }
 
 // NewForConfig creates a new OpenstackV1alpha1Client for the given config.

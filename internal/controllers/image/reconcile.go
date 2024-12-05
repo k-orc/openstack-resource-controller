@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,15 +26,17 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/internal/util/ssa"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -61,7 +63,7 @@ func (r *orcImageReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 func (r *orcImageReconciler) getImageClient(ctx context.Context, orcImage *orcv1alpha1.Image) (osclients.ImageClient, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, r.caCertificates, log, orcImage)
+	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, log, orcImage)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +75,8 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcImage *orcv
 	log.V(3).Info("Reconciling image")
 
 	if !controllerutil.ContainsFinalizer(orcImage, Finalizer) {
-		return ctrl.Result{}, r.setFinalizer(ctx, orcImage)
+		patch := common.SetFinalizerPatch(orcImage, Finalizer)
+		return ctrl.Result{}, r.client.Patch(ctx, orcImage, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	}
 
 	var statusOpts []updateStatusOpt
@@ -291,7 +294,7 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcImage *orcv
 
 	// Clear the finalizer
 	applyConfig := orcapplyconfigv1alpha1.Image(orcImage.Name, orcImage.Namespace).WithUID(orcImage.UID)
-	return ctrl.Result{}, r.client.Patch(ctx, orcImage, ssa.ApplyConfigPatch(applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
+	return ctrl.Result{}, r.client.Patch(ctx, orcImage, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 }
 
 // getGlanceImage returns the glance image associated with an ORC Image, or nil if none was found.

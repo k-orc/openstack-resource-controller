@@ -28,8 +28,40 @@ type FakeOpenstackV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeOpenstackV1alpha1) Flavors(namespace string) v1alpha1.FlavorInterface {
+	return &FakeFlavors{c, namespace}
+}
+
 func (c *FakeOpenstackV1alpha1) Images(namespace string) v1alpha1.ImageInterface {
 	return &FakeImages{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) Networks(namespace string) v1alpha1.NetworkInterface {
+	return &FakeNetworks{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) Ports(namespace string) v1alpha1.PortInterface {
+	return &FakePorts{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) Routers(namespace string) v1alpha1.RouterInterface {
+	return &FakeRouters{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) RouterInterfaces(namespace string) v1alpha1.RouterInterfaceInterface {
+	return &FakeRouterInterfaces{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) SecurityGroups(namespace string) v1alpha1.SecurityGroupInterface {
+	return &FakeSecurityGroups{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) Servers(namespace string) v1alpha1.ServerInterface {
+	return &FakeServers{c, namespace}
+}
+
+func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterface {
+	return &FakeSubnets{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

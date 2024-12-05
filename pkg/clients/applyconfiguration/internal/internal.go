@@ -39,6 +39,56 @@ func Parser() *typed.Parser {
 var parserOnce sync.Once
 var parser *typed.Parser
 var schemaYAML = typed.YAMLObject(`types:
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Address
+  map:
+    fields:
+    - name: ip
+      type:
+        scalar: string
+    - name: subnetRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPool
+  map:
+    fields:
+    - name: end
+      type:
+        scalar: string
+      default: ""
+    - name: start
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPoolStatus
+  map:
+    fields:
+    - name: end
+      type:
+        scalar: string
+      default: ""
+    - name: start
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPair
+  map:
+    fields:
+    - name: ip
+      type:
+        scalar: string
+    - name: mac
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPairStatus
+  map:
+    fields:
+    - name: ip
+      type:
+        scalar: string
+      default: ""
+    - name: mac
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
   map:
     fields:
@@ -50,6 +100,193 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGateway
+  map:
+    fields:
+    - name: networkRef
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGatewayStatus
+  map:
+    fields:
+    - name: networkID
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FixedIPStatus
+  map:
+    fields:
+    - name: ip
+      type:
+        scalar: string
+      default: ""
+    - name: subnetID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Flavor
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorFilter
+  map:
+    fields:
+    - name: disk
+      type:
+        scalar: numeric
+    - name: name
+      type:
+        scalar: string
+    - name: ram
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: disk
+      type:
+        scalar: numeric
+    - name: ephemeral
+      type:
+        scalar: numeric
+    - name: isPublic
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: ram
+      type:
+        scalar: numeric
+    - name: swap
+      type:
+        scalar: numeric
+    - name: vcpus
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: disk
+      type:
+        scalar: numeric
+    - name: ephemeral
+      type:
+        scalar: numeric
+    - name: isPublic
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: ram
+      type:
+        scalar: numeric
+    - name: swap
+      type:
+        scalar: numeric
+    - name: vcpus
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRoute
+  map:
+    fields:
+    - name: destination
+      type:
+        scalar: string
+      default: ""
+    - name: nextHop
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRouteStatus
+  map:
+    fields:
+    - name: destination
+      type:
+        scalar: string
+      default: ""
+    - name: nextHop
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
+  map:
+    fields:
+    - name: addressMode
+      type:
+        scalar: string
+    - name: raMode
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Image
   map:
     fields:
@@ -249,6 +486,1274 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: onDelete
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Network
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: external
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectID
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceSpec
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: availabilityZoneHints
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: description
+      type:
+        scalar: string
+    - name: dnsDomain
+      type:
+        scalar: string
+    - name: external
+      type:
+        scalar: boolean
+    - name: mtu
+      type:
+        scalar: numeric
+    - name: name
+      type:
+        scalar: string
+    - name: portSecurityEnabled
+      type:
+        scalar: boolean
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceStatus
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+      default: false
+    - name: availabilityZoneHints
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: dnsDomain
+      type:
+        scalar: string
+    - name: external
+      type:
+        scalar: boolean
+    - name: mtu
+      type:
+        scalar: numeric
+    - name: name
+      type:
+        scalar: string
+    - name: portSecurityEnabled
+      type:
+        scalar: boolean
+    - name: projectID
+      type:
+        scalar: string
+    - name: provider
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderProperties
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: shared
+      type:
+        scalar: boolean
+    - name: status
+      type:
+        scalar: string
+    - name: subnets
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Port
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectID
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceSpec
+  map:
+    fields:
+    - name: addresses
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Address
+          elementRelationship: atomic
+    - name: allowedAddressPairs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPair
+          elementRelationship: atomic
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: securityGroupRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceStatus
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: allowedAddressPairs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPairStatus
+          elementRelationship: atomic
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: deviceID
+      type:
+        scalar: string
+    - name: deviceOwner
+      type:
+        scalar: string
+    - name: fixedIPs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FixedIPStatus
+          elementRelationship: atomic
+    - name: macAddress
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: propagateUplinkStatus
+      type:
+        scalar: boolean
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: securityGroups
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: status
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: networkRef
+      type:
+        scalar: string
+      default: ""
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderProperties
+  map:
+    fields:
+    - name: networkType
+      type:
+        scalar: string
+    - name: physicalNetwork
+      type:
+        scalar: string
+    - name: segmentationID
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Router
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectID
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterface
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceSpec
+  map:
+    fields:
+    - name: routerRef
+      type:
+        scalar: string
+      default: ""
+    - name: subnetRef
+      type:
+        scalar: string
+    - name: type
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceSpec
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: availabilityZoneHints
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: distributed
+      type:
+        scalar: boolean
+    - name: externalGateways
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGateway
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceStatus
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+      default: false
+    - name: availabilityZoneHints
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: description
+      type:
+        scalar: string
+    - name: externalGateways
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGatewayStatus
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroup
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectID
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: rules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRule
+          elementRelationship: atomic
+    - name: stateful
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceStatus
+  map:
+    fields:
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: rules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRuleStatus
+          elementRelationship: atomic
+    - name: stateful
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRule
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: direction
+      type:
+        scalar: string
+    - name: ethertype
+      type:
+        scalar: string
+    - name: portRangeMax
+      type:
+        scalar: numeric
+    - name: portRangeMin
+      type:
+        scalar: numeric
+    - name: protocol
+      type:
+        scalar: string
+    - name: remoteGroupID
+      type:
+        scalar: string
+    - name: remoteIPPrefix
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRuleStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: direction
+      type:
+        scalar: string
+    - name: ethertype
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: portRangeMax
+      type:
+        scalar: numeric
+    - name: portRangeMin
+      type:
+        scalar: numeric
+    - name: protocol
+      type:
+        scalar: string
+    - name: remoteGroupID
+      type:
+        scalar: string
+    - name: remoteIPPrefix
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Server
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerFilter
+  map:
+    fields:
+    - name: flavor
+      type:
+        scalar: string
+    - name: image
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceSpec
+  map:
+    fields:
+    - name: flavor
+      type:
+        scalar: string
+    - name: image
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
+  map:
+    fields:
+    - name: accessIPv4
+      type:
+        scalar: string
+    - name: accessIPv6
+      type:
+        scalar: string
+    - name: addresses
+      type:
+        scalar: string
+    - name: fault
+      type:
+        scalar: string
+    - name: flavorID
+      type:
+        scalar: string
+    - name: hostID
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+      default: ""
+    - name: imageID
+      type:
+        scalar: string
+    - name: keyName
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: securityGroupIDs
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Subnet
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetFilter
+  map:
+    fields:
+    - name: cidr
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: gatewayIP
+      type:
+        scalar: string
+    - name: ipVersion
+      type:
+        scalar: numeric
+    - name: ipv6
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectID
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetGateway
+  map:
+    fields:
+    - name: ip
+      type:
+        scalar: string
+    - name: type
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceSpec
+  map:
+    fields:
+    - name: allocationPools
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPool
+          elementRelationship: atomic
+    - name: cidr
+      type:
+        scalar: string
+      default: ""
+    - name: description
+      type:
+        scalar: string
+    - name: dnsNameservers
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: dnsPublishFixedIP
+      type:
+        scalar: boolean
+    - name: enableDHCP
+      type:
+        scalar: boolean
+    - name: gateway
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetGateway
+    - name: hostRoutes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRoute
+          elementRelationship: atomic
+    - name: ipVersion
+      type:
+        scalar: numeric
+      default: 0
+    - name: ipv6
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: routerRef
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceStatus
+  map:
+    fields:
+    - name: allocationPools
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPoolStatus
+          elementRelationship: atomic
+    - name: cidr
+      type:
+        scalar: string
+      default: ""
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: dnsNameservers
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: dnsPublishFixedIP
+      type:
+        scalar: boolean
+    - name: enableDHCP
+      type:
+        scalar: boolean
+      default: false
+    - name: gatewayIP
+      type:
+        scalar: string
+    - name: hostRoutes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRouteStatus
+          elementRelationship: atomic
+    - name: ipVersion
+      type:
+        scalar: numeric
+      default: 0
+    - name: ipv6AddressMode
+      type:
+        scalar: string
+    - name: ipv6RAMode
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: projectID
+      type:
+        scalar: string
+      default: ""
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: subnetPoolID
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: networkRef
+      type:
+        scalar: string
+      default: ""
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceStatus
 - name: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
   map:
     fields:

@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -63,33 +63,40 @@ const (
 	maxDownloadAttempts = 5
 )
 
-// orcImageReconciler reconciles an ORC Image.
-type orcImageReconciler struct {
-	client           client.Client
-	recorder         record.EventRecorder
-	watchFilterValue string
-	scopeFactory     scope.Factory
-	caCertificates   []byte // PEM encoded ca certificates.
+type imageReconcilerConstructor struct {
+	scopeFactory scope.Factory
 }
 
-func New(client client.Client, recorder record.EventRecorder, watchFilterValue string, scopeFactory scope.Factory, caCertificates []byte) ctrlexport.SetupWithManager {
-	return &orcImageReconciler{
-		client:           client,
-		recorder:         recorder,
-		watchFilterValue: watchFilterValue,
-		scopeFactory:     scopeFactory,
-		caCertificates:   caCertificates,
-	}
+func New(scopeFactory scope.Factory) ctrlexport.Controller {
+	return imageReconcilerConstructor{scopeFactory: scopeFactory}
+}
+
+func (imageReconcilerConstructor) GetName() string {
+	return "image"
+}
+
+// orcImageReconciler reconciles an ORC Image.
+type orcImageReconciler struct {
+	client       client.Client
+	recorder     record.EventRecorder
+	scopeFactory scope.Factory
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *orcImageReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c imageReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger()
+
+	reconciler := orcImageReconciler{
+		client:       mgr.GetClient(),
+		recorder:     mgr.GetEventRecorderFor("orc-image-controller"),
+		scopeFactory: c.scopeFactory,
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Image{}).
 		WithOptions(options).
 		WithEventFilter(needsReconcilePredicate(log)).
-		Complete(r)
+		Complete(&reconciler)
 }
 
 func needsReconcilePredicate(log logr.Logger) predicate.Predicate {

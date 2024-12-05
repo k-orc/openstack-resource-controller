@@ -1,0 +1,17 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: orc-managed-ipv6
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  networkRef: orc-managed-network
+  resource:
+    description: Example IPv6 subnet
+    tags:
+    - orc-test
+    ipVersion: 6
+    cidr: fd34:929d:1bc8:1cc5::/64
+    routerRef: orc-managed-router

@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+components:
+- ../dev-settings
+- ../kustomizeconfig
+
+resources:
+- ../credentials
+- network.yaml
+- subnet.yaml
+- port.yaml
+- securitygroup.yaml
+
+patches:
+- target:
+    kind: Secret
+    name: dev-test-cloud-config
+  patch: |-
+    - op: add
+      path: /metadata/annotations/config.kubernetes.io~1local-config
+      value: "true"

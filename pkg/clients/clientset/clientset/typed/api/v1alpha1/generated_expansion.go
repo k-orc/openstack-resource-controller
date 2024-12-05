@@ -18,4 +18,20 @@ limitations under the License.
 
 package v1alpha1
 
+type FlavorExpansion interface{}
+
 type ImageExpansion interface{}
+
+type NetworkExpansion interface{}
+
+type PortExpansion interface{}
+
+type RouterExpansion interface{}
+
+type RouterInterfaceExpansion interface{}
+
+type SecurityGroupExpansion interface{}
+
+type ServerExpansion interface{}
+
+type SubnetExpansion interface{}

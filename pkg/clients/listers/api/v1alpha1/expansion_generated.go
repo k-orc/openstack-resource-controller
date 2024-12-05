@@ -18,6 +18,14 @@ limitations under the License.
 
 package v1alpha1
 
+// FlavorListerExpansion allows custom methods to be added to
+// FlavorLister.
+type FlavorListerExpansion interface{}
+
+// FlavorNamespaceListerExpansion allows custom methods to be added to
+// FlavorNamespaceLister.
+type FlavorNamespaceListerExpansion interface{}
+
 // ImageListerExpansion allows custom methods to be added to
 // ImageLister.
 type ImageListerExpansion interface{}
@@ -25,3 +33,59 @@ type ImageListerExpansion interface{}
 // ImageNamespaceListerExpansion allows custom methods to be added to
 // ImageNamespaceLister.
 type ImageNamespaceListerExpansion interface{}
+
+// NetworkListerExpansion allows custom methods to be added to
+// NetworkLister.
+type NetworkListerExpansion interface{}
+
+// NetworkNamespaceListerExpansion allows custom methods to be added to
+// NetworkNamespaceLister.
+type NetworkNamespaceListerExpansion interface{}
+
+// PortListerExpansion allows custom methods to be added to
+// PortLister.
+type PortListerExpansion interface{}
+
+// PortNamespaceListerExpansion allows custom methods to be added to
+// PortNamespaceLister.
+type PortNamespaceListerExpansion interface{}
+
+// RouterListerExpansion allows custom methods to be added to
+// RouterLister.
+type RouterListerExpansion interface{}
+
+// RouterNamespaceListerExpansion allows custom methods to be added to
+// RouterNamespaceLister.
+type RouterNamespaceListerExpansion interface{}
+
+// RouterInterfaceListerExpansion allows custom methods to be added to
+// RouterInterfaceLister.
+type RouterInterfaceListerExpansion interface{}
+
+// RouterInterfaceNamespaceListerExpansion allows custom methods to be added to
+// RouterInterfaceNamespaceLister.
+type RouterInterfaceNamespaceListerExpansion interface{}
+
+// SecurityGroupListerExpansion allows custom methods to be added to
+// SecurityGroupLister.
+type SecurityGroupListerExpansion interface{}
+
+// SecurityGroupNamespaceListerExpansion allows custom methods to be added to
+// SecurityGroupNamespaceLister.
+type SecurityGroupNamespaceListerExpansion interface{}
+
+// ServerListerExpansion allows custom methods to be added to
+// ServerLister.
+type ServerListerExpansion interface{}
+
+// ServerNamespaceListerExpansion allows custom methods to be added to
+// ServerNamespaceLister.
+type ServerNamespaceListerExpansion interface{}
+
+// SubnetListerExpansion allows custom methods to be added to
+// SubnetLister.
+type SubnetListerExpansion interface{}
+
+// SubnetNamespaceListerExpansion allows custom methods to be added to
+// SubnetNamespaceLister.
+type SubnetNamespaceListerExpansion interface{}

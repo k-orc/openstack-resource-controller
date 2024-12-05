@@ -25,14 +25,14 @@ type templateFields struct {
 	APIVersion           string
 	Year                 string
 	Name                 string
+	SpecExtraType        string
 	StatusExtraType      string
 	SpecExtraValidations []specExtraValidation
 }
 
 var allResources []templateFields = []templateFields{
 	{
-		Name:       "Image",
-		APIVersion: "v1alpha1",
+		Name: "Image",
 		SpecExtraValidations: []specExtraValidation{
 			{
 				Rule:    "!has(self.__import__) ? has(self.resource.content) : true",
@@ -40,6 +40,31 @@ var allResources []templateFields = []templateFields{
 			},
 		},
 		StatusExtraType: "ImageStatusExtra",
+	},
+	{
+		Name:       "Flavor",
+		APIVersion: "v1alpha1",
+	},
+	{
+		Name:       "Network",
+		APIVersion: "v1alpha1",
+	},
+	{
+		Name:          "Subnet",
+		SpecExtraType: "SubnetRefs",
+	},
+	{
+		Name: "Router",
+	},
+	{
+		Name:          "Port",
+		SpecExtraType: "PortRefs",
+	},
+	{
+		Name: "SecurityGroup",
+	},
+	{
+		Name: "Server",
 	},
 }
 

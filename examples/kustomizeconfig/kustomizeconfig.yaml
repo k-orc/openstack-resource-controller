@@ -1,0 +1,39 @@
+nameReference:
+- kind: Secret
+  fieldSpecs:
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Network
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Subnet
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Router
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Port
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Flavor
+  - path: spec/cloudCredentialsRef/secretName
+    kind: SecurityGroup
+
+- kind: Network
+  fieldSpecs:
+  - path: spec/networkRef
+    kind: Subnet
+  - path: spec/resource/externalGateways/networkRef
+    kind: Router
+  - path: spec/networkRef
+    kind: Port
+
+- kind: SecurityGroup
+  fieldSpecs:
+  - path: spec/resource/securityGroupRefs[]
+    kind: Port
+
+- kind: Subnet
+  fieldSpecs:
+  - path: spec/resource/addresses[]/subnetRef
+    kind: Port
+
+- kind: Router
+  fieldSpecs:
+  - path: spec/resource/routerRef
+    kind: Subnet

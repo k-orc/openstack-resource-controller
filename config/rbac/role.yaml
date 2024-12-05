@@ -7,7 +7,15 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - flavors
   - images
+  - networks
+  - ports
+  - routerinterfaces
+  - routers
+  - securitygroups
+  - servers
+  - subnets
   verbs:
   - create
   - delete
@@ -19,7 +27,15 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - flavors/status
   - images/status
+  - networks/status
+  - ports/status
+  - routerinterfaces/status
+  - routers/status
+  - securitygroups/status
+  - servers/status
+  - subnets/status
   verbs:
   - get
   - patch

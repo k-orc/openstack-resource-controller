@@ -53,8 +53,24 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=openstack.k-orc.cloud, Version=v1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("flavors"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Flavors().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("images"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Images().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("networks"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Networks().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("ports"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Ports().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("routers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Routers().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("routerinterfaces"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().RouterInterfaces().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("securitygroups"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().SecurityGroups().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("servers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Servers().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("subnets"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Subnets().Informer()}, nil
 
 	}
 

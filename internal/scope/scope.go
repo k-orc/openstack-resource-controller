@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The Kubernetes Authors.
+Copyright 2022 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,20 +29,21 @@ import (
 )
 
 // NewFactory creates the default scope factory. It generates service clients which make OpenStack API calls against a running cloud.
-func NewFactory(maxCacheSize int) Factory {
+func NewFactory(maxCacheSize int, defaultCACert []byte) Factory {
 	var c *cache.LRUExpireCache
 	if maxCacheSize > 0 {
 		c = cache.NewLRUExpireCache(maxCacheSize)
 	}
 	return &providerScopeFactory{
-		clientCache: c,
+		clientCache:   c,
+		defaultCACert: defaultCACert,
 	}
 }
 
 // Factory instantiates a new Scope using credentials from an IdentityRefProvider.
 type Factory interface {
 	// NewClientScopeFromObject creates a new scope from the first object which returns an OpenStackIdentityRef
-	NewClientScopeFromObject(ctx context.Context, ctrlClient client.Client, defaultCACert []byte, logger logr.Logger, objects ...orcv1alpha1.CloudCredentialsRefProvider) (Scope, error)
+	NewClientScopeFromObject(ctx context.Context, ctrlClient client.Client, logger logr.Logger, objects ...orcv1alpha1.CloudCredentialsRefProvider) (Scope, error)
 }
 
 // Scope contains arguments common to most operations.
@@ -52,7 +53,6 @@ type Scope interface {
 	NewImageClient() (osclients.ImageClient, error)
 	NewNetworkClient() (osclients.NetworkClient, error)
 	NewLbClient() (osclients.LbClient, error)
-	ProjectID() string
 	ExtractToken() (*tokens.Token, error)
 }
 
