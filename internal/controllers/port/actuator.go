@@ -88,8 +88,9 @@ func (obj portActuator) GetOSResourceBySpec(ctx context.Context) (*ports.Port, e
 	return getResourceFromList(ctx, listOpts, obj.osClient)
 }
 
-func (obj portActuator) CreateResource(ctx context.Context) (*ports.Port, error) {
-	return createResource(ctx, obj.Port, obj.networkID, obj.subnetsMapping, obj.securityGroupsMapping, obj.osClient)
+func (obj portActuator) CreateResource(ctx context.Context) ([]string, *ports.Port, error) {
+	port, err := createResource(ctx, obj.Port, obj.networkID, obj.subnetsMapping, obj.securityGroupsMapping, obj.osClient)
+	return nil, port, err
 }
 
 func (obj portActuator) DeleteResource(ctx context.Context, flavor *ports.Port) error {

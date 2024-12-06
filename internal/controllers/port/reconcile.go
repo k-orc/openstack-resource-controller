@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
@@ -180,14 +181,14 @@ func (r *orcPortReconciler) reconcileNormal(ctx context.Context, orcObject *orcv
 		securityGroupsMapping: securityGroupsMapping,
 	}
 
-	osResource, err := generic.GetOrCreateOSResource(ctx, log, portActuator)
+	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, portActuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	if osResource == nil {
 		log.V(3).Info("OpenStack resource does not yet exist")
-		addStatus(withProgressMessage("Waiting for OpenStack resource to be created externally"))
+		addStatus(withProgressMessage(strings.Join(waitMsgs, ", ")))
 		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, nil
 	}
 

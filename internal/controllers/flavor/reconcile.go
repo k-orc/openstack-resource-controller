@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -107,14 +108,14 @@ func (r *orcFlavorReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		osClient: osClient,
 	}
 
-	osResource, err := generic.GetOrCreateOSResource(ctx, log, adapter)
+	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, adapter)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	if osResource == nil {
 		log.V(3).Info("OpenStack resource does not yet exist")
-		addStatus(withProgressMessage("Waiting for OpenStack resource to be created externally"))
+		addStatus(withProgressMessage(strings.Join(waitMsgs, ", ")))
 		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, err
 	}
 

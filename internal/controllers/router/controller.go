@@ -18,7 +18,7 @@ package router
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"time"
 
 	"k8s.io/client-go/tools/record"
@@ -26,14 +26,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
 	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
@@ -45,8 +44,6 @@ const (
 	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
 )
 
 // ssaFieldOwner returns the field owner for a specific named SSA transaction.
@@ -57,9 +54,6 @@ func ssaFieldOwner(txn string) client.FieldOwner {
 const (
 	// The time to wait before reconciling again when we are expecting glance to finish some task and update status.
 	externalUpdatePollingPeriod = 15 * time.Second
-
-	// The time to wait between polling for resource deletion
-	deletePollingPeriod = 1 * time.Second
 )
 
 type routerReconcilerConstructor struct {
@@ -81,22 +75,10 @@ type orcRouterReconciler struct {
 	scopeFactory scope.Factory
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "router")
-
-	reconciler := orcRouterReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-router-controller"),
-		scopeFactory: c.scopeFactory,
-	}
-
-	getExternalGatewayRefsForResource := func(obj client.Object) []string {
-		router, ok := obj.(*orcv1alpha1.Router)
-		if !ok {
-			return nil
-		}
-
+// Router depends on its external gateways, which are Networks
+var externalGWDep = generic.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
+	"spec.resource.externalGateways[].networkRef",
+	func(router *orcv1alpha1.Router) []string {
 		resource := router.Spec.Resource
 		if resource == nil {
 			return nil
@@ -107,58 +89,34 @@ func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 			networks[i] = string(resource.ExternalGateways[i].NetworkRef)
 		}
 		return networks
+	},
+)
+
+// SetupWithManager sets up the controller with the Manager.
+func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	log := mgr.GetLogger().WithValues("controller", "router")
+
+	if err := errors.Join(
+		externalGWDep.AddIndexer(ctx, mgr),
+		externalGWDep.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+	); err != nil {
+		return err
 	}
 
-	// Index routers by referenced external gateway
-	const routerNetworkRefPath = "spec.resource.externalGateways.networkRef"
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.Router{}, routerNetworkRefPath, func(obj client.Object) []string {
-		return getExternalGatewayRefsForResource(obj)
-	}); err != nil {
-		return fmt.Errorf("adding networks by router index: %w", err)
-	}
-
-	getRoutersForExternalGateway := func(ctx context.Context, k8sClient client.Client, obj *orcv1alpha1.Network) ([]orcv1alpha1.Router, error) {
-		routerList := &orcv1alpha1.RouterList{}
-		if err := k8sClient.List(ctx, routerList, client.InNamespace(obj.Namespace), client.MatchingFields{routerNetworkRefPath: obj.Name}); err != nil {
-			return nil, err
-		}
-
-		return routerList.Items, nil
-	}
-
-	err := ctrlcommon.AddDeletionGuard(mgr, Finalizer, FieldOwner, getExternalGatewayRefsForResource, getRoutersForExternalGateway)
+	externalGWHandler, err := externalGWDep.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
 	}
 
+	reconciler := orcRouterReconciler{
+		client:       mgr.GetClient(),
+		recorder:     mgr.GetEventRecorderFor("orc-router-controller"),
+		scopeFactory: c.scopeFactory,
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Router{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
-		Watches(&orcv1alpha1.Network{},
-			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
-				log := log.WithValues("watch", "Network", "name", obj.GetName(), "namespace", obj.GetNamespace())
-
-				network, ok := obj.(*orcv1alpha1.Network)
-				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
-					return nil
-				}
-
-				routers, err := getRoutersForExternalGateway(ctx, mgr.GetClient(), network)
-				if err != nil {
-					log.Error(err, "listing Routers")
-					return nil
-				}
-				requests := make([]reconcile.Request, len(routers))
-				for i := range routers {
-					router := &routers[i]
-					request := &requests[i]
-
-					request.Name = router.Name
-					request.Namespace = router.Namespace
-				}
-				return requests
-			}),
+		Watches(&orcv1alpha1.Network{}, externalGWHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
 		WithOptions(options).

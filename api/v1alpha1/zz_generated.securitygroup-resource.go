@@ -142,6 +142,10 @@ type SecurityGroupList struct {
 	Items           []SecurityGroup `json:"items"`
 }
 
+func (l *SecurityGroupList) GetItems() []SecurityGroup {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&SecurityGroup{}, &SecurityGroupList{})
 }

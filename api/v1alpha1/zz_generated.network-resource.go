@@ -142,6 +142,10 @@ type NetworkList struct {
 	Items           []Network `json:"items"`
 }
 
+func (l *NetworkList) GetItems() []Network {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Network{}, &NetworkList{})
 }

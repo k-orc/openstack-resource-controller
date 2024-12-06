@@ -142,6 +142,10 @@ type ServerList struct {
 	Items           []Server `json:"items"`
 }
 
+func (l *ServerList) GetItems() []Server {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Server{}, &ServerList{})
 }

@@ -21,14 +21,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,6 +33,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
@@ -97,7 +95,6 @@ func (r *orcRouterReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		}
 	}()
 
-	// Don't add finalizer until parent network is available to avoid unnecessary reconcile on delete
 	if !controllerutil.ContainsFinalizer(orcObject, Finalizer) {
 		patch := common.SetFinalizerPatch(orcObject, Finalizer)
 		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
@@ -108,36 +105,24 @@ func (r *orcRouterReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		return ctrl.Result{}, err
 	}
 
-	osResource, waitingOnExternal, err := getOSResourceFromObject(ctx, log, orcObject, networkClient)
+	routerActuator := routerActuator{
+		Router:    orcObject,
+		osClient:  networkClient,
+		k8sClient: r.client,
+	}
+
+	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, routerActuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	if waitingOnExternal {
-		log.V(3).Info("OpenStack resource does not yet exist")
-		addStatus(withProgressMessage("Waiting for OpenStack resource to be created externally"))
-		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, err
-	}
 
 	if osResource == nil {
-		if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-			var dependencies []string
-			osResource, dependencies, err = r.createResource(ctx, orcObject, networkClient)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-
-			if len(dependencies) > 0 {
-				addStatus(withProgressMessage(strings.Join(dependencies, ", ")))
-				return ctrl.Result{}, nil
-			}
-		} else {
-			// Programming error
-			return ctrl.Result{}, fmt.Errorf("unmanaged object does not exist and not waiting on dependency")
-		}
+		log.V(3).Info("OpenStack resource does not yet exist")
+		addStatus(withProgressMessage(strings.Join(waitMsgs, ", ")))
+		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, nil
 	}
 
 	addStatus(withResource(osResource))
-
 	if orcObject.Status.ID == nil {
 		if err := r.setStatusID(ctx, orcObject, osResource.ID); err != nil {
 			return ctrl.Result{}, err
@@ -160,55 +145,6 @@ func (r *orcRouterReconciler) reconcileNormal(ctx context.Context, orcObject *or
 	return ctrl.Result{}, nil
 }
 
-func getOSResourceFromObject(ctx context.Context, log logr.Logger, orcObject *orcv1alpha1.Router, networkClient osclients.NetworkClient) (*routers.Router, bool, error) {
-	switch {
-	case orcObject.Status.ID != nil:
-		log.V(4).Info("Fetching existing OpenStack resource", "ID", *orcObject.Status.ID)
-		osResource, err := networkClient.GetRouter(ctx, *orcObject.Status.ID)
-		if err != nil {
-			if orcerrors.IsNotFound(err) {
-				// An OpenStack resource we previously referenced has been deleted unexpectedly. We can't recover from this.
-				return nil, false, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "resource has been deleted from OpenStack")
-			}
-			return nil, false, err
-		}
-		return osResource, false, nil
-
-	case orcObject.Spec.Import != nil && orcObject.Spec.Import.ID != nil:
-		log.V(4).Info("Importing existing OpenStack resource by ID")
-		osResource, err := networkClient.GetRouter(ctx, *orcObject.Spec.Import.ID)
-		if err != nil {
-			if orcerrors.IsNotFound(err) {
-				// We assume that a resource imported by ID must already exist. It's a terminal error if it doesn't.
-				return nil, false, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "referenced resource does not exist in OpenStack")
-			}
-			return nil, false, err
-		}
-		return osResource, false, nil
-
-	case orcObject.Spec.Import != nil && orcObject.Spec.Import.Filter != nil:
-		log.V(4).Info("Importing existing OpenStack resource by filter")
-		listOpts := listOptsFromImportFilter(orcObject.Spec.Import.Filter)
-		osResource, err := getResourceFromList(ctx, listOpts, networkClient)
-		if err != nil {
-			return nil, false, err
-		}
-		if osResource == nil {
-			return nil, true, nil
-		}
-		return osResource, false, nil
-
-	default:
-		log.V(4).Info("Checking for previously created OpenStack resource")
-		listOpts := listOptsFromCreation(orcObject)
-		osResource, err := getResourceFromList(ctx, listOpts, networkClient)
-		if err != nil {
-			return nil, false, nil
-		}
-		return osResource, false, nil
-	}
-}
-
 func (r *orcRouterReconciler) reconcileDelete(ctx context.Context, orcObject *orcv1alpha1.Router) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling OpenStack resource delete")
@@ -229,85 +165,26 @@ func (r *orcRouterReconciler) reconcileDelete(ctx context.Context, orcObject *or
 		}
 	}()
 
-	// We won't delete the resource for an unmanaged object, or if onDelete is detach
-	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged || orcObject.Spec.ManagedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
-		logPolicy := []any{"managementPolicy", orcObject.Spec.ManagementPolicy}
-		if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-			logPolicy = append(logPolicy, "onDelete", orcObject.Spec.ManagedOptions.GetOnDelete())
-		}
-		log.V(4).Info("Not deleting OpenStack resource due to policy", logPolicy...)
-	} else {
-		deleted, requeue, err := r.deleteResource(ctx, log, orcObject, addStatus)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		if !deleted {
-			return ctrl.Result{RequeueAfter: requeue}, nil
-		}
-		log.V(4).Info("OpenStack resource is deleted")
-	}
-
-	deleted = true
-
-	// Clear the finalizer
-	applyConfig := orcapplyconfigv1alpha1.Router(orcObject.Name, orcObject.Namespace).WithUID(orcObject.UID)
-	return ctrl.Result{}, r.client.Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
-}
-
-func (r *orcRouterReconciler) deleteResource(ctx context.Context, log logr.Logger, orcObject *orcv1alpha1.Router, addStatus func(updateStatusOpt)) (bool, time.Duration, error) {
 	networkClient, err := r.getNetworkClient(ctx, orcObject)
 	if err != nil {
-		return false, 0, err
+		return ctrl.Result{}, err
 	}
 
-	if orcObject.Status.ID != nil {
-		// This GET is technically redundant because we could just check the
-		// result from DELETE, but it's necessary if we want to report
-		// status while deleting
-		osResource, err := networkClient.GetRouter(ctx, *orcObject.Status.ID)
-
-		switch {
-		case orcerrors.IsNotFound(err):
-			// Success!
-			return true, 0, nil
-
-		case err != nil:
-			return false, 0, err
-
-		default:
-			addStatus(withResource(osResource))
-
-			if len(orcObject.GetFinalizers()) > 1 {
-				log.V(4).Info("Deferring resource cleanup due to remaining external finalizers")
-				return false, 0, nil
-			}
-
-			err := networkClient.DeleteRouter(ctx, *orcObject.Status.ID)
-			if err != nil {
-				return false, 0, err
-			}
-			return false, deletePollingPeriod, nil
-		}
+	routerActuator := routerActuator{
+		Router:    orcObject,
+		osClient:  networkClient,
+		k8sClient: r.client,
 	}
 
-	// If status.ID is not set we need to check for an orphaned
-	// resource. If we don't find one, assume success and continue,
-	// otherwise set status.ID and let the controller delete by ID.
+	osResource, result, err := generic.DeleteResource(ctx, log, routerActuator, func() error {
+		deleted = true
 
-	listOpts := listOptsFromCreation(orcObject)
-	osResource, err := getResourceFromList(ctx, listOpts, networkClient)
-	if err != nil {
-		return false, 0, err
-	}
-
-	if osResource != nil {
-		addStatus(withResource(osResource))
-		return false, deletePollingPeriod, r.setStatusID(ctx, orcObject, osResource.ID)
-	}
-
-	// Didn't find an orphaned resource. Assume success.
-	return true, 0, nil
+		// Clear the finalizer
+		applyConfig := orcapplyconfigv1alpha1.Router(orcObject.Name, orcObject.Namespace).WithUID(orcObject.UID)
+		return r.client.Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
+	})
+	addStatus(withResource(osResource))
+	return result, err
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
@@ -358,79 +235,12 @@ func getResourceFromList(ctx context.Context, listOpts routers.ListOpts, network
 	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
 }
 
-func waitingOnCreationMsg(kind string, name orcv1alpha1.KubernetesNameRef) string {
+func waitingOnCreationMsg(kind string, name string) string {
 	return fmt.Sprintf("Waiting for %s/%s to exist", kind, name)
 }
 
-func waitingOnAvailableMsg(kind string, name orcv1alpha1.KubernetesNameRef) string {
+func waitingOnAvailableMsg(kind string, name string) string {
 	return fmt.Sprintf("Waiting for %s/%s to be available", kind, name)
-}
-
-// createResource creates an OpenStack resource from an ORC object
-func (r *orcRouterReconciler) createResource(ctx context.Context, orcObject *orcv1alpha1.Router, networkClient osclients.NetworkClient) (*routers.Router, []string, error) {
-	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
-		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
-	}
-
-	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Creating OpenStack resource")
-
-	resource := orcObject.Spec.Resource
-
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
-	}
-
-	var gatewayInfo *routers.GatewayInfo
-	if len(resource.ExternalGateways) > 0 {
-		// We only currently support a single external gateway, ensured by API validation
-		externalGateway := resource.ExternalGateways[0]
-
-		network := &orcv1alpha1.Network{}
-		if err := r.client.Get(ctx, types.NamespacedName{Name: string(externalGateway.NetworkRef), Namespace: orcObject.Namespace}, network); err != nil {
-			if apierrors.IsNotFound(err) {
-				return nil, []string{waitingOnCreationMsg("network", externalGateway.NetworkRef)}, nil
-			}
-			return nil, nil, err
-		}
-		if !orcv1alpha1.IsAvailable(network) {
-			return nil, []string{waitingOnAvailableMsg("network", externalGateway.NetworkRef)}, nil
-		}
-
-		if network.Status.ID == nil {
-			return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "status.id of available external gateway is nil")
-		}
-
-		gatewayInfo = &routers.GatewayInfo{
-			NetworkID: *network.Status.ID,
-		}
-	}
-
-	createOpts := routers.CreateOpts{
-		Name:         string(ptr.Deref(resource.Name, "")),
-		Description:  string(resource.Description),
-		AdminStateUp: resource.AdminStateUp,
-		Distributed:  resource.Distributed,
-		GatewayInfo:  gatewayInfo,
-	}
-
-	if len(resource.AvailabilityZoneHints) > 0 {
-		createOpts.AvailabilityZoneHints = make([]string, len(resource.AvailabilityZoneHints))
-		for i := range resource.AvailabilityZoneHints {
-			createOpts.AvailabilityZoneHints[i] = string(resource.AvailabilityZoneHints[i])
-		}
-	}
-
-	osResource, err := networkClient.CreateRouter(ctx, &createOpts)
-
-	// We should require the spec to be updated before retrying a create which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-	}
-
-	return osResource, nil, err
 }
 
 // needsUpdate returns a slice of functions that call the OpenStack API to

@@ -151,6 +151,10 @@ type {{ .Name }}List struct {
 	Items           []{{ .Name }} `json:"items"`
 }
 
+func (l *{{ .Name }}List) GetItems() []{{ .Name }} {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&{{ .Name }}{}, &{{ .Name }}List{})
 }

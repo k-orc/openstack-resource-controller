@@ -144,6 +144,10 @@ type PortList struct {
 	Items           []Port `json:"items"`
 }
 
+func (l *PortList) GetItems() []Port {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Port{}, &PortList{})
 }

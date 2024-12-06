@@ -142,6 +142,10 @@ type FlavorList struct {
 	Items           []Flavor `json:"items"`
 }
 
+func (l *FlavorList) GetItems() []Flavor {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Flavor{}, &FlavorList{})
 }

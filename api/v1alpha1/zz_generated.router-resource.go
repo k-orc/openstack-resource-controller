@@ -142,6 +142,10 @@ type RouterList struct {
 	Items           []Router `json:"items"`
 }
 
+func (l *RouterList) GetItems() []Router {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Router{}, &RouterList{})
 }

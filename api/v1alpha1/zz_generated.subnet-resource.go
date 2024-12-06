@@ -144,6 +144,10 @@ type SubnetList struct {
 	Items           []Subnet `json:"items"`
 }
 
+func (l *SubnetList) GetItems() []Subnet {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Subnet{}, &SubnetList{})
 }

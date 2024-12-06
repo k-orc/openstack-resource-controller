@@ -82,8 +82,9 @@ func (obj flavorActuator) GetOSResourceBySpec(ctx context.Context) (*flavors.Fla
 	return GetByFilter(ctx, obj.osClient, specToFilter(*obj.Spec.Resource))
 }
 
-func (obj flavorActuator) CreateResource(ctx context.Context) (*flavors.Flavor, error) {
-	return createResource(ctx, obj.Flavor, obj.osClient)
+func (obj flavorActuator) CreateResource(ctx context.Context) ([]string, *flavors.Flavor, error) {
+	flavor, err := createResource(ctx, obj.Flavor, obj.osClient)
+	return nil, flavor, err
 }
 
 func (obj flavorActuator) DeleteResource(ctx context.Context, flavor *flavors.Flavor) error {

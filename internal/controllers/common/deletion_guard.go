@@ -48,7 +48,7 @@ type pointerToObject[T any] interface {
 
 func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToObject[dependency], guarded, dependency any](
 	mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner,
-	getGuardedFromDependency func(client.Object) []string,
+	getGuardedRefsFromDependency func(client.Object) []string,
 	getDependenciesFromGuarded func(context.Context, client.Client, guardedP) ([]dependency, error),
 ) error {
 	// deletionGuard reconciles the guarded object
@@ -122,7 +122,7 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 		Watches(dependencySpecimen,
 			handler.Funcs{
 				DeleteFunc: func(ctx context.Context, evt event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-					for _, guarded := range getGuardedFromDependency(evt.Object) {
+					for _, guarded := range getGuardedRefsFromDependency(evt.Object) {
 						q.Add(reconcile.Request{
 							NamespacedName: types.NamespacedName{
 								Namespace: evt.Object.GetNamespace(),

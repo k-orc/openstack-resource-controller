@@ -145,6 +145,10 @@ type ImageList struct {
 	Items           []Image `json:"items"`
 }
 
+func (l *ImageList) GetItems() []Image {
+	return l.Items
+}
+
 func init() {
 	SchemeBuilder.Register(&Image{}, &ImageList{})
 }
