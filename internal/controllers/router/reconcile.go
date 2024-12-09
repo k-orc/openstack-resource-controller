@@ -235,14 +235,6 @@ func getResourceFromList(ctx context.Context, listOpts routers.ListOpts, network
 	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
 }
 
-func waitingOnCreationMsg(kind string, name string) string {
-	return fmt.Sprintf("Waiting for %s/%s to exist", kind, name)
-}
-
-func waitingOnAvailableMsg(kind string, name string) string {
-	return fmt.Sprintf("Waiting for %s/%s to be available", kind, name)
-}
-
 // needsUpdate returns a slice of functions that call the OpenStack API to
 // align the OpenStack resoruce to its representation in the ORC spec object.
 // For network, only the Neutron tags are currently taken into consideration.

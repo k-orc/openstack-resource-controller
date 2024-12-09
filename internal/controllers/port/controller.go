@@ -18,7 +18,7 @@ package port
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"time"
 
 	"k8s.io/client-go/tools/record"
@@ -26,14 +26,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
 	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
@@ -78,6 +77,28 @@ func (portReconcilerConstructor) GetName() string {
 	return "port"
 }
 
+var (
+	networkDependency = generic.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network]("spec.resource.networkRef", func(port *orcv1alpha1.Port) []string {
+		return []string{string(port.Spec.NetworkRef)}
+	})
+
+	subnetDependency = generic.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet]("spec.resource.addresses[].subnetRef", func(port *orcv1alpha1.Port) []string {
+		subnets := make([]string, len(port.Spec.Resource.Addresses))
+		for i := range port.Spec.Resource.Addresses {
+			subnets[i] = string(*port.Spec.Resource.Addresses[i].SubnetRef)
+		}
+		return subnets
+	})
+
+	securityGroupDependency = generic.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup]("spec.resource.securityGroupRefs", func(port *orcv1alpha1.Port) []string {
+		securityGroups := make([]string, len(port.Spec.Resource.SecurityGroupRefs))
+		for i := range port.Spec.Resource.SecurityGroupRefs {
+			securityGroups[i] = string(port.Spec.Resource.SecurityGroupRefs[i])
+		}
+		return securityGroups
+	})
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", "port")
@@ -88,186 +109,41 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		scopeFactory: c.scopeFactory,
 	}
 
-	getNetworkRefsForPort := func(obj client.Object) []string {
-		port, ok := obj.(*orcv1alpha1.Port)
-		if !ok {
-			return nil
-		}
-		return []string{string(port.Spec.NetworkRef)}
+	if err := errors.Join(
+		networkDependency.AddIndexer(ctx, mgr),
+		networkDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		subnetDependency.AddIndexer(ctx, mgr),
+		subnetDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		securityGroupDependency.AddIndexer(ctx, mgr),
+		securityGroupDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+	); err != nil {
+		return err
 	}
 
-	// Index ports by referenced network
-	const networkRefPath = "spec.resource.networkRef"
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.Port{}, networkRefPath, func(obj client.Object) []string {
-		return getNetworkRefsForPort(obj)
-	}); err != nil {
-		return fmt.Errorf("adding ports by network index: %w", err)
-	}
-
-	getPortsForNetwork := func(ctx context.Context, k8sClient client.Client, obj *orcv1alpha1.Network) ([]orcv1alpha1.Port, error) {
-		portList := &orcv1alpha1.PortList{}
-		if err := k8sClient.List(ctx, portList, client.InNamespace(obj.Namespace), client.MatchingFields{networkRefPath: obj.Name}); err != nil {
-			return nil, err
-		}
-
-		return portList.Items, nil
-	}
-
-	getSubnetRefsForPort := func(obj client.Object) []string {
-		port, ok := obj.(*orcv1alpha1.Port)
-		if !ok {
-			return nil
-		}
-		subnets := make([]string, len(port.Spec.Resource.Addresses))
-		for i := range port.Spec.Resource.Addresses {
-			subnets[i] = string(*port.Spec.Resource.Addresses[i].SubnetRef)
-		}
-		return subnets
-	}
-
-	// Index ports by referenced subnet
-	const subnetRefPath = "spec.resource.addresses[].subnetRef"
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.Port{}, subnetRefPath, func(obj client.Object) []string {
-		return getSubnetRefsForPort(obj)
-	}); err != nil {
-		return fmt.Errorf("adding ports by subnet index: %w", err)
-	}
-
-	getPortsForSubnet := func(ctx context.Context, k8sClient client.Client, obj *orcv1alpha1.Subnet) ([]orcv1alpha1.Port, error) {
-		portList := &orcv1alpha1.PortList{}
-		if err := k8sClient.List(ctx, portList, client.InNamespace(obj.Namespace), client.MatchingFields{subnetRefPath: obj.Name}); err != nil {
-			return nil, err
-		}
-
-		return portList.Items, nil
-	}
-
-	getSecurityGroupRefsForPort := func(obj client.Object) []string {
-		port, ok := obj.(*orcv1alpha1.Port)
-		if !ok {
-			return nil
-		}
-		securityGroups := make([]string, len(port.Spec.Resource.SecurityGroupRefs))
-		for i := range port.Spec.Resource.SecurityGroupRefs {
-			securityGroups[i] = string(port.Spec.Resource.SecurityGroupRefs[i])
-		}
-		return securityGroups
-	}
-
-	// Index ports by referenced security groups
-	const securityGroupRefPath = "spec.resource.securityGroupRefs"
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.Port{}, securityGroupRefPath, func(obj client.Object) []string {
-		return getSecurityGroupRefsForPort(obj)
-	}); err != nil {
-		return fmt.Errorf("adding ports by security group index: %w", err)
-	}
-
-	getPortsForSecurityGroup := func(ctx context.Context, k8sClient client.Client, obj *orcv1alpha1.SecurityGroup) ([]orcv1alpha1.Port, error) {
-		portList := &orcv1alpha1.PortList{}
-		if err := k8sClient.List(ctx, portList, client.InNamespace(obj.Namespace), client.MatchingFields{securityGroupRefPath: obj.Name}); err != nil {
-			return nil, err
-		}
-
-		return portList.Items, nil
-	}
-
-	err := ctrlcommon.AddDeletionGuard(mgr, Finalizer, FieldOwner, getNetworkRefsForPort, getPortsForNetwork)
+	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
 	}
-	err = ctrlcommon.AddDeletionGuard(mgr, Finalizer, FieldOwner, getSubnetRefsForPort, getPortsForSubnet)
+
+	subnetWatchEventHandler, err := subnetDependency.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
 	}
-	err = ctrlcommon.AddDeletionGuard(mgr, Finalizer, FieldOwner, getSecurityGroupRefsForPort, getPortsForSecurityGroup)
+
+	securityGroupWatchEventHandler, err := securityGroupDependency.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Port{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
-		Watches(&orcv1alpha1.Network{},
-			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
-				log := log.WithValues("watch", "Network", "name", obj.GetName(), "namespace", obj.GetNamespace())
-
-				network, ok := obj.(*orcv1alpha1.Network)
-				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
-					return nil
-				}
-
-				ports, err := getPortsForNetwork(ctx, mgr.GetClient(), network)
-				if err != nil {
-					log.Error(err, "listing Ports")
-					return nil
-				}
-				requests := make([]reconcile.Request, len(ports))
-				for i := range ports {
-					port := &ports[i]
-					request := &requests[i]
-
-					request.Name = port.Name
-					request.Namespace = port.Namespace
-				}
-				return requests
-			}),
+		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
-		Watches(&orcv1alpha1.Subnet{},
-			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
-				log := log.WithValues("watch", "Subnet", "name", obj.GetName(), "namespace", obj.GetNamespace())
-
-				subnet, ok := obj.(*orcv1alpha1.Subnet)
-				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
-					return nil
-				}
-
-				ports, err := getPortsForSubnet(ctx, mgr.GetClient(), subnet)
-				if err != nil {
-					log.Error(err, "listing Ports")
-					return nil
-				}
-				requests := make([]reconcile.Request, len(ports))
-				for i := range ports {
-					port := &ports[i]
-					request := &requests[i]
-
-					request.Name = port.Name
-					request.Namespace = port.Namespace
-				}
-				return requests
-			}),
+		Watches(&orcv1alpha1.Subnet{}, subnetWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
 		).
-		Watches(&orcv1alpha1.SecurityGroup{},
-			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
-				log := log.WithValues("watch", "SecurityGroup", "name", obj.GetName(), "namespace", obj.GetNamespace())
-
-				securityGroup, ok := obj.(*orcv1alpha1.SecurityGroup)
-				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
-					return nil
-				}
-
-				ports, err := getPortsForSecurityGroup(ctx, mgr.GetClient(), securityGroup)
-				if err != nil {
-					log.Error(err, "listing Ports")
-					return nil
-				}
-				requests := make([]reconcile.Request, len(ports))
-				for i := range ports {
-					port := &ports[i]
-					request := &requests[i]
-
-					request.Name = port.Name
-					request.Namespace = port.Namespace
-				}
-				return requests
-			}),
+		Watches(&orcv1alpha1.SecurityGroup{}, securityGroupWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.SecurityGroup{})),
 		).
 		WithOptions(options).

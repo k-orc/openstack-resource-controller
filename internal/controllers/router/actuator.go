@@ -102,14 +102,14 @@ func (obj routerActuator) CreateResource(ctx context.Context) ([]string, *router
 		err := result.Err()
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{waitingOnCreationMsg("network", name)}, nil, nil
+				return []string{generic.WaitingOnCreationMsg("network", name)}, nil, nil
 			}
 			return nil, nil, err
 		}
 
 		network := result.Ok()
 		if !orcv1alpha1.IsAvailable(network) {
-			return []string{waitingOnAvailableMsg("network", name)}, nil, nil
+			return []string{generic.WaitingOnAvailableMsg("network", name)}, nil, nil
 		}
 
 		if network.Status.ID == nil {
