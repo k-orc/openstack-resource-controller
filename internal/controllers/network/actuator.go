@@ -97,8 +97,9 @@ func (obj networkActuator) GetOSResourceBySpec(ctx context.Context) (*networkExt
 	return getResourceFromList(ctx, listOpts, obj.osClient)
 }
 
-func (obj networkActuator) CreateResource(ctx context.Context) (*networkExt, error) {
-	return createResource(ctx, obj.Network, obj.osClient)
+func (obj networkActuator) CreateResource(ctx context.Context) ([]string, *networkExt, error) {
+	network, err := createResource(ctx, obj.Network, obj.osClient)
+	return nil, network, err
 }
 
 func (obj networkActuator) DeleteResource(ctx context.Context, network *networkExt) error {

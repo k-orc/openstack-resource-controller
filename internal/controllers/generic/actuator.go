@@ -46,11 +46,11 @@ type ResourceActuator[osResourcePT any] interface {
 	GetOSResourceByImportFilter(ctx context.Context) (bool, osResourcePT, error)
 	GetOSResourceBySpec(ctx context.Context) (osResourcePT, error)
 
-	CreateResource(ctx context.Context) (osResourcePT, error)
+	CreateResource(ctx context.Context) ([]string, osResourcePT, error)
 	DeleteResource(ctx context.Context, osResource osResourcePT) error
 }
 
-func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, actuator ResourceActuator[osResourcePT]) (osResourcePT, error) {
+func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator ResourceActuator[osResourcePT]) ([]string, osResourcePT, error) {
 	// Get by status ID
 	if hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx); hasStatusID {
 		if orcerrors.IsNotFound(err) {
@@ -60,7 +60,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 		if osResource != nil {
 			log.V(4).Info("Got existing OpenStack resource", "ID", actuator.GetResourceID(osResource))
 		}
-		return osResource, err
+		return nil, osResource, err
 	}
 
 	// Import by ID
@@ -72,42 +72,37 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 		if osResource != nil {
 			log.V(4).Info("Imported existing OpenStack resource by ID", "ID", actuator.GetResourceID(osResource))
 		}
-		return osResource, err
+		return nil, osResource, err
 	}
 
 	// Import by filter
 	if hasImportFilter, osResource, err := actuator.GetOSResourceByImportFilter(ctx); hasImportFilter {
-		return osResource, err
+		var waitMsgs []string
+		if osResource == nil {
+			waitMsgs = []string{"Waiting for OpenStack resource to be created externally"}
+		}
+		return waitMsgs, osResource, err
 	}
 
 	// Create
 	if actuator.GetManagementPolicy() == orcv1alpha1.ManagementPolicyUnmanaged {
 		// We never create an unmanaged resource
 		// API validation should have ensured that one of the above functions returned
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
 	}
 
 	osResource, err := actuator.GetOSResourceBySpec(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if osResource != nil {
 		log.V(4).Info("Adopted previously created resource")
-		return osResource, nil
+		return nil, osResource, nil
 	}
 
-	log.V(4).Info("Creating resource")
+	log.V(3).Info("Creating resource")
 	return actuator.CreateResource(ctx)
 }
-
-type DeleteStatus int
-
-const (
-	DeleteStatusComplete DeleteStatus = iota
-	DeleteStatusError
-	DeleteStatusWaitingOnFinalizer
-	DeleteStatusWaitingOnOpenStack
-)
 
 func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, obj ResourceActuator[osResourcePT], onComplete func() error) (osResourcePT, ctrl.Result, error) {
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
