@@ -187,12 +187,14 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ram
       type:
         scalar: numeric
+      default: 0
     - name: swap
       type:
         scalar: numeric
     - name: vcpus
       type:
         scalar: numeric
+      default: 0
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceStatus
   map:
     fields:

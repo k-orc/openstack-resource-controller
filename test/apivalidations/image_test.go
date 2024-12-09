@@ -41,12 +41,6 @@ func imageStub(name string, namespace *corev1.Namespace) *orcv1alpha1.Image {
 	return obj
 }
 
-func testCredentials() *applyconfigv1alpha1.CloudCredentialsReferenceApplyConfiguration {
-	return applyconfigv1alpha1.CloudCredentialsReference().
-		WithSecretName("openstack-credentials").
-		WithCloudName("openstack")
-}
-
 func testResource() *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.ImageResourceSpec().
 		WithContent(applyconfigv1alpha1.ImageContent().

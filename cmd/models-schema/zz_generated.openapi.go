@@ -909,6 +909,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					"ram": {
 						SchemaProps: spec.SchemaProps{
 							Description: "RAM is the memory of the flavor, measured in MB.",
+							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -916,6 +917,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					"vcpus": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Vcpus is the number of vcpus for the flavor.",
+							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -949,6 +951,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 						},
 					},
 				},
+				Required: []string{"ram", "vcpus"},
 			},
 		},
 	}

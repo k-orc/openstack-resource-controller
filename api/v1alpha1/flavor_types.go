@@ -27,10 +27,12 @@ type FlavorResourceSpec struct {
 	Description *OpenStackDescription `json:"description,omitempty"`
 
 	// RAM is the memory of the flavor, measured in MB.
-	RAM int32 `json:"ram,omitempty"`
+	// +kubebuilder:validation:Minimum=1
+	RAM int32 `json:"ram"`
 
 	// Vcpus is the number of vcpus for the flavor.
-	Vcpus int32 `json:"vcpus,omitempty"`
+	// +kubebuilder:validation:Minimum=1
+	Vcpus int32 `json:"vcpus"`
 
 	// Disk is the size of the root disk that will be created in GiB. If 0
 	// the root disk will be set to exactly the size of the image used to
