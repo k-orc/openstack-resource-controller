@@ -31,7 +31,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -43,7 +42,6 @@ import (
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -76,16 +74,6 @@ func (r *orcNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	return r.reconcileNormal(ctx, orcObject)
 }
 
-func (r *orcNetworkReconciler) getNetworkClient(ctx context.Context, orcNetwork *orcv1alpha1.Network) (osclients.NetworkClient, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, log, orcNetwork)
-	if err != nil {
-		return nil, err
-	}
-	return clientScope.NewNetworkClient()
-}
-
 func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *orcv1alpha1.Network) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling resource")
@@ -115,17 +103,12 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	}
 
-	networkClient, err := r.getNetworkClient(ctx, orcObject)
+	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	networkActuator := networkActuator{
-		Network:  orcObject,
-		osClient: networkClient,
-	}
-
-	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, networkActuator)
+	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -149,7 +132,7 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-		for _, updateFunc := range needsUpdate(networkClient, orcObject, osResource) {
+		for _, updateFunc := range needsUpdate(actuator.osClient, orcObject, osResource) {
 			if err := updateFunc(ctx); err != nil {
 				addStatus(withProgressMessage("Updating the OpenStack resource"))
 				return ctrl.Result{}, fmt.Errorf("failed to update the OpenStack resource: %w", err)
@@ -180,17 +163,12 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 		}
 	}()
 
-	networkClient, err := r.getNetworkClient(ctx, orcObject)
+	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	networkActuator := networkActuator{
-		Network:  orcObject,
-		osClient: networkClient,
-	}
-
-	osResource, result, err := generic.DeleteResource(ctx, log, networkActuator, func() error {
+	osResource, result, err := generic.DeleteResource(ctx, log, actuator, func() error {
 		deleted = true
 
 		// Clear the finalizer
@@ -199,136 +177,6 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 	})
 	addStatus(withResource(osResource))
 	return result, err
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Network) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
-}
-
-func listOptsFromImportFilter(filter *orcv1alpha1.NetworkFilter) networks.ListOptsBuilder {
-	listOpts := networks.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
-		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
-		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
-		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
-	}
-
-	return &listOpts
-}
-
-// listOptsFromCreation returns a listOpts which will return the OpenStack
-// resource which would have been created from the current spec and hopefully no
-// other. Its purpose is to automatically adopt a resource that we created but
-// failed to write to status.id.
-func listOptsFromCreation(osResource *orcv1alpha1.Network) networks.ListOptsBuilder {
-	return networks.ListOpts{Name: string(getResourceName(osResource))}
-}
-
-func getResourceFromList(ctx context.Context, listOpts networks.ListOptsBuilder, networkClient osclients.NetworkClient) (*networkExt, error) {
-	pages, err := networkClient.ListNetwork(listOpts).AllPages(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var osResources []networkExt
-	err = networks.ExtractNetworksInto(pages, &osResources)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(osResources) == 1 {
-		return &osResources[0], nil
-	}
-
-	// No resource found
-	if len(osResources) == 0 {
-		return nil, nil
-	}
-
-	// Multiple resources found
-	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
-}
-
-// createResource creates an OpenStack resource for an ORC object.
-func createResource(ctx context.Context, orcObject *orcv1alpha1.Network, networkClient osclients.NetworkClient) (*networkExt, error) {
-	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
-		// Should have been caught by API validation
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
-	}
-
-	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Creating OpenStack resource")
-
-	resource := orcObject.Spec.Resource
-
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
-	}
-
-	var createOpts networks.CreateOptsBuilder
-	{
-		createOptsBase := networks.CreateOpts{
-			Name:         string(getResourceName(orcObject)),
-			Description:  string(*resource.Description),
-			AdminStateUp: resource.AdminStateUp,
-			Shared:       resource.Shared,
-		}
-
-		if len(resource.AvailabilityZoneHints) > 0 {
-			createOptsBase.AvailabilityZoneHints = make([]string, len(resource.AvailabilityZoneHints))
-			for i := range resource.AvailabilityZoneHints {
-				createOptsBase.AvailabilityZoneHints[i] = string(resource.AvailabilityZoneHints[i])
-			}
-		}
-		createOpts = createOptsBase
-	}
-
-	if resource.DNSDomain != nil {
-		createOpts = &dns.NetworkCreateOptsExt{
-			CreateOptsBuilder: createOpts,
-			DNSDomain:         string(*resource.DNSDomain),
-		}
-	}
-
-	if resource.MTU != nil {
-		createOpts = &mtu.CreateOptsExt{
-			CreateOptsBuilder: createOpts,
-			MTU:               int(*resource.MTU),
-		}
-	}
-
-	if resource.PortSecurityEnabled != nil {
-		createOpts = &portsecurity.NetworkCreateOptsExt{
-			CreateOptsBuilder:   createOpts,
-			PortSecurityEnabled: resource.PortSecurityEnabled,
-		}
-	}
-
-	if resource.External != nil {
-		createOpts = &external.CreateOptsExt{
-			CreateOptsBuilder: createOpts,
-			External:          resource.External,
-		}
-	}
-
-	osResource := &networkExt{}
-	createResult := networkClient.CreateNetwork(ctx, createOpts)
-	if err := createResult.ExtractInto(osResource); err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
-		if orcerrors.IsConflict(err) {
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-		}
-		return nil, err
-	}
-
-	return osResource, nil
 }
 
 // needsUpdate returns a slice of functions that call the OpenStack API to

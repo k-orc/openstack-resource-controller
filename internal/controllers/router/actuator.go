@@ -23,21 +23,59 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
 
 type routerActuator struct {
 	*orcv1alpha1.Router
-	osClient  osclients.NetworkClient
+	osClient osclients.NetworkClient
+}
+
+type routerCreateActuator struct {
+	routerActuator
 	k8sClient client.Client
 }
 
-var _ generic.ResourceActuator[*routers.Router] = routerActuator{}
+func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Router) (routerActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	if err != nil {
+		return routerActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return routerActuator{}, err
+	}
+
+	return routerActuator{
+		Router:   orcObject,
+		osClient: osClient,
+	}, nil
+}
+
+func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
+	routerActuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
+	if err != nil {
+		return routerCreateActuator{}, err
+	}
+
+	return routerCreateActuator{
+		routerActuator: routerActuator,
+		k8sClient:      k8sClient,
+	}, nil
+}
+
+var _ generic.DeleteResourceActuator[*routers.Router] = routerActuator{}
+var _ generic.CreateResourceActuator[*routers.Router] = routerCreateActuator{}
 
 func (obj routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
@@ -60,7 +98,16 @@ func (obj routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *r
 	return true, port, err
 }
 
-func (obj routerActuator) GetOSResourceByImportID(ctx context.Context) (bool, *routers.Router, error) {
+func (obj routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
+	if obj.Spec.Resource == nil {
+		return nil, nil
+	}
+
+	listOpts := listOptsFromCreation(obj.Router)
+	return getResourceFromList(ctx, listOpts, obj.osClient)
+}
+
+func (obj routerCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *routers.Router, error) {
 	if obj.Spec.Import == nil {
 		return false, nil, nil
 	}
@@ -72,7 +119,7 @@ func (obj routerActuator) GetOSResourceByImportID(ctx context.Context) (bool, *r
 	return true, port, err
 }
 
-func (obj routerActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *routers.Router, error) {
+func (obj routerCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *routers.Router, error) {
 	if obj.Spec.Import == nil {
 		return false, nil, nil
 	}
@@ -85,12 +132,7 @@ func (obj routerActuator) GetOSResourceByImportFilter(ctx context.Context) (bool
 	return true, osResource, err
 }
 
-func (obj routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
-	listOpts := listOptsFromCreation(obj.Router)
-	return getResourceFromList(ctx, listOpts, obj.osClient)
-}
-
-func (obj routerActuator) CreateResource(ctx context.Context) ([]string, *routers.Router, error) {
+func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]string, *routers.Router, error) {
 	resource := obj.Router.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -102,14 +144,14 @@ func (obj routerActuator) CreateResource(ctx context.Context) ([]string, *router
 		err := result.Err()
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{waitingOnCreationMsg("network", name)}, nil, nil
+				return []string{generic.WaitingOnCreationMsg("network", name)}, nil, nil
 			}
 			return nil, nil, err
 		}
 
 		network := result.Ok()
 		if !orcv1alpha1.IsAvailable(network) {
-			return []string{waitingOnAvailableMsg("network", name)}, nil, nil
+			return []string{generic.WaitingOnAvailableMsg("network", name)}, nil, nil
 		}
 
 		if network.Status.ID == nil {
@@ -150,4 +192,52 @@ func (obj routerActuator) CreateResource(ctx context.Context) ([]string, *router
 
 func (obj routerActuator) DeleteResource(ctx context.Context, router *routers.Router) error {
 	return obj.osClient.DeleteRouter(ctx, router.ID)
+}
+
+// getResourceName returns the name of the OpenStack resource we should use.
+func getResourceName(orcObject *orcv1alpha1.Router) orcv1alpha1.OpenStackName {
+	if orcObject.Spec.Resource.Name != nil {
+		return *orcObject.Spec.Resource.Name
+	}
+	return orcv1alpha1.OpenStackName(orcObject.Name)
+}
+
+func listOptsFromImportFilter(filter *orcv1alpha1.RouterFilter) routers.ListOpts {
+	listOpts := routers.ListOpts{
+		Name:        string(filter.Name),
+		Description: string(filter.Description),
+		ProjectID:   string(filter.ProjectID),
+		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
+		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
+		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
+		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
+	}
+	return listOpts
+}
+
+// listOptsFromCreation returns a listOpts which will return the OpenStack
+// resource which would have been created from the current spec and hopefully no
+// other. Its purpose is to automatically adopt a resource that we created but
+// failed to write to status.id.
+func listOptsFromCreation(osResource *orcv1alpha1.Router) routers.ListOpts {
+	return routers.ListOpts{Name: string(getResourceName(osResource))}
+}
+
+func getResourceFromList(ctx context.Context, listOpts routers.ListOpts, networkClient osclients.NetworkClient) (*routers.Router, error) {
+	osResources, err := networkClient.ListRouter(ctx, listOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(osResources) == 1 {
+		return &osResources[0], nil
+	}
+
+	// No resource found
+	if len(osResources) == 0 {
+		return nil, nil
+	}
+
+	// Multiple resources found
+	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
 }
