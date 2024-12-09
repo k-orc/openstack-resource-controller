@@ -386,10 +386,9 @@ func createResource(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, n
 		return nil, err
 	}
 
-	// TODO(mandre) bulk create security group rules.
-	// Need to implement it in gophercloud first
-	for _, rule := range resource.Rules {
-		createOpts := rules.CreateOpts{
+	sgRulesCreateOpts := make([]rules.CreateOpts, len(resource.Rules))
+	for i, rule := range resource.Rules {
+		sgRulesCreateOpts[i] = rules.CreateOpts{
 			SecGroupID:     osResource.ID,
 			Description:    string(ptr.Deref(rule.Description, "")),
 			Direction:      rules.RuleDirection(ptr.Deref(rule.Direction, "")),
@@ -400,15 +399,15 @@ func createResource(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, n
 			PortRangeMin:   int(*rule.PortRangeMin),
 			PortRangeMax:   int(*rule.PortRangeMax),
 		}
+	}
 
-		_, err := networkClient.CreateSecGroupRule(ctx, &createOpts)
-		if err != nil {
-			// We should require the spec to be updated before retrying a create which returned a conflict
-			if orcerrors.IsConflict(err) {
-				err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-			}
-			return nil, err
+	_, err = networkClient.CreateSecGroupRuleBulk(ctx, sgRulesCreateOpts)
+	if err != nil {
+		// We should require the spec to be updated before retrying a create which returned a conflict
+		if orcerrors.IsConflict(err) {
+			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
+		return nil, err
 	}
 
 	return osResource, nil

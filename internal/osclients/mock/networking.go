@@ -169,6 +169,21 @@ func (mr *MockNetworkClientMockRecorder) CreateSecGroupRule(ctx, opts any) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecGroupRule", reflect.TypeOf((*MockNetworkClient)(nil).CreateSecGroupRule), ctx, opts)
 }
 
+// CreateSecGroupRuleBulk mocks base method.
+func (m *MockNetworkClient) CreateSecGroupRuleBulk(ctx context.Context, opts []rules.CreateOpts) ([]rules.SecGroupRule, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSecGroupRuleBulk", ctx, opts)
+	ret0, _ := ret[0].([]rules.SecGroupRule)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateSecGroupRuleBulk indicates an expected call of CreateSecGroupRuleBulk.
+func (mr *MockNetworkClientMockRecorder) CreateSecGroupRuleBulk(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecGroupRuleBulk", reflect.TypeOf((*MockNetworkClient)(nil).CreateSecGroupRuleBulk), ctx, opts)
+}
+
 // CreateSubnet mocks base method.
 func (m *MockNetworkClient) CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error) {
 	m.ctrl.T.Helper()
