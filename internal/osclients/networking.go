@@ -72,6 +72,7 @@ type NetworkClient interface {
 
 	ListSecGroupRule(ctx context.Context, opts rules.ListOpts) ([]rules.SecGroupRule, error)
 	CreateSecGroupRule(ctx context.Context, opts rules.CreateOptsBuilder) (*rules.SecGroupRule, error)
+	CreateSecGroupRuleBulk(ctx context.Context, opts []rules.CreateOpts) ([]rules.SecGroupRule, error)
 	DeleteSecGroupRule(ctx context.Context, id string) error
 	GetSecGroupRule(ctx context.Context, id string) (*rules.SecGroupRule, error)
 
@@ -258,6 +259,10 @@ func (c networkClient) ListSecGroupRule(ctx context.Context, opts rules.ListOpts
 
 func (c networkClient) CreateSecGroupRule(ctx context.Context, opts rules.CreateOptsBuilder) (*rules.SecGroupRule, error) {
 	return rules.Create(ctx, c.serviceClient, opts).Extract()
+}
+
+func (c networkClient) CreateSecGroupRuleBulk(ctx context.Context, opts []rules.CreateOpts) ([]rules.SecGroupRule, error) {
+	return rules.CreateBulk(ctx, c.serviceClient, opts).ExtractRules()
 }
 
 func (c networkClient) DeleteSecGroupRule(ctx context.Context, id string) error {
