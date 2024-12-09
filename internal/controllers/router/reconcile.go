@@ -37,7 +37,6 @@ import (
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -59,16 +58,6 @@ func (r *orcRouterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	return r.reconcileNormal(ctx, orcObject)
-}
-
-func (r *orcRouterReconciler) getNetworkClient(ctx context.Context, orcObject *orcv1alpha1.Router) (osclients.NetworkClient, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, log, orcObject)
-	if err != nil {
-		return nil, err
-	}
-	return clientScope.NewNetworkClient()
 }
 
 func (r *orcRouterReconciler) reconcileNormal(ctx context.Context, orcObject *orcv1alpha1.Router) (_ ctrl.Result, err error) {
@@ -100,18 +89,12 @@ func (r *orcRouterReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	}
 
-	networkClient, err := r.getNetworkClient(ctx, orcObject)
+	actuator, err := newCreateActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	routerActuator := routerActuator{
-		Router:    orcObject,
-		osClient:  networkClient,
-		k8sClient: r.client,
-	}
-
-	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, routerActuator)
+	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -134,7 +117,7 @@ func (r *orcRouterReconciler) reconcileNormal(ctx context.Context, orcObject *or
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-		for _, updateFunc := range needsUpdate(networkClient, orcObject, osResource) {
+		for _, updateFunc := range needsUpdate(actuator.osClient, orcObject, osResource) {
 			if err := updateFunc(ctx); err != nil {
 				addStatus(withProgressMessage("Updating the OpenStack resource"))
 				return ctrl.Result{}, fmt.Errorf("failed to update the OpenStack resource: %w", err)
@@ -165,18 +148,12 @@ func (r *orcRouterReconciler) reconcileDelete(ctx context.Context, orcObject *or
 		}
 	}()
 
-	networkClient, err := r.getNetworkClient(ctx, orcObject)
+	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	routerActuator := routerActuator{
-		Router:    orcObject,
-		osClient:  networkClient,
-		k8sClient: r.client,
-	}
-
-	osResource, result, err := generic.DeleteResource(ctx, log, routerActuator, func() error {
+	osResource, result, err := generic.DeleteResource(ctx, log, actuator, func() error {
 		deleted = true
 
 		// Clear the finalizer
@@ -185,54 +162,6 @@ func (r *orcRouterReconciler) reconcileDelete(ctx context.Context, orcObject *or
 	})
 	addStatus(withResource(osResource))
 	return result, err
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Router) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
-}
-
-func listOptsFromImportFilter(filter *orcv1alpha1.RouterFilter) routers.ListOpts {
-	listOpts := routers.ListOpts{
-		Name:        string(filter.Name),
-		Description: string(filter.Description),
-		ProjectID:   string(filter.ProjectID),
-		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
-		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
-		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
-		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
-	}
-	return listOpts
-}
-
-// listOptsFromCreation returns a listOpts which will return the OpenStack
-// resource which would have been created from the current spec and hopefully no
-// other. Its purpose is to automatically adopt a resource that we created but
-// failed to write to status.id.
-func listOptsFromCreation(osResource *orcv1alpha1.Router) routers.ListOpts {
-	return routers.ListOpts{Name: string(getResourceName(osResource))}
-}
-
-func getResourceFromList(ctx context.Context, listOpts routers.ListOpts, networkClient osclients.NetworkClient) (*routers.Router, error) {
-	osResources, err := networkClient.ListRouter(ctx, listOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(osResources) == 1 {
-		return &osResources[0], nil
-	}
-
-	// No resource found
-	if len(osResources) == 0 {
-		return nil, nil
-	}
-
-	// Multiple resources found
-	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
 }
 
 // needsUpdate returns a slice of functions that call the OpenStack API to

@@ -20,10 +20,15 @@ import (
 	"context"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
+	"k8s.io/utils/ptr"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
 type flavorActuator struct {
@@ -31,7 +36,26 @@ type flavorActuator struct {
 	osClient osclients.ComputeClient
 }
 
-var _ generic.ResourceActuator[*flavors.Flavor] = flavorActuator{}
+func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Flavor) (flavorActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	if err != nil {
+		return flavorActuator{}, err
+	}
+	osClient, err := clientScope.NewComputeClient()
+	if err != nil {
+		return flavorActuator{}, err
+	}
+
+	return flavorActuator{
+		Flavor:   orcObject,
+		osClient: osClient,
+	}, nil
+}
+
+var _ generic.CreateResourceActuator[*flavors.Flavor] = flavorActuator{}
+var _ generic.DeleteResourceActuator[*flavors.Flavor] = flavorActuator{}
 
 func (obj flavorActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
@@ -51,6 +75,13 @@ func (obj flavorActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *f
 	}
 	flavor, err := obj.osClient.GetFlavor(ctx, *obj.Status.ID)
 	return true, flavor, err
+}
+
+func (obj flavorActuator) GetOSResourceBySpec(ctx context.Context) (*flavors.Flavor, error) {
+	if obj.Spec.Resource == nil {
+		return nil, nil
+	}
+	return GetByFilter(ctx, obj.osClient, specToFilter(*obj.Spec.Resource))
 }
 
 func (obj flavorActuator) GetOSResourceByImportID(ctx context.Context) (bool, *flavors.Flavor, error) {
@@ -75,18 +106,45 @@ func (obj flavorActuator) GetOSResourceByImportFilter(ctx context.Context) (bool
 	return true, flavor, err
 }
 
-func (obj flavorActuator) GetOSResourceBySpec(ctx context.Context) (*flavors.Flavor, error) {
-	if obj.Spec.Resource == nil {
-		return nil, nil
-	}
-	return GetByFilter(ctx, obj.osClient, specToFilter(*obj.Spec.Resource))
-}
-
 func (obj flavorActuator) CreateResource(ctx context.Context) ([]string, *flavors.Flavor, error) {
-	flavor, err := createResource(ctx, obj.Flavor, obj.osClient)
-	return nil, flavor, err
+	resource := obj.Spec.Resource
+
+	if resource == nil {
+		// Should have been caught by API validation
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+	}
+
+	createOpts := flavors.CreateOpts{
+		Name:        string(getResourceName(obj.Flavor)),
+		RAM:         int(resource.RAM),
+		VCPUs:       int(resource.Vcpus),
+		Disk:        ptr.To(int(resource.Disk)),
+		Swap:        ptr.To(int(resource.Swap)),
+		IsPublic:    resource.IsPublic,
+		Ephemeral:   ptr.To(int(resource.Ephemeral)),
+		Description: string(ptr.Deref(resource.Description, "")),
+	}
+
+	osResource, err := obj.osClient.CreateFlavor(ctx, createOpts)
+	if err != nil {
+		// We should require the spec to be updated before retrying a create which returned a conflict
+		if orcerrors.IsConflict(err) {
+			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+		}
+		return nil, nil, err
+	}
+
+	return nil, osResource, nil
 }
 
 func (obj flavorActuator) DeleteResource(ctx context.Context, flavor *flavors.Flavor) error {
 	return obj.osClient.DeleteFlavor(ctx, flavor.ID)
+}
+
+// getResourceName returns the name of the OpenStack resource we should use.
+func getResourceName(orcObject *orcv1alpha1.Flavor) orcv1alpha1.OpenStackName {
+	if orcObject.Spec.Resource.Name != nil {
+		return *orcObject.Spec.Resource.Name
+	}
+	return orcv1alpha1.OpenStackName(orcObject.Name)
 }

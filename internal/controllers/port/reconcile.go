@@ -60,16 +60,6 @@ func (r *orcPortReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	return r.reconcileNormal(ctx, orcObject)
 }
 
-func (r *orcPortReconciler) getNetworkClient(ctx context.Context, orcPort *orcv1alpha1.Port) (osclients.NetworkClient, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, log, orcPort)
-	if err != nil {
-		return nil, err
-	}
-	return clientScope.NewNetworkClient()
-}
-
 func (r *orcPortReconciler) reconcileNormal(ctx context.Context, orcObject *orcv1alpha1.Port) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling resource")
@@ -119,19 +109,12 @@ func (r *orcPortReconciler) reconcileNormal(ctx context.Context, orcObject *orcv
 		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	}
 
-	networkClient, err := r.getNetworkClient(ctx, orcObject)
+	actuator, err := newCreateActuator(ctx, r.client, r.scopeFactory, orcObject, networkID)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	portActuator := portActuator{
-		Port:      orcObject,
-		osClient:  networkClient,
-		k8sClient: r.client,
-		networkID: networkID,
-	}
-
-	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, portActuator)
+	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -155,7 +138,7 @@ func (r *orcPortReconciler) reconcileNormal(ctx context.Context, orcObject *orcv
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-		for _, updateFunc := range needsUpdate(networkClient, orcObject, osResource) {
+		for _, updateFunc := range needsUpdate(actuator.osClient, orcObject, osResource) {
 			if err := updateFunc(ctx); err != nil {
 				addStatus(withProgressMessage("Updating the OpenStack resource"))
 				return ctrl.Result{}, fmt.Errorf("failed to update the OpenStack resource: %w", err)
@@ -186,17 +169,9 @@ func (r *orcPortReconciler) reconcileDelete(ctx context.Context, orcObject *orcv
 		}
 	}()
 
-	networkClient, err := r.getNetworkClient(ctx, orcObject)
+	portActuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
-	}
-
-	portActuator := portActuator{
-		Port:     orcObject,
-		osClient: networkClient,
-		// XXX: Incomplete initialisation here is dangerous. We should have
-		// separate actuator interfaces for creation and deletion so we can
-		// fully initialise deletion with only the resources it requires.
 	}
 
 	osResource, result, err := generic.DeleteResource(ctx, log, portActuator, func() error {

@@ -33,7 +33,7 @@ const (
 	deletePollingPeriod = 1 * time.Second
 )
 
-type ResourceActuator[osResourcePT any] interface {
+type BaseResourceActuator[osResourcePT any] interface {
 	client.Object
 
 	GetManagementPolicy() orcv1alpha1.ManagementPolicy
@@ -42,15 +42,24 @@ type ResourceActuator[osResourcePT any] interface {
 	GetResourceID(osResource osResourcePT) string
 
 	GetOSResourceByStatusID(ctx context.Context) (bool, osResourcePT, error)
+	GetOSResourceBySpec(ctx context.Context) (osResourcePT, error)
+}
+
+type CreateResourceActuator[osResourcePT any] interface {
+	BaseResourceActuator[osResourcePT]
+
 	GetOSResourceByImportID(ctx context.Context) (bool, osResourcePT, error)
 	GetOSResourceByImportFilter(ctx context.Context) (bool, osResourcePT, error)
-	GetOSResourceBySpec(ctx context.Context) (osResourcePT, error)
-
 	CreateResource(ctx context.Context) ([]string, osResourcePT, error)
+}
+
+type DeleteResourceActuator[osResourcePT any] interface {
+	BaseResourceActuator[osResourcePT]
+
 	DeleteResource(ctx context.Context, osResource osResourcePT) error
 }
 
-func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator ResourceActuator[osResourcePT]) ([]string, osResourcePT, error) {
+func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator CreateResourceActuator[osResourcePT]) ([]string, osResourcePT, error) {
 	// Get by status ID
 	if hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx); hasStatusID {
 		if orcerrors.IsNotFound(err) {
@@ -104,7 +113,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	return actuator.CreateResource(ctx)
 }
 
-func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, obj ResourceActuator[osResourcePT], onComplete func() error) (osResourcePT, ctrl.Result, error) {
+func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, obj DeleteResourceActuator[osResourcePT], onComplete func() error) (osResourcePT, ctrl.Result, error) {
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
 	hasStatusID, osResource, err := obj.GetOSResourceByStatusID(ctx)
 	if err != nil {
