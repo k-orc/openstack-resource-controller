@@ -53,9 +53,6 @@ func ssaFieldOwner(txn string) client.FieldOwner {
 const (
 	// The time to wait before reconciling again when we are expecting glance to finish some task and update status.
 	externalUpdatePollingPeriod = 15 * time.Second
-
-	// The time to wait between polling for resource deletion
-	deletePollingPeriod = 1 * time.Second
 )
 
 type serverReconcilerConstructor struct {
