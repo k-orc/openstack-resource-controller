@@ -101,6 +101,10 @@ func (obj portActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *por
 }
 
 func (obj portActuator) GetOSResourceBySpec(ctx context.Context) (*ports.Port, error) {
+	if obj.Spec.Resource == nil {
+		return nil, nil
+	}
+
 	listOpts := listOptsFromCreation(obj.Port)
 	return getResourceFromList(ctx, listOpts, obj.osClient)
 }

@@ -93,6 +93,10 @@ func (obj networkActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *
 }
 
 func (obj networkActuator) GetOSResourceBySpec(ctx context.Context) (*networkExt, error) {
+	if obj.Spec.Resource == nil {
+		return nil, nil
+	}
+
 	listOpts := listOptsFromCreation(obj.Network)
 	return getResourceFromList(ctx, listOpts, obj.osClient)
 }

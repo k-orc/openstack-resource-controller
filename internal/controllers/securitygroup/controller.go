@@ -41,8 +41,6 @@ const (
 	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
 )
 
 // ssaFieldOwner returns the field owner for a specific named SSA transaction.
@@ -53,9 +51,6 @@ func ssaFieldOwner(txn string) client.FieldOwner {
 const (
 	// The time to wait before reconciling again when we are expecting glance to finish some task and update status.
 	externalUpdatePollingPeriod = 15 * time.Second
-
-	// The time to wait between checking if a delete was successful
-	deletePollingPeriod = 5 * time.Second
 )
 
 type securitygroupReconcilerConstructor struct {

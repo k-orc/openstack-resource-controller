@@ -99,6 +99,10 @@ func (obj routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *r
 }
 
 func (obj routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
+	if obj.Spec.Resource == nil {
+		return nil, nil
+	}
+
 	listOpts := listOptsFromCreation(obj.Router)
 	return getResourceFromList(ctx, listOpts, obj.osClient)
 }
