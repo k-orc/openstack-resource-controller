@@ -33,6 +33,7 @@ import (
 
 const (
 	ServerStatusActive = "ACTIVE"
+	ServerStatusError  = "ERROR"
 )
 
 // setStatusID sets status.ID in its own SSA transaction.
@@ -79,8 +80,7 @@ func getOSResourceStatus(osResource *servers.Server) *applyconfigv1alpha1.Server
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
 		WithAccessIPv4(osResource.AccessIPv4).
-		WithAccessIPv6(osResource.AccessIPv6).
-		WithFault(osResource.Fault.Message)
+		WithAccessIPv6(osResource.AccessIPv6)
 	return status
 }
 

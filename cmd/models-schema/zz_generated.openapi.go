@@ -111,6 +111,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerImport(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerList":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec":              schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceSpec":          schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref),
@@ -4587,18 +4588,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref co
 							Format:      "",
 						},
 					},
-					"image": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"flavor": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
 				},
 			},
 		},
@@ -4682,6 +4671,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref comm
 	}
 }
 
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"portRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "PortRef is a reference to a Port object. Server creation will wait for this port to be created and available.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -4696,21 +4704,45 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 							Format:      "",
 						},
 					},
-					"image": {
+					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
-					"flavor": {
+					"flavorRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"ports": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "Ports defines a list of ports which will be attached to the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec"),
+									},
+								},
+							},
 						},
 					},
 				},
+				Required: []string{"imageRef", "flavorRef"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec"},
 	}
 }
 
@@ -4721,14 +4753,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 				Description: "ServerResourceStatus represents the observed state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"id": {
-						SchemaProps: spec.SchemaProps{
-							Description: "ID uniquely identifies this server amongst all other servers, including those not accessible to the current tenant.",
-							Default:     "",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Name is the human-readable name of the resource. Might not be unique.",
@@ -4771,27 +4795,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 							Format:      "",
 						},
 					},
-					"flavorID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "FlavorID indicates the hardware configuration of the deployed server.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"addresses": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Addresses includes a list of all IP addresses assigned to the server, keyed by pool.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Metadata includes all user-specified key-value pairs attached to the server.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"keyName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "KeyName indicates which public key was injected into the server on launch.",
@@ -4799,22 +4802,27 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 							Format:      "",
 						},
 					},
-					"securityGroupIDs": {
-						SchemaProps: spec.SchemaProps{
-							Description: "SecurityGroupIDs includes the security groups that this instance has applied to it.",
-							Type:        []string{"string"},
-							Format:      "",
+					"securityGroups": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
 						},
-					},
-					"fault": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Fault contains failure information about a server.",
-							Type:        []string{"string"},
-							Format:      "",
+							Description: "SecurityGroups includes the security groups that this instance has applied to it.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
-				Required: []string{"id"},
 			},
 		},
 	}

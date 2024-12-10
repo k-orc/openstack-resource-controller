@@ -22,22 +22,22 @@ import (
 	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
-// ServerFilterApplyConfiguration represents a declarative configuration of the ServerFilter type for use
+// ServerPortSpecApplyConfiguration represents a declarative configuration of the ServerPortSpec type for use
 // with apply.
-type ServerFilterApplyConfiguration struct {
-	Name *v1alpha1.OpenStackName `json:"name,omitempty"`
+type ServerPortSpecApplyConfiguration struct {
+	PortRef *v1alpha1.ORCNameRef `json:"portRef,omitempty"`
 }
 
-// ServerFilterApplyConfiguration constructs a declarative configuration of the ServerFilter type for use with
+// ServerPortSpecApplyConfiguration constructs a declarative configuration of the ServerPortSpec type for use with
 // apply.
-func ServerFilter() *ServerFilterApplyConfiguration {
-	return &ServerFilterApplyConfiguration{}
+func ServerPortSpec() *ServerPortSpecApplyConfiguration {
+	return &ServerPortSpecApplyConfiguration{}
 }
 
-// WithName sets the Name field in the declarative configuration to the given value
+// WithPortRef sets the PortRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *ServerFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *ServerFilterApplyConfiguration {
-	b.Name = &value
+// If called multiple times, the PortRef field is set to the value of the last call.
+func (b *ServerPortSpecApplyConfiguration) WithPortRef(value v1alpha1.ORCNameRef) *ServerPortSpecApplyConfiguration {
+	b.PortRef = &value
 	return b
 }

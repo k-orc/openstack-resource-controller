@@ -18,6 +18,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"k8s.io/client-go/tools/record"
@@ -26,10 +27,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	"github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
@@ -51,7 +54,7 @@ func ssaFieldOwner(txn string) client.FieldOwner {
 }
 
 const (
-	// The time to wait before reconciling again when we are expecting glance to finish some task and update status.
+	// The time to wait before reconciling again when we are expecting OpenStack to finish some task and update status.
 	externalUpdatePollingPeriod = 15 * time.Second
 )
 
@@ -74,6 +77,51 @@ type orcServerReconciler struct {
 	scopeFactory scope.Factory
 }
 
+var (
+	flavorDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
+		"spec.resource.flavorRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			return []string{string(resource.FlavorRef)}
+		},
+	)
+
+	imageDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
+		"spec.resource.imageRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			return []string{string(resource.ImageRef)}
+		},
+	)
+
+	portDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
+		"spec.resource.ports",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			refs := make([]string, 0, len(resource.Ports))
+			for i := range resource.Ports {
+				port := &resource.Ports[i]
+				if port.PortRef != nil {
+					refs = append(refs, string(*port.PortRef))
+				}
+			}
+			return refs
+		},
+	)
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", "server")
@@ -84,8 +132,45 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		scopeFactory: c.scopeFactory,
 	}
 
+	if err := errors.Join(
+		flavorDependency.AddIndexer(ctx, mgr),
+		// No deletion guard for flavor, because flavors can be safely deleted
+		// while referenced by a server
+		imageDependency.AddIndexer(ctx, mgr),
+		// Image can sometimes, but not always (e.g. when an RBD-backed image
+		// has been cloned), be safely deleted while referenced by a server. We
+		// just prevent it always.
+		imageDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		portDependency.AddIndexer(ctx, mgr),
+		portDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+	); err != nil {
+		return err
+	}
+
+	flavorWatchEventHandler, err := flavorDependency.WatchEventHandler(log, mgr.GetClient())
+	if err != nil {
+		return err
+	}
+	imageWatchEventHandler, err := imageDependency.WatchEventHandler(log, mgr.GetClient())
+	if err != nil {
+		return err
+	}
+	portWatchEventHandler, err := portDependency.WatchEventHandler(log, mgr.GetClient())
+	if err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Server{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
+		For(&orcv1alpha1.Server{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
 		WithOptions(options).
+		Watches(&orcv1alpha1.Flavor{}, flavorWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
+		).
+		Watches(&orcv1alpha1.Image{}, imageWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Image{})),
+		).
+		Watches(&orcv1alpha1.Port{}, portWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
 		Complete(&reconciler)
 }

@@ -265,6 +265,11 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcImage *orcv
 		}
 		log.V(4).Info("Not deleting Glance image due to policy", logPolicy...)
 	} else {
+		if len(orcImage.Finalizers) > 1 {
+			log.V(4).Info("Deferring resource cleanup due to remaining external finalizers")
+			return ctrl.Result{}, nil
+		}
+
 		imageClient, err := r.getImageClient(ctx, orcImage)
 		if err != nil {
 			return ctrl.Result{}, err

@@ -16,6 +16,14 @@ limitations under the License.
 
 package v1alpha1
 
+// +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:MaxProperties:=1
+type ServerPortSpec struct {
+	// PortRef is a reference to a Port object. Server creation will wait for
+	// this port to be created and available.
+	PortRef *ORCNameRef `json:"portRef,omitempty"`
+}
+
 // ServerResourceSpec contains the desired state of a server
 type ServerResourceSpec struct {
 	// Name will be the name of the created resource. If not specified, the
@@ -23,9 +31,14 @@ type ServerResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	Image ORCNameRef `json:"image,omitempty"`
+	ImageRef ORCNameRef `json:"imageRef"`
 
-	Flavor ORCNameRef `json:"flavor,omitempty"`
+	FlavorRef ORCNameRef `json:"flavorRef"`
+
+	// Ports defines a list of ports which will be attached to the server.
+	// +listType=atomic
+	// +kubebuilder:validation:MaxItems:=32
+	Ports []ServerPortSpec `json:"ports,omitempty"`
 }
 
 // ServerFilter defines an existing resource by its properties
@@ -34,18 +47,10 @@ type ServerFilter struct {
 	// Name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
-
-	Image ORCNameRef `json:"image,omitempty"`
-
-	Flavor ORCNameRef `json:"flavor,omitempty"`
 }
 
 // ServerResourceStatus represents the observed state of the resource.
 type ServerResourceStatus struct {
-	// ID uniquely identifies this server amongst all other servers,
-	// including those not accessible to the current tenant.
-	ID string `json:"id"`
-
 	// Name is the human-readable name of the resource. Might not be unique.
 	// +optional
 	Name string `json:"name,omitempty"`
@@ -68,24 +73,12 @@ type ServerResourceStatus struct {
 	// ImageID indicates the OS image used to deploy the server.
 	ImageID string `json:"imageID,omitempty"`
 
-	// FlavorID indicates the hardware configuration of the deployed server.
-	FlavorID string `json:"flavorID,omitempty"`
-
-	// Addresses includes a list of all IP addresses assigned to the server,
-	// keyed by pool.
-	Addresses string `json:"addresses,omitempty"`
-
-	// Metadata includes all user-specified key-value pairs attached to the
-	// server.
-	Metadata string `json:"metadata,omitempty"`
-
 	// KeyName indicates which public key was injected into the server on launch.
 	KeyName string `json:"keyName,omitempty"`
 
-	// SecurityGroupIDs includes the security groups that this instance has
+	// SecurityGroups includes the security groups that this instance has
 	// applied to it.
-	SecurityGroupIDs string `json:"securityGroupIDs,omitempty"`
-
-	// Fault contains failure information about a server.
-	Fault string `json:"fault,omitempty"`
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
+	SecurityGroups []string `json:"securityGroups,omitempty"`
 }

@@ -93,14 +93,6 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
-                      flavor:
-                        maxLength: 253
-                        minLength: 1
-                        type: string
-                      image:
-                        maxLength: 253
-                        minLength: 1
-                        type: string
                       name:
                         description: Name of the existing resource
                         maxLength: 1024
@@ -153,11 +145,11 @@ spec:
 
                   Resource must be specified if the management policy is `managed`.
                 properties:
-                  flavor:
+                  flavorRef:
                     maxLength: 253
                     minLength: 1
                     type: string
-                  image:
+                  imageRef:
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -168,6 +160,27 @@ spec:
                     maxLength: 1024
                     minLength: 1
                     type: string
+                  ports:
+                    description: Ports defines a list of ports which will be attached
+                      to the server.
+                    items:
+                      maxProperties: 1
+                      minProperties: 1
+                      properties:
+                        portRef:
+                          description: |-
+                            PortRef is a reference to a Port object. Server creation will wait for
+                            this port to be created and available.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
+                required:
+                - flavorRef
+                - imageRef
                 type: object
             required:
             - cloudCredentialsRef
@@ -280,26 +293,9 @@ spec:
                       AccessIPv6 contains the IPv6 addresses of the server, suitable for
                       remote access for administration.
                     type: string
-                  addresses:
-                    description: |-
-                      Addresses includes a list of all IP addresses assigned to the server,
-                      keyed by pool.
-                    type: string
-                  fault:
-                    description: Fault contains failure information about a server.
-                    type: string
-                  flavorID:
-                    description: FlavorID indicates the hardware configuration of
-                      the deployed server.
-                    type: string
                   hostID:
                     description: HostID is the host where the server is located in
                       the cloud.
-                    type: string
-                  id:
-                    description: |-
-                      ID uniquely identifies this server amongst all other servers,
-                      including those not accessible to the current tenant.
                     type: string
                   imageID:
                     description: ImageID indicates the OS image used to deploy the
@@ -309,27 +305,24 @@ spec:
                     description: KeyName indicates which public key was injected into
                       the server on launch.
                     type: string
-                  metadata:
-                    description: |-
-                      Metadata includes all user-specified key-value pairs attached to the
-                      server.
-                    type: string
                   name:
                     description: Name is the human-readable name of the resource.
                       Might not be unique.
                     type: string
-                  securityGroupIDs:
+                  securityGroups:
                     description: |-
-                      SecurityGroupIDs includes the security groups that this instance has
+                      SecurityGroups includes the security groups that this instance has
                       applied to it.
-                    type: string
+                    items:
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: set
                   status:
                     description: |-
                       Status contains the current operational status of the server,
                       such as IN_PROGRESS or ACTIVE.
                     type: string
-                required:
-                - id
                 type: object
             type: object
         type: object

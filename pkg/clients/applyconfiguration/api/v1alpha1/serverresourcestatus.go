@@ -21,33 +21,20 @@ package v1alpha1
 // ServerResourceStatusApplyConfiguration represents a declarative configuration of the ServerResourceStatus type for use
 // with apply.
 type ServerResourceStatusApplyConfiguration struct {
-	ID               *string `json:"id,omitempty"`
-	Name             *string `json:"name,omitempty"`
-	HostID           *string `json:"hostID,omitempty"`
-	Status           *string `json:"status,omitempty"`
-	AccessIPv4       *string `json:"accessIPv4,omitempty"`
-	AccessIPv6       *string `json:"accessIPv6,omitempty"`
-	ImageID          *string `json:"imageID,omitempty"`
-	FlavorID         *string `json:"flavorID,omitempty"`
-	Addresses        *string `json:"addresses,omitempty"`
-	Metadata         *string `json:"metadata,omitempty"`
-	KeyName          *string `json:"keyName,omitempty"`
-	SecurityGroupIDs *string `json:"securityGroupIDs,omitempty"`
-	Fault            *string `json:"fault,omitempty"`
+	Name           *string  `json:"name,omitempty"`
+	HostID         *string  `json:"hostID,omitempty"`
+	Status         *string  `json:"status,omitempty"`
+	AccessIPv4     *string  `json:"accessIPv4,omitempty"`
+	AccessIPv6     *string  `json:"accessIPv6,omitempty"`
+	ImageID        *string  `json:"imageID,omitempty"`
+	KeyName        *string  `json:"keyName,omitempty"`
+	SecurityGroups []string `json:"securityGroups,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
 // apply.
 func ServerResourceStatus() *ServerResourceStatusApplyConfiguration {
 	return &ServerResourceStatusApplyConfiguration{}
-}
-
-// WithID sets the ID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ID field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithID(value string) *ServerResourceStatusApplyConfiguration {
-	b.ID = &value
-	return b
 }
 
 // WithName sets the Name field in the declarative configuration to the given value
@@ -98,30 +85,6 @@ func (b *ServerResourceStatusApplyConfiguration) WithImageID(value string) *Serv
 	return b
 }
 
-// WithFlavorID sets the FlavorID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the FlavorID field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithFlavorID(value string) *ServerResourceStatusApplyConfiguration {
-	b.FlavorID = &value
-	return b
-}
-
-// WithAddresses sets the Addresses field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Addresses field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithAddresses(value string) *ServerResourceStatusApplyConfiguration {
-	b.Addresses = &value
-	return b
-}
-
-// WithMetadata sets the Metadata field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Metadata field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithMetadata(value string) *ServerResourceStatusApplyConfiguration {
-	b.Metadata = &value
-	return b
-}
-
 // WithKeyName sets the KeyName field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the KeyName field is set to the value of the last call.
@@ -130,18 +93,12 @@ func (b *ServerResourceStatusApplyConfiguration) WithKeyName(value string) *Serv
 	return b
 }
 
-// WithSecurityGroupIDs sets the SecurityGroupIDs field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the SecurityGroupIDs field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithSecurityGroupIDs(value string) *ServerResourceStatusApplyConfiguration {
-	b.SecurityGroupIDs = &value
-	return b
-}
-
-// WithFault sets the Fault field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Fault field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithFault(value string) *ServerResourceStatusApplyConfiguration {
-	b.Fault = &value
+// WithSecurityGroups adds the given value to the SecurityGroups field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the SecurityGroups field.
+func (b *ServerResourceStatusApplyConfiguration) WithSecurityGroups(values ...string) *ServerResourceStatusApplyConfiguration {
+	for i := range values {
+		b.SecurityGroups = append(b.SecurityGroups, values[i])
+	}
 	return b
 }

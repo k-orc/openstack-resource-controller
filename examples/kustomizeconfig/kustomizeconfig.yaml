@@ -13,6 +13,10 @@ nameReference:
     kind: Flavor
   - path: spec/cloudCredentialsRef/secretName
     kind: SecurityGroup
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Image
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Server
 
 - kind: Network
   fieldSpecs:
@@ -37,3 +41,18 @@ nameReference:
   fieldSpecs:
   - path: spec/resource/routerRef
     kind: Subnet
+
+- kind: Image
+  fieldSpecs:
+  - path: spec/resource/imageRef
+    kind: Server
+
+- kind: Flavor
+  fieldSpecs:
+  - path: spec/resource/flavorRef
+    kind: Server
+
+- kind: Port
+  fieldSpecs:
+  - path: spec/resource/ports[]/portRef
+    kind: Server
