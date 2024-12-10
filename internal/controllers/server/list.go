@@ -10,11 +10,11 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func specToFilter(resourceSpec orcv1alpha1.ServerResourceSpec) orcv1alpha1.ServerFilter {
+func specToFilter(orcObject *orcv1alpha1.Server) orcv1alpha1.ServerFilter {
 	// gosimple thinks this should be a type conversion (S1016), but we intend
 	// these structs to diverge soon so this is better
 	return orcv1alpha1.ServerFilter{ //nolint:gosimple
-		Name: resourceSpec.Name,
+		Name: ptr.To(getResourceName(orcObject)),
 	}
 }
 

@@ -18,8 +18,10 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -35,9 +37,17 @@ type serverActuator struct {
 	osClient osclients.ComputeClient
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Server) (serverActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
+type serverCreateActuator struct {
+	serverActuator
+	k8sClient client.Client
+}
 
+func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Server) (serverActuator, error) {
+	if orcObject == nil {
+		return serverActuator{}, fmt.Errorf("orcObject may not be nil")
+	}
+
+	log := ctrl.LoggerFrom(ctx)
 	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
 	if err != nil {
 		return serverActuator{}, err
@@ -53,8 +63,19 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}, nil
 }
 
+func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Server) (serverCreateActuator, error) {
+	actuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
+	if err != nil {
+		return serverCreateActuator{}, err
+	}
+	return serverCreateActuator{
+		serverActuator: actuator,
+		k8sClient:      k8sClient,
+	}, nil
+}
+
 var _ generic.DeleteResourceActuator[*servers.Server] = serverActuator{}
-var _ generic.CreateResourceActuator[*servers.Server] = serverActuator{}
+var _ generic.CreateResourceActuator[*servers.Server] = serverCreateActuator{}
 
 func (obj serverActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
@@ -82,10 +103,10 @@ func (obj serverActuator) GetOSResourceBySpec(ctx context.Context) (*servers.Ser
 		return nil, nil
 	}
 
-	return GetByFilter(ctx, obj.osClient, specToFilter(*obj.Spec.Resource))
+	return GetByFilter(ctx, obj.osClient, specToFilter(obj.Server))
 }
 
-func (obj serverActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
+func (obj serverCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
 	if obj.Spec.Import == nil || obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
@@ -94,7 +115,7 @@ func (obj serverActuator) GetOSResourceByImportID(ctx context.Context) (bool, *s
 	return true, osResource, err
 }
 
-func (obj serverActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
+func (obj serverCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
 	if obj.Spec.Import == nil || obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
@@ -103,15 +124,73 @@ func (obj serverActuator) GetOSResourceByImportFilter(ctx context.Context) (bool
 	return true, osResource, err
 }
 
-func (obj serverActuator) CreateResource(ctx context.Context) ([]string, *servers.Server, error) {
+func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]string, *servers.Server, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
+	image := &orcv1alpha1.Image{}
+	{
+		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: obj.Namespace}
+		if err := obj.k8sClient.Get(ctx, imageKey, image); err != nil {
+			if apierrors.IsNotFound(err) {
+				return []string{generic.WaitingOnCreationMsg("Image", imageKey.Name)}, nil, nil
+			}
+			return nil, nil, fmt.Errorf("fetching image %s: %w", imageKey.Name, err)
+		}
+		if !orcv1alpha1.IsAvailable(image) || image.Status.ID == nil {
+			return []string{generic.WaitingOnAvailableMsg("Image", imageKey.Name)}, nil, nil
+		}
+	}
+
+	flavor := &orcv1alpha1.Flavor{}
+	{
+		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
+		if err := obj.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
+			if apierrors.IsNotFound(err) {
+				return []string{generic.WaitingOnCreationMsg("Flavor", flavorKey.Name)}, nil, nil
+			}
+			return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
+		}
+		if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
+			return []string{generic.WaitingOnAvailableMsg("Flavor", flavorKey.Name)}, nil, nil
+		}
+	}
+
+	portList := make([]servers.Network, len(resource.Ports))
+	{
+		for i := range resource.Ports {
+			portSpec := &resource.Ports[i]
+			port := &portList[i]
+
+			if portSpec.PortRef == nil {
+				// Should have been caught by API validation
+				return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "empty port spec")
+			}
+
+			portObject := &orcv1alpha1.Port{}
+			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: obj.Namespace}
+			if err := obj.k8sClient.Get(ctx, portKey, portObject); err != nil {
+				if apierrors.IsNotFound(err) {
+					return []string{generic.WaitingOnCreationMsg("Port", portKey.Name)}, nil, nil
+				}
+				return nil, nil, fmt.Errorf("fetching port %s: %w", portKey.Name, err)
+			}
+			if !orcv1alpha1.IsAvailable(portObject) || portObject.Status.ID == nil {
+				return []string{generic.WaitingOnAvailableMsg("Port", portKey.Name)}, nil, nil
+			}
+
+			port.Port = *portObject.Status.ID
+		}
+	}
+
 	createOpts := servers.CreateOpts{
-		Name: string(getResourceName(obj.Server)),
+		Name:      string(getResourceName(obj.Server)),
+		ImageRef:  *image.Status.ID,
+		FlavorRef: *flavor.Status.ID,
+		Networks:  portList,
 	}
 
 	schedulerHints := servers.SchedulerHintOpts{}

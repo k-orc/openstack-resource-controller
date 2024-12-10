@@ -88,9 +88,9 @@ func (r *orcServerReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	}
 
-	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	actuator, err := newCreateActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
-		return ctrl.Result{}, nil
+		return ctrl.Result{}, err
 	}
 	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
 	if err != nil {
@@ -108,6 +108,16 @@ func (r *orcServerReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		if err := r.setStatusID(ctx, orcObject, osResource.ID); err != nil {
 			return ctrl.Result{}, err
 		}
+	}
+
+	switch osResource.Status {
+	case ServerStatusError:
+		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "Server is in ERROR state")
+	case ServerStatusActive:
+		// fall through
+	default:
+		log.V(3).Info("Waiting for OpenStack resource to be ACTIVE")
+		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, nil
 	}
 
 	log = log.WithValues("ID", osResource.ID)
@@ -154,7 +164,7 @@ func (r *orcServerReconciler) reconcileDelete(ctx context.Context, orcObject *or
 		deleted = true
 
 		// Clear the finalizer
-		applyConfig := orcapplyconfigv1alpha1.SecurityGroup(orcObject.Name, orcObject.Namespace).WithUID(orcObject.UID)
+		applyConfig := orcapplyconfigv1alpha1.Server(orcObject.Name, orcObject.Namespace).WithUID(orcObject.UID)
 		return r.client.Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	})
 	addStatus(withResource(osResource))

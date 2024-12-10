@@ -33,6 +33,7 @@ import (
 
 const (
 	ServerStatusActive = "ACTIVE"
+	ServerStatusError  = "ERROR"
 )
 
 // setStatusID sets status.ID in its own SSA transaction.

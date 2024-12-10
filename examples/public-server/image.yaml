@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: public-server-image
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  resource:
+    tags:
+    - orc-test
+    content:
+      diskFormat: qcow2
+      download:
+        url: https://download.cirros-cloud.net/0.6.3/cirros-0.6.3-x86_64-disk.img
