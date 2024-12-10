@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -165,7 +166,7 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *po
 		subnet := &orcv1alpha1.Subnet{}
 		key := client.ObjectKey{Name: string(*resource.Addresses[i].SubnetRef), Namespace: obj.Namespace}
 		if err := obj.k8sClient.Get(ctx, key, subnet); err != nil {
-			if orcerrors.IsNotFound(err) {
+			if apierrors.IsNotFound(err) {
 				return []string{generic.WaitingOnCreationMsg("Subnet", key.Name)}, nil, nil
 			}
 			return nil, nil, fmt.Errorf("fetching subnet %s: %w", key.Name, err)
@@ -189,7 +190,7 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *po
 		securityGroup := &orcv1alpha1.SecurityGroup{}
 		key := client.ObjectKey{Name: string(resource.SecurityGroupRefs[i]), Namespace: obj.Namespace}
 		if err := obj.k8sClient.Get(ctx, key, securityGroup); err != nil {
-			if orcerrors.IsNotFound(err) {
+			if apierrors.IsNotFound(err) {
 				return []string{generic.WaitingOnCreationMsg("Subnet", key.Name)}, nil, nil
 			}
 			return nil, nil, fmt.Errorf("fetching securitygroup %s: %w", key.Name, err)
