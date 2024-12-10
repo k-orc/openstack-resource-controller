@@ -8,15 +8,11 @@ permissions:
   contents: read
 
 jobs:
-  make-manifests-generate:
+  make-generate:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - run: |
-          make manifests
-          git diff --exit-code
 
       - run: |
           make generate

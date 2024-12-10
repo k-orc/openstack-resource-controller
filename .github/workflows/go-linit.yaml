@@ -3,12 +3,12 @@ on:
     branches:
     - main
   pull_request:
-name: go fmt
+name: go lint
 permissions:
   contents: read
 
 jobs:
-  go-fmt:
+  go-lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,4 +19,4 @@ jobs:
           go-version: '1'
 
       - run: |
-          test -z "$(gofmt -e -d . | tee /dev/stderr)"
+          make lint 
