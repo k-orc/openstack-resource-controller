@@ -138,29 +138,28 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]string, 
 		return nil, nil, err
 	}
 
-	// TODO(mandre) bulk create security group rules.
-	// Need to implement it in gophercloud first
-	for _, rule := range resource.Rules {
-		createOpts := rules.CreateOpts{
-			SecGroupID:     osResource.ID,
-			Description:    string(ptr.Deref(rule.Description, "")),
-			Direction:      rules.RuleDirection(ptr.Deref(rule.Direction, "")),
-			RemoteGroupID:  string(ptr.Deref(rule.RemoteGroupID, "")),
-			RemoteIPPrefix: string(ptr.Deref(rule.RemoteIPPrefix, "")),
-			Protocol:       rules.RuleProtocol(ptr.Deref(rule.Protocol, "")),
-			EtherType:      rules.RuleEtherType(ptr.Deref(rule.Ethertype, "")),
-			PortRangeMin:   int(*rule.PortRangeMin),
-			PortRangeMax:   int(*rule.PortRangeMax),
-		}
+	ruleCreateOpts := make([]rules.CreateOpts, len(resource.Rules))
 
-		_, err := obj.osClient.CreateSecGroupRule(ctx, &createOpts)
-		if err != nil {
-			// We should require the spec to be updated before retrying a create which returned a conflict
-			if orcerrors.IsConflict(err) {
-				err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-			}
-			return nil, nil, err
+	for i := range resource.Rules {
+		ruleCreateOpts[i] = rules.CreateOpts{
+			SecGroupID:     osResource.ID,
+			Description:    string(ptr.Deref(resource.Rules[i].Description, "")),
+			Direction:      rules.RuleDirection(ptr.Deref(resource.Rules[i].Direction, "")),
+			RemoteGroupID:  string(ptr.Deref(resource.Rules[i].RemoteGroupID, "")),
+			RemoteIPPrefix: string(ptr.Deref(resource.Rules[i].RemoteIPPrefix, "")),
+			Protocol:       rules.RuleProtocol(ptr.Deref(resource.Rules[i].Protocol, "")),
+			EtherType:      rules.RuleEtherType(ptr.Deref(resource.Rules[i].Ethertype, "")),
+			PortRangeMin:   int(*resource.Rules[i].PortRangeMin),
+			PortRangeMax:   int(*resource.Rules[i].PortRangeMax),
 		}
+	}
+
+	if _, err := obj.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); err != nil {
+		// We should require the spec to be updated before retrying a create which returned a conflict
+		if orcerrors.IsConflict(err) {
+			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+		}
+		return nil, nil, err
 	}
 
 	return nil, osResource, nil
