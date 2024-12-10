@@ -137,7 +137,7 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 		Complete(deletionGuard)
 
 	if err != nil {
-		return fmt.Errorf("failed to construct %s deletion guard for %s controller", guardedName, dependencyName)
+		return fmt.Errorf("failed to construct %s deletion guard for %s controller: %w", guardedName, dependencyName, err)
 	}
 
 	return nil
