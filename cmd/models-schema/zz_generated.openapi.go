@@ -4587,18 +4587,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref co
 							Format:      "",
 						},
 					},
-					"image": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"flavor": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
 				},
 			},
 		},
@@ -4696,19 +4684,22 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 							Format:      "",
 						},
 					},
-					"image": {
+					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
-					"flavor": {
+					"flavorRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
 				},
+				Required: []string{"imageRef", "flavorRef"},
 			},
 		},
 	}
@@ -4721,14 +4712,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 				Description: "ServerResourceStatus represents the observed state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"id": {
-						SchemaProps: spec.SchemaProps{
-							Description: "ID uniquely identifies this server amongst all other servers, including those not accessible to the current tenant.",
-							Default:     "",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Name is the human-readable name of the resource. Might not be unique.",
@@ -4771,27 +4754,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 							Format:      "",
 						},
 					},
-					"flavorID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "FlavorID indicates the hardware configuration of the deployed server.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"addresses": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Addresses includes a list of all IP addresses assigned to the server, keyed by pool.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Metadata includes all user-specified key-value pairs attached to the server.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"keyName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "KeyName indicates which public key was injected into the server on launch.",
@@ -4799,22 +4761,27 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 							Format:      "",
 						},
 					},
-					"securityGroupIDs": {
-						SchemaProps: spec.SchemaProps{
-							Description: "SecurityGroupIDs includes the security groups that this instance has applied to it.",
-							Type:        []string{"string"},
-							Format:      "",
+					"securityGroups": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
 						},
-					},
-					"fault": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Fault contains failure information about a server.",
-							Type:        []string{"string"},
-							Format:      "",
+							Description: "SecurityGroups includes the security groups that this instance has applied to it.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
-				Required: []string{"id"},
 			},
 		},
 	}

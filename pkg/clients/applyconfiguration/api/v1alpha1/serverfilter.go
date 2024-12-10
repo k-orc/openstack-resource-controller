@@ -25,9 +25,7 @@ import (
 // ServerFilterApplyConfiguration represents a declarative configuration of the ServerFilter type for use
 // with apply.
 type ServerFilterApplyConfiguration struct {
-	Name   *v1alpha1.OpenStackName `json:"name,omitempty"`
-	Image  *v1alpha1.ORCNameRef    `json:"image,omitempty"`
-	Flavor *v1alpha1.ORCNameRef    `json:"flavor,omitempty"`
+	Name *v1alpha1.OpenStackName `json:"name,omitempty"`
 }
 
 // ServerFilterApplyConfiguration constructs a declarative configuration of the ServerFilter type for use with
@@ -41,21 +39,5 @@ func ServerFilter() *ServerFilterApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *ServerFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *ServerFilterApplyConfiguration {
 	b.Name = &value
-	return b
-}
-
-// WithImage sets the Image field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Image field is set to the value of the last call.
-func (b *ServerFilterApplyConfiguration) WithImage(value v1alpha1.ORCNameRef) *ServerFilterApplyConfiguration {
-	b.Image = &value
-	return b
-}
-
-// WithFlavor sets the Flavor field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Flavor field is set to the value of the last call.
-func (b *ServerFilterApplyConfiguration) WithFlavor(value v1alpha1.ORCNameRef) *ServerFilterApplyConfiguration {
-	b.Flavor = &value
 	return b
 }

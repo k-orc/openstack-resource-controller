@@ -14,9 +14,7 @@ func specToFilter(resourceSpec orcv1alpha1.ServerResourceSpec) orcv1alpha1.Serve
 	// gosimple thinks this should be a type conversion (S1016), but we intend
 	// these structs to diverge soon so this is better
 	return orcv1alpha1.ServerFilter{ //nolint:gosimple
-		Name:   resourceSpec.Name,
-		Image:  resourceSpec.Image,
-		Flavor: resourceSpec.Flavor,
+		Name: resourceSpec.Name,
 	}
 }
 

@@ -1384,12 +1384,6 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerFilter
   map:
     fields:
-    - name: flavor
-      type:
-        scalar: string
-    - name: image
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
@@ -1405,12 +1399,14 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceSpec
   map:
     fields:
-    - name: flavor
+    - name: flavorRef
       type:
         scalar: string
-    - name: image
+      default: ""
+    - name: imageRef
       type:
         scalar: string
+      default: ""
     - name: name
       type:
         scalar: string
@@ -1423,37 +1419,24 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: accessIPv6
       type:
         scalar: string
-    - name: addresses
-      type:
-        scalar: string
-    - name: fault
-      type:
-        scalar: string
-    - name: flavorID
-      type:
-        scalar: string
     - name: hostID
       type:
         scalar: string
-    - name: id
-      type:
-        scalar: string
-      default: ""
     - name: imageID
       type:
         scalar: string
     - name: keyName
       type:
         scalar: string
-    - name: metadata
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
-    - name: securityGroupIDs
+    - name: securityGroups
       type:
-        scalar: string
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: status
       type:
         scalar: string

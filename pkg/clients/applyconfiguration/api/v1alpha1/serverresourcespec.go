@@ -25,9 +25,9 @@ import (
 // ServerResourceSpecApplyConfiguration represents a declarative configuration of the ServerResourceSpec type for use
 // with apply.
 type ServerResourceSpecApplyConfiguration struct {
-	Name   *v1alpha1.OpenStackName `json:"name,omitempty"`
-	Image  *v1alpha1.ORCNameRef    `json:"image,omitempty"`
-	Flavor *v1alpha1.ORCNameRef    `json:"flavor,omitempty"`
+	Name      *v1alpha1.OpenStackName `json:"name,omitempty"`
+	ImageRef  *v1alpha1.ORCNameRef    `json:"imageRef,omitempty"`
+	FlavorRef *v1alpha1.ORCNameRef    `json:"flavorRef,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -44,18 +44,18 @@ func (b *ServerResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStack
 	return b
 }
 
-// WithImage sets the Image field in the declarative configuration to the given value
+// WithImageRef sets the ImageRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Image field is set to the value of the last call.
-func (b *ServerResourceSpecApplyConfiguration) WithImage(value v1alpha1.ORCNameRef) *ServerResourceSpecApplyConfiguration {
-	b.Image = &value
+// If called multiple times, the ImageRef field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithImageRef(value v1alpha1.ORCNameRef) *ServerResourceSpecApplyConfiguration {
+	b.ImageRef = &value
 	return b
 }
 
-// WithFlavor sets the Flavor field in the declarative configuration to the given value
+// WithFlavorRef sets the FlavorRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Flavor field is set to the value of the last call.
-func (b *ServerResourceSpecApplyConfiguration) WithFlavor(value v1alpha1.ORCNameRef) *ServerResourceSpecApplyConfiguration {
-	b.Flavor = &value
+// If called multiple times, the FlavorRef field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithFlavorRef(value v1alpha1.ORCNameRef) *ServerResourceSpecApplyConfiguration {
+	b.FlavorRef = &value
 	return b
 }
