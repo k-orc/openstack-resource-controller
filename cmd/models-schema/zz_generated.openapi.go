@@ -111,6 +111,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerImport(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerList":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec":              schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceSpec":          schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref),
@@ -4670,6 +4671,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref comm
 	}
 }
 
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"portRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "PortRef is a reference to a Port object. Server creation will wait for this port to be created and available.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -4698,10 +4718,31 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 							Format:  "",
 						},
 					},
+					"ports": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "Ports defines a list of ports which will be attached to the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec"),
+									},
+								},
+							},
+						},
+					},
 				},
 				Required: []string{"imageRef", "flavorRef"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec"},
 	}
 }
 

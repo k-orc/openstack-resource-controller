@@ -1396,6 +1396,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerPortSpec
+  map:
+    fields:
+    - name: portRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceSpec
   map:
     fields:
@@ -1410,6 +1416,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: ports
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerPortSpec
+          elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
   map:
     fields:

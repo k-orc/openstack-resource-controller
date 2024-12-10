@@ -160,6 +160,24 @@ spec:
                     maxLength: 1024
                     minLength: 1
                     type: string
+                  ports:
+                    description: Ports defines a list of ports which will be attached
+                      to the server.
+                    items:
+                      maxProperties: 1
+                      minProperties: 1
+                      properties:
+                        portRef:
+                          description: |-
+                            PortRef is a reference to a Port object. Server creation will wait for
+                            this port to be created and available.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                 required:
                 - flavorRef
                 - imageRef

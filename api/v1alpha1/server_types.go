@@ -16,6 +16,14 @@ limitations under the License.
 
 package v1alpha1
 
+// +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:MaxProperties:=1
+type ServerPortSpec struct {
+	// PortRef is a reference to a Port object. Server creation will wait for
+	// this port to be created and available.
+	PortRef *ORCNameRef `json:"portRef,omitempty"`
+}
+
 // ServerResourceSpec contains the desired state of a server
 type ServerResourceSpec struct {
 	// Name will be the name of the created resource. If not specified, the
@@ -26,6 +34,11 @@ type ServerResourceSpec struct {
 	ImageRef ORCNameRef `json:"imageRef"`
 
 	FlavorRef ORCNameRef `json:"flavorRef"`
+
+	// Ports defines a list of ports which will be attached to the server.
+	// +listType=atomic
+	// +kubebuilder:validation:MaxItems:=32
+	Ports []ServerPortSpec `json:"ports,omitempty"`
 }
 
 // ServerFilter defines an existing resource by its properties
