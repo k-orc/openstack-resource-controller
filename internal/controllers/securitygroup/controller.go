@@ -22,13 +22,11 @@ import (
 
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
@@ -76,8 +74,6 @@ type orcSecurityGroupReconciler struct {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c securitygroupReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger()
-
 	reconciler := orcSecurityGroupReconciler{
 		client:       mgr.GetClient(),
 		recorder:     mgr.GetEventRecorderFor("orc-securitygroup-controller"),
@@ -85,7 +81,7 @@ func (c securitygroupReconcilerConstructor) SetupWithManager(_ context.Context, 
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.SecurityGroup{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
+		For(&orcv1alpha1.SecurityGroup{}).
 		WithOptions(options).
 		Complete(&reconciler)
 

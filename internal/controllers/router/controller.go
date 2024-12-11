@@ -30,7 +30,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
@@ -115,7 +114,7 @@ func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.Router{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
+		For(&orcv1alpha1.Router{}).
 		Watches(&orcv1alpha1.Network{}, externalGWHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
