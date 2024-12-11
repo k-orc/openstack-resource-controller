@@ -62,7 +62,7 @@ func (r *orcImageReconciler) downloadProgressReporter(ctx context.Context, orcIm
 	return func(progress int64) {
 		if time.Now().After(nextUpdate) {
 			msg := fmt.Sprintf("Downloaded %dMB"+ofTotal, int(progress/1024/1024))
-			err := r.updateStatus(ctx, orcImage, withGlanceImage(glanceImage),
+			err := r.updateStatus(ctx, orcImage, withResource(glanceImage),
 				withProgressMessage(downloadingMessage(msg, orcImage)))
 			if err != nil {
 				// Failure to update status here is not fatal
@@ -128,7 +128,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 		}
 	}
 
-	err = r.updateStatus(ctx, orcImage, withGlanceImage(glanceImage),
+	err = r.updateStatus(ctx, orcImage, withResource(glanceImage),
 		withIncrementDownloadAttempts(),
 		withProgressMessage(downloadingMessage("Starting image upload", orcImage)))
 	if err != nil {

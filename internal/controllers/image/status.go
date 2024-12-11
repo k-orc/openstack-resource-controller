@@ -49,7 +49,7 @@ func (r *orcImageReconciler) setStatusID(ctx context.Context, orcImage *orcv1alp
 		WithStatus(orcapplyconfigv1alpha1.ImageStatus().
 			WithID(id))
 
-	return r.client.Status().Patch(ctx, orcImage, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAIDTxn))
+	return r.client.Status().Patch(ctx, orcImage, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
 type updateStatusOpts struct {
@@ -61,7 +61,7 @@ type updateStatusOpts struct {
 
 type updateStatusOpt func(*updateStatusOpts)
 
-func withGlanceImage(glanceImage *images.Image) updateStatusOpt {
+func withResource(glanceImage *images.Image) updateStatusOpt {
 	return func(opts *updateStatusOpts) {
 		opts.glanceImage = glanceImage
 	}

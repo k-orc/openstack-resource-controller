@@ -339,7 +339,7 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 				glanceImage = tt.args.glanceImage()
 			}
 
-			opts := append(tt.args.opts, withGlanceImage(glanceImage), withError(tt.args.err))
+			opts := append(tt.args.opts, withResource(glanceImage), withError(tt.args.err))
 
 			// TODO: Consider rewriting to this to test
 			// updateStatus() using fake client when we have
