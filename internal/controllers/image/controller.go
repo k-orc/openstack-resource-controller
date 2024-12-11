@@ -18,16 +18,12 @@ package image
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/go-logr/logr"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
@@ -84,8 +80,6 @@ type orcImageReconciler struct {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c imageReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger()
-
 	reconciler := orcImageReconciler{
 		client:       mgr.GetClient(),
 		recorder:     mgr.GetEventRecorderFor("orc-image-controller"),
@@ -95,45 +89,5 @@ func (c imageReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Image{}).
 		WithOptions(options).
-		WithEventFilter(needsReconcilePredicate(log)).
 		Complete(&reconciler)
-}
-
-func needsReconcilePredicate(log logr.Logger) predicate.Predicate {
-	filter := func(obj client.Object, event string) bool {
-		log := log.WithValues("predicate", "NeedsReconcile", "event", event)
-
-		orcImage, ok := obj.(*orcv1alpha1.Image)
-		if !ok {
-			log.V(0).Info("Expected Image", "type", fmt.Sprintf("%T", obj))
-			return false
-		}
-
-		// Always reconcile deleted objects. Note that we don't always
-		// get a Delete event for a deleted object. If the object was
-		// deleted while the controller was not running we will get a
-		// Create event for it when the controller syncs.
-		if !orcImage.DeletionTimestamp.IsZero() {
-			return true
-		}
-
-		if !orcv1alpha1.IsReconciliationComplete(orcImage) {
-			return true
-		}
-
-		log.V(4).Info("not reconciling image due to terminal state", "name", orcImage.GetName(), "namespace", orcImage.GetNamespace(), "generation", orcImage.GetGeneration())
-		return false
-	}
-
-	// We always reconcile create. We get a create event for every object when
-	// the controller restarts as the controller has no previously observed
-	// state at that time. This means that upgrading the controller will always
-	// re-reconcile objects. This has the advantage of being a way to address
-	// invalid state from controller bugs, but the disadvantage of potentially
-	// causing a 'thundering herd' when the controller restarts.
-	return predicate.Funcs{
-		UpdateFunc: func(e event.UpdateEvent) bool {
-			return filter(e.ObjectNew, "Update")
-		},
-	}
 }

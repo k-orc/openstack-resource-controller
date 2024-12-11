@@ -30,7 +30,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
@@ -161,7 +160,7 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.Server{}, builder.WithPredicates(ctrlcommon.NeedsReconcilePredicate(log))).
+		For(&orcv1alpha1.Server{}).
 		WithOptions(options).
 		Watches(&orcv1alpha1.Flavor{}, flavorWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
