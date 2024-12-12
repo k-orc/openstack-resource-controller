@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: public-server-allow-ssh
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  resource:
+    stateful: true
+    rules:
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 22
+      portRangeMax: 22
+      ethertype: IPv4

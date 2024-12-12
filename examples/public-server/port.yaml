@@ -13,20 +13,7 @@ spec:
     tags:
     - orc-test
     securityGroupRefs:
-    - public-server-security-group
+    - public-server-allow-ssh
     addresses:
     - subnetRef: public-server-provider-subnet-ipv4
     - subnetRef: public-server-provider-subnet-ipv6
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: SecurityGroup
-metadata:
-  name: public-server-security-group
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: dev-test-cloud-config
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: allow_ssh

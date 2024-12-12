@@ -11,6 +11,7 @@ resources:
 - image.yaml
 - flavor.yaml
 - port.yaml
+- securitygroup.yaml
 - server.yaml
 
 patches:
