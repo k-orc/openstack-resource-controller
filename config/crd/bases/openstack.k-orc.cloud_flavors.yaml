@@ -192,6 +192,7 @@ spec:
                   ram:
                     description: RAM is the memory of the flavor, measured in MB.
                     format: int32
+                    minimum: 1
                     type: integer
                   swap:
                     description: |-
@@ -202,7 +203,11 @@ spec:
                   vcpus:
                     description: Vcpus is the number of vcpus for the flavor.
                     format: int32
+                    minimum: 1
                     type: integer
+                required:
+                - ram
+                - vcpus
                 type: object
             required:
             - cloudCredentialsRef
