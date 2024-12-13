@@ -1,0 +1,25 @@
+- color: '30ABB9'
+  description: This PR will be backported to v1.0
+  name: backport-v1.0
+- color: 'BCF611'
+  description: A good issue for first-time contributors
+  name: good first issue
+- color: '9E1957'
+  description: Breaking change
+  name: semver:major
+- color: 'FBCA04'
+  description: Backwards-compatible change
+  name: semver:minor
+- color: '6E7624'
+  description: No API change
+  name: semver:patch
+- color: 'D73A4A'
+  description: Do not merge
+  name: hold
+- color: 'F9D0C4'
+  description: Additional information requested
+  name: needinfo
+
+- color: '30ABB9'
+  description: This PR targets v1.0
+  name: v1.0
