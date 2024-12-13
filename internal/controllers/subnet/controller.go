@@ -19,7 +19,6 @@ package subnet
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
@@ -54,14 +53,6 @@ const (
 func ssaFieldOwner(txn string) client.FieldOwner {
 	return client.FieldOwner(FieldOwner + "/" + txn)
 }
-
-const (
-	// The time to wait before reconciling again when we are expecting glance to finish some task and update status.
-	externalUpdatePollingPeriod = 15 * time.Second
-
-	// The time to wait between polling for subnet deletion
-	deletePollingPeriod = 1 * time.Second
-)
 
 type subnetReconcilerConstructor struct {
 	scopeFactory scope.Factory

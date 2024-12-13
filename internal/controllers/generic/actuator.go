@@ -184,6 +184,7 @@ type waitingOnType int
 const (
 	WaitingOnCreation waitingOnType = iota
 	WaitingOnReady
+	WaitingOnDeletion
 )
 
 type waitingOnORC struct {
@@ -198,11 +199,13 @@ func (e waitingOnORC) Message() string {
 	var outcome string
 	switch e.waitingOn {
 	case WaitingOnCreation:
-		outcome = "exist"
+		outcome = "created"
 	case WaitingOnReady:
-		outcome = "be ready"
+		outcome = "ready"
+	case WaitingOnDeletion:
+		outcome = "deleted"
 	}
-	return fmt.Sprintf("Waiting for %s/%s to %s", e.kind, e.name, outcome)
+	return fmt.Sprintf("Waiting for %s/%s to be %s", e.kind, e.name, outcome)
 }
 
 func newWaitingOnORC(kind, name string, event waitingOnType) WaitingOnEvent {
@@ -219,6 +222,10 @@ func WaitingOnORCExist(kind, name string) WaitingOnEvent {
 
 func WaitingOnORCReady(kind, name string) WaitingOnEvent {
 	return newWaitingOnORC(kind, name, WaitingOnReady)
+}
+
+func WaitingOnORCDeleted(kind, name string) WaitingOnEvent {
+	return newWaitingOnORC(kind, name, WaitingOnDeletion)
 }
 
 func (e waitingOnORC) Requeue() time.Duration {
