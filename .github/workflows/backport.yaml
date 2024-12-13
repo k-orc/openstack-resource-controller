@@ -7,7 +7,7 @@ on:
       - labeled
 
 jobs:
-  backport_v1.0:
+  backport_v1_0:
     name: "Backport to v1.0"
     # Only react to merged PRs for security reasons.
     # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target.
