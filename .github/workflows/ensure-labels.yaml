@@ -6,6 +6,7 @@ on:
     paths:
       - .github/labels.yaml
       - .github/workflows/ensure-labels.yaml
+
 jobs:
   ensure:
     runs-on: ubuntu-latest
