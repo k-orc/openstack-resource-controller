@@ -135,7 +135,7 @@ func (obj portCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (
 	return true, port, err
 }
 
-func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *ports.Port, error) {
+func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *ports.Port, error) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -159,6 +159,8 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *po
 		}
 	}
 
+	var waitEvents []generic.WaitingOnEvent
+
 	// We explicitly disable creation of IP addresses by passing an empty
 	// value whenever the user does not specify addresses
 	fixedIPs := make([]ports.IP, len(resource.Addresses))
@@ -167,13 +169,15 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *po
 		key := client.ObjectKey{Name: string(*resource.Addresses[i].SubnetRef), Namespace: obj.Namespace}
 		if err := obj.k8sClient.Get(ctx, key, subnet); err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{generic.WaitingOnCreationMsg("Subnet", key.Name)}, nil, nil
+				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
+				continue
 			}
 			return nil, nil, fmt.Errorf("fetching subnet %s: %w", key.Name, err)
 		}
 
 		if !orcv1alpha1.IsAvailable(subnet) || subnet.Status.ID == nil {
-			return []string{generic.WaitingOnAvailableMsg("Subnet", key.Name)}, nil, nil
+			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Subnet", key.Name))
+			continue
 		}
 		fixedIPs[i].SubnetID = *subnet.Status.ID
 
@@ -191,17 +195,23 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *po
 		key := client.ObjectKey{Name: string(resource.SecurityGroupRefs[i]), Namespace: obj.Namespace}
 		if err := obj.k8sClient.Get(ctx, key, securityGroup); err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{generic.WaitingOnCreationMsg("Subnet", key.Name)}, nil, nil
+				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
+				continue
 			}
 			return nil, nil, fmt.Errorf("fetching securitygroup %s: %w", key.Name, err)
 		}
 
 		if !orcv1alpha1.IsAvailable(securityGroup) || securityGroup.Status.ID == nil {
-			return []string{generic.WaitingOnAvailableMsg("Subnet", key.Name)}, nil, nil
+			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Subnet", key.Name))
+			continue
 		}
 		securityGroups[i] = *securityGroup.Status.ID
 	}
 	createOpts.SecurityGroups = &securityGroups
+
+	if len(waitEvents) > 0 {
+		return waitEvents, nil, nil
+	}
 
 	osResource, err := obj.osClient.CreatePort(ctx, &createOpts)
 	if err != nil {
@@ -215,8 +225,8 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]string, *po
 	return nil, osResource, nil
 }
 
-func (obj portActuator) DeleteResource(ctx context.Context, flavor *ports.Port) error {
-	return obj.osClient.DeletePort(ctx, flavor.ID)
+func (obj portActuator) DeleteResource(ctx context.Context, flavor *ports.Port) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeletePort(ctx, flavor.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.

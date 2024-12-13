@@ -132,7 +132,7 @@ func (obj networkActuator) GetOSResourceByImportFilter(ctx context.Context) (boo
 	return true, osResource, nil
 }
 
-func (obj networkActuator) CreateResource(ctx context.Context) ([]string, *networkExt, error) {
+func (obj networkActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *networkExt, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -198,8 +198,8 @@ func (obj networkActuator) CreateResource(ctx context.Context) ([]string, *netwo
 	return nil, osResource, nil
 }
 
-func (obj networkActuator) DeleteResource(ctx context.Context, network *networkExt) error {
-	return obj.osClient.DeleteNetwork(ctx, network.ID).ExtractErr()
+func (obj networkActuator) DeleteResource(ctx context.Context, network *networkExt) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeleteNetwork(ctx, network.ID).ExtractErr()
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.

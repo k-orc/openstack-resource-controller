@@ -18,6 +18,7 @@ package generic
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -31,6 +32,9 @@ import (
 const (
 	// The time to wait between checking if a delete was successful
 	deletePollingPeriod = 1 * time.Second
+
+	// The time to wait before reconciling again when we are waiting for some change in OpenStack
+	externalUpdatePollingPeriod = 15 * time.Second
 )
 
 type BaseResourceActuator[osResourcePT any] interface {
@@ -50,16 +54,16 @@ type CreateResourceActuator[osResourcePT any] interface {
 
 	GetOSResourceByImportID(ctx context.Context) (bool, osResourcePT, error)
 	GetOSResourceByImportFilter(ctx context.Context) (bool, osResourcePT, error)
-	CreateResource(ctx context.Context) ([]string, osResourcePT, error)
+	CreateResource(ctx context.Context) ([]WaitingOnEvent, osResourcePT, error)
 }
 
 type DeleteResourceActuator[osResourcePT any] interface {
 	BaseResourceActuator[osResourcePT]
 
-	DeleteResource(ctx context.Context, osResource osResourcePT) error
+	DeleteResource(ctx context.Context, osResource osResourcePT) ([]WaitingOnEvent, error)
 }
 
-func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator CreateResourceActuator[osResourcePT]) ([]string, osResourcePT, error) {
+func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator CreateResourceActuator[osResourcePT]) ([]WaitingOnEvent, osResourcePT, error) {
 	// Get by status ID
 	if hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx); hasStatusID {
 		if orcerrors.IsNotFound(err) {
@@ -86,11 +90,11 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 
 	// Import by filter
 	if hasImportFilter, osResource, err := actuator.GetOSResourceByImportFilter(ctx); hasImportFilter {
-		var waitMsgs []string
+		var waitEvents []WaitingOnEvent
 		if osResource == nil {
-			waitMsgs = []string{"Waiting for OpenStack resource to be created externally"}
+			waitEvents = []WaitingOnEvent{WaitingOnOpenStackExternal(externalUpdatePollingPeriod)}
 		}
-		return waitMsgs, osResource, err
+		return waitEvents, osResource, err
 	}
 
 	// Create
@@ -156,9 +160,114 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	log.V(4).Info("Deleting OpenStack resource")
-	err = obj.DeleteResource(ctx, osResource)
+	waitEvents, err := obj.DeleteResource(ctx, osResource)
 	if err != nil {
 		return osResource, ctrl.Result{}, err
 	}
-	return osResource, ctrl.Result{RequeueAfter: deletePollingPeriod}, nil
+
+	var requeue time.Duration
+	if len(waitEvents) > 0 {
+		requeue = MaxRequeue(waitEvents)
+	} else {
+		requeue = deletePollingPeriod
+	}
+	return osResource, ctrl.Result{RequeueAfter: requeue}, nil
+}
+
+type WaitingOnEvent interface {
+	Message() string
+	Requeue() time.Duration
+}
+
+type waitingOnType int
+
+const (
+	WaitingOnCreation waitingOnType = iota
+	WaitingOnReady
+)
+
+type waitingOnORC struct {
+	kind      string
+	name      string
+	waitingOn waitingOnType
+}
+
+var _ WaitingOnEvent = waitingOnORC{}
+
+func (e waitingOnORC) Message() string {
+	var outcome string
+	switch e.waitingOn {
+	case WaitingOnCreation:
+		outcome = "exist"
+	case WaitingOnReady:
+		outcome = "be ready"
+	}
+	return fmt.Sprintf("Waiting for %s/%s to %s", e.kind, e.name, outcome)
+}
+
+func newWaitingOnORC(kind, name string, event waitingOnType) WaitingOnEvent {
+	return waitingOnORC{
+		kind:      kind,
+		name:      name,
+		waitingOn: event,
+	}
+}
+
+func WaitingOnORCExist(kind, name string) WaitingOnEvent {
+	return newWaitingOnORC(kind, name, WaitingOnCreation)
+}
+
+func WaitingOnORCReady(kind, name string) WaitingOnEvent {
+	return newWaitingOnORC(kind, name, WaitingOnReady)
+}
+
+func (e waitingOnORC) Requeue() time.Duration {
+	return 0
+}
+
+type waitingOnOpenStack struct {
+	waitingOn     waitingOnType
+	pollingPeriod time.Duration
+}
+
+var _ WaitingOnEvent = waitingOnOpenStack{}
+
+func newWaitingOnOpenStack(event waitingOnType, pollingPeriod time.Duration) WaitingOnEvent {
+	return waitingOnOpenStack{
+		waitingOn:     event,
+		pollingPeriod: pollingPeriod,
+	}
+}
+
+func WaitingOnOpenStackExternal(pollingPeriod time.Duration) WaitingOnEvent {
+	return newWaitingOnOpenStack(WaitingOnCreation, pollingPeriod)
+}
+
+func WaitingOnOpenStackReady(kind, name string, pollingPeriod time.Duration) WaitingOnEvent {
+	return newWaitingOnOpenStack(WaitingOnReady, pollingPeriod)
+}
+
+func (e waitingOnOpenStack) Message() string {
+	var outcome string
+	switch e.waitingOn {
+	case WaitingOnCreation:
+		outcome = "be created externally"
+	case WaitingOnReady:
+		outcome = "be ready"
+	}
+	return fmt.Sprintf("Waiting for OpenStack resource to %s", outcome)
+}
+
+func (e waitingOnOpenStack) Requeue() time.Duration {
+	return e.pollingPeriod
+}
+
+func MaxRequeue(evts []WaitingOnEvent) time.Duration {
+	var ret time.Duration
+	for _, evt := range evts {
+		if evt.Requeue() > ret {
+			ret = evt.Requeue()
+		}
+	}
+	return ret
 }

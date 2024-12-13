@@ -132,37 +132,40 @@ func (obj routerCreateActuator) GetOSResourceByImportFilter(ctx context.Context)
 	return true, osResource, err
 }
 
-func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]string, *routers.Router, error) {
+func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *routers.Router, error) {
 	resource := obj.Router.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
+	var waitEvents []generic.WaitingOnEvent
+
 	var gatewayInfo *routers.GatewayInfo
 	for name, result := range externalGWDep.GetDependencies(ctx, obj.k8sClient, obj.Router) {
 		err := result.Err()
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{generic.WaitingOnCreationMsg("network", name)}, nil, nil
+				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Network", name))
+				continue
 			}
 			return nil, nil, err
 		}
 
 		network := result.Ok()
-		if !orcv1alpha1.IsAvailable(network) {
-			return []string{generic.WaitingOnAvailableMsg("network", name)}, nil, nil
-		}
-
-		if network.Status.ID == nil {
-			// Programming error, but lets not panic
-			return []string{fmt.Sprintf("network %s is available but status.id is nil", name)}, nil, nil
+		if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
+			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Network", name))
+			continue
 		}
 
 		gatewayInfo = &routers.GatewayInfo{
 			NetworkID: *network.Status.ID,
 		}
 		break
+	}
+
+	if len(waitEvents) > 0 {
+		return waitEvents, nil, nil
 	}
 
 	createOpts := routers.CreateOpts{
@@ -190,8 +193,8 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]string, *
 	return nil, osResource, err
 }
 
-func (obj routerActuator) DeleteResource(ctx context.Context, router *routers.Router) error {
-	return obj.osClient.DeleteRouter(ctx, router.ID)
+func (obj routerActuator) DeleteResource(ctx context.Context, router *routers.Router) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeleteRouter(ctx, router.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
