@@ -5,6 +5,9 @@ on:
     types:
       - closed
       - labeled
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   backport_v1_0:
