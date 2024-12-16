@@ -1424,6 +1424,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerPortSpec
           elementRelationship: atomic
+    - name: userData
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.UserDataSpec
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
   map:
     fields:
@@ -1751,6 +1754,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.UserDataSpec
+  map:
+    fields:
+    - name: secretRef
+      type:
+        scalar: string
 - name: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
   map:
     fields:

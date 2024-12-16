@@ -35,10 +35,22 @@ type ServerResourceSpec struct {
 
 	FlavorRef KubernetesNameRef `json:"flavorRef"`
 
+	// UserData specifies data which will be made available to the server at
+	// boot time, either via the metadata service or a config drive. It is
+	// typically read by a configuration service such as cloud-init or ignition.
+	UserData *UserDataSpec `json:"userData,omitempty"`
+
 	// Ports defines a list of ports which will be attached to the server.
 	// +listType=atomic
 	// +kubebuilder:validation:MaxItems:=32
 	Ports []ServerPortSpec `json:"ports,omitempty"`
+}
+
+// +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:MaxProperties:=1
+type UserDataSpec struct {
+	// SecretRef is a reference to a Secret containing the user data for this server.
+	SecretRef *KubernetesNameRef `json:"secretRef,omitempty"`
 }
 
 // ServerFilter defines an existing resource by its properties

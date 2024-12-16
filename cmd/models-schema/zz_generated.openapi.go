@@ -126,6 +126,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetStatus":                schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec":                schema_k_orc_openstack_resource_controller_api_v1alpha1_UserDataSpec(ref),
 		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource":                                     schema_k8sio_api_core_v1_AWSElasticBlockStoreVolumeSource(ref),
 		"k8s.io/api/core/v1.Affinity":                                    schema_k8sio_api_core_v1_Affinity(ref),
 		"k8s.io/api/core/v1.AppArmorProfile":                             schema_k8sio_api_core_v1_AppArmorProfile(ref),
@@ -4721,6 +4722,12 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 							Format:  "",
 						},
 					},
+					"userData": {
+						SchemaProps: spec.SchemaProps{
+							Description: "UserData specifies data which will be made available to the server at boot time, either via the metadata service or a config drive. It is typically read by a configuration service such as cloud-init or ignition.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec"),
+						},
+					},
 					"ports": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -4745,7 +4752,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec"},
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec"},
 	}
 }
 
@@ -5700,6 +5707,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref co
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_UserDataSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"secretRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SecretRef is a reference to a Secret containing the user data for this server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 

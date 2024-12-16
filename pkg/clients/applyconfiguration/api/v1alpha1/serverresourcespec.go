@@ -28,6 +28,7 @@ type ServerResourceSpecApplyConfiguration struct {
 	Name      *v1alpha1.OpenStackName            `json:"name,omitempty"`
 	ImageRef  *v1alpha1.KubernetesNameRef        `json:"imageRef,omitempty"`
 	FlavorRef *v1alpha1.KubernetesNameRef        `json:"flavorRef,omitempty"`
+	UserData  *UserDataSpecApplyConfiguration    `json:"userData,omitempty"`
 	Ports     []ServerPortSpecApplyConfiguration `json:"ports,omitempty"`
 }
 
@@ -58,6 +59,14 @@ func (b *ServerResourceSpecApplyConfiguration) WithImageRef(value v1alpha1.Kuber
 // If called multiple times, the FlavorRef field is set to the value of the last call.
 func (b *ServerResourceSpecApplyConfiguration) WithFlavorRef(value v1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
 	b.FlavorRef = &value
+	return b
+}
+
+// WithUserData sets the UserData field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UserData field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithUserData(value *UserDataSpecApplyConfiguration) *ServerResourceSpecApplyConfiguration {
+	b.UserData = value
 	return b
 }
 
