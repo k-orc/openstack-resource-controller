@@ -28,3 +28,6 @@ Dockerfile.cross
 /website/docs/reference.md
 /website/rendered/
 __pycache__/
+
+# Custom
+/openapi.json
