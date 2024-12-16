@@ -1,0 +1,52 @@
+name: e2e
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Run acceptance tests against OpenStack ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "dalmatian"
+            openstack_version: "stable/2024.2"
+            ubuntu_version: "22.04"
+          - name: "caracal"
+            openstack_version: "stable/2024.1"
+            ubuntu_version: "22.04"
+    env:
+      image_tag: virtual-registry.k-orc.cloud/ci:commit-${GITHUB_SHA::7}
+
+    runs-on: ubuntu-${{ matrix.ubuntu_version }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Deploy devstack
+      uses: EmilienM/devstack-action@40c77372dbc135a17adc877eb77fc226a134305c
+      with:
+        enable_workaround_docker_io: 'false'
+        branch: ${{ matrix.openstack_version }}
+
+    - name: Deploy a Kind Cluster
+      uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb
+      with:
+        cluster_name: orc
+
+    - name: Build and push a container image to Kind
+      run: |
+        docker build -t ${{ env.image_tag }} .
+        kind load docker-image ${{ env.image_tag }} ${{ env.image_tag }} --name orc
+
+    - name: Deploy orc
+      run: |
+        kubectl config use-context kind-orc
+        make deploy IMG=${{ env.image_tag }}
+
+    - name: Run e2e tests
+      run: make test-e2e
