@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-    - main
+    - release-1.0
   pull_request:
 name: go test
 permissions:
@@ -23,4 +23,4 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - run: |
-          go test -v ./...
+         make test 
