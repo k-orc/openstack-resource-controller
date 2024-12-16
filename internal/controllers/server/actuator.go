@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -192,6 +193,24 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 		}
 	}
 
+	var userData []byte
+	if resource.UserData != nil && resource.UserData.SecretRef != nil {
+		secret := &corev1.Secret{}
+		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: obj.Namespace}
+		if err := obj.k8sClient.Get(ctx, secretKey, secret); err != nil {
+			if !apierrors.IsNotFound(err) {
+				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
+			}
+			waitEvents = append(waitEvents, generic.WaitingOnORCExist("Secret", secretKey.Name))
+		} else {
+			var ok bool
+			userData, ok = secret.Data["value"]
+			if !ok {
+				waitEvents = append(waitEvents, generic.WaitingOnORCReady("Secret", secret.Name))
+			}
+		}
+	}
+
 	if len(waitEvents) > 0 {
 		return waitEvents, nil, nil
 	}
@@ -201,6 +220,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 		ImageRef:  *image.Status.ID,
 		FlavorRef: *flavor.Status.ID,
 		Networks:  portList,
+		UserData:  userData,
 	}
 
 	schedulerHints := servers.SchedulerHintOpts{}

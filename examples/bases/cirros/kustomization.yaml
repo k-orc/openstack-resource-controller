@@ -6,6 +6,13 @@ namePrefix: cirros-
 components:
 - ../../components/kustomizeconfig
 
+secretGenerator:
+- name: userdata
+  files:
+  - value=user.data
+  options:
+    disableNameSuffixHash: true
+
 resources:
 - provider-network.yaml
 - image.yaml

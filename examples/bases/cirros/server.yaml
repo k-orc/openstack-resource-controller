@@ -13,3 +13,5 @@ spec:
     flavorRef: flavor
     ports:
     - portRef: port
+    userData:
+      secretRef: userdata
