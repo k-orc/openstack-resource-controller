@@ -193,11 +193,3 @@ func (d *Dependency[objectTP, _, depTP, _, _, _]) AddDeletionGuard(mgr ctrl.Mana
 
 	return ctrlcommon.AddDeletionGuard[depTP, objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
 }
-
-func WaitingOnCreationMsg(kind string, name string) string {
-	return fmt.Sprintf("Waiting for %s/%s to exist", kind, name)
-}
-
-func WaitingOnAvailableMsg(kind string, name string) string {
-	return fmt.Sprintf("Waiting for %s/%s to be available", kind, name)
-}
