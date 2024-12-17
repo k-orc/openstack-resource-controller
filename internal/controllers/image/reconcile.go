@@ -20,7 +20,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -93,19 +92,23 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 		return ctrl.Result{}, err
 	}
 
-	waitMsgs, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
+	waitEvents, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
+	if len(waitEvents) > 0 {
+		log.V(3).Info("Waiting on events before creation")
+		addStatus(withProgressMessage(waitEvents[0].Message()))
+		return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, nil
+	}
+
 	if osResource == nil {
-		log.V(3).Info("OpenStack resource does not yet exist")
-		addStatus(withProgressMessage(strings.Join(waitMsgs, ", ")))
-		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, nil
+		// Programming error: if we don't have a resource we should either have an error or be waiting on something
+		return ctrl.Result{}, fmt.Errorf("oResource is not set, but no wait events or error")
 	}
 
 	addStatus(withResource(osResource))
-
 	if orcObject.Status.ID == nil {
 		if err := r.setStatusID(ctx, orcObject, osResource.ID); err != nil {
 			return ctrl.Result{}, err

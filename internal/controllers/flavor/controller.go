@@ -18,7 +18,6 @@ package flavor
 
 import (
 	"context"
-	"time"
 
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -47,11 +46,6 @@ const (
 func ssaFieldOwner(txn string) client.FieldOwner {
 	return client.FieldOwner(FieldOwner + "/" + txn)
 }
-
-const (
-	// The time to wait before reconciling again when importing a resource that doesn't exist yet
-	externalUpdatePollingPeriod = 15 * time.Second
-)
 
 type flavorReconcilerConstructor struct {
 	scopeFactory scope.Factory

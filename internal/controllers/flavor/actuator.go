@@ -106,7 +106,7 @@ func (obj flavorActuator) GetOSResourceByImportFilter(ctx context.Context) (bool
 	return true, flavor, err
 }
 
-func (obj flavorActuator) CreateResource(ctx context.Context) ([]string, *flavors.Flavor, error) {
+func (obj flavorActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *flavors.Flavor, error) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -137,8 +137,8 @@ func (obj flavorActuator) CreateResource(ctx context.Context) ([]string, *flavor
 	return nil, osResource, nil
 }
 
-func (obj flavorActuator) DeleteResource(ctx context.Context, flavor *flavors.Flavor) error {
-	return obj.osClient.DeleteFlavor(ctx, flavor.ID)
+func (obj flavorActuator) DeleteResource(ctx context.Context, flavor *flavors.Flavor) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeleteFlavor(ctx, flavor.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.

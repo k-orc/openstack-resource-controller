@@ -124,24 +124,27 @@ func (obj serverCreateActuator) GetOSResourceByImportFilter(ctx context.Context)
 	return true, osResource, err
 }
 
-func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]string, *servers.Server, error) {
+func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *servers.Server, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
+	var waitEvents []generic.WaitingOnEvent
+
 	image := &orcv1alpha1.Image{}
 	{
 		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: obj.Namespace}
 		if err := obj.k8sClient.Get(ctx, imageKey, image); err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{generic.WaitingOnCreationMsg("Image", imageKey.Name)}, nil, nil
+				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Image", imageKey.Name))
+			} else {
+				return nil, nil, fmt.Errorf("fetching image %s: %w", imageKey.Name, err)
 			}
-			return nil, nil, fmt.Errorf("fetching image %s: %w", imageKey.Name, err)
 		}
 		if !orcv1alpha1.IsAvailable(image) || image.Status.ID == nil {
-			return []string{generic.WaitingOnAvailableMsg("Image", imageKey.Name)}, nil, nil
+			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Image", imageKey.Name))
 		}
 	}
 
@@ -150,12 +153,13 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]string, *
 		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
 		if err := obj.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
-				return []string{generic.WaitingOnCreationMsg("Flavor", flavorKey.Name)}, nil, nil
+				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
+			} else {
+				return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
 			}
-			return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
 		}
 		if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
-			return []string{generic.WaitingOnAvailableMsg("Flavor", flavorKey.Name)}, nil, nil
+			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Flavor", flavorKey.Name))
 		}
 	}
 
@@ -174,16 +178,22 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]string, *
 			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: obj.Namespace}
 			if err := obj.k8sClient.Get(ctx, portKey, portObject); err != nil {
 				if apierrors.IsNotFound(err) {
-					return []string{generic.WaitingOnCreationMsg("Port", portKey.Name)}, nil, nil
+					waitEvents = append(waitEvents, generic.WaitingOnORCExist("Port", portKey.Name))
+					continue
 				}
 				return nil, nil, fmt.Errorf("fetching port %s: %w", portKey.Name, err)
 			}
 			if !orcv1alpha1.IsAvailable(portObject) || portObject.Status.ID == nil {
-				return []string{generic.WaitingOnAvailableMsg("Port", portKey.Name)}, nil, nil
+				waitEvents = append(waitEvents, generic.WaitingOnORCReady("Port", portKey.Name))
+				continue
 			}
 
 			port.Port = *portObject.Status.ID
 		}
+	}
+
+	if len(waitEvents) > 0 {
+		return waitEvents, nil, nil
 	}
 
 	createOpts := servers.CreateOpts{
@@ -205,8 +215,8 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]string, *
 	return nil, osResource, err
 }
 
-func (obj serverActuator) DeleteResource(ctx context.Context, osResource *servers.Server) error {
-	return obj.osClient.DeleteServer(ctx, osResource.ID)
+func (obj serverActuator) DeleteResource(ctx context.Context, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeleteServer(ctx, osResource.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.

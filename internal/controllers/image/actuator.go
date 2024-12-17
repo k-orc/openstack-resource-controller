@@ -119,7 +119,7 @@ func (obj imageActuator) GetOSResourceByImportFilter(ctx context.Context) (bool,
 	return true, image, err
 }
 
-func (obj imageActuator) CreateResource(ctx context.Context) ([]string, *images.Image, error) {
+func (obj imageActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *images.Image, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -179,8 +179,8 @@ func (obj imageActuator) CreateResource(ctx context.Context) ([]string, *images.
 	return nil, image, err
 }
 
-func (obj imageActuator) DeleteResource(ctx context.Context, osResource *images.Image) error {
-	return obj.osClient.DeleteImage(ctx, osResource.ID)
+func (obj imageActuator) DeleteResource(ctx context.Context, osResource *images.Image) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeleteImage(ctx, osResource.ID)
 }
 
 // getResourceName returns the name of the glance image we should use.

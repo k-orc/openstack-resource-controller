@@ -113,7 +113,7 @@ func (obj securityGroupActuator) GetOSResourceByImportFilter(ctx context.Context
 	return true, osResource, err
 }
 
-func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]string, *groups.SecGroup, error) {
+func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *groups.SecGroup, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -165,8 +165,8 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]string, 
 	return nil, osResource, nil
 }
 
-func (obj securityGroupActuator) DeleteResource(ctx context.Context, osResource *groups.SecGroup) error {
-	return obj.osClient.DeleteSecGroup(ctx, osResource.ID)
+func (obj securityGroupActuator) DeleteResource(ctx context.Context, osResource *groups.SecGroup) ([]generic.WaitingOnEvent, error) {
+	return nil, obj.osClient.DeleteSecGroup(ctx, osResource.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
