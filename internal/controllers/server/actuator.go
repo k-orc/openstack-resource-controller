@@ -207,8 +207,8 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 
 	osResource, err := obj.osClient.CreateServer(ctx, &createOpts, schedulerHints)
 
-	// We should require the spec to be updated before retrying a create which returned a conflict
-	if !orcerrors.IsRetryable(err) {
+	// We should require the spec to be updated before retrying a create which returned a non-retryable error
+	if err != nil && !orcerrors.IsRetryable(err) {
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 	}
 
