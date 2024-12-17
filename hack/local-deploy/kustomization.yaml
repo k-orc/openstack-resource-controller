@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../config/default
+
+images:
+- name: controller
+  newTag: devel
+
+patches:
+- target:
+    kind: Deployment
+    namespace: orc-system
+    name: orc-controller-manager
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/args/-
+      value: "-zap-log-level=5"
