@@ -28,9 +28,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/flavor"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/image"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/network"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/router"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/routerinterface"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/securitygroup"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/server"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/subnet"
 	internalmanager "github.com/k-orc/openstack-resource-controller/internal/manager"
 	"github.com/k-orc/openstack-resource-controller/internal/scheme"
-	orccontrollers "github.com/k-orc/openstack-resource-controller/pkg/controllers"
+	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -66,18 +75,18 @@ func main() {
 
 	// TODO: Implement custom caCerts
 	var caCerts []byte
-	scopeFactory := orccontrollers.NewScopeFactory(orcOpts.ScopeCacheMaxSize, caCerts)
+	scopeFactory := scope.NewFactory(orcOpts.ScopeCacheMaxSize, caCerts)
 
 	controllers := []export.Controller{
-		orccontrollers.ImageController(scopeFactory),
-		orccontrollers.NetworkController(scopeFactory),
-		orccontrollers.SubnetController(scopeFactory),
-		orccontrollers.RouterController(scopeFactory),
-		orccontrollers.RouterInterfaceController(scopeFactory),
-		orccontrollers.PortController(scopeFactory),
-		orccontrollers.FlavorController(scopeFactory),
-		orccontrollers.SecurityGroupController(scopeFactory),
-		orccontrollers.ServerController(scopeFactory),
+		image.New(scopeFactory),
+		network.New(scopeFactory),
+		subnet.New(scopeFactory),
+		router.New(scopeFactory),
+		routerinterface.New(scopeFactory),
+		port.New(scopeFactory),
+		flavor.New(scopeFactory),
+		securitygroup.New(scopeFactory),
+		server.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
