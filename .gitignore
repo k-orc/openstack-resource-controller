@@ -31,3 +31,4 @@ __pycache__/
 
 # Custom
 /openapi.json
+/.custom-deploy
