@@ -144,14 +144,42 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 .PHONY: build-installer
 build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
 	mkdir -p dist
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default > dist/install.yaml
+	$(MAKE) custom-deploy IMG=${IMG}
+	$(KUSTOMIZE) build $(CUSTOMDEPLOY) > dist/install.yaml
 
 ##@ Deployment
 
 ifndef ignore-not-found
   ignore-not-found = false
 endif
+
+# custom-deploy initialises a new kustomize module in $(CUSTOMDEPLOY) (deleting
+# any existing directory first). This kustomize module:
+# - includes config/default as a resource
+# - overrides the controller image with the value of $(IMG)
+# - adds an argument to the controller to set a custom log level if $(LOGLEVEL)
+#   is set
+
+define args_patch
+- op: add
+  path: /spec/template/spec/containers/0/args/-
+  value: "-zap-log-level=$(LOGLEVEL)"
+endef
+export args_patch
+
+CUSTOMDEPLOY ?= $(shell pwd)/.custom-deploy
+
+.PHONY: custom-deploy
+custom-deploy: customdeploy_relative = $(shell realpath -m --relative-to $(CUSTOMDEPLOY) $(shell pwd))
+custom-deploy: kustomize
+	if [ -d $(CUSTOMDEPLOY) ]; then rm -f $(CUSTOMDEPLOY)/kustomization.yaml && rmdir $(CUSTOMDEPLOY); fi
+	mkdir -p $(CUSTOMDEPLOY)
+	cd $(CUSTOMDEPLOY); $(KUSTOMIZE) create --resources $(customdeploy_relative)/config/default
+	cd $(CUSTOMDEPLOY); $(KUSTOMIZE) edit set image controller=$(IMG)
+	if [ -n "$(LOGLEVEL)" ]; then \
+	  cd $(CUSTOMDEPLOY) && \
+	  $(KUSTOMIZE) edit add patch --kind Deployment --namespace orc-system --name orc-controller-manager --patch "$$args_patch"; \
+	fi
 
 .PHONY: install
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
@@ -163,8 +191,8 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
+	$(MAKE) custom-deploy IMG=${IMG}
+	$(KUSTOMIZE) build $(CUSTOMDEPLOY) | $(KUBECTL) apply -f -
 
 .PHONY: undeploy
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
