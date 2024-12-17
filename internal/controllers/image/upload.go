@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ func (r *orcImageReconciler) downloadProgressReporter(ctx context.Context, orcIm
 	return func(progress int64) {
 		if time.Now().After(nextUpdate) {
 			msg := fmt.Sprintf("Downloaded %dMB"+ofTotal, int(progress/1024/1024))
-			err := r.updateStatus(ctx, orcImage, withGlanceImage(glanceImage),
+			err := r.updateStatus(ctx, orcImage, withResource(glanceImage),
 				withProgressMessage(downloadingMessage(msg, orcImage)))
 			if err != nil {
 				// Failure to update status here is not fatal
@@ -85,7 +85,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 	download := content.Download
 	if download == nil {
 		// Should have been caught by validation
-		return orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "image source type URL has no url entry")
+		return orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "image source type URL has no url entry")
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, download.URL, http.NoBody)
@@ -128,7 +128,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 		}
 	}
 
-	err = r.updateStatus(ctx, orcImage, withGlanceImage(glanceImage),
+	err = r.updateStatus(ctx, orcImage, withResource(glanceImage),
 		withIncrementDownloadAttempts(),
 		withProgressMessage(downloadingMessage("Starting image upload", orcImage)))
 	if err != nil {
@@ -138,7 +138,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 	err = imageClient.UploadData(ctx, glanceImage.ID, reader)
 	if err != nil {
 		if orcerrors.IsInvalidError(err) {
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, err.Error(), err)
 		}
 		return fmt.Errorf("error writing data to glance: %w", err)
 	}

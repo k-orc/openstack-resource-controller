@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
-
-// This file provides a minimal exported interface to non-exported controllers.
+package apivalidations
 
 import (
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
-
-	imagecontroller "github.com/k-orc/openstack-resource-controller/internal/controllers/image"
+	applyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
-var ImageController = imagecontroller.New
-
-var NewScopeFactory = scope.NewFactory
+func testCredentials() *applyconfigv1alpha1.CloudCredentialsReferenceApplyConfiguration {
+	return applyconfigv1alpha1.CloudCredentialsReference().
+		WithSecretName("openstack-credentials").
+		WithCloudName("openstack")
+}

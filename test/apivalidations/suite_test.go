@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -40,7 +41,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/util/ssa"
+	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 )
 
 var (
@@ -157,5 +158,5 @@ func createNamespace() *corev1.Namespace {
 }
 
 func applyObj(ctx context.Context, obj client.Object, patch any) error {
-	return k8sClient.Patch(ctx, obj, ssa.ApplyConfigPatch(patch), client.ForceOwnership, client.FieldOwner("capo-apivalidations"))
+	return k8sClient.Patch(ctx, obj, applyconfigs.Patch(types.ApplyPatchType, patch), client.ForceOwnership, client.FieldOwner("capo-apivalidations"))
 }

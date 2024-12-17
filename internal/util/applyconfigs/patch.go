@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ssa
+package applyconfigs
 
 import (
 	"encoding/json"
@@ -23,14 +23,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// applyConfigPatch uses server-side apply to patch the object.
+// applyConfigPatch is a slightly more ergonomic version of client.RawPatch which json marshals its argument
 type applyConfigPatch struct {
+	patchType   types.PatchType
 	applyConfig interface{}
 }
 
 // Type implements Patch.
 func (p applyConfigPatch) Type() types.PatchType {
-	return types.ApplyPatchType
+	return p.patchType
 }
 
 // Data implements Patch.
@@ -38,8 +39,9 @@ func (p applyConfigPatch) Data(_ client.Object) ([]byte, error) {
 	return json.Marshal(p.applyConfig)
 }
 
-func ApplyConfigPatch(applyConfig interface{}) client.Patch {
+func Patch(patchType types.PatchType, applyConfig interface{}) client.Patch {
 	return &applyConfigPatch{
+		patchType:   patchType,
 		applyConfig: applyConfig,
 	}
 }

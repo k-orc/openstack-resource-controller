@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -109,14 +109,14 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonProgressing).
+					WithReason(orcv1alpha1.ConditionReasonProgressing).
 					WithMessage(progressingMsg).
 					WithLastTransitionTime(now)
 			},
 			wantProgressing: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionTrue).
-					WithReason(orcv1alpha1.OpenStackConditionReasonProgressing).
+					WithReason(orcv1alpha1.ConditionReasonProgressing).
 					WithMessage(progressingMsg).
 					WithLastTransitionTime(now)
 			},
@@ -131,14 +131,14 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonTransientError).
+					WithReason(orcv1alpha1.ConditionReasonTransientError).
 					WithMessage("test-error").
 					WithLastTransitionTime(now)
 			},
 			wantProgressing: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonTransientError).
+					WithReason(orcv1alpha1.ConditionReasonTransientError).
 					WithMessage("test-error").
 					WithLastTransitionTime(now)
 			},
@@ -147,20 +147,20 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 		{
 			name: "No image, no status, fatal error",
 			args: args{
-				err: orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration", fmt.Errorf("test-error")),
+				err: orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration", fmt.Errorf("test-error")),
 			},
 			wantStatus: orcapplyconfigv1alpha1.ImageStatus,
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration).
+					WithReason(orcv1alpha1.ConditionReasonInvalidConfiguration).
 					WithMessage("invalid configuration").
 					WithLastTransitionTime(now)
 			},
 			wantProgressing: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration).
+					WithReason(orcv1alpha1.ConditionReasonInvalidConfiguration).
 					WithMessage("invalid configuration").
 					WithLastTransitionTime(now)
 			},
@@ -179,14 +179,14 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonProgressing).
+					WithReason(orcv1alpha1.ConditionReasonProgressing).
 					WithMessage(progressingMsg).
 					WithLastTransitionTime(now)
 			},
 			wantProgressing: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionTrue).
-					WithReason(orcv1alpha1.OpenStackConditionReasonProgressing).
+					WithReason(orcv1alpha1.ConditionReasonProgressing).
 					WithMessage(progressingMsg).
 					WithLastTransitionTime(now)
 			},
@@ -210,14 +210,14 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionTrue).
-					WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+					WithReason(orcv1alpha1.ConditionReasonSuccess).
 					WithMessage(successMsg).
 					WithLastTransitionTime(now)
 			},
 			wantProgressing: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+					WithReason(orcv1alpha1.ConditionReasonSuccess).
 					WithMessage(successMsg).
 					WithLastTransitionTime(now)
 			},
@@ -241,14 +241,14 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionTrue).
-					WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+					WithReason(orcv1alpha1.ConditionReasonSuccess).
 					WithMessage(successMsg).
 					WithLastTransitionTime(now)
 			},
 			wantProgressing: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+					WithReason(orcv1alpha1.ConditionReasonSuccess).
 					WithMessage(successMsg).
 					WithLastTransitionTime(now)
 			},
@@ -263,19 +263,19 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 
 					orcImage.Status.Conditions = []metav1.Condition{
 						{
-							Type:               orcv1alpha1.OpenStackConditionAvailable,
+							Type:               orcv1alpha1.ConditionAvailable,
 							Status:             metav1.ConditionTrue,
 							ObservedGeneration: 1,
 							LastTransitionTime: hourAgo,
-							Reason:             orcv1alpha1.OpenStackConditionReasonSuccess,
+							Reason:             orcv1alpha1.ConditionReasonSuccess,
 							Message:            successMsg,
 						},
 						{
-							Type:               orcv1alpha1.OpenStackConditionProgressing,
+							Type:               orcv1alpha1.ConditionProgressing,
 							Status:             metav1.ConditionFalse,
 							ObservedGeneration: 1,
 							LastTransitionTime: hourAgo,
-							Reason:             orcv1alpha1.OpenStackConditionReasonSuccess,
+							Reason:             orcv1alpha1.ConditionReasonSuccess,
 							Message:            successMsg,
 						},
 					}
@@ -296,7 +296,7 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 				hourAgo := metav1.NewTime(now.Add(-time.Hour))
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionTrue).
-					WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+					WithReason(orcv1alpha1.ConditionReasonSuccess).
 					WithMessage(successMsg).
 					WithLastTransitionTime(hourAgo)
 			},
@@ -304,7 +304,7 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 				hourAgo := metav1.NewTime(now.Add(-time.Hour))
 				return applyconfigv1.Condition().
 					WithStatus(metav1.ConditionFalse).
-					WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+					WithReason(orcv1alpha1.ConditionReasonSuccess).
 					WithMessage(successMsg).
 					WithLastTransitionTime(hourAgo)
 			},
@@ -326,10 +326,10 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			}
 
 			wantAvailable := tt.wantAvailable(now).
-				WithType(orcv1alpha1.OpenStackConditionAvailable).
+				WithType(orcv1alpha1.ConditionAvailable).
 				WithObservedGeneration(1)
 			wantProgressing := tt.wantProgressing(now).
-				WithType(orcv1alpha1.OpenStackConditionProgressing).
+				WithType(orcv1alpha1.ConditionProgressing).
 				WithObservedGeneration(1)
 			wantStatusUpdate := orcapplyconfigv1alpha1.Image(orcImage.Name, orcImage.Namespace).
 				WithStatus(tt.wantStatus().WithConditions(wantAvailable, wantProgressing))
@@ -339,7 +339,7 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 				glanceImage = tt.args.glanceImage()
 			}
 
-			opts := append(tt.args.opts, withGlanceImage(glanceImage), withError(tt.args.err))
+			opts := append(tt.args.opts, withResource(glanceImage), withError(tt.args.err))
 
 			// TODO: Consider rewriting to this to test
 			// updateStatus() using fake client when we have

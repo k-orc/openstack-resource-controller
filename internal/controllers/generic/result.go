@@ -14,27 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package errors
+package generic
 
-import (
-	goerrors "errors"
-)
+// NOTE(mdbooth): This is a stupid type without any of the useful properties of
+// a proper Result type. However, I don't believe they can currently be
+// implemented in Go.
 
-type TerminalError struct {
-	Reason  string
-	Message string
+type Result[T any] struct {
+	ok  *T
+	err error
 }
 
-func (e *TerminalError) Error() string {
-	return "reconciliation cannot continue: " + e.Message
+func (r Result[T]) Ok() *T {
+	return r.ok
 }
 
-var _ error = &TerminalError{}
+func (r Result[T]) Err() error {
+	return r.err
+}
 
-func Terminal(reason, message string, errs ...error) error {
-	errs = append(errs, &TerminalError{
-		Reason:  reason,
-		Message: message,
-	})
-	return goerrors.Join(errs...)
+func Ok[T any](v *T) Result[T] {
+	return Result[T]{ok: v}
+}
+
+func Err[T any](err error) Result[T] {
+	return Result[T]{err: err}
 }

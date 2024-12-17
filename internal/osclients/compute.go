@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The Kubernetes Authors.
+Copyright 2021 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
-	uflavors "github.com/gophercloud/utils/v2/openstack/compute/v2/flavors"
 )
 
 /*
@@ -46,11 +46,15 @@ const NovaMinimumMicroversion = "2.60"
 type ComputeClient interface {
 	ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error)
 
-	GetFlavorFromName(flavor string) (*flavors.Flavor, error)
-	CreateServer(createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error)
-	DeleteServer(serverID string) error
-	GetServer(serverID string) (*servers.Server, error)
-	ListServers(listOpts servers.ListOptsBuilder) ([]servers.Server, error)
+	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
+	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
+	DeleteFlavor(ctx context.Context, id string) error
+	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor])
+
+	CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error)
+	DeleteServer(ctx context.Context, serverID string) error
+	GetServer(ctx context.Context, serverID string) (*servers.Server, error)
+	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) <-chan (Result[*servers.Server])
 
 	ListAttachedInterfaces(serverID string) ([]attachinterfaces.Interface, error)
 	DeleteAttachedInterface(serverID, portID string) error
@@ -82,40 +86,78 @@ func (c computeClient) ListAvailabilityZones() ([]availabilityzones.Availability
 	return availabilityzones.ExtractAvailabilityZones(allPages)
 }
 
-func (c computeClient) GetFlavorFromName(flavor string) (*flavors.Flavor, error) {
-	flavorID, err := uflavors.IDFromName(context.TODO(), c.client, flavor)
-	if err != nil {
-		return nil, err
-	}
-
-	return flavors.Get(context.TODO(), c.client, flavorID).Extract()
+func (c computeClient) GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error) {
+	return flavors.Get(ctx, c.client, id).Extract()
 }
 
-func (c computeClient) CreateServer(createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
-	return servers.Create(context.TODO(), c.client, createOpts, schedulerHints).Extract()
+func (c computeClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error) {
+	return flavors.Create(ctx, c.client, opts).Extract()
 }
 
-func (c computeClient) DeleteServer(serverID string) error {
-	return servers.Delete(context.TODO(), c.client, serverID).ExtractErr()
+func (c computeClient) DeleteFlavor(ctx context.Context, id string) error {
+	return flavors.Delete(ctx, c.client, id).ExtractErr()
 }
 
-func (c computeClient) GetServer(serverID string) (*servers.Server, error) {
-	var server servers.Server
-	err := servers.Get(context.TODO(), c.client, serverID).ExtractInto(&server)
-	if err != nil {
-		return nil, err
-	}
-	return &server, nil
+func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor]) {
+	ch := make(chan (Result[*flavors.Flavor]))
+	go func() {
+		defer close(ch)
+		if err := flavors.ListDetail(c.client, opts).EachPage(ctx, func(ctx context.Context, page pagination.Page) (bool, error) {
+			pageFlavors, err := flavors.ExtractFlavors(page)
+			if err != nil {
+				return false, err
+			}
+			for i := range pageFlavors {
+				select {
+				case <-ctx.Done():
+					return false, ctx.Err()
+				default:
+					ch <- NewResultOk(&pageFlavors[i])
+				}
+			}
+			return true, nil
+		}); err != nil {
+			ch <- NewResultErr[*flavors.Flavor](err)
+		}
+	}()
+	return ch
 }
 
-func (c computeClient) ListServers(listOpts servers.ListOptsBuilder) ([]servers.Server, error) {
-	var serverList []servers.Server
-	allPages, err := servers.List(c.client, listOpts).AllPages(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-	err = servers.ExtractServersInto(allPages, &serverList)
-	return serverList, err
+func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
+	return servers.Create(ctx, c.client, createOpts, schedulerHints).Extract()
+}
+
+func (c computeClient) DeleteServer(ctx context.Context, serverID string) error {
+	return servers.Delete(ctx, c.client, serverID).ExtractErr()
+}
+
+func (c computeClient) GetServer(ctx context.Context, serverID string) (*servers.Server, error) {
+	return servers.Get(ctx, c.client, serverID).Extract()
+}
+
+func (c computeClient) ListServers(ctx context.Context, opts servers.ListOptsBuilder) <-chan (Result[*servers.Server]) {
+	ch := make(chan (Result[*servers.Server]))
+	go func() {
+		defer close(ch)
+		if err := servers.List(c.client, opts).EachPage(ctx, func(ctx context.Context, page pagination.Page) (bool, error) {
+			allItems, err := servers.ExtractServers(page)
+			if err != nil {
+				return false, err
+			}
+			for i := range allItems {
+				select {
+				case <-ctx.Done():
+					return false, ctx.Err()
+				default:
+					ch <- NewResultOk(&allItems[i])
+				}
+			}
+			return true, nil
+		}); err != nil {
+			ch <- NewResultErr[*servers.Server](err)
+		}
+	}()
+	return ch
 }
 
 func (c computeClient) ListAttachedInterfaces(serverID string) ([]attachinterfaces.Interface, error) {
@@ -145,29 +187,47 @@ type computeErrorClient struct{ error }
 func NewComputeErrorClient(e error) ComputeClient {
 	return computeErrorClient{e}
 }
+func (e computeErrorClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error) {
+	return nil, e.error
+}
+func (e computeErrorClient) GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error) {
+	return nil, e.error
+}
+func (e computeErrorClient) DeleteFlavor(ctx context.Context, id string) error {
+	return e.error
+}
+func (e computeErrorClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor]) {
+	ch := make(chan (Result[*flavors.Flavor]))
+	go func() {
+		defer close(ch)
+		ch <- NewResultErr[*flavors.Flavor](e.error)
+	}()
+	return ch
+}
 
 func (e computeErrorClient) ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error) {
 	return nil, e.error
 }
 
-func (e computeErrorClient) GetFlavorFromName(_ string) (*flavors.Flavor, error) {
+func (e computeErrorClient) CreateServer(_ context.Context, _ servers.CreateOptsBuilder, _ servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
 	return nil, e.error
 }
 
-func (e computeErrorClient) CreateServer(_ servers.CreateOptsBuilder, _ servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
-	return nil, e.error
-}
-
-func (e computeErrorClient) DeleteServer(_ string) error {
+func (e computeErrorClient) DeleteServer(_ context.Context, _ string) error {
 	return e.error
 }
 
-func (e computeErrorClient) GetServer(_ string) (*servers.Server, error) {
+func (e computeErrorClient) GetServer(_ context.Context, _ string) (*servers.Server, error) {
 	return nil, e.error
 }
 
-func (e computeErrorClient) ListServers(_ servers.ListOptsBuilder) ([]servers.Server, error) {
-	return nil, e.error
+func (e computeErrorClient) ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) <-chan (Result[*servers.Server]) {
+	ch := make(chan (Result[*servers.Server]))
+	go func() {
+		defer close(ch)
+		ch <- NewResultErr[*servers.Server](e.error)
+	}()
+	return ch
 }
 
 func (e computeErrorClient) ListAttachedInterfaces(_ string) ([]attachinterfaces.Interface, error) {

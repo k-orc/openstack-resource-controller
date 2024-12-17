@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,14 +25,15 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/internal/util/ssa"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -41,30 +42,6 @@ const (
 	glanceOSHashValue = "os_hash_value"
 )
 
-// setFinalizer sets a finalizer on the object in its own SSA transaction.
-func (r *orcImageReconciler) setFinalizer(ctx context.Context, obj client.Object) error {
-	gvk := obj.GetObjectKind().GroupVersionKind()
-
-	applyConfig := struct {
-		applyconfigv1.TypeMetaApplyConfiguration   `json:",inline"`
-		applyconfigv1.ObjectMetaApplyConfiguration `json:"metadata,omitempty"`
-	}{}
-
-	// Type meta
-	applyConfig.
-		WithAPIVersion(gvk.GroupVersion().String()).
-		WithKind(gvk.Kind)
-
-	// Object meta
-	applyConfig.
-		WithName(obj.GetName()).
-		WithNamespace(obj.GetNamespace()).
-		WithUID(obj.GetUID()). // For safety: ensure we don't accidentally create a new object if we race with delete
-		WithFinalizers(Finalizer)
-
-	return r.client.Patch(ctx, obj, ssa.ApplyConfigPatch(applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
-}
-
 // setStatusID sets a finalizer on the object in its own SSA transaction.
 func (r *orcImageReconciler) setStatusID(ctx context.Context, orcImage *orcv1alpha1.Image, id string) error {
 	applyConfig := orcapplyconfigv1alpha1.Image(orcImage.Name, orcImage.Namespace).
@@ -72,7 +49,7 @@ func (r *orcImageReconciler) setStatusID(ctx context.Context, orcImage *orcv1alp
 		WithStatus(orcapplyconfigv1alpha1.ImageStatus().
 			WithID(id))
 
-	return r.client.Status().Patch(ctx, orcImage, ssa.ApplyConfigPatch(applyConfig), client.ForceOwnership, ssaFieldOwner(SSAIDTxn))
+	return r.client.Status().Patch(ctx, orcImage, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
 type updateStatusOpts struct {
@@ -84,7 +61,7 @@ type updateStatusOpts struct {
 
 type updateStatusOpt func(*updateStatusOpts)
 
-func withGlanceImage(glanceImage *images.Image) updateStatusOpt {
+func withResource(glanceImage *images.Image) updateStatusOpt {
 	return func(opts *updateStatusOpts) {
 		opts.glanceImage = glanceImage
 	}
@@ -164,17 +141,17 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 	}
 
 	availableCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.OpenStackConditionAvailable).
+		WithType(orcv1alpha1.ConditionAvailable).
 		WithObservedGeneration(orcImage.Generation)
 	progressingCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.OpenStackConditionProgressing).
+		WithType(orcv1alpha1.ConditionProgressing).
 		WithObservedGeneration(orcImage.Generation)
 
 	available := false
 	if glanceImage != nil && glanceImage.Status == images.ImageStatusActive {
 		availableCondition.
 			WithStatus(metav1.ConditionTrue).
-			WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+			WithReason(orcv1alpha1.ConditionReasonSuccess).
 			WithMessage("Glance image is available")
 		available = true
 	} else {
@@ -187,12 +164,12 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 		if available {
 			progressingCondition.
 				WithStatus(metav1.ConditionFalse).
-				WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+				WithReason(orcv1alpha1.ConditionReasonSuccess).
 				WithMessage(*availableCondition.Message)
 		} else {
 			progressingCondition.
 				WithStatus(metav1.ConditionTrue).
-				WithReason(orcv1alpha1.OpenStackConditionReasonProgressing)
+				WithReason(orcv1alpha1.ConditionReasonProgressing)
 
 			if statusOpts.progressMessage == nil {
 				progressingCondition.WithMessage("Reconciliation is progressing")
@@ -210,7 +187,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 				WithMessage(terminalError.Message)
 		} else {
 			progressingCondition.
-				WithReason(orcv1alpha1.OpenStackConditionReasonTransientError).
+				WithReason(orcv1alpha1.ConditionReasonTransientError).
 				WithMessage(err.Error())
 		}
 	}
@@ -226,7 +203,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 	// This also ensures that we don't generate an update event if nothing has changed
 	for _, condition := range []*applyconfigv1.ConditionApplyConfiguration{availableCondition, progressingCondition} {
 		previous := meta.FindStatusCondition(orcImage.Status.Conditions, *condition.Type)
-		if previous != nil && ssa.ConditionsEqual(previous, condition) {
+		if previous != nil && applyconfigs.ConditionsEqual(previous, condition) {
 			condition.WithLastTransitionTime(previous.LastTransitionTime)
 		} else {
 			condition.WithLastTransitionTime(now)
@@ -269,5 +246,5 @@ func (r *orcImageReconciler) updateStatus(ctx context.Context, orcImage *orcv1al
 
 	statusUpdate := createStatusUpdate(ctx, orcImage, now, opts...)
 
-	return r.client.Status().Patch(ctx, orcImage, ssa.ApplyConfigPatch(statusUpdate), client.ForceOwnership, ssaFieldOwner(SSAStatusTxn))
+	return r.client.Status().Patch(ctx, orcImage, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, ssaFieldOwner(SSAStatusTxn))
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package export
 
 // This file provides a minimal exported interface to non-exported controllers
 
@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 )
 
-type SetupWithManager interface {
+type Controller interface {
 	SetupWithManager(context.Context, ctrl.Manager, controller.Options) error
+	GetName() string
 }

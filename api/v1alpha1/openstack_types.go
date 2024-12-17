@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,27 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package errors
+package v1alpha1
 
-import (
-	goerrors "errors"
-)
+// +kubebuilder:validation:Format:=uuid
+// +kubebuilder:validation:MaxLength:=36
+type UUID string
 
-type TerminalError struct {
-	Reason  string
-	Message string
-}
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=1024
+type OpenStackName string
 
-func (e *TerminalError) Error() string {
-	return "reconciliation cannot continue: " + e.Message
-}
-
-var _ error = &TerminalError{}
-
-func Terminal(reason, message string, errs ...error) error {
-	errs = append(errs, &TerminalError{
-		Reason:  reason,
-		Message: message,
-	})
-	return goerrors.Join(errs...)
-}
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=1024
+type OpenStackDescription string

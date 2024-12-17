@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
-	"slices"
-	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/internal/util/ssa"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -58,23 +58,9 @@ func (r *orcImageReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	return r.reconcileNormal(ctx, orcImage)
 }
 
-func (r *orcImageReconciler) getImageClient(ctx context.Context, orcImage *orcv1alpha1.Image) (osclients.ImageClient, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, r.caCertificates, log, orcImage)
-	if err != nil {
-		return nil, err
-	}
-	return clientScope.NewImageClient()
-}
-
-func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcImage *orcv1alpha1.Image) (_ ctrl.Result, err error) {
+func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orcv1alpha1.Image) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling image")
-
-	if !controllerutil.ContainsFinalizer(orcImage, Finalizer) {
-		return ctrl.Result{}, r.setFinalizer(ctx, orcImage)
-	}
 
 	var statusOpts []updateStatusOpt
 	addStatus := func(opt updateStatusOpt) {
@@ -87,7 +73,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcImage *orcv
 			addStatus(withError(err))
 		}
 
-		err = errors.Join(err, r.updateStatus(ctx, orcImage, statusOpts...))
+		err = errors.Join(err, r.updateStatus(ctx, orcObject, statusOpts...))
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
@@ -96,77 +82,44 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcImage *orcv
 		}
 	}()
 
-	imageClient, err := r.getImageClient(ctx, orcImage)
+	if !controllerutil.ContainsFinalizer(orcObject, Finalizer) {
+		patch := common.SetFinalizerPatch(orcObject, Finalizer)
+		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
+	}
+
+	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	var glanceImage *images.Image
-	switch {
-	case orcImage.Status.ID != nil:
-		log.V(4).Info("Fetching existing glance image", "ID", *orcImage.Status.ID)
-		glanceImage, err = imageClient.GetImage(*orcImage.Status.ID)
-		if err != nil {
-			if orcerrors.IsNotFound(err) {
-				// An image we previously referenced has been deleted unexpectedly. We can't recover from this.
-				return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "image has been deleted from Glance")
-			}
-			return ctrl.Result{}, err
-		}
-
-	case orcImage.Spec.Import != nil && orcImage.Spec.Import.ID != nil:
-		log.V(4).Info("Importing existing Glance image by ID")
-		glanceImage, err = imageClient.GetImage(*orcImage.Spec.Import.ID)
-		if err != nil {
-			if orcerrors.IsNotFound(err) {
-				// We assume that an image imported by ID must already exist. It's a terminal error if it doesn't.
-				return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "referenced image does not exist in Glance")
-			}
-			return ctrl.Result{}, err
-		}
-
-	case orcImage.Spec.Import != nil && orcImage.Spec.Import.Filter != nil:
-		log.V(4).Info("Importing existing Glance image by filter")
-		listOpts := listOptsFromImportFilter(orcImage.Spec.Import.Filter)
-		glanceImage, err = getGlanceImageFromList(ctx, listOpts, imageClient)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		if glanceImage == nil {
-			log.V(3).Info("Glance image does not yet exist")
-			addStatus(withProgressMessage("Waiting for Glance image to be created externally"))
-			return ctrl.Result{RequeueAfter: waitForGlanceImageStatusUpdate}, err
-		}
-
-	default:
-		log.V(4).Info("Checking for previously created image")
-		listOpts := listOptsFromCreation(orcImage)
-		glanceImage, err = getGlanceImageFromList(ctx, listOpts, imageClient)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		if glanceImage == nil {
-			glanceImage, err = createImage(ctx, orcImage, imageClient)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-		}
+	waitEvents, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
-	addStatus(withGlanceImage(glanceImage))
+	if len(waitEvents) > 0 {
+		log.V(3).Info("Waiting on events before creation")
+		addStatus(withProgressMessage(waitEvents[0].Message()))
+		return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, nil
+	}
 
-	if orcImage.Status.ID == nil {
-		if err := r.setStatusID(ctx, orcImage, glanceImage.ID); err != nil {
+	if osResource == nil {
+		// Programming error: if we don't have a resource we should either have an error or be waiting on something
+		return ctrl.Result{}, fmt.Errorf("oResource is not set, but no wait events or error")
+	}
+
+	addStatus(withResource(osResource))
+	if orcObject.Status.ID == nil {
+		if err := r.setStatusID(ctx, orcObject, osResource.ID); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
-	log.V(4).Info("Got glance image", "status", glanceImage.Status)
-	log = log.WithValues("ID", glanceImage.ID)
+	log = log.WithValues("ID", osResource.ID)
+	log.V(4).Info("Got resource")
 	ctx = ctrl.LoggerInto(ctx, log)
 
-	return r.handleImageUpload(ctx, imageClient, orcImage, glanceImage, addStatus)
+	return r.handleImageUpload(ctx, actuator.osClient, orcObject, osResource, addStatus)
 }
 
 func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient osclients.ImageClient, orcImage *orcv1alpha1.Image, glanceImage *images.Image, addStatus func(updateStatusOpt)) (_ ctrl.Result, err error) {
@@ -180,7 +133,7 @@ func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient 
 	// "saving" is seen while uploading, but might be seen because our upload failed and glance hasn't reset yet.
 	case images.ImageStatusImporting, images.ImageStatusSaving:
 		addStatus(withProgressMessage(downloadingMessage("Glance is downloading image content", orcImage)))
-		return ctrl.Result{RequeueAfter: waitForGlanceImageStatusUpdate}, nil
+		return ctrl.Result{RequeueAfter: externalUpdatePollingPeriod}, nil
 
 	// Newly created image, waiting for upload, or... previous upload was interrupted and has now reset
 	case images.ImageStatusQueued:
@@ -189,12 +142,12 @@ func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient 
 			addStatus(withProgressMessage("Waiting for glance image content to be uploaded externally"))
 
 			return ctrl.Result{
-				RequeueAfter: waitForGlanceImageStatusUpdate,
+				RequeueAfter: externalUpdatePollingPeriod,
 			}, err
 		}
 
 		if ptr.Deref(orcImage.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
-			return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts))
+			return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts))
 		}
 
 		canWebDownload, err := r.canWebDownload(ctx, orcImage, imageClient)
@@ -226,15 +179,15 @@ func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient 
 
 	// Error cases
 	case images.ImageStatusKilled:
-		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "a glance error occurred while saving image content")
+		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "a glance error occurred while saving image content")
 	case images.ImageStatusDeleted, images.ImageStatusPendingDelete:
-		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "image status is deleting")
+		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "image status is deleting")
 	default:
 		return ctrl.Result{}, errors.New("unknown image status: " + string(glanceImage.Status))
 	}
 }
 
-func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcImage *orcv1alpha1.Image) (_ ctrl.Result, err error) {
+func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcObject *orcv1alpha1.Image) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling image delete")
 
@@ -250,224 +203,24 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcImage *orcv
 			if err != nil {
 				addStatus(withError(err))
 			}
-			err = errors.Join(err, r.updateStatus(ctx, orcImage, statusOpts...))
+			err = errors.Join(err, r.updateStatus(ctx, orcObject, statusOpts...))
 		}
 	}()
 
-	// We won't delete the resource for an unmanaged object, or if onDelete is detach
-	if orcImage.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged || orcImage.Spec.ManagedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
-		logPolicy := []any{"managementPolicy", orcImage.Spec.ManagementPolicy}
-		if orcImage.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-			logPolicy = append(logPolicy, "onDelete", orcImage.Spec.ManagedOptions.GetOnDelete())
-		}
-		log.V(4).Info("Not deleting Glance image due to policy", logPolicy...)
-	} else {
-		imageClient, err := r.getImageClient(ctx, orcImage)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		var glanceImage *images.Image
-		glanceImage, err = getGlanceImage(ctx, orcImage, imageClient)
-		if err != nil && !orcerrors.IsNotFound(err) {
-			return ctrl.Result{}, err
-		}
-		addStatus(withGlanceImage(glanceImage))
-
-		// Delete any returned glance image, but don't clear the finalizer until getGlanceImage() returns nothing
-		if glanceImage != nil {
-			log.V(4).Info("Deleting image", "id", glanceImage.ID)
-			err := imageClient.DeleteImage(ctx, glanceImage.ID)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			return ctrl.Result{RequeueAfter: 5 * time.Second}, nil
-		}
-
-		log.V(4).Info("Image is deleted")
-	}
-
-	deleted = true
-
-	// Clear the finalizer
-	applyConfig := orcapplyconfigv1alpha1.Image(orcImage.Name, orcImage.Namespace).WithUID(orcImage.UID)
-	return ctrl.Result{}, r.client.Patch(ctx, orcImage, ssa.ApplyConfigPatch(applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
-}
-
-// getGlanceImage returns the glance image associated with an ORC Image, or nil if none was found.
-// If Status.ImageID is set, it returns this image, or an error if it does not exist.
-// Otherwise it looks for an existing image with the expected name. It returns nil if none exists.
-func getGlanceImage(ctx context.Context, orcImage *orcv1alpha1.Image, imageClient osclients.ImageClient) (*images.Image, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	log.V(4).Info("Looking for existing glance image to adopt")
-
-	// Check for existing image by name in case we're adopting or failed to write to status
-	imageName := getImageName(orcImage)
-	glanceImages, err := imageClient.ListImages(images.ListOpts{Name: imageName})
+	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
 	if err != nil {
-		return nil, err
-	}
-	switch {
-	case len(glanceImages) == 1:
-		image := &glanceImages[0]
-		log.V(3).Info("Adopting existing glance image", "imageID", image.ID)
-		return image, nil
-	case len(glanceImages) > 1:
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "found multiple images with name "+imageName)
+		return ctrl.Result{}, err
 	}
 
-	return nil, nil
-}
+	osResource, result, err := generic.DeleteResource(ctx, log, actuator, func() error {
+		deleted = true
 
-// getImageName returns the name of the glance image we should use.
-func getImageName(orcImage *orcv1alpha1.Image) string {
-	if orcImage.Spec.Resource.Name != "" {
-		return orcImage.Spec.Resource.Name
-	}
-	return orcImage.Name
-}
-
-func listOptsFromImportFilter(filter *orcv1alpha1.ImageFilter) images.ListOptsBuilder {
-	return images.ListOpts{Name: ptr.Deref(filter.Name, "")}
-}
-
-// listOptsFromCreation returns a listOpts which will return the image which
-// would have been created from the current spec and hopefully no other image.
-// Its purpose is to automatically adopt an image that we created but failed to
-// write to status.id.
-func listOptsFromCreation(orcImage *orcv1alpha1.Image) images.ListOptsBuilder {
-	return images.ListOpts{Name: getImageName(orcImage)}
-}
-
-func getGlanceImageFromList(_ context.Context, listOpts images.ListOptsBuilder, imageClient osclients.ImageClient) (*images.Image, error) {
-	glanceImages, err := imageClient.ListImages(listOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(glanceImages) == 1 {
-		return &glanceImages[0], nil
-	}
-
-	// No image found
-	if len(glanceImages) == 0 {
-		return nil, nil
-	}
-
-	// Multiple images found
-	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one image to import. Found %d", len(glanceImages)))
-}
-
-// glancePropertiesFromStruct populates a properties struct using field values and glance tags defined on the given struct
-// glance tags are defined in the API.
-func glancePropertiesFromStruct(propStruct interface{}, properties map[string]string) error {
-	sp := reflect.ValueOf(propStruct)
-	if sp.Kind() != reflect.Pointer {
-		return fmt.Errorf("glancePropertiesFromStruct expects pointer to struct, got %T", propStruct)
-	}
-	if sp.IsZero() {
-		return nil
-	}
-
-	s := sp.Elem()
-	st := s.Type()
-	if st.Kind() != reflect.Struct {
-		return fmt.Errorf("glancePropertiesFromStruct expects pointer to struct, got %T", propStruct)
-	}
-
-	for i := range st.NumField() {
-		field := st.Field(i)
-		glanceTag, ok := field.Tag.Lookup(orcv1alpha1.GlanceTag)
-		if !ok {
-			panic(fmt.Errorf("glance tag not defined for field %s on struct %T", field.Name, st.Name))
-		}
-
-		value := s.Field(i)
-		if value.Kind() == reflect.Pointer {
-			if value.IsZero() {
-				continue
-			}
-			value = value.Elem()
-		}
-
-		// Gophercloud takes only strings, but values may not be
-		// strings. Value.String() prints semantic information for
-		// non-strings, but Sprintf does what we want.
-		properties[glanceTag] = fmt.Sprintf("%v", value)
-	}
-
-	return nil
-}
-
-// createImage creates a Glance image for an ORC Image.
-func createImage(ctx context.Context, orcImage *orcv1alpha1.Image, imageClient osclients.ImageClient) (*images.Image, error) {
-	if orcImage.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
-		// Should have been caught by API validation
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
-	}
-
-	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Creating image")
-
-	resource := orcImage.Spec.Resource
-
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
-	}
-
-	if resource.Content == nil {
-		// Should have been caught by API validation
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource.content is not set")
-	}
-
-	tags := make([]string, len(resource.Tags))
-	for i := range resource.Tags {
-		tags[i] = string(resource.Tags[i])
-	}
-	// Sort tags before creation to simplify comparisons
-	slices.Sort(tags)
-
-	var minDisk, minMemory int
-	properties := resource.Properties
-	additionalProperties := map[string]string{}
-	if properties != nil {
-		if properties.MinDiskGB != nil {
-			minDisk = *properties.MinDiskGB
-		}
-		if properties.MinMemoryMB != nil {
-			minMemory = *properties.MinMemoryMB
-		}
-
-		if err := glancePropertiesFromStruct(properties.Hardware, additionalProperties); err != nil {
-			return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "programming error", err)
-		}
-	}
-
-	var visibility *images.ImageVisibility
-	if resource.Visibility != nil {
-		visibility = ptr.To(images.ImageVisibility(*resource.Visibility))
-	}
-
-	image, err := imageClient.CreateImage(ctx, &images.CreateOpts{
-		Name:            getImageName(orcImage),
-		Visibility:      visibility,
-		Tags:            tags,
-		ContainerFormat: string(resource.Content.ContainerFormat),
-		DiskFormat:      (string)(resource.Content.DiskFormat),
-		MinDisk:         minDisk,
-		MinRAM:          minMemory,
-		Protected:       resource.Protected,
-		Properties:      additionalProperties,
+		// Clear the finalizer
+		applyConfig := orcapplyconfigv1alpha1.Image(orcObject.Name, orcObject.Namespace).WithUID(orcObject.UID)
+		return r.client.Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
 	})
-
-	// We should require the spec to be updated before retrying a create which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating image: "+err.Error(), err)
-	}
-
-	return image, err
+	addStatus(withResource(osResource))
+	return result, err
 }
 
 func downloadingMessage(msg string, orcImage *orcv1alpha1.Image) string {

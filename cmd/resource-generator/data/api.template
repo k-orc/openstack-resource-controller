@@ -1,5 +1,5 @@
 /*
-Copyright {{ .Year }} The Kubernetes Authors.
+Copyright {{ .Year }} The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -50,6 +50,9 @@ type {{ .Name }}Import struct {
 // +kubebuilder:validation:XValidation:rule="{{ .Rule }}",message="{{ .Message }}"
 {{ end -}}
 type {{ .Name }}Spec struct {
+{{- if .SpecExtraType }}
+	{{ .SpecExtraType }} `json:",inline"`
+{{ end }}
 	// Import refers to an existing OpenStack resource which will be imported instead of
 	// creating a new one.
 	// +optional
@@ -146,6 +149,10 @@ type {{ .Name }}List struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []{{ .Name }} `json:"items"`
+}
+
+func (l *{{ .Name }}List) GetItems() []{{ .Name }} {
+	return l.Items
 }
 
 func init() {

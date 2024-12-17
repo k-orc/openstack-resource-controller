@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,12 +39,6 @@ func imageStub(name string, namespace *corev1.Namespace) *orcv1alpha1.Image {
 	obj.Name = name
 	obj.Namespace = namespace.Name
 	return obj
-}
-
-func testCredentials() *applyconfigv1alpha1.CloudCredentialsReferenceApplyConfiguration {
-	return applyconfigv1alpha1.CloudCredentialsReference().
-		WithSecretName("openstack-credentials").
-		WithCloudName("openstack")
 }
 
 func testResource() *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
