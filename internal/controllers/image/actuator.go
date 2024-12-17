@@ -82,13 +82,9 @@ func (obj imageActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *im
 }
 
 func (obj imageActuator) GetOSResourceBySpec(ctx context.Context) (*images.Image, error) {
-	if obj.Spec.Import == nil {
+	if obj.Spec.Resource == nil {
 		return nil, nil
 	}
-	if obj.Spec.Import.Filter == nil {
-		return nil, nil
-	}
-
 	listOpts := listOptsFromCreation(obj.Image)
 	image, err := getGlanceImageFromList(ctx, listOpts, obj.osClient)
 	return image, err
