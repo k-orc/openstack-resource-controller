@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Collect logs after an integration test failure.
+
+# We intentionally don't set '-e' (exit on first failure) since we don't want
+# to fail on these diagnostic steps
+set -uxo pipefail
+
+LOG_DIR=${LOG_DIR:-/tmp/artifacts}
+mkdir -p "$LOG_DIR"
+
+cp -r /tmp/devstack-logs "${LOG_DIR}"
+DEVSTACK_LOG_DIR="${LOG_DIR}/devstack-logs"
+
+# shellcheck disable=SC2024
+sudo journalctl -o short-precise --no-pager &> "$LOG_DIR/journal.log"
+free -m > "$LOG_DIR/free.txt"
+dpkg -l > "$LOG_DIR/dpkg-l.txt"
+pip freeze > "$LOG_DIR/pip-freeze.txt"
+
+# shellcheck disable=SC2024
+sudo systemctl status "devstack@*" &> "$DEVSTACK_LOG_DIR/devstack-services.txt"
+for service in $(systemctl list-units --output json devstack@* | jq -r '.[].unit | capture("devstack@(?<svc>[a-z\\-]+).service") | '.svc'')
+do
+    journalctl -u "devstack@${service}.service" --no-tail > "${DEVSTACK_LOG_DIR}/${service}.log"
+done
+cp ./devstack/local.conf "$DEVSTACK_LOG_DIR"
+
+kubectl describe pods -n orc-system > "$LOG_DIR/orc-pod.txt"
+kubectl logs -n orc-system -l control-plane=controller-manager --tail=-1 > "$LOG_DIR/orc-pod.log"
+
+kubectl get -n orc-system all -o yaml > "$LOG_DIR/orc-resources.yaml"
+
+mkdir "$LOG_DIR/orc-managed-resources"
+for crd in config/crd/bases/openstack.k-orc.cloud_*; do
+    resource=${crd:39:-5}
+    kubectl get "${resource}" -o yaml > "$LOG_DIR/orc-managed-resources/${resource}.yaml"
+done
+
+sudo find "$LOG_DIR" -type d -exec chmod 0755 {} \;
+sudo find "$LOG_DIR" -type f -exec chmod 0644 {} \;
+

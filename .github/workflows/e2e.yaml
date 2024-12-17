@@ -50,3 +50,16 @@ jobs:
 
     - name: Run e2e tests
       run: make test-e2e
+
+    - name: Generate logs on failure
+      run: ./hack/collectlogs
+      if: failure()
+      env:
+        OS_CLOUD: devstack
+
+    - name: Upload logs artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-${{ matrix.name }}-${{ github.run_id }}
+        path: /tmp/artifacts/*
