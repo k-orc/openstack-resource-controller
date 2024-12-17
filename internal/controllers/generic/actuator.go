@@ -68,7 +68,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	if hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx); hasStatusID {
 		if orcerrors.IsNotFound(err) {
 			// An OpenStack resource we previously referenced has been deleted unexpectedly. We can't recover from this.
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "resource has been deleted from OpenStack")
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "resource has been deleted from OpenStack")
 		}
 		if osResource != nil {
 			log.V(4).Info("Got existing OpenStack resource", "ID", actuator.GetResourceID(osResource))
@@ -80,7 +80,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	if hasImportID, osResource, err := actuator.GetOSResourceByImportID(ctx); hasImportID {
 		if orcerrors.IsNotFound(err) {
 			// We assume that a resource imported by ID must already exist. It's a terminal error if it doesn't.
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "referenced resource does not exist in OpenStack")
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "referenced resource does not exist in OpenStack")
 		}
 		if osResource != nil {
 			log.V(4).Info("Imported existing OpenStack resource by ID", "ID", actuator.GetResourceID(osResource))
@@ -101,7 +101,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	if actuator.GetManagementPolicy() == orcv1alpha1.ManagementPolicyUnmanaged {
 		// We never create an unmanaged resource
 		// API validation should have ensured that one of the above functions returned
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
 	}
 
 	osResource, err := actuator.GetOSResourceBySpec(ctx)

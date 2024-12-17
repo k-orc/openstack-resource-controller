@@ -85,7 +85,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 	download := content.Download
 	if download == nil {
 		// Should have been caught by validation
-		return orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "image source type URL has no url entry")
+		return orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "image source type URL has no url entry")
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, download.URL, http.NoBody)
@@ -138,7 +138,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 	err = imageClient.UploadData(ctx, glanceImage.ID, reader)
 	if err != nil {
 		if orcerrors.IsInvalidError(err) {
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, err.Error(), err)
 		}
 		return fmt.Errorf("error writing data to glance: %w", err)
 	}

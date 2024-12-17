@@ -117,7 +117,7 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
 	createOpts := groups.CreateOpts{
@@ -133,7 +133,7 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
 		return nil, nil, err
 	}
@@ -157,7 +157,7 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 	if _, err := obj.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
-			err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
 		return nil, nil, err
 	}
@@ -214,5 +214,5 @@ func getResourceFromList(ctx context.Context, listOpts groups.ListOpts, networkC
 	}
 
 	// Multiple resources found
-	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
 }
