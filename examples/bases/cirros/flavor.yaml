@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: m1.tiny

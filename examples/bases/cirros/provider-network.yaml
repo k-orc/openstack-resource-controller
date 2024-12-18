@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: public-server-provider-network
+  name: provider-network
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -15,13 +15,13 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: public-server-provider-subnet-ipv4
+  name: provider-subnet-ipv4
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: dev-test-cloud-config
   managementPolicy: unmanaged
-  networkRef: public-server-provider-network
+  networkRef: provider-network
   import:
     filter:
       ipVersion: 4
@@ -29,13 +29,13 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: public-server-provider-subnet-ipv6
+  name: provider-subnet-ipv6
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: dev-test-cloud-config
   managementPolicy: unmanaged
-  networkRef: public-server-provider-network
+  networkRef: provider-network
   import:
     filter:
       ipVersion: 6

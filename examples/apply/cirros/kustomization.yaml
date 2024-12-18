@@ -6,5 +6,5 @@ components:
 - ../../components/kustomizeconfig
 
 resources:
-- ../../bases/public-server
+- ../../bases/cirros
 - ../../bases/credentials-reference

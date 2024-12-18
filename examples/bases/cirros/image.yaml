@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: public-server-image
+  name: image
 spec:
   cloudCredentialsRef:
     cloudName: openstack
