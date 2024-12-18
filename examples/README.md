@@ -19,3 +19,9 @@ Before executing any modules in this directory you must:
 * apply
   - Contains modules which apply local namespacing to base modules and combine them with local credentials
   - These are the modules indended to be loaded directly
+
+### Binary dependencies
+
+The Makefile requires that appropriately up-to-date versions of the following binaries are available in `$PATH`:
+* kustomize
+* kubectl
