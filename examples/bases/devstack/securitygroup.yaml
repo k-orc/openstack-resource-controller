@@ -1,0 +1,56 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: allow-ssh
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  resource:
+    stateful: true
+    rules:
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 22
+      portRangeMax: 22
+      ethertype: IPv4
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 22
+      portRangeMax: 22
+      ethertype: IPv6
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: devstack
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  resource:
+    stateful: true
+    rules:
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 80
+      portRangeMax: 80
+      ethertype: IPv4
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 80
+      portRangeMax: 80
+      ethertype: IPv6
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 9696
+      portRangeMax: 9696
+      ethertype: IPv4
+    - direction: ingress
+      protocol: tcp
+      portRangeMin: 9696
+      portRangeMax: 9696
+      ethertype: IPv6

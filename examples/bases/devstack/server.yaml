@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: dev-test-cloud-config
+  managementPolicy: managed
+  resource:
+    imageRef: centos-stream-9
+    flavorRef: flavor
+    ports:
+    - portRef: port
+    userData:
+      secretRef: userdata
