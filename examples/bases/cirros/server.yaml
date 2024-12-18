@@ -1,13 +1,15 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Flavor
+kind: Server
 metadata:
-  name: public-server-flavor
+  name: server
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: dev-test-cloud-config
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: m1.tiny
+  managementPolicy: managed
+  resource:
+    imageRef: image
+    flavorRef: flavor
+    ports:
+    - portRef: port

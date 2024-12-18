@@ -2,18 +2,18 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: public-server-port
+  name: port
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: dev-test-cloud-config
   managementPolicy: managed
-  networkRef: public-server-provider-network
+  networkRef: provider-network
   resource:
     tags:
     - orc-test
     securityGroupRefs:
-    - public-server-allow-ssh
+    - allow-ssh
     addresses:
-    - subnetRef: public-server-provider-subnet-ipv4
-    - subnetRef: public-server-provider-subnet-ipv6
+    - subnetRef: provider-subnet-ipv4
+    - subnetRef: provider-subnet-ipv6

@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: public-server-allow-ssh
+  name: allow-ssh
 spec:
   cloudCredentialsRef:
     cloudName: openstack
