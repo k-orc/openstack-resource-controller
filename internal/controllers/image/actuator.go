@@ -156,7 +156,7 @@ func (obj imageActuator) CreateResource(ctx context.Context) ([]generic.WaitingO
 	}
 
 	image, err := obj.osClient.CreateImage(ctx, &images.CreateOpts{
-		Name:            getResourceName(obj.Image),
+		Name:            string(getResourceName(obj.Image)),
 		Visibility:      visibility,
 		Tags:            tags,
 		ContainerFormat: string(resource.Content.ContainerFormat),
@@ -180,11 +180,11 @@ func (obj imageActuator) DeleteResource(ctx context.Context, osResource *images.
 }
 
 // getResourceName returns the name of the glance image we should use.
-func getResourceName(orcImage *orcv1alpha1.Image) string {
-	if orcImage.Spec.Resource.Name != "" {
-		return orcImage.Spec.Resource.Name
+func getResourceName(orcImage *orcv1alpha1.Image) orcv1alpha1.OpenStackName {
+	if orcImage.Spec.Resource.Name != nil {
+		return *orcImage.Spec.Resource.Name
 	}
-	return orcImage.Name
+	return orcv1alpha1.OpenStackName(orcImage.Name)
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.ImageFilter) images.ListOptsBuilder {
@@ -196,7 +196,7 @@ func listOptsFromImportFilter(filter *orcv1alpha1.ImageFilter) images.ListOptsBu
 // Its purpose is to automatically adopt an image that we created but failed to
 // write to status.id.
 func listOptsFromCreation(orcImage *orcv1alpha1.Image) images.ListOptsBuilder {
-	return images.ListOpts{Name: getResourceName(orcImage)}
+	return images.ListOpts{Name: string(getResourceName(orcImage))}
 }
 
 func getGlanceImageFromList(_ context.Context, listOpts images.ListOptsBuilder, imageClient osclients.ImageClient) (*images.Image, error) {
