@@ -43,15 +43,13 @@ kind-control-plane   Ready    control-plane   4m22s   v1.30.0
 
 ### Load the ORC CRDs
 
-From the `orc` directory:
+From the root directory:
 ```bash
-$ kubectl kustomize config/crd | kubectl apply -f - --server-side
+$ kubectl apply -k config/crd --server-side
 customresourcedefinition.apiextensions.k8s.io/images.openstack.k-orc.cloud serverside-applied
 customresourcedefinition.apiextensions.k8s.io/networks.openstack.k-orc.cloud serverside-applied
 customresourcedefinition.apiextensions.k8s.io/subnets.openstack.k-orc.cloud serverside-applied
 ```
-
-Ensure you run this from the `orc` directory, not the base CAPO directory. If you run it from CAPO it will load all the CAPO CRDs. It's not a problem if you do this accidentally, but they're not used and you still need to load the ORC CRDs from the `orc` directory.
 
 ### Run the ORC manager locally
 
@@ -89,7 +87,7 @@ In the examples directory, run:
 ```bash
 $ make
 echo "$KUSTOMIZATION" > components/dev-settings/kustomization.yaml
-kustomize build apply/credentials | kubectl apply -f - --server-side
+kubectl apply -k apply/credentials --server-side
 secret/mbooth-dev-test-cloud-config-g4ckbm986f serverside-applied
 ```
 
@@ -111,7 +109,7 @@ Error: accumulating components: accumulateDirectory: "couldn't make target for p
 To generate the `managed-network` example:
 ```bash
 $ cd examples/apply/managed-network
-$ kustomize build . | kubectl apply -f - --server-side
+$ kubectl apply -k . --server-side
 network.openstack.k-orc.cloud/mbooth-orc-managed-network serverside-applied
 ```
 
@@ -120,5 +118,5 @@ above on creating credentials.
 
 To cleanup the `managed-network` example:
 ```bash
-$ kustomize build . | kubectl delete -f -
+$ kubectl delete -k .
 ```

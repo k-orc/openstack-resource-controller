@@ -1,7 +1,6 @@
 .PHONY: default
 default: load-credentials
 
-KUSTOMIZE ?= kustomize
 KUBECTL ?= kubectl
 
 ##
@@ -46,4 +45,4 @@ $(credentials):
 
 .PHONY: load-credentials
 load-credentials: check-credentials dev-settings
-	$(KUSTOMIZE) build apply/credentials | $(KUBECTL) apply -f - --server-side
+	$(KUBECTL) apply -k apply/credentials --server-side
