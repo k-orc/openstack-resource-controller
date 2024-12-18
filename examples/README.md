@@ -4,11 +4,9 @@ This directory contains kustomize modules for generating some example resource
 deployments.
 
 Before executing any modules in this directory you must:
-* Populate the dev-settings component by executing `make dev-settings`
 * Provide an appropriate clouds.yaml in bases/credentials/clouds.yaml with a
   cloud name of 'openstack'
-* Create a secret containing your clouds.yaml by executing `make
-  load-credentials`.
+* Populate the dev-settings component and load the above credentials by running `make`
 
 ### Layout
 
