@@ -73,15 +73,13 @@ To recompile, kill the process with ctrl-C and re-run it.
 
 ### Define and create OpenStack credentials
 
-Create a `clouds.yaml` file in `orc/examples/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
+Create a `clouds.yaml` file in `examples/bases/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
 
 This file is in both `.gitignore` and `.dockerignore`, so should not be accidentally added to the git repo or a container build.
 
-Create a credentials secret in your development cluster by loading the
-`credentials-only` kustomize resource:
-
+Create a credentials secret in your development cluster by running the following from the examples directory:
 ```bash
-$ kubectl apply -k orc/examples/credentials-only --server-side
+$ make load-credentials
 secret/mbooth-dev-test-cloud-config-g4ckbm986f serverside-applied
 ```
 
@@ -93,23 +91,22 @@ deleting the credentials, which would prevent the deletion from completing.
 
 The examples depend on a kustomize component called `dev-settings` which by default contains only a `namePrefix` with the current user's name. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
 
-To generate this file, change to the `examples/dev-settings` directory and run `make`:
+Generate this file by running the following from the examples directory:
 ```bash
-$ cd orc/examples/dev-settings/
-$ make
-echo "$KUSTOMIZATION" > kustomization.yaml
+$ make dev-settings
+echo "$KUSTOMIZATION" > components/dev-settings/kustomization.yaml
 ```
 
 Note that failing to do this will result in an error trying to generate an example resource like:
 ```
-Error: accumulating components: accumulateDirectory: "couldn't make target for path '.../cluster-api-provider-openstack/orc/examples/dev-settings': unable to find one of 'kustomization.yaml', 'kustomization.yml' or 'Kustomization' in directory '.../cluster-api-provider-openstack/orc/examples/dev-settings'"
+Error: accumulating components: accumulateDirectory: "couldn't make target for path '.../openstack-resource-controller/examples/components/dev-settings': unable to find one of 'kustomization.yaml', 'kustomization.yml' or 'Kustomization' in directory '.../openstack-resource-controller/examples/components/dev-settings'"
 ```
 
 ### Create an ORC resource
 
 To generate the `managed-network` example:
 ```bash
-$ cd orc/examples/managed-network
+$ cd examples/apply/managed-network
 $ kustomize build . | kubectl apply -f - --server-side
 network.openstack.k-orc.cloud/mbooth-orc-managed-network serverside-applied
 ```
@@ -119,5 +116,5 @@ above on creating credentials.
 
 To cleanup the `managed-network` example:
 ```bash
-$ kubectl delete -k .
+$ kustomize build . | kubectl delete -f -
 ```
