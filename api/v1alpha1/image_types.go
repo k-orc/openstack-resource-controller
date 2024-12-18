@@ -274,10 +274,8 @@ type ImageHash struct {
 type ImageResourceSpec struct {
 	// Name will be the name of the created Glance image. If not specified, the
 	// name of the Image object will be used.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=1000
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *OpenStackName `json:"name,omitempty"`
 
 	// Protected specifies that the image is protected from deletion.
 	// If not specified, the default is false.

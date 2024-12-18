@@ -279,7 +279,7 @@ var _ = Describe("ORC Image API validations", func() {
 
 	It("should not permit modifying resource.name", func(ctx context.Context) {
 		testMutability(ctx, namespace,
-			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(string) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
+			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(orcv1alpha1.OpenStackName) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithName
 			},
 			"foo", "bar", true,
