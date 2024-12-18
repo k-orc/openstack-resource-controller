@@ -23,5 +23,4 @@ Before executing any modules in this directory you must:
 ### Binary dependencies
 
 The Makefile requires that appropriately up-to-date versions of the following binaries are available in `$PATH`:
-* kustomize
 * kubectl
