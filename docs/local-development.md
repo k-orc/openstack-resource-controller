@@ -71,9 +71,25 @@ To recompile, kill the process with ctrl-C and re-run it.
 
 ## Create an example ORC resource
 
+### Generate `dev-settings`
+
+The examples depend on a kustomize component called `dev-settings` which by default contains only a `namePrefix` with the current user's name. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
+
+To generate this file, change to the `examples/dev-settings` directory and run `make`:
+```bash
+$ cd examples/dev-settings/
+$ make
+echo "$KUSTOMIZATION" > kustomization.yaml
+```
+
+Note that failing to do this will result in an error trying to generate an example resource like:
+```
+Error: accumulating components: accumulateDirectory: "couldn't make target for path '.../examples/dev-settings': unable to find one of 'kustomization.yaml', 'kustomization.yml' or 'Kustomization' in directory '.../examples/dev-settings'"
+```
+
 ### Define and create OpenStack credentials
 
-Create a `clouds.yaml` file in `orc/examples/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
+Create a `clouds.yaml` file in `examples/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
 
 This file is in both `.gitignore` and `.dockerignore`, so should not be accidentally added to the git repo or a container build.
 
@@ -81,7 +97,7 @@ Create a credentials secret in your development cluster by loading the
 `credentials-only` kustomize resource:
 
 ```bash
-$ kubectl apply -k orc/examples/credentials-only --server-side
+$ kubectl apply -k examples/credentials-only --server-side
 secret/mbooth-dev-test-cloud-config-g4ckbm986f serverside-applied
 ```
 
@@ -89,27 +105,11 @@ Note that we intentionally create credentials separately from other modules.
 This allows us to delete an entire example kustomize module without also
 deleting the credentials, which would prevent the deletion from completing.
 
-### Generate `dev-settings`
-
-The examples depend on a kustomize component called `dev-settings` which by default contains only a `namePrefix` with the current user's name. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
-
-To generate this file, change to the `examples/dev-settings` directory and run `make`:
-```bash
-$ cd orc/examples/dev-settings/
-$ make
-echo "$KUSTOMIZATION" > kustomization.yaml
-```
-
-Note that failing to do this will result in an error trying to generate an example resource like:
-```
-Error: accumulating components: accumulateDirectory: "couldn't make target for path '.../cluster-api-provider-openstack/orc/examples/dev-settings': unable to find one of 'kustomization.yaml', 'kustomization.yml' or 'Kustomization' in directory '.../cluster-api-provider-openstack/orc/examples/dev-settings'"
-```
-
 ### Create an ORC resource
 
 To generate the `managed-network` example:
 ```bash
-$ cd orc/examples/managed-network
+$ cd examples/managed-network
 $ kustomize build . | kubectl apply -f - --server-side
 network.openstack.k-orc.cloud/mbooth-orc-managed-network serverside-applied
 ```
