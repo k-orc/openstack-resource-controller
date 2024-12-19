@@ -128,7 +128,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
 	var waitEvents []generic.WaitingOnEvent
@@ -171,7 +171,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 
 			if portSpec.PortRef == nil {
 				// Should have been caught by API validation
-				return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "empty port spec")
+				return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec")
 			}
 
 			portObject := &orcv1alpha1.Port{}
@@ -209,7 +209,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 
 	// We should require the spec to be updated before retrying a create which returned a non-retryable error
 	if err != nil && !orcerrors.IsRetryable(err) {
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 	}
 
 	return nil, osResource, err

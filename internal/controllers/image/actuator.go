@@ -119,12 +119,12 @@ func (obj imageActuator) CreateResource(ctx context.Context) ([]generic.WaitingO
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
 	if resource.Content == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "Creation requested, but spec.resource.content is not set")
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource.content is not set")
 	}
 
 	tags := make([]string, len(resource.Tags))
@@ -146,7 +146,7 @@ func (obj imageActuator) CreateResource(ctx context.Context) ([]generic.WaitingO
 		}
 
 		if err := glancePropertiesFromStruct(properties.Hardware, additionalProperties); err != nil {
-			return nil, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "programming error", err)
+			return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "programming error", err)
 		}
 	}
 
@@ -169,7 +169,7 @@ func (obj imageActuator) CreateResource(ctx context.Context) ([]generic.WaitingO
 
 	// We should require the spec to be updated before retrying a create which returned a conflict
 	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "invalid configuration creating image: "+err.Error(), err)
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating image: "+err.Error(), err)
 	}
 
 	return nil, image, err
@@ -215,7 +215,7 @@ func getGlanceImageFromList(_ context.Context, listOpts images.ListOptsBuilder, 
 	}
 
 	// Multiple images found
-	return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one image to import. Found %d", len(glanceImages)))
+	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one image to import. Found %d", len(glanceImages)))
 }
 
 // glancePropertiesFromStruct populates a properties struct using field values and glance tags defined on the given struct

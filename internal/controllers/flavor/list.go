@@ -48,6 +48,6 @@ func GetByFilter(ctx context.Context, osClient flavorLister, filter v1alpha1.Fla
 					MinRAM:  int(ptr.Deref(filter.RAM, 0)),
 				}),
 			filterFuncs...),
-		orcerrors.Terminal(v1alpha1.OpenStackConditionReasonInvalidConfiguration, "found more than one matching flavor in OpenStack"),
+		orcerrors.Terminal(v1alpha1.ConditionReasonInvalidConfiguration, "found more than one matching flavor in OpenStack"),
 	)
 }

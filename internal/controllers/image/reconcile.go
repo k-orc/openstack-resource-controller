@@ -147,7 +147,7 @@ func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient 
 		}
 
 		if ptr.Deref(orcImage.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
-			return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts))
+			return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts))
 		}
 
 		canWebDownload, err := r.canWebDownload(ctx, orcImage, imageClient)
@@ -179,9 +179,9 @@ func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient 
 
 	// Error cases
 	case images.ImageStatusKilled:
-		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "a glance error occurred while saving image content")
+		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "a glance error occurred while saving image content")
 	case images.ImageStatusDeleted, images.ImageStatusPendingDelete:
-		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "image status is deleting")
+		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "image status is deleting")
 	default:
 		return ctrl.Result{}, errors.New("unknown image status: " + string(glanceImage.Status))
 	}

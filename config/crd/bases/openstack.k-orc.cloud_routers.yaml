@@ -232,7 +232,7 @@ spec:
                     items:
                       properties:
                         networkRef:
-                          maxLength: 128
+                          maxLength: 253
                           minLength: 1
                           type: string
                       required:

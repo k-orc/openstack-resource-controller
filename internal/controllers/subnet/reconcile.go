@@ -286,7 +286,7 @@ func (r *orcSubnetReconciler) needsUpdate(networkClient osclients.NetworkClient,
 		routerInterface.Spec = orcv1alpha1.RouterInterfaceSpec{
 			Type:      orcv1alpha1.RouterInterfaceTypeSubnet,
 			RouterRef: *resource.RouterRef,
-			SubnetRef: ptr.To(orcv1alpha1.ORCNameRef(orcObject.Name)),
+			SubnetRef: ptr.To(orcv1alpha1.KubernetesNameRef(orcObject.Name)),
 		}
 
 		if err := r.client.Create(ctx, routerInterface); err != nil {

@@ -87,8 +87,6 @@ type NeutronStatusMetadata struct {
 	RevisionNumber *int64 `json:"revisionNumber,omitempty"`
 }
 
-// XXX: KubernetesNameRef MaxLength is made up
-
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=128
+// +kubebuilder:validation:MaxLength:=253
 type KubernetesNameRef string

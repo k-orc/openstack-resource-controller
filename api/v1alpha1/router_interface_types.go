@@ -61,10 +61,10 @@ type RouterInterfaceSpec struct {
 	Type RouterInterfaceType `json:"type"`
 
 	// +required
-	RouterRef ORCNameRef `json:"routerRef"`
+	RouterRef KubernetesNameRef `json:"routerRef"`
 
 	// +unionMember,optional
-	SubnetRef *ORCNameRef `json:"subnetRef,omitempty"`
+	SubnetRef *KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 
 type RouterInterfaceStatus struct {

@@ -26,7 +26,7 @@ package v1alpha1
 type SubnetRefs struct {
 	// NetworkRef is a reference to the ORC Network which this subnet is associated with.
 	// +required
-	NetworkRef ORCNameRef `json:"networkRef"`
+	NetworkRef KubernetesNameRef `json:"networkRef"`
 }
 
 // SubnetFilter specifies a filter to select a subnet. At least one parameter must be specified.
@@ -105,7 +105,7 @@ type SubnetResourceSpec struct {
 
 	// RouterRef specifies a router to attach the subnet to
 	// +optional
-	RouterRef *ORCNameRef `json:"routerRef,omitempty"`
+	RouterRef *KubernetesNameRef `json:"routerRef,omitempty"`
 
 	// TODO: Support service types
 	// TODO: Support subnet pools

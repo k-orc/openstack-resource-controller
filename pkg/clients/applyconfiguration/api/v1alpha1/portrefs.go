@@ -25,7 +25,7 @@ import (
 // PortRefsApplyConfiguration represents a declarative configuration of the PortRefs type for use
 // with apply.
 type PortRefsApplyConfiguration struct {
-	NetworkRef *v1alpha1.ORCNameRef `json:"networkRef,omitempty"`
+	NetworkRef *v1alpha1.KubernetesNameRef `json:"networkRef,omitempty"`
 }
 
 // PortRefsApplyConfiguration constructs a declarative configuration of the PortRefs type for use with
@@ -37,7 +37,7 @@ func PortRefs() *PortRefsApplyConfiguration {
 // WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NetworkRef field is set to the value of the last call.
-func (b *PortRefsApplyConfiguration) WithNetworkRef(value v1alpha1.ORCNameRef) *PortRefsApplyConfiguration {
+func (b *PortRefsApplyConfiguration) WithNetworkRef(value v1alpha1.KubernetesNameRef) *PortRefsApplyConfiguration {
 	b.NetworkRef = &value
 	return b
 }

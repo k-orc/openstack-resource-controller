@@ -27,7 +27,3 @@ type OpenStackName string
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=1024
 type OpenStackDescription string
-
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=253
-type ORCNameRef string

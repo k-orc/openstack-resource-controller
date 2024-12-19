@@ -117,7 +117,7 @@ func (r *orcServerReconciler) reconcileNormal(ctx context.Context, orcObject *or
 
 	switch osResource.Status {
 	case ServerStatusError:
-		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "Server is in ERROR state")
+		return ctrl.Result{}, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Server is in ERROR state")
 	case ServerStatusActive:
 		// fall through
 	default:

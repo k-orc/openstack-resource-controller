@@ -1723,7 +1723,7 @@ func (in *RouterInterfaceSpec) DeepCopyInto(out *RouterInterfaceSpec) {
 	*out = *in
 	if in.SubnetRef != nil {
 		in, out := &in.SubnetRef, &out.SubnetRef
-		*out = new(ORCNameRef)
+		*out = new(KubernetesNameRef)
 		**out = **in
 	}
 }
@@ -2361,7 +2361,7 @@ func (in *ServerPortSpec) DeepCopyInto(out *ServerPortSpec) {
 	*out = *in
 	if in.PortRef != nil {
 		in, out := &in.PortRef, &out.PortRef
-		*out = new(ORCNameRef)
+		*out = new(KubernetesNameRef)
 		**out = **in
 	}
 }
@@ -2716,7 +2716,7 @@ func (in *SubnetResourceSpec) DeepCopyInto(out *SubnetResourceSpec) {
 	}
 	if in.RouterRef != nil {
 		in, out := &in.RouterRef, &out.RouterRef
-		*out = new(ORCNameRef)
+		*out = new(KubernetesNameRef)
 		**out = **in
 	}
 }

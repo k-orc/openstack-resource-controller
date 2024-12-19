@@ -25,7 +25,7 @@ import (
 // SubnetRefsApplyConfiguration represents a declarative configuration of the SubnetRefs type for use
 // with apply.
 type SubnetRefsApplyConfiguration struct {
-	NetworkRef *v1alpha1.ORCNameRef `json:"networkRef,omitempty"`
+	NetworkRef *v1alpha1.KubernetesNameRef `json:"networkRef,omitempty"`
 }
 
 // SubnetRefsApplyConfiguration constructs a declarative configuration of the SubnetRefs type for use with
@@ -37,7 +37,7 @@ func SubnetRefs() *SubnetRefsApplyConfiguration {
 // WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NetworkRef field is set to the value of the last call.
-func (b *SubnetRefsApplyConfiguration) WithNetworkRef(value v1alpha1.ORCNameRef) *SubnetRefsApplyConfiguration {
+func (b *SubnetRefsApplyConfiguration) WithNetworkRef(value v1alpha1.KubernetesNameRef) *SubnetRefsApplyConfiguration {
 	b.NetworkRef = &value
 	return b
 }

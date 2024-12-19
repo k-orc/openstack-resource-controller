@@ -21,7 +21,7 @@ package v1alpha1
 type ServerPortSpec struct {
 	// PortRef is a reference to a Port object. Server creation will wait for
 	// this port to be created and available.
-	PortRef *ORCNameRef `json:"portRef,omitempty"`
+	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
 // ServerResourceSpec contains the desired state of a server
@@ -31,9 +31,9 @@ type ServerResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	ImageRef ORCNameRef `json:"imageRef"`
+	ImageRef KubernetesNameRef `json:"imageRef"`
 
-	FlavorRef ORCNameRef `json:"flavorRef"`
+	FlavorRef KubernetesNameRef `json:"flavorRef"`
 
 	// Ports defines a list of ports which will be attached to the server.
 	// +listType=atomic

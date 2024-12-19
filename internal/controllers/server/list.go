@@ -30,6 +30,6 @@ func GetByFilter(ctx context.Context, osClient serverLister, filter orcv1alpha1.
 		osClient.ListServers(ctx, servers.ListOpts{
 			Name: string(ptr.Deref(filter.Name, "")),
 		}),
-		orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "found more than one matching server in OpenStack"),
+		orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "found more than one matching server in OpenStack"),
 	)
 }

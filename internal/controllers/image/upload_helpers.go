@@ -134,6 +134,6 @@ func newReaderWithDecompression(reader io.Reader, compression orcv1alpha1.ImageC
 		return bzip2.NewReader(reader), nil
 	default:
 		msg := fmt.Sprintf("unsupported compression algorithm: %s", compression)
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, msg)
+		return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, msg)
 	}
 }

@@ -33,7 +33,7 @@ import (
 func requireResource(orcImage *orcv1alpha1.Image) (*orcv1alpha1.ImageResourceSpec, error) {
 	resource := orcImage.Spec.Resource
 	if resource == nil {
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "resource not provided")
+		return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "resource not provided")
 	}
 
 	return resource, nil
@@ -45,7 +45,7 @@ func requireResourceContent(orcImage *orcv1alpha1.Image) (*orcv1alpha1.ImageCont
 		return nil, err
 	}
 	if resource.Content == nil {
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "resource content not provided")
+		return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "resource content not provided")
 	}
 	return resource.Content, nil
 }
@@ -114,7 +114,7 @@ func (r *orcImageReconciler) webDownload(ctx context.Context, orcImage *orcv1alp
 	resource := orcImage.Spec.Resource
 	if resource == nil {
 		// Should have been caught by validation
-		return orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, "resource not provided")
+		return orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "resource not provided")
 	}
 
 	content, err := requireResourceContent(orcImage)

@@ -164,7 +164,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 	case orcv1alpha1.RouterInterfaceTypeSubnet:
 		poll, createOpts, err = r.reconcileNormalSubnet(ctx, routerInterface, routerInterfacePorts, &statusOpts)
 	default:
-		err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid type %s", routerInterface.Spec.Type))
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid type %s", routerInterface.Spec.Type))
 	}
 
 	if err != nil {
@@ -285,7 +285,7 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, rout
 	case orcv1alpha1.RouterInterfaceTypeSubnet:
 		deleted, deleteOpts, err = r.reconcileDeleteSubnet(ctx, routerInterface, routerInterfacePorts, &statusOpts)
 	default:
-		err = orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid type %s", routerInterface.Spec.Type))
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid type %s", routerInterface.Spec.Type))
 	}
 
 	if err != nil {
@@ -324,14 +324,14 @@ func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context
 			// the subnet ID so we can't check if the interface has been
 			// removed. We will be automatically reconciled again if the subnet
 			// is recreated.
-			return false, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "Subnet has been deleted unexpectedly")
+			return false, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Subnet has been deleted unexpectedly")
 		}
 
 		return false, nil, fmt.Errorf("fetching subnet %s: %w", subnetKey, err)
 	}
 	statusOpts.subnet = subnet
 	if subnet.Status.ID == nil {
-		return false, nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonUnrecoverableError, "Subnet ID is not set")
+		return false, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Subnet ID is not set")
 	}
 	subnetID := *subnet.Status.ID
 

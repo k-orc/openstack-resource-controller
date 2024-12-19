@@ -141,17 +141,17 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 	}
 
 	availableCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.OpenStackConditionAvailable).
+		WithType(orcv1alpha1.ConditionAvailable).
 		WithObservedGeneration(orcImage.Generation)
 	progressingCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.OpenStackConditionProgressing).
+		WithType(orcv1alpha1.ConditionProgressing).
 		WithObservedGeneration(orcImage.Generation)
 
 	available := false
 	if glanceImage != nil && glanceImage.Status == images.ImageStatusActive {
 		availableCondition.
 			WithStatus(metav1.ConditionTrue).
-			WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+			WithReason(orcv1alpha1.ConditionReasonSuccess).
 			WithMessage("Glance image is available")
 		available = true
 	} else {
@@ -164,12 +164,12 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 		if available {
 			progressingCondition.
 				WithStatus(metav1.ConditionFalse).
-				WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+				WithReason(orcv1alpha1.ConditionReasonSuccess).
 				WithMessage(*availableCondition.Message)
 		} else {
 			progressingCondition.
 				WithStatus(metav1.ConditionTrue).
-				WithReason(orcv1alpha1.OpenStackConditionReasonProgressing)
+				WithReason(orcv1alpha1.ConditionReasonProgressing)
 
 			if statusOpts.progressMessage == nil {
 				progressingCondition.WithMessage("Reconciliation is progressing")
@@ -187,7 +187,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 				WithMessage(terminalError.Message)
 		} else {
 			progressingCondition.
-				WithReason(orcv1alpha1.OpenStackConditionReasonTransientError).
+				WithReason(orcv1alpha1.ConditionReasonTransientError).
 				WithMessage(err.Error())
 		}
 	}

@@ -34,22 +34,22 @@ type WithConditionsApplyConfiguration[T any] interface {
 
 func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], isAvailable, isUpToDate bool, progressMessage *string, err error, now metav1.Time) {
 	availableCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.OpenStackConditionAvailable).
+		WithType(orcv1alpha1.ConditionAvailable).
 		WithObservedGeneration(orcObject.GetGeneration())
 	progressingCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.OpenStackConditionProgressing).
+		WithType(orcv1alpha1.ConditionProgressing).
 		WithObservedGeneration(orcObject.GetGeneration())
 
 	if err == nil {
 		if isUpToDate {
 			progressingCondition.
 				WithStatus(metav1.ConditionFalse).
-				WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+				WithReason(orcv1alpha1.ConditionReasonSuccess).
 				WithMessage("OpenStack resource is up to date")
 		} else {
 			progressingCondition.
 				WithStatus(metav1.ConditionTrue).
-				WithReason(orcv1alpha1.OpenStackConditionReasonProgressing).
+				WithReason(orcv1alpha1.ConditionReasonProgressing).
 				WithMessage(ptr.Deref(progressMessage, "Reconciliation is progressing"))
 		}
 	} else {
@@ -62,7 +62,7 @@ func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, appl
 		} else {
 			progressingCondition.
 				WithStatus(metav1.ConditionTrue).
-				WithReason(orcv1alpha1.OpenStackConditionReasonTransientError).
+				WithReason(orcv1alpha1.ConditionReasonTransientError).
 				WithMessage(err.Error())
 		}
 	}
@@ -70,7 +70,7 @@ func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, appl
 	if isAvailable {
 		availableCondition.
 			WithStatus(metav1.ConditionTrue).
-			WithReason(orcv1alpha1.OpenStackConditionReasonSuccess).
+			WithReason(orcv1alpha1.ConditionReasonSuccess).
 			WithMessage("OpenStack resource is available")
 	} else {
 		// Copy reason and message from progressing

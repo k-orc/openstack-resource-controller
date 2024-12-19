@@ -19,7 +19,7 @@ package v1alpha1
 type PortRefs struct {
 	// NetworkRef is a reference to the ORC Network which this port is associated with.
 	// +required
-	NetworkRef ORCNameRef `json:"networkRef"`
+	NetworkRef KubernetesNameRef `json:"networkRef"`
 }
 
 // PortFilter specifies a filter to select a port. At least one parameter must be specified.
