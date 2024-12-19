@@ -1,0 +1,72 @@
+#cloud-config
+
+users:
+- default
+- name: stack
+  sudo: ["ALL=(ALL) NOPASSWD:ALL\nDefaults:stack !requiretty"]
+  shell: /bin/bash
+  ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBoTk3cat4yl1CFTkn75lfWqPWp96gVzpYqpWcLdj3fTUBZC9kFCbkcOkWRSXNB7eWr3ulLEAcyn0byeusT190GQ1rdlSyp6lYX9vLnPYbnfr8JzhX10B8LxSxVxj5JTCqIekBFco+rHO9h3GNF1DCyPIwDfPVl8cpL94g0Id7SVE4wH1GeVIkGoLxgt2R5WNdaxQH3Z4DclvXVwys/FMnkDUC2oTs24oxQMhcinpKaFA12LxWh+vv0+ALoGG6h6m0ka1ELFdHIXULEV5VM4dvMz8GFxvZWGzKHyjiaBsRGhO2takw/E+t/A2cFWhTqCggtK7k0ZEkUXQCbw7W4Q1JainElboCJinPEa7ErLnu0EwfOgIh0IfhyMd1UIAkkd2TAGUmiqpG5QjA/m36m1/CCrOWvyCHftmVOKxICRevzmZVCPSv1DCr3YpYwM7gdPKChACXQ8J4HBcPDNSUVTTHxklUpIqigmpwuZE/ohhs/mYRacPvEPGl+0lbmpuaCMK0e9mmm/0YhUqO9CjMNxShlWOo3hQhOl/kxtMduYmVPpePhE8ZYuaWkpUqVT1FuZ9LZzdWdp74Ero5cSpqHgLWZ7yt7g1JUzyu6xwWeMEQx5vJbD3fC2KBDZUmlica1wLX96dhcXYxjcdxMyGBpeEbScXU5WHJOsIx7DDi9HDu0w==
+  homedir: /opt/stack
+
+# Minimum packages required to run stack
+packages:
+- sudo
+- lvm2
+- python3
+- python3-pip
+- which
+- iproute
+- hostname
+- git
+- procps-ng
+- iptables-nft
+
+write_files:
+- path: /tmp/start.sh
+  permissions: "0755"
+  content: |
+    #!/bin/sh
+
+    release_branch=stable/2024.2
+    devstack_dir=/opt/stack/devstack
+
+    git clone https://git.openstack.org/openstack-dev/devstack --depth 1 -b "$release_branch" "$devstack_dir"
+    cd "$devstack_dir"
+    cp /tmp/local.conf .
+
+    # Ensure the entire path is world readable
+    (
+      while true; do
+        [ $(pwd) == "/" ] && break
+        sudo chmod 0755 .
+        cd ..
+      done
+    )
+
+    sudo chmod 0755 $(dirname "$devstack_dir")
+    sudo setenforce 0
+
+    ./stack.sh
+
+- path: /tmp/local.conf
+  permissions: "0644"
+  content: |
+    [[local|localrc]]
+    ADMIN_PASSWORD=secret
+    DATABASE_PASSWORD=root
+    RABBIT_PASSWORD=secret
+    SERVICE_PASSWORD=secret
+    SWIFT_HASH=1234123412341234
+    INSTALL_TEMPEST=False
+    LOGFILE=$DEST/logs/stack.sh.log
+    GIT_BASE=https://github.com
+
+    # don't need horizon
+    # dstat log takes too much memory
+    # tempest must be disabled otherwise it will get installed still
+    # openstack-cli-server makes openstack cli faster during stack
+    ENABLED_SERVICES+=",-horizon,-dstat,-tempest,openstack-cli-server"
+
+runcmd:
+- su - stack /tmp/start.sh

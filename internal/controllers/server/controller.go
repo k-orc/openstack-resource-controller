@@ -21,18 +21,18 @@ import (
 	"errors"
 	"time"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
-
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 )
 
 const (
@@ -119,6 +119,18 @@ var (
 			return refs
 		},
 	)
+
+	secretDependency = generic.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
+		"spec.resource.userData.secretRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil || resource.UserData == nil || resource.UserData.SecretRef == nil {
+				return nil
+			}
+
+			return []string{string(*resource.UserData.SecretRef)}
+		},
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -142,6 +154,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		imageDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
 		portDependency.AddIndexer(ctx, mgr),
 		portDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		secretDependency.AddIndexer(ctx, mgr),
+		// We don't need a deletion guard on the user-data secret because it's
+		// only used on creation.
 	); err != nil {
 		return err
 	}
@@ -158,6 +173,10 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	secretWatchEventHandler, err := secretDependency.WatchEventHandler(log, mgr.GetClient())
+	if err != nil {
+		return err
+	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Server{}).
@@ -171,5 +190,13 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.Port{}, portWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
+		// XXX: This is a general watch on secrets. A general watch on secrets
+		// is undesirable because:
+		// - It requires problematic RBAC
+		// - Secrets are arbitrarily large, and we don't want to cache their contents
+		//
+		// These will require separate solutions. For the latter we should
+		// probably use a MetadataOnly watch only secrets.
+		Watches(&corev1.Secret{}, secretWatchEventHandler).
 		Complete(&reconciler)
 }

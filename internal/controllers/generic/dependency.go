@@ -28,7 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 )
 
@@ -94,9 +93,6 @@ type objectListType[objectListT any, objectT any] interface {
 type dependencyType[depT any] interface {
 	*depT
 	client.Object
-
-	// We expect callers to check conditions on dependencies
-	orcv1alpha1.ObjectWithConditions
 }
 
 // GetDependencies returns an iterator over Dependencies for a given Object. For each dependency it returns:

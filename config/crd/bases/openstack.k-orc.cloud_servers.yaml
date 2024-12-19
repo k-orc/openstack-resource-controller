@@ -178,6 +178,21 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                  userData:
+                    description: |-
+                      UserData specifies data which will be made available to the server at
+                      boot time, either via the metadata service or a config drive. It is
+                      typically read by a configuration service such as cloud-init or ignition.
+                    maxProperties: 1
+                    minProperties: 1
+                    properties:
+                      secretRef:
+                        description: SecretRef is a reference to a Secret containing
+                          the user data for this server.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                    type: object
                 required:
                 - flavorRef
                 - imageRef
