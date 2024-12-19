@@ -43,6 +43,8 @@ import (
 	// +kubebuilder:scaffold:imports
 )
 
+var defaultCACertsPath string
+
 func main() {
 	setupLog := ctrl.Log.WithName("setup")
 
@@ -60,6 +62,8 @@ func main() {
 	flag.IntVar(&orcOpts.ScopeCacheMaxSize, "scope-cache-max-size", 10,
 		"The maximum credentials count the operator should keep in cache. "+
 			"Setting this value to 0 means no cache.")
+	flag.StringVar(&defaultCACertsPath, "default-ca-certs", "",
+		"The path to a PEM-encoded CA Certificate file to supply as default for OpenStack API requests.")
 
 	zapOpts := zap.Options{
 		Development: true,
@@ -73,8 +77,15 @@ func main() {
 	// Setup the context that's going to be used in controllers and for the manager.
 	ctx := ctrl.SetupSignalHandler()
 
-	// TODO: Implement custom caCerts
 	var caCerts []byte
+	if defaultCACertsPath != "" {
+		var err error
+		caCerts, err = os.ReadFile(defaultCACertsPath)
+		if err != nil {
+			setupLog.Error(err, "unable to read provided ca certificates file")
+			os.Exit(1)
+		}
+	}
 	scopeFactory := scope.NewFactory(orcOpts.ScopeCacheMaxSize, caCerts)
 
 	controllers := []export.Controller{
