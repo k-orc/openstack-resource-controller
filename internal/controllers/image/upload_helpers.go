@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -134,6 +134,6 @@ func newReaderWithDecompression(reader io.Reader, compression orcv1alpha1.ImageC
 		return bzip2.NewReader(reader), nil
 	default:
 		msg := fmt.Sprintf("unsupported compression algorithm: %s", compression)
-		return nil, orcerrors.Terminal(orcv1alpha1.OpenStackConditionReasonInvalidConfiguration, msg)
+		return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, msg)
 	}
 }

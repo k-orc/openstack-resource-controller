@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The Kubernetes Authors.
+Copyright 2021 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
+	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -42,10 +43,10 @@ type NetworkClient interface {
 	GetFloatingIP(id string) (*floatingips.FloatingIP, error)
 	UpdateFloatingIP(id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error)
 
-	ListPort(opts ports.ListOptsBuilder) ([]ports.Port, error)
-	CreatePort(opts ports.CreateOptsBuilder) (*ports.Port, error)
-	DeletePort(id string) error
-	GetPort(id string) (*ports.Port, error)
+	ListPort(ctx context.Context, opts ports.ListOptsBuilder) ([]ports.Port, error)
+	CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*ports.Port, error)
+	DeletePort(ctx context.Context, id string) error
+	GetPort(ctx context.Context, id string) (*ports.Port, error)
 	UpdatePort(id string, opts ports.UpdateOptsBuilder) (*ports.Port, error)
 
 	ListTrunk(opts trunks.ListOptsBuilder) ([]trunks.Trunk, error)
@@ -55,45 +56,47 @@ type NetworkClient interface {
 	ListTrunkSubports(trunkID string) ([]trunks.Subport, error)
 	RemoveSubports(id string, opts trunks.RemoveSubportsOpts) error
 
-	ListRouter(opts routers.ListOpts) ([]routers.Router, error)
-	CreateRouter(opts routers.CreateOptsBuilder) (*routers.Router, error)
-	DeleteRouter(id string) error
-	GetRouter(id string) (*routers.Router, error)
-	UpdateRouter(id string, opts routers.UpdateOptsBuilder) (*routers.Router, error)
-	AddRouterInterface(id string, opts routers.AddInterfaceOptsBuilder) (*routers.InterfaceInfo, error)
-	RemoveRouterInterface(id string, opts routers.RemoveInterfaceOptsBuilder) (*routers.InterfaceInfo, error)
+	ListRouter(ctx context.Context, opts routers.ListOpts) ([]routers.Router, error)
+	CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error)
+	DeleteRouter(ctx context.Context, id string) error
+	GetRouter(ctx context.Context, id string) (*routers.Router, error)
+	UpdateRouter(ctx context.Context, id string, opts routers.UpdateOptsBuilder) (*routers.Router, error)
+	AddRouterInterface(ctx context.Context, id string, opts routers.AddInterfaceOptsBuilder) (*routers.InterfaceInfo, error)
+	RemoveRouterInterface(ctx context.Context, id string, opts routers.RemoveInterfaceOptsBuilder) (*routers.InterfaceInfo, error)
 
-	ListSecGroup(opts groups.ListOpts) ([]groups.SecGroup, error)
-	CreateSecGroup(opts groups.CreateOptsBuilder) (*groups.SecGroup, error)
-	DeleteSecGroup(id string) error
-	GetSecGroup(id string) (*groups.SecGroup, error)
-	UpdateSecGroup(id string, opts groups.UpdateOptsBuilder) (*groups.SecGroup, error)
+	ListSecGroup(ctx context.Context, opts groups.ListOpts) ([]groups.SecGroup, error)
+	CreateSecGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.SecGroup, error)
+	DeleteSecGroup(ctx context.Context, id string) error
+	GetSecGroup(ctx context.Context, id string) (*groups.SecGroup, error)
+	UpdateSecGroup(ctx context.Context, id string, opts groups.UpdateOptsBuilder) (*groups.SecGroup, error)
 
-	ListSecGroupRule(opts rules.ListOpts) ([]rules.SecGroupRule, error)
-	CreateSecGroupRule(opts rules.CreateOptsBuilder) (*rules.SecGroupRule, error)
-	DeleteSecGroupRule(id string) error
-	GetSecGroupRule(id string) (*rules.SecGroupRule, error)
+	ListSecGroupRule(ctx context.Context, opts rules.ListOpts) ([]rules.SecGroupRule, error)
+	CreateSecGroupRules(ctx context.Context, opts []rules.CreateOpts) ([]rules.SecGroupRule, error)
+	DeleteSecGroupRule(ctx context.Context, id string) error
+	GetSecGroupRule(ctx context.Context, id string) (*rules.SecGroupRule, error)
 
-	ListNetwork(opts networks.ListOptsBuilder) ([]networks.Network, error)
-	CreateNetwork(opts networks.CreateOptsBuilder) (*networks.Network, error)
-	DeleteNetwork(id string) error
-	GetNetwork(id string) (*networks.Network, error)
-	UpdateNetwork(id string, opts networks.UpdateOptsBuilder) (*networks.Network, error)
+	ListNetwork(opts networks.ListOptsBuilder) pagination.Pager
+	CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) networks.CreateResult
+	DeleteNetwork(ctx context.Context, id string) networks.DeleteResult
+	GetNetwork(ctx context.Context, id string) networks.GetResult
+	UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) networks.UpdateResult
 
-	ListSubnet(opts subnets.ListOptsBuilder) ([]subnets.Subnet, error)
-	CreateSubnet(opts subnets.CreateOptsBuilder) (*subnets.Subnet, error)
-	DeleteSubnet(id string) error
-	GetSubnet(id string) (*subnets.Subnet, error)
-	UpdateSubnet(id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
+	ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error)
+	CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error)
+	DeleteSubnet(ctx context.Context, id string) error
+	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
+	UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
 
 	ListExtensions() ([]extensions.Extension, error)
 
-	ReplaceAllAttributesTags(resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
+	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
 }
 
 type networkClient struct {
 	serviceClient *gophercloud.ServiceClient
 }
+
+var _ NetworkClient = &networkClient{}
 
 // NewNetworkClient returns an instance of the networking service.
 func NewNetworkClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (NetworkClient, error) {
@@ -108,20 +111,20 @@ func NewNetworkClient(providerClient *gophercloud.ProviderClient, providerClient
 	return networkClient{serviceClient}, nil
 }
 
-func (c networkClient) AddRouterInterface(id string, opts routers.AddInterfaceOptsBuilder) (*routers.InterfaceInfo, error) {
-	return routers.AddInterface(context.TODO(), c.serviceClient, id, opts).Extract()
+func (c networkClient) AddRouterInterface(ctx context.Context, id string, opts routers.AddInterfaceOptsBuilder) (*routers.InterfaceInfo, error) {
+	return routers.AddInterface(ctx, c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) RemoveRouterInterface(id string, opts routers.RemoveInterfaceOptsBuilder) (*routers.InterfaceInfo, error) {
-	return routers.RemoveInterface(context.TODO(), c.serviceClient, id, opts).Extract()
+func (c networkClient) RemoveRouterInterface(ctx context.Context, id string, opts routers.RemoveInterfaceOptsBuilder) (*routers.InterfaceInfo, error) {
+	return routers.RemoveInterface(ctx, c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) ReplaceAllAttributesTags(resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error) {
-	return attributestags.ReplaceAll(context.TODO(), c.serviceClient, resourceType, resourceID, opts).Extract()
+func (c networkClient) ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error) {
+	return attributestags.ReplaceAll(ctx, c.serviceClient, resourceType, resourceID, opts).Extract()
 }
 
-func (c networkClient) ListRouter(opts routers.ListOpts) ([]routers.Router, error) {
-	allPages, err := routers.List(c.serviceClient, opts).AllPages(context.TODO())
+func (c networkClient) ListRouter(ctx context.Context, opts routers.ListOpts) ([]routers.Router, error) {
+	allPages, err := routers.List(c.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -156,24 +159,24 @@ func (c networkClient) UpdateFloatingIP(id string, opts floatingips.UpdateOptsBu
 	return floatingips.Update(context.TODO(), c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) ListPort(opts ports.ListOptsBuilder) ([]ports.Port, error) {
-	allPages, err := ports.List(c.serviceClient, opts).AllPages(context.TODO())
+func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) ([]ports.Port, error) {
+	allPages, err := ports.List(c.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return ports.ExtractPorts(allPages)
 }
 
-func (c networkClient) CreatePort(opts ports.CreateOptsBuilder) (*ports.Port, error) {
-	return ports.Create(context.TODO(), c.serviceClient, opts).Extract()
+func (c networkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*ports.Port, error) {
+	return ports.Create(ctx, c.serviceClient, opts).Extract()
 }
 
-func (c networkClient) DeletePort(id string) error {
-	return ports.Delete(context.TODO(), c.serviceClient, id).ExtractErr()
+func (c networkClient) DeletePort(ctx context.Context, id string) error {
+	return ports.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetPort(id string) (*ports.Port, error) {
-	return ports.Get(context.TODO(), c.serviceClient, id).Extract()
+func (c networkClient) GetPort(ctx context.Context, id string) (*ports.Port, error) {
+	return ports.Get(ctx, c.serviceClient, id).Extract()
 }
 
 func (c networkClient) UpdatePort(id string, opts ports.UpdateOptsBuilder) (*ports.Port, error) {
@@ -205,91 +208,87 @@ func (c networkClient) ListTrunk(opts trunks.ListOptsBuilder) ([]trunks.Trunk, e
 	return trunks.ExtractTrunks(allPages)
 }
 
-func (c networkClient) CreateRouter(opts routers.CreateOptsBuilder) (*routers.Router, error) {
-	return routers.Create(context.TODO(), c.serviceClient, opts).Extract()
+func (c networkClient) CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error) {
+	return routers.Create(ctx, c.serviceClient, opts).Extract()
 }
 
-func (c networkClient) DeleteRouter(id string) error {
-	return routers.Delete(context.TODO(), c.serviceClient, id).ExtractErr()
+func (c networkClient) DeleteRouter(ctx context.Context, id string) error {
+	return routers.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetRouter(id string) (*routers.Router, error) {
-	return routers.Get(context.TODO(), c.serviceClient, id).Extract()
+func (c networkClient) GetRouter(ctx context.Context, id string) (*routers.Router, error) {
+	return routers.Get(ctx, c.serviceClient, id).Extract()
 }
 
-func (c networkClient) UpdateRouter(id string, opts routers.UpdateOptsBuilder) (*routers.Router, error) {
+func (c networkClient) UpdateRouter(ctx context.Context, id string, opts routers.UpdateOptsBuilder) (*routers.Router, error) {
 	return routers.Update(context.TODO(), c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) ListSecGroup(opts groups.ListOpts) ([]groups.SecGroup, error) {
-	allPages, err := groups.List(c.serviceClient, opts).AllPages(context.TODO())
+func (c networkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) ([]groups.SecGroup, error) {
+	allPages, err := groups.List(c.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return groups.ExtractGroups(allPages)
 }
 
-func (c networkClient) CreateSecGroup(opts groups.CreateOptsBuilder) (*groups.SecGroup, error) {
-	return groups.Create(context.TODO(), c.serviceClient, opts).Extract()
+func (c networkClient) CreateSecGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.SecGroup, error) {
+	return groups.Create(ctx, c.serviceClient, opts).Extract()
 }
 
-func (c networkClient) DeleteSecGroup(id string) error {
-	return groups.Delete(context.TODO(), c.serviceClient, id).ExtractErr()
+func (c networkClient) DeleteSecGroup(ctx context.Context, id string) error {
+	return groups.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetSecGroup(id string) (*groups.SecGroup, error) {
-	return groups.Get(context.TODO(), c.serviceClient, id).Extract()
+func (c networkClient) GetSecGroup(ctx context.Context, id string) (*groups.SecGroup, error) {
+	return groups.Get(ctx, c.serviceClient, id).Extract()
 }
 
-func (c networkClient) UpdateSecGroup(id string, opts groups.UpdateOptsBuilder) (*groups.SecGroup, error) {
-	return groups.Update(context.TODO(), c.serviceClient, id, opts).Extract()
+func (c networkClient) UpdateSecGroup(ctx context.Context, id string, opts groups.UpdateOptsBuilder) (*groups.SecGroup, error) {
+	return groups.Update(ctx, c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) ListSecGroupRule(opts rules.ListOpts) ([]rules.SecGroupRule, error) {
-	allPages, err := rules.List(c.serviceClient, opts).AllPages(context.TODO())
+func (c networkClient) ListSecGroupRule(ctx context.Context, opts rules.ListOpts) ([]rules.SecGroupRule, error) {
+	allPages, err := rules.List(c.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return rules.ExtractRules(allPages)
 }
 
-func (c networkClient) CreateSecGroupRule(opts rules.CreateOptsBuilder) (*rules.SecGroupRule, error) {
-	return rules.Create(context.TODO(), c.serviceClient, opts).Extract()
+func (c networkClient) CreateSecGroupRules(ctx context.Context, opts []rules.CreateOpts) ([]rules.SecGroupRule, error) {
+	return rules.CreateBulk(ctx, c.serviceClient, opts).Extract()
 }
 
-func (c networkClient) DeleteSecGroupRule(id string) error {
-	return rules.Delete(context.TODO(), c.serviceClient, id).ExtractErr()
+func (c networkClient) DeleteSecGroupRule(ctx context.Context, id string) error {
+	return rules.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetSecGroupRule(id string) (*rules.SecGroupRule, error) {
-	return rules.Get(context.TODO(), c.serviceClient, id).Extract()
+func (c networkClient) GetSecGroupRule(ctx context.Context, id string) (*rules.SecGroupRule, error) {
+	return rules.Get(ctx, c.serviceClient, id).Extract()
 }
 
-func (c networkClient) ListNetwork(opts networks.ListOptsBuilder) ([]networks.Network, error) {
-	allPages, err := networks.List(c.serviceClient, opts).AllPages(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-	return networks.ExtractNetworks(allPages)
+func (c networkClient) ListNetwork(opts networks.ListOptsBuilder) pagination.Pager {
+	return networks.List(c.serviceClient, opts)
 }
 
-func (c networkClient) CreateNetwork(opts networks.CreateOptsBuilder) (*networks.Network, error) {
-	return networks.Create(context.TODO(), c.serviceClient, opts).Extract()
+func (c networkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) networks.CreateResult {
+	return networks.Create(ctx, c.serviceClient, opts)
 }
 
-func (c networkClient) DeleteNetwork(id string) error {
-	return networks.Delete(context.TODO(), c.serviceClient, id).ExtractErr()
+func (c networkClient) DeleteNetwork(ctx context.Context, id string) networks.DeleteResult {
+	return networks.Delete(ctx, c.serviceClient, id)
 }
 
-func (c networkClient) GetNetwork(id string) (*networks.Network, error) {
-	return networks.Get(context.TODO(), c.serviceClient, id).Extract()
+func (c networkClient) GetNetwork(ctx context.Context, id string) networks.GetResult {
+	return networks.Get(ctx, c.serviceClient, id)
 }
 
-func (c networkClient) UpdateNetwork(id string, opts networks.UpdateOptsBuilder) (*networks.Network, error) {
-	return networks.Update(context.TODO(), c.serviceClient, id, opts).Extract()
+func (c networkClient) UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) networks.UpdateResult {
+	return networks.Update(ctx, c.serviceClient, id, opts)
 }
 
-func (c networkClient) ListSubnet(opts subnets.ListOptsBuilder) ([]subnets.Subnet, error) {
+func (c networkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error) {
 	allPages, err := subnets.List(c.serviceClient, opts).AllPages(context.TODO())
 	if err != nil {
 		return nil, err
@@ -297,20 +296,20 @@ func (c networkClient) ListSubnet(opts subnets.ListOptsBuilder) ([]subnets.Subne
 	return subnets.ExtractSubnets(allPages)
 }
 
-func (c networkClient) CreateSubnet(opts subnets.CreateOptsBuilder) (*subnets.Subnet, error) {
-	return subnets.Create(context.TODO(), c.serviceClient, opts).Extract()
+func (c networkClient) CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error) {
+	return subnets.Create(ctx, c.serviceClient, opts).Extract()
 }
 
-func (c networkClient) DeleteSubnet(id string) error {
-	return subnets.Delete(context.TODO(), c.serviceClient, id).ExtractErr()
+func (c networkClient) DeleteSubnet(ctx context.Context, id string) error {
+	return subnets.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetSubnet(id string) (*subnets.Subnet, error) {
-	return subnets.Get(context.TODO(), c.serviceClient, id).Extract()
+func (c networkClient) GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error) {
+	return subnets.Get(ctx, c.serviceClient, id).Extract()
 }
 
-func (c networkClient) UpdateSubnet(id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error) {
-	return subnets.Update(context.TODO(), c.serviceClient, id, opts).Extract()
+func (c networkClient) UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error) {
+	return subnets.Update(ctx, c.serviceClient, id, opts).Extract()
 }
 
 func (c networkClient) ListExtensions() ([]extensions.Extension, error) {

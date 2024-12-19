@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The Kubernetes Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -168,7 +168,7 @@ var _ = Describe("Upload tests", Ordered, func() {
 		})
 
 		mockCtrl = gomock.NewController(GinkgoT())
-		scopeFactory = scope.NewMockScopeFactory(mockCtrl, "")
+		scopeFactory = scope.NewMockScopeFactory(mockCtrl)
 		reconciler = &orcImageReconciler{
 			client:       k8sClient,
 			scopeFactory: scopeFactory,
