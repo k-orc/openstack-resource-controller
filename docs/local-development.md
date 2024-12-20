@@ -71,7 +71,7 @@ To recompile, kill the process with ctrl-C and re-run it.
 
 ### Create OpenStack credentials
 
-Create a `clouds.yaml` file in `examples/bases/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
+Create a `clouds.yaml` file in `examples/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
 
 This file is in both `.gitignore` and `.dockerignore`, so should not be accidentally added to the git repo or a container build.
 
@@ -88,7 +88,7 @@ In the examples directory, run:
 $ make
 echo "$KUSTOMIZATION" > components/dev-settings/kustomization.yaml
 kubectl apply -k apply/credentials --server-side
-secret/mbooth-dev-test-cloud-config-g4ckbm986f serverside-applied
+secret/mbooth-cloud-config-g4ckbm986f serverside-applied
 ```
 
 This did 2 things. Firstly, it generated the `dev-settings` kustomize component, which adds the current user's username as a `namePrefix`. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
@@ -96,7 +96,7 @@ This did 2 things. Firstly, it generated the `dev-settings` kustomize component,
 Secondly, it created a secret containing the clouds.yaml we copied into place above. If you missed the first step you will see an error like:
 ```bash
 $ make
-Makefile:41: *** You must copy an appropriate clouds.yaml to /home/mbooth/src/openstack-resource-controller/examples/bases/credentials/clouds.yaml. The name of the contained cloud must be 'openstack'..  Stop.
+Makefile:41: *** You must copy an appropriate clouds.yaml to /home/mbooth/src/openstack-resource-controller/examples/credentials/clouds.yaml. The name of the contained cloud must be 'openstack'..  Stop.
 ```
 
 Note that failing to initialise the kustomize environment will result in an error like the following when attempting to generate one of the example modules:

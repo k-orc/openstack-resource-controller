@@ -6,12 +6,12 @@ kind: Kustomization
 # that the secret itself will not be emitted.
 
 resources:
-- ../credentials
+- ../../credentials
 
 patches:
 - target:
     kind: Secret
-    name: dev-test-cloud-config
+    name: cloud-config
   patch: |-
     - op: add
       path: /metadata/annotations/config.kubernetes.io~1local-config

@@ -5,7 +5,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: dev-test-cloud-config
+    secretName: cloud-config
   managementPolicy: managed
   networkRef: orc-managed-network
   resource:

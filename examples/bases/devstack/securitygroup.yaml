@@ -6,7 +6,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: dev-test-cloud-config
+    secretName: cloud-config
   managementPolicy: managed
   resource:
     stateful: true
@@ -29,7 +29,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: dev-test-cloud-config
+    secretName: cloud-config
   managementPolicy: managed
   resource:
     stateful: true
