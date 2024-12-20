@@ -59,6 +59,10 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 var _ generic.DeleteResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 var _ generic.CreateResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 
+func (securityGroupActuator) GetControllerName() string {
+	return "securitygroup"
+}
+
 func (obj securityGroupActuator) GetObject() client.Object {
 	return obj.SecurityGroup
 }
