@@ -6,7 +6,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: dev-test-cloud-config
+    secretName: cloud-config
   managementPolicy: unmanaged
   import:
     filter:
@@ -19,7 +19,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: dev-test-cloud-config
+    secretName: cloud-config
   managementPolicy: unmanaged
   networkRef: provider-network
   import:
@@ -33,7 +33,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: dev-test-cloud-config
+    secretName: cloud-config
   managementPolicy: unmanaged
   networkRef: provider-network
   import:

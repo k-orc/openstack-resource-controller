@@ -31,7 +31,7 @@ $(dev_settings_kustomization): Makefile
 ##
 ## Emits an error message if clouds.yaml has not been populated.
 
-credentials=bases/credentials/clouds.yaml
+credentials=credentials/clouds.yaml
 
 .PHONY: check-credentials
 check-credentials: $(credentials)

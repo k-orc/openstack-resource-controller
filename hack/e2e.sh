@@ -1,15 +1,23 @@
-#!/bin/sh
+#!/bin/bash
 
+set -euo pipefail
+
+# HACK: Update the devstack default provider network name to match the one
+# hardcoded in the cirros example
 export OS_CLOUD=devstack-admin
 openstack network set --name provider_net_dualstack_1 private
 
 # Now drop admin privileges
 export OS_CLOUD=devstack
 
-sed "s/  devstack:/  openstack:/g" /etc/openstack/clouds.yaml > examples/bases/credentials/clouds.yaml
-make --directory=examples/
-cd examples/apply/cirros || exit
-kubectl apply -k . --server-side
+cd examples
+
+# Populate example credentials
+sed "s/  devstack:/  openstack:/g" /etc/openstack/clouds.yaml > credentials/clouds.yaml
+make load-credentials
+
+# Apply the cirros server example and wait for the server to be available
+kubectl apply -k apply/cirros --server-side
 kubectl wait --timeout=10m --for=condition=available server ${USER}-cirros-server
 
 openstack server show "$(kubectl get server ${USER}-cirros-server -o jsonpath='{.status.id}')"
