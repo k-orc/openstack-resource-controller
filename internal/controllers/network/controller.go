@@ -31,15 +31,9 @@ import (
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/network"
-
 	FieldOwner = "openstack.k-orc.cloud/networkcontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
 )
 
 // ssaFieldOwner returns the field owner for a specific named SSA transaction.

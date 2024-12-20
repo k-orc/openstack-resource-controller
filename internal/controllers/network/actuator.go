@@ -62,6 +62,14 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 var _ generic.CreateResourceActuator[*networkExt] = networkActuator{}
 var _ generic.DeleteResourceActuator[*networkExt] = networkActuator{}
 
+func (networkActuator) GetControllerName() string {
+	return "network"
+}
+
+func (obj networkActuator) GetObject() client.Object {
+	return obj.Network
+}
+
 func (obj networkActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }

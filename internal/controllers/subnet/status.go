@@ -38,7 +38,7 @@ func (r *orcSubnetReconciler) setStatusID(ctx context.Context, obj client.Object
 		WithStatus(orcapplyconfigv1alpha1.SubnetStatus().
 			WithID(id))
 
-	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAIDTxn))
+	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
 type updateStatusOpts struct {
