@@ -50,9 +50,6 @@ type subnetDeleteActuator struct {
 	k8sClient client.Client
 }
 
-var _ generic.DeleteResourceActuator[*subnets.Subnet] = subnetDeleteActuator{}
-var _ generic.CreateResourceActuator[*subnets.Subnet] = subnetCreateActuator{}
-
 func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Subnet) (subnetActuator, error) {
 	if orcObject == nil {
 		return subnetActuator{}, fmt.Errorf("orcObject may not be nil")
@@ -106,6 +103,13 @@ func newDeleteActuator(ctx context.Context, k8sClient client.Client, scopeFactor
 		subnetActuator: actuator,
 		k8sClient:      k8sClient,
 	}, nil
+}
+
+var _ generic.DeleteResourceActuator[*subnets.Subnet] = subnetDeleteActuator{}
+var _ generic.CreateResourceActuator[*subnets.Subnet] = subnetCreateActuator{}
+
+func (subnetActuator) GetControllerName() string {
+	return "subnet"
 }
 
 func (obj subnetActuator) GetObject() client.Object {

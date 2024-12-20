@@ -80,6 +80,10 @@ func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactor
 var _ generic.DeleteResourceActuator[*ports.Port] = portActuator{}
 var _ generic.CreateResourceActuator[*ports.Port] = portCreateActuator{}
 
+func (portActuator) GetControllerName() string {
+	return "port"
+}
+
 func (obj portActuator) GetObject() client.Object {
 	return obj.Port
 }
