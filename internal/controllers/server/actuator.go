@@ -78,6 +78,10 @@ func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactor
 var _ generic.DeleteResourceActuator[*servers.Server] = serverActuator{}
 var _ generic.CreateResourceActuator[*servers.Server] = serverCreateActuator{}
 
+func (obj serverActuator) GetObject() client.Object {
+	return obj.Server
+}
+
 func (obj serverActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }

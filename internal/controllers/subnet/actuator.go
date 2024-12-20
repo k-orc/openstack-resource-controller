@@ -108,6 +108,10 @@ func newDeleteActuator(ctx context.Context, k8sClient client.Client, scopeFactor
 	}, nil
 }
 
+func (obj subnetActuator) GetObject() client.Object {
+	return obj.Subnet
+}
+
 func (obj subnetActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }
