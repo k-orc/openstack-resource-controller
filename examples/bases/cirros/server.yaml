@@ -9,7 +9,7 @@ spec:
     secretName: dev-test-cloud-config
   managementPolicy: managed
   resource:
-    imageRef: image
+    imageRef: cirros
     flavorRef: flavor
     ports:
     - portRef: port

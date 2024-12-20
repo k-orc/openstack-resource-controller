@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: image
+  name: cirros
 spec:
   cloudCredentialsRef:
     cloudName: openstack
