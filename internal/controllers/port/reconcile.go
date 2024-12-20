@@ -97,7 +97,7 @@ func (r *orcPortReconciler) reconcileNormal(ctx context.Context, orcObject *orcv
 	}
 	networkID := orcv1alpha1.UUID(*orcNetwork.Status.ID)
 
-	actuator, err := newCreateActuator(ctx, r.client, r.scopeFactory, orcObject, networkID)
+	actuator, err := newCreateActuator(ctx, r, orcObject, networkID)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -161,7 +161,7 @@ func (r *orcPortReconciler) reconcileDelete(ctx context.Context, orcObject *orcv
 		}
 	}()
 
-	portActuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	portActuator, err := newActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

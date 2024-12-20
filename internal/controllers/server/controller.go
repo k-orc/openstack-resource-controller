@@ -36,8 +36,6 @@ import (
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/server"
-
 	FieldOwner = "openstack.k-orc.cloud/servercontroller"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
@@ -67,9 +65,20 @@ func (serverReconcilerConstructor) GetName() string {
 
 // orcServerReconciler reconciles an ORC Router.
 type orcServerReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	serverReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcServerReconciler{}
+
+func (r *orcServerReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcServerReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 var (
@@ -131,13 +140,17 @@ var (
 
 // SetupWithManager sets up the controller with the Manager.
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "server")
+	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
 	reconciler := orcServerReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-server-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-server-controller"),
+
+		serverReconcilerConstructor: c,
 	}
+
+	finalizer := generic.GetFinalizerName(&reconciler)
+	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
 	if err := errors.Join(
 		flavorDependency.AddIndexer(ctx, mgr),
@@ -147,9 +160,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		// Image can sometimes, but not always (e.g. when an RBD-backed image
 		// has been cloned), be safely deleted while referenced by a server. We
 		// just prevent it always.
-		imageDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		imageDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 		portDependency.AddIndexer(ctx, mgr),
-		portDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		portDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 		secretDependency.AddIndexer(ctx, mgr),
 		// We don't need a deletion guard on the user-data secret because it's
 		// only used on creation.

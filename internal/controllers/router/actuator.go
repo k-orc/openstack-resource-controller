@@ -29,25 +29,24 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
 
 type routerActuator struct {
 	*orcv1alpha1.Router
-	osClient osclients.NetworkClient
+	osClient   osclients.NetworkClient
+	controller generic.ResourceControllerCommon
 }
 
 type routerCreateActuator struct {
 	routerActuator
-	k8sClient client.Client
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Router) (routerActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Router) (routerActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return routerActuator{}, err
 	}
@@ -57,32 +56,32 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}
 
 	return routerActuator{
-		Router:   orcObject,
-		osClient: osClient,
+		Router:     orcObject,
+		osClient:   osClient,
+		controller: controller,
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
-	routerActuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
+func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
+	routerActuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return routerCreateActuator{}, err
 	}
 
 	return routerCreateActuator{
 		routerActuator: routerActuator,
-		k8sClient:      k8sClient,
 	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*routers.Router] = routerActuator{}
 var _ generic.CreateResourceActuator[*routers.Router] = routerCreateActuator{}
 
-func (routerActuator) GetControllerName() string {
-	return "router"
-}
-
 func (obj routerActuator) GetObject() client.Object {
 	return obj.Router
+}
+
+func (obj routerActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
@@ -150,7 +149,7 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	var waitEvents []generic.WaitingOnEvent
 
 	var gatewayInfo *routers.GatewayInfo
-	for name, result := range externalGWDep.GetDependencies(ctx, obj.k8sClient, obj.Router) {
+	for name, result := range externalGWDep.GetDependencies(ctx, obj.controller.GetK8sClient(), obj.Router) {
 		err := result.Err()
 		if err != nil {
 			if apierrors.IsNotFound(err) {

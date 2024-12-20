@@ -35,8 +35,6 @@ import (
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/port"
-
 	FieldOwner = "openstack.k-orc.cloud/portcontroller"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
@@ -55,15 +53,26 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 	return portReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
-// orcPortReconciler reconciles an ORC Port.
-type orcPortReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
-}
-
 func (portReconcilerConstructor) GetName() string {
 	return "port"
+}
+
+// orcPortReconciler reconciles an ORC Port.
+type orcPortReconciler struct {
+	client   client.Client
+	recorder record.EventRecorder
+
+	portReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcPortReconciler{}
+
+func (r *orcPortReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcPortReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 var (
@@ -90,21 +99,25 @@ var (
 
 // SetupWithManager sets up the controller with the Manager.
 func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "port")
-
 	reconciler := orcPortReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-port-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-port-controller"),
+
+		portReconcilerConstructor: c,
 	}
+
+	log := mgr.GetLogger().WithValues("controller", c.GetName())
+
+	finalizer := generic.GetFinalizerName(&reconciler)
+	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
 	if err := errors.Join(
 		networkDependency.AddIndexer(ctx, mgr),
-		networkDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		networkDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 		subnetDependency.AddIndexer(ctx, mgr),
-		subnetDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		subnetDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 		securityGroupDependency.AddIndexer(ctx, mgr),
-		securityGroupDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		securityGroupDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 	); err != nil {
 		return err
 	}

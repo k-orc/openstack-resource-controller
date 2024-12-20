@@ -35,8 +35,6 @@ import (
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/router"
-
 	FieldOwner = "openstack.k-orc.cloud/routercontroller"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
@@ -61,9 +59,20 @@ func (routerReconcilerConstructor) GetName() string {
 
 // orcRouterReconciler reconciles an ORC Router.
 type orcRouterReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	routerReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcRouterReconciler{}
+
+func (r *orcRouterReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcRouterReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 // Router depends on its external gateways, which are Networks
@@ -85,11 +94,21 @@ var externalGWDep = generic.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.
 
 // SetupWithManager sets up the controller with the Manager.
 func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "router")
+	log := mgr.GetLogger().WithValues("controller", c.GetName())
+
+	reconciler := orcRouterReconciler{
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-" + c.GetName() + "-controller"),
+
+		routerReconcilerConstructor: c,
+	}
+
+	finalizer := generic.GetFinalizerName(&reconciler)
+	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
 	if err := errors.Join(
 		externalGWDep.AddIndexer(ctx, mgr),
-		externalGWDep.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		externalGWDep.AddDeletionGuard(mgr, finalizer, fieldOwner),
 	); err != nil {
 		return err
 	}
@@ -97,12 +116,6 @@ func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	externalGWHandler, err := externalGWDep.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
-	}
-
-	reconciler := orcRouterReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-router-controller"),
-		scopeFactory: c.scopeFactory,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
