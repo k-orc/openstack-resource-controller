@@ -38,8 +38,6 @@ const (
 	Finalizer = "openstack.k-orc.cloud/router"
 
 	FieldOwner = "openstack.k-orc.cloud/routercontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
 )
