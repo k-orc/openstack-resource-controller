@@ -31,11 +31,7 @@ import (
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/securitygroup"
-
 	FieldOwner = "openstack.k-orc.cloud/securitygroupcontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
 )

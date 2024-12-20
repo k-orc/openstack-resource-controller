@@ -43,7 +43,7 @@ func (r *orcServerReconciler) setStatusID(ctx context.Context, obj client.Object
 		WithStatus(applyconfigv1alpha1.ServerStatus().
 			WithID(id))
 
-	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAIDTxn))
+	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
 type updateStatusOpts struct {

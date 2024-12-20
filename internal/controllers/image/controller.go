@@ -32,11 +32,7 @@ import (
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/image"
-
 	FieldOwner = "openstack.k-orc.cloud/imagecontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
 )
