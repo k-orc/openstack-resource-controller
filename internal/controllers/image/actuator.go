@@ -60,6 +60,10 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 var _ generic.CreateResourceActuator[*images.Image] = imageActuator{}
 var _ generic.DeleteResourceActuator[*images.Image] = imageActuator{}
 
+func (imageActuator) GetControllerName() string {
+	return "image"
+}
+
 func (obj imageActuator) GetObject() client.Object {
 	return obj.Image
 }
