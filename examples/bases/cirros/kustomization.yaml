@@ -14,8 +14,8 @@ secretGenerator:
     disableNameSuffixHash: true
 
 resources:
+- ../cirros-image
 - provider-network.yaml
-- image.yaml
 - flavor.yaml
 - port.yaml
 - securitygroup.yaml
