@@ -27,6 +27,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
@@ -57,17 +58,29 @@ func (networkReconcilerConstructor) GetName() string {
 
 // orcNetworkReconciler reconciles an ORC Subnet.
 type orcNetworkReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	networkReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcNetworkReconciler{}
+
+func (r *orcNetworkReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcNetworkReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c networkReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	reconciler := orcNetworkReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-network-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-network-controller"),
+
+		networkReconcilerConstructor: c,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).

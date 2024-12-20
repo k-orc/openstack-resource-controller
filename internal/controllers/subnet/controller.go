@@ -29,17 +29,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
 	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/subnet"
-
 	FieldOwner = "openstack.k-orc.cloud/subnetcontroller"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
@@ -64,20 +64,40 @@ func (subnetReconcilerConstructor) GetName() string {
 
 // orcSubnetReconciler reconciles an ORC Subnet.
 type orcSubnetReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	subnetReconcilerConstructor
+}
+
+var _ generic.ResourceController[*orcv1alpha1.Subnet, *subnets.Subnet] = &orcSubnetReconciler{}
+
+func (r *orcSubnetReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcSubnetReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
+}
+
+func (r *orcSubnetReconciler) NewCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[*subnets.Subnet], error) {
+	return newCreateActuator(ctx, r, orcObject)
+}
+
+func (r *orcSubnetReconciler) NewDeleteActuator(ctx context.Context, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[*subnets.Subnet], error) {
+	actuator, err := newDeleteActuator(ctx, r, orcObject)
+	return nil, actuator, err
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "subnet")
-
 	reconciler := orcSubnetReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-subnet-controller"),
-		scopeFactory: c.scopeFactory,
+		client:                      mgr.GetClient(),
+		recorder:                    mgr.GetEventRecorderFor("orc-subnet-controller"),
+		subnetReconcilerConstructor: c,
 	}
+
+	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
 	getNetworkRefsForSubnet := func(obj client.Object) []string {
 		subnet, ok := obj.(*orcv1alpha1.Subnet)
@@ -105,7 +125,10 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return subnetList.Items, nil
 	}
 
-	err := ctrlcommon.AddDeletionGuard(mgr, Finalizer, FieldOwner, getNetworkRefsForSubnet, getSubnetsForNetwork)
+	finalizer := generic.GetFinalizerName(&reconciler)
+	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
+
+	err := ctrlcommon.AddDeletionGuard(mgr, finalizer, fieldOwner, getNetworkRefsForSubnet, getSubnetsForNetwork)
 	if err != nil {
 		return err
 	}

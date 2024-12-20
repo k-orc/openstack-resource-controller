@@ -27,6 +27,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
@@ -57,17 +58,29 @@ func (securitygroupReconcilerConstructor) GetName() string {
 
 // orcSecurityGroupReconciler reconciles an ORC Subnet.
 type orcSecurityGroupReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	securitygroupReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcSecurityGroupReconciler{}
+
+func (r *orcSecurityGroupReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcSecurityGroupReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c securitygroupReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	reconciler := orcSecurityGroupReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-securitygroup-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-" + c.GetName() + "-controller"),
+
+		securitygroupReconcilerConstructor: c,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).

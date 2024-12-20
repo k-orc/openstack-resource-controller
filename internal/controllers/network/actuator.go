@@ -28,7 +28,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 	"k8s.io/utils/ptr"
@@ -38,13 +37,14 @@ import (
 
 type networkActuator struct {
 	*orcv1alpha1.Network
-	osClient osclients.NetworkClient
+	osClient   osclients.NetworkClient
+	controller generic.ResourceControllerCommon
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Network) (networkActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Network) (networkActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return networkActuator{}, err
 	}
@@ -54,20 +54,21 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}
 
 	return networkActuator{
-		Network:  orcObject,
-		osClient: osClient,
+		Network:    orcObject,
+		osClient:   osClient,
+		controller: controller,
 	}, nil
 }
 
 var _ generic.CreateResourceActuator[*networkExt] = networkActuator{}
 var _ generic.DeleteResourceActuator[*networkExt] = networkActuator{}
 
-func (networkActuator) GetControllerName() string {
-	return "network"
-}
-
 func (obj networkActuator) GetObject() client.Object {
 	return obj.Network
+}
+
+func (obj networkActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj networkActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {

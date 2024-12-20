@@ -81,7 +81,7 @@ func (r *orcSubnetReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		}
 	}()
 
-	waitEvents, actuator, err := newCreateActuator(ctx, r.client, r.scopeFactory, orcObject)
+	waitEvents, actuator, err := newCreateActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -150,7 +150,7 @@ func (r *orcSubnetReconciler) reconcileDelete(ctx context.Context, orcObject *or
 		}
 	}()
 
-	actuator, err := newDeleteActuator(ctx, r.client, r.scopeFactory, orcObject)
+	actuator, err := newDeleteActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, nil
 	}

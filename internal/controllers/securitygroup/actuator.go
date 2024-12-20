@@ -25,7 +25,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 	"k8s.io/utils/ptr"
@@ -35,13 +34,14 @@ import (
 
 type securityGroupActuator struct {
 	*orcv1alpha1.SecurityGroup
-	osClient osclients.NetworkClient
+	osClient   osclients.NetworkClient
+	controller generic.ResourceControllerCommon
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.SecurityGroup) (securityGroupActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.SecurityGroup) (securityGroupActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return securityGroupActuator{}, err
 	}
@@ -53,18 +53,19 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	return securityGroupActuator{
 		SecurityGroup: orcObject,
 		osClient:      osClient,
+		controller:    controller,
 	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 var _ generic.CreateResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 
-func (securityGroupActuator) GetControllerName() string {
-	return "securitygroup"
-}
-
 func (obj securityGroupActuator) GetObject() client.Object {
 	return obj.SecurityGroup
+}
+
+func (obj securityGroupActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj securityGroupActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {

@@ -30,19 +30,19 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
 type imageActuator struct {
 	*orcv1alpha1.Image
-	osClient osclients.ImageClient
+	osClient   osclients.ImageClient
+	controller generic.ResourceControllerCommon
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Image) (imageActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Image) (imageActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return imageActuator{}, err
 	}
@@ -52,20 +52,21 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}
 
 	return imageActuator{
-		Image:    orcObject,
-		osClient: osClient,
+		Image:      orcObject,
+		osClient:   osClient,
+		controller: controller,
 	}, nil
 }
 
 var _ generic.CreateResourceActuator[*images.Image] = imageActuator{}
 var _ generic.DeleteResourceActuator[*images.Image] = imageActuator{}
 
-func (imageActuator) GetControllerName() string {
-	return "image"
-}
-
 func (obj imageActuator) GetObject() client.Object {
 	return obj.Image
+}
+
+func (obj imageActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj imageActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {

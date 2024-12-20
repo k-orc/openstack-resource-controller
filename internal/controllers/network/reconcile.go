@@ -91,7 +91,7 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	actuator, err := newActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -155,7 +155,7 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	actuator, err := newActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

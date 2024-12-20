@@ -29,27 +29,26 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
 type serverActuator struct {
 	*orcv1alpha1.Server
-	osClient osclients.ComputeClient
+	osClient   osclients.ComputeClient
+	controller generic.ResourceControllerCommon
 }
 
 type serverCreateActuator struct {
 	serverActuator
-	k8sClient client.Client
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Server) (serverActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Server) (serverActuator, error) {
 	if orcObject == nil {
 		return serverActuator{}, fmt.Errorf("orcObject may not be nil")
 	}
 
 	log := ctrl.LoggerFrom(ctx)
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return serverActuator{}, err
 	}
@@ -59,31 +58,31 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}
 
 	return serverActuator{
-		Server:   orcObject,
-		osClient: osClient,
+		Server:     orcObject,
+		osClient:   osClient,
+		controller: controller,
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Server) (serverCreateActuator, error) {
-	actuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
+func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Server) (serverCreateActuator, error) {
+	actuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return serverCreateActuator{}, err
 	}
 	return serverCreateActuator{
 		serverActuator: actuator,
-		k8sClient:      k8sClient,
 	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*servers.Server] = serverActuator{}
 var _ generic.CreateResourceActuator[*servers.Server] = serverCreateActuator{}
 
-func (serverActuator) GetControllerName() string {
-	return "server"
-}
-
 func (obj serverActuator) GetObject() client.Object {
 	return obj.Server
+}
+
+func (obj serverActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj serverActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
@@ -141,11 +140,12 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	}
 
 	var waitEvents []generic.WaitingOnEvent
+	k8sClient := obj.controller.GetK8sClient()
 
 	image := &orcv1alpha1.Image{}
 	{
 		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, imageKey, image); err != nil {
+		if err := k8sClient.Get(ctx, imageKey, image); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Image", imageKey.Name))
 			} else {
@@ -160,7 +160,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	flavor := &orcv1alpha1.Flavor{}
 	{
 		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
+		if err := k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
 			} else {
@@ -185,7 +185,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 
 			portObject := &orcv1alpha1.Port{}
 			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: obj.Namespace}
-			if err := obj.k8sClient.Get(ctx, portKey, portObject); err != nil {
+			if err := k8sClient.Get(ctx, portKey, portObject); err != nil {
 				if apierrors.IsNotFound(err) {
 					waitEvents = append(waitEvents, generic.WaitingOnORCExist("Port", portKey.Name))
 					continue
@@ -205,7 +205,7 @@ func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	if resource.UserData != nil && resource.UserData.SecretRef != nil {
 		secret := &corev1.Secret{}
 		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, secretKey, secret); err != nil {
+		if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
 			if !apierrors.IsNotFound(err) {
 				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
 			}
