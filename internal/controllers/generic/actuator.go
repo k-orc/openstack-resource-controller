@@ -27,6 +27,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
+	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
@@ -47,8 +48,23 @@ const (
 	SSATransactionFinalizer SSATransactionID = "finalizer"
 )
 
+type ResourceController[orcObjectPT any, osResourcePT any] interface {
+	NewCreateActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, CreateResourceActuator[osResourcePT], error)
+	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, DeleteResourceActuator[osResourcePT], error)
+
+	ResourceControllerCommon
+}
+
+type ResourceControllerCommon interface {
+	GetName() string
+
+	GetK8sClient() client.Client
+	GetScopeFactory() scope.Factory
+}
+
 type BaseResourceActuator[osResourcePT any] interface {
 	GetObject() client.Object
+	GetController() ResourceControllerCommon
 
 	GetManagementPolicy() orcv1alpha1.ManagementPolicy
 	GetManagedOptions() *orcv1alpha1.ManagedOptions
@@ -57,8 +73,6 @@ type BaseResourceActuator[osResourcePT any] interface {
 
 	GetOSResourceByStatusID(ctx context.Context) (bool, osResourcePT, error)
 	GetOSResourceBySpec(ctx context.Context) (osResourcePT, error)
-
-	GetControllerName() string
 }
 
 type CreateResourceActuator[osResourcePT any] interface {
@@ -75,23 +89,32 @@ type DeleteResourceActuator[osResourcePT any] interface {
 	DeleteResource(ctx context.Context, osResource osResourcePT) ([]WaitingOnEvent, error)
 }
 
-// getSSAFieldOwner returns the field owner for a specific named SSA transaction.
-func getSSAFieldOwner[osResourcePT any](actuator BaseResourceActuator[osResourcePT], txn SSATransactionID) client.FieldOwner {
-	return client.FieldOwner(ORCK8SPrefix + "/" + actuator.GetControllerName() + "controller/" + string(txn))
+func getSSAFieldOwnerString(controller ResourceControllerCommon) string {
+	return ORCK8SPrefix + "/" + controller.GetName() + "controller"
+}
+
+// GetSSAFieldOwner returns the field owner for a specific named SSA transaction.
+func GetSSAFieldOwner(controller ResourceControllerCommon) client.FieldOwner {
+	return client.FieldOwner(getSSAFieldOwnerString(controller))
+}
+
+func GetSSAFieldOwnerWithTxn(controller ResourceControllerCommon, txn SSATransactionID) client.FieldOwner {
+	return client.FieldOwner(getSSAFieldOwnerString(controller) + "/" + string(txn))
 }
 
 // getFinalizerName return the finalizer to be used for the given actuator
-func getFinalizerName[osResourcePT any](actuator BaseResourceActuator[osResourcePT]) string {
-	return ORCK8SPrefix + "/" + actuator.GetControllerName()
+func GetFinalizerName(controller ResourceControllerCommon) string {
+	return ORCK8SPrefix + "/" + controller.GetName()
 }
 
 func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator CreateResourceActuator[osResourcePT]) ([]WaitingOnEvent, osResourcePT, error) {
 	orcObject := actuator.GetObject()
+	controller := actuator.GetController()
 
-	finalizer := getFinalizerName(actuator)
+	finalizer := GetFinalizerName(controller)
 	if !controllerutil.ContainsFinalizer(orcObject, finalizer) {
 		patch := common.SetFinalizerPatch(orcObject, finalizer)
-		if err := k8sClient.Patch(ctx, orcObject, patch, client.ForceOwnership, getSSAFieldOwner(actuator, SSATransactionFinalizer)); err != nil {
+		if err := k8sClient.Patch(ctx, orcObject, patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
 			return nil, nil, fmt.Errorf("setting finalizer: %w", err)
 		}
 	}
@@ -151,6 +174,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 
 func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator DeleteResourceActuator[osResourcePT]) (bool, []WaitingOnEvent, osResourcePT, error) {
 	obj := actuator.GetObject()
+	controller := actuator.GetController()
 
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
 	hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx)
@@ -163,7 +187,7 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 		osResource = nil
 	}
 
-	finalizer := getFinalizerName(actuator)
+	finalizer := GetFinalizerName(controller)
 
 	var waitEvents []WaitingOnEvent
 	var foundFinalizer bool
@@ -186,7 +210,7 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	removeFinalizer := func() error {
-		if err := k8sClient.Patch(ctx, obj, common.RemoveFinalizerPatch(obj), getSSAFieldOwner(actuator, SSATransactionFinalizer)); err != nil {
+		if err := k8sClient.Patch(ctx, obj, common.RemoveFinalizerPatch(obj), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
 			return fmt.Errorf("removing finalizer: %w", err)
 		}
 		return nil

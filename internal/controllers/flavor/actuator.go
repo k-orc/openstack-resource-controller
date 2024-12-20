@@ -27,19 +27,19 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
 type flavorActuator struct {
 	*orcv1alpha1.Flavor
-	osClient osclients.ComputeClient
+	osClient   osclients.ComputeClient
+	controller generic.ResourceControllerCommon
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Flavor) (flavorActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Flavor) (flavorActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return flavorActuator{}, err
 	}
@@ -49,8 +49,9 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}
 
 	return flavorActuator{
-		Flavor:   orcObject,
-		osClient: osClient,
+		Flavor:     orcObject,
+		osClient:   osClient,
+		controller: controller,
 	}, nil
 }
 
@@ -63,6 +64,10 @@ func (flavorActuator) GetControllerName() string {
 
 func (obj flavorActuator) GetObject() client.Object {
 	return obj.Flavor
+}
+
+func (obj flavorActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj flavorActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {

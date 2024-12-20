@@ -29,27 +29,26 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
 
 type portActuator struct {
 	*orcv1alpha1.Port
-	osClient osclients.NetworkClient
+	osClient   osclients.NetworkClient
+	controller generic.ResourceControllerCommon
 }
 
 type portCreateActuator struct {
 	portActuator
 
-	k8sClient client.Client
 	networkID orcv1alpha1.UUID
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Port) (portActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Port) (portActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return portActuator{}, err
 	}
@@ -59,20 +58,20 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 	}
 
 	return portActuator{
-		Port:     orcObject,
-		osClient: osClient,
+		Port:       orcObject,
+		osClient:   osClient,
+		controller: controller,
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Port, networkID orcv1alpha1.UUID) (portCreateActuator, error) {
-	portActuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
+func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Port, networkID orcv1alpha1.UUID) (portCreateActuator, error) {
+	portActuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return portCreateActuator{}, err
 	}
 
 	return portCreateActuator{
 		portActuator: portActuator,
-		k8sClient:    k8sClient,
 		networkID:    networkID,
 	}, nil
 }
@@ -80,12 +79,12 @@ func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactor
 var _ generic.DeleteResourceActuator[*ports.Port] = portActuator{}
 var _ generic.CreateResourceActuator[*ports.Port] = portCreateActuator{}
 
-func (portActuator) GetControllerName() string {
-	return "port"
-}
-
 func (obj portActuator) GetObject() client.Object {
 	return obj.Port
+}
+
+func (obj portActuator) GetController() generic.ResourceControllerCommon {
+	return obj.controller
 }
 
 func (obj portActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
@@ -168,6 +167,7 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	}
 
 	var waitEvents []generic.WaitingOnEvent
+	k8sClient := obj.controller.GetK8sClient()
 
 	// We explicitly disable creation of IP addresses by passing an empty
 	// value whenever the user does not specify addresses
@@ -175,7 +175,7 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	for i := range resource.Addresses {
 		subnet := &orcv1alpha1.Subnet{}
 		key := client.ObjectKey{Name: string(*resource.Addresses[i].SubnetRef), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, key, subnet); err != nil {
+		if err := k8sClient.Get(ctx, key, subnet); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
 				continue
@@ -201,7 +201,7 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	for i := range resource.SecurityGroupRefs {
 		securityGroup := &orcv1alpha1.SecurityGroup{}
 		key := client.ObjectKey{Name: string(resource.SecurityGroupRefs[i]), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, key, securityGroup); err != nil {
+		if err := k8sClient.Get(ctx, key, securityGroup); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
 				continue

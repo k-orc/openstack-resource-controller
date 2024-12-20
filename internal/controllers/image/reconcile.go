@@ -76,7 +76,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	actuator, err := newActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -196,7 +196,7 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcObject *orc
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	actuator, err := newActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
