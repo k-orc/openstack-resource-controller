@@ -57,6 +57,10 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 var _ generic.CreateResourceActuator[*flavors.Flavor] = flavorActuator{}
 var _ generic.DeleteResourceActuator[*flavors.Flavor] = flavorActuator{}
 
+func (obj flavorActuator) GetObject() client.Object {
+	return obj.Flavor
+}
+
 func (obj flavorActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }

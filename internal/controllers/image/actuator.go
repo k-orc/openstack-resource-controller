@@ -60,6 +60,10 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 var _ generic.CreateResourceActuator[*images.Image] = imageActuator{}
 var _ generic.DeleteResourceActuator[*images.Image] = imageActuator{}
 
+func (obj imageActuator) GetObject() client.Object {
+	return obj.Image
+}
+
 func (obj imageActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }

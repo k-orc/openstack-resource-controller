@@ -77,6 +77,10 @@ func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactor
 var _ generic.DeleteResourceActuator[*routers.Router] = routerActuator{}
 var _ generic.CreateResourceActuator[*routers.Router] = routerCreateActuator{}
 
+func (obj routerActuator) GetObject() client.Object {
+	return obj.Router
+}
+
 func (obj routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }

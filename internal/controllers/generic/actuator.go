@@ -38,7 +38,7 @@ const (
 )
 
 type BaseResourceActuator[osResourcePT any] interface {
-	client.Object
+	GetObject() client.Object
 
 	GetManagementPolicy() orcv1alpha1.ManagementPolicy
 	GetManagedOptions() *orcv1alpha1.ManagedOptions
@@ -117,9 +117,11 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	return actuator.CreateResource(ctx)
 }
 
-func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, obj DeleteResourceActuator[osResourcePT], onComplete func() error) (osResourcePT, ctrl.Result, error) {
+func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, actuator DeleteResourceActuator[osResourcePT], onComplete func() error) (osResourcePT, ctrl.Result, error) {
+	obj := actuator.GetObject()
+
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
-	hasStatusID, osResource, err := obj.GetOSResourceByStatusID(ctx)
+	hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx)
 	if err != nil {
 		if !orcerrors.IsNotFound(err) {
 			return osResource, ctrl.Result{}, err
@@ -135,8 +137,8 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	// We won't delete the resource for an unmanaged object, or if onDelete is detach
-	managementPolicy := obj.GetManagementPolicy()
-	managedOptions := obj.GetManagedOptions()
+	managementPolicy := actuator.GetManagementPolicy()
+	managedOptions := actuator.GetManagedOptions()
 	if managementPolicy == orcv1alpha1.ManagementPolicyUnmanaged || managedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
 		logPolicy := []any{"managementPolicy", managementPolicy}
 		if managementPolicy == orcv1alpha1.ManagementPolicyManaged {
@@ -148,7 +150,7 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 
 	// If status.ID was not set, we still need to check if there's an orphaned object.
 	if osResource == nil && !hasStatusID {
-		osResource, err = obj.GetOSResourceBySpec(ctx)
+		osResource, err = actuator.GetOSResourceBySpec(ctx)
 		if err != nil {
 			return osResource, ctrl.Result{}, err
 		}
@@ -160,7 +162,7 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	log.V(4).Info("Deleting OpenStack resource")
-	waitEvents, err := obj.DeleteResource(ctx, osResource)
+	waitEvents, err := actuator.DeleteResource(ctx, osResource)
 	if err != nil {
 		return osResource, ctrl.Result{}, err
 	}

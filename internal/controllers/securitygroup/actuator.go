@@ -59,6 +59,10 @@ func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scop
 var _ generic.DeleteResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 var _ generic.CreateResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 
+func (obj securityGroupActuator) GetObject() client.Object {
+	return obj.SecurityGroup
+}
+
 func (obj securityGroupActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 	return obj.Spec.ManagementPolicy
 }
