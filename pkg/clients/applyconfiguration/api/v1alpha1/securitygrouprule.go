@@ -27,7 +27,6 @@ import (
 type SecurityGroupRuleApplyConfiguration struct {
 	Description    *v1alpha1.OpenStackDescription `json:"description,omitempty"`
 	Direction      *v1alpha1.RuleDirection        `json:"direction,omitempty"`
-	RemoteGroupID  *v1alpha1.UUID                 `json:"remoteGroupID,omitempty"`
 	RemoteIPPrefix *v1alpha1.CIDR                 `json:"remoteIPPrefix,omitempty"`
 	Protocol       *v1alpha1.Protocol             `json:"protocol,omitempty"`
 	Ethertype      *v1alpha1.Ethertype            `json:"ethertype,omitempty"`
@@ -54,14 +53,6 @@ func (b *SecurityGroupRuleApplyConfiguration) WithDescription(value v1alpha1.Ope
 // If called multiple times, the Direction field is set to the value of the last call.
 func (b *SecurityGroupRuleApplyConfiguration) WithDirection(value v1alpha1.RuleDirection) *SecurityGroupRuleApplyConfiguration {
 	b.Direction = &value
-	return b
-}
-
-// WithRemoteGroupID sets the RemoteGroupID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the RemoteGroupID field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithRemoteGroupID(value v1alpha1.UUID) *SecurityGroupRuleApplyConfiguration {
-	b.RemoteGroupID = &value
 	return b
 }
 

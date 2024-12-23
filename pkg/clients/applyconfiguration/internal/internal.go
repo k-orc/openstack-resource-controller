@@ -1290,9 +1290,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: protocol
       type:
         scalar: string
-    - name: remoteGroupID
-      type:
-        scalar: string
     - name: remoteIPPrefix
       type:
         scalar: string

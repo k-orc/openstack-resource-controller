@@ -4312,13 +4312,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 							Format:      "",
 						},
 					},
-					"remoteGroupID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "RemoteGroupID",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"remoteIPPrefix": {
 						SchemaProps: spec.SchemaProps{
 							Description: "RemoteIPPrefix",

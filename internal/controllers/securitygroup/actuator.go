@@ -145,7 +145,6 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 			SecGroupID:     osResource.ID,
 			Description:    string(ptr.Deref(resource.Rules[i].Description, "")),
 			Direction:      rules.RuleDirection(ptr.Deref(resource.Rules[i].Direction, "")),
-			RemoteGroupID:  string(ptr.Deref(resource.Rules[i].RemoteGroupID, "")),
 			RemoteIPPrefix: string(ptr.Deref(resource.Rules[i].RemoteIPPrefix, "")),
 			Protocol:       rules.RuleProtocol(ptr.Deref(resource.Rules[i].Protocol, "")),
 			EtherType:      rules.RuleEtherType(ptr.Deref(resource.Rules[i].Ethertype, "")),
