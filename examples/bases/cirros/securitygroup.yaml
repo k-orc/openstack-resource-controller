@@ -15,4 +15,3 @@ spec:
       protocol: tcp
       portRangeMin: 22
       portRangeMax: 22
-      ethertype: IPv4
