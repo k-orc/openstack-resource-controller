@@ -2132,11 +2132,6 @@ func (in *SecurityGroupRule) DeepCopyInto(out *SecurityGroupRule) {
 		*out = new(RuleDirection)
 		**out = **in
 	}
-	if in.RemoteGroupID != nil {
-		in, out := &in.RemoteGroupID, &out.RemoteGroupID
-		*out = new(UUID)
-		**out = **in
-	}
 	if in.RemoteIPPrefix != nil {
 		in, out := &in.RemoteIPPrefix, &out.RemoteIPPrefix
 		*out = new(CIDR)

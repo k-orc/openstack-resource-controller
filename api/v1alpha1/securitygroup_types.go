@@ -44,9 +44,6 @@ type SecurityGroupRule struct {
 
 	// RemoteAddressGroupId (Not in gophercloud)
 
-	// RemoteGroupID
-	RemoteGroupID *UUID `json:"remoteGroupID,omitempty"`
-
 	// RemoteIPPrefix
 	RemoteIPPrefix *CIDR `json:"remoteIPPrefix,omitempty"`
 
