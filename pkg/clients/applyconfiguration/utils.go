@@ -122,6 +122,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.PortFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortImport"):
 		return &apiv1alpha1.PortImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("PortRangeSpec"):
+		return &apiv1alpha1.PortRangeSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("PortRangeStatus"):
+		return &apiv1alpha1.PortRangeStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortRefs"):
 		return &apiv1alpha1.PortRefsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortResourceSpec"):

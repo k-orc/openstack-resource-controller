@@ -16,11 +16,13 @@ spec:
       - direction: ingress
         protocol: tcp
         ethertype: IPv4
-        portRangeMin: 21
-        portRangeMax: 21
+        portRange:
+       	    min: 21
+       	    max: 21
         remoteIPPrefix: "192.168.0.0/24"
       - direction: egress
         protocol: "6"
         ethertype: IPv6
-        portRangeMin: 3838
-        portRangeMax: 3840
+        portRange:
+       	    min: 3838
+       	    max: 3840

@@ -17,22 +17,68 @@ limitations under the License.
 package v1alpha1
 
 // +kubebuilder:validation:Enum:=ingress;egress
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=16
 type RuleDirection string
 
-// +kubebuilder:validation:Pattern:=\b([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\b|any|ah|dccp|egp|esp|gre|icmp|icmpv6|igmp|ipip|ipv6-encap|ipv6-frag|ipv6-icmp|ipv6-nonxt|ipv6-opts|ipv6-route|ospf|pgm|rsvp|sctp|tcp|udp|udplite|vrrp
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=16
+// +kubebuilder:validation:Enum:=ah;dccp;egp;esp;gre;icmp;icmpv6;igmp;ipip;ipv6-encap;ipv6-frag;ipv6-icmp;ipv6-nonxt;ipv6-opts;ipv6-route;ospf;pgm;rsvp;sctp;tcp;udp;udplite;vrrp
 type Protocol string
 
+const (
+	ProtocolAH        Protocol = "ah"
+	ProtocolDCCP      Protocol = "dccp"
+	ProtocolEGP       Protocol = "egp"
+	ProtocolESP       Protocol = "esp"
+	ProtocolGRE       Protocol = "gre"
+	ProtocolICMP      Protocol = "icmp"
+	ProtocolICMPV6    Protocol = "icmpv6"
+	ProtocolIGMP      Protocol = "igmp"
+	ProtocolIPIP      Protocol = "ipip"
+	ProtocolIPV6ENCAP Protocol = "ipv6-encap"
+	ProtocolIPV6FRAG  Protocol = "ipv6-frag"
+	ProtocolIPV6ICMP  Protocol = "ipv6-icmp"
+	ProtocolIPV6NONXT Protocol = "ipv6-nonxt"
+	ProtocolIPV6OPTS  Protocol = "ipv6-opts"
+	ProtocolIPV6ROUTE Protocol = "ipv6-route"
+	ProtocolOSPF      Protocol = "ospf"
+	ProtocolPGM       Protocol = "pgm"
+	ProtocolRSVP      Protocol = "rsvp"
+	ProtocolSCTP      Protocol = "sctp"
+	ProtocolTCP       Protocol = "tcp"
+	ProtocolUDP       Protocol = "udp"
+	ProtocolUDPLITE   Protocol = "udplite"
+	ProtocolVRRP      Protocol = "vrrp"
+)
+
 // +kubebuilder:validation:Enum:=IPv4;IPv6
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=16
+// +required
 type Ethertype string
+
+const (
+	EthertypeIPv4 Ethertype = "IPv4"
+	EthertypeIPv6 Ethertype = "IPv6"
+)
+
+// +kubebuilder:validation:Minimum:=0
+// +kubebuilder:validation:Maximum:=65535
+type PortNumber int32
+
+type PortRangeSpec struct {
+	// +required
+	Min PortNumber `json:"min"`
+	// +required
+	Max PortNumber `json:"max"`
+}
+
+type PortRangeStatus struct {
+	Min int32 `json:"min"`
+	Max int32 `json:"max"`
+}
 
 // SecurityGroupRule defines a Security Group rule
 // +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:XValidation:rule="(!has(self.portRange)|| !(self.protocol == 'tcp'|| self.protocol == 'udp' || self.protocol == 'dccp' || self.protocol == 'sctp' || self.protocol == 'udplite') || (self.portRange.min <= self.portRange.max))",message="portRangeMax should be equal or greater than portRange.min"
+// +kubebuilder:validation:XValidation:rule="!(self.protocol == 'icmp' || self.protocol == 'icmpv6') || !has(self.portRange)|| (self.portRange.min >= 0 && self.portRange.min <= 255)",message="When protocol is ICMP or ICMPv6 portRange.min should be between 0 and 255"
+// +kubebuilder:validation:XValidation:rule="!(self.protocol == 'icmp' || self.protocol == 'icmpv6') || !has(self.portRange)|| (self.portRange.max >= 0 && self.portRange.max <= 255)",message="When protocol is ICMP or ICMPv6 portRange.max should be between 0 and 255"
+// +kubebuilder:validation:XValidation:rule="!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype == 'IPv4') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 6 && self.ethertype == 'IPv6')",message="remoteIPPrefix should be a valid CIDR and match the ethertype"
 type SecurityGroupRule struct {
 	// Description of the existing resource
 	// +optional
@@ -40,27 +86,33 @@ type SecurityGroupRule struct {
 
 	// Direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
+	// +optional
 	Direction *RuleDirection `json:"direction,omitempty"`
 
-	// RemoteAddressGroupId (Not in gophercloud)
-
-	// RemoteIPPrefix
+	// RemoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
+	// +optional
 	RemoteIPPrefix *CIDR `json:"remoteIPPrefix,omitempty"`
 
-	// Protocol is the IP protocol can be represented by a string, an
-	// integer, or null
+	// Protocol is the IP protocol can be represented by a string or an
+	// integer represented as a string.
+	// +optional
 	Protocol *Protocol `json:"protocol,omitempty"`
 
-	// EtherType must be IPv4 or IPv6, and addresses represented in CIDR
+	// Ethertype must be IPv4 or IPv6, and addresses represented in CIDR
 	// must match the ingress or egress rules.
-	Ethertype *Ethertype `json:"ethertype,omitempty"`
-
-	PortRangeMin *int32 `json:"portRangeMin,omitempty"`
-	PortRangeMax *int32 `json:"portRangeMax,omitempty"`
+	// +kubebuilder:validation:Required
+	Ethertype Ethertype `json:"ethertype"`
+	// If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
+	// or equal to the PortRange.Max attribute value.
+	// If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max
+	// should be an ICMP type
+	// +optional
+	PortRange *PortRangeSpec `json:"portRange,omitempty"`
 }
 
 type SecurityGroupRuleStatus struct {
 	// ID is the ID of the security group rule.
+	// +required
 	ID string `json:"id,omitempty"`
 
 	// Description of the existing resource
@@ -87,9 +139,7 @@ type SecurityGroupRuleStatus struct {
 	// must match the ingress or egress rules.
 	Ethertype string `json:"ethertype,omitempty"`
 
-	PortRangeMin int `json:"portRangeMin,omitempty"`
-	PortRangeMax int `json:"portRangeMax,omitempty"`
-
+	PortRange *PortRangeStatus `json:"portRange,omitempty"`
 	// FIXME(mandre) This field is not yet returned by gophercloud
 	// BelongsToDefaultSG bool `json:"belongsToDefaultSG,omitempty"`
 

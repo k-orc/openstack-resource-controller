@@ -13,13 +13,15 @@ spec:
     rules:
     - direction: ingress
       protocol: tcp
-      portRangeMin: 22
-      portRangeMax: 22
+      portRange:
+	min: 22
+	max: 22
       ethertype: IPv4
     - direction: ingress
       protocol: tcp
-      portRangeMin: 22
-      portRangeMax: 22
+      portRange:
+	min: 22
+	max: 22
       ethertype: IPv6
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -36,21 +38,25 @@ spec:
     rules:
     - direction: ingress
       protocol: tcp
-      portRangeMin: 80
-      portRangeMax: 80
+      portRange:
+	min: 80
+	max: 80
       ethertype: IPv4
     - direction: ingress
       protocol: tcp
-      portRangeMin: 80
-      portRangeMax: 80
+      portRange:
+	min: 80
+	max: 80
       ethertype: IPv6
     - direction: ingress
       protocol: tcp
-      portRangeMin: 9696
-      portRangeMax: 9696
+      portRange:
+	min: 9696
+	max: 9696
       ethertype: IPv4
     - direction: ingress
       protocol: tcp
-      portRangeMin: 9696
-      portRangeMax: 9696
+      portRange:
+	min: 9696
+	max: 9696
       ethertype: IPv6
