@@ -31,8 +31,8 @@ type SecurityGroupRuleApplyConfiguration struct {
 	RemoteIPPrefix *v1alpha1.CIDR                 `json:"remoteIPPrefix,omitempty"`
 	Protocol       *v1alpha1.Protocol             `json:"protocol,omitempty"`
 	Ethertype      *v1alpha1.Ethertype            `json:"ethertype,omitempty"`
-	PortRangeMin   *int32                         `json:"portRangeMin,omitempty"`
-	PortRangeMax   *int32                         `json:"portRangeMax,omitempty"`
+	PortRangeMin   *uint16                        `json:"portRangeMin,omitempty"`
+	PortRangeMax   *uint16                        `json:"portRangeMax,omitempty"`
 }
 
 // SecurityGroupRuleApplyConfiguration constructs a declarative configuration of the SecurityGroupRule type for use with
@@ -92,7 +92,7 @@ func (b *SecurityGroupRuleApplyConfiguration) WithEthertype(value v1alpha1.Ether
 // WithPortRangeMin sets the PortRangeMin field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the PortRangeMin field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMin(value int32) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMin(value uint16) *SecurityGroupRuleApplyConfiguration {
 	b.PortRangeMin = &value
 	return b
 }
@@ -100,7 +100,7 @@ func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMin(value int32) *Sec
 // WithPortRangeMax sets the PortRangeMax field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the PortRangeMax field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMax(value int32) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMax(value uint16) *SecurityGroupRuleApplyConfiguration {
 	b.PortRangeMax = &value
 	return b
 }

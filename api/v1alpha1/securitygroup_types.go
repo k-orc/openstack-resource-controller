@@ -26,40 +26,88 @@ type RuleDirection string
 // +kubebuilder:validation:MaxLength:=16
 type Protocol string
 
+const (
+	ProtocolANY       Protocol = "any"
+	ProtocolAH        Protocol = "ah"
+	ProtocolDCCP      Protocol = "dccp"
+	ProtocolEGP       Protocol = "egp"
+	ProtocolESP       Protocol = "esp"
+	ProtocolGRE       Protocol = "gre"
+	ProtocolICMP      Protocol = "icmp"
+	ProtocolICMPV6    Protocol = "icmpv6"
+	ProtocolIGMP      Protocol = "igmp"
+	ProtocolIPIP      Protocol = "ipip"
+	ProtocolIPV6ENCAP Protocol = "ipv6-encap"
+	ProtocolIPV6FRAG  Protocol = "ipv6-frag"
+	ProtocolIPV6ICMP  Protocol = "ipv6-icmp"
+	ProtocolIPV6NONXT Protocol = "ipv6-nonxt"
+	ProtocolIPV6OPTS  Protocol = "ipv6-opts"
+	ProtocolIPV6ROUTE Protocol = "ipv6-route"
+	ProtocolOSPF      Protocol = "ospf"
+	ProtocolPGM       Protocol = "pgm"
+	ProtocolRSVP      Protocol = "rsvp"
+	ProtocolSCTP      Protocol = "sctp"
+	ProtocolTCP       Protocol = "tcp"
+	ProtocolUDP       Protocol = "udp"
+	ProtocolUDPLITE   Protocol = "udplite"
+	ProtocolVRRP      Protocol = "vrrp"
+)
+
 // +kubebuilder:validation:Enum:=IPv4;IPv6
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=16
+// +kubebuilder:validation:MaxLength:=4
 type Ethertype string
+
+const (
+	EtherTypeIPv4 Ethertype = "IPv4"
+	EtherTypeIPv6 Ethertype = "IPv6"
+)
 
 // SecurityGroupRule defines a Security Group rule
 // +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:XValidation:rule="has(self.portRangeMin) == has(self.portRangeMax)",message="PortRangeMin and PortRangeMax should exist together"
+// +kubebuilder:validation:XValidation:rule="(!has(self.portRangeMin) || !has(self.portRangeMax)) || has(self.protocol)",message="Protocol must exist when PortRangeMin or PortRangeMax exist"
+// +kubebuilder:validation:XValidation:rule="(!has(self.portRangeMin) || !has(self.portRangeMax))|| (self.portRangeMin <= self.portRangeMax)",message="PortRangeMax should be equal or greater than PortRangeMin"
+// +kubebuilder:validation:XValidation:rule="!has(self.protocol) || !(self.protocol == 'icmp' || self.protocol == 'icmpv6') || (self.portRangeMin >= 0 && self.portRangeMin <= 255 && self.portRangeMax >= 0 && self.portRangeMax <= 255)",message="When protocol is ICMP or ICMPv6 PortRangeMin and PortRangeMax should be between 0 and 255"
+// +kubebuilder:validation:XValidation:rule="!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype == 'IPv4') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 6 && self.ethertype == 'IPv6')",message="RemoteIPPrefix should be a valid CIDR and match the Ethertype"
 type SecurityGroupRule struct {
 	// Description of the existing resource
 	// +optional
+
 	Description *OpenStackDescription `json:"description,omitempty"`
 
 	// Direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
+	// +optional
 	Direction *RuleDirection `json:"direction,omitempty"`
 
 	// RemoteAddressGroupId (Not in gophercloud)
-
 	// RemoteGroupID
 	RemoteGroupID *UUID `json:"remoteGroupID,omitempty"`
 
-	// RemoteIPPrefix
+	// RemoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
+	// +optional
 	RemoteIPPrefix *CIDR `json:"remoteIPPrefix,omitempty"`
 
 	// Protocol is the IP protocol can be represented by a string, an
 	// integer, or null
+	// +optional
 	Protocol *Protocol `json:"protocol,omitempty"`
 
 	// EtherType must be IPv4 or IPv6, and addresses represented in CIDR
 	// must match the ingress or egress rules.
-	Ethertype *Ethertype `json:"ethertype,omitempty"`
-
-	PortRangeMin *int32 `json:"portRangeMin,omitempty"`
-	PortRangeMax *int32 `json:"portRangeMax,omitempty"`
+	// +kubebuilder:validation:Required
+	Ethertype *Ethertype `json:"ethertype"`
+	// If the protocol is [tcp, udp, dccp sctp,udplite] this value must be less than
+	// or equal to the PortRangeMax attribute value.
+	// If the protocol is ICMP, this value must be an ICMP type
+	// +optional
+	PortRangeMin *uint16 `json:"portRangeMin,omitempty"`
+	// If the protocol is [tcp, udp, dccp sctp,udplite] this value must be greater than
+	// or equal to the PortRangeMin attribute value.
+	// If the protocol is ICMP, this value must be an ICMP type
+	// +optional
+	PortRangeMax *uint16 `json:"portRangeMax,omitempty"`
 }
 
 type SecurityGroupRuleStatus struct {

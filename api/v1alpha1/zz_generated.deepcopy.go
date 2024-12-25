@@ -2154,12 +2154,12 @@ func (in *SecurityGroupRule) DeepCopyInto(out *SecurityGroupRule) {
 	}
 	if in.PortRangeMin != nil {
 		in, out := &in.PortRangeMin, &out.PortRangeMin
-		*out = new(int32)
+		*out = new(uint16)
 		**out = **in
 	}
 	if in.PortRangeMax != nil {
 		in, out := &in.PortRangeMax, &out.PortRangeMax
-		*out = new(int32)
+		*out = new(uint16)
 		**out = **in
 	}
 }
