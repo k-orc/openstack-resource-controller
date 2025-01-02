@@ -9,7 +9,6 @@ permissions:
   contents: read
 
 env:
-  image_tag_latest: quay.io/orc/openstack-resource-controller:latest
   image_tag_branch: quay.io/orc/openstack-resource-controller:branch-${GITHUB_REF_NAME}
   image_tag_commit: quay.io/orc/openstack-resource-controller:commit-${GITHUB_SHA::7}
 
@@ -23,9 +22,8 @@ jobs:
     - run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
 
-        docker build -t ${{ env.image_tag_branch }} -t ${{ env.image_tag_latest }} .
+        docker build -t ${{ env.image_tag_branch }} .
         docker push ${{ env.image_tag_branch }}
-        docker push ${{ env.image_tag_latest }}
 
         docker build -t ${{ env.image_tag_commit }} --label quay.expires-after=4w .
         docker push ${{ env.image_tag_commit }}
