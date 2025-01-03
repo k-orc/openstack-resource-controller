@@ -4300,9 +4300,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 				Properties: map[string]spec.Schema{
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
 					"direction": {
@@ -4314,14 +4313,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 					},
 					"remoteGroupID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RemoteGroupID",
+							Description: "RemoteAddressGroupId (Not in gophercloud) RemoteGroupID",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"remoteIPPrefix": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RemoteIPPrefix",
+							Description: "RemoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4342,17 +4341,20 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 					},
 					"portRangeMin": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "int32",
+							Description: "If the protocol is [tcp, udp, dccp sctp,udplite] this value must be less than or equal to the PortRangeMax attribute value. If the protocol is ICMP, this value must be an ICMP type",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"portRangeMax": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "int32",
+							Description: "If the protocol is [tcp, udp, dccp sctp,udplite] this value must be greater than or equal to the PortRangeMin attribute value. If the protocol is ICMP, this value must be an ICMP type",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 				},
+				Required: []string{"ethertype"},
 			},
 		},
 	}

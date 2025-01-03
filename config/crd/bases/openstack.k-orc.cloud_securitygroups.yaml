@@ -234,7 +234,6 @@ spec:
                       minProperties: 1
                       properties:
                         description:
-                          description: Description of the existing resource
                           maxLength: 1024
                           minLength: 1
                           type: string
@@ -255,14 +254,20 @@ spec:
                           enum:
                           - IPv4
                           - IPv6
-                          maxLength: 16
+                          maxLength: 4
                           minLength: 1
                           type: string
                         portRangeMax:
-                          format: int32
+                          description: |-
+                            If the protocol is [tcp, udp, dccp sctp,udplite] this value must be greater than
+                            or equal to the PortRangeMin attribute value.
+                            If the protocol is ICMP, this value must be an ICMP type
                           type: integer
                         portRangeMin:
-                          format: int32
+                          description: |-
+                            If the protocol is [tcp, udp, dccp sctp,udplite] this value must be less than
+                            or equal to the PortRangeMax attribute value.
+                            If the protocol is ICMP, this value must be an ICMP type
                           type: integer
                         protocol:
                           description: |-
@@ -273,17 +278,44 @@ spec:
                           pattern: \b([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\b|any|ah|dccp|egp|esp|gre|icmp|icmpv6|igmp|ipip|ipv6-encap|ipv6-frag|ipv6-icmp|ipv6-nonxt|ipv6-opts|ipv6-route|ospf|pgm|rsvp|sctp|tcp|udp|udplite|vrrp
                           type: string
                         remoteGroupID:
-                          description: RemoteGroupID
+                          description: |-
+                            RemoteAddressGroupId (Not in gophercloud)
+                            RemoteGroupID
                           format: uuid
                           maxLength: 36
                           type: string
                         remoteIPPrefix:
-                          description: RemoteIPPrefix
+                          description: RemoteIPPrefix is an IP address block. Should
+                            match the Ethertype (IPv4 or IPv6)
                           format: cidr
                           maxLength: 49
                           minLength: 1
                           type: string
+                      required:
+                      - ethertype
                       type: object
+                      x-kubernetes-validations:
+                      - message: PortRangeMin and PortRangeMax should exist together
+                        rule: has(self.portRangeMin) == has(self.portRangeMax)
+                      - message: Protocol must exist when PortRangeMin or PortRangeMax
+                          exist
+                        rule: (!has(self.portRangeMin) || !has(self.portRangeMax))
+                          || has(self.protocol)
+                      - message: PortRangeMax should be equal or greater than PortRangeMin
+                        rule: (!has(self.portRangeMin) || !has(self.portRangeMax))||
+                          (self.portRangeMin <= self.portRangeMax)
+                      - message: When protocol is ICMP or ICMPv6 PortRangeMin and
+                          PortRangeMax should be between 0 and 255
+                        rule: '!has(self.protocol) || !(self.protocol == ''icmp''
+                          || self.protocol == ''icmpv6'') || (self.portRangeMin >=
+                          0 && self.portRangeMin <= 255 && self.portRangeMax >= 0
+                          && self.portRangeMax <= 255)'
+                      - message: RemoteIPPrefix should be a valid CIDR and match the
+                          Ethertype
+                        rule: '!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix)
+                          && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype
+                          == ''IPv4'') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family()
+                          == 6 && self.ethertype == ''IPv6'')'
                     maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
