@@ -22,10 +22,12 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
+	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
@@ -37,8 +39,32 @@ const (
 	externalUpdatePollingPeriod = 15 * time.Second
 )
 
+const ORCK8SPrefix = "openstack.k-orc.cloud"
+
+type SSATransactionID string
+
+const (
+	// Field owner of the object finalizer.
+	SSATransactionFinalizer SSATransactionID = "finalizer"
+)
+
+type ResourceController[orcObjectPT any, osResourcePT any] interface {
+	NewCreateActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, CreateResourceActuator[osResourcePT], error)
+	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, DeleteResourceActuator[osResourcePT], error)
+
+	ResourceControllerCommon
+}
+
+type ResourceControllerCommon interface {
+	GetName() string
+
+	GetK8sClient() client.Client
+	GetScopeFactory() scope.Factory
+}
+
 type BaseResourceActuator[osResourcePT any] interface {
-	client.Object
+	GetObject() client.Object
+	GetController() ResourceControllerCommon
 
 	GetManagementPolicy() orcv1alpha1.ManagementPolicy
 	GetManagedOptions() *orcv1alpha1.ManagedOptions
@@ -63,7 +89,36 @@ type DeleteResourceActuator[osResourcePT any] interface {
 	DeleteResource(ctx context.Context, osResource osResourcePT) ([]WaitingOnEvent, error)
 }
 
+func getSSAFieldOwnerString(controller ResourceControllerCommon) string {
+	return ORCK8SPrefix + "/" + controller.GetName() + "controller"
+}
+
+// GetSSAFieldOwner returns the field owner for a specific named SSA transaction.
+func GetSSAFieldOwner(controller ResourceControllerCommon) client.FieldOwner {
+	return client.FieldOwner(getSSAFieldOwnerString(controller))
+}
+
+func GetSSAFieldOwnerWithTxn(controller ResourceControllerCommon, txn SSATransactionID) client.FieldOwner {
+	return client.FieldOwner(getSSAFieldOwnerString(controller) + "/" + string(txn))
+}
+
+// getFinalizerName return the finalizer to be used for the given actuator
+func GetFinalizerName(controller ResourceControllerCommon) string {
+	return ORCK8SPrefix + "/" + controller.GetName()
+}
+
 func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator CreateResourceActuator[osResourcePT]) ([]WaitingOnEvent, osResourcePT, error) {
+	orcObject := actuator.GetObject()
+	controller := actuator.GetController()
+
+	finalizer := GetFinalizerName(controller)
+	if !controllerutil.ContainsFinalizer(orcObject, finalizer) {
+		patch := common.SetFinalizerPatch(orcObject, finalizer)
+		if err := k8sClient.Patch(ctx, orcObject, patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+			return nil, nil, fmt.Errorf("setting finalizer: %w", err)
+		}
+	}
+
 	// Get by status ID
 	if hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx); hasStatusID {
 		if orcerrors.IsNotFound(err) {
@@ -92,7 +147,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	if hasImportFilter, osResource, err := actuator.GetOSResourceByImportFilter(ctx); hasImportFilter {
 		var waitEvents []WaitingOnEvent
 		if osResource == nil {
-			waitEvents = []WaitingOnEvent{WaitingOnOpenStackExternal(externalUpdatePollingPeriod)}
+			waitEvents = []WaitingOnEvent{WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
 		}
 		return waitEvents, osResource, err
 	}
@@ -117,61 +172,85 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	return actuator.CreateResource(ctx)
 }
 
-func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, obj DeleteResourceActuator[osResourcePT], onComplete func() error) (osResourcePT, ctrl.Result, error) {
+func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator DeleteResourceActuator[osResourcePT]) (bool, []WaitingOnEvent, osResourcePT, error) {
+	obj := actuator.GetObject()
+	controller := actuator.GetController()
+
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
-	hasStatusID, osResource, err := obj.GetOSResourceByStatusID(ctx)
+	hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx)
 	if err != nil {
 		if !orcerrors.IsNotFound(err) {
-			return osResource, ctrl.Result{}, err
+			return false, nil, osResource, err
 		}
 		// Gophercloud can return an empty non-nil object when returning errors,
 		// which will confuse us below.
 		osResource = nil
 	}
 
-	if len(obj.GetFinalizers()) > 1 {
+	finalizer := GetFinalizerName(controller)
+
+	var waitEvents []WaitingOnEvent
+	var foundFinalizer bool
+	for _, f := range obj.GetFinalizers() {
+		if f == finalizer {
+			foundFinalizer = true
+		} else {
+			waitEvents = append(waitEvents, WaitingOnFinalizer(f))
+		}
+	}
+
+	// Cleanup not required if our finalizer is not present
+	if !foundFinalizer {
+		return true, waitEvents, osResource, nil
+	}
+
+	if len(waitEvents) > 0 {
 		log.V(4).Info("Deferring resource cleanup due to remaining external finalizers")
-		return osResource, ctrl.Result{}, nil
+		return false, waitEvents, osResource, nil
+	}
+
+	removeFinalizer := func() error {
+		if err := k8sClient.Patch(ctx, obj, common.RemoveFinalizerPatch(obj), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+			return fmt.Errorf("removing finalizer: %w", err)
+		}
+		return nil
 	}
 
 	// We won't delete the resource for an unmanaged object, or if onDelete is detach
-	managementPolicy := obj.GetManagementPolicy()
-	managedOptions := obj.GetManagedOptions()
+	managementPolicy := actuator.GetManagementPolicy()
+	managedOptions := actuator.GetManagedOptions()
 	if managementPolicy == orcv1alpha1.ManagementPolicyUnmanaged || managedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
 		logPolicy := []any{"managementPolicy", managementPolicy}
 		if managementPolicy == orcv1alpha1.ManagementPolicyManaged {
 			logPolicy = append(logPolicy, "onDelete", managedOptions.GetOnDelete())
 		}
 		log.V(4).Info("Not deleting OpenStack resource due to policy", logPolicy...)
-		return osResource, ctrl.Result{}, onComplete()
+		return true, waitEvents, osResource, removeFinalizer()
 	}
 
 	// If status.ID was not set, we still need to check if there's an orphaned object.
 	if osResource == nil && !hasStatusID {
-		osResource, err = obj.GetOSResourceBySpec(ctx)
+		osResource, err = actuator.GetOSResourceBySpec(ctx)
 		if err != nil {
-			return osResource, ctrl.Result{}, err
+			return false, waitEvents, osResource, err
 		}
 	}
 
 	if osResource == nil {
 		log.V(4).Info("Resource is no longer observed")
-		return osResource, ctrl.Result{}, onComplete()
+
+		return true, waitEvents, osResource, removeFinalizer()
 	}
 
 	log.V(4).Info("Deleting OpenStack resource")
-	waitEvents, err := obj.DeleteResource(ctx, osResource)
-	if err != nil {
-		return osResource, ctrl.Result{}, err
-	}
+	waitEvents, err = actuator.DeleteResource(ctx, osResource)
 
-	var requeue time.Duration
-	if len(waitEvents) > 0 {
-		requeue = MaxRequeue(waitEvents)
-	} else {
-		requeue = deletePollingPeriod
+	// If there are no other wait events, we still need to poll for the deletion
+	// of the OpenStack resource
+	if len(waitEvents) == 0 {
+		waitEvents = []WaitingOnEvent{WaitingOnOpenStackDeleted(deletePollingPeriod)}
 	}
-	return osResource, ctrl.Result{RequeueAfter: requeue}, nil
+	return false, waitEvents, osResource, err
 }
 
 type WaitingOnEvent interface {
@@ -232,6 +311,22 @@ func (e waitingOnORC) Requeue() time.Duration {
 	return 0
 }
 
+type waitingOnFinalizer struct {
+	finalizer string
+}
+
+func (e waitingOnFinalizer) Message() string {
+	return fmt.Sprintf("Waiting for finalizer %s to be removed", e.finalizer)
+}
+
+func (e waitingOnFinalizer) Requeue() time.Duration {
+	return 0
+}
+
+func WaitingOnFinalizer(finalizer string) WaitingOnEvent {
+	return waitingOnFinalizer{finalizer: finalizer}
+}
+
 type waitingOnOpenStack struct {
 	waitingOn     waitingOnType
 	pollingPeriod time.Duration
@@ -246,11 +341,15 @@ func newWaitingOnOpenStack(event waitingOnType, pollingPeriod time.Duration) Wai
 	}
 }
 
-func WaitingOnOpenStackExternal(pollingPeriod time.Duration) WaitingOnEvent {
+func WaitingOnOpenStackCreate(pollingPeriod time.Duration) WaitingOnEvent {
 	return newWaitingOnOpenStack(WaitingOnCreation, pollingPeriod)
 }
 
-func WaitingOnOpenStackReady(kind, name string, pollingPeriod time.Duration) WaitingOnEvent {
+func WaitingOnOpenStackReady(pollingPeriod time.Duration) WaitingOnEvent {
+	return newWaitingOnOpenStack(WaitingOnReady, pollingPeriod)
+}
+
+func WaitingOnOpenStackDeleted(pollingPeriod time.Duration) WaitingOnEvent {
 	return newWaitingOnOpenStack(WaitingOnReady, pollingPeriod)
 }
 
@@ -259,7 +358,7 @@ func (e waitingOnOpenStack) Message() string {
 	switch e.waitingOn {
 	case WaitingOnCreation:
 		outcome = "be created externally"
-	case WaitingOnReady:
+	case WaitingOnDeletion:
 		outcome = "be ready"
 	}
 	return fmt.Sprintf("Waiting for OpenStack resource to %s", outcome)

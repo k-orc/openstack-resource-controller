@@ -24,19 +24,14 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports,verbs=get;list;watch;create;update;patch;delete
@@ -102,13 +97,7 @@ func (r *orcPortReconciler) reconcileNormal(ctx context.Context, orcObject *orcv
 	}
 	networkID := orcv1alpha1.UUID(*orcNetwork.Status.ID)
 
-	// Don't add finalizer until parent dependent resources are available to avoid unnecessary reconcile on delete
-	if !controllerutil.ContainsFinalizer(orcObject, Finalizer) {
-		patch := common.SetFinalizerPatch(orcObject, Finalizer)
-		return ctrl.Result{}, r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
-	}
-
-	actuator, err := newCreateActuator(ctx, r.client, r.scopeFactory, orcObject, networkID)
+	actuator, err := newCreateActuator(ctx, r, orcObject, networkID)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -172,20 +161,14 @@ func (r *orcPortReconciler) reconcileDelete(ctx context.Context, orcObject *orcv
 		}
 	}()
 
-	portActuator, err := newActuator(ctx, r.client, r.scopeFactory, orcObject)
+	portActuator, err := newActuator(ctx, r, orcObject)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	osResource, result, err := generic.DeleteResource(ctx, log, portActuator, func() error {
-		deleted = true
-
-		// Clear the finalizer
-		applyConfig := orcapplyconfigv1alpha1.Port(orcObject.Name, orcObject.Namespace).WithUID(orcObject.UID)
-		return r.client.Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
-	})
+	deleted, waitEvents, osResource, err := generic.DeleteResource(ctx, log, r.client, portActuator)
 	addStatus(withResource(osResource))
-	return result, err
+	return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, err
 }
 
 // needsUpdate returns a slice of functions that call the OpenStack API to

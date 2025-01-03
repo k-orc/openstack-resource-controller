@@ -40,7 +40,7 @@ func (r *orcFlavorReconciler) setStatusID(ctx context.Context, obj client.Object
 		WithStatus(orcapplyconfigv1alpha1.FlavorStatus().
 			WithID(id))
 
-	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAIDTxn))
+	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
 type updateStatusOpts struct {
