@@ -34,3 +34,7 @@ plugins:
   - redirects:
       redirect_maps:
         'getting_started.md': 'getting-started.md'
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
