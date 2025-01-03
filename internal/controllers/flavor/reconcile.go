@@ -98,7 +98,7 @@ func (r *orcFlavorReconciler) reconcileNormal(ctx context.Context, orcObject *or
 
 	addStatus(withResource(osResource))
 	if orcObject.Status.ID == nil {
-		if err := r.setStatusID(ctx, orcObject, osResource.ID); err != nil {
+		if err := generic.SetStatusID(ctx, actuator, osResource); err != nil {
 			return ctrl.Result{}, err
 		}
 	}

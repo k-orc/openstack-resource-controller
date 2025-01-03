@@ -33,16 +33,6 @@ import (
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
-// setStatusID sets status.ID in its own SSA transaction.
-func (r *orcNetworkReconciler) setStatusID(ctx context.Context, obj client.Object, id string) error {
-	applyConfig := orcapplyconfigv1alpha1.Network(obj.GetName(), obj.GetNamespace()).
-		WithUID(obj.GetUID()).
-		WithStatus(orcapplyconfigv1alpha1.NetworkStatus().
-			WithID(id))
-
-	return r.client.Status().Patch(ctx, obj, applyconfigs.Patch(types.MergePatchType, applyConfig))
-}
-
 type updateStatusOpts struct {
 	resource        *networkExt
 	progressMessage *string

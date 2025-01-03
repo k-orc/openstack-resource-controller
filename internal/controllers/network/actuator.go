@@ -25,14 +25,16 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
+	"k8s.io/utils/ptr"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
-	"k8s.io/utils/ptr"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 type networkActuator struct {
@@ -263,4 +265,10 @@ func getResourceFromList(ctx context.Context, listOpts networks.ListOptsBuilder,
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.ResourceStatusWriter[*orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] = networkActuator{}
+
+func (networkActuator) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[*orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] {
+	return orcapplyconfigv1alpha1.Network
 }
