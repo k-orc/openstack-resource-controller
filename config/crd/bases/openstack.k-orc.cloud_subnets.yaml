@@ -8,6 +8,8 @@ metadata:
 spec:
   group: openstack.k-orc.cloud
   names:
+    categories:
+    - openstack
     kind: Subnet
     listKind: SubnetList
     plural: subnets

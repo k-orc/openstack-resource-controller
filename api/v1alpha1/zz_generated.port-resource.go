@@ -120,6 +120,7 @@ func (i *Port) GetConditions() []metav1.Condition {
 
 // +genclient
 // +kubebuilder:object:root=true
+// +kubebuilder:resource:categories=openstack
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="ID",type="string",JSONPath=".status.id",description="Resource ID"
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"

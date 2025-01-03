@@ -8,6 +8,8 @@ metadata:
 spec:
   group: openstack.k-orc.cloud
   names:
+    categories:
+    - openstack
     kind: Image
     listKind: ImageList
     plural: images
