@@ -27,19 +27,14 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/flavor"
-
 	FieldOwner = "openstack.k-orc.cloud/flavorcontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
 )
 
 // ssaFieldOwner returns the field owner for a specific named SSA transaction.
@@ -61,17 +56,29 @@ func (flavorReconcilerConstructor) GetName() string {
 
 // orcFlavorReconciler reconciles an ORC Flavor.
 type orcFlavorReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	flavorReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcFlavorReconciler{}
+
+func (r orcFlavorReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r orcFlavorReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c flavorReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	reconciler := orcFlavorReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-flavor-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-flavor-controller"),
+
+		flavorReconcilerConstructor: c,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).

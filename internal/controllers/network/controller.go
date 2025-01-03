@@ -27,19 +27,14 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/network"
-
 	FieldOwner = "openstack.k-orc.cloud/networkcontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
 )
 
 // ssaFieldOwner returns the field owner for a specific named SSA transaction.
@@ -63,17 +58,29 @@ func (networkReconcilerConstructor) GetName() string {
 
 // orcNetworkReconciler reconciles an ORC Subnet.
 type orcNetworkReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	networkReconcilerConstructor
+}
+
+var _ generic.ResourceControllerCommon = &orcNetworkReconciler{}
+
+func (r *orcNetworkReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcNetworkReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c networkReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	reconciler := orcNetworkReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-network-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-network-controller"),
+
+		networkReconcilerConstructor: c,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
