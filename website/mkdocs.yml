@@ -7,6 +7,7 @@ nav:
   - Getting started: getting-started.md
   - Reference: reference.md
   - Design decisions: design-decisions.md
+  - API contracts: api-contracts.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
   analytics:
