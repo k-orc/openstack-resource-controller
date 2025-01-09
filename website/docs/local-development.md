@@ -1,14 +1,15 @@
 # Local development quickstart
 
 We will:
+
 * Run ORC locally:
-  * Create a local kind cluster
-  * Load the ORC CRDs
-  * Run the ORC manager locally directly from source
+    * Create a local kind cluster
+    * Load the ORC CRDs
+    * Run the ORC manager locally directly from source
 * Create an example ORC resource:
-  * Create OpenStack credentials
-  * Initialise the kustomize environment and load OpenStack credentials
-  * Create an ORC resource using the above
+    * Create OpenStack credentials
+    * Initialise the kustomize environment and load OpenStack credentials
+    * Create an ORC resource using the above
 
 ## Run ORC locally
 
@@ -65,7 +66,7 @@ $ go run ./cmd/manager -zap-log-level 5
 2024-11-11T12:09:30Z    INFO    Starting workers        {"controller": "network", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Network", "worker count": 1}
 ```
 
-To recompile, kill the process with ctrl-C and re-run it.
+To recompile, kill the process with ++ctrl+c++ and re-run it.
 
 ## Create an example ORC resource
 

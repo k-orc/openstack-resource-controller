@@ -8,6 +8,7 @@ nav:
   - Reference: reference.md
   - Design decisions: design-decisions.md
   - API contracts: api-contracts.md
+  - Local development: local-development.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
   analytics:
@@ -38,4 +39,5 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
+  - pymdownx.keys
   - pymdownx.superfences
