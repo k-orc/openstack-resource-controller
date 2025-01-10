@@ -18,9 +18,20 @@ package generic
 
 import (
 	"context"
+	"time"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
+	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/go-logr/logr"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	"k8s.io/apimachinery/pkg/types"
+	ctrl "sigs.k8s.io/controller-runtime"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
@@ -29,28 +40,38 @@ type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[status
 }
 
 type ORCStatusApplyConfig[statusApplyPT any] interface {
+	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
 	WithID(id string) statusApplyPT
 }
 
 type ORCApplyConfigConstructor[objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] func(name, namespace string) objectApplyPT
 
+type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourcePT any, objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
+	GetApplyConfigConstructor() ORCApplyConfigConstructor[objectApplyPT, statusApplyPT]
+	GetCommonStatus(orcObject objectPT, osResource osResourcePT) (isAvailable, isUpToDate bool)
+	ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
+}
+
 func SetStatusID[
 	osResourcePT any,
+	objectPT orcv1alpha1.ObjectWithConditions,
 	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
 		ORCStatusApplyConfig[statusApplyPT]
 	},
 	statusApplyT any,
-](ctx context.Context, actuator interface {
-	BaseResourceActuator[osResourcePT]
-	ResourceStatusWriter[objectApplyPT, statusApplyPT]
-}, osResource osResourcePT) error {
+](
+	ctx context.Context,
+	actuator BaseResourceActuator[osResourcePT],
+	statusWriter ResourceStatusWriter[objectPT, osResourcePT, objectApplyPT, statusApplyPT],
+	osResource osResourcePT,
+) error {
 	var status statusApplyPT = new(statusApplyT)
 	status.WithID(actuator.GetResourceID(osResource))
 
 	orcObject := actuator.GetObject()
-	applyConfig := actuator.GetApplyConfigConstructor()(orcObject.GetName(), orcObject.GetNamespace()).
+	applyConfig := statusWriter.GetApplyConfigConstructor()(orcObject.GetName(), orcObject.GetNamespace()).
 		WithUID(orcObject.GetUID()).
 		WithStatus(status.
 			WithID(actuator.GetResourceID(osResource)))
@@ -59,20 +80,49 @@ func SetStatusID[
 	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
-type ResourceStatusWriter[objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
-	GetApplyConfigConstructor() ORCApplyConfigConstructor[objectApplyPT, statusApplyPT]
-	//GetStatusUpdateConfig(ctx context.Context, now metav1.Time, orcObject orcObjectPT, osResource osResourcePT, waitEvents []WaitingOnEvent, err error) applyConfig
-}
-
-/*
-func UpdateStatus[orcObjectPT client.Object, osResourcePT any, applyConfig any](ctx context.Context, controller ResourceControllerCommon, statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, applyConfig], orcObject orcObjectPT, osResource osResourcePT, waitEvents []WaitingOnEvent, err error) error {
+func UpdateStatus[
+	orcObjectPT interface {
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	},
+	osResourcePT *osResourceT,
+	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
+	statusApplyPT interface {
+		ORCStatusApplyConfig[statusApplyPT]
+		*statusApply
+	},
+	statusApply any,
+	osResourceT any,
+](
+	ctx context.Context,
+	controller ResourceControllerCommon,
+	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
+	orcObject orcObjectPT, osResource osResourcePT, progressMessage *string, waitEvents []WaitingOnEvent, err error,
+) error {
+	log := ctrl.LoggerFrom(ctx)
 	now := metav1.NewTime(time.Now())
 
-	statusUpdate := statusWriter.GetStatusUpdateConfig(ctx, now, orcObject, osResource, waitEvents, err)
+	// Create a new apply configuration for this status transaction
+	var applyConfigStatus statusApplyPT = new(statusApply)
+	applyConfig := statusWriter.GetApplyConfigConstructor()(orcObject.GetName(), orcObject.GetNamespace()).
+		WithStatus(applyConfigStatus)
 
+	// Write resource status to the apply configuration
+	if osResource != nil {
+		statusWriter.ApplyResourceStatus(log, osResource, applyConfigStatus)
+	}
+
+	// TODO: Should we display all wait events here?
+	if progressMessage == nil && len(waitEvents) > 0 {
+		progressMessage = ptr.To(waitEvents[0].Message())
+	}
+
+	// Set common conditions
+	available, upToDate := statusWriter.GetCommonStatus(orcObject, osResource)
+	common.SetCommonConditions(orcObject, applyConfigStatus, available, upToDate, progressMessage, err, now)
+
+	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()
 	ssaFieldOwner := GetSSAFieldOwnerWithTxn(controller, SSATransactionStatus)
-
-	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, ssaFieldOwner)
+	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner)
 }
-*/

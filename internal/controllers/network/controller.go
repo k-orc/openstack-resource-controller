@@ -31,17 +31,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/networkcontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
-
 type networkReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }

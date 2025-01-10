@@ -17,51 +17,35 @@ limitations under the License.
 package network
 
 import (
-	"context"
 	"strconv"
-	"time"
 
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
-	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
-type updateStatusOpts struct {
-	resource        *networkExt
-	progressMessage *string
-	err             error
+const (
+	NetworkStatusActive = "ACTIVE"
+)
+
+type networkStatusWriter struct{}
+
+var _ generic.ResourceStatusWriter[*orcv1alpha1.Network, *networkExt, *orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] = networkStatusWriter{}
+
+func (networkStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[*orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] {
+	return orcapplyconfigv1alpha1.Network
 }
 
-type updateStatusOpt func(*updateStatusOpts)
-
-func withResource(resource *networkExt) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.resource = resource
-	}
+func (networkStatusWriter) GetCommonStatus(orcObject *orcv1alpha1.Network, osResource *networkExt) (bool, bool) {
+	available := osResource != nil && osResource.Status == NetworkStatusActive
+	return available, available
 }
 
-func withError(err error) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.err = err
-	}
-}
-
-// withProgressMessage sets a custom progressing message if and only if the reconcile is progressing.
-func withProgressMessage(message string) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.progressMessage = &message
-	}
-}
-
-func getOSResourceStatus(log logr.Logger, osResource *networkExt) *orcapplyconfigv1alpha1.NetworkResourceStatusApplyConfiguration {
-	networkResourceStatus := (&orcapplyconfigv1alpha1.NetworkResourceStatusApplyConfiguration{}).
+func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *networkExt, statusApply *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration) {
+	networkResourceStatus := orcapplyconfigv1alpha1.NetworkResourceStatus().
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).
 		WithAdminStateUp(osResource.AdminStateUp).
@@ -95,45 +79,5 @@ func getOSResourceStatus(log logr.Logger, osResource *networkExt) *orcapplyconfi
 		networkResourceStatus.WithProvider(providerProperties)
 	}
 
-	return networkResourceStatus
-}
-
-const NetworkStatusActive = "ACTIVE"
-
-// createStatusUpdate computes a complete status update based on the given
-// observed state. This is separated from updateStatus to facilitate unit
-// testing, as the version of k8s we currently import does not support patch
-// apply in the fake client.
-// Needs: https://github.com/kubernetes/kubernetes/pull/125560
-func createStatusUpdate(ctx context.Context, orcNetwork *orcv1alpha1.Network, now metav1.Time, opts ...updateStatusOpt) *orcapplyconfigv1alpha1.NetworkApplyConfiguration {
-	log := ctrl.LoggerFrom(ctx)
-
-	statusOpts := updateStatusOpts{}
-	for i := range opts {
-		opts[i](&statusOpts)
-	}
-
-	osResource := statusOpts.resource
-
-	applyConfigStatus := orcapplyconfigv1alpha1.NetworkStatus()
-	applyConfig := orcapplyconfigv1alpha1.Network(orcNetwork.Name, orcNetwork.Namespace).WithStatus(applyConfigStatus)
-
-	if osResource != nil {
-		resourceStatus := getOSResourceStatus(log, osResource)
-		applyConfigStatus.WithResource(resourceStatus)
-	}
-
-	available := osResource != nil && osResource.Status == NetworkStatusActive
-	common.SetCommonConditions(orcNetwork, applyConfigStatus, available, available, statusOpts.progressMessage, statusOpts.err, now)
-
-	return applyConfig
-}
-
-// updateStatus computes a complete status based on the given observed state and writes it to status.
-func (r *orcNetworkReconciler) updateStatus(ctx context.Context, orcObject *orcv1alpha1.Network, opts ...updateStatusOpt) error {
-	now := metav1.NewTime(time.Now())
-
-	statusUpdate := createStatusUpdate(ctx, orcObject, now, opts...)
-
-	return r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, ssaFieldOwner(SSAStatusTxn))
+	statusApply.WithResource(networkResourceStatus)
 }

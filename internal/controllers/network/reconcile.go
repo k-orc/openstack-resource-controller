@@ -71,18 +71,13 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling resource")
 
-	var statusOpts []updateStatusOpt
-	addStatus := func(opt updateStatusOpt) {
-		statusOpts = append(statusOpts, opt)
-	}
+	statusWriter := networkStatusWriter{}
+	var osResource *networkExt
+	var waitEvents []generic.WaitingOnEvent
 
 	// Ensure we always update status
 	defer func() {
-		if err != nil {
-			addStatus(withError(err))
-		}
-
-		err = errors.Join(err, r.updateStatus(ctx, orcObject, statusOpts...))
+		err = errors.Join(err, generic.UpdateStatus(ctx, r, statusWriter, orcObject, osResource, nil, waitEvents, err))
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
@@ -96,14 +91,13 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 		return ctrl.Result{}, err
 	}
 
-	waitEvents, osResource, err := generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
+	waitEvents, osResource, err = generic.GetOrCreateOSResource(ctx, log, r.client, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	if len(waitEvents) > 0 {
 		log.V(3).Info("Waiting on events before creation")
-		addStatus(withProgressMessage(waitEvents[0].Message()))
 		return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, nil
 	}
 
@@ -112,9 +106,8 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 		return ctrl.Result{}, fmt.Errorf("oResource is not set, but no wait events or error")
 	}
 
-	addStatus(withResource(osResource))
 	if orcObject.Status.ID == nil {
-		if err := generic.SetStatusID(ctx, actuator, osResource); err != nil {
+		if err := generic.SetStatusID(ctx, actuator, statusWriter, osResource); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -126,7 +119,6 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
 		for _, updateFunc := range needsUpdate(actuator.osClient, orcObject, osResource) {
 			if err := updateFunc(ctx); err != nil {
-				addStatus(withProgressMessage("Updating the OpenStack resource"))
 				return ctrl.Result{}, fmt.Errorf("failed to update the OpenStack resource: %w", err)
 			}
 		}
@@ -139,19 +131,15 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling OpenStack resource delete")
 
-	var statusOpts []updateStatusOpt
-	addStatus := func(opt updateStatusOpt) {
-		statusOpts = append(statusOpts, opt)
-	}
+	statusWriter := networkStatusWriter{}
+	var osResource *networkExt
+	var waitEvents []generic.WaitingOnEvent
 
 	deleted := false
 	defer func() {
 		// No point updating status after removing the finalizer
 		if !deleted {
-			if err != nil {
-				addStatus(withError(err))
-			}
-			err = errors.Join(err, r.updateStatus(ctx, orcObject, statusOpts...))
+			err = errors.Join(err, generic.UpdateStatus(ctx, r, statusWriter, orcObject, osResource, nil, waitEvents, err))
 		}
 	}()
 
@@ -160,8 +148,7 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 		return ctrl.Result{}, err
 	}
 
-	deleted, waitEvents, osResource, err := generic.DeleteResource(ctx, log, r.client, actuator)
-	addStatus(withResource(osResource))
+	deleted, waitEvents, osResource, err = generic.DeleteResource(ctx, log, r.client, actuator)
 	return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, err
 }
 

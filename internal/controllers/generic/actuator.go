@@ -46,7 +46,7 @@ type SSATransactionID string
 const (
 	// Field owner of the object finalizer.
 	SSATransactionFinalizer SSATransactionID = "finalizer"
-	//SSATransactionStatus    SSATransactionID = "status"
+	SSATransactionStatus    SSATransactionID = "status"
 )
 
 type ResourceController[orcObjectPT any, osResourcePT any] interface {

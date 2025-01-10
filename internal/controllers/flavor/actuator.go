@@ -28,7 +28,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 type flavorActuator struct {
@@ -161,10 +160,4 @@ func getResourceName(orcObject *orcv1alpha1.Flavor) orcv1alpha1.OpenStackName {
 		return *orcObject.Spec.Resource.Name
 	}
 	return orcv1alpha1.OpenStackName(orcObject.Name)
-}
-
-var _ generic.ResourceStatusWriter[*orcapplyconfigv1alpha1.FlavorApplyConfiguration, *orcapplyconfigv1alpha1.FlavorStatusApplyConfiguration] = flavorActuator{}
-
-func (flavorActuator) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[*orcapplyconfigv1alpha1.FlavorApplyConfiguration, *orcapplyconfigv1alpha1.FlavorStatusApplyConfiguration] {
-	return orcapplyconfigv1alpha1.Flavor
 }
