@@ -32,6 +32,7 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
 const (
@@ -76,7 +77,7 @@ func (r *orcRouterReconciler) GetScopeFactory() scope.Factory {
 }
 
 // Router depends on its external gateways, which are Networks
-var externalGWDep = generic.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
+var externalGWDep = dependency.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
 	"spec.resource.externalGateways[].networkRef",
 	func(router *orcv1alpha1.Router) []string {
 		resource := router.Spec.Resource

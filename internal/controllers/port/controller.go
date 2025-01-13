@@ -32,6 +32,7 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
 const (
@@ -76,11 +77,11 @@ func (r *orcPortReconciler) GetScopeFactory() scope.Factory {
 }
 
 var (
-	networkDependency = generic.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network]("spec.resource.networkRef", func(port *orcv1alpha1.Port) []string {
+	networkDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network]("spec.resource.networkRef", func(port *orcv1alpha1.Port) []string {
 		return []string{string(port.Spec.NetworkRef)}
 	})
 
-	subnetDependency = generic.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet]("spec.resource.addresses[].subnetRef", func(port *orcv1alpha1.Port) []string {
+	subnetDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet]("spec.resource.addresses[].subnetRef", func(port *orcv1alpha1.Port) []string {
 		subnets := make([]string, len(port.Spec.Resource.Addresses))
 		for i := range port.Spec.Resource.Addresses {
 			subnets[i] = string(*port.Spec.Resource.Addresses[i].SubnetRef)
@@ -88,7 +89,7 @@ var (
 		return subnets
 	})
 
-	securityGroupDependency = generic.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup]("spec.resource.securityGroupRefs", func(port *orcv1alpha1.Port) []string {
+	securityGroupDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup]("spec.resource.securityGroupRefs", func(port *orcv1alpha1.Port) []string {
 		securityGroups := make([]string, len(port.Spec.Resource.SecurityGroupRefs))
 		for i := range port.Spec.Resource.SecurityGroupRefs {
 			securityGroups[i] = string(port.Spec.Resource.SecurityGroupRefs[i])

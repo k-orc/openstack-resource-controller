@@ -32,6 +32,7 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 )
 
@@ -82,7 +83,7 @@ func (r *orcServerReconciler) GetScopeFactory() scope.Factory {
 }
 
 var (
-	flavorDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
+	flavorDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
 		"spec.resource.flavorRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -94,7 +95,7 @@ var (
 		},
 	)
 
-	imageDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
+	imageDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
 		"spec.resource.imageRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -106,7 +107,7 @@ var (
 		},
 	)
 
-	portDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
+	portDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
 		"spec.resource.ports",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -125,7 +126,7 @@ var (
 		},
 	)
 
-	secretDependency = generic.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
+	secretDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
 		"spec.resource.userData.secretRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
