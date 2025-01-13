@@ -70,6 +70,10 @@ func (networkActuator) GetResourceID(osResource *networkExt) string {
 	return osResource.ID
 }
 
+func (actuator networkActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
+}
+
 func getNetworkByID(ctx context.Context, osClient osclients.NetworkClient, id string) (*networkExt, error) {
 	osResource := &networkExt{}
 	getResult := osClient.GetNetwork(ctx, id)

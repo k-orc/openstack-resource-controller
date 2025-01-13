@@ -97,6 +97,10 @@ func (serverActuator) GetResourceID(osResource *servers.Server) string {
 	return osResource.ID
 }
 
+func (obj serverActuator) GetStatusID() *string {
+	return obj.Status.ID
+}
+
 func (obj serverActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *servers.Server, error) {
 	if obj.Status.ID == nil {
 		return false, nil, nil

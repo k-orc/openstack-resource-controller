@@ -81,6 +81,10 @@ func (obj imageActuator) GetResourceID(osResource *images.Image) string {
 	return osResource.ID
 }
 
+func (obj imageActuator) GetStatusID() *string {
+	return obj.Status.ID
+}
+
 func (obj imageActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *images.Image, error) {
 	if obj.Status.ID == nil {
 		return false, nil, nil

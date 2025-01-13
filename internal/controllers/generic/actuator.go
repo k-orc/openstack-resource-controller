@@ -69,6 +69,7 @@ type BaseResourceActuator[osResourcePT any] interface {
 	GetManagedOptions() *orcv1alpha1.ManagedOptions
 
 	GetResourceID(osResource osResourcePT) string
+	GetStatusID() *string
 
 	GetOSResourceByStatusID(ctx context.Context) (bool, osResourcePT, error)
 	GetOSResourceBySpec(ctx context.Context) (osResourcePT, error)

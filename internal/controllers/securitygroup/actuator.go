@@ -79,6 +79,10 @@ func (obj securityGroupActuator) GetResourceID(securityGroup *groups.SecGroup) s
 	return securityGroup.ID
 }
 
+func (obj securityGroupActuator) GetStatusID() *string {
+	return obj.Status.ID
+}
+
 func (obj securityGroupActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *groups.SecGroup, error) {
 	if obj.Status.ID == nil {
 		return false, nil, nil

@@ -62,6 +62,10 @@ func (flavorActuator) GetResourceID(osResource *flavors.Flavor) string {
 	return osResource.ID
 }
 
+func (actuator flavorActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
+}
+
 func (actuator flavorActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *flavors.Flavor, error) {
 	if actuator.obj.Status.ID == nil {
 		return false, nil, nil

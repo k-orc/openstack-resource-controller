@@ -99,6 +99,10 @@ func (portActuator) GetResourceID(osResource *ports.Port) string {
 	return osResource.ID
 }
 
+func (obj portActuator) GetStatusID() *string {
+	return obj.Status.ID
+}
+
 func (obj portActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *ports.Port, error) {
 	if obj.Status.ID == nil {
 		return false, nil, nil

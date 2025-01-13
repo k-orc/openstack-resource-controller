@@ -96,6 +96,10 @@ func (routerActuator) GetResourceID(osResource *routers.Router) string {
 	return osResource.ID
 }
 
+func (obj routerActuator) GetStatusID() *string {
+	return obj.Status.ID
+}
+
 func (obj routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *routers.Router, error) {
 	if obj.Status.ID == nil {
 		return false, nil, nil

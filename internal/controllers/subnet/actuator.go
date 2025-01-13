@@ -127,6 +127,10 @@ func (subnetActuator) GetResourceID(osResource *subnets.Subnet) string {
 	return osResource.ID
 }
 
+func (obj subnetActuator) GetStatusID() *string {
+	return obj.Status.ID
+}
+
 func (obj subnetActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *subnets.Subnet, error) {
 	if obj.Status.ID == nil {
 		return false, nil, nil
