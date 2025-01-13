@@ -19,9 +19,7 @@ package flavor
 import (
 	"context"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -30,6 +28,9 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
+
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=flavors,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=flavors/status,verbs=get;update;patch
 
 type flavorReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -43,32 +44,9 @@ func (flavorReconcilerConstructor) GetName() string {
 	return "flavor"
 }
 
-// orcFlavorReconciler reconciles an ORC Flavor.
-type orcFlavorReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	flavorReconcilerConstructor
-}
-
-var _ generic.ResourceController = &orcFlavorReconciler{}
-
-func (r orcFlavorReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r orcFlavorReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (c flavorReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := orcFlavorReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-flavor-controller"),
-
-		flavorReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, flavorActuatorFactory{}, flavorStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Flavor{}).

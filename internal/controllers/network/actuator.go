@@ -25,6 +25,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"k8s.io/utils/ptr"
 	"k8s.io/utils/set"
@@ -37,6 +38,15 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
+
+type networkExt struct {
+	networks.Network
+	dns.NetworkDNSExt
+	external.NetworkExternalExt
+	mtu.NetworkMTUExt
+	portsecurity.PortSecurityExt
+	provider.NetworkProviderExt
+}
 
 type orcObjectPT = *orcv1alpha1.Network
 type osResourcePT = *networkExt

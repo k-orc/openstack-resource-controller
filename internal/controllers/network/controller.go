@@ -19,9 +19,7 @@ package network
 import (
 	"context"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -30,6 +28,9 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
+
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=networks,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=networks/status,verbs=get;update;patch
 
 type networkReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -45,36 +46,12 @@ func (networkReconcilerConstructor) GetName() string {
 	return "network"
 }
 
-// orcNetworkReconciler reconciles an ORC Subnet.
-type orcNetworkReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	networkReconcilerConstructor
-}
-
-var _ generic.ResourceController = &orcNetworkReconciler{}
-
-func (r *orcNetworkReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcNetworkReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (c networkReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := orcNetworkReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-network-controller"),
-
-		networkReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, networkActuatorFactory{}, networkStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Network{}).
 		WithOptions(options).
 		Complete(&reconciler)
-
 }
