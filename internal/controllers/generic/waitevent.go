@@ -118,7 +118,7 @@ func WaitingOnOpenStackReady(pollingPeriod time.Duration) WaitingOnEvent {
 }
 
 func WaitingOnOpenStackDeleted(pollingPeriod time.Duration) WaitingOnEvent {
-	return newWaitingOnOpenStack(WaitingOnReady, pollingPeriod)
+	return newWaitingOnOpenStack(WaitingOnDeletion, pollingPeriod)
 }
 
 func (e waitingOnOpenStack) Message() string {
@@ -126,8 +126,10 @@ func (e waitingOnOpenStack) Message() string {
 	switch e.waitingOn {
 	case WaitingOnCreation:
 		outcome = "be created externally"
-	case WaitingOnDeletion:
+	case WaitingOnReady:
 		outcome = "be ready"
+	case WaitingOnDeletion:
+		outcome = "be deleted"
 	}
 	return fmt.Sprintf("Waiting for OpenStack resource to %s", outcome)
 }
