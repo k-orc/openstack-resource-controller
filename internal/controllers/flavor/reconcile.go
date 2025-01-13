@@ -55,8 +55,9 @@ func (r *orcFlavorReconciler) reconcileNormal(ctx context.Context, orcObject *or
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling resource")
 
+	actuatorFactory := flavorActuatorFactory{}
 	statusWriter := flavorStatusWriter{}
-	var osResource *flavors.Flavor
+	var osResource osResourcePT
 	var waitEvents []generic.WaitingOnEvent
 
 	// Ensure we always update status
@@ -70,7 +71,7 @@ func (r *orcFlavorReconciler) reconcileNormal(ctx context.Context, orcObject *or
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r, orcObject)
+	waitEvents, actuator, err := actuatorFactory.NewCreateActuator(ctx, orcObject, r)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -100,14 +101,6 @@ func (r *orcFlavorReconciler) reconcileNormal(ctx context.Context, orcObject *or
 	log.V(4).Info("Got resource")
 	ctx = ctrl.LoggerInto(ctx, log)
 
-	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-		for _, updateFunc := range needsUpdate(actuator.osClient, orcObject, osResource) {
-			if err := updateFunc(ctx); err != nil {
-				return ctrl.Result{}, fmt.Errorf("failed to update the OpenStack resource: %w", err)
-			}
-		}
-	}
-
 	return ctrl.Result{}, nil
 }
 
@@ -115,8 +108,9 @@ func (r *orcFlavorReconciler) reconcileDelete(ctx context.Context, orcObject *or
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling OpenStack resource delete")
 
+	actuatorFactory := flavorActuatorFactory{}
 	statusWriter := flavorStatusWriter{}
-	var osResource *flavors.Flavor
+	var osResource osResourcePT
 	var waitEvents []generic.WaitingOnEvent
 
 	deleted := false
@@ -127,7 +121,7 @@ func (r *orcFlavorReconciler) reconcileDelete(ctx context.Context, orcObject *or
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r, orcObject)
+	waitEvents, actuator, err := actuatorFactory.NewDeleteActuator(ctx, orcObject, r)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

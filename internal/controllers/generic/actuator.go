@@ -50,8 +50,8 @@ const (
 )
 
 type ActuatorFactory[orcObjectPT any, osResourcePT any] interface {
-	NewCreateActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, CreateResourceActuator[osResourcePT], error)
-	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, DeleteResourceActuator[osResourcePT], error)
+	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, CreateResourceActuator[osResourcePT], error)
+	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, DeleteResourceActuator[osResourcePT], error)
 }
 
 type ResourceController interface {
@@ -80,6 +80,12 @@ type CreateResourceActuator[osResourcePT any] interface {
 	GetOSResourceByImportID(ctx context.Context) (bool, osResourcePT, error)
 	GetOSResourceByImportFilter(ctx context.Context) (bool, osResourcePT, error)
 	CreateResource(ctx context.Context) ([]WaitingOnEvent, osResourcePT, error)
+}
+
+type ResourceUpdater[orcObjectPT, osResourcePT any] func(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]WaitingOnEvent, orcObjectPT, osResourcePT, error)
+
+type UpdateResourceActuator[orcObjectPT, osResourcePT any] interface {
+	GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller ResourceController) ([]ResourceUpdater[orcObjectPT, osResourcePT], error)
 }
 
 type DeleteResourceActuator[osResourcePT any] interface {

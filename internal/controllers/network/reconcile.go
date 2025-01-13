@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
@@ -29,12 +28,10 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
-	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
@@ -71,6 +68,7 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling resource")
 
+	actuatorFactory := networkActuatorFactory{}
 	statusWriter := networkStatusWriter{}
 	var osResource *networkExt
 	var waitEvents []generic.WaitingOnEvent
@@ -86,7 +84,7 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r, orcObject)
+	waitEvents, actuator, err := actuatorFactory.NewCreateActuator(ctx, orcObject, r)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -117,9 +115,23 @@ func (r *orcNetworkReconciler) reconcileNormal(ctx context.Context, orcObject *o
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyManaged {
-		for _, updateFunc := range needsUpdate(actuator.osClient, orcObject, osResource) {
-			if err := updateFunc(ctx); err != nil {
-				return ctrl.Result{}, fmt.Errorf("failed to update the OpenStack resource: %w", err)
+		if updater, ok := actuator.(generic.UpdateResourceActuator[orcObjectPT, osResourcePT]); ok {
+			// We deliberately execute all updaters returned by GetResourceUpdates, even if it returns an error.
+			var updaters []generic.ResourceUpdater[orcObjectPT, osResourcePT]
+			updaters, err = updater.GetResourceUpdaters(ctx, orcObject, osResource, r)
+
+			// We execute all returned updaters, even if some return errors
+			for _, updater := range updaters {
+				var updaterErr error
+				var updaterWaitEvents []generic.WaitingOnEvent
+
+				updaterWaitEvents, orcObject, osResource, updaterErr = updater(ctx, orcObject, osResource)
+				err = errors.Join(err, updaterErr)
+				waitEvents = append(waitEvents, updaterWaitEvents...)
+			}
+
+			if err != nil {
+				return ctrl.Result{}, err
 			}
 		}
 	}
@@ -131,6 +143,7 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling OpenStack resource delete")
 
+	actuatorFactory := networkActuatorFactory{}
 	statusWriter := networkStatusWriter{}
 	var osResource *networkExt
 	var waitEvents []generic.WaitingOnEvent
@@ -143,33 +156,11 @@ func (r *orcNetworkReconciler) reconcileDelete(ctx context.Context, orcObject *o
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r, orcObject)
+	waitEvents, actuator, err := actuatorFactory.NewDeleteActuator(ctx, orcObject, r)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	deleted, waitEvents, osResource, err = generic.DeleteResource(ctx, log, r.client, actuator)
 	return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, err
-}
-
-// needsUpdate returns a slice of functions that call the OpenStack API to
-// align the OpenStack resoruce to its representation in the ORC spec object.
-// For network, only the Neutron tags are currently taken into consideration.
-func needsUpdate(networkClient osclients.NetworkClient, orcObject *orcv1alpha1.Network, osResource *networkExt) (updateFuncs []func(context.Context) error) {
-	addUpdateFunc := func(updateFunc func(context.Context) error) {
-		updateFuncs = append(updateFuncs, updateFunc)
-	}
-	resourceTagSet := set.New[string](osResource.Tags...)
-	objectTagSet := set.New[string]()
-	for i := range orcObject.Spec.Resource.Tags {
-		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
-	}
-	if !objectTagSet.Equal(resourceTagSet) {
-		addUpdateFunc(func(ctx context.Context) error {
-			opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
-			_, err := networkClient.ReplaceAllAttributesTags(ctx, "networks", osResource.ID, &opts)
-			return err
-		})
-	}
-	return updateFuncs
 }
