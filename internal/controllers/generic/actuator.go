@@ -101,7 +101,7 @@ func GetSSAFieldOwnerWithTxn(controller ResourceController, txn SSATransactionID
 	return client.FieldOwner(getSSAFieldOwnerString(controller) + "/" + string(txn))
 }
 
-// getFinalizerName return the finalizer to be used for the given actuator
+// GetFinalizerName returns the finalizer to be used for the given actuator
 func GetFinalizerName(controller ResourceController) string {
 	return ORCK8SPrefix + "/" + controller.GetName()
 }
