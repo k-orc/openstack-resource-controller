@@ -58,10 +58,6 @@ func newActuator(ctx context.Context, controller generic.ResourceController, orc
 var _ generic.CreateResourceActuator[*flavors.Flavor] = flavorActuator{}
 var _ generic.DeleteResourceActuator[*flavors.Flavor] = flavorActuator{}
 
-func (flavorActuator) GetControllerName() string {
-	return "flavor"
-}
-
 func (obj flavorActuator) GetObject() client.Object {
 	return obj.Flavor
 }
