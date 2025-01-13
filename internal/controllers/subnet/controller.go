@@ -29,7 +29,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
@@ -70,23 +69,12 @@ type orcSubnetReconciler struct {
 	subnetReconcilerConstructor
 }
 
-var _ generic.ActuatorFactory[*orcv1alpha1.Subnet, *subnets.Subnet] = &orcSubnetReconciler{}
-
 func (r *orcSubnetReconciler) GetK8sClient() client.Client {
 	return r.client
 }
 
 func (r *orcSubnetReconciler) GetScopeFactory() scope.Factory {
 	return r.scopeFactory
-}
-
-func (r *orcSubnetReconciler) NewCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[*subnets.Subnet], error) {
-	return newCreateActuator(ctx, r, orcObject)
-}
-
-func (r *orcSubnetReconciler) NewDeleteActuator(ctx context.Context, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[*subnets.Subnet], error) {
-	actuator, err := newDeleteActuator(ctx, r, orcObject)
-	return nil, actuator, err
 }
 
 // SetupWithManager sets up the controller with the Manager.
