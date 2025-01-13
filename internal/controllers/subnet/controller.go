@@ -70,7 +70,7 @@ type orcSubnetReconciler struct {
 	subnetReconcilerConstructor
 }
 
-var _ generic.ResourceController[*orcv1alpha1.Subnet, *subnets.Subnet] = &orcSubnetReconciler{}
+var _ generic.ActuatorFactory[*orcv1alpha1.Subnet, *subnets.Subnet] = &orcSubnetReconciler{}
 
 func (r *orcSubnetReconciler) GetK8sClient() client.Client {
 	return r.client

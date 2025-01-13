@@ -64,7 +64,7 @@ type orcSecurityGroupReconciler struct {
 	securitygroupReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcSecurityGroupReconciler{}
+var _ generic.ResourceController = &orcSecurityGroupReconciler{}
 
 func (r *orcSecurityGroupReconciler) GetK8sClient() client.Client {
 	return r.client

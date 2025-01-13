@@ -65,7 +65,7 @@ type orcPortReconciler struct {
 	portReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcPortReconciler{}
+var _ generic.ResourceController = &orcPortReconciler{}
 
 func (r *orcPortReconciler) GetK8sClient() client.Client {
 	return r.client

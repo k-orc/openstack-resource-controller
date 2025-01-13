@@ -95,7 +95,7 @@ func UpdateStatus[
 	osResourceT any,
 ](
 	ctx context.Context,
-	controller ResourceControllerCommon,
+	controller ResourceController,
 	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
 	orcObject orcObjectPT, osResource osResourcePT, progressMessage *string, waitEvents []WaitingOnEvent, err error,
 ) error {

@@ -33,10 +33,10 @@ import (
 type flavorActuator struct {
 	*orcv1alpha1.Flavor
 	osClient   osclients.ComputeClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Flavor) (flavorActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Flavor) (flavorActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -66,7 +66,7 @@ func (obj flavorActuator) GetObject() client.Object {
 	return obj.Flavor
 }
 
-func (obj flavorActuator) GetController() generic.ResourceControllerCommon {
+func (obj flavorActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

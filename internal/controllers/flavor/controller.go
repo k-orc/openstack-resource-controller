@@ -51,7 +51,7 @@ type orcFlavorReconciler struct {
 	flavorReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcFlavorReconciler{}
+var _ generic.ResourceController = &orcFlavorReconciler{}
 
 func (r orcFlavorReconciler) GetK8sClient() client.Client {
 	return r.client

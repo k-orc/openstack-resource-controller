@@ -36,7 +36,7 @@ import (
 
 type subnetActuator struct {
 	*orcv1alpha1.Subnet
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 	osClient   osclients.NetworkClient
 }
 
@@ -49,7 +49,7 @@ type subnetDeleteActuator struct {
 	subnetActuator
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Subnet) (subnetActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, error) {
 	if orcObject == nil {
 		return subnetActuator{}, fmt.Errorf("orcObject may not be nil")
 	}
@@ -71,7 +71,7 @@ func newActuator(ctx context.Context, controller generic.ResourceControllerCommo
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, *subnetCreateActuator, error) {
+func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, *subnetCreateActuator, error) {
 	orcNetwork := &orcv1alpha1.Network{}
 	if err := controller.GetK8sClient().Get(ctx, client.ObjectKey{Name: string(orcObject.Spec.NetworkRef), Namespace: orcObject.Namespace}, orcNetwork); err != nil {
 		if apierrors.IsNotFound(err) {
@@ -94,7 +94,7 @@ func newCreateActuator(ctx context.Context, controller generic.ResourceControlle
 	}, nil
 }
 
-func newDeleteActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Subnet) (*subnetDeleteActuator, error) {
+func newDeleteActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (*subnetDeleteActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (obj subnetActuator) GetObject() client.Object {
 	return obj.Subnet
 }
 
-func (obj subnetActuator) GetController() generic.ResourceControllerCommon {
+func (obj subnetActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

@@ -53,7 +53,7 @@ type orcNetworkReconciler struct {
 	networkReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcNetworkReconciler{}
+var _ generic.ResourceController = &orcNetworkReconciler{}
 
 func (r *orcNetworkReconciler) GetK8sClient() client.Client {
 	return r.client

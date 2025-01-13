@@ -74,7 +74,7 @@ type orcImageReconciler struct {
 	imageReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcImageReconciler{}
+var _ generic.ResourceController = &orcImageReconciler{}
 
 func (r *orcImageReconciler) GetK8sClient() client.Client {
 	return r.client

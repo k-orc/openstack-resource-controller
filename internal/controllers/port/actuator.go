@@ -36,7 +36,7 @@ import (
 type portActuator struct {
 	*orcv1alpha1.Port
 	osClient   osclients.NetworkClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
 type portCreateActuator struct {
@@ -45,7 +45,7 @@ type portCreateActuator struct {
 	networkID orcv1alpha1.UUID
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Port) (portActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Port) (portActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -64,7 +64,7 @@ func newActuator(ctx context.Context, controller generic.ResourceControllerCommo
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Port, networkID orcv1alpha1.UUID) (portCreateActuator, error) {
+func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Port, networkID orcv1alpha1.UUID) (portCreateActuator, error) {
 	portActuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return portCreateActuator{}, err
@@ -83,7 +83,7 @@ func (obj portActuator) GetObject() client.Object {
 	return obj.Port
 }
 
-func (obj portActuator) GetController() generic.ResourceControllerCommon {
+func (obj portActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

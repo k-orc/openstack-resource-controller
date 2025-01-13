@@ -35,10 +35,10 @@ import (
 type securityGroupActuator struct {
 	*orcv1alpha1.SecurityGroup
 	osClient   osclients.NetworkClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.SecurityGroup) (securityGroupActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.SecurityGroup) (securityGroupActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -64,7 +64,7 @@ func (obj securityGroupActuator) GetObject() client.Object {
 	return obj.SecurityGroup
 }
 
-func (obj securityGroupActuator) GetController() generic.ResourceControllerCommon {
+func (obj securityGroupActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

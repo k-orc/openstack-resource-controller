@@ -71,7 +71,7 @@ type orcServerReconciler struct {
 	serverReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcServerReconciler{}
+var _ generic.ResourceController = &orcServerReconciler{}
 
 func (r *orcServerReconciler) GetK8sClient() client.Client {
 	return r.client

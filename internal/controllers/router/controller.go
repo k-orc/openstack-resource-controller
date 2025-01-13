@@ -65,7 +65,7 @@ type orcRouterReconciler struct {
 	routerReconcilerConstructor
 }
 
-var _ generic.ResourceControllerCommon = &orcRouterReconciler{}
+var _ generic.ResourceController = &orcRouterReconciler{}
 
 func (r *orcRouterReconciler) GetK8sClient() client.Client {
 	return r.client

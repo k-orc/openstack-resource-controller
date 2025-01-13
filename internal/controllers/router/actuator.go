@@ -36,14 +36,14 @@ import (
 type routerActuator struct {
 	*orcv1alpha1.Router
 	osClient   osclients.NetworkClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
 type routerCreateActuator struct {
 	routerActuator
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Router) (routerActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Router) (routerActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -62,7 +62,7 @@ func newActuator(ctx context.Context, controller generic.ResourceControllerCommo
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
+func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
 	routerActuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return routerCreateActuator{}, err
@@ -80,7 +80,7 @@ func (obj routerActuator) GetObject() client.Object {
 	return obj.Router
 }
 
-func (obj routerActuator) GetController() generic.ResourceControllerCommon {
+func (obj routerActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

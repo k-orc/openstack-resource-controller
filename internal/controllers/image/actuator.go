@@ -36,10 +36,10 @@ import (
 type imageActuator struct {
 	*orcv1alpha1.Image
 	osClient   osclients.ImageClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Image) (imageActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -65,7 +65,7 @@ func (obj imageActuator) GetObject() client.Object {
 	return obj.Image
 }
 
-func (obj imageActuator) GetController() generic.ResourceControllerCommon {
+func (obj imageActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

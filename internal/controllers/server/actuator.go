@@ -35,14 +35,14 @@ import (
 type serverActuator struct {
 	*orcv1alpha1.Server
 	osClient   osclients.ComputeClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
 type serverCreateActuator struct {
 	serverActuator
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Server) (serverActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, error) {
 	if orcObject == nil {
 		return serverActuator{}, fmt.Errorf("orcObject may not be nil")
 	}
@@ -64,7 +64,7 @@ func newActuator(ctx context.Context, controller generic.ResourceControllerCommo
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Server) (serverCreateActuator, error) {
+func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverCreateActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return serverCreateActuator{}, err
@@ -81,7 +81,7 @@ func (obj serverActuator) GetObject() client.Object {
 	return obj.Server
 }
 
-func (obj serverActuator) GetController() generic.ResourceControllerCommon {
+func (obj serverActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 

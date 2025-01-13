@@ -49,14 +49,12 @@ const (
 	SSATransactionStatus    SSATransactionID = "status"
 )
 
-type ResourceController[orcObjectPT any, osResourcePT any] interface {
+type ActuatorFactory[orcObjectPT any, osResourcePT any] interface {
 	NewCreateActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, CreateResourceActuator[osResourcePT], error)
 	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, DeleteResourceActuator[osResourcePT], error)
-
-	ResourceControllerCommon
 }
 
-type ResourceControllerCommon interface {
+type ResourceController interface {
 	GetName() string
 
 	GetK8sClient() client.Client
@@ -65,7 +63,7 @@ type ResourceControllerCommon interface {
 
 type BaseResourceActuator[osResourcePT any] interface {
 	GetObject() client.Object
-	GetController() ResourceControllerCommon
+	GetController() ResourceController
 
 	GetManagementPolicy() orcv1alpha1.ManagementPolicy
 	GetManagedOptions() *orcv1alpha1.ManagedOptions
@@ -90,21 +88,21 @@ type DeleteResourceActuator[osResourcePT any] interface {
 	DeleteResource(ctx context.Context, osResource osResourcePT) ([]WaitingOnEvent, error)
 }
 
-func getSSAFieldOwnerString(controller ResourceControllerCommon) string {
+func getSSAFieldOwnerString(controller ResourceController) string {
 	return ORCK8SPrefix + "/" + controller.GetName() + "controller"
 }
 
 // GetSSAFieldOwner returns the field owner for a specific named SSA transaction.
-func GetSSAFieldOwner(controller ResourceControllerCommon) client.FieldOwner {
+func GetSSAFieldOwner(controller ResourceController) client.FieldOwner {
 	return client.FieldOwner(getSSAFieldOwnerString(controller))
 }
 
-func GetSSAFieldOwnerWithTxn(controller ResourceControllerCommon, txn SSATransactionID) client.FieldOwner {
+func GetSSAFieldOwnerWithTxn(controller ResourceController, txn SSATransactionID) client.FieldOwner {
 	return client.FieldOwner(getSSAFieldOwnerString(controller) + "/" + string(txn))
 }
 
 // getFinalizerName return the finalizer to be used for the given actuator
-func GetFinalizerName(controller ResourceControllerCommon) string {
+func GetFinalizerName(controller ResourceController) string {
 	return ORCK8SPrefix + "/" + controller.GetName()
 }
 

@@ -39,10 +39,10 @@ import (
 type networkActuator struct {
 	*orcv1alpha1.Network
 	osClient   osclients.NetworkClient
-	controller generic.ResourceControllerCommon
+	controller generic.ResourceController
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceControllerCommon, orcObject *orcv1alpha1.Network) (networkActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Network) (networkActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -68,7 +68,7 @@ func (obj networkActuator) GetObject() client.Object {
 	return obj.Network
 }
 
-func (obj networkActuator) GetController() generic.ResourceControllerCommon {
+func (obj networkActuator) GetController() generic.ResourceController {
 	return obj.controller
 }
 
