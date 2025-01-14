@@ -19,13 +19,10 @@ package server
 import (
 	"context"
 	"errors"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -36,21 +33,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/servercontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
-
-const (
-	// The time to wait before reconciling again when we are expecting OpenStack to finish some task and update status.
-	externalUpdatePollingPeriod = 15 * time.Second
-)
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=servers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=servers/status,verbs=get;update;patch
 
 type serverReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -62,24 +46,6 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 
 func (serverReconcilerConstructor) GetName() string {
 	return "server"
-}
-
-// orcServerReconciler reconciles an ORC Router.
-type orcServerReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	serverReconcilerConstructor
-}
-
-var _ generic.ResourceController = &orcServerReconciler{}
-
-func (r *orcServerReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcServerReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
 }
 
 var (
@@ -143,12 +109,7 @@ var (
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
-	reconciler := orcServerReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-server-controller"),
-
-		serverReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, serverActuatorFactory{}, serverStatusWriter{})
 
 	finalizer := generic.GetFinalizerName(&reconciler)
 	fieldOwner := generic.GetSSAFieldOwner(&reconciler)

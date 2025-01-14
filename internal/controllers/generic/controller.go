@@ -187,7 +187,7 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 		}
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
 }
 
 func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileDelete(ctx context.Context, orcObject orcObjectPT) (_ ctrl.Result, err error) {

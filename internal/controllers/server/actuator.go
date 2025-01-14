@@ -19,6 +19,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	corev1 "k8s.io/api/core/v1"
@@ -32,50 +33,22 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
+type osResourcePT = *servers.Server
+type orcObjectPT = *orcv1alpha1.Server
+
+const (
+	// The frequency to poll when waiting for a server to become active
+	serverActivePollingPeriod = 15 * time.Second
+)
+
 type serverActuator struct {
 	*orcv1alpha1.Server
 	osClient   osclients.ComputeClient
 	controller generic.ResourceController
 }
 
-type serverCreateActuator struct {
-	serverActuator
-}
-
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, error) {
-	if orcObject == nil {
-		return serverActuator{}, fmt.Errorf("orcObject may not be nil")
-	}
-
-	log := ctrl.LoggerFrom(ctx)
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return serverActuator{}, err
-	}
-	osClient, err := clientScope.NewComputeClient()
-	if err != nil {
-		return serverActuator{}, err
-	}
-
-	return serverActuator{
-		Server:     orcObject,
-		osClient:   osClient,
-		controller: controller,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverCreateActuator, error) {
-	actuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return serverCreateActuator{}, err
-	}
-	return serverCreateActuator{
-		serverActuator: actuator,
-	}, nil
-}
-
-var _ generic.DeleteResourceActuator[*servers.Server] = serverActuator{}
-var _ generic.CreateResourceActuator[*servers.Server] = serverCreateActuator{}
+var _ generic.DeleteResourceActuator[osResourcePT] = serverActuator{}
+var _ generic.CreateResourceActuator[osResourcePT] = serverActuator{}
 
 func (obj serverActuator) GetObject() client.Object {
 	return obj.Server
@@ -118,7 +91,7 @@ func (obj serverActuator) GetOSResourceBySpec(ctx context.Context) (*servers.Ser
 	return GetByFilter(ctx, obj.osClient, specToFilter(obj.Server))
 }
 
-func (obj serverCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
+func (obj serverActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
 	if obj.Spec.Import == nil || obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
@@ -127,7 +100,7 @@ func (obj serverCreateActuator) GetOSResourceByImportID(ctx context.Context) (bo
 	return true, osResource, err
 }
 
-func (obj serverCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
+func (obj serverActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
 	if obj.Spec.Import == nil || obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
@@ -136,7 +109,7 @@ func (obj serverCreateActuator) GetOSResourceByImportFilter(ctx context.Context)
 	return true, osResource, err
 }
 
-func (obj serverCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *servers.Server, error) {
+func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *servers.Server, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -257,4 +230,69 @@ func getResourceName(orcObject *orcv1alpha1.Server) orcv1alpha1.OpenStackName {
 		return *orcObject.Spec.Resource.Name
 	}
 	return orcv1alpha1.OpenStackName(orcObject.Name)
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = serverActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator serverActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.checkStatus,
+	}, nil
+}
+
+func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	var waitEvents []generic.WaitingOnEvent
+	var err error
+
+	switch osResource.Status {
+	case ServerStatusError:
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Server is in ERROR state")
+	case ServerStatusActive:
+		// fall through
+	default:
+		log.V(3).Info("Waiting for OpenStack resource to be ACTIVE")
+		waitEvents = append(waitEvents, generic.WaitingOnOpenStackReady(serverActivePollingPeriod))
+	}
+
+	return waitEvents, orcObject, osResource, err
+}
+
+type serverActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = serverActuatorFactory{}
+
+func (serverActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, controller, orcObject)
+	return nil, actuator, err
+}
+
+func (serverActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, controller, orcObject)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, error) {
+	if orcObject == nil {
+		return serverActuator{}, fmt.Errorf("orcObject may not be nil")
+	}
+
+	log := ctrl.LoggerFrom(ctx)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return serverActuator{}, err
+	}
+	osClient, err := clientScope.NewComputeClient()
+	if err != nil {
+		return serverActuator{}, err
+	}
+
+	return serverActuator{
+		Server:     orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
 }
