@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -38,17 +37,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/subnetcontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
-
 type subnetReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
@@ -61,29 +49,9 @@ func (subnetReconcilerConstructor) GetName() string {
 	return "subnet"
 }
 
-// orcSubnetReconciler reconciles an ORC Subnet.
-type orcSubnetReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	subnetReconcilerConstructor
-}
-
-func (r *orcSubnetReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcSubnetReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := orcSubnetReconciler{
-		client:                      mgr.GetClient(),
-		recorder:                    mgr.GetEventRecorderFor("orc-subnet-controller"),
-		subnetReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, subnetActuatorFactory{}, subnetStatusWriter{})
 
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 

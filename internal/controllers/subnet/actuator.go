@@ -21,9 +21,13 @@ import (
 	"fmt"
 
 	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -33,6 +37,12 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
+
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=subnets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=subnets/status,verbs=get;update;patch
+
+type osResourcePT = *subnets.Subnet
+type orcObjectPT = *orcv1alpha1.Subnet
 
 type subnetActuator struct {
 	*orcv1alpha1.Subnet
@@ -47,61 +57,6 @@ type subnetCreateActuator struct {
 
 type subnetDeleteActuator struct {
 	subnetActuator
-}
-
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, error) {
-	if orcObject == nil {
-		return subnetActuator{}, fmt.Errorf("orcObject may not be nil")
-	}
-
-	log := ctrl.LoggerFrom(ctx)
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return subnetActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return subnetActuator{}, err
-	}
-
-	return subnetActuator{
-		Subnet:     orcObject,
-		osClient:   osClient,
-		controller: controller,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) ([]generic.WaitingOnEvent, *subnetCreateActuator, error) {
-	orcNetwork := &orcv1alpha1.Network{}
-	if err := controller.GetK8sClient().Get(ctx, client.ObjectKey{Name: string(orcObject.Spec.NetworkRef), Namespace: orcObject.Namespace}, orcNetwork); err != nil {
-		if apierrors.IsNotFound(err) {
-			return []generic.WaitingOnEvent{generic.WaitingOnORCExist("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
-		}
-		return nil, nil, err
-	}
-
-	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
-		return []generic.WaitingOnEvent{generic.WaitingOnORCReady("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
-	}
-
-	actuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return nil, nil, err
-	}
-	return nil, &subnetCreateActuator{
-		subnetActuator: actuator,
-		networkID:      *orcNetwork.Status.ID,
-	}, nil
-}
-
-func newDeleteActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (*subnetDeleteActuator, error) {
-	actuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return nil, err
-	}
-	return &subnetDeleteActuator{
-		subnetActuator: actuator,
-	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*subnets.Subnet] = subnetDeleteActuator{}
@@ -305,4 +260,184 @@ func getResourceFromList(ctx context.Context, listOpts subnets.ListOptsBuilder, 
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = subnetActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator subnetActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+		actuator.ensureRouterInterface,
+	}, nil
+}
+
+func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	k8sClient := actuator.controller.GetK8sClient()
+
+	var waitEvents []generic.WaitingOnEvent
+	var err error
+
+	routerInterface, err := getRouterInterface(ctx, k8sClient, orcObject)
+	if routerInterfaceMatchesSpec(routerInterface, orcObject.Name, orcObject.Spec.Resource) {
+		// Nothing to do
+		return waitEvents, orcObject, osResource, err
+	}
+
+	// If it doesn't match we should delete any existing interface
+	if routerInterface != nil {
+		if routerInterface.GetDeletionTimestamp().IsZero() {
+			if err := k8sClient.Delete(ctx, routerInterface); err != nil {
+				return waitEvents, orcObject, osResource, fmt.Errorf("deleting RouterInterface %s: %w", client.ObjectKeyFromObject(routerInterface), err)
+			}
+		}
+		waitEvents = append(waitEvents, generic.WaitingOnORCDeleted("routerinterface", routerInterface.Name))
+		return waitEvents, orcObject, osResource, err
+	}
+
+	// Otherwise create it
+	routerInterface = &orcv1alpha1.RouterInterface{}
+	routerInterface.Name = getRouterInterfaceName(orcObject)
+	routerInterface.Namespace = orcObject.Namespace
+	routerInterface.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion:         orcObject.APIVersion,
+			Kind:               orcObject.Kind,
+			Name:               orcObject.Name,
+			UID:                orcObject.UID,
+			BlockOwnerDeletion: ptr.To(true),
+		},
+	}
+	routerInterface.Spec = orcv1alpha1.RouterInterfaceSpec{
+		Type:      orcv1alpha1.RouterInterfaceTypeSubnet,
+		RouterRef: *orcObject.Spec.Resource.RouterRef,
+		SubnetRef: ptr.To(orcv1alpha1.KubernetesNameRef(orcObject.Name)),
+	}
+
+	if err := k8sClient.Create(ctx, routerInterface); err != nil {
+		return waitEvents, orcObject, osResource, fmt.Errorf("creating RouterInterface %s: %w", client.ObjectKeyFromObject(orcObject), err)
+	}
+	waitEvents = append(waitEvents, generic.WaitingOnORCReady("routerinterface", routerInterface.Name))
+
+	return waitEvents, orcObject, osResource, err
+}
+
+func (actuator subnetActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "subnets", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+func getRouterInterfaceName(orcObject *orcv1alpha1.Subnet) string {
+	return orcObject.Name + "-subnet"
+}
+
+func routerInterfaceMatchesSpec(routerInterface *orcv1alpha1.RouterInterface, objectName string, resource *orcv1alpha1.SubnetResourceSpec) bool {
+	// No routerRef -> there should be no routerInterface
+	if resource.RouterRef == nil {
+		return routerInterface == nil
+	}
+
+	// The router interface should:
+	// * Exist
+	// * Be of Subnet type
+	// * Reference this subnet
+	// * Reference the router in our spec
+
+	if routerInterface == nil {
+		return false
+	}
+
+	if routerInterface.Spec.Type != orcv1alpha1.RouterInterfaceTypeSubnet {
+		return false
+	}
+
+	if string(ptr.Deref(routerInterface.Spec.SubnetRef, "")) != objectName {
+		return false
+	}
+
+	return routerInterface.Spec.RouterRef == *resource.RouterRef
+}
+
+// getRouterInterface returns the router interface for this subnet, identified by its name
+// returns nil for routerinterface without returning an error if the routerinterface does not exist
+func getRouterInterface(ctx context.Context, k8sClient client.Client, orcObject *orcv1alpha1.Subnet) (*orcv1alpha1.RouterInterface, error) {
+	routerInterface := &orcv1alpha1.RouterInterface{}
+	err := k8sClient.Get(ctx, types.NamespacedName{Name: getRouterInterfaceName(orcObject), Namespace: orcObject.GetNamespace()}, routerInterface)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("fetching RouterInterface: %w", err)
+	}
+
+	return routerInterface, nil
+}
+
+type subnetActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = subnetActuatorFactory{}
+
+func (subnetActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	orcNetwork := &orcv1alpha1.Network{}
+	if err := controller.GetK8sClient().Get(ctx, client.ObjectKey{Name: string(orcObject.Spec.NetworkRef), Namespace: orcObject.Namespace}, orcNetwork); err != nil {
+		if apierrors.IsNotFound(err) {
+			return []generic.WaitingOnEvent{generic.WaitingOnORCExist("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
+		}
+		return nil, nil, err
+	}
+
+	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
+		return []generic.WaitingOnEvent{generic.WaitingOnORCReady("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
+	}
+
+	actuator, err := newActuator(ctx, controller, orcObject)
+	if err != nil {
+		return nil, nil, err
+	}
+	return nil, subnetCreateActuator{
+		subnetActuator: actuator,
+		networkID:      *orcNetwork.Status.ID,
+	}, nil
+}
+
+func (subnetActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, controller, orcObject)
+	if err != nil {
+		return nil, nil, err
+	}
+	return nil, subnetDeleteActuator{
+		subnetActuator: actuator,
+	}, nil
+}
+
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, error) {
+	if orcObject == nil {
+		return subnetActuator{}, fmt.Errorf("orcObject may not be nil")
+	}
+
+	log := ctrl.LoggerFrom(ctx)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return subnetActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return subnetActuator{}, err
+	}
+
+	return subnetActuator{
+		Subnet:     orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
 }
