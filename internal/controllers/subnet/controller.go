@@ -18,6 +18,7 @@ package subnet
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/types"
@@ -49,73 +50,37 @@ func (subnetReconcilerConstructor) GetName() string {
 	return "subnet"
 }
 
+var networkDependency = dependency.NewDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Network](
+	"spec.resource.networkRef",
+	func(subnet *orcv1alpha1.Subnet) []string {
+		return []string{string(subnet.Spec.NetworkRef)}
+	},
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, subnetActuatorFactory{}, subnetStatusWriter{})
 
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
-	getNetworkRefsForSubnet := func(obj client.Object) []string {
-		subnet, ok := obj.(*orcv1alpha1.Subnet)
-		if !ok {
-			return nil
-		}
-		return []string{string(subnet.Spec.NetworkRef)}
-	}
-
-	// Index subnets by referenced network
-	const networkRefPath = "spec.resource.networkRef"
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.Subnet{}, networkRefPath, func(obj client.Object) []string {
-		return getNetworkRefsForSubnet(obj)
-	}); err != nil {
-		return fmt.Errorf("adding subnets by network index: %w", err)
-	}
-
-	getSubnetsForNetwork := func(ctx context.Context, k8sClient client.Client, obj *orcv1alpha1.Network) ([]orcv1alpha1.Subnet, error) {
-		subnetList := &orcv1alpha1.SubnetList{}
-		if err := k8sClient.List(ctx, subnetList, client.InNamespace(obj.Namespace), client.MatchingFields{networkRefPath: obj.Name}); err != nil {
-			return nil, err
-		}
-
-		return subnetList.Items, nil
-	}
-
 	finalizer := generic.GetFinalizerName(&reconciler)
 	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
-	err := dependency.AddDeletionGuard(mgr, finalizer, fieldOwner, getNetworkRefsForSubnet, getSubnetsForNetwork)
+	if err := errors.Join(
+		networkDependency.AddIndexer(ctx, mgr),
+		networkDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
+	); err != nil {
+		return err
+	}
+
+	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Subnet{}).
-		Watches(&orcv1alpha1.Network{},
-			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
-				log := log.WithValues("watch", "Network", "name", obj.GetName(), "namespace", obj.GetNamespace())
-
-				network, ok := obj.(*orcv1alpha1.Network)
-				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
-					return nil
-				}
-
-				subnets, err := getSubnetsForNetwork(ctx, mgr.GetClient(), network)
-				if err != nil {
-					log.Error(err, "listing Subnets")
-					return nil
-				}
-				requests := make([]reconcile.Request, len(subnets))
-				for i := range subnets {
-					subnet := &subnets[i]
-					request := &requests[i]
-
-					request.Name = subnet.Name
-					request.Namespace = subnet.Namespace
-				}
-				return requests
-			}),
+		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
 		Watches(&orcv1alpha1.RouterInterface{},
@@ -126,8 +91,12 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
 					return nil
 				}
+				subnetRef := routerInterface.Spec.SubnetRef
+				if subnetRef == nil {
+					return nil
+				}
 				return []reconcile.Request{
-					{NamespacedName: types.NamespacedName{Namespace: routerInterface.Namespace, Name: string(*routerInterface.Spec.SubnetRef)}},
+					{NamespacedName: types.NamespacedName{Namespace: routerInterface.Namespace, Name: string(*subnetRef)}},
 				}
 			}),
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.RouterInterface{})),
