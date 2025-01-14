@@ -26,9 +26,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 )
 
 const (
@@ -119,7 +119,7 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 
 	finalizer := GetFinalizerName(controller)
 	if !controllerutil.ContainsFinalizer(orcObject, finalizer) {
-		patch := common.SetFinalizerPatch(orcObject, finalizer)
+		patch := finalizers.SetFinalizerPatch(orcObject, finalizer)
 		if err := k8sClient.Patch(ctx, orcObject, patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
 			return nil, nil, fmt.Errorf("setting finalizer: %w", err)
 		}
@@ -216,7 +216,7 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	removeFinalizer := func() error {
-		if err := k8sClient.Patch(ctx, obj, common.RemoveFinalizerPatch(obj), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+		if err := k8sClient.Patch(ctx, obj, finalizers.RemoveFinalizerPatch(obj), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
 			return fmt.Errorf("removing finalizer: %w", err)
 		}
 		return nil
