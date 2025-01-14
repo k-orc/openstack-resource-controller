@@ -20,9 +20,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -32,6 +34,9 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
+
+type osResourcePT = *routers.Router
+type orcObjectPT = *orcv1alpha1.Router
 
 type routerActuator struct {
 	*orcv1alpha1.Router
@@ -43,38 +48,8 @@ type routerCreateActuator struct {
 	routerActuator
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Router) (routerActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return routerActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return routerActuator{}, err
-	}
-
-	return routerActuator{
-		Router:     orcObject,
-		osClient:   osClient,
-		controller: controller,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
-	routerActuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return routerCreateActuator{}, err
-	}
-
-	return routerCreateActuator{
-		routerActuator: routerActuator,
-	}, nil
-}
-
-var _ generic.DeleteResourceActuator[*routers.Router] = routerActuator{}
-var _ generic.CreateResourceActuator[*routers.Router] = routerCreateActuator{}
+var _ generic.DeleteResourceActuator[osResourcePT] = routerActuator{}
+var _ generic.CreateResourceActuator[osResourcePT] = routerCreateActuator{}
 
 func (obj routerActuator) GetObject() client.Object {
 	return obj.Router
@@ -254,4 +229,72 @@ func getResourceFromList(ctx context.Context, listOpts routers.ListOpts, network
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = routerActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator routerActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+	}, nil
+}
+
+func (actuator routerActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "routers", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+type routerActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = routerActuatorFactory{}
+
+func (routerActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	actuator, err := newCreateActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func (routerActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return routerActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return routerActuator{}, err
+	}
+
+	return routerActuator{
+		Router:     orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
+}
+
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerCreateActuator, error) {
+	routerActuator, err := newActuator(ctx, orcObject, controller)
+	if err != nil {
+		return routerCreateActuator{}, err
+	}
+
+	return routerCreateActuator{
+		routerActuator: routerActuator,
+	}, nil
 }

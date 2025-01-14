@@ -20,10 +20,8 @@ import (
 	"context"
 	"errors"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -35,16 +33,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/routercontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=routers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=routers/status,verbs=get;update;patch
 
 type routerReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -56,24 +46,6 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 
 func (routerReconcilerConstructor) GetName() string {
 	return "router"
-}
-
-// orcRouterReconciler reconciles an ORC Router.
-type orcRouterReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	routerReconcilerConstructor
-}
-
-var _ generic.ResourceController = &orcRouterReconciler{}
-
-func (r *orcRouterReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcRouterReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
 }
 
 // Router depends on its external gateways, which are Networks
@@ -97,12 +69,7 @@ var externalGWDep = dependency.NewDependency[*orcv1alpha1.RouterList, *orcv1alph
 func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
-	reconciler := orcRouterReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-" + c.GetName() + "-controller"),
-
-		routerReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, routerActuatorFactory{}, routerStatusWriter{})
 
 	finalizer := generic.GetFinalizerName(&reconciler)
 	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
