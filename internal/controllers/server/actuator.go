@@ -42,7 +42,7 @@ const (
 )
 
 type serverActuator struct {
-	*orcv1alpha1.Server
+	obj        *orcv1alpha1.Server
 	osClient   osclients.ComputeClient
 	controller generic.ResourceController
 }
@@ -50,78 +50,78 @@ type serverActuator struct {
 var _ generic.DeleteResourceActuator[osResourcePT] = serverActuator{}
 var _ generic.CreateResourceActuator[osResourcePT] = serverActuator{}
 
-func (obj serverActuator) GetObject() client.Object {
-	return obj.Server
+func (actuator serverActuator) GetObject() client.Object {
+	return actuator.obj
 }
 
-func (obj serverActuator) GetController() generic.ResourceController {
-	return obj.controller
+func (actuator serverActuator) GetController() generic.ResourceController {
+	return actuator.controller
 }
 
-func (obj serverActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return obj.Spec.ManagementPolicy
+func (actuator serverActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
+	return actuator.obj.Spec.ManagementPolicy
 }
 
-func (obj serverActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return obj.Spec.ManagedOptions
+func (actuator serverActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
+	return actuator.obj.Spec.ManagedOptions
 }
 
 func (serverActuator) GetResourceID(osResource *servers.Server) string {
 	return osResource.ID
 }
 
-func (obj serverActuator) GetStatusID() *string {
-	return obj.Status.ID
+func (actuator serverActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
 }
 
-func (obj serverActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *servers.Server, error) {
-	if obj.Status.ID == nil {
+func (actuator serverActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *servers.Server, error) {
+	if actuator.obj.Status.ID == nil {
 		return false, nil, nil
 	}
 
-	osResource, err := obj.osClient.GetServer(ctx, *obj.Status.ID)
+	osResource, err := actuator.osClient.GetServer(ctx, *actuator.obj.Status.ID)
 	return true, osResource, err
 }
 
-func (obj serverActuator) GetOSResourceBySpec(ctx context.Context) (*servers.Server, error) {
-	if obj.Spec.Resource == nil {
+func (actuator serverActuator) GetOSResourceBySpec(ctx context.Context) (*servers.Server, error) {
+	if actuator.obj.Spec.Resource == nil {
 		return nil, nil
 	}
 
-	return GetByFilter(ctx, obj.osClient, specToFilter(obj.Server))
+	return GetByFilter(ctx, actuator.osClient, specToFilter(actuator.obj))
 }
 
-func (obj serverActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
-	if obj.Spec.Import == nil || obj.Spec.Import.ID == nil {
+func (actuator serverActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
+	if actuator.obj.Spec.Import == nil || actuator.obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
 
-	osResource, err := obj.osClient.GetServer(ctx, *obj.Spec.Import.ID)
+	osResource, err := actuator.osClient.GetServer(ctx, *actuator.obj.Spec.Import.ID)
 	return true, osResource, err
 }
 
-func (obj serverActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
-	if obj.Spec.Import == nil || obj.Spec.Import.Filter == nil {
+func (actuator serverActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
+	if actuator.obj.Spec.Import == nil || actuator.obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
 
-	osResource, err := GetByFilter(ctx, obj.osClient, *obj.Spec.Import.Filter)
+	osResource, err := GetByFilter(ctx, actuator.osClient, *actuator.obj.Spec.Import.Filter)
 	return true, osResource, err
 }
 
-func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *servers.Server, error) {
-	resource := obj.Spec.Resource
+func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *servers.Server, error) {
+	resource := actuator.obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
 	var waitEvents []generic.WaitingOnEvent
-	k8sClient := obj.controller.GetK8sClient()
+	k8sClient := actuator.controller.GetK8sClient()
 
 	image := &orcv1alpha1.Image{}
 	{
-		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: obj.Namespace}
+		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: actuator.obj.Namespace}
 		if err := k8sClient.Get(ctx, imageKey, image); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Image", imageKey.Name))
@@ -136,7 +136,7 @@ func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.Waiting
 
 	flavor := &orcv1alpha1.Flavor{}
 	{
-		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
+		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: actuator.obj.Namespace}
 		if err := k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
@@ -161,7 +161,7 @@ func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.Waiting
 			}
 
 			portObject := &orcv1alpha1.Port{}
-			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: obj.Namespace}
+			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: actuator.obj.Namespace}
 			if err := k8sClient.Get(ctx, portKey, portObject); err != nil {
 				if apierrors.IsNotFound(err) {
 					waitEvents = append(waitEvents, generic.WaitingOnORCExist("Port", portKey.Name))
@@ -181,7 +181,7 @@ func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.Waiting
 	var userData []byte
 	if resource.UserData != nil && resource.UserData.SecretRef != nil {
 		secret := &corev1.Secret{}
-		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: obj.Namespace}
+		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: actuator.obj.Namespace}
 		if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
 			if !apierrors.IsNotFound(err) {
 				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
@@ -201,7 +201,7 @@ func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.Waiting
 	}
 
 	createOpts := servers.CreateOpts{
-		Name:      string(getResourceName(obj.Server)),
+		Name:      string(getResourceName(actuator.obj)),
 		ImageRef:  *image.Status.ID,
 		FlavorRef: *flavor.Status.ID,
 		Networks:  portList,
@@ -210,7 +210,7 @@ func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.Waiting
 
 	schedulerHints := servers.SchedulerHintOpts{}
 
-	osResource, err := obj.osClient.CreateServer(ctx, &createOpts, schedulerHints)
+	osResource, err := actuator.osClient.CreateServer(ctx, &createOpts, schedulerHints)
 
 	// We should require the spec to be updated before retrying a create which returned a non-retryable error
 	if err != nil && !orcerrors.IsRetryable(err) {
@@ -220,8 +220,8 @@ func (obj serverActuator) CreateResource(ctx context.Context) ([]generic.Waiting
 	return nil, osResource, err
 }
 
-func (obj serverActuator) DeleteResource(ctx context.Context, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
-	return nil, obj.osClient.DeleteServer(ctx, osResource.ID)
+func (actuator serverActuator) DeleteResource(ctx context.Context, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
+	return nil, actuator.osClient.DeleteServer(ctx, osResource.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
@@ -291,7 +291,7 @@ func newActuator(ctx context.Context, controller generic.ResourceController, orc
 	}
 
 	return serverActuator{
-		Server:     orcObject,
+		obj:        orcObject,
 		osClient:   osClient,
 		controller: controller,
 	}, nil
