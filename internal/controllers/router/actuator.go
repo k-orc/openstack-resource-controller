@@ -39,7 +39,7 @@ type osResourcePT = *routers.Router
 type orcObjectPT = *orcv1alpha1.Router
 
 type routerActuator struct {
-	*orcv1alpha1.Router
+	obj        *orcv1alpha1.Router
 	osClient   osclients.NetworkClient
 	controller generic.ResourceController
 }
@@ -51,75 +51,75 @@ type routerCreateActuator struct {
 var _ generic.DeleteResourceActuator[osResourcePT] = routerActuator{}
 var _ generic.CreateResourceActuator[osResourcePT] = routerCreateActuator{}
 
-func (obj routerActuator) GetObject() client.Object {
-	return obj.Router
+func (actuator routerActuator) GetObject() client.Object {
+	return actuator.obj
 }
 
-func (obj routerActuator) GetController() generic.ResourceController {
-	return obj.controller
+func (actuator routerActuator) GetController() generic.ResourceController {
+	return actuator.controller
 }
 
-func (obj routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return obj.Spec.ManagementPolicy
+func (actuator routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
+	return actuator.obj.Spec.ManagementPolicy
 }
 
-func (obj routerActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return obj.Spec.ManagedOptions
+func (actuator routerActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
+	return actuator.obj.Spec.ManagedOptions
 }
 
 func (routerActuator) GetResourceID(osResource *routers.Router) string {
 	return osResource.ID
 }
 
-func (obj routerActuator) GetStatusID() *string {
-	return obj.Status.ID
+func (actuator routerActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
 }
 
-func (obj routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *routers.Router, error) {
-	if obj.Status.ID == nil {
+func (actuator routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *routers.Router, error) {
+	if actuator.obj.Status.ID == nil {
 		return false, nil, nil
 	}
 
-	port, err := obj.osClient.GetRouter(ctx, *obj.Status.ID)
+	port, err := actuator.osClient.GetRouter(ctx, *actuator.obj.Status.ID)
 	return true, port, err
 }
 
-func (obj routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
-	if obj.Spec.Resource == nil {
+func (actuator routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
+	if actuator.obj.Spec.Resource == nil {
 		return nil, nil
 	}
 
-	listOpts := listOptsFromCreation(obj.Router)
-	return getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromCreation(actuator.obj)
+	return getResourceFromList(ctx, listOpts, actuator.osClient)
 }
 
-func (obj routerCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *routers.Router, error) {
-	if obj.Spec.Import == nil {
+func (actuator routerCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *routers.Router, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.ID == nil {
+	if actuator.obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
 
-	port, err := obj.osClient.GetRouter(ctx, *obj.Spec.Import.ID)
+	port, err := actuator.osClient.GetRouter(ctx, *actuator.obj.Spec.Import.ID)
 	return true, port, err
 }
 
-func (obj routerCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *routers.Router, error) {
-	if obj.Spec.Import == nil {
+func (actuator routerCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *routers.Router, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.Filter == nil {
+	if actuator.obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
 
-	listOpts := listOptsFromImportFilter(obj.Spec.Import.Filter)
-	osResource, err := getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromImportFilter(actuator.obj.Spec.Import.Filter)
+	osResource, err := getResourceFromList(ctx, listOpts, actuator.osClient)
 	return true, osResource, err
 }
 
-func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *routers.Router, error) {
-	resource := obj.Router.Spec.Resource
+func (actuator routerCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *routers.Router, error) {
+	resource := actuator.obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
@@ -128,7 +128,7 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	var waitEvents []generic.WaitingOnEvent
 
 	var gatewayInfo *routers.GatewayInfo
-	for name, result := range externalGWDep.GetDependencies(ctx, obj.controller.GetK8sClient(), obj.Router) {
+	for name, result := range externalGWDep.GetDependencies(ctx, actuator.controller.GetK8sClient(), actuator.obj) {
 		err := result.Err()
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -169,7 +169,7 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 		}
 	}
 
-	osResource, err := obj.osClient.CreateRouter(ctx, &createOpts)
+	osResource, err := actuator.osClient.CreateRouter(ctx, &createOpts)
 
 	// We should require the spec to be updated before retrying a create which returned a conflict
 	if orcerrors.IsConflict(err) {
@@ -179,8 +179,8 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	return nil, osResource, err
 }
 
-func (obj routerActuator) DeleteResource(ctx context.Context, router *routers.Router) ([]generic.WaitingOnEvent, error) {
-	return nil, obj.osClient.DeleteRouter(ctx, router.ID)
+func (actuator routerActuator) DeleteResource(ctx context.Context, router *routers.Router) ([]generic.WaitingOnEvent, error) {
+	return nil, actuator.osClient.DeleteRouter(ctx, router.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
@@ -282,7 +282,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller 
 	}
 
 	return routerActuator{
-		Router:     orcObject,
+		obj:        orcObject,
 		osClient:   osClient,
 		controller: controller,
 	}, nil
