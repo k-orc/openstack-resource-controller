@@ -20,9 +20,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -32,6 +34,9 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
+
+type osResourcePT = *ports.Port
+type orcObjectPT = *orcv1alpha1.Port
 
 type portActuator struct {
 	obj        *orcv1alpha1.Port
@@ -43,37 +48,6 @@ type portCreateActuator struct {
 	portActuator
 
 	networkID orcv1alpha1.UUID
-}
-
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Port) (portActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return portActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return portActuator{}, err
-	}
-
-	return portActuator{
-		obj:        orcObject,
-		osClient:   osClient,
-		controller: controller,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Port, networkID orcv1alpha1.UUID) (portCreateActuator, error) {
-	portActuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return portCreateActuator{}, err
-	}
-
-	return portCreateActuator{
-		portActuator: portActuator,
-		networkID:    networkID,
-	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*ports.Port] = portActuator{}
@@ -288,4 +262,89 @@ func getResourceFromList(ctx context.Context, listOpts ports.ListOptsBuilder, ne
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = portActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator portActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+	}, nil
+}
+
+func (actuator portActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "ports", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+type portActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = portActuatorFactory{}
+
+func (portActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	waitEvents, actuator, err := newCreateActuator(ctx, orcObject, controller)
+	return waitEvents, actuator, err
+}
+
+func (portActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) (portActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return portActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return portActuator{}, err
+	}
+
+	return portActuator{
+		obj:        orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
+}
+
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) ([]generic.WaitingOnEvent, *portCreateActuator, error) {
+	k8sClient := controller.GetK8sClient()
+
+	orcNetwork := &orcv1alpha1.Network{}
+	networkRef := string(orcObject.Spec.NetworkRef)
+	if err := k8sClient.Get(ctx, client.ObjectKey{Name: networkRef, Namespace: orcObject.Namespace}, orcNetwork); err != nil {
+		if apierrors.IsNotFound(err) {
+			return []generic.WaitingOnEvent{generic.WaitingOnORCExist("network", networkRef)}, nil, nil
+		}
+		return nil, nil, err
+	}
+
+	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
+		return []generic.WaitingOnEvent{generic.WaitingOnORCReady("network", networkRef)}, nil, nil
+	}
+	networkID := orcv1alpha1.UUID(*orcNetwork.Status.ID)
+
+	portActuator, err := newActuator(ctx, orcObject, controller)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return nil, &portCreateActuator{
+		portActuator: portActuator,
+		networkID:    networkID,
+	}, nil
 }

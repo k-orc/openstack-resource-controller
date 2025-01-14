@@ -20,10 +20,8 @@ import (
 	"context"
 	"errors"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -35,46 +33,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/portcontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
-
-type portReconcilerConstructor struct {
-	scopeFactory scope.Factory
-}
-
-func New(scopeFactory scope.Factory) ctrlexport.Controller {
-	return portReconcilerConstructor{scopeFactory: scopeFactory}
-}
-
-func (portReconcilerConstructor) GetName() string {
-	return "port"
-}
-
-// orcPortReconciler reconciles an ORC Port.
-type orcPortReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	portReconcilerConstructor
-}
-
-var _ generic.ResourceController = &orcPortReconciler{}
-
-func (r *orcPortReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcPortReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
-}
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports/status,verbs=get;update;patch
 
 var (
 	networkDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network]("spec.resource.networkRef", func(port *orcv1alpha1.Port) []string {
@@ -98,14 +58,21 @@ var (
 	})
 )
 
+type portReconcilerConstructor struct {
+	scopeFactory scope.Factory
+}
+
+func New(scopeFactory scope.Factory) ctrlexport.Controller {
+	return portReconcilerConstructor{scopeFactory: scopeFactory}
+}
+
+func (portReconcilerConstructor) GetName() string {
+	return "port"
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := orcPortReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-port-controller"),
-
-		portReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, portActuatorFactory{}, portStatusWriter{})
 
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 

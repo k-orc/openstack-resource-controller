@@ -135,6 +135,11 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 		return ctrl.Result{}, err
 	}
 
+	if len(waitEvents) > 0 {
+		log.V(3).Info("Waiting on events before creation")
+		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
+	}
+
 	waitEvents, osResource, err = GetOrCreateOSResource(ctx, log, c.client, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -203,6 +208,11 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileDelete(c
 	waitEvents, actuator, err := c.actuatorFactory.NewDeleteActuator(ctx, orcObject, c)
 	if err != nil {
 		return ctrl.Result{}, err
+	}
+
+	if len(waitEvents) > 0 {
+		log.V(3).Info("Waiting on events before deletion")
+		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
 	}
 
 	deleted, waitEvents, osResource, err = DeleteResource(ctx, log, c.client, actuator)
