@@ -31,10 +31,10 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
 type subnetReconcilerConstructor struct {
@@ -84,7 +84,7 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	finalizer := generic.GetFinalizerName(&reconciler)
 	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
-	err := ctrlcommon.AddDeletionGuard(mgr, finalizer, fieldOwner, getNetworkRefsForSubnet, getSubnetsForNetwork)
+	err := dependency.AddDeletionGuard(mgr, finalizer, fieldOwner, getNetworkRefsForSubnet, getSubnetsForNetwork)
 	if err != nil {
 		return err
 	}

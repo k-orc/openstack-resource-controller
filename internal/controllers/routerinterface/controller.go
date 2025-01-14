@@ -33,9 +33,9 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
 const (
@@ -113,7 +113,7 @@ func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Conte
 		return fmt.Errorf("adding routers by routerinterface index: %w", err)
 	}
 
-	err := ctrlcommon.AddDeletionGuard(mgr, Finalizer, FieldOwner, getRouterRefsForRouterInterface, getRouterInterfacesForRouter)
+	err := dependency.AddDeletionGuard(mgr, Finalizer, FieldOwner, getRouterRefsForRouterInterface, getRouterInterfacesForRouter)
 	if err != nil {
 		return err
 	}

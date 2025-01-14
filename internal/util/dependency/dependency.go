@@ -28,7 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	"github.com/k-orc/openstack-resource-controller/internal/util/result"
 )
 
@@ -188,5 +187,5 @@ func (d *Dependency[objectTP, _, depTP, _, _, _]) AddDeletionGuard(mgr ctrl.Mana
 		return d.getDependencyRefs(obj)
 	}
 
-	return ctrlcommon.AddDeletionGuard[depTP, objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
+	return AddDeletionGuard[depTP, objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
 }
