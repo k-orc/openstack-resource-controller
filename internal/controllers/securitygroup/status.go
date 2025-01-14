@@ -29,7 +29,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
@@ -133,7 +133,7 @@ func createStatusUpdate(ctx context.Context, orcSecurityGroup *orcv1alpha1.Secur
 
 	// FIXME(mandre) Don't return available unless all security group rules are created
 	available := osResource != nil
-	common.SetCommonConditions(orcSecurityGroup, applyConfigStatus, available, available, statusOpts.progressMessage, statusOpts.err, now)
+	generic.SetCommonConditions(orcSecurityGroup, applyConfigStatus, available, available, statusOpts.progressMessage, statusOpts.err, now)
 
 	return applyConfig
 }

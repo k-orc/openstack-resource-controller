@@ -26,7 +26,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/go-logr/logr"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -119,7 +118,7 @@ func UpdateStatus[
 
 	// Set common conditions
 	available, upToDate := statusWriter.GetCommonStatus(orcObject, osResource)
-	common.SetCommonConditions(orcObject, applyConfigStatus, available, upToDate, progressMessage, err, now)
+	SetCommonConditions(orcObject, applyConfigStatus, available, upToDate, progressMessage, err, now)
 
 	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()
