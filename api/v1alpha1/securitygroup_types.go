@@ -62,14 +62,28 @@ const (
 type PortNumber int32
 
 type PortRangeSpec struct {
+	// min is the minimum port number in the range that is matched by the security group rule.
+	// If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal
+	// to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type
 	// +required
 	Min PortNumber `json:"min"`
+	// max is the maximum port number in the range that is matched by the security group rule.
+	// If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal
+	// to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.
 	// +required
 	Max PortNumber `json:"max"`
 }
 
 type PortRangeStatus struct {
+	// min is the minimum port number in the range that is matched by the security group rule.
+	// If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal
+	// to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type
+	// +optional
 	Min int32 `json:"min"`
+	// max is the maximum port number in the range that is matched by the security group rule.
+	// If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal
+	// to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.
+	// +optional
 	Max int32 `json:"max"`
 }
 
@@ -80,29 +94,29 @@ type PortRangeStatus struct {
 // +kubebuilder:validation:XValidation:rule="!(self.protocol == 'icmp' || self.protocol == 'icmpv6') || !has(self.portRange)|| (self.portRange.max >= 0 && self.portRange.max <= 255)",message="When protocol is ICMP or ICMPv6 portRange.max should be between 0 and 255"
 // +kubebuilder:validation:XValidation:rule="!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype == 'IPv4') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 6 && self.ethertype == 'IPv6')",message="remoteIPPrefix should be a valid CIDR and match the ethertype"
 type SecurityGroupRule struct {
-	// Description of the existing resource
+	// description of the existing resource
 	// +optional
 	Description *OpenStackDescription `json:"description,omitempty"`
 
-	// Direction represents the direction in which the security group rule
+	// direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
 	// +optional
 	Direction *RuleDirection `json:"direction,omitempty"`
 
-	// RemoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
+	// remoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
 	// +optional
 	RemoteIPPrefix *CIDR `json:"remoteIPPrefix,omitempty"`
 
-	// Protocol is the IP protocol can be represented by a string or an
-	// integer represented as a string.
+	// protocol is the IP protocol is represented by a string
 	// +optional
 	Protocol *Protocol `json:"protocol,omitempty"`
 
-	// Ethertype must be IPv4 or IPv6, and addresses represented in CIDR
+	// ethertype must be IPv4 or IPv6, and addresses represented in CIDR
 	// must match the ingress or egress rules.
-	// +kubebuilder:validation:Required
+	// +required
 	Ethertype Ethertype `json:"ethertype"`
-	// If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
+	// portRange sets the minimum and maximum ports range that the security group rule
+	// matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
 	// or equal to the PortRange.Max attribute value.
 	// If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max
 	// should be an ICMP type
@@ -111,34 +125,46 @@ type SecurityGroupRule struct {
 }
 
 type SecurityGroupRuleStatus struct {
-	// ID is the ID of the security group rule.
-	// +required
+	// id is the ID of the security group rule.
+	// +optional
 	ID string `json:"id,omitempty"`
 
-	// Description of the existing resource
+	// description of the existing resource
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// Direction represents the direction in which the security group rule
+	// direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
+	// +optional
 	Direction string `json:"direction,omitempty"`
 
 	// RemoteAddressGroupId (Not in gophercloud)
 
+	// remoteGroupID is the remote group UUID to associate with this security group rule
 	// RemoteGroupID
+	// +optional
 	RemoteGroupID string `json:"remoteGroupID,omitempty"`
 
-	// RemoteIPPrefix
+	// remoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
+	// +optional
 	RemoteIPPrefix string `json:"remoteIPPrefix,omitempty"`
 
-	// Protocol is the IP protocol can be represented by a string, an
+	// protocol is the IP protocol can be represented by a string, an
 	// integer, or null
+	// +optional
 	Protocol string `json:"protocol,omitempty"`
 
-	// Ethertype must be IPv4 or IPv6, and addresses represented in CIDR
+	// ethertype must be IPv4 or IPv6, and addresses represented in CIDR
 	// must match the ingress or egress rules.
+	// +optional
 	Ethertype string `json:"ethertype,omitempty"`
 
+	// portRange sets the minimum and maximum ports range that the security group rule
+	// matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
+	// or equal to the PortRange.Max attribute value.
+	// If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max
+	// should be an ICMP type
+	// +optional
 	PortRange *PortRangeStatus `json:"portRange,omitempty"`
 	// FIXME(mandre) This field is not yet returned by gophercloud
 	// BelongsToDefaultSG bool `json:"belongsToDefaultSG,omitempty"`
@@ -151,7 +177,7 @@ type SecurityGroupRuleStatus struct {
 
 // SecurityGroupResourceSpec contains the desired state of a security group
 type SecurityGroupResourceSpec struct {
-	// Name will be the name of the created resource. If not specified, the
+	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
@@ -159,33 +185,35 @@ type SecurityGroupResourceSpec struct {
 	// +optional
 	Description *OpenStackDescription `json:"description,omitempty"`
 
-	// Tags is a list of tags which will be applied to the security group.
+	// tags is a list of tags which will be applied to the security group.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
+	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
 
-	// Stateful indicates if the security group is stateful or stateless.
+	// stateful indicates if the security group is stateful or stateless.
 	// +optional
 	Stateful *bool `json:"stateful,omitempty"`
 
-	// Rules is a list of security group rules belonging to this SG.
+	// rules is a list of security group rules belonging to this SG.
 	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
+	// +optional
 	Rules []SecurityGroupRule `json:"rules,omitempty"`
 }
 
 // SecurityGroupFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type SecurityGroupFilter struct {
-	// Name of the existing resource
+	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// Description of the existing resource
+	// description of the existing resource
 	// +optional
 	Description *OpenStackDescription `json:"description,omitempty"`
 
-	// ProjectID specifies the ID of the project which owns the security group.
+	// projectID specifies the ID of the project which owns the security group.
 	// +optional
 	ProjectID *UUID `json:"projectID,omitempty"`
 
@@ -194,29 +222,30 @@ type SecurityGroupFilter struct {
 
 // SecurityGroupResourceStatus represents the observed state of the resource.
 type SecurityGroupResourceStatus struct {
-	// Human-readable name for the security group. Might not be unique.
+	// name is a Human-readable name for the security group. Might not be unique.
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// Description is a human-readable description for the resource.
+	// description is a human-readable description for the resource.
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// ProjectID is the project owner of the security group.
+	// projectID is the project owner of the security group.
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// Tags is the list of tags on the resource.
+	// tags is the list of tags on the resource.
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
 
-	// Stateful indicates if the security group is stateful or stateless.
+	// stateful indicates if the security group is stateful or stateless.
 	// +optional
 	Stateful bool `json:"stateful,omitempty"`
 
-	// Rules is a list of security group rules belonging to this SG.
+	// rules is a list of security group rules belonging to this SG.
 	// +listType=atomic
+	// +optional
 	Rules []SecurityGroupRuleStatus `json:"rules,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`

@@ -18,23 +18,26 @@ package v1alpha1
 
 // NetworkResourceSpec contains the desired state of a network
 type FlavorResourceSpec struct {
-	// Name will be the name of the created resource. If not specified, the
+	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// description is the description of the server
 	// +optional
 	Description *OpenStackDescription `json:"description,omitempty"`
 
-	// RAM is the memory of the flavor, measured in MB.
+	// ram is the memory of the flavor, measured in MB.
 	// +kubebuilder:validation:Minimum=1
+	// +required
 	RAM int32 `json:"ram"`
 
-	// Vcpus is the number of vcpus for the flavor.
+	// vcpus is the number of vcpus for the flavor.
 	// +kubebuilder:validation:Minimum=1
+	// +required
 	Vcpus int32 `json:"vcpus"`
 
-	// Disk is the size of the root disk that will be created in GiB. If 0
+	// disk is the size of the root disk that will be created in GiB. If 0
 	// the root disk will be set to exactly the size of the image used to
 	// deploy the instance. However, in this case the scheduler cannot
 	// select the compute host based on the virtual image size. Therefore,
@@ -42,70 +45,74 @@ type FlavorResourceSpec struct {
 	// purposes. Volume-backed instances can be enforced for flavors with
 	// zero root disk via the
 	// os_compute_api:servers:create:zero_disk_flavor policy rule.
+	// +optional
 	Disk int32 `json:"disk,omitempty"`
 
-	// Swap is the size of a dedicated swap disk that will be allocated, in
+	// swap is the size of a dedicated swap disk that will be allocated, in
 	// MiB. If 0 (the default), no dedicated swap disk will be created.
+	// +optional
 	Swap int32 `json:"swap,omitempty"`
 
-	// IsPublic flags a flavor as being available to all projects or not.
+	// isPublic flags a flavor as being available to all projects or not.
+	// +optional
 	IsPublic *bool `json:"isPublic,omitempty"`
 
-	// Ephemeral is the size of the ephemeral disk that will be created, in GiB.
+	// ephemeral is the size of the ephemeral disk that will be created, in GiB.
 	// Ephemeral disks may be written over on server state changes. So should only
 	// be used as a scratch space for applications that are aware of its
 	// limitations. Defaults to 0.
+	// +optional
 	Ephemeral int32 `json:"ephemeral,omitempty"`
 }
 
 // FlavorFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type FlavorFilter struct {
-	// Name of the existing resource
+	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// RAM is the memory of the flavor, measured in MB.
+	// ram is the memory of the flavor, measured in MB.
 	// +optional
 	RAM *int32 `json:"ram,omitempty"`
 
-	// Disk is the size of the root disk in GiB.
+	// disk is the size of the root disk in GiB.
 	// +optional
 	Disk *int32 `json:"disk,omitempty"`
 }
 
 // FlavorResourceStatus represents the observed state of the resource.
 type FlavorResourceStatus struct {
-	// Human-readable name for the flavor. Might not be unique.
+	// name is a Human-readable name for the flavor. Might not be unique.
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// Description is a human-readable description for the resource.
+	// description is a human-readable description for the resource.
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// RAM is the memory of the flavor, measured in MB.
+	// ram is the memory of the flavor, measured in MB.
 	// +optional
 	RAM *int32 `json:"ram,omitempty"`
 
-	// Vcpus is the number of vcpus for the flavor.
+	// vcpus is the number of vcpus for the flavor.
 	// +optional
 	Vcpus *int32 `json:"vcpus,omitempty"`
 
-	// Disk is the size of the root disk that will be created in GiB.
+	// disk is the size of the root disk that will be created in GiB.
 	// +optional
 	Disk *int32 `json:"disk,omitempty"`
 
-	// Swap is the size of a dedicated swap disk that will be allocated, in
+	// swap is the size of a dedicated swap disk that will be allocated, in
 	// MiB.
 	// +optional
 	Swap *int32 `json:"swap,omitempty"`
 
-	// IsPublic flags a flavor as being available to all projects or not.
+	// isPublic flags a flavor as being available to all projects or not.
 	// +optional
 	IsPublic *bool `json:"isPublic,omitempty"`
 
-	// Ephemeral is the size of the ephemeral disk, in GiB.
+	// ephemeral is the size of the ephemeral disk, in GiB.
 	// +optional
 	Ephemeral *int32 `json:"ephemeral,omitempty"`
 }

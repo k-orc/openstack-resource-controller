@@ -77,7 +77,7 @@ spec:
             properties:
               conditions:
                 description: |-
-                  Conditions represents the observed status of the object.
+                  conditions represents the observed status of the object.
                   Known .status.conditions.type are: "Available", "Progressing"
 
                   Available represents the availability of the OpenStack resource. If it is
@@ -149,7 +149,7 @@ spec:
                 - type
                 x-kubernetes-list-type: map
               id:
-                description: ID is the unique identifier of the port created for the
+                description: id is the unique identifier of the port created for the
                   router interface
                 type: string
             type: object

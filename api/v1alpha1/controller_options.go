@@ -46,7 +46,7 @@ const (
 )
 
 type ManagedOptions struct {
-	// OnDelete specifies the behaviour of the controller when the ORC
+	// onDelete specifies the behaviour of the controller when the ORC
 	// object is deleted. Options are `delete` - delete the OpenStack resource;
 	// `detach` - do not delete the OpenStack resource. If not specified, the
 	// default is `delete`.

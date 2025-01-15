@@ -63,14 +63,14 @@ spec:
                   credentials
                 properties:
                   cloudName:
-                    description: CloudName specifies the name of the entry in the
+                    description: cloudName specifies the name of the entry in the
                       clouds.yaml file to use.
                     maxLength: 256
                     minLength: 1
                     type: string
                   secretName:
                     description: |-
-                      SecretName is the name of a secret in the same namespace as the resource being provisioned.
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
                       The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
                       The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
                     maxLength: 253
@@ -96,7 +96,7 @@ spec:
                     minProperties: 1
                     properties:
                       name:
-                        description: Name of the existing resource
+                        description: name of the existing resource
                         maxLength: 1024
                         minLength: 1
                         type: string
@@ -116,7 +116,7 @@ spec:
                   onDelete:
                     default: delete
                     description: |-
-                      OnDelete specifies the behaviour of the controller when the ORC
+                      onDelete specifies the behaviour of the controller when the ORC
                       object is deleted. Options are `delete` - delete the OpenStack resource;
                       `detach` - do not delete the OpenStack resource. If not specified, the
                       default is `delete`.
@@ -157,13 +157,13 @@ spec:
                     type: string
                   name:
                     description: |-
-                      Name will be the name of the created resource. If not specified, the
+                      name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
                     maxLength: 1024
                     minLength: 1
                     type: string
                   ports:
-                    description: Ports defines a list of ports which will be attached
+                    description: ports defines a list of ports which will be attached
                       to the server.
                     items:
                       maxProperties: 1
@@ -171,7 +171,7 @@ spec:
                       properties:
                         portRef:
                           description: |-
-                            PortRef is a reference to a Port object. Server creation will wait for
+                            portRef is a reference to a Port object. Server creation will wait for
                             this port to be created and available.
                           maxLength: 253
                           minLength: 1
@@ -182,14 +182,14 @@ spec:
                     x-kubernetes-list-type: atomic
                   userData:
                     description: |-
-                      UserData specifies data which will be made available to the server at
+                      userData specifies data which will be made available to the server at
                       boot time, either via the metadata service or a config drive. It is
                       typically read by a configuration service such as cloud-init or ignition.
                     maxProperties: 1
                     minProperties: 1
                     properties:
                       secretRef:
-                        description: SecretRef is a reference to a Secret containing
+                        description: secretRef is a reference to a Secret containing
                           the user data for this server.
                         maxLength: 253
                         minLength: 1
@@ -302,33 +302,33 @@ spec:
                 properties:
                   accessIPv4:
                     description: |-
-                      AccessIPv4 contains the IPv4 addresses of the server, suitable for
+                      accessIPv4 contains the IPv4 addresses of the server, suitable for
                       remote access for administration.
                     type: string
                   accessIPv6:
                     description: |-
-                      AccessIPv6 contains the IPv6 addresses of the server, suitable for
+                      accessIPv6 contains the IPv6 addresses of the server, suitable for
                       remote access for administration.
                     type: string
                   hostID:
-                    description: HostID is the host where the server is located in
+                    description: hostID is the host where the server is located in
                       the cloud.
                     type: string
                   imageID:
-                    description: ImageID indicates the OS image used to deploy the
+                    description: imageID indicates the OS image used to deploy the
                       server.
                     type: string
                   keyName:
-                    description: KeyName indicates which public key was injected into
+                    description: keyName indicates which public key was injected into
                       the server on launch.
                     type: string
                   name:
-                    description: Name is the human-readable name of the resource.
+                    description: name is the human-readable name of the resource.
                       Might not be unique.
                     type: string
                   securityGroups:
                     description: |-
-                      SecurityGroups includes the security groups that this instance has
+                      securityGroups includes the security groups that this instance has
                       applied to it.
                     items:
                       type: string
@@ -337,7 +337,7 @@ spec:
                     x-kubernetes-list-type: set
                   status:
                     description: |-
-                      Status contains the current operational status of the server,
+                      status contains the current operational status of the server,
                       such as IN_PROGRESS or ACTIVE.
                     type: string
                 type: object

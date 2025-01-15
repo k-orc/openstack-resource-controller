@@ -63,14 +63,14 @@ spec:
                   credentials
                 properties:
                   cloudName:
-                    description: CloudName specifies the name of the entry in the
+                    description: cloudName specifies the name of the entry in the
                       clouds.yaml file to use.
                     maxLength: 256
                     minLength: 1
                     type: string
                   secretName:
                     description: |-
-                      SecretName is the name of a secret in the same namespace as the resource being provisioned.
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
                       The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
                       The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
                     maxLength: 253
@@ -96,23 +96,23 @@ spec:
                     minProperties: 1
                     properties:
                       description:
-                        description: Description of the existing resource
+                        description: description of the existing resource
                         maxLength: 1024
                         minLength: 1
                         type: string
                       external:
                         description: |-
-                          External indicates whether the network has an external routing
+                          external indicates whether the network has an external routing
                           facility that’s not managed by the networking service.
                         type: boolean
                       name:
-                        description: Name of the existing resource
+                        description: name of the existing resource
                         maxLength: 1024
                         minLength: 1
                         type: string
                       notTags:
                         description: |-
-                          NotTags is a list of tags to filter by. If specified, resources which
+                          notTags is a list of tags to filter by. If specified, resources which
                           contain all of the given tags will be excluded from the result.
                         items:
                           description: |-
@@ -126,7 +126,7 @@ spec:
                         x-kubernetes-list-type: set
                       notTagsAny:
                         description: |-
-                          NotTagsAny is a list of tags to filter by. If specified, resources
+                          notTagsAny is a list of tags to filter by. If specified, resources
                           which contain any of the given tags will be excluded from the result.
                         items:
                           description: |-
@@ -139,14 +139,14 @@ spec:
                         type: array
                         x-kubernetes-list-type: set
                       projectID:
-                        description: ProjectID specifies the ID of the project which
+                        description: projectID specifies the ID of the project which
                           owns the network.
                         format: uuid
                         maxLength: 36
                         type: string
                       tags:
                         description: |-
-                          Tags is a list of tags to filter by. If specified, the resource must
+                          tags is a list of tags to filter by. If specified, the resource must
                           have all of the tags specified to be included in the result.
                         items:
                           description: |-
@@ -160,7 +160,7 @@ spec:
                         x-kubernetes-list-type: set
                       tagsAny:
                         description: |-
-                          TagsAny is a list of tags to filter by. If specified, the resource
+                          tagsAny is a list of tags to filter by. If specified, the resource
                           must have at least one of the tags specified to be included in the
                           result.
                         items:
@@ -189,7 +189,7 @@ spec:
                   onDelete:
                     default: delete
                     description: |-
-                      OnDelete specifies the behaviour of the controller when the ORC
+                      onDelete specifies the behaviour of the controller when the ORC
                       object is deleted. Options are `delete` - delete the OpenStack resource;
                       `detach` - do not delete the OpenStack resource. If not specified, the
                       default is `delete`.
@@ -221,9 +221,11 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   adminStateUp:
+                    description: adminStateUp is the administrative state of the network,
+                      which is up (true) or down (false)
                     type: boolean
                   availabilityZoneHints:
-                    description: AvailabilityZoneHints is the availability zone candidate
+                    description: availabilityZoneHints is the availability zone candidate
                       for the network.
                     items:
                       maxLength: 128
@@ -236,43 +238,44 @@ spec:
                     minLength: 1
                     type: string
                   dnsDomain:
+                    description: dnsDomain is the DNS domain of the network
                     maxLength: 265
                     minLength: 1
                     type: string
                   external:
                     description: |-
-                      External indicates whether the network has an external routing
+                      external indicates whether the network has an external routing
                       facility that’s not managed by the networking service.
                     type: boolean
                   mtu:
                     description: |-
-                      MTU is the the maximum transmission unit value to address
+                      mtu is the the maximum transmission unit value to address
                       fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
                     format: int32
                     minimum: 68
                     type: integer
                   name:
                     description: |-
-                      Name will be the name of the created resource. If not specified, the
+                      name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
                     maxLength: 1024
                     minLength: 1
                     type: string
                   portSecurityEnabled:
                     description: |-
-                      PortSecurityEnabled is the port security status of the network.
+                      portSecurityEnabled is the port security status of the network.
                       Valid values are enabled (true) and disabled (false). This value is
                       used as the default value of port_security_enabled field of a newly
                       created port.
                     type: boolean
                   shared:
                     description: |-
-                      Shared indicates whether this resource is shared across all
+                      shared indicates whether this resource is shared across all
                       projects. By default, only administrative users can change this
                       value.
                     type: boolean
                   tags:
-                    description: Tags is a list of tags which will be applied to the
+                    description: tags is a list of tags which will be applied to the
                       network.
                     items:
                       description: |-
@@ -388,29 +391,31 @@ spec:
                 properties:
                   adminStateUp:
                     description: |-
-                      AdminStateUp is the administrative state of the network,
+                      adminStateUp is the administrative state of the network,
                       which is up (true) or down (false).
                     type: boolean
                   availabilityZoneHints:
                     description: |-
-                      AvailabilityZoneHints is the availability zone candidate for the
+                      availabilityZoneHints is the availability zone candidate for the
                       network.
                     items:
                       type: string
                     type: array
                     x-kubernetes-list-type: atomic
                   createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
                   description:
-                    description: Description is a human-readable description for the
+                    description: description is a human-readable description for the
                       resource.
                     type: string
                   dnsDomain:
                     type: string
                   external:
                     description: |-
-                      External defines whether the network may be used for creation of
+                      external defines whether the network may be used for creation of
                       floating IPs. Only networks with this flag may be an external
                       gateway for routers. The network must have an external routing
                       facility that is not managed by the networking service. If the
@@ -420,23 +425,23 @@ spec:
                     type: boolean
                   mtu:
                     description: |-
-                      MTU is the the maximum transmission unit value to address
+                      mtu is the the maximum transmission unit value to address
                       fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
                     format: int32
                     type: integer
                   name:
-                    description: Human-readable name for the network. Might not be
-                      unique.
+                    description: name is a Human-readable name for the network. Might
+                      not be unique.
                     type: string
                   portSecurityEnabled:
                     description: |-
-                      PortSecurityEnabled is the port security status of the network.
+                      portSecurityEnabled is the port security status of the network.
                       Valid values are enabled (true) and disabled (false). This value is
                       used as the default value of port_security_enabled field of a newly
                       created port.
                     type: boolean
                   projectID:
-                    description: ProjectID is the project owner of the network.
+                    description: projectID is the project owner of the network.
                     type: string
                   provider:
                     description: |-
@@ -445,7 +450,7 @@ spec:
                     properties:
                       networkType:
                         description: |-
-                          NetworkType is the type of physical network that this
+                          networkType is the type of physical network that this
                           network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
                           Valid values depend on the networking back-end.
                         enum:
@@ -458,7 +463,7 @@ spec:
                         type: string
                       physicalNetwork:
                         description: |-
-                          PhysicalNetwork is the physical network where this network
+                          physicalNetwork is the physical network where this network
                           should be implemented. The Networking API v2.0 does not provide a
                           way to list available physical networks. For example, the Open
                           vSwitch plug-in configuration file defines a symbolic name that maps
@@ -468,7 +473,7 @@ spec:
                         type: string
                       segmentationID:
                         description: |-
-                          SegmentationID is the ID of the isolated segment on the
+                          segmentationID is the ID of the isolated segment on the
                           physical network. The network_type attribute defines the
                           segmentation model. For example, if the network_type value is vlan,
                           this ID is a vlan identifier. If the network_type value is gre, this
@@ -477,7 +482,7 @@ spec:
                         type: integer
                     type: object
                   revisionNumber:
-                    description: RevisionNumber optionally set via extensions/standard-attr-revisions
+                    description: revisionNumber optionally set via extensions/standard-attr-revisions
                     format: int64
                     type: integer
                   shared:
@@ -491,18 +496,20 @@ spec:
                       additional values.
                     type: string
                   subnets:
-                    description: Subnets associated with this network.
+                    description: subnets associated with this network.
                     items:
                       type: string
                     type: array
                     x-kubernetes-list-type: atomic
                   tags:
-                    description: Tags is the list of tags on the resource.
+                    description: tags is the list of tags on the resource.
                     items:
                       type: string
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
                 required:

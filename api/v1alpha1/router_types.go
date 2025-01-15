@@ -35,15 +35,15 @@ type ExternalGatewayStatus struct {
 }
 
 type RouterResourceSpec struct {
-	// Name is the human-readable name of the subnet. Might not be unique.
+	// name is the human-readable name of the subnet. Might not be unique.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// Description for the subnet.
+	// description for the subnet.
 	// +optional
 	Description OpenStackDescription `json:"description,omitempty"`
 
-	// Tags optionally set via extensions/attributestags
+	// tags optionally set via extensions/attributestags
 	// +listType=set
 	Tags []NeutronTag `json:"tags,omitempty"`
 
@@ -63,23 +63,23 @@ type RouterResourceSpec struct {
 }
 
 type RouterResourceStatus struct {
-	// Name is the human-readable name of the resource. Might not be unique.
+	// name is the human-readable name of the resource. Might not be unique.
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// Description is a human-readable description for the resource.
+	// description is a human-readable description for the resource.
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// ProjectID is the project owner of the resource.
+	// projectID is the project owner of the resource.
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// Status indicates the current status of the resource.
+	// status indicates the current status of the resource.
 	// +optional
 	Status string `json:"status,omitempty"`
 
-	// Tags is the list of tags on the resource.
+	// tags is the list of tags on the resource.
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
