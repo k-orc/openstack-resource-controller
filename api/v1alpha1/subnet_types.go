@@ -32,13 +32,17 @@ type SubnetRefs struct {
 // SubnetFilter specifies a filter to select a subnet. At least one parameter must be specified.
 // +kubebuilder:validation:MinProperties:=1
 type SubnetFilter struct {
-	Name        *OpenStackName        `json:"name,omitempty"`
-	Description *OpenStackDescription `json:"description,omitempty"`
-	ProjectID   *UUID                 `json:"projectID,omitempty"`
-	IPVersion   *IPVersion            `json:"ipVersion,omitempty"`
-	GatewayIP   *IPvAny               `json:"gatewayIP,omitempty"`
-	CIDR        *CIDR                 `json:"cidr,omitempty"`
-	IPv6        *IPv6Options          `json:"ipv6,omitempty"`
+	Name *OpenStackName `json:"name,omitempty"`
+
+	// description of the existing resource
+	// +optional
+	Description *NeutronDescription `json:"description,omitempty"`
+
+	ProjectID *UUID        `json:"projectID,omitempty"`
+	IPVersion *IPVersion   `json:"ipVersion,omitempty"`
+	GatewayIP *IPvAny      `json:"gatewayIP,omitempty"`
+	CIDR      *CIDR        `json:"cidr,omitempty"`
+	IPv6      *IPv6Options `json:"ipv6,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -48,9 +52,9 @@ type SubnetResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the subnet.
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the subnet.
 	// +kubebuilder:validation:MaxItems:=32
@@ -125,7 +129,7 @@ type SubnetResourceStatus struct {
 	// name is the human-readable name of the subnet. Might not be unique.
 	Name string `json:"name"`
 
-	// description for the subnet.
+	// description is a human-readable description for the resource.
 	// +optional
 	Description string `json:"description,omitempty"`
 

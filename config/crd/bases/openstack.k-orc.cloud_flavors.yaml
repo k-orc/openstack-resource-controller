@@ -157,8 +157,9 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   description:
-                    description: description is the description of the server
-                    maxLength: 1024
+                    description: description contains a free form description of the
+                      flavor.
+                    maxLength: 65535
                     minLength: 1
                     type: string
                   disk:

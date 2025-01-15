@@ -97,7 +97,7 @@ spec:
                     properties:
                       description:
                         description: description of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       external:
@@ -234,7 +234,9 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                   description:
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   dnsDomain:

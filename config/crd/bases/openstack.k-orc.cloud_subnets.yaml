@@ -101,7 +101,8 @@ spec:
                         minLength: 1
                         type: string
                       description:
-                        maxLength: 1024
+                        description: description of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       gatewayIP:
@@ -281,8 +282,9 @@ spec:
                     minLength: 1
                     type: string
                   description:
-                    description: description of the subnet.
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   dnsNameservers:
@@ -547,7 +549,8 @@ spec:
                     format: date-time
                     type: string
                   description:
-                    description: description for the subnet.
+                    description: description is a human-readable description for the
+                      resource.
                     type: string
                   dnsNameservers:
                     description: dnsNameservers is a list of name servers used by

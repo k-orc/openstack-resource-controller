@@ -64,8 +64,9 @@ type NetworkResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the network.
 	// +kubebuilder:validation:MaxItems:=32
@@ -118,7 +119,7 @@ type NetworkFilter struct {
 
 	// description of the existing resource
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// external indicates whether the network has an external routing
 	// facility that’s not managed by the networking service.

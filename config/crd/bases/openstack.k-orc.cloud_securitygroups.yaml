@@ -97,7 +97,7 @@ spec:
                     properties:
                       description:
                         description: description of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       name:
@@ -216,7 +216,9 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   description:
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   name:
@@ -234,8 +236,9 @@ spec:
                       minProperties: 1
                       properties:
                         description:
-                          description: description of the existing resource
-                          maxLength: 1024
+                          description: description is a human-readable description
+                            for the resource.
+                          maxLength: 255
                           minLength: 1
                           type: string
                         direction:
@@ -493,7 +496,8 @@ spec:
                     items:
                       properties:
                         description:
-                          description: description of the existing resource
+                          description: description is a human-readable description
+                            for the resource.
                           type: string
                         direction:
                           description: |-

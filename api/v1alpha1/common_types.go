@@ -20,6 +20,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=255
+type NeutronDescription string
+
 // NeutronTag represents a tag on a Neutron resource.
 // It may not be empty and may not contain commas.
 // +kubebuilder:validation:MinLength:=1

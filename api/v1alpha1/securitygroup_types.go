@@ -94,9 +94,9 @@ type PortRangeStatus struct {
 // +kubebuilder:validation:XValidation:rule="!(self.protocol == 'icmp' || self.protocol == 'icmpv6') || !has(self.portRange)|| (self.portRange.max >= 0 && self.portRange.max <= 255)",message="When protocol is ICMP or ICMPv6 portRange.max should be between 0 and 255"
 // +kubebuilder:validation:XValidation:rule="!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype == 'IPv4') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 6 && self.ethertype == 'IPv6')",message="remoteIPPrefix should be a valid CIDR and match the ethertype"
 type SecurityGroupRule struct {
-	// description of the existing resource
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
@@ -129,7 +129,7 @@ type SecurityGroupRuleStatus struct {
 	// +optional
 	ID string `json:"id,omitempty"`
 
-	// description of the existing resource
+	// description is a human-readable description for the resource.
 	// +optional
 	Description string `json:"description,omitempty"`
 
@@ -182,8 +182,9 @@ type SecurityGroupResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the security group.
 	// +kubebuilder:validation:MaxItems:=32
@@ -211,7 +212,7 @@ type SecurityGroupFilter struct {
 
 	// description of the existing resource
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// projectID specifies the ID of the project which owns the security group.
 	// +optional

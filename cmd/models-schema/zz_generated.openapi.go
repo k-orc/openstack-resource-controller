@@ -906,7 +906,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description is the description of the server",
+							Description: "description contains a free form description of the flavor.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2081,8 +2081,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"tags": {
@@ -2538,8 +2539,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"projectID": {
@@ -2804,7 +2806,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the port.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3280,8 +3282,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"projectID": {
@@ -3635,14 +3638,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the human-readable name of the subnet. Might not be unique.",
+							Description: "name is the human-readable name of the router. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description for the subnet.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4204,8 +4207,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"tags": {
@@ -4372,7 +4376,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 				Properties: map[string]spec.Schema{
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4436,7 +4440,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleSt
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5059,8 +5063,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"projectID": {
@@ -5321,7 +5326,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the subnet.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5485,7 +5490,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description for the subnet.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

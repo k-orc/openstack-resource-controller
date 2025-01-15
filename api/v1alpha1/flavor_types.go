@@ -23,9 +23,11 @@ type FlavorResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description is the description of the server
+	// description contains a free form description of the flavor.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=65535
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// ram is the memory of the flavor, measured in MB.
 	// +kubebuilder:validation:Minimum=1

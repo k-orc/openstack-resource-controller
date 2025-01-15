@@ -25,10 +25,10 @@ import (
 // NetworkFilterApplyConfiguration represents a declarative configuration of the NetworkFilter type for use
 // with apply.
 type NetworkFilterApplyConfiguration struct {
-	Name                                  *v1alpha1.OpenStackName        `json:"name,omitempty"`
-	Description                           *v1alpha1.OpenStackDescription `json:"description,omitempty"`
-	External                              *bool                          `json:"external,omitempty"`
-	ProjectID                             *v1alpha1.UUID                 `json:"projectID,omitempty"`
+	Name                                  *v1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *v1alpha1.NeutronDescription `json:"description,omitempty"`
+	External                              *bool                        `json:"external,omitempty"`
+	ProjectID                             *v1alpha1.UUID               `json:"projectID,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -49,7 +49,7 @@ func (b *NetworkFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName)
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *NetworkFilterApplyConfiguration) WithDescription(value v1alpha1.OpenStackDescription) *NetworkFilterApplyConfiguration {
+func (b *NetworkFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *NetworkFilterApplyConfiguration {
 	b.Description = &value
 	return b
 }

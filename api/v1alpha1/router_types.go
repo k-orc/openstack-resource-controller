@@ -19,9 +19,13 @@ package v1alpha1
 // RouterFilter specifies a query to select an OpenStack router. At least one property must be set.
 // +kubebuilder:validation:MinProperties:=1
 type RouterFilter struct {
-	Name        OpenStackName        `json:"name,omitempty"`
-	Description OpenStackDescription `json:"description,omitempty"`
-	ProjectID   UUID                 `json:"projectID,omitempty"`
+	Name *OpenStackName `json:"name,omitempty"`
+
+	// description of the existing resource
+	// +optional
+	Description *NeutronDescription `json:"description,omitempty"`
+
+	ProjectID *UUID `json:"projectID,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -35,13 +39,13 @@ type ExternalGatewayStatus struct {
 }
 
 type RouterResourceSpec struct {
-	// name is the human-readable name of the subnet. Might not be unique.
+	// name is the human-readable name of the router. Might not be unique.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description for the subnet.
+	// description is a human-readable description for the resource.
 	// +optional
-	Description OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags optionally set via extensions/attributestags
 	// +listType=set

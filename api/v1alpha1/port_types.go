@@ -25,9 +25,13 @@ type PortRefs struct {
 // PortFilter specifies a filter to select a port. At least one parameter must be specified.
 // +kubebuilder:validation:MinProperties:=1
 type PortFilter struct {
-	Name        *OpenStackName        `json:"name,omitempty"`
-	Description *OpenStackDescription `json:"description,omitempty"`
-	ProjectID   *UUID                 `json:"projectID,omitempty"`
+	Name *OpenStackName `json:"name,omitempty"`
+
+	// description of the existing resource
+	// +optional
+	Description *NeutronDescription `json:"description,omitempty"`
+
+	ProjectID *UUID `json:"projectID,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -57,9 +61,9 @@ type PortResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the port.
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the port.
 	// +kubebuilder:validation:MaxItems:=32

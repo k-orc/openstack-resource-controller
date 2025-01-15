@@ -96,7 +96,8 @@ spec:
                     minProperties: 1
                     properties:
                       description:
-                        maxLength: 1024
+                        description: description of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       name:
@@ -226,8 +227,9 @@ spec:
                     format: date-time
                     type: string
                   description:
-                    description: description for the subnet.
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   distributed:
@@ -245,7 +247,7 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
-                    description: name is the human-readable name of the subnet. Might
+                    description: name is the human-readable name of the router. Might
                       not be unique.
                     maxLength: 1024
                     minLength: 1

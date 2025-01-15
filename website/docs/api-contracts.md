@@ -32,7 +32,7 @@ not already known.
 This is located at `spec.resource` is the base object. It is only defined for managed objects (`spec.managementPolicy == 'managed'`).
 
 * Where relevant, the ResourceSpec should include a `name` field to allow object name to be overridden.
-* All fields should use pre-defined validated types where possible, e.g. `OpenStackName`, `OpenStackDescription`, `IPvAny`.
+* All fields should use pre-defined validated types where possible, e.g. `OpenStackName`, `IPvAny`.
 * Lists should have type `set` or `map` where possible, but `atomic` lists may be necessary where a struct has no merge key.
 
 ### ResourceStatus

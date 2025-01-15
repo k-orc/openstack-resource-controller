@@ -98,7 +98,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 	It("should reject a flavor with values greater than max", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
-		maxString := orcv1alpha1.OpenStackDescription(strings.Repeat("a", 1025))
+		maxString := strings.Repeat("a", 65536)
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDescription(maxString))
 		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
 

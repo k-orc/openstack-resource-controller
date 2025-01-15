@@ -96,7 +96,8 @@ spec:
                     minProperties: 1
                     properties:
                       description:
-                        maxLength: 1024
+                        description: description of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       name:
@@ -255,8 +256,9 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                   description:
-                    description: description of the port.
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   name:

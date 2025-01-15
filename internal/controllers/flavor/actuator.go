@@ -119,7 +119,7 @@ func (actuator flavorActuator) CreateResource(ctx context.Context) ([]generic.Wa
 		Swap:        ptr.To(int(resource.Swap)),
 		IsPublic:    resource.IsPublic,
 		Ephemeral:   ptr.To(int(resource.Ephemeral)),
-		Description: string(ptr.Deref(resource.Description, "")),
+		Description: ptr.Deref(resource.Description, ""),
 	}
 
 	osResource, err := actuator.osClient.CreateFlavor(ctx, createOpts)
