@@ -20,10 +20,8 @@ import (
 	"context"
 	"errors"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -32,22 +30,11 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
-const (
-	Finalizer = "openstack.k-orc.cloud/router"
-
-	FieldOwner = "openstack.k-orc.cloud/routercontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=routers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=routers/status,verbs=get;update;patch
 
 type routerReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -61,15 +48,8 @@ func (routerReconcilerConstructor) GetName() string {
 	return "router"
 }
 
-// orcRouterReconciler reconciles an ORC Router.
-type orcRouterReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
-}
-
 // Router depends on its external gateways, which are Networks
-var externalGWDep = generic.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
+var externalGWDep = dependency.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
 	"spec.resource.externalGateways[].networkRef",
 	func(router *orcv1alpha1.Router) []string {
 		resource := router.Spec.Resource
@@ -87,11 +67,16 @@ var externalGWDep = generic.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.
 
 // SetupWithManager sets up the controller with the Manager.
 func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "router")
+	log := mgr.GetLogger().WithValues("controller", c.GetName())
+
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, routerActuatorFactory{}, routerStatusWriter{})
+
+	finalizer := generic.GetFinalizerName(&reconciler)
+	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
 	if err := errors.Join(
 		externalGWDep.AddIndexer(ctx, mgr),
-		externalGWDep.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		externalGWDep.AddDeletionGuard(mgr, finalizer, fieldOwner),
 	); err != nil {
 		return err
 	}
@@ -99,12 +84,6 @@ func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	externalGWHandler, err := externalGWDep.WatchEventHandler(log, mgr.GetClient())
 	if err != nil {
 		return err
-	}
-
-	reconciler := orcRouterReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-router-controller"),
-		scopeFactory: c.scopeFactory,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).

@@ -19,43 +19,22 @@ package server
 import (
 	"context"
 	"errors"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 )
 
-const (
-	Finalizer = "openstack.k-orc.cloud/server"
-
-	FieldOwner = "openstack.k-orc.cloud/servercontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
-
-const (
-	// The time to wait before reconciling again when we are expecting OpenStack to finish some task and update status.
-	externalUpdatePollingPeriod = 15 * time.Second
-)
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=servers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=servers/status,verbs=get;update;patch
 
 type serverReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -69,15 +48,8 @@ func (serverReconcilerConstructor) GetName() string {
 	return "server"
 }
 
-// orcServerReconciler reconciles an ORC Router.
-type orcServerReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
-}
-
 var (
-	flavorDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
+	flavorDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
 		"spec.resource.flavorRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -89,7 +61,7 @@ var (
 		},
 	)
 
-	imageDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
+	imageDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
 		"spec.resource.imageRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -101,7 +73,7 @@ var (
 		},
 	)
 
-	portDependency = generic.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
+	portDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
 		"spec.resource.ports",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -120,7 +92,7 @@ var (
 		},
 	)
 
-	secretDependency = generic.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
+	secretDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
 		"spec.resource.userData.secretRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -135,13 +107,12 @@ var (
 
 // SetupWithManager sets up the controller with the Manager.
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "server")
+	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
-	reconciler := orcServerReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-server-controller"),
-		scopeFactory: c.scopeFactory,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, serverActuatorFactory{}, serverStatusWriter{})
+
+	finalizer := generic.GetFinalizerName(&reconciler)
+	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
 
 	if err := errors.Join(
 		flavorDependency.AddIndexer(ctx, mgr),
@@ -151,9 +122,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		// Image can sometimes, but not always (e.g. when an RBD-backed image
 		// has been cloned), be safely deleted while referenced by a server. We
 		// just prevent it always.
-		imageDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		imageDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 		portDependency.AddIndexer(ctx, mgr),
-		portDependency.AddDeletionGuard(mgr, Finalizer, FieldOwner),
+		portDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
 		secretDependency.AddIndexer(ctx, mgr),
 		// We don't need a deletion guard on the user-data secret because it's
 		// only used on creation.

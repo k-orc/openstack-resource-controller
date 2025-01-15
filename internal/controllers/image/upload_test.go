@@ -170,11 +170,11 @@ var _ = Describe("Upload tests", Ordered, func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		scopeFactory = scope.NewMockScopeFactory(mockCtrl)
 		reconciler = &orcImageReconciler{
-			client:       k8sClient,
-			scopeFactory: scopeFactory,
+			client: k8sClient,
 			// NOTE(mdbooth): I have no idea what 1024 means here, or if it is a sensible value 🤷
 			recorder: record.NewFakeRecorder(1024),
 		}
+		reconciler.scopeFactory = scopeFactory
 	})
 
 	uploadTest := func(imageName string, aopts ...uploadTestOpt) error {

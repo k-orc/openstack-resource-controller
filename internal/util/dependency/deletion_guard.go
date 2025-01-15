@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package common
+package dependency
 
 import (
 	"context"
@@ -21,6 +21,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -73,7 +74,7 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 		if guarded.GetDeletionTimestamp().IsZero() {
 			if !slices.Contains(guarded.GetFinalizers(), finalizer) {
 				log.V(4).Info("Adding finalizer")
-				patch := SetFinalizerPatch(guarded, finalizer)
+				patch := finalizers.SetFinalizerPatch(guarded, finalizer)
 				return ctrl.Result{}, k8sClient.Patch(ctx, guarded, patch, client.ForceOwnership, fieldOwner)
 			}
 
@@ -89,7 +90,7 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 		}
 		if len(dependencies) == 0 {
 			log.V(4).Info("Removing finalizer")
-			patch := RemoveFinalizerPatch(guarded)
+			patch := finalizers.RemoveFinalizerPatch(guarded)
 			return ctrl.Result{}, k8sClient.Patch(ctx, guarded, patch, client.ForceOwnership, fieldOwner)
 		}
 		log.V(5).Info("Waiting for dependencies", "dependencies", len(dependencies))

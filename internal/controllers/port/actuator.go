@@ -20,123 +20,108 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
 
+type osResourcePT = *ports.Port
+type orcObjectPT = *orcv1alpha1.Port
+
 type portActuator struct {
-	*orcv1alpha1.Port
-	osClient osclients.NetworkClient
+	obj        *orcv1alpha1.Port
+	osClient   osclients.NetworkClient
+	controller generic.ResourceController
 }
 
 type portCreateActuator struct {
 	portActuator
 
-	k8sClient client.Client
 	networkID orcv1alpha1.UUID
-}
-
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Port) (portActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
-	if err != nil {
-		return portActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return portActuator{}, err
-	}
-
-	return portActuator{
-		Port:     orcObject,
-		osClient: osClient,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Port, networkID orcv1alpha1.UUID) (portCreateActuator, error) {
-	portActuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
-	if err != nil {
-		return portCreateActuator{}, err
-	}
-
-	return portCreateActuator{
-		portActuator: portActuator,
-		k8sClient:    k8sClient,
-		networkID:    networkID,
-	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*ports.Port] = portActuator{}
 var _ generic.CreateResourceActuator[*ports.Port] = portCreateActuator{}
 
-func (obj portActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return obj.Spec.ManagementPolicy
+func (actuator portActuator) GetObject() client.Object {
+	return actuator.obj
 }
 
-func (obj portActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return obj.Spec.ManagedOptions
+func (actuator portActuator) GetController() generic.ResourceController {
+	return actuator.controller
+}
+
+func (actuator portActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
+	return actuator.obj.Spec.ManagementPolicy
+}
+
+func (actuator portActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
+	return actuator.obj.Spec.ManagedOptions
 }
 
 func (portActuator) GetResourceID(osResource *ports.Port) string {
 	return osResource.ID
 }
 
-func (obj portActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *ports.Port, error) {
-	if obj.Status.ID == nil {
+func (actuator portActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
+}
+
+func (actuator portActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *ports.Port, error) {
+	if actuator.obj.Status.ID == nil {
 		return false, nil, nil
 	}
 
-	port, err := obj.osClient.GetPort(ctx, *obj.Status.ID)
+	port, err := actuator.osClient.GetPort(ctx, *actuator.obj.Status.ID)
 	return true, port, err
 }
 
-func (obj portActuator) GetOSResourceBySpec(ctx context.Context) (*ports.Port, error) {
-	if obj.Spec.Resource == nil {
+func (actuator portActuator) GetOSResourceBySpec(ctx context.Context) (*ports.Port, error) {
+	if actuator.obj.Spec.Resource == nil {
 		return nil, nil
 	}
 
-	listOpts := listOptsFromCreation(obj.Port)
-	return getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromCreation(actuator.obj)
+	return getResourceFromList(ctx, listOpts, actuator.osClient)
 }
 
-func (obj portCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *ports.Port, error) {
-	if obj.Spec.Import == nil {
+func (actuator portCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *ports.Port, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.ID == nil {
+	if actuator.obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
 
-	port, err := obj.osClient.GetPort(ctx, *obj.Spec.Import.ID)
+	port, err := actuator.osClient.GetPort(ctx, *actuator.obj.Spec.Import.ID)
 	return true, port, err
 }
 
-func (obj portCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *ports.Port, error) {
-	if obj.Spec.Import == nil {
+func (actuator portCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *ports.Port, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.Filter == nil {
+	if actuator.obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
 
-	listOpts := listOptsFromImportFilter(obj.Spec.Import.Filter, obj.networkID)
-	port, err := getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromImportFilter(actuator.obj.Spec.Import.Filter, actuator.networkID)
+	port, err := getResourceFromList(ctx, listOpts, actuator.osClient)
 	return true, port, err
 }
 
-func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *ports.Port, error) {
-	resource := obj.Spec.Resource
+func (actuator portCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *ports.Port, error) {
+	resource := actuator.obj.Spec.Resource
 
 	if resource == nil {
 		// Should have been caught by API validation
@@ -144,8 +129,8 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	}
 
 	createOpts := ports.CreateOpts{
-		NetworkID:   string(obj.networkID),
-		Name:        string(getResourceName(obj.Port)),
+		NetworkID:   string(actuator.networkID),
+		Name:        string(getResourceName(actuator.obj)),
 		Description: string(ptr.Deref(resource.Description, "")),
 	}
 
@@ -160,14 +145,15 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	}
 
 	var waitEvents []generic.WaitingOnEvent
+	k8sClient := actuator.controller.GetK8sClient()
 
 	// We explicitly disable creation of IP addresses by passing an empty
 	// value whenever the user does not specify addresses
 	fixedIPs := make([]ports.IP, len(resource.Addresses))
 	for i := range resource.Addresses {
 		subnet := &orcv1alpha1.Subnet{}
-		key := client.ObjectKey{Name: string(*resource.Addresses[i].SubnetRef), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, key, subnet); err != nil {
+		key := client.ObjectKey{Name: string(*resource.Addresses[i].SubnetRef), Namespace: actuator.obj.Namespace}
+		if err := k8sClient.Get(ctx, key, subnet); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
 				continue
@@ -192,8 +178,8 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
 	for i := range resource.SecurityGroupRefs {
 		securityGroup := &orcv1alpha1.SecurityGroup{}
-		key := client.ObjectKey{Name: string(resource.SecurityGroupRefs[i]), Namespace: obj.Namespace}
-		if err := obj.k8sClient.Get(ctx, key, securityGroup); err != nil {
+		key := client.ObjectKey{Name: string(resource.SecurityGroupRefs[i]), Namespace: actuator.obj.Namespace}
+		if err := k8sClient.Get(ctx, key, securityGroup); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
 				continue
@@ -213,7 +199,7 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 		return waitEvents, nil, nil
 	}
 
-	osResource, err := obj.osClient.CreatePort(ctx, &createOpts)
+	osResource, err := actuator.osClient.CreatePort(ctx, &createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
@@ -225,8 +211,8 @@ func (obj portCreateActuator) CreateResource(ctx context.Context) ([]generic.Wai
 	return nil, osResource, nil
 }
 
-func (obj portActuator) DeleteResource(ctx context.Context, flavor *ports.Port) ([]generic.WaitingOnEvent, error) {
-	return nil, obj.osClient.DeletePort(ctx, flavor.ID)
+func (actuator portActuator) DeleteResource(ctx context.Context, flavor *ports.Port) ([]generic.WaitingOnEvent, error) {
+	return nil, actuator.osClient.DeletePort(ctx, flavor.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
@@ -276,4 +262,89 @@ func getResourceFromList(ctx context.Context, listOpts ports.ListOptsBuilder, ne
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = portActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator portActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+	}, nil
+}
+
+func (actuator portActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "ports", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+type portActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = portActuatorFactory{}
+
+func (portActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	waitEvents, actuator, err := newCreateActuator(ctx, orcObject, controller)
+	return waitEvents, actuator, err
+}
+
+func (portActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) (portActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return portActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return portActuator{}, err
+	}
+
+	return portActuator{
+		obj:        orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
+}
+
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) ([]generic.WaitingOnEvent, *portCreateActuator, error) {
+	k8sClient := controller.GetK8sClient()
+
+	orcNetwork := &orcv1alpha1.Network{}
+	networkRef := string(orcObject.Spec.NetworkRef)
+	if err := k8sClient.Get(ctx, client.ObjectKey{Name: networkRef, Namespace: orcObject.Namespace}, orcNetwork); err != nil {
+		if apierrors.IsNotFound(err) {
+			return []generic.WaitingOnEvent{generic.WaitingOnORCExist("network", networkRef)}, nil, nil
+		}
+		return nil, nil, err
+	}
+
+	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
+		return []generic.WaitingOnEvent{generic.WaitingOnORCReady("network", networkRef)}, nil, nil
+	}
+	networkID := orcv1alpha1.UUID(*orcNetwork.Status.ID)
+
+	portActuator, err := newActuator(ctx, orcObject, controller)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return nil, &portCreateActuator{
+		portActuator: portActuator,
+		networkID:    networkID,
+	}, nil
 }

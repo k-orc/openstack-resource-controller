@@ -19,33 +19,18 @@ package network
 import (
 	"context"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
-const (
-	Finalizer = "openstack.k-orc.cloud/network"
-
-	FieldOwner = "openstack.k-orc.cloud/networkcontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-	// Field owner of persistent id field.
-	SSAIDTxn = "id"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=networks,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=networks/status,verbs=get;update;patch
 
 type networkReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -61,24 +46,12 @@ func (networkReconcilerConstructor) GetName() string {
 	return "network"
 }
 
-// orcNetworkReconciler reconciles an ORC Subnet.
-type orcNetworkReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (c networkReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := orcNetworkReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-network-controller"),
-		scopeFactory: c.scopeFactory,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, networkActuatorFactory{}, networkStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Network{}).
 		WithOptions(options).
 		Complete(&reconciler)
-
 }

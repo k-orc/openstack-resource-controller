@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package generic
+package dependency
 
 import (
 	"context"
@@ -28,7 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	ctrlcommon "github.com/k-orc/openstack-resource-controller/internal/controllers/common"
+	"github.com/k-orc/openstack-resource-controller/internal/util/result"
 )
 
 // NewDependency returns a new Dependency, which can perform tasks necessary to manage a dependency between 2 object types. The 2 object types are:
@@ -98,18 +98,18 @@ type dependencyType[depT any] interface {
 // GetDependencies returns an iterator over Dependencies for a given Object. For each dependency it returns:
 //   - the dependency's name
 //   - a Result of fetching the dependency
-func (d *Dependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP) iter.Seq2[string, Result[depT]] {
+func (d *Dependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP) iter.Seq2[string, result.Result[depT]] {
 	depRefs := d.getDependencyRefs(obj)
-	return func(yield func(string, Result[depT]) bool) {
+	return func(yield func(string, result.Result[depT]) bool) {
 		for _, depRef := range depRefs {
 			var dep depTP = new(depT)
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: depRef, Namespace: obj.GetNamespace()}, dep)
 
-			var r Result[depT]
+			var r result.Result[depT]
 			if err != nil {
-				r = Err[depT](err)
+				r = result.Err[depT](err)
 			} else {
-				r = Ok(dep)
+				r = result.Ok(dep)
 			}
 			if !yield(depRef, r) {
 				return
@@ -187,5 +187,5 @@ func (d *Dependency[objectTP, _, depTP, _, _, _]) AddDeletionGuard(mgr ctrl.Mana
 		return d.getDependencyRefs(obj)
 	}
 
-	return ctrlcommon.AddDeletionGuard[depTP, objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
+	return AddDeletionGuard[depTP, objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
 }

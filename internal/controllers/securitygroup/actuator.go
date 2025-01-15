@@ -20,108 +20,107 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+type osResourcePT = *groups.SecGroup
+type orcObjectPT = *orcv1alpha1.SecurityGroup
+
 type securityGroupActuator struct {
-	*orcv1alpha1.SecurityGroup
-	osClient osclients.NetworkClient
-}
-
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.SecurityGroup) (securityGroupActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
-	if err != nil {
-		return securityGroupActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return securityGroupActuator{}, err
-	}
-
-	return securityGroupActuator{
-		SecurityGroup: orcObject,
-		osClient:      osClient,
-	}, nil
+	obj        *orcv1alpha1.SecurityGroup
+	osClient   osclients.NetworkClient
+	controller generic.ResourceController
 }
 
 var _ generic.DeleteResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 var _ generic.CreateResourceActuator[*groups.SecGroup] = securityGroupActuator{}
 
-func (obj securityGroupActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return obj.Spec.ManagementPolicy
-}
-func (obj securityGroupActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return obj.Spec.ManagedOptions
+func (actuator securityGroupActuator) GetObject() client.Object {
+	return actuator.obj
 }
 
-func (obj securityGroupActuator) GetResourceID(securityGroup *groups.SecGroup) string {
+func (actuator securityGroupActuator) GetController() generic.ResourceController {
+	return actuator.controller
+}
+
+func (actuator securityGroupActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
+	return actuator.obj.Spec.ManagementPolicy
+}
+func (actuator securityGroupActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
+	return actuator.obj.Spec.ManagedOptions
+}
+
+func (actuator securityGroupActuator) GetResourceID(securityGroup *groups.SecGroup) string {
 	return securityGroup.ID
 }
 
-func (obj securityGroupActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *groups.SecGroup, error) {
-	if obj.Status.ID == nil {
+func (actuator securityGroupActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
+}
+
+func (actuator securityGroupActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *groups.SecGroup, error) {
+	if actuator.obj.Status.ID == nil {
 		return false, nil, nil
 	}
 
-	osResource, err := obj.osClient.GetSecGroup(ctx, *obj.Status.ID)
+	osResource, err := actuator.osClient.GetSecGroup(ctx, *actuator.obj.Status.ID)
 	return true, osResource, err
 }
 
-func (obj securityGroupActuator) GetOSResourceBySpec(ctx context.Context) (*groups.SecGroup, error) {
-	if obj.Spec.Resource == nil {
+func (actuator securityGroupActuator) GetOSResourceBySpec(ctx context.Context) (*groups.SecGroup, error) {
+	if actuator.obj.Spec.Resource == nil {
 		return nil, nil
 	}
 
-	listOpts := listOptsFromCreation(obj.SecurityGroup)
-	return getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromCreation(actuator.obj)
+	return getResourceFromList(ctx, listOpts, actuator.osClient)
 }
 
-func (obj securityGroupActuator) GetOSResourceByImportID(ctx context.Context) (bool, *groups.SecGroup, error) {
-	if obj.Spec.Import == nil {
+func (actuator securityGroupActuator) GetOSResourceByImportID(ctx context.Context) (bool, *groups.SecGroup, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.ID == nil {
+	if actuator.obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
 
-	osResource, err := obj.osClient.GetSecGroup(ctx, *obj.Spec.Import.ID)
+	osResource, err := actuator.osClient.GetSecGroup(ctx, *actuator.obj.Spec.Import.ID)
 	return true, osResource, err
 }
 
-func (obj securityGroupActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *groups.SecGroup, error) {
-	if obj.Spec.Import == nil {
+func (actuator securityGroupActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *groups.SecGroup, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.Filter == nil {
+	if actuator.obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
 
-	listOpts := listOptsFromImportFilter(obj.Spec.Import.Filter)
-	osResource, err := getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromImportFilter(actuator.obj.Spec.Import.Filter)
+	osResource, err := getResourceFromList(ctx, listOpts, actuator.osClient)
 	return true, osResource, err
 }
 
-func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *groups.SecGroup, error) {
-	resource := obj.Spec.Resource
+func (actuator securityGroupActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *groups.SecGroup, error) {
+	resource := actuator.obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
 	createOpts := groups.CreateOpts{
-		Name:        string(getResourceName(obj.SecurityGroup)),
+		Name:        string(getResourceName(actuator.obj)),
 		Description: string(ptr.Deref(resource.Description, "")),
 		Stateful:    resource.Stateful,
 	}
@@ -129,7 +128,7 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 	// FIXME(mandre) The security group inherits the default security group
 	// rules. This could be a problem when we implement `update` if ORC
 	// does not takes these rules into account.
-	osResource, err := obj.osClient.CreateSecGroup(ctx, &createOpts)
+	osResource, err := actuator.osClient.CreateSecGroup(ctx, &createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
@@ -155,7 +154,7 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 		}
 	}
 
-	if _, err := obj.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); err != nil {
+	if _, err := actuator.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -166,8 +165,8 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 	return nil, osResource, nil
 }
 
-func (obj securityGroupActuator) DeleteResource(ctx context.Context, osResource *groups.SecGroup) ([]generic.WaitingOnEvent, error) {
-	return nil, obj.osClient.DeleteSecGroup(ctx, osResource.ID)
+func (actuator securityGroupActuator) DeleteResource(ctx context.Context, osResource *groups.SecGroup) ([]generic.WaitingOnEvent, error) {
+	return nil, actuator.osClient.DeleteSecGroup(ctx, osResource.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
@@ -216,4 +215,61 @@ func getResourceFromList(ctx context.Context, listOpts groups.ListOpts, networkC
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = securityGroupActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator securityGroupActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+	}, nil
+}
+
+func (actuator securityGroupActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "security-groups", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+type securityGroupActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = securityGroupActuatorFactory{}
+
+func (securityGroupActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func (securityGroupActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller generic.ResourceController) (securityGroupActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return securityGroupActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return securityGroupActuator{}, err
+	}
+
+	return securityGroupActuator{
+		obj:        orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
 }

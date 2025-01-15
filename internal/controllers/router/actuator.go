@@ -20,120 +20,106 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
 
+type osResourcePT = *routers.Router
+type orcObjectPT = *orcv1alpha1.Router
+
 type routerActuator struct {
-	*orcv1alpha1.Router
-	osClient osclients.NetworkClient
+	obj        *orcv1alpha1.Router
+	osClient   osclients.NetworkClient
+	controller generic.ResourceController
 }
 
 type routerCreateActuator struct {
 	routerActuator
-	k8sClient client.Client
 }
 
-func newActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Router) (routerActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
+var _ generic.DeleteResourceActuator[osResourcePT] = routerActuator{}
+var _ generic.CreateResourceActuator[osResourcePT] = routerCreateActuator{}
 
-	clientScope, err := scopeFactory.NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
-	if err != nil {
-		return routerActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return routerActuator{}, err
-	}
-
-	return routerActuator{
-		Router:   orcObject,
-		osClient: osClient,
-	}, nil
+func (actuator routerActuator) GetObject() client.Object {
+	return actuator.obj
 }
 
-func newCreateActuator(ctx context.Context, k8sClient client.Client, scopeFactory scope.Factory, orcObject *orcv1alpha1.Router) (routerCreateActuator, error) {
-	routerActuator, err := newActuator(ctx, k8sClient, scopeFactory, orcObject)
-	if err != nil {
-		return routerCreateActuator{}, err
-	}
-
-	return routerCreateActuator{
-		routerActuator: routerActuator,
-		k8sClient:      k8sClient,
-	}, nil
+func (actuator routerActuator) GetController() generic.ResourceController {
+	return actuator.controller
 }
 
-var _ generic.DeleteResourceActuator[*routers.Router] = routerActuator{}
-var _ generic.CreateResourceActuator[*routers.Router] = routerCreateActuator{}
-
-func (obj routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return obj.Spec.ManagementPolicy
+func (actuator routerActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
+	return actuator.obj.Spec.ManagementPolicy
 }
 
-func (obj routerActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return obj.Spec.ManagedOptions
+func (actuator routerActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
+	return actuator.obj.Spec.ManagedOptions
 }
 
 func (routerActuator) GetResourceID(osResource *routers.Router) string {
 	return osResource.ID
 }
 
-func (obj routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *routers.Router, error) {
-	if obj.Status.ID == nil {
+func (actuator routerActuator) GetStatusID() *string {
+	return actuator.obj.Status.ID
+}
+
+func (actuator routerActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *routers.Router, error) {
+	if actuator.obj.Status.ID == nil {
 		return false, nil, nil
 	}
 
-	port, err := obj.osClient.GetRouter(ctx, *obj.Status.ID)
+	port, err := actuator.osClient.GetRouter(ctx, *actuator.obj.Status.ID)
 	return true, port, err
 }
 
-func (obj routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
-	if obj.Spec.Resource == nil {
+func (actuator routerActuator) GetOSResourceBySpec(ctx context.Context) (*routers.Router, error) {
+	if actuator.obj.Spec.Resource == nil {
 		return nil, nil
 	}
 
-	listOpts := listOptsFromCreation(obj.Router)
-	return getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromCreation(actuator.obj)
+	return getResourceFromList(ctx, listOpts, actuator.osClient)
 }
 
-func (obj routerCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *routers.Router, error) {
-	if obj.Spec.Import == nil {
+func (actuator routerCreateActuator) GetOSResourceByImportID(ctx context.Context) (bool, *routers.Router, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.ID == nil {
+	if actuator.obj.Spec.Import.ID == nil {
 		return false, nil, nil
 	}
 
-	port, err := obj.osClient.GetRouter(ctx, *obj.Spec.Import.ID)
+	port, err := actuator.osClient.GetRouter(ctx, *actuator.obj.Spec.Import.ID)
 	return true, port, err
 }
 
-func (obj routerCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *routers.Router, error) {
-	if obj.Spec.Import == nil {
+func (actuator routerCreateActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *routers.Router, error) {
+	if actuator.obj.Spec.Import == nil {
 		return false, nil, nil
 	}
-	if obj.Spec.Import.Filter == nil {
+	if actuator.obj.Spec.Import.Filter == nil {
 		return false, nil, nil
 	}
 
-	listOpts := listOptsFromImportFilter(obj.Spec.Import.Filter)
-	osResource, err := getResourceFromList(ctx, listOpts, obj.osClient)
+	listOpts := listOptsFromImportFilter(actuator.obj.Spec.Import.Filter)
+	osResource, err := getResourceFromList(ctx, listOpts, actuator.osClient)
 	return true, osResource, err
 }
 
-func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *routers.Router, error) {
-	resource := obj.Router.Spec.Resource
+func (actuator routerCreateActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *routers.Router, error) {
+	resource := actuator.obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
@@ -142,7 +128,7 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	var waitEvents []generic.WaitingOnEvent
 
 	var gatewayInfo *routers.GatewayInfo
-	for name, result := range externalGWDep.GetDependencies(ctx, obj.k8sClient, obj.Router) {
+	for name, result := range externalGWDep.GetDependencies(ctx, actuator.controller.GetK8sClient(), actuator.obj) {
 		err := result.Err()
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -183,7 +169,7 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 		}
 	}
 
-	osResource, err := obj.osClient.CreateRouter(ctx, &createOpts)
+	osResource, err := actuator.osClient.CreateRouter(ctx, &createOpts)
 
 	// We should require the spec to be updated before retrying a create which returned a conflict
 	if orcerrors.IsConflict(err) {
@@ -193,8 +179,8 @@ func (obj routerCreateActuator) CreateResource(ctx context.Context) ([]generic.W
 	return nil, osResource, err
 }
 
-func (obj routerActuator) DeleteResource(ctx context.Context, router *routers.Router) ([]generic.WaitingOnEvent, error) {
-	return nil, obj.osClient.DeleteRouter(ctx, router.ID)
+func (actuator routerActuator) DeleteResource(ctx context.Context, router *routers.Router) ([]generic.WaitingOnEvent, error) {
+	return nil, actuator.osClient.DeleteRouter(ctx, router.ID)
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.
@@ -243,4 +229,72 @@ func getResourceFromList(ctx context.Context, listOpts routers.ListOpts, network
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = routerActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator routerActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+	}, nil
+}
+
+func (actuator routerActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "routers", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+type routerActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = routerActuatorFactory{}
+
+func (routerActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	actuator, err := newCreateActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func (routerActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return routerActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return routerActuator{}, err
+	}
+
+	return routerActuator{
+		obj:        orcObject,
+		osClient:   osClient,
+		controller: controller,
+	}, nil
+}
+
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerCreateActuator, error) {
+	routerActuator, err := newActuator(ctx, orcObject, controller)
+	if err != nil {
+		return routerCreateActuator{}, err
+	}
+
+	return routerCreateActuator{
+		routerActuator: routerActuator,
+	}, nil
 }

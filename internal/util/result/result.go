@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package generic
+package result
 
 // NOTE(mdbooth): This is a stupid type without any of the useful properties of
 // a proper Result type. However, I don't believe they can currently be

@@ -32,10 +32,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/common"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -177,7 +177,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 		// it until all dependent resources are available, which means we don't
 		// have to handle unavailable dependencies in the delete flow
 		if !controllerutil.ContainsFinalizer(routerInterface, Finalizer) {
-			patch := common.SetFinalizerPatch(routerInterface, Finalizer)
+			patch := finalizers.SetFinalizerPatch(routerInterface, Finalizer)
 			if err := r.client.Patch(ctx, routerInterface, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn)); err != nil {
 				return noRequeue, fmt.Errorf("setting finalizer for %s: %w", client.ObjectKeyFromObject(routerInterface), err)
 			}

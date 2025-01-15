@@ -28,15 +28,12 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
 const (
-	Finalizer = "openstack.k-orc.cloud/image"
-
 	FieldOwner = "openstack.k-orc.cloud/imagecontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
 )
@@ -71,17 +68,29 @@ func (imageReconcilerConstructor) GetName() string {
 
 // orcImageReconciler reconciles an ORC Image.
 type orcImageReconciler struct {
-	client       client.Client
-	recorder     record.EventRecorder
-	scopeFactory scope.Factory
+	client   client.Client
+	recorder record.EventRecorder
+
+	imageReconcilerConstructor
+}
+
+var _ generic.ResourceController = &orcImageReconciler{}
+
+func (r *orcImageReconciler) GetK8sClient() client.Client {
+	return r.client
+}
+
+func (r *orcImageReconciler) GetScopeFactory() scope.Factory {
+	return r.scopeFactory
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c imageReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	reconciler := orcImageReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-image-controller"),
-		scopeFactory: c.scopeFactory,
+		client:   mgr.GetClient(),
+		recorder: mgr.GetEventRecorderFor("orc-image-controller"),
+
+		imageReconcilerConstructor: c,
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
