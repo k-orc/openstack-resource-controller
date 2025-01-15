@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -28,33 +29,18 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+type osResourcePT = *groups.SecGroup
+type orcObjectPT = *orcv1alpha1.SecurityGroup
 
 type securityGroupActuator struct {
 	*orcv1alpha1.SecurityGroup
 	osClient   osclients.NetworkClient
 	controller generic.ResourceController
-}
-
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.SecurityGroup) (securityGroupActuator, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return securityGroupActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return securityGroupActuator{}, err
-	}
-
-	return securityGroupActuator{
-		SecurityGroup: orcObject,
-		osClient:      osClient,
-		controller:    controller,
-	}, nil
 }
 
 var _ generic.DeleteResourceActuator[*groups.SecGroup] = securityGroupActuator{}
@@ -229,4 +215,61 @@ func getResourceFromList(ctx context.Context, listOpts groups.ListOpts, networkC
 
 	// Multiple resources found
 	return nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Expected to find exactly one OpenStack resource to import. Found %d", len(osResources)))
+}
+
+var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = securityGroupActuator{}
+
+type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
+
+func (actuator securityGroupActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
+	return []resourceUpdater{
+		actuator.updateTags,
+	}, nil
+}
+
+func (actuator securityGroupActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resourceTagSet := set.New[string](osResource.Tags...)
+	objectTagSet := set.New[string]()
+	for i := range orcObject.Spec.Resource.Tags {
+		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
+	}
+	var err error
+	if !objectTagSet.Equal(resourceTagSet) {
+		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
+		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "security-groups", osResource.ID, &opts)
+	}
+	return nil, orcObject, osResource, err
+}
+
+type securityGroupActuatorFactory struct{}
+
+var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = securityGroupActuatorFactory{}
+
+func (securityGroupActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func (securityGroupActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+	actuator, err := newActuator(ctx, orcObject, controller)
+	return nil, actuator, err
+}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller generic.ResourceController) (securityGroupActuator, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return securityGroupActuator{}, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return securityGroupActuator{}, err
+	}
+
+	return securityGroupActuator{
+		SecurityGroup: orcObject,
+		osClient:      osClient,
+		controller:    controller,
+	}, nil
 }

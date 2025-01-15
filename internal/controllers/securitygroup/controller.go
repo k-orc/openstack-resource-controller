@@ -19,9 +19,7 @@ package securitygroup
 import (
 	"context"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -31,16 +29,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/securitygroupcontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=securitygroups,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=securitygroups/status,verbs=get;update;patch
 
 type securitygroupReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -56,32 +46,9 @@ func (securitygroupReconcilerConstructor) GetName() string {
 	return "securitygroup"
 }
 
-// orcSecurityGroupReconciler reconciles an ORC Subnet.
-type orcSecurityGroupReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	securitygroupReconcilerConstructor
-}
-
-var _ generic.ResourceController = &orcSecurityGroupReconciler{}
-
-func (r *orcSecurityGroupReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcSecurityGroupReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (c securitygroupReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := orcSecurityGroupReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-" + c.GetName() + "-controller"),
-
-		securitygroupReconcilerConstructor: c,
-	}
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, securityGroupActuatorFactory{}, securityGroupStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.SecurityGroup{}).
