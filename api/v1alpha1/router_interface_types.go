@@ -68,7 +68,7 @@ type RouterInterfaceSpec struct {
 }
 
 type RouterInterfaceStatus struct {
-	// Conditions represents the observed status of the object.
+	// conditions represents the observed status of the object.
 	// Known .status.conditions.type are: "Available", "Progressing"
 	//
 	// Available represents the availability of the OpenStack resource. If it is
@@ -86,9 +86,10 @@ type RouterInterfaceStatus struct {
 	// +patchStrategy=merge
 	// +listType=map
 	// +listMapKey=type
-	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 
-	// ID is the unique identifier of the port created for the router interface
+	// id is the unique identifier of the port created for the router interface
 	// +optional
 	ID *string `json:"id,omitempty"`
 }

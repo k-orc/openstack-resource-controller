@@ -63,14 +63,14 @@ spec:
                   credentials
                 properties:
                   cloudName:
-                    description: CloudName specifies the name of the entry in the
+                    description: cloudName specifies the name of the entry in the
                       clouds.yaml file to use.
                     maxLength: 256
                     minLength: 1
                     type: string
                   secretName:
                     description: |-
-                      SecretName is the name of a secret in the same namespace as the resource being provisioned.
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
                       The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
                       The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
                     maxLength: 253
@@ -96,18 +96,18 @@ spec:
                     minProperties: 1
                     properties:
                       description:
-                        description: Description of the existing resource
+                        description: description of the existing resource
                         maxLength: 1024
                         minLength: 1
                         type: string
                       name:
-                        description: Name of the existing resource
+                        description: name of the existing resource
                         maxLength: 1024
                         minLength: 1
                         type: string
                       notTags:
                         description: |-
-                          NotTags is a list of tags to filter by. If specified, resources which
+                          notTags is a list of tags to filter by. If specified, resources which
                           contain all of the given tags will be excluded from the result.
                         items:
                           description: |-
@@ -121,7 +121,7 @@ spec:
                         x-kubernetes-list-type: set
                       notTagsAny:
                         description: |-
-                          NotTagsAny is a list of tags to filter by. If specified, resources
+                          notTagsAny is a list of tags to filter by. If specified, resources
                           which contain any of the given tags will be excluded from the result.
                         items:
                           description: |-
@@ -134,14 +134,14 @@ spec:
                         type: array
                         x-kubernetes-list-type: set
                       projectID:
-                        description: ProjectID specifies the ID of the project which
+                        description: projectID specifies the ID of the project which
                           owns the security group.
                         format: uuid
                         maxLength: 36
                         type: string
                       tags:
                         description: |-
-                          Tags is a list of tags to filter by. If specified, the resource must
+                          tags is a list of tags to filter by. If specified, the resource must
                           have all of the tags specified to be included in the result.
                         items:
                           description: |-
@@ -155,7 +155,7 @@ spec:
                         x-kubernetes-list-type: set
                       tagsAny:
                         description: |-
-                          TagsAny is a list of tags to filter by. If specified, the resource
+                          tagsAny is a list of tags to filter by. If specified, the resource
                           must have at least one of the tags specified to be included in the
                           result.
                         items:
@@ -184,7 +184,7 @@ spec:
                   onDelete:
                     default: delete
                     description: |-
-                      OnDelete specifies the behaviour of the controller when the ORC
+                      onDelete specifies the behaviour of the controller when the ORC
                       object is deleted. Options are `delete` - delete the OpenStack resource;
                       `detach` - do not delete the OpenStack resource. If not specified, the
                       default is `delete`.
@@ -221,26 +221,26 @@ spec:
                     type: string
                   name:
                     description: |-
-                      Name will be the name of the created resource. If not specified, the
+                      name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
                     maxLength: 1024
                     minLength: 1
                     type: string
                   rules:
-                    description: Rules is a list of security group rules belonging
+                    description: rules is a list of security group rules belonging
                       to this SG.
                     items:
                       description: SecurityGroupRule defines a Security Group rule
                       minProperties: 1
                       properties:
                         description:
-                          description: Description of the existing resource
+                          description: description of the existing resource
                           maxLength: 1024
                           minLength: 1
                           type: string
                         direction:
                           description: |-
-                            Direction represents the direction in which the security group rule
+                            direction represents the direction in which the security group rule
                             is applied. Can be ingress or egress.
                           enum:
                           - ingress
@@ -248,7 +248,7 @@ spec:
                           type: string
                         ethertype:
                           description: |-
-                            Ethertype must be IPv4 or IPv6, and addresses represented in CIDR
+                            ethertype must be IPv4 or IPv6, and addresses represented in CIDR
                             must match the ingress or egress rules.
                           enum:
                           - IPv4
@@ -256,17 +256,26 @@ spec:
                           type: string
                         portRange:
                           description: |-
-                            If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
+                            portRange sets the minimum and maximum ports range that the security group rule
+                            matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
                             or equal to the PortRange.Max attribute value.
                             If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max
                             should be an ICMP type
                           properties:
                             max:
+                              description: |-
+                                max is the maximum port number in the range that is matched by the security group rule.
+                                If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal
+                                to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.
                               format: int32
                               maximum: 65535
                               minimum: 0
                               type: integer
                             min:
+                              description: |-
+                                min is the minimum port number in the range that is matched by the security group rule.
+                                If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal
+                                to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type
                               format: int32
                               maximum: 65535
                               minimum: 0
@@ -276,9 +285,8 @@ spec:
                           - min
                           type: object
                         protocol:
-                          description: |-
-                            Protocol is the IP protocol can be represented by a string or an
-                            integer represented as a string.
+                          description: protocol is the IP protocol is represented
+                            by a string
                           enum:
                           - ah
                           - dccp
@@ -305,7 +313,7 @@ spec:
                           - vrrp
                           type: string
                         remoteIPPrefix:
-                          description: RemoteIPPrefix is an IP address block. Should
+                          description: remoteIPPrefix is an IP address block. Should
                             match the Ethertype (IPv4 or IPv6)
                           format: cidr
                           maxLength: 49
@@ -340,11 +348,11 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                   stateful:
-                    description: Stateful indicates if the security group is stateful
+                    description: stateful indicates if the security group is stateful
                       or stateless.
                     type: boolean
                   tags:
-                    description: Tags is a list of tags which will be applied to the
+                    description: tags is a list of tags which will be applied to the
                       security group.
                     items:
                       description: |-
@@ -460,83 +468,99 @@ spec:
                   resource.
                 properties:
                   createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
                   description:
-                    description: Description is a human-readable description for the
+                    description: description is a human-readable description for the
                       resource.
                     type: string
                   name:
-                    description: Human-readable name for the security group. Might
-                      not be unique.
+                    description: name is a Human-readable name for the security group.
+                      Might not be unique.
                     type: string
                   projectID:
-                    description: ProjectID is the project owner of the security group.
+                    description: projectID is the project owner of the security group.
                     type: string
                   revisionNumber:
-                    description: RevisionNumber optionally set via extensions/standard-attr-revisions
+                    description: revisionNumber optionally set via extensions/standard-attr-revisions
                     format: int64
                     type: integer
                   rules:
-                    description: Rules is a list of security group rules belonging
+                    description: rules is a list of security group rules belonging
                       to this SG.
                     items:
                       properties:
                         description:
-                          description: Description of the existing resource
+                          description: description of the existing resource
                           type: string
                         direction:
                           description: |-
-                            Direction represents the direction in which the security group rule
+                            direction represents the direction in which the security group rule
                             is applied. Can be ingress or egress.
                           type: string
                         ethertype:
                           description: |-
-                            Ethertype must be IPv4 or IPv6, and addresses represented in CIDR
+                            ethertype must be IPv4 or IPv6, and addresses represented in CIDR
                             must match the ingress or egress rules.
                           type: string
                         id:
-                          description: ID is the ID of the security group rule.
+                          description: id is the ID of the security group rule.
                           type: string
                         portRange:
+                          description: |-
+                            portRange sets the minimum and maximum ports range that the security group rule
+                            matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
+                            or equal to the PortRange.Max attribute value.
+                            If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max
+                            should be an ICMP type
                           properties:
                             max:
+                              description: |-
+                                max is the maximum port number in the range that is matched by the security group rule.
+                                If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal
+                                to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.
                               format: int32
                               type: integer
                             min:
+                              description: |-
+                                min is the minimum port number in the range that is matched by the security group rule.
+                                If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal
+                                to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type
                               format: int32
                               type: integer
-                          required:
-                          - max
-                          - min
                           type: object
                         protocol:
                           description: |-
-                            Protocol is the IP protocol can be represented by a string, an
+                            protocol is the IP protocol can be represented by a string, an
                             integer, or null
                           type: string
                         remoteGroupID:
-                          description: RemoteGroupID
+                          description: |-
+                            remoteGroupID is the remote group UUID to associate with this security group rule
+                            RemoteGroupID
                           type: string
                         remoteIPPrefix:
-                          description: RemoteIPPrefix
+                          description: remoteIPPrefix is an IP address block. Should
+                            match the Ethertype (IPv4 or IPv6)
                           type: string
-                      required:
-                      - id
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
                   stateful:
-                    description: Stateful indicates if the security group is stateful
+                    description: stateful indicates if the security group is stateful
                       or stateless.
                     type: boolean
                   tags:
-                    description: Tags is the list of tags on the resource.
+                    description: tags is the list of tags on the resource.
                     items:
                       type: string
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
                 type: object

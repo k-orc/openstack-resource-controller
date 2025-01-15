@@ -553,7 +553,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_CloudCredentialsRef
 				Properties: map[string]spec.Schema{
 					"secretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SecretName is the name of a secret in the same namespace as the resource being provisioned. The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file. The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.",
+							Description: "secretName is the name of a secret in the same namespace as the resource being provisioned. The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file. The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -561,7 +561,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_CloudCredentialsRef
 					},
 					"cloudName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudName specifies the name of the entry in the clouds.yaml file to use.",
+							Description: "cloudName specifies the name of the entry in the clouds.yaml file to use.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -627,7 +627,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -647,7 +647,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "TagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -667,7 +667,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -687,7 +687,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -788,21 +788,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorFilter(ref co
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the existing resource",
+							Description: "name of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ram": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RAM is the memory of the flavor, measured in MB.",
+							Description: "ram is the memory of the flavor, measured in MB.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"disk": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Disk is the size of the root disk in GiB.",
+							Description: "disk is the size of the root disk in GiB.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -899,20 +899,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description is the description of the server",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"ram": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RAM is the memory of the flavor, measured in MB.",
+							Description: "ram is the memory of the flavor, measured in MB.",
 							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
@@ -920,7 +921,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					},
 					"vcpus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Vcpus is the number of vcpus for the flavor.",
+							Description: "vcpus is the number of vcpus for the flavor.",
 							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
@@ -928,28 +929,28 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					},
 					"disk": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Disk is the size of the root disk that will be created in GiB. If 0 the root disk will be set to exactly the size of the image used to deploy the instance. However, in this case the scheduler cannot select the compute host based on the virtual image size. Therefore, 0 should only be used for volume booted instances or for testing purposes. Volume-backed instances can be enforced for flavors with zero root disk via the os_compute_api:servers:create:zero_disk_flavor policy rule.",
+							Description: "disk is the size of the root disk that will be created in GiB. If 0 the root disk will be set to exactly the size of the image used to deploy the instance. However, in this case the scheduler cannot select the compute host based on the virtual image size. Therefore, 0 should only be used for volume booted instances or for testing purposes. Volume-backed instances can be enforced for flavors with zero root disk via the os_compute_api:servers:create:zero_disk_flavor policy rule.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"swap": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Swap is the size of a dedicated swap disk that will be allocated, in MiB. If 0 (the default), no dedicated swap disk will be created.",
+							Description: "swap is the size of a dedicated swap disk that will be allocated, in MiB. If 0 (the default), no dedicated swap disk will be created.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"isPublic": {
 						SchemaProps: spec.SchemaProps{
-							Description: "IsPublic flags a flavor as being available to all projects or not.",
+							Description: "isPublic flags a flavor as being available to all projects or not.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"ephemeral": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Ephemeral is the size of the ephemeral disk that will be created, in GiB. Ephemeral disks may be written over on server state changes. So should only be used as a scratch space for applications that are aware of its limitations. Defaults to 0.",
+							Description: "ephemeral is the size of the ephemeral disk that will be created, in GiB. Ephemeral disks may be written over on server state changes. So should only be used as a scratch space for applications that are aware of its limitations. Defaults to 0.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -970,56 +971,56 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceStatu
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Human-readable name for the flavor. Might not be unique.",
+							Description: "name is a Human-readable name for the flavor. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description is a human-readable description for the resource.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ram": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RAM is the memory of the flavor, measured in MB.",
+							Description: "ram is the memory of the flavor, measured in MB.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"vcpus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Vcpus is the number of vcpus for the flavor.",
+							Description: "vcpus is the number of vcpus for the flavor.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"disk": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Disk is the size of the root disk that will be created in GiB.",
+							Description: "disk is the size of the root disk that will be created in GiB.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"swap": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Swap is the size of a dedicated swap disk that will be allocated, in MiB.",
+							Description: "swap is the size of a dedicated swap disk that will be allocated, in MiB.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"isPublic": {
 						SchemaProps: spec.SchemaProps{
-							Description: "IsPublic flags a flavor as being available to all projects or not.",
+							Description: "isPublic flags a flavor as being available to all projects or not.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"ephemeral": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Ephemeral is the size of the ephemeral disk, in GiB.",
+							Description: "ephemeral is the size of the ephemeral disk, in GiB.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -1192,14 +1193,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_IPv6Options(ref com
 				Properties: map[string]spec.Schema{
 					"addressMode": {
 						SchemaProps: spec.SchemaProps{
-							Description: "AddressMode specifies mechanisms for assigning IPv6 IP addresses.",
+							Description: "addressMode specifies mechanisms for assigning IPv6 IP addresses.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"raMode": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RAMode specifies the IPv6 router advertisement mode. It specifies whether the networking service should transmit ICMPv6 packets.",
+							Description: "raMode specifies the IPv6 router advertisement mode. It specifies whether the networking service should transmit ICMPv6 packets.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1265,14 +1266,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref co
 				Properties: map[string]spec.Schema{
 					"containerFormat": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ContainerFormat is the format of the image container. qcow2 and raw images do not usually have a container. This is specified as \"bare\", which is also the default. Permitted values are ami, ari, aki, bare, ovf, ova, and docker.",
+							Description: "containerFormat is the format of the image container. qcow2 and raw images do not usually have a container. This is specified as \"bare\", which is also the default. Permitted values are ami, ari, aki, bare, ovf, ova, and docker.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"diskFormat": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DiskFormat is the format of the disk image. Normal values are \"qcow2\", or \"raw\". Glance may be configured to support others.",
+							Description: "diskFormat is the format of the disk image. Normal values are \"qcow2\", or \"raw\". Glance may be configured to support others.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -1280,7 +1281,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref co
 					},
 					"download": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Download describes how to obtain image data by downloading it from a URL. Must be set when creating a managed image.",
+							Description: "download describes how to obtain image data by downloading it from a URL. Must be set when creating a managed image.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContentSourceDownload"),
 						},
 					},
@@ -1301,7 +1302,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContentSourceD
 				Properties: map[string]spec.Schema{
 					"url": {
 						SchemaProps: spec.SchemaProps{
-							Description: "URL containing image data",
+							Description: "url containing image data",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -1309,14 +1310,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContentSourceD
 					},
 					"decompress": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Decompress specifies that the source data must be decompressed with the given compression algorithm before being stored. Specifying Decompress will disable the use of Glance's web-download, as web-download cannot currently deterministically decompress downloaded content.",
+							Description: "decompress specifies that the source data must be decompressed with the given compression algorithm before being stored. Specifying Decompress will disable the use of Glance's web-download, as web-download cannot currently deterministically decompress downloaded content.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"hash": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Hash is a hash which will be used to verify downloaded data, i.e. before any decompression. If not specified, no hash verification will be performed. Specifying a Hash will disable the use of Glance's web-download, as web-download cannot currently deterministically verify the hash of downloaded content.",
+							Description: "hash is a hash which will be used to verify downloaded data, i.e. before any decompression. If not specified, no hash verification will be performed. Specifying a Hash will disable the use of Glance's web-download, as web-download cannot currently deterministically verify the hash of downloaded content.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash"),
 						},
 					},
@@ -1338,7 +1339,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageFilter(ref com
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name specifies the name of a Glance image",
+							Description: "name specifies the name of a Glance image",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1357,7 +1358,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageHash(ref commo
 				Properties: map[string]spec.Schema{
 					"algorithm": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Algorithm is the hash algorithm used to generate value.",
+							Description: "algorithm is the hash algorithm used to generate value.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -1365,7 +1366,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageHash(ref commo
 					},
 					"value": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Value is the hash of the image data using Algorithm. It must be hex encoded using lowercase letters.",
+							Description: "value is the hash of the image data using Algorithm. It must be hex encoded using lowercase letters.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -1463,21 +1464,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageProperties(ref
 				Properties: map[string]spec.Schema{
 					"minDiskGB": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MinDisk is the minimum amount of disk space in GB that is required to boot the image",
+							Description: "minDiskGB is the minimum amount of disk space in GB that is required to boot the image",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"minMemoryMB": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MinMemoryMB is the minimum amount of RAM in MB that is required to boot the image.",
+							Description: "minMemoryMB is the minimum amount of RAM in MB that is required to boot the image.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"hardware": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Hardware is a set of properties which control the virtual hardware created by Nova.",
+							Description: "hardware is a set of properties which control the virtual hardware created by Nova.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImagePropertiesHardware"),
 						},
 					},
@@ -1497,63 +1498,63 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImagePropertiesHard
 				Properties: map[string]spec.Schema{
 					"cpuSockets": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CPUSockets is the preferred number of sockets to expose to the guest",
+							Description: "cpuSockets is the preferred number of sockets to expose to the guest",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"cpuCores": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CPUCores is the preferred number of cores to expose to the guest",
+							Description: "cpuCores is the preferred number of cores to expose to the guest",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"cpuThreads": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CPUThreads is the preferred number of threads to expose to the guest",
+							Description: "cpuThreads is the preferred number of threads to expose to the guest",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"cpuPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CPUPolicy is used to pin the virtual CPUs (vCPUs) of instances to the host's physical CPU cores (pCPUs). Host aggregates should be used to separate these pinned instances from unpinned instances as the latter will not respect the resourcing requirements of the former.\n\nPermitted values are shared (the default), and dedicated.\n\nshared: The guest vCPUs will be allowed to freely float across host pCPUs, albeit potentially constrained by NUMA policy.\n\ndedicated: The guest vCPUs will be strictly pinned to a set of host pCPUs. In the absence of an explicit vCPU topology request, the drivers typically expose all vCPUs as sockets with one core and one thread. When strict CPU pinning is in effect the guest CPU topology will be setup to match the topology of the CPUs to which it is pinned. This option implies an overcommit ratio of 1.0. For example, if a two vCPU guest is pinned to a single host core with two threads, then the guest will get a topology of one socket, one core, two threads.",
+							Description: "cpuPolicy is used to pin the virtual CPUs (vCPUs) of instances to the host's physical CPU cores (pCPUs). Host aggregates should be used to separate these pinned instances from unpinned instances as the latter will not respect the resourcing requirements of the former.\n\nPermitted values are shared (the default), and dedicated.\n\nshared: The guest vCPUs will be allowed to freely float across host pCPUs, albeit potentially constrained by NUMA policy.\n\ndedicated: The guest vCPUs will be strictly pinned to a set of host pCPUs. In the absence of an explicit vCPU topology request, the drivers typically expose all vCPUs as sockets with one core and one thread. When strict CPU pinning is in effect the guest CPU topology will be setup to match the topology of the CPUs to which it is pinned. This option implies an overcommit ratio of 1.0. For example, if a two vCPU guest is pinned to a single host core with two threads, then the guest will get a topology of one socket, one core, two threads.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"cpuThreadPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CPUThreadPolicy further refines a CPUPolicy of 'dedicated' by stating how hardware CPU threads in a simultaneous multithreading-based (SMT) architecture be used. SMT-based architectures include Intel processors with Hyper-Threading technology. In these architectures, processor cores share a number of components with one or more other cores. Cores in such architectures are commonly referred to as hardware threads, while the cores that a given core share components with are known as thread siblings.\n\nPermitted values are prefer (the default), isolate, and require.\n\nprefer: The host may or may not have an SMT architecture. Where an SMT architecture is present, thread siblings are preferred.\n\nisolate: The host must not have an SMT architecture or must emulate a non-SMT architecture. If the host does not have an SMT architecture, each vCPU is placed on a different core as expected. If the host does have an SMT architecture - that is, one or more cores have thread siblings - then each vCPU is placed on a different physical core. No vCPUs from other guests are placed on the same core. All but one thread sibling on each utilized core is therefore guaranteed to be unusable.\n\nrequire: The host must have an SMT architecture. Each vCPU is allocated on thread siblings. If the host does not have an SMT architecture, then it is not used. If the host has an SMT architecture, but not enough cores with free thread siblings are available, then scheduling fails.",
+							Description: "cpuThreadPolicy further refines a CPUPolicy of 'dedicated' by stating how hardware CPU threads in a simultaneous multithreading-based (SMT) architecture be used. SMT-based architectures include Intel processors with Hyper-Threading technology. In these architectures, processor cores share a number of components with one or more other cores. Cores in such architectures are commonly referred to as hardware threads, while the cores that a given core share components with are known as thread siblings.\n\nPermitted values are prefer (the default), isolate, and require.\n\nprefer: The host may or may not have an SMT architecture. Where an SMT architecture is present, thread siblings are preferred.\n\nisolate: The host must not have an SMT architecture or must emulate a non-SMT architecture. If the host does not have an SMT architecture, each vCPU is placed on a different core as expected. If the host does have an SMT architecture - that is, one or more cores have thread siblings - then each vCPU is placed on a different physical core. No vCPUs from other guests are placed on the same core. All but one thread sibling on each utilized core is therefore guaranteed to be unusable.\n\nrequire: The host must have an SMT architecture. Each vCPU is allocated on thread siblings. If the host does not have an SMT architecture, then it is not used. If the host has an SMT architecture, but not enough cores with free thread siblings are available, then scheduling fails.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"cdromBus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CDROMBus specifies the type of disk controller to attach CD-ROM devices to.",
+							Description: "cdromBus specifies the type of disk controller to attach CD-ROM devices to.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"diskBus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DiskBus specifies the type of disk controller to attach disk devices to.",
+							Description: "diskBus specifies the type of disk controller to attach disk devices to.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"scsiModel": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SCSIModel enables the use of VirtIO SCSI (virtio-scsi) to provide block device access for compute instances; by default, instances use VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI controller device that provides improved scalability and performance, and supports advanced SCSI hardware.\n\nThe only permitted value is virtio-scsi.",
+							Description: "scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide block device access for compute instances; by default, instances use VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI controller device that provides improved scalability and performance, and supports advanced SCSI hardware.\n\nThe only permitted value is virtio-scsi.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"vifModel": {
 						SchemaProps: spec.SchemaProps{
-							Description: "VIFModel specifies the model of virtual network interface device to use.\n\nPermitted values are e1000, e1000e, ne2k_pci, pcnet, rtl8139, virtio, and vmxnet3.",
+							Description: "vifModel specifies the model of virtual network interface device to use.\n\nPermitted values are e1000, e1000e, ne2k_pci, pcnet, rtl8139, virtio, and vmxnet3.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1573,14 +1574,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceSpec(r
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name will be the name of the created Glance image. If not specified, the name of the Image object will be used.",
+							Description: "name will be the name of the created Glance image. If not specified, the name of the Image object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"protected": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Protected specifies that the image is protected from deletion. If not specified, the default is false.",
+							Description: "protected specifies that the image is protected from deletion. If not specified, the default is false.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -1592,7 +1593,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceSpec(r
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters.",
+							Description: "tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1607,20 +1608,20 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceSpec(r
 					},
 					"visibility": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Visibility of the image",
+							Description: "visibility of the image",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"properties": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Properties is metadata available to consumers of the image",
+							Description: "properties is metadata available to consumers of the image",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageProperties"),
 						},
 					},
 					"content": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Content specifies how to obtain the image content.",
+							Description: "content specifies how to obtain the image content.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContent"),
 						},
 					},
@@ -1641,27 +1642,27 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus
 				Properties: map[string]spec.Schema{
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Status is the image status as reported by Glance",
+							Description: "status is the image status as reported by Glance",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"hash": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Hash is the hash of the image data published by Glance. Note that this is a hash of the data stored internally by Glance, which will have been decompressed and potentially format converted depending on server-side configuration which is not visible to clients. It is expected that this hash will usually differ from the download hash.",
+							Description: "hash is the hash of the image data published by Glance. Note that this is a hash of the data stored internally by Glance, which will have been decompressed and potentially format converted depending on server-side configuration which is not visible to clients. It is expected that this hash will usually differ from the download hash.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash"),
 						},
 					},
 					"sizeB": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SizeB is the size of the image data, in bytes",
+							Description: "sizeB is the size of the image data, in bytes",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
 					},
 					"virtualSizeB": {
 						SchemaProps: spec.SchemaProps{
-							Description: "VirtualSizeB is the size of the disk the image data represents, in bytes",
+							Description: "virtualSizeB is the size of the disk the image data represents, in bytes",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
@@ -1768,7 +1769,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref com
 					},
 					"downloadAttempts": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DownloadAttempts is the number of times the controller has attempted to download the image contents",
+							Description: "downloadAttempts is the number of times the controller has attempted to download the image contents",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -1789,7 +1790,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatusExtra(re
 				Properties: map[string]spec.Schema{
 					"downloadAttempts": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DownloadAttempts is the number of times the controller has attempted to download the image contents",
+							Description: "downloadAttempts is the number of times the controller has attempted to download the image contents",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -1808,7 +1809,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ManagedOptions(ref 
 				Properties: map[string]spec.Schema{
 					"onDelete": {
 						SchemaProps: spec.SchemaProps{
-							Description: "OnDelete specifies the behaviour of the controller when the ORC object is deleted. Options are `delete` - delete the OpenStack resource; `detach` - do not delete the OpenStack resource. If not specified, the default is `delete`.",
+							Description: "onDelete specifies the behaviour of the controller when the ORC object is deleted. Options are `delete` - delete the OpenStack resource; `detach` - do not delete the OpenStack resource. If not specified, the default is `delete`.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1875,28 +1876,28 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the existing resource",
+							Description: "name of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the existing resource",
+							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"external": {
 						SchemaProps: spec.SchemaProps{
-							Description: "External indicates whether the network has an external routing facility that’s not managed by the networking service.",
+							Description: "external indicates whether the network has an external routing facility that’s not managed by the networking service.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID specifies the ID of the project which owns the network.",
+							Description: "projectID specifies the ID of the project which owns the network.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1908,7 +1909,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1928,7 +1929,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "TagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1948,7 +1949,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1968,7 +1969,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2073,7 +2074,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2091,7 +2092,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags which will be applied to the network.",
+							Description: "tags is a list of tags which will be applied to the network.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2106,40 +2107,42 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"boolean"},
-							Format: "",
+							Description: "adminStateUp is the administrative state of the network, which is up (true) or down (false)",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"dnsDomain": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "dnsDomain is the DNS domain of the network",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mtu": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MTU is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.",
+							Description: "mtu is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"portSecurityEnabled": {
 						SchemaProps: spec.SchemaProps{
-							Description: "PortSecurityEnabled is the port security status of the network. Valid values are enabled (true) and disabled (false). This value is used as the default value of port_security_enabled field of a newly created port.",
+							Description: "portSecurityEnabled is the port security status of the network. Valid values are enabled (true) and disabled (false). This value is used as the default value of port_security_enabled field of a newly created port.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"external": {
 						SchemaProps: spec.SchemaProps{
-							Description: "External indicates whether the network has an external routing facility that’s not managed by the networking service.",
+							Description: "external indicates whether the network has an external routing facility that’s not managed by the networking service.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"shared": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Shared indicates whether this resource is shared across all projects. By default, only administrative users can change this value.",
+							Description: "shared indicates whether this resource is shared across all projects. By default, only administrative users can change this value.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -2151,7 +2154,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "AvailabilityZoneHints is the availability zone candidate for the network.",
+							Description: "availabilityZoneHints is the availability zone candidate for the network.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2179,21 +2182,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Human-readable name for the network. Might not be unique.",
+							Description: "name is a Human-readable name for the network. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description is a human-readable description for the resource.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the project owner of the network.",
+							Description: "projectID is the project owner of the network.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2212,7 +2215,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is the list of tags on the resource.",
+							Description: "tags is the list of tags on the resource.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2227,24 +2230,26 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"createdAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"updatedAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"revisionNumber": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RevisionNumber optionally set via extensions/standard-attr-revisions",
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Description: "AdminStateUp is the administrative state of the network, which is up (true) or down (false).",
+							Description: "adminStateUp is the administrative state of the network, which is up (true) or down (false).",
 							Default:     false,
 							Type:        []string{"boolean"},
 							Format:      "",
@@ -2257,7 +2262,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "AvailabilityZoneHints is the availability zone candidate for the network.",
+							Description: "availabilityZoneHints is the availability zone candidate for the network.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2278,14 +2283,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"mtu": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MTU is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.",
+							Description: "mtu is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"portSecurityEnabled": {
 						SchemaProps: spec.SchemaProps{
-							Description: "PortSecurityEnabled is the port security status of the network. Valid values are enabled (true) and disabled (false). This value is used as the default value of port_security_enabled field of a newly created port.",
+							Description: "portSecurityEnabled is the port security status of the network. Valid values are enabled (true) and disabled (false). This value is used as the default value of port_security_enabled field of a newly created port.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -2297,7 +2302,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"external": {
 						SchemaProps: spec.SchemaProps{
-							Description: "External defines whether the network may be used for creation of floating IPs. Only networks with this flag may be an external gateway for routers. The network must have an external routing facility that is not managed by the networking service. If the network is updated from external to internal the unused floating IPs of this network are automatically deleted when extension floatingip-autodelete-internal is present.",
+							Description: "external defines whether the network may be used for creation of floating IPs. Only networks with this flag may be an external gateway for routers. The network must have an external routing facility that is not managed by the networking service. If the network is updated from external to internal the unused floating IPs of this network are automatically deleted when extension floatingip-autodelete-internal is present.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -2316,7 +2321,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Subnets associated with this network.",
+							Description: "subnets associated with this network.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2446,17 +2451,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NeutronStatusMetada
 				Properties: map[string]spec.Schema{
 					"createdAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"updatedAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"revisionNumber": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RevisionNumber optionally set via extensions/standard-attr-revisions",
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
@@ -2548,7 +2555,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2568,7 +2575,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "TagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2588,7 +2595,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2608,7 +2615,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2712,16 +2719,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeSpec(ref c
 				Properties: map[string]spec.Schema{
 					"min": {
 						SchemaProps: spec.SchemaProps{
-							Default: 0,
-							Type:    []string{"integer"},
-							Format:  "int32",
+							Description: "min is the minimum port number in the range that is matched by the security group rule. If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"max": {
 						SchemaProps: spec.SchemaProps{
-							Default: 0,
-							Type:    []string{"integer"},
-							Format:  "int32",
+							Description: "max is the maximum port number in the range that is matched by the security group rule. If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 				},
@@ -2739,20 +2748,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeStatus(ref
 				Properties: map[string]spec.Schema{
 					"min": {
 						SchemaProps: spec.SchemaProps{
-							Default: 0,
-							Type:    []string{"integer"},
-							Format:  "int32",
+							Description: "min is the minimum port number in the range that is matched by the security group rule. If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"max": {
 						SchemaProps: spec.SchemaProps{
-							Default: 0,
-							Type:    []string{"integer"},
-							Format:  "int32",
+							Description: "max is the maximum port number in the range that is matched by the security group rule. If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 				},
-				Required: []string{"min", "max"},
 			},
 		},
 	}
@@ -2766,7 +2776,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRefs(ref common
 				Properties: map[string]spec.Schema{
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NetworkRef is a reference to the ORC Network which this port is associated with.",
+							Description: "networkRef is a reference to the ORC Network which this port is associated with.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -2787,14 +2797,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is a human-readable name of the port. If not set, the object's name will be used.",
+							Description: "name is a human-readable name of the port. If not set, the object's name will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the port.",
+							Description: "description of the port.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2806,7 +2816,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags which will be applied to the port.",
+							Description: "tags is a list of tags which will be applied to the port.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2821,7 +2831,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the unique ID of the project which owns the Port. Only administrative users can specify a project UUID other than their own.",
+							Description: "projectID is the unique ID of the project which owns the Port. Only administrative users can specify a project UUID other than their own.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2833,7 +2843,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "AllowedAddressPairs are allowed addresses associated with this port.",
+							Description: "allowedAddressPairs are allowed addresses associated with this port.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2852,7 +2862,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Addresses are the IP addresses for the port.",
+							Description: "addresses are the IP addresses for the port.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2871,7 +2881,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "SecurityGroupRefs are the names of the security groups associated with this port.",
+							Description: "securityGroupRefs are the names of the security groups associated with this port.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2900,28 +2910,28 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is the human-readable name of the resource. Might not be unique.",
+							Description: "name is the human-readable name of the resource. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description is a human-readable description for the resource.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the project owner of the resource.",
+							Description: "projectID is the project owner of the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Status indicates the current status of the resource.",
+							Description: "status indicates the current status of the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2933,7 +2943,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is the list of tags on the resource.",
+							Description: "tags is the list of tags on the resource.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2948,28 +2958,28 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Description: "AdminStateUp is the administrative state of the port, which is up (true) or down (false).",
+							Description: "adminStateUp is the administrative state of the port, which is up (true) or down (false).",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"macAddress": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MACAddress is the MAC address of the port.",
+							Description: "macAddress is the MAC address of the port.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"deviceID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DeviceID is the ID of the device that uses this port.",
+							Description: "deviceID is the ID of the device that uses this port.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"deviceOwner": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DeviceOwner is the entity type that uses this port.",
+							Description: "deviceOwner is the entity type that uses this port.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2981,7 +2991,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "AllowedAddressPairs is a set of zero or more allowed address pair objects each where address pair object contains an IP address and MAC address.",
+							Description: "allowedAddressPairs is a set of zero or more allowed address pair objects each where address pair object contains an IP address and MAC address.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3000,7 +3010,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "FixedIPs is a set of zero or more fixed IP objects each where fixed IP object contains an IP address and subnet ID from which the IP address is assigned.",
+							Description: "fixedIPs is a set of zero or more fixed IP objects each where fixed IP object contains an IP address and subnet ID from which the IP address is assigned.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3019,7 +3029,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "SecurityGroups contains the IDs of security groups applied to the port.",
+							Description: "securityGroups contains the IDs of security groups applied to the port.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3034,24 +3044,26 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 					},
 					"propagateUplinkStatus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "PropagateUplinkStatus represents the uplink status propagation of the port.",
+							Description: "propagateUplinkStatus represents the uplink status propagation of the port.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"createdAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"updatedAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"revisionNumber": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RevisionNumber optionally set via extensions/standard-attr-revisions",
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
@@ -3073,7 +3085,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref common
 				Properties: map[string]spec.Schema{
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NetworkRef is a reference to the ORC Network which this port is associated with.",
+							Description: "networkRef is a reference to the ORC Network which this port is associated with.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -3181,21 +3193,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderProperties(
 				Properties: map[string]spec.Schema{
 					"networkType": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NetworkType is the type of physical network that this network should be mapped to. Supported values are flat, vlan, vxlan, and gre. Valid values depend on the networking back-end.",
+							Description: "networkType is the type of physical network that this network should be mapped to. Supported values are flat, vlan, vxlan, and gre. Valid values depend on the networking back-end.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"physicalNetwork": {
 						SchemaProps: spec.SchemaProps{
-							Description: "PhysicalNetwork is the physical network where this network should be implemented. The Networking API v2.0 does not provide a way to list available physical networks. For example, the Open vSwitch plug-in configuration file defines a symbolic name that maps to specific bridges on each compute host.",
+							Description: "physicalNetwork is the physical network where this network should be implemented. The Networking API v2.0 does not provide a way to list available physical networks. For example, the Open vSwitch plug-in configuration file defines a symbolic name that maps to specific bridges on each compute host.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"segmentationID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SegmentationID is the ID of the isolated segment on the physical network. The network_type attribute defines the segmentation model. For example, if the network_type value is vlan, this ID is a vlan identifier. If the network_type value is gre, this ID is a gre key.",
+							Description: "segmentationID is the ID of the isolated segment on the physical network. The network_type attribute defines the segmentation model. For example, if the network_type value is vlan, this ID is a vlan identifier. If the network_type value is gre, this ID is a gre key.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -3285,7 +3297,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3305,7 +3317,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "TagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3325,7 +3337,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3345,7 +3357,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3539,7 +3551,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceStat
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3553,7 +3565,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceStat
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the port created for the router interface",
+							Description: "id is the unique identifier of the port created for the router interface",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3623,14 +3635,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is the human-readable name of the subnet. Might not be unique.",
+							Description: "name is the human-readable name of the subnet. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description for the subnet.",
+							Description: "description for the subnet.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3642,7 +3654,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags optionally set via extensions/attributestags",
+							Description: "tags optionally set via extensions/attributestags",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3706,17 +3718,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 					},
 					"createdAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"updatedAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"revisionNumber": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RevisionNumber optionally set via extensions/standard-attr-revisions",
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
@@ -3737,28 +3751,28 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is the human-readable name of the resource. Might not be unique.",
+							Description: "name is the human-readable name of the resource. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description is a human-readable description for the resource.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the project owner of the resource.",
+							Description: "projectID is the project owner of the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Status indicates the current status of the resource.",
+							Description: "status indicates the current status of the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3770,7 +3784,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is the list of tags on the resource.",
+							Description: "tags is the list of tags on the resource.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3992,21 +4006,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the existing resource",
+							Description: "name of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the existing resource",
+							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID specifies the ID of the project which owns the security group.",
+							Description: "projectID specifies the ID of the project which owns the security group.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4018,7 +4032,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4038,7 +4052,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "TagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4058,7 +4072,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4078,7 +4092,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4183,7 +4197,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4201,7 +4215,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags which will be applied to the security group.",
+							Description: "tags is a list of tags which will be applied to the security group.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4216,7 +4230,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 					},
 					"stateful": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Stateful indicates if the security group is stateful or stateless.",
+							Description: "stateful indicates if the security group is stateful or stateless.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -4228,7 +4242,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Rules is a list of security group rules belonging to this SG.",
+							Description: "rules is a list of security group rules belonging to this SG.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4257,21 +4271,21 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Human-readable name for the security group. Might not be unique.",
+							Description: "name is a Human-readable name for the security group. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description is a human-readable description for the resource.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the project owner of the security group.",
+							Description: "projectID is the project owner of the security group.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4283,7 +4297,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is the list of tags on the resource.",
+							Description: "tags is the list of tags on the resource.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4298,7 +4312,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 					},
 					"stateful": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Stateful indicates if the security group is stateful or stateless.",
+							Description: "stateful indicates if the security group is stateful or stateless.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -4310,7 +4324,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Rules is a list of security group rules belonging to this SG.",
+							Description: "rules is a list of security group rules belonging to this SG.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4324,17 +4338,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 					},
 					"createdAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"updatedAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"revisionNumber": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RevisionNumber optionally set via extensions/standard-attr-revisions",
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
@@ -4356,35 +4372,35 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 				Properties: map[string]spec.Schema{
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the existing resource",
+							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"direction": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Direction represents the direction in which the security group rule is applied. Can be ingress or egress.",
+							Description: "direction represents the direction in which the security group rule is applied. Can be ingress or egress.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"remoteIPPrefix": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RemoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)",
+							Description: "remoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"protocol": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Protocol is the IP protocol can be represented by a string or an integer represented as a string.",
+							Description: "protocol is the IP protocol is represented by a string",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ethertype": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Ethertype must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
+							Description: "ethertype must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -4392,7 +4408,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 					},
 					"portRange": {
 						SchemaProps: spec.SchemaProps{
-							Description: "If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than or equal to the PortRange.Max attribute value. If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max should be an ICMP type",
+							Description: "portRange sets the minimum and maximum ports range that the security group rule matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than or equal to the PortRange.Max attribute value. If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max should be an ICMP type",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec"),
 						},
 					},
@@ -4413,60 +4429,60 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleSt
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the ID of the security group rule.",
+							Description: "id is the ID of the security group rule.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the existing resource",
+							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"direction": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Direction represents the direction in which the security group rule is applied. Can be ingress or egress.",
+							Description: "direction represents the direction in which the security group rule is applied. Can be ingress or egress.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"remoteGroupID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RemoteGroupID",
+							Description: "remoteGroupID is the remote group UUID to associate with this security group rule RemoteGroupID",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"remoteIPPrefix": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RemoteIPPrefix",
+							Description: "remoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"protocol": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Protocol is the IP protocol can be represented by a string, an integer, or null",
+							Description: "protocol is the IP protocol can be represented by a string, an integer, or null",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ethertype": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Ethertype must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
+							Description: "ethertype must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"portRange": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus"),
+							Description: "portRange sets the minimum and maximum ports range that the security group rule matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than or equal to the PortRange.Max attribute value. If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max should be an ICMP type",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus"),
 						},
 					},
 				},
-				Required: []string{"id"},
 			},
 		},
 		Dependencies: []string{
@@ -4630,7 +4646,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref co
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the existing resource",
+							Description: "name of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4726,7 +4742,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref 
 				Properties: map[string]spec.Schema{
 					"portRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "PortRef is a reference to a Port object. Server creation will wait for this port to be created and available.",
+							Description: "portRef is a reference to a Port object. Server creation will wait for this port to be created and available.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4746,7 +4762,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4767,7 +4783,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 					},
 					"userData": {
 						SchemaProps: spec.SchemaProps{
-							Description: "UserData specifies data which will be made available to the server at boot time, either via the metadata service or a config drive. It is typically read by a configuration service such as cloud-init or ignition.",
+							Description: "userData specifies data which will be made available to the server at boot time, either via the metadata service or a config drive. It is typically read by a configuration service such as cloud-init or ignition.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec"),
 						},
 					},
@@ -4778,7 +4794,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Ports defines a list of ports which will be attached to the server.",
+							Description: "ports defines a list of ports which will be attached to the server.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4808,49 +4824,49 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is the human-readable name of the resource. Might not be unique.",
+							Description: "name is the human-readable name of the resource. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"hostID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "HostID is the host where the server is located in the cloud.",
+							Description: "hostID is the host where the server is located in the cloud.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Status contains the current operational status of the server, such as IN_PROGRESS or ACTIVE.",
+							Description: "status contains the current operational status of the server, such as IN_PROGRESS or ACTIVE.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"accessIPv4": {
 						SchemaProps: spec.SchemaProps{
-							Description: "AccessIPv4 contains the IPv4 addresses of the server, suitable for remote access for administration.",
+							Description: "accessIPv4 contains the IPv4 addresses of the server, suitable for remote access for administration.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"accessIPv6": {
 						SchemaProps: spec.SchemaProps{
-							Description: "AccessIPv6 contains the IPv6 addresses of the server, suitable for remote access for administration.",
+							Description: "accessIPv6 contains the IPv6 addresses of the server, suitable for remote access for administration.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"imageID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ImageID indicates the OS image used to deploy the server.",
+							Description: "imageID indicates the OS image used to deploy the server.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"keyName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "KeyName indicates which public key was injected into the server on launch.",
+							Description: "keyName indicates which public key was injected into the server on launch.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4862,7 +4878,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "SecurityGroups includes the security groups that this instance has applied to it.",
+							Description: "securityGroups includes the security groups that this instance has applied to it.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5083,7 +5099,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5103,7 +5119,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "TagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5123,7 +5139,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5143,7 +5159,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "NotTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5172,7 +5188,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetGateway(ref c
 				Properties: map[string]spec.Schema{
 					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Type specifies how the default gateway will be created. `Automatic` specifies that neutron will automatically add a default gateway. This is also the default if no Gateway is specified. `None` specifies that the subnet will not have a default gateway. `IP` specifies that the subnet will use a specific address as the default gateway, which must be specified in `IP`.",
+							Description: "type specifies how the default gateway will be created. `Automatic` specifies that neutron will automatically add a default gateway. This is also the default if no Gateway is specified. `None` specifies that the subnet will not have a default gateway. `IP` specifies that the subnet will use a specific address as the default gateway, which must be specified in `IP`.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5180,7 +5196,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetGateway(ref c
 					},
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Description: "IP is the IP address of the default gateway, which must be specified if Type is `IP`. It must be a valid IP address, either IPv4 or IPv6, matching the IPVersion in SubnetResourceSpec.",
+							Description: "ip is the IP address of the default gateway, which must be specified if Type is `IP`. It must be a valid IP address, either IPv4 or IPv6, matching the IPVersion in SubnetResourceSpec.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5277,7 +5293,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetRefs(ref comm
 				Properties: map[string]spec.Schema{
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NetworkRef is a reference to the ORC Network which this subnet is associated with.",
+							Description: "networkRef is a reference to the ORC Network which this subnet is associated with.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5298,14 +5314,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is a human-readable name of the subnet. If not set, the object's name will be used.",
+							Description: "name is a human-readable name of the subnet. If not set, the object's name will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description of the subnet.",
+							Description: "description of the subnet.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5317,7 +5333,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags is a list of tags which will be applied to the subnet.",
+							Description: "tags is a list of tags which will be applied to the subnet.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5332,7 +5348,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
-							Description: "IPVersion is the IP version for the subnet.",
+							Description: "ipVersion is the IP version for the subnet.",
 							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "byte",
@@ -5340,7 +5356,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CIDR is the address CIDR of the subnet. It must match the IP version specified in IPVersion.",
+							Description: "cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5348,7 +5364,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the unique ID of the project which owns the Subnet. Only administrative users can specify a project UUID other than their own.",
+							Description: "projectID is the unique ID of the project which owns the Subnet. Only administrative users can specify a project UUID other than their own.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5360,7 +5376,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "AllocationPools are IP Address pools that will be available for DHCP. IP addresses must be in CIDR.",
+							Description: "allocationPools are IP Address pools that will be available for DHCP. IP addresses must be in CIDR.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5374,13 +5390,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"gateway": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Gateway specifies the default gateway of the subnet. If not specified, neutron will add one automatically. To disable this behaviour, specify a gateway with a type of None.",
+							Description: "gateway specifies the default gateway of the subnet. If not specified, neutron will add one automatically. To disable this behaviour, specify a gateway with a type of None.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetGateway"),
 						},
 					},
 					"enableDHCP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "EnableDHCP will either enable to disable the DHCP service.",
+							Description: "enableDHCP will either enable to disable the DHCP service.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5392,7 +5408,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "DNSNameservers are the nameservers to be set via DHCP.",
+							Description: "dnsNameservers are the nameservers to be set via DHCP.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5407,7 +5423,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"dnsPublishFixedIP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DNSPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS",
+							Description: "dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5419,7 +5435,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "HostRoutes are any static host routes to be set via DHCP.",
+							Description: "hostRoutes are any static host routes to be set via DHCP.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5433,13 +5449,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"ipv6": {
 						SchemaProps: spec.SchemaProps{
-							Description: "IPv6 contains IPv6-specific options. It may only be set if IPVersion is 6.",
+							Description: "ipv6 contains IPv6-specific options. It may only be set if IPVersion is 6.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
 						},
 					},
 					"routerRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RouterRef specifies a router to attach the subnet to",
+							Description: "routerRef specifies a router to attach the subnet to",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5461,7 +5477,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name is the human-readable name of the subnet. Might not be unique.",
+							Description: "name is the human-readable name of the subnet. Might not be unique.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5469,14 +5485,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Description for the subnet.",
+							Description: "description for the subnet.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
-							Description: "IPVersion specifies IP version, either `4' or `6'.",
+							Description: "ipVersion specifies IP version, either `4' or `6'.",
 							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
@@ -5484,7 +5500,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CIDR representing IP range for this subnet, based on IP version.",
+							Description: "cidr representing IP range for this subnet, based on IP version.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5492,7 +5508,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"gatewayIP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "GatewayIP is the default gateway used by devices in this subnet, if any.",
+							Description: "gatewayIP is the default gateway used by devices in this subnet, if any.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5504,7 +5520,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "DNSNameservers is a list of name servers used by hosts in this subnet.",
+							Description: "dnsNameservers is a list of name servers used by hosts in this subnet.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5519,7 +5535,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"dnsPublishFixedIP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DNSPublishFixedIP specifies whether the fixed IP addresses are published to the DNS.",
+							Description: "dnsPublishFixedIP specifies whether the fixed IP addresses are published to the DNS.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5531,7 +5547,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "AllocationPools is a list of sub-ranges within CIDR available for dynamic allocation to ports.",
+							Description: "allocationPools is a list of sub-ranges within CIDR available for dynamic allocation to ports.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5550,7 +5566,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "HostRoutes is a list of routes that should be used by devices with IPs from this subnet (not including local subnet route).",
+							Description: "hostRoutes is a list of routes that should be used by devices with IPs from this subnet (not including local subnet route).",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5572,7 +5588,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ProjectID is the project owner of the subnet.",
+							Description: "projectID is the project owner of the subnet.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5594,7 +5610,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"subnetPoolID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SubnetPoolID is the id of the subnet pool associated with the subnet.",
+							Description: "subnetPoolID is the id of the subnet pool associated with the subnet.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5606,7 +5622,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Tags optionally set via extensions/attributestags",
+							Description: "tags optionally set via extensions/attributestags",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5621,17 +5637,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"createdAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"updatedAt": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 					"revisionNumber": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RevisionNumber optionally set via extensions/standard-attr-revisions",
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
 							Type:        []string{"integer"},
 							Format:      "int64",
 						},
@@ -5654,7 +5672,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref comm
 				Properties: map[string]spec.Schema{
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NetworkRef is a reference to the ORC Network which this subnet is associated with.",
+							Description: "networkRef is a reference to the ORC Network which this subnet is associated with.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5761,7 +5779,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_UserDataSpec(ref co
 				Properties: map[string]spec.Schema{
 					"secretRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SecretRef is a reference to a Secret containing the user data for this server.",
+							Description: "secretRef is a reference to a Secret containing the user data for this server.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

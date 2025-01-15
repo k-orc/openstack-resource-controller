@@ -24,7 +24,7 @@ package v1alpha1
 // * AllocationPools must be in CIDR
 
 type SubnetRefs struct {
-	// NetworkRef is a reference to the ORC Network which this subnet is associated with.
+	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +required
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 }
@@ -44,66 +44,66 @@ type SubnetFilter struct {
 }
 
 type SubnetResourceSpec struct {
-	// Name is a human-readable name of the subnet. If not set, the object's name will be used.
+	// name is a human-readable name of the subnet. If not set, the object's name will be used.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// Description of the subnet.
+	// description of the subnet.
 	// +optional
 	Description *OpenStackDescription `json:"description,omitempty"`
 
-	// Tags is a list of tags which will be applied to the subnet.
+	// tags is a list of tags which will be applied to the subnet.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	Tags []NeutronTag `json:"tags,omitempty"`
 
-	// IPVersion is the IP version for the subnet.
+	// ipVersion is the IP version for the subnet.
 	// +required
 	IPVersion IPVersion `json:"ipVersion"`
 
-	// CIDR is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
+	// cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
 	// +required
 	CIDR CIDR `json:"cidr"`
 
-	// ProjectID is the unique ID of the project which owns the Subnet. Only
+	// projectID is the unique ID of the project which owns the Subnet. Only
 	// administrative users can specify a project UUID other than their own.
 	// +optional
 	ProjectID *UUID `json:"projectID,omitempty"`
 
-	// AllocationPools are IP Address pools that will be available for DHCP. IP
+	// allocationPools are IP Address pools that will be available for DHCP. IP
 	// addresses must be in CIDR.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	AllocationPools []AllocationPool `json:"allocationPools,omitempty"`
 
-	// Gateway specifies the default gateway of the subnet. If not specified,
+	// gateway specifies the default gateway of the subnet. If not specified,
 	// neutron will add one automatically. To disable this behaviour, specify a
 	// gateway with a type of None.
 	// +optional
 	Gateway *SubnetGateway `json:"gateway,omitempty"`
 
-	// EnableDHCP will either enable to disable the DHCP service.
+	// enableDHCP will either enable to disable the DHCP service.
 	// +optional
 	EnableDHCP *bool `json:"enableDHCP,omitempty"`
 
-	// DNSNameservers are the nameservers to be set via DHCP.
+	// dnsNameservers are the nameservers to be set via DHCP.
 	// +kubebuilder:validation:MaxItems:=16
 	// +listType=set
 	DNSNameservers []IPvAny `json:"dnsNameservers,omitempty"`
 
-	// DNSPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS
+	// dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS
 	// +optional
 	DNSPublishFixedIP *bool `json:"dnsPublishFixedIP,omitempty"`
 
-	// HostRoutes are any static host routes to be set via DHCP.
+	// hostRoutes are any static host routes to be set via DHCP.
 	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
 	HostRoutes []HostRoute `json:"hostRoutes,omitempty"`
 
-	// IPv6 contains IPv6-specific options. It may only be set if IPVersion is 6.
+	// ipv6 contains IPv6-specific options. It may only be set if IPVersion is 6.
 	IPv6 *IPv6Options `json:"ipv6,omitempty"`
 
-	// RouterRef specifies a router to attach the subnet to
+	// routerRef specifies a router to attach the subnet to
 	// +optional
 	RouterRef *KubernetesNameRef `json:"routerRef,omitempty"`
 
@@ -122,36 +122,36 @@ type HostRouteStatus struct {
 }
 
 type SubnetResourceStatus struct {
-	// Name is the human-readable name of the subnet. Might not be unique.
+	// name is the human-readable name of the subnet. Might not be unique.
 	Name string `json:"name"`
 
-	// Description for the subnet.
+	// description for the subnet.
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// IPVersion specifies IP version, either `4' or `6'.
+	// ipVersion specifies IP version, either `4' or `6'.
 	IPVersion int `json:"ipVersion"`
 
-	// CIDR representing IP range for this subnet, based on IP version.
+	// cidr representing IP range for this subnet, based on IP version.
 	CIDR string `json:"cidr"`
 
-	// GatewayIP is the default gateway used by devices in this subnet, if any.
+	// gatewayIP is the default gateway used by devices in this subnet, if any.
 	// +optional
 	GatewayIP string `json:"gatewayIP,omitempty"`
 
-	// DNSNameservers is a list of name servers used by hosts in this subnet.
+	// dnsNameservers is a list of name servers used by hosts in this subnet.
 	// +listType=atomic
 	DNSNameservers []string `json:"dnsNameservers,omitempty"`
 
-	// DNSPublishFixedIP specifies whether the fixed IP addresses are published to the DNS.
+	// dnsPublishFixedIP specifies whether the fixed IP addresses are published to the DNS.
 	DNSPublishFixedIP bool `json:"dnsPublishFixedIP,omitempty"`
 
-	// AllocationPools is a list of sub-ranges within CIDR available for dynamic
+	// allocationPools is a list of sub-ranges within CIDR available for dynamic
 	// allocation to ports.
 	// +listType=atomic
 	AllocationPools []AllocationPoolStatus `json:"allocationPools,omitempty"`
 
-	// HostRoutes is a list of routes that should be used by devices with IPs
+	// hostRoutes is a list of routes that should be used by devices with IPs
 	// from this subnet (not including local subnet route).
 	// +listType=atomic
 	HostRoutes []HostRouteStatus `json:"hostRoutes,omitempty"`
@@ -159,7 +159,7 @@ type SubnetResourceStatus struct {
 	// Specifies whether DHCP is enabled for this subnet or not.
 	EnableDHCP bool `json:"enableDHCP"`
 
-	// ProjectID is the project owner of the subnet.
+	// projectID is the project owner of the subnet.
 	ProjectID string `json:"projectID"`
 
 	// The IPv6 address modes specifies mechanisms for assigning IPv6 IP addresses.
@@ -171,11 +171,11 @@ type SubnetResourceStatus struct {
 	// +optional
 	IPv6RAMode string `json:"ipv6RAMode,omitempty"`
 
-	// SubnetPoolID is the id of the subnet pool associated with the subnet.
+	// subnetPoolID is the id of the subnet pool associated with the subnet.
 	// +optional
 	SubnetPoolID string `json:"subnetPoolID,omitempty"`
 
-	// Tags optionally set via extensions/attributestags
+	// tags optionally set via extensions/attributestags
 	// +listType=atomic
 	Tags []string `json:"tags,omitempty"`
 
@@ -202,10 +202,10 @@ const (
 
 // +kubebuilder:validation:MinProperties:=1
 type IPv6Options struct {
-	// AddressMode specifies mechanisms for assigning IPv6 IP addresses.
+	// addressMode specifies mechanisms for assigning IPv6 IP addresses.
 	AddressMode *IPv6AddressMode `json:"addressMode,omitempty"`
 
-	// RAMode specifies the IPv6 router advertisement mode. It specifies whether
+	// raMode specifies the IPv6 router advertisement mode. It specifies whether
 	// the networking service should transmit ICMPv6 packets.
 	RAMode *IPv6RAMode `json:"raMode,omitempty"`
 }
@@ -219,7 +219,7 @@ const (
 )
 
 type SubnetGateway struct {
-	// Type specifies how the default gateway will be created. `Automatic`
+	// type specifies how the default gateway will be created. `Automatic`
 	// specifies that neutron will automatically add a default gateway. This is
 	// also the default if no Gateway is specified. `None` specifies that the
 	// subnet will not have a default gateway. `IP` specifies that the subnet
@@ -229,7 +229,7 @@ type SubnetGateway struct {
 	// +required
 	Type SubnetGatewayType `json:"type"`
 
-	// IP is the IP address of the default gateway, which must be specified if
+	// ip is the IP address of the default gateway, which must be specified if
 	// Type is `IP`. It must be a valid IP address, either IPv4 or IPv6,
 	// matching the IPVersion in SubnetResourceSpec.
 	// +optional

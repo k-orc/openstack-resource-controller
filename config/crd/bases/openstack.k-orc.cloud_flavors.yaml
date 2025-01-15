@@ -63,14 +63,14 @@ spec:
                   credentials
                 properties:
                   cloudName:
-                    description: CloudName specifies the name of the entry in the
+                    description: cloudName specifies the name of the entry in the
                       clouds.yaml file to use.
                     maxLength: 256
                     minLength: 1
                     type: string
                   secretName:
                     description: |-
-                      SecretName is the name of a secret in the same namespace as the resource being provisioned.
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
                       The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
                       The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
                     maxLength: 253
@@ -96,16 +96,16 @@ spec:
                     minProperties: 1
                     properties:
                       disk:
-                        description: Disk is the size of the root disk in GiB.
+                        description: disk is the size of the root disk in GiB.
                         format: int32
                         type: integer
                       name:
-                        description: Name of the existing resource
+                        description: name of the existing resource
                         maxLength: 1024
                         minLength: 1
                         type: string
                       ram:
-                        description: RAM is the memory of the flavor, measured in
+                        description: ram is the memory of the flavor, measured in
                           MB.
                         format: int32
                         type: integer
@@ -125,7 +125,7 @@ spec:
                   onDelete:
                     default: delete
                     description: |-
-                      OnDelete specifies the behaviour of the controller when the ORC
+                      onDelete specifies the behaviour of the controller when the ORC
                       object is deleted. Options are `delete` - delete the OpenStack resource;
                       `detach` - do not delete the OpenStack resource. If not specified, the
                       default is `delete`.
@@ -157,12 +157,13 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   description:
+                    description: description is the description of the server
                     maxLength: 1024
                     minLength: 1
                     type: string
                   disk:
                     description: |-
-                      Disk is the size of the root disk that will be created in GiB. If 0
+                      disk is the size of the root disk that will be created in GiB. If 0
                       the root disk will be set to exactly the size of the image used to
                       deploy the instance. However, in this case the scheduler cannot
                       select the compute host based on the virtual image size. Therefore,
@@ -174,36 +175,36 @@ spec:
                     type: integer
                   ephemeral:
                     description: |-
-                      Ephemeral is the size of the ephemeral disk that will be created, in GiB.
+                      ephemeral is the size of the ephemeral disk that will be created, in GiB.
                       Ephemeral disks may be written over on server state changes. So should only
                       be used as a scratch space for applications that are aware of its
                       limitations. Defaults to 0.
                     format: int32
                     type: integer
                   isPublic:
-                    description: IsPublic flags a flavor as being available to all
+                    description: isPublic flags a flavor as being available to all
                       projects or not.
                     type: boolean
                   name:
                     description: |-
-                      Name will be the name of the created resource. If not specified, the
+                      name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
                     maxLength: 1024
                     minLength: 1
                     type: string
                   ram:
-                    description: RAM is the memory of the flavor, measured in MB.
+                    description: ram is the memory of the flavor, measured in MB.
                     format: int32
                     minimum: 1
                     type: integer
                   swap:
                     description: |-
-                      Swap is the size of a dedicated swap disk that will be allocated, in
+                      swap is the size of a dedicated swap disk that will be allocated, in
                       MiB. If 0 (the default), no dedicated swap disk will be created.
                     format: int32
                     type: integer
                   vcpus:
-                    description: Vcpus is the number of vcpus for the flavor.
+                    description: vcpus is the number of vcpus for the flavor.
                     format: int32
                     minimum: 1
                     type: integer
@@ -313,38 +314,38 @@ spec:
                   resource.
                 properties:
                   description:
-                    description: Description is a human-readable description for the
+                    description: description is a human-readable description for the
                       resource.
                     type: string
                   disk:
-                    description: Disk is the size of the root disk that will be created
+                    description: disk is the size of the root disk that will be created
                       in GiB.
                     format: int32
                     type: integer
                   ephemeral:
-                    description: Ephemeral is the size of the ephemeral disk, in GiB.
+                    description: ephemeral is the size of the ephemeral disk, in GiB.
                     format: int32
                     type: integer
                   isPublic:
-                    description: IsPublic flags a flavor as being available to all
+                    description: isPublic flags a flavor as being available to all
                       projects or not.
                     type: boolean
                   name:
-                    description: Human-readable name for the flavor. Might not be
-                      unique.
+                    description: name is a Human-readable name for the flavor. Might
+                      not be unique.
                     type: string
                   ram:
-                    description: RAM is the memory of the flavor, measured in MB.
+                    description: ram is the memory of the flavor, measured in MB.
                     format: int32
                     type: integer
                   swap:
                     description: |-
-                      Swap is the size of a dedicated swap disk that will be allocated, in
+                      swap is the size of a dedicated swap disk that will be allocated, in
                       MiB.
                     format: int32
                     type: integer
                   vcpus:
-                    description: Vcpus is the number of vcpus for the flavor.
+                    description: vcpus is the number of vcpus for the flavor.
                     format: int32
                     type: integer
                 type: object

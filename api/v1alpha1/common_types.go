@@ -27,14 +27,14 @@ import (
 type NeutronTag string
 
 type FilterByNeutronTags struct {
-	// Tags is a list of tags to filter by. If specified, the resource must
+	// tags is a list of tags to filter by. If specified, the resource must
 	// have all of the tags specified to be included in the result.
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:MaxItems:=32
 	Tags []NeutronTag `json:"tags,omitempty"`
 
-	// TagsAny is a list of tags to filter by. If specified, the resource
+	// tagsAny is a list of tags to filter by. If specified, the resource
 	// must have at least one of the tags specified to be included in the
 	// result.
 	// +listType=set
@@ -42,14 +42,14 @@ type FilterByNeutronTags struct {
 	// +kubebuilder:validation:MaxItems:=32
 	TagsAny []NeutronTag `json:"tagsAny,omitempty"`
 
-	// NotTags is a list of tags to filter by. If specified, resources which
+	// notTags is a list of tags to filter by. If specified, resources which
 	// contain all of the given tags will be excluded from the result.
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:MaxItems:=32
 	NotTags []NeutronTag `json:"notTags,omitempty"`
 
-	// NotTagsAny is a list of tags to filter by. If specified, resources
+	// notTagsAny is a list of tags to filter by. If specified, resources
 	// which contain any of the given tags will be excluded from the result.
 	// +listType=set
 	// +optional
@@ -80,10 +80,12 @@ type MAC string
 type AvailabilityZoneHint string
 
 type NeutronStatusMetadata struct {
+	// createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+	// updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 
-	// RevisionNumber optionally set via extensions/standard-attr-revisions
+	// revisionNumber optionally set via extensions/standard-attr-revisions
 	RevisionNumber *int64 `json:"revisionNumber,omitempty"`
 }
 

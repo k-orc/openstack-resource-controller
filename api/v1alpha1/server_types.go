@@ -19,14 +19,14 @@ package v1alpha1
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:MaxProperties:=1
 type ServerPortSpec struct {
-	// PortRef is a reference to a Port object. Server creation will wait for
+	// portRef is a reference to a Port object. Server creation will wait for
 	// this port to be created and available.
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
 // ServerResourceSpec contains the desired state of a server
 type ServerResourceSpec struct {
-	// Name will be the name of the created resource. If not specified, the
+	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
@@ -35,12 +35,12 @@ type ServerResourceSpec struct {
 
 	FlavorRef KubernetesNameRef `json:"flavorRef"`
 
-	// UserData specifies data which will be made available to the server at
+	// userData specifies data which will be made available to the server at
 	// boot time, either via the metadata service or a config drive. It is
 	// typically read by a configuration service such as cloud-init or ignition.
 	UserData *UserDataSpec `json:"userData,omitempty"`
 
-	// Ports defines a list of ports which will be attached to the server.
+	// ports defines a list of ports which will be attached to the server.
 	// +listType=atomic
 	// +kubebuilder:validation:MaxItems:=32
 	Ports []ServerPortSpec `json:"ports,omitempty"`
@@ -49,46 +49,46 @@ type ServerResourceSpec struct {
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:MaxProperties:=1
 type UserDataSpec struct {
-	// SecretRef is a reference to a Secret containing the user data for this server.
+	// secretRef is a reference to a Secret containing the user data for this server.
 	SecretRef *KubernetesNameRef `json:"secretRef,omitempty"`
 }
 
 // ServerFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type ServerFilter struct {
-	// Name of the existing resource
+	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 }
 
 // ServerResourceStatus represents the observed state of the resource.
 type ServerResourceStatus struct {
-	// Name is the human-readable name of the resource. Might not be unique.
+	// name is the human-readable name of the resource. Might not be unique.
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// HostID is the host where the server is located in the cloud.
+	// hostID is the host where the server is located in the cloud.
 	HostID string `json:"hostID,omitempty"`
 
-	// Status contains the current operational status of the server,
+	// status contains the current operational status of the server,
 	// such as IN_PROGRESS or ACTIVE.
 	Status string `json:"status,omitempty"`
 
-	// AccessIPv4 contains the IPv4 addresses of the server, suitable for
+	// accessIPv4 contains the IPv4 addresses of the server, suitable for
 	// remote access for administration.
 	AccessIPv4 string `json:"accessIPv4,omitempty"`
 
-	// AccessIPv6 contains the IPv6 addresses of the server, suitable for
+	// accessIPv6 contains the IPv6 addresses of the server, suitable for
 	// remote access for administration.
 	AccessIPv6 string `json:"accessIPv6,omitempty"`
 
-	// ImageID indicates the OS image used to deploy the server.
+	// imageID indicates the OS image used to deploy the server.
 	ImageID string `json:"imageID,omitempty"`
 
-	// KeyName indicates which public key was injected into the server on launch.
+	// keyName indicates which public key was injected into the server on launch.
 	KeyName string `json:"keyName,omitempty"`
 
-	// SecurityGroups includes the security groups that this instance has
+	// securityGroups includes the security groups that this instance has
 	// applied to it.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
