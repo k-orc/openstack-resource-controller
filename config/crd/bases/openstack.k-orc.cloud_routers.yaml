@@ -101,7 +101,7 @@ spec:
                         minLength: 1
                         type: string
                       name:
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -249,7 +249,7 @@ spec:
                   name:
                     description: name is the human-readable name of the router. Might
                       not be unique.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   revisionNumber:

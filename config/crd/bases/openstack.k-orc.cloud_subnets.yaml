@@ -136,7 +136,7 @@ spec:
                             type: string
                         type: object
                       name:
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -388,7 +388,7 @@ spec:
                   name:
                     description: name is a human-readable name of the subnet. If not
                       set, the object's name will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   projectID:

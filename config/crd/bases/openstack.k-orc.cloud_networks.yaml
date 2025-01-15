@@ -107,7 +107,7 @@ spec:
                         type: boolean
                       name:
                         description: name of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -260,7 +260,7 @@ spec:
                     description: |-
                       name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   portSecurityEnabled:

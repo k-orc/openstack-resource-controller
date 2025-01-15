@@ -247,7 +247,7 @@ spec:
                     description: |-
                       name will be the name of the created Glance image. If not specified, the
                       name of the Image object will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   properties:

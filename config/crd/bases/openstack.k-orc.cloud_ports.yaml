@@ -101,7 +101,7 @@ spec:
                         minLength: 1
                         type: string
                       name:
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -227,7 +227,7 @@ spec:
                           minLength: 1
                           type: string
                         subnetRef:
-                          maxLength: 1024
+                          maxLength: 255
                           minLength: 1
                           type: string
                       required:
@@ -264,7 +264,7 @@ spec:
                   name:
                     description: name is a human-readable name of the port. If not
                       set, the object's name will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   projectID:
@@ -279,7 +279,7 @@ spec:
                       securityGroupRefs are the names of the security groups associated
                       with this port.
                     items:
-                      maxLength: 1024
+                      maxLength: 255
                       minLength: 1
                       type: string
                     type: array
