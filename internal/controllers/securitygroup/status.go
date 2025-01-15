@@ -24,6 +24,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -71,6 +72,8 @@ func withProgressMessage(message string) updateStatusOpt {
 }
 
 func getOSResourceStatus(_ logr.Logger, osResource *groups.SecGroup) *orcapplyconfigv1alpha1.SecurityGroupResourceStatusApplyConfiguration {
+	var pRange *orcapplyconfigv1alpha1.PortRangeStatusApplyConfiguration
+
 	securitygroupResourceStatus := (&orcapplyconfigv1alpha1.SecurityGroupResourceStatusApplyConfiguration{}).
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).
@@ -83,6 +86,12 @@ func getOSResourceStatus(_ logr.Logger, osResource *groups.SecGroup) *orcapplyco
 	if len(osResource.Rules) > 0 {
 		rules := make([]*orcapplyconfigv1alpha1.SecurityGroupRuleStatusApplyConfiguration, len(osResource.Rules))
 		for i := range osResource.Rules {
+			if osResource.Rules[i].PortRangeMin != 0 || osResource.Rules[i].PortRangeMax != 0 {
+				pRange = &orcapplyconfigv1alpha1.PortRangeStatusApplyConfiguration{
+					Min: ptr.To(int32(osResource.Rules[i].PortRangeMin)),
+					Max: ptr.To(int32(osResource.Rules[i].PortRangeMax)),
+				}
+			}
 			rules[i] = orcapplyconfigv1alpha1.SecurityGroupRuleStatus().
 				WithID(osResource.Rules[i].ID).
 				WithDescription(osResource.Rules[i].Description).
@@ -91,8 +100,7 @@ func getOSResourceStatus(_ logr.Logger, osResource *groups.SecGroup) *orcapplyco
 				WithRemoteIPPrefix(osResource.Rules[i].RemoteIPPrefix).
 				WithProtocol(osResource.Rules[i].Protocol).
 				WithEthertype(osResource.Rules[i].EtherType).
-				WithPortRangeMin(osResource.Rules[i].PortRangeMin).
-				WithPortRangeMax(osResource.Rules[i].PortRangeMax)
+				WithPortRange(pRange)
 		}
 		securitygroupResourceStatus.WithRules(rules...)
 	}

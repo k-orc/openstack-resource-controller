@@ -79,6 +79,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortFilter":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortImport":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortImport(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortList":                    schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec":               schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus":             schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRefs":                    schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRefs(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceSpec":            schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus":          schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(ref),
@@ -2702,6 +2704,60 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref common
 	}
 }
 
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"min": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"max": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+				},
+				Required: []string{"min", "max"},
+			},
+		},
+	}
+}
+
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"min": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"max": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+				},
+				Required: []string{"min", "max"},
+			},
+		},
+	}
+}
+
 func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRefs(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -4314,40 +4370,38 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 					},
 					"remoteIPPrefix": {
 						SchemaProps: spec.SchemaProps{
-							Description: "RemoteIPPrefix",
+							Description: "RemoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"protocol": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Protocol is the IP protocol can be represented by a string, an integer, or null",
+							Description: "Protocol is the IP protocol can be represented by a string or an integer represented as a string.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ethertype": {
 						SchemaProps: spec.SchemaProps{
-							Description: "EtherType must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
+							Description: "Ethertype must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"portRangeMin": {
+					"portRange": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "int32",
-						},
-					},
-					"portRangeMax": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "int32",
+							Description: "If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than or equal to the PortRange.Max attribute value. If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max should be an ICMP type",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec"),
 						},
 					},
 				},
+				Required: []string{"ethertype"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec"},
 	}
 }
 
@@ -4406,21 +4460,17 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleSt
 							Format:      "",
 						},
 					},
-					"portRangeMin": {
+					"portRange": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "int32",
-						},
-					},
-					"portRangeMax": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "int32",
+							Ref: ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus"),
 						},
 					},
 				},
+				Required: []string{"id"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus"},
 	}
 }
 

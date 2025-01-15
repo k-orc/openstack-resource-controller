@@ -21,15 +21,14 @@ package v1alpha1
 // SecurityGroupRuleStatusApplyConfiguration represents a declarative configuration of the SecurityGroupRuleStatus type for use
 // with apply.
 type SecurityGroupRuleStatusApplyConfiguration struct {
-	ID             *string `json:"id,omitempty"`
-	Description    *string `json:"description,omitempty"`
-	Direction      *string `json:"direction,omitempty"`
-	RemoteGroupID  *string `json:"remoteGroupID,omitempty"`
-	RemoteIPPrefix *string `json:"remoteIPPrefix,omitempty"`
-	Protocol       *string `json:"protocol,omitempty"`
-	Ethertype      *string `json:"ethertype,omitempty"`
-	PortRangeMin   *int    `json:"portRangeMin,omitempty"`
-	PortRangeMax   *int    `json:"portRangeMax,omitempty"`
+	ID             *string                            `json:"id,omitempty"`
+	Description    *string                            `json:"description,omitempty"`
+	Direction      *string                            `json:"direction,omitempty"`
+	RemoteGroupID  *string                            `json:"remoteGroupID,omitempty"`
+	RemoteIPPrefix *string                            `json:"remoteIPPrefix,omitempty"`
+	Protocol       *string                            `json:"protocol,omitempty"`
+	Ethertype      *string                            `json:"ethertype,omitempty"`
+	PortRange      *PortRangeStatusApplyConfiguration `json:"portRange,omitempty"`
 }
 
 // SecurityGroupRuleStatusApplyConfiguration constructs a declarative configuration of the SecurityGroupRuleStatus type for use with
@@ -94,18 +93,10 @@ func (b *SecurityGroupRuleStatusApplyConfiguration) WithEthertype(value string) 
 	return b
 }
 
-// WithPortRangeMin sets the PortRangeMin field in the declarative configuration to the given value
+// WithPortRange sets the PortRange field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the PortRangeMin field is set to the value of the last call.
-func (b *SecurityGroupRuleStatusApplyConfiguration) WithPortRangeMin(value int) *SecurityGroupRuleStatusApplyConfiguration {
-	b.PortRangeMin = &value
-	return b
-}
-
-// WithPortRangeMax sets the PortRangeMax field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the PortRangeMax field is set to the value of the last call.
-func (b *SecurityGroupRuleStatusApplyConfiguration) WithPortRangeMax(value int) *SecurityGroupRuleStatusApplyConfiguration {
-	b.PortRangeMax = &value
+// If called multiple times, the PortRange field is set to the value of the last call.
+func (b *SecurityGroupRuleStatusApplyConfiguration) WithPortRange(value *PortRangeStatusApplyConfiguration) *SecurityGroupRuleStatusApplyConfiguration {
+	b.PortRange = value
 	return b
 }

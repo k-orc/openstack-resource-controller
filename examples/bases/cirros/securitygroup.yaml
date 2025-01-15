@@ -13,6 +13,7 @@ spec:
     rules:
     - direction: ingress
       protocol: tcp
-      portRangeMin: 22
-      portRangeMax: 22
+      portRange:
+        min: 22
+        max: 22
       ethertype: IPv4

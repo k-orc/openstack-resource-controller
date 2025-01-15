@@ -147,9 +147,11 @@ func (obj securityGroupActuator) CreateResource(ctx context.Context) ([]generic.
 			Direction:      rules.RuleDirection(ptr.Deref(resource.Rules[i].Direction, "")),
 			RemoteIPPrefix: string(ptr.Deref(resource.Rules[i].RemoteIPPrefix, "")),
 			Protocol:       rules.RuleProtocol(ptr.Deref(resource.Rules[i].Protocol, "")),
-			EtherType:      rules.RuleEtherType(ptr.Deref(resource.Rules[i].Ethertype, "")),
-			PortRangeMin:   int(*resource.Rules[i].PortRangeMin),
-			PortRangeMax:   int(*resource.Rules[i].PortRangeMax),
+			EtherType:      rules.RuleEtherType(resource.Rules[i].Ethertype),
+		}
+		if resource.Rules[i].PortRange != nil {
+			ruleCreateOpts[i].PortRangeMin = int(resource.Rules[i].PortRange.Min)
+			ruleCreateOpts[i].PortRangeMax = int(resource.Rules[i].PortRange.Max)
 		}
 	}
 

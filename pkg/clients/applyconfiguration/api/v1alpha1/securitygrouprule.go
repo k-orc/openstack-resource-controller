@@ -25,13 +25,12 @@ import (
 // SecurityGroupRuleApplyConfiguration represents a declarative configuration of the SecurityGroupRule type for use
 // with apply.
 type SecurityGroupRuleApplyConfiguration struct {
-	Description    *v1alpha1.OpenStackDescription `json:"description,omitempty"`
-	Direction      *v1alpha1.RuleDirection        `json:"direction,omitempty"`
-	RemoteIPPrefix *v1alpha1.CIDR                 `json:"remoteIPPrefix,omitempty"`
-	Protocol       *v1alpha1.Protocol             `json:"protocol,omitempty"`
-	Ethertype      *v1alpha1.Ethertype            `json:"ethertype,omitempty"`
-	PortRangeMin   *int32                         `json:"portRangeMin,omitempty"`
-	PortRangeMax   *int32                         `json:"portRangeMax,omitempty"`
+	Description    *v1alpha1.OpenStackDescription   `json:"description,omitempty"`
+	Direction      *v1alpha1.RuleDirection          `json:"direction,omitempty"`
+	RemoteIPPrefix *v1alpha1.CIDR                   `json:"remoteIPPrefix,omitempty"`
+	Protocol       *v1alpha1.Protocol               `json:"protocol,omitempty"`
+	Ethertype      *v1alpha1.Ethertype              `json:"ethertype,omitempty"`
+	PortRange      *PortRangeSpecApplyConfiguration `json:"portRange,omitempty"`
 }
 
 // SecurityGroupRuleApplyConfiguration constructs a declarative configuration of the SecurityGroupRule type for use with
@@ -80,18 +79,10 @@ func (b *SecurityGroupRuleApplyConfiguration) WithEthertype(value v1alpha1.Ether
 	return b
 }
 
-// WithPortRangeMin sets the PortRangeMin field in the declarative configuration to the given value
+// WithPortRange sets the PortRange field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the PortRangeMin field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMin(value int32) *SecurityGroupRuleApplyConfiguration {
-	b.PortRangeMin = &value
-	return b
-}
-
-// WithPortRangeMax sets the PortRangeMax field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the PortRangeMax field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithPortRangeMax(value int32) *SecurityGroupRuleApplyConfiguration {
-	b.PortRangeMax = &value
+// If called multiple times, the PortRange field is set to the value of the last call.
+func (b *SecurityGroupRuleApplyConfiguration) WithPortRange(value *PortRangeSpecApplyConfiguration) *SecurityGroupRuleApplyConfiguration {
+	b.PortRange = value
 	return b
 }
