@@ -178,6 +178,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: disk
       type:
         scalar: numeric
+      default: 0
     - name: ephemeral
       type:
         scalar: numeric

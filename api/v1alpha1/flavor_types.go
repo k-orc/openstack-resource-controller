@@ -48,8 +48,9 @@ type FlavorResourceSpec struct {
 	// purposes. Volume-backed instances can be enforced for flavors with
 	// zero root disk via the
 	// os_compute_api:servers:create:zero_disk_flavor policy rule.
-	// +optional
-	Disk int32 `json:"disk,omitempty"`
+	// +kubebuilder:validation:Minimum=0
+	// +required
+	Disk int32 `json:"disk"`
 
 	// swap is the size of a dedicated swap disk that will be allocated, in
 	// MiB. If 0 (the default), no dedicated swap disk will be created.

@@ -937,6 +937,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					"disk": {
 						SchemaProps: spec.SchemaProps{
 							Description: "disk is the size of the root disk that will be created in GiB. If 0 the root disk will be set to exactly the size of the image used to deploy the instance. However, in this case the scheduler cannot select the compute host based on the virtual image size. Therefore, 0 should only be used for volume booted instances or for testing purposes. Volume-backed instances can be enforced for flavors with zero root disk via the os_compute_api:servers:create:zero_disk_flavor policy rule.",
+							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -963,7 +964,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 						},
 					},
 				},
-				Required: []string{"ram", "vcpus"},
+				Required: []string{"ram", "vcpus", "disk"},
 			},
 		},
 	}

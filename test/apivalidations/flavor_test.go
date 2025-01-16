@@ -42,7 +42,7 @@ func flavorStub(namespace *corev1.Namespace) *orcv1alpha1.Flavor {
 }
 
 func testFlavorResource() *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.FlavorResourceSpec().WithVcpus(1).WithRAM(1)
+	return applyconfigv1alpha1.FlavorResourceSpec().WithVcpus(1).WithRAM(1).WithDisk(1)
 }
 
 func baseFlavorPatch(flavor client.Object) *applyconfigv1alpha1.FlavorApplyConfiguration {
@@ -53,7 +53,7 @@ func baseFlavorPatch(flavor client.Object) *applyconfigv1alpha1.FlavorApplyConfi
 
 func baseWorkingFlavorPatch(flavor client.Object) *applyconfigv1alpha1.FlavorApplyConfiguration {
 	patch := baseFlavorPatch(flavor)
-	patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1))
+	patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
 	return patch
 }
 
@@ -70,7 +70,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 	It("should allow to create a minimal flavor and managementPolicy should default to managed", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
 		Expect(flavor.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
 	})
@@ -78,30 +78,34 @@ var _ = Describe("ORC Flavor API validations", func() {
 	It("should be immutable", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(2))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(2).WithVcpus(1).WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("FlavorResourceSpec is immutable")))
 	})
 
 	It("should reject a flavor without required fields", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec())
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithVcpus(1))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("Required value")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.vcpus: Required value")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithVcpus(1).WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.ram: Required value")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.disk: Required value")))
 	})
 
 	It("should reject a flavor with values less than minimal", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(0))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(0).WithVcpus(1))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(0).WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.vcpus in body should be greater than or equal to 1")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(0).WithVcpus(1).WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.ram in body should be greater than or equal to 1")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(-1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.disk in body should be greater than or equal to 0")))
 	})
 
 	It("should reject a flavor with values greater than max", func(ctx context.Context) {
