@@ -113,7 +113,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		patch := baseFlavorPatch(flavor)
 		maxString := strings.Repeat("a", 65536)
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDescription(maxString))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.description: Too long")))
 
 	})
 	It("should default to managementPolicy managed", func(ctx context.Context) {
@@ -135,7 +135,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
 		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
 
 		patch.Spec.WithImport(testFlavorImport())
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
@@ -148,7 +148,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
 			WithImport(testFlavorImport()).
 			WithResource(testFlavorResource())
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
 	})
 
 	It("should not permit empty import", func(ctx context.Context) {
@@ -157,7 +157,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		patch.Spec.
 			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
 			WithImport(applyconfigv1alpha1.FlavorImport())
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
 	})
 
 	It("should not permit empty import filter", func(ctx context.Context) {
@@ -167,7 +167,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
 			WithImport(applyconfigv1alpha1.FlavorImport().
 				WithFilter(applyconfigv1alpha1.FlavorFilter()))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
 	})
 
 	It("should permit import filter with name", func(ctx context.Context) {
@@ -184,7 +184,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
 		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
 
 		patch.Spec.WithResource(testFlavorResource())
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
@@ -197,7 +197,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithImport(testFlavorImport()).
 			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
 			WithResource(testFlavorResource())
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
 	})
 
 	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
@@ -208,7 +208,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
 			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
 				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
 	})
 
 	It("should permit managedOptions for managed", func(ctx context.Context) {
