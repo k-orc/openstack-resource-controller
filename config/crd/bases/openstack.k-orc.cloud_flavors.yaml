@@ -213,6 +213,9 @@ spec:
                 - ram
                 - vcpus
                 type: object
+                x-kubernetes-validations:
+                - message: FlavorResourceSpec is immutable
+                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

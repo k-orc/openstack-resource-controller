@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 // NetworkResourceSpec contains the desired state of a network
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="FlavorResourceSpec is immutable"
 type FlavorResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.

@@ -75,6 +75,15 @@ var _ = Describe("ORC Flavor API validations", func() {
 		Expect(flavor.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
 	})
 
+	It("should be immutable", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1))
+		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(2))
+		Expect(applyObj(ctx, flavor, patch)).NotTo(Succeed())
+	})
+
 	It("should reject a flavor without required fields", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
