@@ -157,6 +157,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ram
       type:
         scalar: numeric
+    - name: vcpus
+      type:
+        scalar: numeric
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorImport
   map:
     fields:

@@ -800,6 +800,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorFilter(ref co
 							Format:      "int32",
 						},
 					},
+					"vcpus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vcpus is the number of vcpus for the flavor.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 					"disk": {
 						SchemaProps: spec.SchemaProps{
 							Description: "disk is the size of the root disk in GiB.",

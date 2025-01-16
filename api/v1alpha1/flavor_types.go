@@ -79,6 +79,10 @@ type FlavorFilter struct {
 	// +optional
 	RAM *int32 `json:"ram,omitempty"`
 
+	// vcpus is the number of vcpus for the flavor.
+	// +optional
+	Vcpus *int32 `json:"vcpus,omitempty"`
+
 	// disk is the size of the root disk in GiB.
 	// +optional
 	Disk *int32 `json:"disk,omitempty"`

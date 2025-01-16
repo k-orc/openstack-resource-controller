@@ -109,6 +109,10 @@ spec:
                           MB.
                         format: int32
                         type: integer
+                      vcpus:
+                        description: vcpus is the number of vcpus for the flavor.
+                        format: int32
+                        type: integer
                     type: object
                   id:
                     description: |-

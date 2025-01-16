@@ -255,6 +255,11 @@ func (in *FlavorFilter) DeepCopyInto(out *FlavorFilter) {
 		*out = new(int32)
 		**out = **in
 	}
+	if in.Vcpus != nil {
+		in, out := &in.Vcpus, &out.Vcpus
+		*out = new(int32)
+		**out = **in
+	}
 	if in.Disk != nil {
 		in, out := &in.Disk, &out.Disk
 		*out = new(int32)
