@@ -97,7 +97,7 @@ type FlavorResourceStatus struct {
 
 	// description is a human-readable description for the resource.
 	// +optional
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description,omitempty"`
 
 	// ram is the memory of the flavor, measured in MB.
 	// +optional
