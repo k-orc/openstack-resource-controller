@@ -755,20 +755,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Flavor(ref common.R
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorStatus"),
 						},
 					},
 				},
@@ -822,14 +825,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorImport(ref co
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorFilter"),
 						},
 					},
@@ -864,13 +867,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorList(ref comm
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Flavor.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -1040,32 +1045,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorSpec(ref comm
 				Properties: map[string]spec.Schema{
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -1098,7 +1103,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorStatus(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1112,14 +1117,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorStatus(ref co
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceStatus"),
 						},
 					},
@@ -1234,20 +1239,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Image(ref common.Re
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageStatus"),
 						},
 					},
 				},
@@ -1388,14 +1396,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageImport(ref com
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageFilter"),
 						},
 					},
@@ -1430,13 +1438,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageList(ref commo
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Image.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -1684,32 +1694,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageSpec(ref commo
 				Properties: map[string]spec.Schema{
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -1742,7 +1752,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref com
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1756,14 +1766,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref com
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceStatus"),
 						},
 					},
@@ -1843,20 +1853,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Network(ref common.
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkStatus"),
 						},
 					},
 				},
@@ -1997,14 +2010,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkImport(ref c
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkFilter"),
 						},
 					},
@@ -2039,13 +2052,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkList(ref com
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Network.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -2352,32 +2367,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkSpec(ref com
 				Properties: map[string]spec.Schema{
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -2410,7 +2425,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkStatus(ref c
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -2424,14 +2439,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkStatus(ref c
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceStatus"),
 						},
 					},
@@ -2499,20 +2514,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Port(ref common.Ref
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus"),
 						},
 					},
 				},
@@ -2643,14 +2661,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortImport(ref comm
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortFilter"),
 						},
 					},
@@ -2685,13 +2703,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref common
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Port.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3093,32 +3113,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref common
 					},
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -3151,7 +3171,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref comm
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3165,14 +3185,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref comm
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus"),
 						},
 					},
@@ -3241,20 +3261,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Router(ref common.R
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterStatus"),
 						},
 					},
 				},
@@ -3385,14 +3408,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterImport(ref co
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterFilter"),
 						},
 					},
@@ -3601,13 +3624,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterList(ref comm
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3859,32 +3884,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterSpec(ref comm
 				Properties: map[string]spec.Schema{
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -3917,7 +3942,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterStatus(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3931,14 +3956,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterStatus(ref co
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceStatus"),
 						},
 					},
@@ -3973,20 +3998,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroup(ref c
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupStatus"),
 						},
 					},
 				},
@@ -4120,14 +4148,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupImport
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupFilter"),
 						},
 					},
@@ -4162,13 +4190,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupList(r
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of SecurityGroup.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -4499,32 +4529,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupSpec(r
 				Properties: map[string]spec.Schema{
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -4557,7 +4587,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupStatus
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4571,14 +4601,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupStatus
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceStatus"),
 						},
 					},
@@ -4613,20 +4643,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Server(ref common.R
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerStatus"),
 						},
 					},
 				},
@@ -4666,14 +4699,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerImport(ref co
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerFilter"),
 						},
 					},
@@ -4708,13 +4741,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref comm
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Server.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -4906,32 +4941,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref comm
 				Properties: map[string]spec.Schema{
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -4964,7 +4999,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerStatus(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -4978,14 +5013,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerStatus(ref co
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceStatus"),
 						},
 					},
@@ -5020,20 +5055,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Subnet(ref common.R
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetStatus"),
 						},
 					},
 				},
@@ -5217,14 +5255,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetImport(ref co
 				Properties: map[string]spec.Schema{
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetFilter"),
 						},
 					},
@@ -5259,13 +5297,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetList(ref comm
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of Subnet.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -5680,32 +5720,32 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref comm
 					},
 					"import": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource specifies the desired state of the resource.\n\nResource may not be specified if the management policy is `unmanaged`.\n\nResource must be specified if the management policy is `managed`.",
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceSpec"),
 						},
 					},
 					"managementPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ManagedOptions specifies options which may be applied to managed objects.",
+							Description: "managedOptions specifies options which may be applied to managed objects.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "CloudCredentialsRef points to a secret containing OpenStack credentials",
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
 						},
@@ -5738,7 +5778,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref co
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "Conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -5752,14 +5792,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref co
 					},
 					"id": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ID is the unique identifier of the OpenStack resource.",
+							Description: "id is the unique identifier of the OpenStack resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Resource contains the observed state of the OpenStack resource.",
+							Description: "resource contains the observed state of the OpenStack resource.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceStatus"),
 						},
 					},

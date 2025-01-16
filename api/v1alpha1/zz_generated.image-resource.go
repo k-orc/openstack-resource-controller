@@ -26,14 +26,14 @@ import (
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:MaxProperties:=1
 type ImageImport struct {
-	// ID contains the unique identifier of an existing OpenStack resource. Note
+	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
 	// +optional
 	// +kubebuilder:validation:Format:=uuid
 	ID *string `json:"id,omitempty"`
 
-	// Filter contains a resource query which is expected to return a single
+	// filter contains a resource query which is expected to return a single
 	// result. The controller will continue to retry if filter returns no
 	// results. If filter returns multiple results the controller will set an
 	// error state and will not continue to retry.
@@ -49,20 +49,20 @@ type ImageImport struct {
 // +kubebuilder:validation:XValidation:rule="has(self.managedOptions) ? self.managementPolicy == 'managed' : true",message="managedOptions may only be provided when policy is managed"
 // +kubebuilder:validation:XValidation:rule="!has(self.__import__) ? has(self.resource.content) : true",message="resource content must be specified when not importing"
 type ImageSpec struct {
-	// Import refers to an existing OpenStack resource which will be imported instead of
+	// import refers to an existing OpenStack resource which will be imported instead of
 	// creating a new one.
 	// +optional
 	Import *ImageImport `json:"import,omitempty"`
 
-	// Resource specifies the desired state of the resource.
+	// resource specifies the desired state of the resource.
 	//
-	// Resource may not be specified if the management policy is `unmanaged`.
+	// resource may not be specified if the management policy is `unmanaged`.
 	//
-	// Resource must be specified if the management policy is `managed`.
+	// resource must be specified if the management policy is `managed`.
 	// +optional
 	Resource *ImageResourceSpec `json:"resource,omitempty"`
 
-	// ManagementPolicy defines how ORC will treat the object. Valid values are
+	// managementPolicy defines how ORC will treat the object. Valid values are
 	// `managed`: ORC will create, update, and delete the resource; `unmanaged`:
 	// ORC will import an existing resource, and will not apply updates to it or
 	// delete it.
@@ -71,18 +71,18 @@ type ImageSpec struct {
 	// +optional
 	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
 
-	// ManagedOptions specifies options which may be applied to managed objects.
+	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
 	ManagedOptions *ManagedOptions `json:"managedOptions,omitempty"`
 
-	// CloudCredentialsRef points to a secret containing OpenStack credentials
-	// +kubebuilder:validation:Required
+	// cloudCredentialsRef points to a secret containing OpenStack credentials
+	// +required
 	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef"`
 }
 
 // ImageStatus defines the observed state of an ORC resource.
 type ImageStatus struct {
-	// Conditions represents the observed status of the object.
+	// conditions represents the observed status of the object.
 	// Known .status.conditions.type are: "Available", "Progressing"
 	//
 	// Available represents the availability of the OpenStack resource. If it is
@@ -100,13 +100,14 @@ type ImageStatus struct {
 	// +patchStrategy=merge
 	// +listType=map
 	// +listMapKey=type
+	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
-	// ID is the unique identifier of the OpenStack resource.
+	// id is the unique identifier of the OpenStack resource.
 	// +optional
 	ID *string `json:"id,omitempty"`
 
-	// Resource contains the observed state of the OpenStack resource.
+	// resource contains the observed state of the OpenStack resource.
 	// +optional
 	Resource *ImageResourceStatus `json:"resource,omitempty"`
 
@@ -131,9 +132,17 @@ func (i *Image) GetConditions() []metav1.Condition {
 // Image is the Schema for an ORC resource.
 type Image struct {
 	metav1.TypeMeta   `json:",inline"`
+
+	// metadata contains the object metadata
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// spec specifies the desired state of the resource.
+	// +optional
 	Spec   ImageSpec   `json:"spec,omitempty"`
+
+	// status defines the observed state of the resource.
+	// +optional
 	Status ImageStatus `json:"status,omitempty"`
 }
 
@@ -142,7 +151,13 @@ type Image struct {
 // ImageList contains a list of Image.
 type ImageList struct {
 	metav1.TypeMeta `json:",inline"`
+
+	// metadata contains the list metadata
+	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// items contains a list of Image.
+	// +required
 	Items           []Image `json:"items"`
 }
 
