@@ -807,7 +807,7 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             scalar: string
-          elementRelationship: atomic
+          elementRelationship: associative
     - name: tags
       type:
         list:

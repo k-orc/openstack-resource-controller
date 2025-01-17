@@ -286,8 +286,9 @@ spec:
                       maxLength: 255
                       minLength: 1
                       type: string
+                    maxItems: 32
                     type: array
-                    x-kubernetes-list-type: atomic
+                    x-kubernetes-list-type: set
                   tags:
                     description: tags is a list of tags which will be applied to the
                       port.

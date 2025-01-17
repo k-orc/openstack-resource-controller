@@ -2874,7 +2874,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 					"securityGroupRefs": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "atomic",
+								"x-kubernetes-list-type": "set",
 							},
 						},
 						SchemaProps: spec.SchemaProps{

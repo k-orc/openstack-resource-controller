@@ -113,7 +113,8 @@ type PortResourceSpec struct {
 
 	// securityGroupRefs are the names of the security groups associated
 	// with this port.
-	// +listType=atomic
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
 	// +optional
 	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
 }
@@ -143,7 +144,7 @@ type PortResourceStatus struct {
 	// adminStateUp is the administrative state of the port,
 	// which is up (true) or down (false).
 	// +optional
-	AdminStateUp bool `json:"adminStateUp,omitempty"`
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// macAddress is the MAC address of the port.
 	// +optional
@@ -179,7 +180,7 @@ type PortResourceStatus struct {
 	// propagateUplinkStatus represents the uplink status propagation of
 	// the port.
 	// +optional
-	PropagateUplinkStatus bool `json:"propagateUplinkStatus,omitempty"`
+	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
 }

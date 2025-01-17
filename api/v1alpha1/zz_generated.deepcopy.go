@@ -1494,6 +1494,11 @@ func (in *PortResourceStatus) DeepCopyInto(out *PortResourceStatus) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
+	}
 	if in.AllowedAddressPairs != nil {
 		in, out := &in.AllowedAddressPairs, &out.AllowedAddressPairs
 		*out = make([]AllowedAddressPairStatus, len(*in))
@@ -1508,6 +1513,11 @@ func (in *PortResourceStatus) DeepCopyInto(out *PortResourceStatus) {
 		in, out := &in.SecurityGroups, &out.SecurityGroups
 		*out = make([]string, len(*in))
 		copy(*out, *in)
+	}
+	if in.PropagateUplinkStatus != nil {
+		in, out := &in.PropagateUplinkStatus, &out.PropagateUplinkStatus
+		*out = new(bool)
+		**out = **in
 	}
 	in.NeutronStatusMetadata.DeepCopyInto(&out.NeutronStatusMetadata)
 }
