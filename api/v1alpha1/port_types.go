@@ -41,7 +41,7 @@ type AllowedAddressPair struct {
 	// send packets with. It can be an IP Address or a CIDR (if supported
 	// by the underlying extension plugin).
 	// +required
-	IP *IPvAny `json:"ip"`
+	IP IPvAny `json:"ip"`
 
 	// mac contains a MAC address which a server connected to the port can
 	// send packets with. Defaults to the MAC address of the port.
@@ -71,7 +71,7 @@ type Address struct {
 	// subnetRef references the subnet from which to allocate the IP
 	// address.
 	// +required
-	SubnetRef *OpenStackName `json:"subnetRef"`
+	SubnetRef KubernetesNameRef `json:"subnetRef"`
 }
 
 type FixedIPStatus struct {

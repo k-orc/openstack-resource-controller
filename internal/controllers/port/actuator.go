@@ -137,7 +137,7 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context) ([]generi
 	if len(resource.AllowedAddressPairs) > 0 {
 		createOpts.AllowedAddressPairs = make([]ports.AddressPair, len(resource.AllowedAddressPairs))
 		for i := range resource.AllowedAddressPairs {
-			createOpts.AllowedAddressPairs[i].IPAddress = string(*resource.AllowedAddressPairs[i].IP)
+			createOpts.AllowedAddressPairs[i].IPAddress = string(resource.AllowedAddressPairs[i].IP)
 			if resource.AllowedAddressPairs[i].MAC != nil {
 				createOpts.AllowedAddressPairs[i].MACAddress = string(*resource.AllowedAddressPairs[i].MAC)
 			}
@@ -152,7 +152,7 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context) ([]generi
 	fixedIPs := make([]ports.IP, len(resource.Addresses))
 	for i := range resource.Addresses {
 		subnet := &orcv1alpha1.Subnet{}
-		key := client.ObjectKey{Name: string(*resource.Addresses[i].SubnetRef), Namespace: actuator.obj.Namespace}
+		key := client.ObjectKey{Name: string(resource.Addresses[i].SubnetRef), Namespace: actuator.obj.Namespace}
 		if err := k8sClient.Get(ctx, key, subnet); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))

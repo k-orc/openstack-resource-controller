@@ -231,7 +231,7 @@ spec:
                           description: |-
                             subnetRef references the subnet from which to allocate the IP
                             address.
-                          maxLength: 255
+                          maxLength: 253
                           minLength: 1
                           type: string
                       required:

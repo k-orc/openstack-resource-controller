@@ -48,6 +48,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: subnetRef
       type:
         scalar: string
+      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPool
   map:
     fields:
@@ -76,6 +77,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ip
       type:
         scalar: string
+      default: ""
     - name: mac
       type:
         scalar: string

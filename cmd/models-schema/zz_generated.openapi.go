@@ -430,6 +430,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Address(ref common.
 					"subnetRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "subnetRef references the subnet from which to allocate the IP address.",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -504,6 +505,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPair(
 					"ip": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ip contains an IP address which a server connected to the port can send packets with. It can be an IP Address or a CIDR (if supported by the underlying extension plugin).",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
