@@ -64,9 +64,9 @@ func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *netw
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
 	if osResource.NetworkType != "" {
-		providerProperties := orcapplyconfigv1alpha1.ProviderProperties().
-			WithNetworkType(orcv1alpha1.ProviderNetworkType(osResource.NetworkType)).
-			WithPhysicalNetwork(orcv1alpha1.PhysicalNetwork(osResource.PhysicalNetwork))
+		providerProperties := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
+			WithNetworkType(osResource.NetworkType).
+			WithPhysicalNetwork(osResource.PhysicalNetwork)
 
 		if osResource.SegmentationID != "" {
 			segmentationID, err := strconv.ParseInt(osResource.SegmentationID, 10, 32)

@@ -454,13 +454,6 @@ spec:
                           networkType is the type of physical network that this
                           network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
                           Valid values depend on the networking back-end.
-                        enum:
-                        - flat
-                        - vlan
-                        - vxlan
-                        - gre
-                        maxLength: 16
-                        minLength: 1
                         type: string
                       physicalNetwork:
                         description: |-
@@ -469,8 +462,6 @@ spec:
                           way to list available physical networks. For example, the Open
                           vSwitch plug-in configuration file defines a symbolic name that maps
                           to specific bridges on each compute host.
-                        maxLength: 128
-                        minLength: 1
                         type: string
                       segmentationID:
                         description: |-

@@ -86,7 +86,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus":          schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec":                    schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties":          schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderProperties(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus":    schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Router":                      schema_k_orc_openstack_resource_controller_api_v1alpha1_Router(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterImport(ref),
@@ -2308,7 +2308,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					"provider": {
 						SchemaProps: spec.SchemaProps{
 							Description: "provider contains provider-network properties.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus"),
 						},
 					},
 					"external": {
@@ -2350,7 +2350,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -3196,12 +3196,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref comm
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderProperties(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "ProviderProperties contains provider-network properties. Currently only available in status.",
-				Type:        []string{"object"},
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"networkType": {
 						SchemaProps: spec.SchemaProps{

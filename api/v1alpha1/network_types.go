@@ -16,35 +16,27 @@ limitations under the License.
 
 package v1alpha1
 
-// +kubebuilder:validation:Enum:=flat;vlan;vxlan;gre
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=16
-type ProviderNetworkType string
-
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=128
-type PhysicalNetwork string
-
-// ProviderProperties contains provider-network properties. Currently only
-// available in status.
-type ProviderProperties struct {
+type ProviderPropertiesStatus struct {
 	// networkType is the type of physical network that this
 	// network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
 	// Valid values depend on the networking back-end.
-	NetworkType *ProviderNetworkType `json:"networkType,omitempty"`
+	// +optional
+	NetworkType string `json:"networkType,omitempty"`
 
 	// physicalNetwork is the physical network where this network
 	// should be implemented. The Networking API v2.0 does not provide a
 	// way to list available physical networks. For example, the Open
 	// vSwitch plug-in configuration file defines a symbolic name that maps
 	// to specific bridges on each compute host.
-	PhysicalNetwork *PhysicalNetwork `json:"physicalNetwork,omitempty"`
+	// +optional
+	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
 
 	// segmentationID is the ID of the isolated segment on the
 	// physical network. The network_type attribute defines the
 	// segmentation model. For example, if the network_type value is vlan,
 	// this ID is a vlan identifier. If the network_type value is gre, this
 	// ID is a gre key.
+	// +optional
 	SegmentationID *int32 `json:"segmentationID,omitempty"`
 }
 
@@ -187,7 +179,7 @@ type NetworkResourceStatus struct {
 
 	// provider contains provider-network properties.
 	// +optional
-	Provider *ProviderProperties `json:"provider,omitempty"`
+	Provider *ProviderPropertiesStatus `json:"provider,omitempty"`
 
 	// external defines whether the network may be used for creation of
 	// floating IPs. Only networks with this flag may be an external

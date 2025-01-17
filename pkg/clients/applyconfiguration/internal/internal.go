@@ -639,7 +639,7 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: provider
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderProperties
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderPropertiesStatus
     - name: revisionNumber
       type:
         scalar: numeric
@@ -927,7 +927,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderProperties
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderPropertiesStatus
   map:
     fields:
     - name: networkType
