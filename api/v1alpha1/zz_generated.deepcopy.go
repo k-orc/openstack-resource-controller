@@ -696,12 +696,12 @@ func (in *ImageProperties) DeepCopyInto(out *ImageProperties) {
 	*out = *in
 	if in.MinDiskGB != nil {
 		in, out := &in.MinDiskGB, &out.MinDiskGB
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.MinMemoryMB != nil {
 		in, out := &in.MinMemoryMB, &out.MinMemoryMB
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Hardware != nil {
@@ -726,17 +726,17 @@ func (in *ImagePropertiesHardware) DeepCopyInto(out *ImagePropertiesHardware) {
 	*out = *in
 	if in.CPUSockets != nil {
 		in, out := &in.CPUSockets, &out.CPUSockets
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.CPUCores != nil {
 		in, out := &in.CPUCores, &out.CPUCores
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.CPUThreads != nil {
 		in, out := &in.CPUThreads, &out.CPUThreads
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.CPUPolicy != nil {
@@ -930,7 +930,7 @@ func (in *ImageStatusExtra) DeepCopyInto(out *ImageStatusExtra) {
 	*out = *in
 	if in.DownloadAttempts != nil {
 		in, out := &in.DownloadAttempts, &out.DownloadAttempts
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }

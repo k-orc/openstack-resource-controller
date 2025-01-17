@@ -25,9 +25,9 @@ import (
 // ImagePropertiesHardwareApplyConfiguration represents a declarative configuration of the ImagePropertiesHardware type for use
 // with apply.
 type ImagePropertiesHardwareApplyConfiguration struct {
-	CPUSockets      *int                 `json:"cpuSockets,omitempty"`
-	CPUCores        *int                 `json:"cpuCores,omitempty"`
-	CPUThreads      *int                 `json:"cpuThreads,omitempty"`
+	CPUSockets      *int32               `json:"cpuSockets,omitempty"`
+	CPUCores        *int32               `json:"cpuCores,omitempty"`
+	CPUThreads      *int32               `json:"cpuThreads,omitempty"`
 	CPUPolicy       *string              `json:"cpuPolicy,omitempty"`
 	CPUThreadPolicy *string              `json:"cpuThreadPolicy,omitempty"`
 	CDROMBus        *v1alpha1.ImageHWBus `json:"cdromBus,omitempty"`
@@ -45,7 +45,7 @@ func ImagePropertiesHardware() *ImagePropertiesHardwareApplyConfiguration {
 // WithCPUSockets sets the CPUSockets field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CPUSockets field is set to the value of the last call.
-func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUSockets(value int) *ImagePropertiesHardwareApplyConfiguration {
+func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUSockets(value int32) *ImagePropertiesHardwareApplyConfiguration {
 	b.CPUSockets = &value
 	return b
 }
@@ -53,7 +53,7 @@ func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUSockets(value int) *I
 // WithCPUCores sets the CPUCores field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CPUCores field is set to the value of the last call.
-func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUCores(value int) *ImagePropertiesHardwareApplyConfiguration {
+func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUCores(value int32) *ImagePropertiesHardwareApplyConfiguration {
 	b.CPUCores = &value
 	return b
 }
@@ -61,7 +61,7 @@ func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUCores(value int) *Ima
 // WithCPUThreads sets the CPUThreads field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CPUThreads field is set to the value of the last call.
-func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUThreads(value int) *ImagePropertiesHardwareApplyConfiguration {
+func (b *ImagePropertiesHardwareApplyConfiguration) WithCPUThreads(value int32) *ImagePropertiesHardwareApplyConfiguration {
 	b.CPUThreads = &value
 	return b
 }
