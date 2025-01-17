@@ -43,7 +43,7 @@ type ProviderPropertiesStatus struct {
 // TODO: Much better DNSDomain validation
 
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=265
+// +kubebuilder:validation:MaxLength:=255
 type DNSDomain string
 
 // +kubebuilder:validation:Minimum:=68

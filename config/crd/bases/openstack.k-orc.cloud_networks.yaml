@@ -241,7 +241,7 @@ spec:
                     type: string
                   dnsDomain:
                     description: dnsDomain is the DNS domain of the network
-                    maxLength: 265
+                    maxLength: 255
                     minLength: 1
                     type: string
                   external:
