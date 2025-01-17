@@ -77,10 +77,8 @@ type IPvAny string
 // +kubebuilder:validation:MaxLength:=17
 type MAC string
 
-// XXX: AvailabilityZoneHint MaxLength is made up
-
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=128
+// +kubebuilder:validation:MaxLength:=255
 type AvailabilityZoneHint string
 
 type NeutronStatusMetadata struct {

@@ -228,9 +228,10 @@ spec:
                     description: availabilityZoneHints is the availability zone candidate
                       for the network.
                     items:
-                      maxLength: 128
+                      maxLength: 255
                       minLength: 1
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
                   description:

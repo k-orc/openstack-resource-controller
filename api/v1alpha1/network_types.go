@@ -97,6 +97,7 @@ type NetworkResourceSpec struct {
 	Shared *bool `json:"shared,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the network.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
