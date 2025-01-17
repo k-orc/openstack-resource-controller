@@ -27,7 +27,7 @@ type NeutronDescription string
 // NeutronTag represents a tag on a Neutron resource.
 // It may not be empty and may not contain commas.
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=60
+// +kubebuilder:validation:MaxLength:=255
 type NeutronTag string
 
 type FilterByNeutronTags struct {
