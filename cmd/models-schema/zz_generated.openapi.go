@@ -2212,7 +2212,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Indicates whether network is currently operational. Possible values include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define additional values.",
+							Description: "status indicates whether network is currently operational. Possible values include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define additional values.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2286,8 +2286,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"dnsDomain": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "dnsDomain is the DNS domain of the network",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mtu": {
@@ -2306,7 +2307,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"provider": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties"),
+							Description: "provider contains provider-network properties.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties"),
 						},
 					},
 					"external": {
@@ -2318,7 +2320,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"shared": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies whether the network resource can be accessed by any tenant.",
+							Description: "shared specifies whether the network resource can be accessed by any tenant.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},

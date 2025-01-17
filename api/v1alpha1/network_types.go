@@ -147,7 +147,7 @@ type NetworkResourceStatus struct {
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// Indicates whether network is currently operational. Possible values
+	// status indicates whether network is currently operational. Possible values
 	// include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
 	// additional values.
 	// +optional
@@ -170,6 +170,7 @@ type NetworkResourceStatus struct {
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
 
+	// dnsDomain is the DNS domain of the network
 	DNSDomain string `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address
@@ -184,6 +185,7 @@ type NetworkResourceStatus struct {
 	// +optional
 	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 
+	// provider contains provider-network properties.
 	// +optional
 	Provider *ProviderProperties `json:"provider,omitempty"`
 
@@ -197,7 +199,8 @@ type NetworkResourceStatus struct {
 	// +optional
 	External bool `json:"external,omitempty"`
 
-	// Specifies whether the network resource can be accessed by any tenant.
+	// shared specifies whether the network resource can be accessed by any
+	// tenant.
 	// +optional
 	Shared bool `json:"shared,omitempty"`
 
