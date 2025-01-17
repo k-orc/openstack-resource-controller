@@ -1149,10 +1149,20 @@ func (in *NetworkResourceStatus) DeepCopyInto(out *NetworkResourceStatus) {
 		copy(*out, *in)
 	}
 	in.NeutronStatusMetadata.DeepCopyInto(&out.NeutronStatusMetadata)
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
+	}
 	if in.AvailabilityZoneHints != nil {
 		in, out := &in.AvailabilityZoneHints, &out.AvailabilityZoneHints
 		*out = make([]string, len(*in))
 		copy(*out, *in)
+	}
+	if in.MTU != nil {
+		in, out := &in.MTU, &out.MTU
+		*out = new(int32)
+		**out = **in
 	}
 	if in.PortSecurityEnabled != nil {
 		in, out := &in.PortSecurityEnabled, &out.PortSecurityEnabled
@@ -1163,6 +1173,16 @@ func (in *NetworkResourceStatus) DeepCopyInto(out *NetworkResourceStatus) {
 		in, out := &in.Provider, &out.Provider
 		*out = new(ProviderPropertiesStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.External != nil {
+		in, out := &in.External, &out.External
+		*out = new(bool)
+		**out = **in
+	}
+	if in.Shared != nil {
+		in, out := &in.Shared, &out.Shared
+		*out = new(bool)
+		**out = **in
 	}
 	if in.Subnets != nil {
 		in, out := &in.Subnets, &out.Subnets

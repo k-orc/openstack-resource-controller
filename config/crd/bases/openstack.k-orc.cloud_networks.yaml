@@ -248,6 +248,7 @@ spec:
                     description: |-
                       mtu is the the maximum transmission unit value to address
                       fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+                      Defaults to 1500.
                     format: int32
                     minimum: 68
                     type: integer
@@ -500,8 +501,6 @@ spec:
                       was updated. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
-                required:
-                - adminStateUp
                 type: object
             type: object
         type: object

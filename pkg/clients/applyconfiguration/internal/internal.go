@@ -603,7 +603,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: adminStateUp
       type:
         scalar: boolean
-      default: false
     - name: availabilityZoneHints
       type:
         list:

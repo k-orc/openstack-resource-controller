@@ -63,6 +63,7 @@ type NetworkResourceSpec struct {
 	// tags is a list of tags which will be applied to the network.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
+	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
 
 	// adminStateUp is the administrative state of the network, which is up (true) or down (false)
@@ -75,6 +76,7 @@ type NetworkResourceSpec struct {
 
 	// mtu is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+	// Defaults to 1500.
 	// +optional
 	MTU *MTU `json:"mtu,omitempty"`
 
@@ -151,7 +153,8 @@ type NetworkResourceStatus struct {
 
 	// adminStateUp is the administrative state of the network,
 	// which is up (true) or down (false).
-	AdminStateUp bool `json:"adminStateUp"`
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp"`
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// network.
@@ -160,12 +163,13 @@ type NetworkResourceStatus struct {
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
 
 	// dnsDomain is the DNS domain of the network
+	// +optional
 	DNSDomain string `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
 	// +optional
-	MTU int32 `json:"mtu,omitempty"`
+	MTU *int32 `json:"mtu,omitempty"`
 
 	// portSecurityEnabled is the port security status of the network.
 	// Valid values are enabled (true) and disabled (false). This value is
@@ -186,12 +190,12 @@ type NetworkResourceStatus struct {
 	// of this network are automatically deleted when extension
 	// floatingip-autodelete-internal is present.
 	// +optional
-	External bool `json:"external,omitempty"`
+	External *bool `json:"external,omitempty"`
 
 	// shared specifies whether the network resource can be accessed by any
 	// tenant.
 	// +optional
-	Shared bool `json:"shared,omitempty"`
+	Shared *bool `json:"shared,omitempty"`
 
 	// subnets associated with this network.
 	// +listType=atomic

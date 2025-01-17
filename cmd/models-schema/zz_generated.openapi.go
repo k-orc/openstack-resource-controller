@@ -2123,7 +2123,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 					},
 					"mtu": {
 						SchemaProps: spec.SchemaProps{
-							Description: "mtu is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.",
+							Description: "mtu is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6. Defaults to 1500.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -2252,7 +2252,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
 							Description: "adminStateUp is the administrative state of the network, which is up (true) or down (false).",
-							Default:     false,
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -2339,7 +2338,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 						},
 					},
 				},
-				Required: []string{"adminStateUp"},
 			},
 		},
 		Dependencies: []string{
