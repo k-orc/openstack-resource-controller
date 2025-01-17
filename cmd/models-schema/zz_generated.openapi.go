@@ -4768,16 +4768,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 					},
 					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "imageRef references the image to use for the server instance. NOTE: This is not required in case of boot from volume.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"flavorRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "flavorRef references the flavor to use for the server instance.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"userData": {
@@ -4873,7 +4875,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 					"securityGroups": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
+								"x-kubernetes-list-type": "atomic",
 							},
 						},
 						SchemaProps: spec.SchemaProps{

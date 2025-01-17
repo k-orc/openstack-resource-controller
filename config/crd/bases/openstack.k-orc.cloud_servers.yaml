@@ -148,10 +148,15 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   flavorRef:
+                    description: flavorRef references the flavor to use for the server
+                      instance.
                     maxLength: 253
                     minLength: 1
                     type: string
                   imageRef:
+                    description: |-
+                      imageRef references the image to use for the server instance.
+                      NOTE: This is not required in case of boot from volume.
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -332,9 +337,8 @@ spec:
                       applied to it.
                     items:
                       type: string
-                    maxItems: 32
                     type: array
-                    x-kubernetes-list-type: set
+                    x-kubernetes-list-type: atomic
                   status:
                     description: |-
                       status contains the current operational status of the server,
