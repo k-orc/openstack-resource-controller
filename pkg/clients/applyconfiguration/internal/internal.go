@@ -66,11 +66,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: end
       type:
         scalar: string
-      default: ""
     - name: start
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPair
   map:
     fields:
@@ -278,11 +276,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: destination
       type:
         scalar: string
-      default: ""
     - name: nextHop
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
   map:
     fields:
@@ -1646,7 +1642,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: cidr
       type:
         scalar: string
-      default: ""
     - name: createdAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
@@ -1665,7 +1660,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: enableDHCP
       type:
         scalar: boolean
-      default: false
     - name: gatewayIP
       type:
         scalar: string
@@ -1678,7 +1672,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ipVersion
       type:
         scalar: numeric
-      default: 0
     - name: ipv6AddressMode
       type:
         scalar: string
@@ -1688,7 +1681,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-      default: ""
     - name: projectID
       type:
         scalar: string

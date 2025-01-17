@@ -62,7 +62,7 @@ type FilterByNeutronTags struct {
 }
 
 // +kubebuilder:validation:Enum:=4;6
-type IPVersion int8
+type IPVersion int32
 
 // +kubebuilder:validation:Format:=cidr
 // +kubebuilder:validation:MinLength:=1

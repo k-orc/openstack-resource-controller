@@ -450,16 +450,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPool(ref 
 				Properties: map[string]spec.Schema{
 					"start": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "start is the first IP address in the allocation pool.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"end": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "end is the last IP address in the allocation pool.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -477,20 +479,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPoolStatu
 				Properties: map[string]spec.Schema{
 					"start": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "start is the first IP address in the allocation pool.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"end": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "end is the last IP address in the allocation pool.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"start", "end"},
 			},
 		},
 	}
@@ -1153,16 +1154,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRoute(ref commo
 				Properties: map[string]spec.Schema{
 					"destination": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "destination for the additional route.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"nextHop": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "nextHop for the additional route.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -1180,20 +1183,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRouteStatus(ref
 				Properties: map[string]spec.Schema{
 					"destination": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "destination for the additional route.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"nextHop": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "nextHop for the additional route.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"destination", "nextHop"},
 			},
 		},
 	}
@@ -5054,8 +5056,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"description": {
@@ -5067,25 +5070,29 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 					},
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "byte",
+							Description: "ipVersion of the existing resource",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"gatewayIP": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "gatewayIP is the IP address of the gateway of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "cidr of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"ipv6": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
+							Description: "ipv6 options of the existing resource",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
 						},
 					},
 					"tags": {
@@ -5347,7 +5354,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							Description: "ipVersion is the IP version for the subnet.",
 							Default:     0,
 							Type:        []string{"integer"},
-							Format:      "byte",
+							Format:      "int32",
 						},
 					},
 					"cidr": {
@@ -5412,7 +5419,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"dnsPublishFixedIP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS",
+							Description: "dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS. Defaults to false.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5467,7 +5474,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "name is the human-readable name of the subnet. Might not be unique.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5482,7 +5488,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ipVersion specifies IP version, either `4' or `6'.",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -5490,7 +5495,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cidr representing IP range for this subnet, based on IP version.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5569,8 +5573,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"enableDHCP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies whether DHCP is enabled for this subnet or not.",
-							Default:     false,
+							Description: "enableDHCP specifies whether DHCP is enabled for this subnet or not.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5584,14 +5587,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"ipv6AddressMode": {
 						SchemaProps: spec.SchemaProps{
-							Description: "The IPv6 address modes specifies mechanisms for assigning IPv6 IP addresses.",
+							Description: "ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ipv6RAMode": {
 						SchemaProps: spec.SchemaProps{
-							Description: "The IPv6 router advertisement specifies whether the networking service should transmit ICMPv6 packets.",
+							Description: "ipv6RAMode is the IPv6 router advertisement mode. It specifies whether the networking service should transmit ICMPv6 packets.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5643,7 +5646,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 						},
 					},
 				},
-				Required: []string{"name", "ipVersion", "cidr", "enableDHCP"},
 			},
 		},
 		Dependencies: []string{

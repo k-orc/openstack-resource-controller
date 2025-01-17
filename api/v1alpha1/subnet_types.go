@@ -32,16 +32,29 @@ type SubnetRefs struct {
 // SubnetFilter specifies a filter to select a subnet. At least one parameter must be specified.
 // +kubebuilder:validation:MinProperties:=1
 type SubnetFilter struct {
+	// name of the existing resource
+	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// description of the existing resource
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	IPVersion *IPVersion   `json:"ipVersion,omitempty"`
-	GatewayIP *IPvAny      `json:"gatewayIP,omitempty"`
-	CIDR      *CIDR        `json:"cidr,omitempty"`
-	IPv6      *IPv6Options `json:"ipv6,omitempty"`
+	// ipVersion of the existing resource
+	// +optional
+	IPVersion *IPVersion `json:"ipVersion,omitempty"`
+
+	// gatewayIP is the IP address of the gateway of the existing resource
+	// +optional
+	GatewayIP *IPvAny `json:"gatewayIP,omitempty"`
+
+	// cidr of the existing resource
+	// +optional
+	CIDR *CIDR `json:"cidr,omitempty"`
+
+	// ipv6 options of the existing resource
+	// +optional
+	IPv6 *IPv6Options `json:"ipv6,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -58,6 +71,7 @@ type SubnetResourceSpec struct {
 	// tags is a list of tags which will be applied to the subnet.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
+	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
 
 	// ipVersion is the IP version for the subnet.
@@ -72,6 +86,7 @@ type SubnetResourceSpec struct {
 	// addresses must be in CIDR.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
+	// +optional
 	AllocationPools []AllocationPool `json:"allocationPools,omitempty"`
 
 	// gateway specifies the default gateway of the subnet. If not specified,
@@ -87,18 +102,22 @@ type SubnetResourceSpec struct {
 	// dnsNameservers are the nameservers to be set via DHCP.
 	// +kubebuilder:validation:MaxItems:=16
 	// +listType=set
+	// +optional
 	DNSNameservers []IPvAny `json:"dnsNameservers,omitempty"`
 
-	// dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS
+	// dnsPublishFixedIP will either enable or disable the publication of
+	// fixed IPs to the DNS. Defaults to false.
 	// +optional
 	DNSPublishFixedIP *bool `json:"dnsPublishFixedIP,omitempty"`
 
 	// hostRoutes are any static host routes to be set via DHCP.
 	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
+	// +optional
 	HostRoutes []HostRoute `json:"hostRoutes,omitempty"`
 
 	// ipv6 contains IPv6-specific options. It may only be set if IPVersion is 6.
+	// +optional
 	IPv6 *IPv6Options `json:"ipv6,omitempty"`
 
 	// routerRef specifies a router to attach the subnet to
@@ -110,28 +129,41 @@ type SubnetResourceSpec struct {
 }
 
 type AllocationPoolStatus struct {
-	Start string `json:"start"`
-	End   string `json:"end"`
+	// start is the first IP address in the allocation pool.
+	// +optional
+	Start string `json:"start,omitempty"`
+
+	// end is the last IP address in the allocation pool.
+	// +optional
+	End string `json:"end,omitempty"`
 }
 
 type HostRouteStatus struct {
-	Destination string `json:"destination"`
-	NextHop     string `json:"nextHop"`
+	// destination for the additional route.
+	// +optional
+	Destination string `json:"destination,omitempty"`
+
+	// nextHop for the additional route.
+	// +optional
+	NextHop string `json:"nextHop,omitempty"`
 }
 
 type SubnetResourceStatus struct {
 	// name is the human-readable name of the subnet. Might not be unique.
-	Name string `json:"name"`
+	// +optional
+	Name string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +optional
 	Description string `json:"description,omitempty"`
 
 	// ipVersion specifies IP version, either `4' or `6'.
-	IPVersion int `json:"ipVersion"`
+	// +optional
+	IPVersion *int32 `json:"ipVersion,omitempty"`
 
 	// cidr representing IP range for this subnet, based on IP version.
-	CIDR string `json:"cidr"`
+	// +optional
+	CIDR string `json:"cidr,omitempty"`
 
 	// gatewayIP is the default gateway used by devices in this subnet, if any.
 	// +optional
@@ -139,33 +171,39 @@ type SubnetResourceStatus struct {
 
 	// dnsNameservers is a list of name servers used by hosts in this subnet.
 	// +listType=atomic
+	// +optional
 	DNSNameservers []string `json:"dnsNameservers,omitempty"`
 
 	// dnsPublishFixedIP specifies whether the fixed IP addresses are published to the DNS.
-	DNSPublishFixedIP bool `json:"dnsPublishFixedIP,omitempty"`
+	// +optional
+	DNSPublishFixedIP *bool `json:"dnsPublishFixedIP,omitempty"`
 
 	// allocationPools is a list of sub-ranges within CIDR available for dynamic
 	// allocation to ports.
 	// +listType=atomic
+	// +optional
 	AllocationPools []AllocationPoolStatus `json:"allocationPools,omitempty"`
 
 	// hostRoutes is a list of routes that should be used by devices with IPs
 	// from this subnet (not including local subnet route).
 	// +listType=atomic
+	// +optional
 	HostRoutes []HostRouteStatus `json:"hostRoutes,omitempty"`
 
-	// Specifies whether DHCP is enabled for this subnet or not.
-	EnableDHCP bool `json:"enableDHCP"`
+	// enableDHCP specifies whether DHCP is enabled for this subnet or not.
+	// +optional
+	EnableDHCP *bool `json:"enableDHCP,omitempty"`
 
 	// projectID is the project owner of the subnet.
+	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// The IPv6 address modes specifies mechanisms for assigning IPv6 IP addresses.
+	// ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses.
 	// +optional
 	IPv6AddressMode string `json:"ipv6AddressMode,omitempty"`
 
-	// The IPv6 router advertisement specifies whether the networking service
-	// should transmit ICMPv6 packets.
+	// ipv6RAMode is the IPv6 router advertisement mode. It specifies
+	// whether the networking service should transmit ICMPv6 packets.
 	// +optional
 	IPv6RAMode string `json:"ipv6RAMode,omitempty"`
 
@@ -175,6 +213,7 @@ type SubnetResourceStatus struct {
 
 	// tags optionally set via extensions/attributestags
 	// +listType=atomic
+	// +optional
 	Tags []string `json:"tags,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
@@ -201,10 +240,12 @@ const (
 // +kubebuilder:validation:MinProperties:=1
 type IPv6Options struct {
 	// addressMode specifies mechanisms for assigning IPv6 IP addresses.
+	// +optional
 	AddressMode *IPv6AddressMode `json:"addressMode,omitempty"`
 
 	// raMode specifies the IPv6 router advertisement mode. It specifies whether
 	// the networking service should transmit ICMPv6 packets.
+	// +optional
 	RAMode *IPv6RAMode `json:"raMode,omitempty"`
 }
 
@@ -235,14 +276,21 @@ type SubnetGateway struct {
 }
 
 type AllocationPool struct {
+	// start is the first IP address in the allocation pool.
 	// +required
 	Start IPvAny `json:"start"`
 
+	// end is the last IP address in the allocation pool.
 	// +required
 	End IPvAny `json:"end"`
 }
 
 type HostRoute struct {
-	Destination CIDR   `json:"destination"`
-	NextHop     IPvAny `json:"nextHop"`
+	// destination for the additional route.
+	// +required
+	Destination CIDR `json:"destination"`
+
+	// nextHop for the additional route.
+	// +required
+	NextHop IPvAny `json:"nextHop"`
 }
