@@ -588,9 +588,10 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGateway(ref
 				Properties: map[string]spec.Schema{
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "networkRef is a reference to the ORC Network which the external gateway is on.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -608,13 +609,12 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGatewayStat
 				Properties: map[string]spec.Schema{
 					"networkID": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "networkID is the ID of the network the gateway is on.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"networkID"},
 			},
 		},
 	}
@@ -3270,8 +3270,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"description": {
@@ -3626,7 +3627,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the human-readable name of the router. Might not be unique.",
+							Description: "name is a human-readable name of the router. If not set, the object's name will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3645,7 +3646,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "tags optionally set via extensions/attributestags",
+							Description: "tags is a list of tags which will be applied to the router.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3660,8 +3661,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"boolean"},
-							Format: "",
+							Description: "adminStateUp represents the administrative state of the resource, which is up (true) or down (false). Default is true.",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"externalGateways": {
@@ -3671,7 +3673,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "externalGateways is a list of external gateways for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3684,8 +3687,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 					},
 					"distributed": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"boolean"},
-							Format: "",
+							Description: "distributed indicates whether the router is distributed or not. It is available when dvr extension is enabled.",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"availabilityZoneHints": {
@@ -3695,7 +3699,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "availabilityZoneHints is the availability zone candidate for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3790,9 +3795,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Default: false,
-							Type:    []string{"boolean"},
-							Format:  "",
+							Description: "adminStateUp is the administrative state of the router, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"externalGateways": {
@@ -3802,7 +3807,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "externalGateways is a list of external gateways for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3820,7 +3826,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "availabilityZoneHints is the availability zone candidate for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3833,7 +3840,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 						},
 					},
 				},
-				Required: []string{"adminStateUp"},
 			},
 		},
 		Dependencies: []string{

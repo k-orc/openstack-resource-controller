@@ -1891,6 +1891,11 @@ func (in *RouterResourceStatus) DeepCopyInto(out *RouterResourceStatus) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ExternalGateways != nil {
 		in, out := &in.ExternalGateways, &out.ExternalGateways
 		*out = make([]ExternalGatewayStatus, len(*in))

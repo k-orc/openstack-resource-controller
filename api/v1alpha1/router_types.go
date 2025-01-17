@@ -19,6 +19,8 @@ package v1alpha1
 // RouterFilter specifies a query to select an OpenStack router. At least one property must be set.
 // +kubebuilder:validation:MinProperties:=1
 type RouterFilter struct {
+	// name of the existing resource
+	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// description of the existing resource
@@ -29,15 +31,21 @@ type RouterFilter struct {
 }
 
 type ExternalGateway struct {
+	// networkRef is a reference to the ORC Network which the external
+	// gateway is on.
+	// +required
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 }
 
 type ExternalGatewayStatus struct {
-	NetworkID string `json:"networkID"`
+	// networkID is the ID of the network the gateway is on.
+	// +optional
+	NetworkID string `json:"networkID,omitempty"`
 }
 
 type RouterResourceSpec struct {
-	// name is the human-readable name of the router. Might not be unique.
+	// name is a human-readable name of the router. If not set, the
+	// object's name will be used.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
@@ -45,18 +53,30 @@ type RouterResourceSpec struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	// tags optionally set via extensions/attributestags
+	// tags is a list of tags which will be applied to the router.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
+	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
 
+	// adminStateUp represents the administrative state of the resource,
+	// which is up (true) or down (false). Default is true.
+	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
+	// externalGateways is a list of external gateways for the router.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	ExternalGateways []ExternalGateway `json:"externalGateways,omitempty"`
 
+	// distributed indicates whether the router is distributed or not. It
+	// is available when dvr extension is enabled.
+	// +optional
 	Distributed *bool `json:"distributed,omitempty"`
 
+	// availabilityZoneHints is the availability zone candidate for the router.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
@@ -86,12 +106,18 @@ type RouterResourceStatus struct {
 	// +optional
 	Tags []string `json:"tags,omitempty"`
 
-	AdminStateUp bool `json:"adminStateUp"`
+	// adminStateUp is the administrative state of the router,
+	// which is up (true) or down (false).
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp"`
 
+	// externalGateways is a list of external gateways for the router.
 	// +listType=atomic
 	// +optional
 	ExternalGateways []ExternalGatewayStatus `json:"externalGateways,omitempty"`
 
+	// availabilityZoneHints is the availability zone candidate for the
+	// router.
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`

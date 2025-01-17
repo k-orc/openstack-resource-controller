@@ -114,7 +114,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: networkID
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FixedIPStatus
   map:
     fields:
@@ -1089,7 +1088,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: adminStateUp
       type:
         scalar: boolean
-      default: false
     - name: availabilityZoneHints
       type:
         list:
