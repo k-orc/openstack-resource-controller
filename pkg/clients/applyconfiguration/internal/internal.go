@@ -85,7 +85,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ip
       type:
         scalar: string
-      default: ""
     - name: mac
       type:
         scalar: string
@@ -120,7 +119,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ip
       type:
         scalar: string
-      default: ""
     - name: subnetID
       type:
         scalar: string

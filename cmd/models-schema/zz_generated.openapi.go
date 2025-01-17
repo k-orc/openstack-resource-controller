@@ -422,14 +422,16 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Address(ref common.
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "ip contains a fixed IP address assigned to the port. It must belong to the referenced subnet's CIDR. If not specified, OpenStack allocates an available IP from the referenced subnet.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"subnetRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "subnetRef references the subnet from which to allocate the IP address.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -501,14 +503,16 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPair(
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "ip contains an IP address which a server connected to the port can send packets with. It can be an IP Address or a CIDR (if supported by the underlying extension plugin).",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mac": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "mac contains a MAC address which a server connected to the port can send packets with. Defaults to the MAC address of the port.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -526,19 +530,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPairS
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "ip contains an IP address which a server connected to the port can send packets with.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mac": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "mac contains a MAC address which a server connected to the port can send packets with.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"ip"},
 			},
 		},
 	}
@@ -714,19 +718,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FixedIPStatus(ref c
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "ip contains a fixed IP address assigned to the port.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"subnetID": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "subnetID is the ID of the subnet this IP is allocated from.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"ip"},
 			},
 		},
 	}
@@ -2534,8 +2538,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"description": {

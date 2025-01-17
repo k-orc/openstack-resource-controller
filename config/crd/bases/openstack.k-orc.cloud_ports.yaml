@@ -101,6 +101,7 @@ spec:
                         minLength: 1
                         type: string
                       name:
+                        description: name of the existing resource
                         maxLength: 255
                         minLength: 1
                         type: string
@@ -219,10 +220,17 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: |-
+                            ip contains a fixed IP address assigned to the port. It must belong
+                            to the referenced subnet's CIDR. If not specified, OpenStack
+                            allocates an available IP from the referenced subnet.
                           maxLength: 45
                           minLength: 1
                           type: string
                         subnetRef:
+                          description: |-
+                            subnetRef references the subnet from which to allocate the IP
+                            address.
                           maxLength: 255
                           minLength: 1
                           type: string
@@ -238,10 +246,17 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: |-
+                            ip contains an IP address which a server connected to the port can
+                            send packets with. It can be an IP Address or a CIDR (if supported
+                            by the underlying extension plugin).
                           maxLength: 45
                           minLength: 1
                           type: string
                         mac:
+                          description: |-
+                            mac contains a MAC address which a server connected to the port can
+                            send packets with. Defaults to the MAC address of the port.
                           maxLength: 17
                           minLength: 1
                           type: string
@@ -402,11 +417,15 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: |-
+                            ip contains an IP address which a server connected to the port can
+                            send packets with.
                           type: string
                         mac:
+                          description: |-
+                            mac contains a MAC address which a server connected to the port can
+                            send packets with.
                           type: string
-                      required:
-                      - ip
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
@@ -433,11 +452,13 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: ip contains a fixed IP address assigned to
+                            the port.
                           type: string
                         subnetID:
+                          description: subnetID is the ID of the subnet this IP is
+                            allocated from.
                           type: string
-                      required:
-                      - ip
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
