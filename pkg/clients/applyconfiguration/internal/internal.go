@@ -537,9 +537,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -742,9 +739,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -807,9 +801,6 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: name
-      type:
-        scalar: string
-    - name: projectID
       type:
         scalar: string
     - name: securityGroupRefs
@@ -981,9 +972,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -1211,9 +1199,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -1565,9 +1550,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -1646,9 +1628,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: projectID
-      type:
-        scalar: string
     - name: routerRef
       type:
         scalar: string
@@ -1716,7 +1695,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectID
       type:
         scalar: string
-      default: ""
     - name: revisionNumber
       type:
         scalar: numeric

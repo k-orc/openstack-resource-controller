@@ -195,7 +195,6 @@ func listOptsFromImportFilter(filter *orcv1alpha1.RouterFilter) routers.ListOpts
 	listOpts := routers.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		ProjectID:   string(ptr.Deref(filter.ProjectID, "")),
 		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
 		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
 		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),

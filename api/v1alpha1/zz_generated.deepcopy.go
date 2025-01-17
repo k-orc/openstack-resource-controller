@@ -1005,11 +1005,6 @@ func (in *NetworkFilter) DeepCopyInto(out *NetworkFilter) {
 		*out = new(bool)
 		**out = **in
 	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
-		**out = **in
-	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 
@@ -1317,11 +1312,6 @@ func (in *PortFilter) DeepCopyInto(out *PortFilter) {
 		*out = new(NeutronDescription)
 		**out = **in
 	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
-		**out = **in
-	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 
@@ -1454,11 +1444,6 @@ func (in *PortResourceSpec) DeepCopyInto(out *PortResourceSpec) {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]NeutronTag, len(*in))
 		copy(*out, *in)
-	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
-		**out = **in
 	}
 	if in.AllowedAddressPairs != nil {
 		in, out := &in.AllowedAddressPairs, &out.AllowedAddressPairs
@@ -1649,11 +1634,6 @@ func (in *RouterFilter) DeepCopyInto(out *RouterFilter) {
 	if in.Description != nil {
 		in, out := &in.Description, &out.Description
 		*out = new(NeutronDescription)
-		**out = **in
-	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
 		**out = **in
 	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
@@ -2014,11 +1994,6 @@ func (in *SecurityGroupFilter) DeepCopyInto(out *SecurityGroupFilter) {
 	if in.Description != nil {
 		in, out := &in.Description, &out.Description
 		*out = new(NeutronDescription)
-		**out = **in
-	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
 		**out = **in
 	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
@@ -2563,11 +2538,6 @@ func (in *SubnetFilter) DeepCopyInto(out *SubnetFilter) {
 		*out = new(NeutronDescription)
 		**out = **in
 	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
-		**out = **in
-	}
 	if in.IPVersion != nil {
 		in, out := &in.IPVersion, &out.IPVersion
 		*out = new(IPVersion)
@@ -2710,11 +2680,6 @@ func (in *SubnetResourceSpec) DeepCopyInto(out *SubnetResourceSpec) {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]NeutronTag, len(*in))
 		copy(*out, *in)
-	}
-	if in.ProjectID != nil {
-		in, out := &in.ProjectID, &out.ProjectID
-		*out = new(UUID)
-		**out = **in
 	}
 	if in.AllocationPools != nil {
 		in, out := &in.AllocationPools, &out.AllocationPools

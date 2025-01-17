@@ -30,7 +30,6 @@ type SubnetResourceSpecApplyConfiguration struct {
 	Tags              []v1alpha1.NeutronTag              `json:"tags,omitempty"`
 	IPVersion         *v1alpha1.IPVersion                `json:"ipVersion,omitempty"`
 	CIDR              *v1alpha1.CIDR                     `json:"cidr,omitempty"`
-	ProjectID         *v1alpha1.UUID                     `json:"projectID,omitempty"`
 	AllocationPools   []AllocationPoolApplyConfiguration `json:"allocationPools,omitempty"`
 	Gateway           *SubnetGatewayApplyConfiguration   `json:"gateway,omitempty"`
 	EnableDHCP        *bool                              `json:"enableDHCP,omitempty"`
@@ -86,14 +85,6 @@ func (b *SubnetResourceSpecApplyConfiguration) WithIPVersion(value v1alpha1.IPVe
 // If called multiple times, the CIDR field is set to the value of the last call.
 func (b *SubnetResourceSpecApplyConfiguration) WithCIDR(value v1alpha1.CIDR) *SubnetResourceSpecApplyConfiguration {
 	b.CIDR = &value
-	return b
-}
-
-// WithProjectID sets the ProjectID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ProjectID field is set to the value of the last call.
-func (b *SubnetResourceSpecApplyConfiguration) WithProjectID(value v1alpha1.UUID) *SubnetResourceSpecApplyConfiguration {
-	b.ProjectID = &value
 	return b
 }
 

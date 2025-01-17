@@ -25,8 +25,6 @@ type RouterFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	ProjectID *UUID `json:"projectID,omitempty"`
-
 	FilterByNeutronTags `json:",inline"`
 }
 

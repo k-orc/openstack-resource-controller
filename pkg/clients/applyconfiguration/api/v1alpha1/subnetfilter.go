@@ -27,7 +27,6 @@ import (
 type SubnetFilterApplyConfiguration struct {
 	Name                                  *v1alpha1.OpenStackName        `json:"name,omitempty"`
 	Description                           *v1alpha1.NeutronDescription   `json:"description,omitempty"`
-	ProjectID                             *v1alpha1.UUID                 `json:"projectID,omitempty"`
 	IPVersion                             *v1alpha1.IPVersion            `json:"ipVersion,omitempty"`
 	GatewayIP                             *v1alpha1.IPvAny               `json:"gatewayIP,omitempty"`
 	CIDR                                  *v1alpha1.CIDR                 `json:"cidr,omitempty"`
@@ -54,14 +53,6 @@ func (b *SubnetFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) 
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *SubnetFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SubnetFilterApplyConfiguration {
 	b.Description = &value
-	return b
-}
-
-// WithProjectID sets the ProjectID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ProjectID field is set to the value of the last call.
-func (b *SubnetFilterApplyConfiguration) WithProjectID(value v1alpha1.UUID) *SubnetFilterApplyConfiguration {
-	b.ProjectID = &value
 	return b
 }
 

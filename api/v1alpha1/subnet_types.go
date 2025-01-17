@@ -38,7 +38,6 @@ type SubnetFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	ProjectID *UUID        `json:"projectID,omitempty"`
 	IPVersion *IPVersion   `json:"ipVersion,omitempty"`
 	GatewayIP *IPvAny      `json:"gatewayIP,omitempty"`
 	CIDR      *CIDR        `json:"cidr,omitempty"`
@@ -68,11 +67,6 @@ type SubnetResourceSpec struct {
 	// cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
 	// +required
 	CIDR CIDR `json:"cidr"`
-
-	// projectID is the unique ID of the project which owns the Subnet. Only
-	// administrative users can specify a project UUID other than their own.
-	// +optional
-	ProjectID *UUID `json:"projectID,omitempty"`
 
 	// allocationPools are IP Address pools that will be available for DHCP. IP
 	// addresses must be in CIDR.
@@ -164,7 +158,7 @@ type SubnetResourceStatus struct {
 	EnableDHCP bool `json:"enableDHCP"`
 
 	// projectID is the project owner of the subnet.
-	ProjectID string `json:"projectID"`
+	ProjectID string `json:"projectID,omitempty"`
 
 	// The IPv6 address modes specifies mechanisms for assigning IPv6 IP addresses.
 	// +optional

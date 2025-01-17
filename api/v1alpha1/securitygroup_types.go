@@ -214,10 +214,6 @@ type SecurityGroupFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	// projectID specifies the ID of the project which owns the security group.
-	// +optional
-	ProjectID *UUID `json:"projectID,omitempty"`
-
 	FilterByNeutronTags `json:",inline"`
 }
 

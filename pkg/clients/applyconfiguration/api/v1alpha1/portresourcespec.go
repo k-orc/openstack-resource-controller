@@ -28,7 +28,6 @@ type PortResourceSpecApplyConfiguration struct {
 	Name                *v1alpha1.OpenStackName                `json:"name,omitempty"`
 	Description         *v1alpha1.NeutronDescription           `json:"description,omitempty"`
 	Tags                []v1alpha1.NeutronTag                  `json:"tags,omitempty"`
-	ProjectID           *v1alpha1.UUID                         `json:"projectID,omitempty"`
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
 	SecurityGroupRefs   []v1alpha1.OpenStackName               `json:"securityGroupRefs,omitempty"`
@@ -63,14 +62,6 @@ func (b *PortResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.Neutron
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
-	return b
-}
-
-// WithProjectID sets the ProjectID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ProjectID field is set to the value of the last call.
-func (b *PortResourceSpecApplyConfiguration) WithProjectID(value v1alpha1.UUID) *PortResourceSpecApplyConfiguration {
-	b.ProjectID = &value
 	return b
 }
 

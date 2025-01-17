@@ -167,10 +167,6 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -390,13 +386,6 @@ spec:
                       set, the object's name will be used.
                     maxLength: 255
                     minLength: 1
-                    type: string
-                  projectID:
-                    description: |-
-                      projectID is the unique ID of the project which owns the Subnet. Only
-                      administrative users can specify a project UUID other than their own.
-                    format: uuid
-                    maxLength: 36
                     type: string
                   routerRef:
                     description: routerRef specifies a router to attach the subnet
@@ -630,7 +619,6 @@ spec:
                 - enableDHCP
                 - ipVersion
                 - name
-                - projectID
                 type: object
             type: object
         type: object

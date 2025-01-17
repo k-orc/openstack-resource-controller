@@ -119,10 +119,6 @@ type NetworkFilter struct {
 	// +optional
 	External *bool `json:"external,omitempty"`
 
-	// projectID specifies the ID of the project which owns the network.
-	// +optional
-	ProjectID *UUID `json:"projectID,omitempty"`
-
 	FilterByNeutronTags `json:",inline"`
 }
 

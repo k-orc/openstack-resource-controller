@@ -27,7 +27,6 @@ import (
 type RouterFilterApplyConfiguration struct {
 	Name                                  *v1alpha1.OpenStackName      `json:"name,omitempty"`
 	Description                           *v1alpha1.NeutronDescription `json:"description,omitempty"`
-	ProjectID                             *v1alpha1.UUID               `json:"projectID,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -50,14 +49,6 @@ func (b *RouterFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) 
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *RouterFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *RouterFilterApplyConfiguration {
 	b.Description = &value
-	return b
-}
-
-// WithProjectID sets the ProjectID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ProjectID field is set to the value of the last call.
-func (b *RouterFilterApplyConfiguration) WithProjectID(value v1alpha1.UUID) *RouterFilterApplyConfiguration {
-	b.ProjectID = &value
 	return b
 }
 

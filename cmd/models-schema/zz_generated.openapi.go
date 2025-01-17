@@ -1903,13 +1903,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 							Format:      "",
 						},
 					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID specifies the ID of the project which owns the network.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -2554,12 +2547,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 							Format:      "",
 						},
 					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -2839,13 +2826,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 									},
 								},
 							},
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID is the unique ID of the project which owns the Port. Only administrative users can specify a project UUID other than their own.",
-							Type:        []string{"string"},
-							Format:      "",
 						},
 					},
 					"allowedAddressPairs": {
@@ -3294,12 +3274,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
 						},
 					},
 					"tags": {
@@ -4026,13 +4000,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID specifies the ID of the project which owns the security group.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5077,12 +5044,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 							Format:      "",
 						},
 					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"integer"},
@@ -5376,13 +5337,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							Format:      "",
 						},
 					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID is the unique ID of the project which owns the Subnet. Only administrative users can specify a project UUID other than their own.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"allocationPools": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -5603,7 +5557,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectID is the project owner of the subnet.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5669,7 +5622,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 						},
 					},
 				},
-				Required: []string{"name", "ipVersion", "cidr", "enableDHCP", "projectID"},
+				Required: []string{"name", "ipVersion", "cidr", "enableDHCP"},
 			},
 		},
 		Dependencies: []string{

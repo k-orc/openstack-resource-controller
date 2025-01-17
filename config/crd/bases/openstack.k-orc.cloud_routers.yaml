@@ -132,10 +132,6 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must

@@ -31,8 +31,6 @@ type PortFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	ProjectID *UUID `json:"projectID,omitempty"`
-
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -70,11 +68,6 @@ type PortResourceSpec struct {
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
-
-	// projectID is the unique ID of the project which owns the Port. Only
-	// administrative users can specify a project UUID other than their own.
-	// +optional
-	ProjectID *UUID `json:"projectID,omitempty"`
 
 	// allowedAddressPairs are allowed addresses associated with this port.
 	// +kubebuilder:validation:MaxItems:=32
