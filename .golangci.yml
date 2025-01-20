@@ -16,6 +16,10 @@ issues:
       linters:
         - dupl
         - lll
+    - path-except: "api/*"
+      linters:
+        - kal
+
 linters:
   disable-all: true
   enable:
@@ -30,6 +34,7 @@ linters:
     - gosimple
     - govet
     - ineffassign
+    - kal
     - lll
     - misspell
     - nakedret
@@ -45,3 +50,10 @@ linters-settings:
   revive:
     rules:
       - name: comment-spacings
+  custom:
+    kal:
+      type: "module"
+      description: KAL is the Kube-API-Linter and lints Kube like APIs based on API conventions and best practices.
+      settings:
+        linters: {}
+        lintersConfig: {}
