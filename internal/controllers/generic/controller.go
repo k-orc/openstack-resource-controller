@@ -156,7 +156,8 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 	}
 
 	if actuator.GetStatusID() == nil {
-		if err := SetStatusID(ctx, actuator, c.statusWriter, osResource); err != nil {
+		resourceID := actuator.GetResourceID(osResource)
+		if err := SetStatusID(ctx, c, orcObject, resourceID, c.statusWriter); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
