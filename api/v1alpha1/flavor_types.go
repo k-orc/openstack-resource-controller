@@ -54,6 +54,7 @@ type FlavorResourceSpec struct {
 
 	// swap is the size of a dedicated swap disk that will be allocated, in
 	// MiB. If 0 (the default), no dedicated swap disk will be created.
+	// +kubebuilder:validation:Minimum=0
 	// +optional
 	Swap int32 `json:"swap,omitempty"`
 
@@ -65,6 +66,7 @@ type FlavorResourceSpec struct {
 	// Ephemeral disks may be written over on server state changes. So should only
 	// be used as a scratch space for applications that are aware of its
 	// limitations. Defaults to 0.
+	// +kubebuilder:validation:Minimum=0
 	// +optional
 	Ephemeral int32 `json:"ephemeral,omitempty"`
 }
@@ -77,14 +79,17 @@ type FlavorFilter struct {
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// ram is the memory of the flavor, measured in MB.
+	// +kubebuilder:validation:Minimum=1
 	// +optional
 	RAM *int32 `json:"ram,omitempty"`
 
 	// vcpus is the number of vcpus for the flavor.
+	// +kubebuilder:validation:Minimum=1
 	// +optional
 	Vcpus *int32 `json:"vcpus,omitempty"`
 
 	// disk is the size of the root disk in GiB.
+	// +kubebuilder:validation:Minimum=0
 	// +optional
 	Disk *int32 `json:"disk,omitempty"`
 }

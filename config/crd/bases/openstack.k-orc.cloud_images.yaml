@@ -275,6 +275,7 @@ spec:
                             description: cpuCores is the preferred number of cores
                               to expose to the guest
                             format: int32
+                            minimum: 1
                             type: integer
                           cpuPolicy:
                             description: |-
@@ -305,6 +306,7 @@ spec:
                             description: cpuSockets is the preferred number of sockets
                               to expose to the guest
                             format: int32
+                            minimum: 1
                             type: integer
                           cpuThreadPolicy:
                             description: |-
@@ -345,6 +347,7 @@ spec:
                             description: cpuThreads is the preferred number of threads
                               to expose to the guest
                             format: int32
+                            minimum: 1
                             type: integer
                           diskBus:
                             description: diskBus specifies the type of disk controller

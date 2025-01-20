@@ -87,14 +87,17 @@ type ImageHWBus string
 
 type ImagePropertiesHardware struct {
 	// cpuSockets is the preferred number of sockets to expose to the guest
+	// +kubebuilder:validation:Minimum:=1
 	// +optional
 	CPUSockets *int32 `json:"cpuSockets,omitempty" glance:"hw_cpu_sockets"`
 
 	// cpuCores is the preferred number of cores to expose to the guest
+	// +kubebuilder:validation:Minimum:=1
 	// +optional
 	CPUCores *int32 `json:"cpuCores,omitempty" glance:"hw_cpu_cores"`
 
 	// cpuThreads is the preferred number of threads to expose to the guest
+	// +kubebuilder:validation:Minimum:=1
 	// +optional
 	CPUThreads *int32 `json:"cpuThreads,omitempty" glance:"hw_cpu_threads"`
 
