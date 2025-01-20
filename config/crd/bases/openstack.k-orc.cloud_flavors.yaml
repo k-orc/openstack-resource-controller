@@ -56,10 +56,10 @@ spec:
           metadata:
             type: object
           spec:
-            description: FlavorSpec defines the desired state of an ORC object.
+            description: spec specifies the desired state of the resource.
             properties:
               cloudCredentialsRef:
-                description: CloudCredentialsRef points to a secret containing OpenStack
+                description: cloudCredentialsRef points to a secret containing OpenStack
                   credentials
                 properties:
                   cloudName:
@@ -82,14 +82,14 @@ spec:
                 type: object
               import:
                 description: |-
-                  Import refers to an existing OpenStack resource which will be imported instead of
+                  import refers to an existing OpenStack resource which will be imported instead of
                   creating a new one.
                 maxProperties: 1
                 minProperties: 1
                 properties:
                   filter:
                     description: |-
-                      Filter contains a resource query which is expected to return a single
+                      filter contains a resource query which is expected to return a single
                       result. The controller will continue to retry if filter returns no
                       results. If filter returns multiple results the controller will set an
                       error state and will not continue to retry.
@@ -119,14 +119,14 @@ spec:
                     type: object
                   id:
                     description: |-
-                      ID contains the unique identifier of an existing OpenStack resource. Note
+                      id contains the unique identifier of an existing OpenStack resource. Note
                       that when specifying an import by ID, the resource MUST already exist.
                       The ORC object will enter an error state if the resource does not exist.
                     format: uuid
                     type: string
                 type: object
               managedOptions:
-                description: ManagedOptions specifies options which may be applied
+                description: managedOptions specifies options which may be applied
                   to managed objects.
                 properties:
                   onDelete:
@@ -144,7 +144,7 @@ spec:
               managementPolicy:
                 default: managed
                 description: |-
-                  ManagementPolicy defines how ORC will treat the object. Valid values are
+                  managementPolicy defines how ORC will treat the object. Valid values are
                   `managed`: ORC will create, update, and delete the resource; `unmanaged`:
                   ORC will import an existing resource, and will not apply updates to it or
                   delete it.
@@ -157,11 +157,11 @@ spec:
                   rule: self == oldSelf
               resource:
                 description: |-
-                  Resource specifies the desired state of the resource.
+                  resource specifies the desired state of the resource.
 
-                  Resource may not be specified if the management policy is `unmanaged`.
+                  resource may not be specified if the management policy is `unmanaged`.
 
-                  Resource must be specified if the management policy is `managed`.
+                  resource must be specified if the management policy is `managed`.
                 properties:
                   description:
                     description: description contains a free form description of the
@@ -246,11 +246,11 @@ spec:
               rule: 'has(self.managedOptions) ? self.managementPolicy == ''managed''
                 : true'
           status:
-            description: FlavorStatus defines the observed state of an ORC resource.
+            description: status defines the observed state of the resource.
             properties:
               conditions:
                 description: |-
-                  Conditions represents the observed status of the object.
+                  conditions represents the observed status of the object.
                   Known .status.conditions.type are: "Available", "Progressing"
 
                   Available represents the availability of the OpenStack resource. If it is
@@ -322,10 +322,10 @@ spec:
                 - type
                 x-kubernetes-list-type: map
               id:
-                description: ID is the unique identifier of the OpenStack resource.
+                description: id is the unique identifier of the OpenStack resource.
                 type: string
               resource:
-                description: Resource contains the observed state of the OpenStack
+                description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
                   description:
