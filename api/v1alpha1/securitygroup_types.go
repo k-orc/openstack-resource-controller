@@ -115,6 +115,7 @@ type SecurityGroupRule struct {
 	// must match the ingress or egress rules.
 	// +required
 	Ethertype Ethertype `json:"ethertype"`
+
 	// portRange sets the minimum and maximum ports range that the security group rule
 	// matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
 	// or equal to the PortRange.Max attribute value.

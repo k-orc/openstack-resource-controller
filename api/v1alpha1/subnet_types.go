@@ -128,26 +128,6 @@ type SubnetResourceSpec struct {
 	// TODO: Support subnet pools
 }
 
-type AllocationPoolStatus struct {
-	// start is the first IP address in the allocation pool.
-	// +optional
-	Start string `json:"start,omitempty"`
-
-	// end is the last IP address in the allocation pool.
-	// +optional
-	End string `json:"end,omitempty"`
-}
-
-type HostRouteStatus struct {
-	// destination for the additional route.
-	// +optional
-	Destination string `json:"destination,omitempty"`
-
-	// nextHop for the additional route.
-	// +optional
-	NextHop string `json:"nextHop,omitempty"`
-}
-
 type SubnetResourceStatus struct {
 	// name is the human-readable name of the subnet. Might not be unique.
 	// +optional
@@ -285,6 +265,16 @@ type AllocationPool struct {
 	End IPvAny `json:"end"`
 }
 
+type AllocationPoolStatus struct {
+	// start is the first IP address in the allocation pool.
+	// +optional
+	Start string `json:"start,omitempty"`
+
+	// end is the last IP address in the allocation pool.
+	// +optional
+	End string `json:"end,omitempty"`
+}
+
 type HostRoute struct {
 	// destination for the additional route.
 	// +required
@@ -293,4 +283,14 @@ type HostRoute struct {
 	// nextHop for the additional route.
 	// +required
 	NextHop IPvAny `json:"nextHop"`
+}
+
+type HostRouteStatus struct {
+	// destination for the additional route.
+	// +optional
+	Destination string `json:"destination,omitempty"`
+
+	// nextHop for the additional route.
+	// +optional
+	NextHop string `json:"nextHop,omitempty"`
 }
