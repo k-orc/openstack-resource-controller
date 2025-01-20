@@ -97,7 +97,7 @@ spec:
                     properties:
                       name:
                         description: name specifies the name of a Glance image
-                        maxLength: 1000
+                        maxLength: 255
                         minLength: 1
                         type: string
                     type: object

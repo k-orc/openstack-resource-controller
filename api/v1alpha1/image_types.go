@@ -310,9 +310,7 @@ type ImageResourceSpec struct {
 type ImageFilter struct {
 	// name specifies the name of a Glance image
 	// +optional
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=1000
-	Name *string `json:"name,omitempty"`
+	Name *OpenStackName `json:"name,omitempty"`
 }
 
 // ImageResourceStatus represents the observed state of a Glance image

@@ -594,7 +594,7 @@ func (in *ImageFilter) DeepCopyInto(out *ImageFilter) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(string)
+		*out = new(OpenStackName)
 		**out = **in
 	}
 }
