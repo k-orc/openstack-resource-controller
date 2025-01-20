@@ -97,7 +97,7 @@ spec:
                     properties:
                       description:
                         description: description of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       external:
@@ -107,7 +107,7 @@ spec:
                         type: boolean
                       name:
                         description: name of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -118,7 +118,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -132,18 +132,12 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        description: projectID specifies the ID of the project which
-                          owns the network.
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -152,7 +146,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -167,7 +161,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -228,18 +222,21 @@ spec:
                     description: availabilityZoneHints is the availability zone candidate
                       for the network.
                     items:
-                      maxLength: 128
+                      maxLength: 255
                       minLength: 1
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
                   description:
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   dnsDomain:
                     description: dnsDomain is the DNS domain of the network
-                    maxLength: 265
+                    maxLength: 255
                     minLength: 1
                     type: string
                   external:
@@ -251,6 +248,7 @@ spec:
                     description: |-
                       mtu is the the maximum transmission unit value to address
                       fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+                      Defaults to 1500.
                     format: int32
                     minimum: 68
                     type: integer
@@ -258,7 +256,7 @@ spec:
                     description: |-
                       name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   portSecurityEnabled:
@@ -281,7 +279,7 @@ spec:
                       description: |-
                         NeutronTag represents a tag on a Neutron resource.
                         It may not be empty and may not contain commas.
-                      maxLength: 60
+                      maxLength: 255
                       minLength: 1
                       type: string
                     maxItems: 32
@@ -412,6 +410,7 @@ spec:
                       resource.
                     type: string
                   dnsDomain:
+                    description: dnsDomain is the DNS domain of the network
                     type: string
                   external:
                     description: |-
@@ -444,22 +443,13 @@ spec:
                     description: projectID is the project owner of the network.
                     type: string
                   provider:
-                    description: |-
-                      ProviderProperties contains provider-network properties. Currently only
-                      available in status.
+                    description: provider contains provider-network properties.
                     properties:
                       networkType:
                         description: |-
                           networkType is the type of physical network that this
                           network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
                           Valid values depend on the networking back-end.
-                        enum:
-                        - flat
-                        - vlan
-                        - vxlan
-                        - gre
-                        maxLength: 16
-                        minLength: 1
                         type: string
                       physicalNetwork:
                         description: |-
@@ -468,8 +458,6 @@ spec:
                           way to list available physical networks. For example, the Open
                           vSwitch plug-in configuration file defines a symbolic name that maps
                           to specific bridges on each compute host.
-                        maxLength: 128
-                        minLength: 1
                         type: string
                       segmentationID:
                         description: |-
@@ -486,12 +474,13 @@ spec:
                     format: int64
                     type: integer
                   shared:
-                    description: Specifies whether the network resource can be accessed
-                      by any tenant.
+                    description: |-
+                      shared specifies whether the network resource can be accessed by any
+                      tenant.
                     type: boolean
                   status:
                     description: |-
-                      Indicates whether network is currently operational. Possible values
+                      status indicates whether network is currently operational. Possible values
                       include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
                       additional values.
                     type: string
@@ -512,8 +501,6 @@ spec:
                       was updated. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
-                required:
-                - adminStateUp
                 type: object
             type: object
         type: object

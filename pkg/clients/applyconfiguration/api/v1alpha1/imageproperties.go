@@ -21,8 +21,8 @@ package v1alpha1
 // ImagePropertiesApplyConfiguration represents a declarative configuration of the ImageProperties type for use
 // with apply.
 type ImagePropertiesApplyConfiguration struct {
-	MinDiskGB   *int                                       `json:"minDiskGB,omitempty"`
-	MinMemoryMB *int                                       `json:"minMemoryMB,omitempty"`
+	MinDiskGB   *int32                                     `json:"minDiskGB,omitempty"`
+	MinMemoryMB *int32                                     `json:"minMemoryMB,omitempty"`
 	Hardware    *ImagePropertiesHardwareApplyConfiguration `json:"hardware,omitempty"`
 }
 
@@ -35,7 +35,7 @@ func ImageProperties() *ImagePropertiesApplyConfiguration {
 // WithMinDiskGB sets the MinDiskGB field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the MinDiskGB field is set to the value of the last call.
-func (b *ImagePropertiesApplyConfiguration) WithMinDiskGB(value int) *ImagePropertiesApplyConfiguration {
+func (b *ImagePropertiesApplyConfiguration) WithMinDiskGB(value int32) *ImagePropertiesApplyConfiguration {
 	b.MinDiskGB = &value
 	return b
 }
@@ -43,7 +43,7 @@ func (b *ImagePropertiesApplyConfiguration) WithMinDiskGB(value int) *ImagePrope
 // WithMinMemoryMB sets the MinMemoryMB field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the MinMemoryMB field is set to the value of the last call.
-func (b *ImagePropertiesApplyConfiguration) WithMinMemoryMB(value int) *ImagePropertiesApplyConfiguration {
+func (b *ImagePropertiesApplyConfiguration) WithMinMemoryMB(value int32) *ImagePropertiesApplyConfiguration {
 	b.MinMemoryMB = &value
 	return b
 }

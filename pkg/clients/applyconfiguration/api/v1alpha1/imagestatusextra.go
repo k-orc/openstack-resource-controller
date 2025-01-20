@@ -21,7 +21,7 @@ package v1alpha1
 // ImageStatusExtraApplyConfiguration represents a declarative configuration of the ImageStatusExtra type for use
 // with apply.
 type ImageStatusExtraApplyConfiguration struct {
-	DownloadAttempts *int `json:"downloadAttempts,omitempty"`
+	DownloadAttempts *int32 `json:"downloadAttempts,omitempty"`
 }
 
 // ImageStatusExtraApplyConfiguration constructs a declarative configuration of the ImageStatusExtra type for use with
@@ -33,7 +33,7 @@ func ImageStatusExtra() *ImageStatusExtraApplyConfiguration {
 // WithDownloadAttempts sets the DownloadAttempts field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DownloadAttempts field is set to the value of the last call.
-func (b *ImageStatusExtraApplyConfiguration) WithDownloadAttempts(value int) *ImageStatusExtraApplyConfiguration {
+func (b *ImageStatusExtraApplyConfiguration) WithDownloadAttempts(value int32) *ImageStatusExtraApplyConfiguration {
 	b.DownloadAttempts = &value
 	return b
 }

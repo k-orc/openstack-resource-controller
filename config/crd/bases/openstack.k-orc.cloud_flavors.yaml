@@ -98,16 +98,23 @@ spec:
                       disk:
                         description: disk is the size of the root disk in GiB.
                         format: int32
+                        minimum: 0
                         type: integer
                       name:
                         description: name of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       ram:
                         description: ram is the memory of the flavor, measured in
                           MB.
                         format: int32
+                        minimum: 1
+                        type: integer
+                      vcpus:
+                        description: vcpus is the number of vcpus for the flavor.
+                        format: int32
+                        minimum: 1
                         type: integer
                     type: object
                   id:
@@ -157,8 +164,9 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   description:
-                    description: description is the description of the server
-                    maxLength: 1024
+                    description: description contains a free form description of the
+                      flavor.
+                    maxLength: 65535
                     minLength: 1
                     type: string
                   disk:
@@ -172,6 +180,7 @@ spec:
                       zero root disk via the
                       os_compute_api:servers:create:zero_disk_flavor policy rule.
                     format: int32
+                    minimum: 0
                     type: integer
                   ephemeral:
                     description: |-
@@ -180,6 +189,7 @@ spec:
                       be used as a scratch space for applications that are aware of its
                       limitations. Defaults to 0.
                     format: int32
+                    minimum: 0
                     type: integer
                   isPublic:
                     description: isPublic flags a flavor as being available to all
@@ -189,7 +199,7 @@ spec:
                     description: |-
                       name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   ram:
@@ -202,6 +212,7 @@ spec:
                       swap is the size of a dedicated swap disk that will be allocated, in
                       MiB. If 0 (the default), no dedicated swap disk will be created.
                     format: int32
+                    minimum: 0
                     type: integer
                   vcpus:
                     description: vcpus is the number of vcpus for the flavor.
@@ -209,9 +220,13 @@ spec:
                     minimum: 1
                     type: integer
                 required:
+                - disk
                 - ram
                 - vcpus
                 type: object
+                x-kubernetes-validations:
+                - message: FlavorResourceSpec is immutable
+                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

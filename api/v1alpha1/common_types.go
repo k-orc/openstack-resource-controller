@@ -20,10 +20,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=255
+type NeutronDescription string
+
 // NeutronTag represents a tag on a Neutron resource.
 // It may not be empty and may not contain commas.
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=60
+// +kubebuilder:validation:MaxLength:=255
 type NeutronTag string
 
 type FilterByNeutronTags struct {
@@ -58,7 +62,7 @@ type FilterByNeutronTags struct {
 }
 
 // +kubebuilder:validation:Enum:=4;6
-type IPVersion int8
+type IPVersion int32
 
 // +kubebuilder:validation:Format:=cidr
 // +kubebuilder:validation:MinLength:=1
@@ -73,19 +77,20 @@ type IPvAny string
 // +kubebuilder:validation:MaxLength:=17
 type MAC string
 
-// XXX: AvailabilityZoneHint MaxLength is made up
-
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=128
+// +kubebuilder:validation:MaxLength:=255
 type AvailabilityZoneHint string
 
 type NeutronStatusMetadata struct {
 	// createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601
+	// +optional
 	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
 	// updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601
+	// +optional
 	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 
 	// revisionNumber optionally set via extensions/standard-attr-revisions
+	// +optional
 	RevisionNumber *int64 `json:"revisionNumber,omitempty"`
 }
 

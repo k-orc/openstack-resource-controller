@@ -97,7 +97,7 @@ spec:
                     properties:
                       name:
                         description: name specifies the name of a Glance image
-                        maxLength: 1000
+                        maxLength: 255
                         minLength: 1
                         type: string
                     type: object
@@ -247,7 +247,7 @@ spec:
                     description: |-
                       name will be the name of the created Glance image. If not specified, the
                       name of the Image object will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   properties:
@@ -274,6 +274,8 @@ spec:
                           cpuCores:
                             description: cpuCores is the preferred number of cores
                               to expose to the guest
+                            format: int32
+                            minimum: 1
                             type: integer
                           cpuPolicy:
                             description: |-
@@ -303,6 +305,8 @@ spec:
                           cpuSockets:
                             description: cpuSockets is the preferred number of sockets
                               to expose to the guest
+                            format: int32
+                            minimum: 1
                             type: integer
                           cpuThreadPolicy:
                             description: |-
@@ -342,6 +346,8 @@ spec:
                           cpuThreads:
                             description: cpuThreads is the preferred number of threads
                               to expose to the guest
+                            format: int32
+                            minimum: 1
                             type: integer
                           diskBus:
                             description: diskBus specifies the type of disk controller
@@ -386,11 +392,13 @@ spec:
                       minDiskGB:
                         description: minDiskGB is the minimum amount of disk space
                           in GB that is required to boot the image
+                        format: int32
                         minimum: 1
                         type: integer
                       minMemoryMB:
                         description: minMemoryMB is the minimum amount of RAM in MB
                           that is required to boot the image.
+                        format: int32
                         minimum: 1
                         type: integer
                     type: object
@@ -533,6 +541,7 @@ spec:
               downloadAttempts:
                 description: downloadAttempts is the number of times the controller
                   has attempted to download the image contents
+                format: int32
                 type: integer
               id:
                 description: ID is the unique identifier of the OpenStack resource.

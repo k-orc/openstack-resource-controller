@@ -156,7 +156,7 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context) ([]gene
 
 	createOpts := routers.CreateOpts{
 		Name:         string(ptr.Deref(resource.Name, "")),
-		Description:  string(resource.Description),
+		Description:  string(ptr.Deref(resource.Description, "")),
 		AdminStateUp: resource.AdminStateUp,
 		Distributed:  resource.Distributed,
 		GatewayInfo:  gatewayInfo,
@@ -193,9 +193,8 @@ func getResourceName(orcObject *orcv1alpha1.Router) orcv1alpha1.OpenStackName {
 
 func listOptsFromImportFilter(filter *orcv1alpha1.RouterFilter) routers.ListOpts {
 	listOpts := routers.ListOpts{
-		Name:        string(filter.Name),
-		Description: string(filter.Description),
-		ProjectID:   string(filter.ProjectID),
+		Name:        string(ptr.Deref(filter.Name, "")),
+		Description: string(ptr.Deref(filter.Description, "")),
 		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
 		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
 		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),

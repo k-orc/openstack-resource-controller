@@ -25,30 +25,62 @@ type PortRefs struct {
 // PortFilter specifies a filter to select a port. At least one parameter must be specified.
 // +kubebuilder:validation:MinProperties:=1
 type PortFilter struct {
-	Name        *OpenStackName        `json:"name,omitempty"`
-	Description *OpenStackDescription `json:"description,omitempty"`
-	ProjectID   *UUID                 `json:"projectID,omitempty"`
+	// name of the existing resource
+	// +optional
+	Name *OpenStackName `json:"name,omitempty"`
+
+	// description of the existing resource
+	// +optional
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
 
 type AllowedAddressPair struct {
-	IP  *IPvAny `json:"ip"`
-	MAC *MAC    `json:"mac,omitempty"`
+	// ip contains an IP address which a server connected to the port can
+	// send packets with. It can be an IP Address or a CIDR (if supported
+	// by the underlying extension plugin).
+	// +required
+	IP IPvAny `json:"ip"`
+
+	// mac contains a MAC address which a server connected to the port can
+	// send packets with. Defaults to the MAC address of the port.
+	// +optional
+	MAC *MAC `json:"mac,omitempty"`
 }
 
 type AllowedAddressPairStatus struct {
-	IP  string `json:"ip"`
+	// ip contains an IP address which a server connected to the port can
+	// send packets with.
+	// +optional
+	IP string `json:"ip,omitempty"`
+
+	// mac contains a MAC address which a server connected to the port can
+	// send packets with.
+	// +optional
 	MAC string `json:"mac,omitempty"`
 }
 
 type Address struct {
-	IP        *IPvAny        `json:"ip,omitempty"`
-	SubnetRef *OpenStackName `json:"subnetRef"`
+	// ip contains a fixed IP address assigned to the port. It must belong
+	// to the referenced subnet's CIDR. If not specified, OpenStack
+	// allocates an available IP from the referenced subnet.
+	// +optional
+	IP *IPvAny `json:"ip,omitempty"`
+
+	// subnetRef references the subnet from which to allocate the IP
+	// address.
+	// +required
+	SubnetRef KubernetesNameRef `json:"subnetRef"`
 }
 
 type FixedIPStatus struct {
-	IP       string `json:"ip"`
+	// ip contains a fixed IP address assigned to the port.
+	// +optional
+	IP string `json:"ip,omitempty"`
+
+	// subnetID is the ID of the subnet this IP is allocated from.
+	// +optional
 	SubnetID string `json:"subnetID,omitempty"`
 }
 
@@ -57,20 +89,15 @@ type PortResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the port.
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the port.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
-
-	// projectID is the unique ID of the project which owns the Port. Only
-	// administrative users can specify a project UUID other than their own.
-	// +optional
-	ProjectID *UUID `json:"projectID,omitempty"`
 
 	// allowedAddressPairs are allowed addresses associated with this port.
 	// +kubebuilder:validation:MaxItems:=32
@@ -86,7 +113,9 @@ type PortResourceSpec struct {
 
 	// securityGroupRefs are the names of the security groups associated
 	// with this port.
-	// +listType=atomic
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
+	// +optional
 	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
 }
 
@@ -115,7 +144,7 @@ type PortResourceStatus struct {
 	// adminStateUp is the administrative state of the port,
 	// which is up (true) or down (false).
 	// +optional
-	AdminStateUp bool `json:"adminStateUp,omitempty"`
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// macAddress is the MAC address of the port.
 	// +optional
@@ -151,7 +180,7 @@ type PortResourceStatus struct {
 	// propagateUplinkStatus represents the uplink status propagation of
 	// the port.
 	// +optional
-	PropagateUplinkStatus bool `json:"propagateUplinkStatus,omitempty"`
+	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
 }

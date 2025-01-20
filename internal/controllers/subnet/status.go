@@ -44,7 +44,7 @@ func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource osReso
 	status := orcapplyconfigv1alpha1.SubnetResourceStatus().
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).
-		WithIPVersion(osResource.IPVersion).
+		WithIPVersion(int32(osResource.IPVersion)).
 		WithCIDR(osResource.CIDR).
 		WithGatewayIP(osResource.GatewayIP).
 		WithDNSPublishFixedIP(osResource.DNSPublishFixedIP).

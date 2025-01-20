@@ -16,42 +16,34 @@ limitations under the License.
 
 package v1alpha1
 
-// +kubebuilder:validation:Enum:=flat;vlan;vxlan;gre
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=16
-type ProviderNetworkType string
-
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=128
-type PhysicalNetwork string
-
-// ProviderProperties contains provider-network properties. Currently only
-// available in status.
-type ProviderProperties struct {
+type ProviderPropertiesStatus struct {
 	// networkType is the type of physical network that this
 	// network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
 	// Valid values depend on the networking back-end.
-	NetworkType *ProviderNetworkType `json:"networkType,omitempty"`
+	// +optional
+	NetworkType string `json:"networkType,omitempty"`
 
 	// physicalNetwork is the physical network where this network
 	// should be implemented. The Networking API v2.0 does not provide a
 	// way to list available physical networks. For example, the Open
 	// vSwitch plug-in configuration file defines a symbolic name that maps
 	// to specific bridges on each compute host.
-	PhysicalNetwork *PhysicalNetwork `json:"physicalNetwork,omitempty"`
+	// +optional
+	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
 
 	// segmentationID is the ID of the isolated segment on the
 	// physical network. The network_type attribute defines the
 	// segmentation model. For example, if the network_type value is vlan,
 	// this ID is a vlan identifier. If the network_type value is gre, this
 	// ID is a gre key.
+	// +optional
 	SegmentationID *int32 `json:"segmentationID,omitempty"`
 }
 
 // TODO: Much better DNSDomain validation
 
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=265
+// +kubebuilder:validation:MaxLength:=255
 type DNSDomain string
 
 // +kubebuilder:validation:Minimum:=68
@@ -64,12 +56,14 @@ type NetworkResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// description is a human-readable description for the resource.
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the network.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
+	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
 
 	// adminStateUp is the administrative state of the network, which is up (true) or down (false)
@@ -82,6 +76,7 @@ type NetworkResourceSpec struct {
 
 	// mtu is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+	// Defaults to 1500.
 	// +optional
 	MTU *MTU `json:"mtu,omitempty"`
 
@@ -104,6 +99,7 @@ type NetworkResourceSpec struct {
 	Shared *bool `json:"shared,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the network.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
@@ -118,16 +114,12 @@ type NetworkFilter struct {
 
 	// description of the existing resource
 	// +optional
-	Description *OpenStackDescription `json:"description,omitempty"`
+	Description *NeutronDescription `json:"description,omitempty"`
 
 	// external indicates whether the network has an external routing
 	// facility that’s not managed by the networking service.
 	// +optional
 	External *bool `json:"external,omitempty"`
-
-	// projectID specifies the ID of the project which owns the network.
-	// +optional
-	ProjectID *UUID `json:"projectID,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -146,7 +138,7 @@ type NetworkResourceStatus struct {
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// Indicates whether network is currently operational. Possible values
+	// status indicates whether network is currently operational. Possible values
 	// include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
 	// additional values.
 	// +optional
@@ -161,7 +153,8 @@ type NetworkResourceStatus struct {
 
 	// adminStateUp is the administrative state of the network,
 	// which is up (true) or down (false).
-	AdminStateUp bool `json:"adminStateUp"`
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp"`
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// network.
@@ -169,12 +162,14 @@ type NetworkResourceStatus struct {
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
 
+	// dnsDomain is the DNS domain of the network
+	// +optional
 	DNSDomain string `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
 	// +optional
-	MTU int32 `json:"mtu,omitempty"`
+	MTU *int32 `json:"mtu,omitempty"`
 
 	// portSecurityEnabled is the port security status of the network.
 	// Valid values are enabled (true) and disabled (false). This value is
@@ -183,8 +178,9 @@ type NetworkResourceStatus struct {
 	// +optional
 	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 
+	// provider contains provider-network properties.
 	// +optional
-	Provider *ProviderProperties `json:"provider,omitempty"`
+	Provider *ProviderPropertiesStatus `json:"provider,omitempty"`
 
 	// external defines whether the network may be used for creation of
 	// floating IPs. Only networks with this flag may be an external
@@ -194,11 +190,12 @@ type NetworkResourceStatus struct {
 	// of this network are automatically deleted when extension
 	// floatingip-autodelete-internal is present.
 	// +optional
-	External bool `json:"external,omitempty"`
+	External *bool `json:"external,omitempty"`
 
-	// Specifies whether the network resource can be accessed by any tenant.
+	// shared specifies whether the network resource can be accessed by any
+	// tenant.
 	// +optional
-	Shared bool `json:"shared,omitempty"`
+	Shared *bool `json:"shared,omitempty"`
 
 	// subnets associated with this network.
 	// +listType=atomic

@@ -136,8 +136,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.PortSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortStatus"):
 		return &apiv1alpha1.PortStatusApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("ProviderProperties"):
-		return &apiv1alpha1.ProviderPropertiesApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
+		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Router"):
 		return &apiv1alpha1.RouterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RouterFilter"):

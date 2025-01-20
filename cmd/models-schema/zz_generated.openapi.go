@@ -86,7 +86,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus":          schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec":                    schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties":          schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderProperties(ref),
+		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus":    schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Router":                      schema_k_orc_openstack_resource_controller_api_v1alpha1_Router(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterImport(ref),
@@ -422,14 +422,17 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Address(ref common.
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "ip contains a fixed IP address assigned to the port. It must belong to the referenced subnet's CIDR. If not specified, OpenStack allocates an available IP from the referenced subnet.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"subnetRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "subnetRef references the subnet from which to allocate the IP address.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -447,16 +450,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPool(ref 
 				Properties: map[string]spec.Schema{
 					"start": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "start is the first IP address in the allocation pool.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"end": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "end is the last IP address in the allocation pool.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -474,20 +479,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPoolStatu
 				Properties: map[string]spec.Schema{
 					"start": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "start is the first IP address in the allocation pool.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"end": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "end is the last IP address in the allocation pool.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"start", "end"},
 			},
 		},
 	}
@@ -501,14 +505,17 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPair(
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "ip contains an IP address which a server connected to the port can send packets with. It can be an IP Address or a CIDR (if supported by the underlying extension plugin).",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mac": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "mac contains a MAC address which a server connected to the port can send packets with. Defaults to the MAC address of the port.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -526,19 +533,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPairS
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "ip contains an IP address which a server connected to the port can send packets with.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mac": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "mac contains a MAC address which a server connected to the port can send packets with.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"ip"},
 			},
 		},
 	}
@@ -582,9 +589,10 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGateway(ref
 				Properties: map[string]spec.Schema{
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "networkRef is a reference to the ORC Network which the external gateway is on.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -602,13 +610,12 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGatewayStat
 				Properties: map[string]spec.Schema{
 					"networkID": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "networkID is the ID of the network the gateway is on.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"networkID"},
 			},
 		},
 	}
@@ -714,19 +721,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FixedIPStatus(ref c
 				Properties: map[string]spec.Schema{
 					"ip": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "ip contains a fixed IP address assigned to the port.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"subnetID": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "subnetID is the ID of the subnet this IP is allocated from.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"ip"},
 			},
 		},
 	}
@@ -796,6 +803,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorFilter(ref co
 					"ram": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ram is the memory of the flavor, measured in MB.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"vcpus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vcpus is the number of vcpus for the flavor.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -906,7 +920,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description is the description of the server",
+							Description: "description contains a free form description of the flavor.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -930,6 +944,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 					"disk": {
 						SchemaProps: spec.SchemaProps{
 							Description: "disk is the size of the root disk that will be created in GiB. If 0 the root disk will be set to exactly the size of the image used to deploy the instance. However, in this case the scheduler cannot select the compute host based on the virtual image size. Therefore, 0 should only be used for volume booted instances or for testing purposes. Volume-backed instances can be enforced for flavors with zero root disk via the os_compute_api:servers:create:zero_disk_flavor policy rule.",
+							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -956,7 +971,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 						},
 					},
 				},
-				Required: []string{"ram", "vcpus"},
+				Required: []string{"ram", "vcpus", "disk"},
 			},
 		},
 	}
@@ -1139,16 +1154,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRoute(ref commo
 				Properties: map[string]spec.Schema{
 					"destination": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "destination for the additional route.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"nextHop": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "nextHop for the additional route.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -1166,20 +1183,19 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRouteStatus(ref
 				Properties: map[string]spec.Schema{
 					"destination": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "destination for the additional route.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"nextHop": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "nextHop for the additional route.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
-				Required: []string{"destination", "nextHop"},
 			},
 		},
 	}
@@ -1895,13 +1911,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 							Format:      "",
 						},
 					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID specifies the ID of the project which owns the network.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -2081,8 +2090,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"tags": {
@@ -2121,7 +2131,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 					},
 					"mtu": {
 						SchemaProps: spec.SchemaProps{
-							Description: "mtu is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.",
+							Description: "mtu is the the maximum transmission unit value to address fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6. Defaults to 1500.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -2203,7 +2213,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Indicates whether network is currently operational. Possible values include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define additional values.",
+							Description: "status indicates whether network is currently operational. Possible values include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define additional values.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2250,7 +2260,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
 							Description: "adminStateUp is the administrative state of the network, which is up (true) or down (false).",
-							Default:     false,
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -2277,8 +2286,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"dnsDomain": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "dnsDomain is the DNS domain of the network",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"mtu": {
@@ -2297,7 +2307,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"provider": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties"),
+							Description: "provider contains provider-network properties.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus"),
 						},
 					},
 					"external": {
@@ -2309,7 +2320,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					},
 					"shared": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies whether the network resource can be accessed by any tenant.",
+							Description: "shared specifies whether the network resource can be accessed by any tenant.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -2335,11 +2346,10 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 						},
 					},
 				},
-				Required: []string{"adminStateUp"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderProperties", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -2532,20 +2542,16 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"tags": {
@@ -2804,7 +2810,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the port.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2827,13 +2833,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 									},
 								},
 							},
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID is the unique ID of the project which owns the Port. Only administrative users can specify a project UUID other than their own.",
-							Type:        []string{"string"},
-							Format:      "",
 						},
 					},
 					"allowedAddressPairs": {
@@ -2877,7 +2876,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 					"securityGroupRefs": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "atomic",
+								"x-kubernetes-list-type": "set",
 							},
 						},
 						SchemaProps: spec.SchemaProps{
@@ -3184,12 +3183,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref comm
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderProperties(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "ProviderProperties contains provider-network properties. Currently only available in status.",
-				Type:        []string{"object"},
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"networkType": {
 						SchemaProps: spec.SchemaProps{
@@ -3274,20 +3272,16 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"tags": {
@@ -3427,20 +3421,23 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterface(ref
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Description: "metadata contains the object metadata.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceSpec"),
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceStatus"),
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceStatus"),
 						},
 					},
 				},
@@ -3455,7 +3452,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceList
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "RouterInterfaceList contains a list of Router.",
+				Description: "RouterInterfaceList contains a list of RouterInterface.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
@@ -3474,13 +3471,15 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceList
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Description: "metadata contains the list metadata.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "items contains a list of RouterInterface.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3508,22 +3507,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceSpec
 				Properties: map[string]spec.Schema{
 					"type": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "type specifies the type of the router interface.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"routerRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "routerRef references the router to which this interface belongs.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"subnetRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "subnetRef references the subnet the router interface is created on.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -3635,14 +3637,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the human-readable name of the subnet. Might not be unique.",
+							Description: "name is a human-readable name of the router. If not set, the object's name will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description for the subnet.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3654,7 +3656,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "tags optionally set via extensions/attributestags",
+							Description: "tags is a list of tags which will be applied to the router.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -3669,8 +3671,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"boolean"},
-							Format: "",
+							Description: "adminStateUp represents the administrative state of the resource, which is up (true) or down (false). Default is true.",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"externalGateways": {
@@ -3680,7 +3683,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "externalGateways is a list of external gateways for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3693,8 +3697,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 					},
 					"distributed": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"boolean"},
-							Format: "",
+							Description: "distributed indicates whether the router is distributed or not. It is available when dvr extension is enabled.",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"availabilityZoneHints": {
@@ -3704,7 +3709,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "availabilityZoneHints is the availability zone candidate for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3799,9 +3805,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
-							Default: false,
-							Type:    []string{"boolean"},
-							Format:  "",
+							Description: "adminStateUp is the administrative state of the router, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"externalGateways": {
@@ -3811,7 +3817,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "externalGateways is a list of external gateways for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3829,7 +3836,8 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Type: []string{"array"},
+							Description: "availabilityZoneHints is the availability zone candidate for the router.",
+							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -3842,7 +3850,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 						},
 					},
 				},
-				Required: []string{"adminStateUp"},
 			},
 		},
 		Dependencies: []string{
@@ -4014,13 +4021,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID specifies the ID of the project which owns the security group.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4204,8 +4204,9 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"tags": {
@@ -4372,7 +4373,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 				Properties: map[string]spec.Schema{
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4436,7 +4437,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleSt
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4769,16 +4770,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 					},
 					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "imageRef references the image to use for the server instance. NOTE: This is not required in case of boot from volume.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"flavorRef": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Description: "flavorRef references the flavor to use for the server instance.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"userData": {
@@ -4874,7 +4877,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 					"securityGroups": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
+								"x-kubernetes-list-type": "atomic",
 							},
 						},
 						SchemaProps: spec.SchemaProps{
@@ -5053,43 +5056,43 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"integer"},
-							Format: "byte",
+							Description: "ipVersion of the existing resource",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"gatewayIP": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "gatewayIP is the IP address of the gateway of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "cidr of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"ipv6": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
+							Description: "ipv6 options of the existing resource",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
 						},
 					},
 					"tags": {
@@ -5321,7 +5324,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the subnet.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5351,20 +5354,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 							Description: "ipVersion is the IP version for the subnet.",
 							Default:     0,
 							Type:        []string{"integer"},
-							Format:      "byte",
+							Format:      "int32",
 						},
 					},
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.",
 							Default:     "",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"projectID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "projectID is the unique ID of the project which owns the Subnet. Only administrative users can specify a project UUID other than their own.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5423,7 +5419,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					},
 					"dnsPublishFixedIP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS",
+							Description: "dnsPublishFixedIP will either enable or disable the publication of fixed IPs to the DNS. Defaults to false.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5478,14 +5474,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "name is the human-readable name of the subnet. Might not be unique.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description for the subnet.",
+							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5493,7 +5488,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"ipVersion": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ipVersion specifies IP version, either `4' or `6'.",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -5501,7 +5495,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cidr representing IP range for this subnet, based on IP version.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5580,8 +5573,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					},
 					"enableDHCP": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies whether DHCP is enabled for this subnet or not.",
-							Default:     false,
+							Description: "enableDHCP specifies whether DHCP is enabled for this subnet or not.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -5589,21 +5581,20 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectID is the project owner of the subnet.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ipv6AddressMode": {
 						SchemaProps: spec.SchemaProps{
-							Description: "The IPv6 address modes specifies mechanisms for assigning IPv6 IP addresses.",
+							Description: "ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"ipv6RAMode": {
 						SchemaProps: spec.SchemaProps{
-							Description: "The IPv6 router advertisement specifies whether the networking service should transmit ICMPv6 packets.",
+							Description: "ipv6RAMode is the IPv6 router advertisement mode. It specifies whether the networking service should transmit ICMPv6 packets.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5655,7 +5646,6 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 						},
 					},
 				},
-				Required: []string{"name", "ipVersion", "cidr", "enableDHCP", "projectID"},
 			},
 		},
 		Dependencies: []string{

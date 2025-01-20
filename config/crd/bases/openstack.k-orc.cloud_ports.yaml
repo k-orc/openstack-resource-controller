@@ -96,11 +96,13 @@ spec:
                     minProperties: 1
                     properties:
                       description:
-                        maxLength: 1024
+                        description: description of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       name:
-                        maxLength: 1024
+                        description: name of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -111,7 +113,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -125,16 +127,12 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -143,7 +141,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -158,7 +156,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -222,11 +220,18 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: |-
+                            ip contains a fixed IP address assigned to the port. It must belong
+                            to the referenced subnet's CIDR. If not specified, OpenStack
+                            allocates an available IP from the referenced subnet.
                           maxLength: 45
                           minLength: 1
                           type: string
                         subnetRef:
-                          maxLength: 1024
+                          description: |-
+                            subnetRef references the subnet from which to allocate the IP
+                            address.
+                          maxLength: 253
                           minLength: 1
                           type: string
                       required:
@@ -241,10 +246,17 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: |-
+                            ip contains an IP address which a server connected to the port can
+                            send packets with. It can be an IP Address or a CIDR (if supported
+                            by the underlying extension plugin).
                           maxLength: 45
                           minLength: 1
                           type: string
                         mac:
+                          description: |-
+                            mac contains a MAC address which a server connected to the port can
+                            send packets with. Defaults to the MAC address of the port.
                           maxLength: 17
                           minLength: 1
                           type: string
@@ -255,33 +267,28 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                   description:
-                    description: description of the port.
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   name:
                     description: name is a human-readable name of the port. If not
                       set, the object's name will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
-                    type: string
-                  projectID:
-                    description: |-
-                      projectID is the unique ID of the project which owns the Port. Only
-                      administrative users can specify a project UUID other than their own.
-                    format: uuid
-                    maxLength: 36
                     type: string
                   securityGroupRefs:
                     description: |-
                       securityGroupRefs are the names of the security groups associated
                       with this port.
                     items:
-                      maxLength: 1024
+                      maxLength: 255
                       minLength: 1
                       type: string
+                    maxItems: 32
                     type: array
-                    x-kubernetes-list-type: atomic
+                    x-kubernetes-list-type: set
                   tags:
                     description: tags is a list of tags which will be applied to the
                       port.
@@ -289,7 +296,7 @@ spec:
                       description: |-
                         NeutronTag represents a tag on a Neutron resource.
                         It may not be empty and may not contain commas.
-                      maxLength: 60
+                      maxLength: 255
                       minLength: 1
                       type: string
                     maxItems: 32
@@ -411,11 +418,15 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: |-
+                            ip contains an IP address which a server connected to the port can
+                            send packets with.
                           type: string
                         mac:
+                          description: |-
+                            mac contains a MAC address which a server connected to the port can
+                            send packets with.
                           type: string
-                      required:
-                      - ip
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
@@ -442,11 +453,13 @@ spec:
                     items:
                       properties:
                         ip:
+                          description: ip contains a fixed IP address assigned to
+                            the port.
                           type: string
                         subnetID:
+                          description: subnetID is the ID of the subnet this IP is
+                            allocated from.
                           type: string
-                      required:
-                      - ip
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic

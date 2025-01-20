@@ -27,7 +27,7 @@ import (
 type SubnetResourceStatusApplyConfiguration struct {
 	Name                                    *string                                  `json:"name,omitempty"`
 	Description                             *string                                  `json:"description,omitempty"`
-	IPVersion                               *int                                     `json:"ipVersion,omitempty"`
+	IPVersion                               *int32                                   `json:"ipVersion,omitempty"`
 	CIDR                                    *string                                  `json:"cidr,omitempty"`
 	GatewayIP                               *string                                  `json:"gatewayIP,omitempty"`
 	DNSNameservers                          []string                                 `json:"dnsNameservers,omitempty"`
@@ -68,7 +68,7 @@ func (b *SubnetResourceStatusApplyConfiguration) WithDescription(value string) *
 // WithIPVersion sets the IPVersion field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the IPVersion field is set to the value of the last call.
-func (b *SubnetResourceStatusApplyConfiguration) WithIPVersion(value int) *SubnetResourceStatusApplyConfiguration {
+func (b *SubnetResourceStatusApplyConfiguration) WithIPVersion(value int32) *SubnetResourceStatusApplyConfiguration {
 	b.IPVersion = &value
 	return b
 }

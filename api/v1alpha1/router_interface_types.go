@@ -29,20 +29,34 @@ import (
 
 // RouterInterface is the Schema for an ORC resource.
 type RouterInterface struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+
+	// metadata contains the object metadata.
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   RouterInterfaceSpec   `json:"spec,omitempty"`
+	// spec specifies the desired state of the resource.
+	// +optional
+	Spec RouterInterfaceSpec `json:"spec,omitempty"`
+
+	// status defines the observed state of the resource.
+	// +optional
 	Status RouterInterfaceStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// RouterInterfaceList contains a list of Router.
+// RouterInterfaceList contains a list of RouterInterface.
 type RouterInterfaceList struct {
 	metav1.TypeMeta `json:",inline"`
+
+	// metadata contains the list metadata.
+	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []RouterInterface `json:"items"`
+
+	// items contains a list of RouterInterface.
+	// +required
+	Items []RouterInterface `json:"items"`
 }
 
 // +kubebuilder:validation:Enum:=Subnet
@@ -56,14 +70,18 @@ const (
 
 // +kubebuilder:validation:XValidation:rule="self.type == 'Subnet' ? has(self.subnetRef) : !has(self.subnetRef)",message="subnetRef is required when type is 'Subnet' and not permitted otherwise"
 type RouterInterfaceSpec struct {
+	// type specifies the type of the router interface.
 	// +required
 	// +unionDiscriminator
 	Type RouterInterfaceType `json:"type"`
 
+	// routerRef references the router to which this interface belongs.
 	// +required
 	RouterRef KubernetesNameRef `json:"routerRef"`
 
-	// +unionMember,optional
+	// subnetRef references the subnet the router interface is created on.
+	// +unionMember
+	// +optional
 	SubnetRef *KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 

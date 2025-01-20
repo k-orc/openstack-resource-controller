@@ -26,7 +26,7 @@ import (
 // with apply.
 type NetworkResourceSpecApplyConfiguration struct {
 	Name                  *v1alpha1.OpenStackName         `json:"name,omitempty"`
-	Description           *v1alpha1.OpenStackDescription  `json:"description,omitempty"`
+	Description           *v1alpha1.NeutronDescription    `json:"description,omitempty"`
 	Tags                  []v1alpha1.NeutronTag           `json:"tags,omitempty"`
 	AdminStateUp          *bool                           `json:"adminStateUp,omitempty"`
 	DNSDomain             *v1alpha1.DNSDomain             `json:"dnsDomain,omitempty"`
@@ -54,7 +54,7 @@ func (b *NetworkResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStac
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *NetworkResourceSpecApplyConfiguration) WithDescription(value v1alpha1.OpenStackDescription) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *NetworkResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }

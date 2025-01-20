@@ -25,8 +25,8 @@ import (
 // AddressApplyConfiguration represents a declarative configuration of the Address type for use
 // with apply.
 type AddressApplyConfiguration struct {
-	IP        *v1alpha1.IPvAny        `json:"ip,omitempty"`
-	SubnetRef *v1alpha1.OpenStackName `json:"subnetRef,omitempty"`
+	IP        *v1alpha1.IPvAny            `json:"ip,omitempty"`
+	SubnetRef *v1alpha1.KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 
 // AddressApplyConfiguration constructs a declarative configuration of the Address type for use with
@@ -46,7 +46,7 @@ func (b *AddressApplyConfiguration) WithIP(value v1alpha1.IPvAny) *AddressApplyC
 // WithSubnetRef sets the SubnetRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the SubnetRef field is set to the value of the last call.
-func (b *AddressApplyConfiguration) WithSubnetRef(value v1alpha1.OpenStackName) *AddressApplyConfiguration {
+func (b *AddressApplyConfiguration) WithSubnetRef(value v1alpha1.KubernetesNameRef) *AddressApplyConfiguration {
 	b.SubnetRef = &value
 	return b
 }

@@ -25,9 +25,8 @@ import (
 // PortFilterApplyConfiguration represents a declarative configuration of the PortFilter type for use
 // with apply.
 type PortFilterApplyConfiguration struct {
-	Name                                  *v1alpha1.OpenStackName        `json:"name,omitempty"`
-	Description                           *v1alpha1.OpenStackDescription `json:"description,omitempty"`
-	ProjectID                             *v1alpha1.UUID                 `json:"projectID,omitempty"`
+	Name                                  *v1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *v1alpha1.NeutronDescription `json:"description,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -48,16 +47,8 @@ func (b *PortFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *P
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *PortFilterApplyConfiguration) WithDescription(value v1alpha1.OpenStackDescription) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *PortFilterApplyConfiguration {
 	b.Description = &value
-	return b
-}
-
-// WithProjectID sets the ProjectID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ProjectID field is set to the value of the last call.
-func (b *PortFilterApplyConfiguration) WithProjectID(value v1alpha1.UUID) *PortFilterApplyConfiguration {
-	b.ProjectID = &value
 	return b
 }
 

@@ -25,14 +25,14 @@ import (
 // FlavorResourceSpecApplyConfiguration represents a declarative configuration of the FlavorResourceSpec type for use
 // with apply.
 type FlavorResourceSpecApplyConfiguration struct {
-	Name        *v1alpha1.OpenStackName        `json:"name,omitempty"`
-	Description *v1alpha1.OpenStackDescription `json:"description,omitempty"`
-	RAM         *int32                         `json:"ram,omitempty"`
-	Vcpus       *int32                         `json:"vcpus,omitempty"`
-	Disk        *int32                         `json:"disk,omitempty"`
-	Swap        *int32                         `json:"swap,omitempty"`
-	IsPublic    *bool                          `json:"isPublic,omitempty"`
-	Ephemeral   *int32                         `json:"ephemeral,omitempty"`
+	Name        *v1alpha1.OpenStackName `json:"name,omitempty"`
+	Description *string                 `json:"description,omitempty"`
+	RAM         *int32                  `json:"ram,omitempty"`
+	Vcpus       *int32                  `json:"vcpus,omitempty"`
+	Disk        *int32                  `json:"disk,omitempty"`
+	Swap        *int32                  `json:"swap,omitempty"`
+	IsPublic    *bool                   `json:"isPublic,omitempty"`
+	Ephemeral   *int32                  `json:"ephemeral,omitempty"`
 }
 
 // FlavorResourceSpecApplyConfiguration constructs a declarative configuration of the FlavorResourceSpec type for use with
@@ -52,7 +52,7 @@ func (b *FlavorResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStack
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *FlavorResourceSpecApplyConfiguration) WithDescription(value v1alpha1.OpenStackDescription) *FlavorResourceSpecApplyConfiguration {
+func (b *FlavorResourceSpecApplyConfiguration) WithDescription(value string) *FlavorResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }

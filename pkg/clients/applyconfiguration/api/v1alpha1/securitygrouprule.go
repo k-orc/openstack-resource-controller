@@ -25,7 +25,7 @@ import (
 // SecurityGroupRuleApplyConfiguration represents a declarative configuration of the SecurityGroupRule type for use
 // with apply.
 type SecurityGroupRuleApplyConfiguration struct {
-	Description    *v1alpha1.OpenStackDescription   `json:"description,omitempty"`
+	Description    *v1alpha1.NeutronDescription     `json:"description,omitempty"`
 	Direction      *v1alpha1.RuleDirection          `json:"direction,omitempty"`
 	RemoteIPPrefix *v1alpha1.CIDR                   `json:"remoteIPPrefix,omitempty"`
 	Protocol       *v1alpha1.Protocol               `json:"protocol,omitempty"`
@@ -42,7 +42,7 @@ func SecurityGroupRule() *SecurityGroupRuleApplyConfiguration {
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithDescription(value v1alpha1.OpenStackDescription) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SecurityGroupRuleApplyConfiguration {
 	b.Description = &value
 	return b
 }

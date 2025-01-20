@@ -152,10 +152,10 @@ func (obj imageActuator) CreateResource(ctx context.Context) ([]generic.WaitingO
 	additionalProperties := map[string]string{}
 	if properties != nil {
 		if properties.MinDiskGB != nil {
-			minDisk = *properties.MinDiskGB
+			minDisk = int(*properties.MinDiskGB)
 		}
 		if properties.MinMemoryMB != nil {
-			minMemory = *properties.MinMemoryMB
+			minMemory = int(*properties.MinMemoryMB)
 		}
 
 		if err := glancePropertiesFromStruct(properties.Hardware, additionalProperties); err != nil {
@@ -201,7 +201,7 @@ func getResourceName(orcImage *orcv1alpha1.Image) orcv1alpha1.OpenStackName {
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.ImageFilter) images.ListOptsBuilder {
-	return images.ListOpts{Name: ptr.Deref(filter.Name, "")}
+	return images.ListOpts{Name: string(ptr.Deref(filter.Name, ""))}
 }
 
 // listOptsFromCreation returns a listOpts which will return the image which

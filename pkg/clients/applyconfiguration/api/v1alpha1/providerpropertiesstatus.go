@@ -18,28 +18,24 @@ limitations under the License.
 
 package v1alpha1
 
-import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-)
-
-// ProviderPropertiesApplyConfiguration represents a declarative configuration of the ProviderProperties type for use
+// ProviderPropertiesStatusApplyConfiguration represents a declarative configuration of the ProviderPropertiesStatus type for use
 // with apply.
-type ProviderPropertiesApplyConfiguration struct {
-	NetworkType     *v1alpha1.ProviderNetworkType `json:"networkType,omitempty"`
-	PhysicalNetwork *v1alpha1.PhysicalNetwork     `json:"physicalNetwork,omitempty"`
-	SegmentationID  *int32                        `json:"segmentationID,omitempty"`
+type ProviderPropertiesStatusApplyConfiguration struct {
+	NetworkType     *string `json:"networkType,omitempty"`
+	PhysicalNetwork *string `json:"physicalNetwork,omitempty"`
+	SegmentationID  *int32  `json:"segmentationID,omitempty"`
 }
 
-// ProviderPropertiesApplyConfiguration constructs a declarative configuration of the ProviderProperties type for use with
+// ProviderPropertiesStatusApplyConfiguration constructs a declarative configuration of the ProviderPropertiesStatus type for use with
 // apply.
-func ProviderProperties() *ProviderPropertiesApplyConfiguration {
-	return &ProviderPropertiesApplyConfiguration{}
+func ProviderPropertiesStatus() *ProviderPropertiesStatusApplyConfiguration {
+	return &ProviderPropertiesStatusApplyConfiguration{}
 }
 
 // WithNetworkType sets the NetworkType field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NetworkType field is set to the value of the last call.
-func (b *ProviderPropertiesApplyConfiguration) WithNetworkType(value v1alpha1.ProviderNetworkType) *ProviderPropertiesApplyConfiguration {
+func (b *ProviderPropertiesStatusApplyConfiguration) WithNetworkType(value string) *ProviderPropertiesStatusApplyConfiguration {
 	b.NetworkType = &value
 	return b
 }
@@ -47,7 +43,7 @@ func (b *ProviderPropertiesApplyConfiguration) WithNetworkType(value v1alpha1.Pr
 // WithPhysicalNetwork sets the PhysicalNetwork field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the PhysicalNetwork field is set to the value of the last call.
-func (b *ProviderPropertiesApplyConfiguration) WithPhysicalNetwork(value v1alpha1.PhysicalNetwork) *ProviderPropertiesApplyConfiguration {
+func (b *ProviderPropertiesStatusApplyConfiguration) WithPhysicalNetwork(value string) *ProviderPropertiesStatusApplyConfiguration {
 	b.PhysicalNetwork = &value
 	return b
 }
@@ -55,7 +51,7 @@ func (b *ProviderPropertiesApplyConfiguration) WithPhysicalNetwork(value v1alpha
 // WithSegmentationID sets the SegmentationID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the SegmentationID field is set to the value of the last call.
-func (b *ProviderPropertiesApplyConfiguration) WithSegmentationID(value int32) *ProviderPropertiesApplyConfiguration {
+func (b *ProviderPropertiesStatusApplyConfiguration) WithSegmentationID(value int32) *ProviderPropertiesStatusApplyConfiguration {
 	b.SegmentationID = &value
 	return b
 }

@@ -21,6 +21,7 @@ package v1alpha1
 type ServerPortSpec struct {
 	// portRef is a reference to a Port object. Server creation will wait for
 	// this port to be created and available.
+	// +optional
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
@@ -31,18 +32,25 @@ type ServerResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// imageRef references the image to use for the server instance.
+	// NOTE: This is not required in case of boot from volume.
+	// +required
 	ImageRef KubernetesNameRef `json:"imageRef"`
 
+	// flavorRef references the flavor to use for the server instance.
+	// +required
 	FlavorRef KubernetesNameRef `json:"flavorRef"`
 
 	// userData specifies data which will be made available to the server at
 	// boot time, either via the metadata service or a config drive. It is
 	// typically read by a configuration service such as cloud-init or ignition.
+	// +optional
 	UserData *UserDataSpec `json:"userData,omitempty"`
 
 	// ports defines a list of ports which will be attached to the server.
-	// +listType=atomic
 	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
 	Ports []ServerPortSpec `json:"ports,omitempty"`
 }
 
@@ -50,6 +58,7 @@ type ServerResourceSpec struct {
 // +kubebuilder:validation:MaxProperties:=1
 type UserDataSpec struct {
 	// secretRef is a reference to a Secret containing the user data for this server.
+	// +optional
 	SecretRef *KubernetesNameRef `json:"secretRef,omitempty"`
 }
 
@@ -68,29 +77,35 @@ type ServerResourceStatus struct {
 	Name string `json:"name,omitempty"`
 
 	// hostID is the host where the server is located in the cloud.
+	// +optional
 	HostID string `json:"hostID,omitempty"`
 
 	// status contains the current operational status of the server,
 	// such as IN_PROGRESS or ACTIVE.
+	// +optional
 	Status string `json:"status,omitempty"`
 
 	// accessIPv4 contains the IPv4 addresses of the server, suitable for
 	// remote access for administration.
+	// +optional
 	AccessIPv4 string `json:"accessIPv4,omitempty"`
 
 	// accessIPv6 contains the IPv6 addresses of the server, suitable for
 	// remote access for administration.
+	// +optional
 	AccessIPv6 string `json:"accessIPv6,omitempty"`
 
 	// imageID indicates the OS image used to deploy the server.
+	// +optional
 	ImageID string `json:"imageID,omitempty"`
 
 	// keyName indicates which public key was injected into the server on launch.
+	// +optional
 	KeyName string `json:"keyName,omitempty"`
 
 	// securityGroups includes the security groups that this instance has
 	// applied to it.
-	// +kubebuilder:validation:MaxItems:=32
-	// +listType=set
+	// +listType=atomic
+	// +optional
 	SecurityGroups []string `json:"securityGroups,omitempty"`
 }

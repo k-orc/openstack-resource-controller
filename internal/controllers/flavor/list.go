@@ -12,9 +12,10 @@ import (
 
 func specToFilter(resourceSpec v1alpha1.FlavorResourceSpec) v1alpha1.FlavorFilter {
 	return v1alpha1.FlavorFilter{
-		Name: resourceSpec.Name,
-		RAM:  &resourceSpec.RAM,
-		Disk: &resourceSpec.Disk,
+		Name:  resourceSpec.Name,
+		RAM:   &resourceSpec.RAM,
+		Vcpus: &resourceSpec.Vcpus,
+		Disk:  &resourceSpec.Disk,
 	}
 }
 
@@ -31,6 +32,10 @@ func GetByFilter(ctx context.Context, osClient flavorLister, filter v1alpha1.Fla
 
 	if filter.RAM != nil {
 		filterFuncs = append(filterFuncs, func(f *flavors.Flavor) bool { return f.RAM == int(*filter.RAM) })
+	}
+
+	if filter.Vcpus != nil {
+		filterFuncs = append(filterFuncs, func(f *flavors.Flavor) bool { return f.VCPUs == int(*filter.Vcpus) })
 	}
 
 	if filter.Disk != nil {

@@ -96,11 +96,13 @@ spec:
                     minProperties: 1
                     properties:
                       description:
-                        maxLength: 1024
+                        description: description of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       name:
-                        maxLength: 1024
+                        description: name of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -111,7 +113,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -125,16 +127,12 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -143,7 +141,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -158,7 +156,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -212,12 +210,18 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   adminStateUp:
+                    description: |-
+                      adminStateUp represents the administrative state of the resource,
+                      which is up (true) or down (false). Default is true.
                     type: boolean
                   availabilityZoneHints:
+                    description: availabilityZoneHints is the availability zone candidate
+                      for the router.
                     items:
-                      maxLength: 128
+                      maxLength: 255
                       minLength: 1
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
                   createdAt:
@@ -226,28 +230,39 @@ spec:
                     format: date-time
                     type: string
                   description:
-                    description: description for the subnet.
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   distributed:
+                    description: |-
+                      distributed indicates whether the router is distributed or not. It
+                      is available when dvr extension is enabled.
                     type: boolean
                   externalGateways:
+                    description: externalGateways is a list of external gateways for
+                      the router.
                     items:
                       properties:
                         networkRef:
+                          description: |-
+                            networkRef is a reference to the ORC Network which the external
+                            gateway is on.
                           maxLength: 253
                           minLength: 1
                           type: string
                       required:
                       - networkRef
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
-                    description: name is the human-readable name of the subnet. Might
-                      not be unique.
-                    maxLength: 1024
+                    description: |-
+                      name is a human-readable name of the router. If not set, the
+                      object's name will be used.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   revisionNumber:
@@ -255,14 +270,16 @@ spec:
                     format: int64
                     type: integer
                   tags:
-                    description: tags optionally set via extensions/attributestags
+                    description: tags is a list of tags which will be applied to the
+                      router.
                     items:
                       description: |-
                         NeutronTag represents a tag on a Neutron resource.
                         It may not be empty and may not contain commas.
-                      maxLength: 60
+                      maxLength: 255
                       minLength: 1
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
                   updatedAt:
@@ -373,8 +390,14 @@ spec:
                   resource.
                 properties:
                   adminStateUp:
+                    description: |-
+                      adminStateUp is the administrative state of the router,
+                      which is up (true) or down (false).
                     type: boolean
                   availabilityZoneHints:
+                    description: |-
+                      availabilityZoneHints is the availability zone candidate for the
+                      router.
                     items:
                       type: string
                     type: array
@@ -384,12 +407,14 @@ spec:
                       resource.
                     type: string
                   externalGateways:
+                    description: externalGateways is a list of external gateways for
+                      the router.
                     items:
                       properties:
                         networkID:
+                          description: networkID is the ID of the network the gateway
+                            is on.
                           type: string
-                      required:
-                      - networkID
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
@@ -409,8 +434,6 @@ spec:
                       type: string
                     type: array
                     x-kubernetes-list-type: atomic
-                required:
-                - adminStateUp
                 type: object
             type: object
         type: object

@@ -96,24 +96,31 @@ spec:
                     minProperties: 1
                     properties:
                       cidr:
+                        description: cidr of the existing resource
                         format: cidr
                         maxLength: 49
                         minLength: 1
                         type: string
                       description:
-                        maxLength: 1024
+                        description: description of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       gatewayIP:
+                        description: gatewayIP is the IP address of the gateway of
+                          the existing resource
                         maxLength: 45
                         minLength: 1
                         type: string
                       ipVersion:
+                        description: ipVersion of the existing resource
                         enum:
                         - 4
                         - 6
+                        format: int32
                         type: integer
                       ipv6:
+                        description: ipv6 options of the existing resource
                         minProperties: 1
                         properties:
                           addressMode:
@@ -135,7 +142,8 @@ spec:
                             type: string
                         type: object
                       name:
-                        maxLength: 1024
+                        description: name of the existing resource
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -146,7 +154,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -160,16 +168,12 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -178,7 +182,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -193,7 +197,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -259,10 +263,14 @@ spec:
                     items:
                       properties:
                         end:
+                          description: end is the last IP address in the allocation
+                            pool.
                           maxLength: 45
                           minLength: 1
                           type: string
                         start:
+                          description: start is the first IP address in the allocation
+                            pool.
                           maxLength: 45
                           minLength: 1
                           type: string
@@ -281,8 +289,9 @@ spec:
                     minLength: 1
                     type: string
                   description:
-                    description: description of the subnet.
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   dnsNameservers:
@@ -296,8 +305,9 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                   dnsPublishFixedIP:
-                    description: dnsPublishFixedIP will either enable or disable the
-                      publication of fixed IPs to the DNS
+                    description: |-
+                      dnsPublishFixedIP will either enable or disable the publication of
+                      fixed IPs to the DNS. Defaults to false.
                     type: boolean
                   enableDHCP:
                     description: enableDHCP will either enable to disable the DHCP
@@ -339,11 +349,13 @@ spec:
                     items:
                       properties:
                         destination:
+                          description: destination for the additional route.
                           format: cidr
                           maxLength: 49
                           minLength: 1
                           type: string
                         nextHop:
+                          description: nextHop for the additional route.
                           maxLength: 45
                           minLength: 1
                           type: string
@@ -359,6 +371,7 @@ spec:
                     enum:
                     - 4
                     - 6
+                    format: int32
                     type: integer
                   ipv6:
                     description: ipv6 contains IPv6-specific options. It may only
@@ -386,15 +399,8 @@ spec:
                   name:
                     description: name is a human-readable name of the subnet. If not
                       set, the object's name will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
-                    type: string
-                  projectID:
-                    description: |-
-                      projectID is the unique ID of the project which owns the Subnet. Only
-                      administrative users can specify a project UUID other than their own.
-                    format: uuid
-                    maxLength: 36
                     type: string
                   routerRef:
                     description: routerRef specifies a router to attach the subnet
@@ -409,7 +415,7 @@ spec:
                       description: |-
                         NeutronTag represents a tag on a Neutron resource.
                         It may not be empty and may not contain commas.
-                      maxLength: 60
+                      maxLength: 255
                       minLength: 1
                       type: string
                     maxItems: 32
@@ -528,12 +534,13 @@ spec:
                     items:
                       properties:
                         end:
+                          description: end is the last IP address in the allocation
+                            pool.
                           type: string
                         start:
+                          description: start is the first IP address in the allocation
+                            pool.
                           type: string
-                      required:
-                      - end
-                      - start
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
@@ -547,7 +554,8 @@ spec:
                     format: date-time
                     type: string
                   description:
-                    description: description for the subnet.
+                    description: description is a human-readable description for the
+                      resource.
                     type: string
                   dnsNameservers:
                     description: dnsNameservers is a list of name servers used by
@@ -561,8 +569,8 @@ spec:
                       addresses are published to the DNS.
                     type: boolean
                   enableDHCP:
-                    description: Specifies whether DHCP is enabled for this subnet
-                      or not.
+                    description: enableDHCP specifies whether DHCP is enabled for
+                      this subnet or not.
                     type: boolean
                   gatewayIP:
                     description: gatewayIP is the default gateway used by devices
@@ -575,26 +583,26 @@ spec:
                     items:
                       properties:
                         destination:
+                          description: destination for the additional route.
                           type: string
                         nextHop:
+                          description: nextHop for the additional route.
                           type: string
-                      required:
-                      - destination
-                      - nextHop
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
                   ipVersion:
                     description: ipVersion specifies IP version, either `4' or `6'.
+                    format: int32
                     type: integer
                   ipv6AddressMode:
-                    description: The IPv6 address modes specifies mechanisms for assigning
+                    description: ipv6AddressMode specifies mechanisms for assigning
                       IPv6 IP addresses.
                     type: string
                   ipv6RAMode:
                     description: |-
-                      The IPv6 router advertisement specifies whether the networking service
-                      should transmit ICMPv6 packets.
+                      ipv6RAMode is the IPv6 router advertisement mode. It specifies
+                      whether the networking service should transmit ICMPv6 packets.
                     type: string
                   name:
                     description: name is the human-readable name of the subnet. Might
@@ -622,12 +630,6 @@ spec:
                       was updated. The date and time stamp format is ISO 8601
                     format: date-time
                     type: string
-                required:
-                - cidr
-                - enableDHCP
-                - ipVersion
-                - name
-                - projectID
                 type: object
             type: object
         type: object

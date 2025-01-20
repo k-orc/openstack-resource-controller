@@ -25,9 +25,10 @@ import (
 // FlavorFilterApplyConfiguration represents a declarative configuration of the FlavorFilter type for use
 // with apply.
 type FlavorFilterApplyConfiguration struct {
-	Name *v1alpha1.OpenStackName `json:"name,omitempty"`
-	RAM  *int32                  `json:"ram,omitempty"`
-	Disk *int32                  `json:"disk,omitempty"`
+	Name  *v1alpha1.OpenStackName `json:"name,omitempty"`
+	RAM   *int32                  `json:"ram,omitempty"`
+	Vcpus *int32                  `json:"vcpus,omitempty"`
+	Disk  *int32                  `json:"disk,omitempty"`
 }
 
 // FlavorFilterApplyConfiguration constructs a declarative configuration of the FlavorFilter type for use with
@@ -49,6 +50,14 @@ func (b *FlavorFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) 
 // If called multiple times, the RAM field is set to the value of the last call.
 func (b *FlavorFilterApplyConfiguration) WithRAM(value int32) *FlavorFilterApplyConfiguration {
 	b.RAM = &value
+	return b
+}
+
+// WithVcpus sets the Vcpus field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Vcpus field is set to the value of the last call.
+func (b *FlavorFilterApplyConfiguration) WithVcpus(value int32) *FlavorFilterApplyConfiguration {
+	b.Vcpus = &value
 	return b
 }
 

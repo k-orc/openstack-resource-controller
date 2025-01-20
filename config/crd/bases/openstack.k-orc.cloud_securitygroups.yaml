@@ -97,12 +97,12 @@ spec:
                     properties:
                       description:
                         description: description of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       name:
                         description: name of the existing resource
-                        maxLength: 1024
+                        maxLength: 255
                         minLength: 1
                         type: string
                       notTags:
@@ -113,7 +113,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -127,18 +127,12 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                      projectID:
-                        description: projectID specifies the ID of the project which
-                          owns the security group.
-                        format: uuid
-                        maxLength: 36
-                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -147,7 +141,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -162,7 +156,7 @@ spec:
                           description: |-
                             NeutronTag represents a tag on a Neutron resource.
                             It may not be empty and may not contain commas.
-                          maxLength: 60
+                          maxLength: 255
                           minLength: 1
                           type: string
                         maxItems: 32
@@ -216,14 +210,16 @@ spec:
                   Resource must be specified if the management policy is `managed`.
                 properties:
                   description:
-                    maxLength: 1024
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
                     minLength: 1
                     type: string
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
-                    maxLength: 1024
+                    maxLength: 255
                     minLength: 1
                     type: string
                   rules:
@@ -234,8 +230,9 @@ spec:
                       minProperties: 1
                       properties:
                         description:
-                          description: description of the existing resource
-                          maxLength: 1024
+                          description: description is a human-readable description
+                            for the resource.
+                          maxLength: 255
                           minLength: 1
                           type: string
                         direction:
@@ -358,7 +355,7 @@ spec:
                       description: |-
                         NeutronTag represents a tag on a Neutron resource.
                         It may not be empty and may not contain commas.
-                      maxLength: 60
+                      maxLength: 255
                       minLength: 1
                       type: string
                     maxItems: 32
@@ -493,7 +490,8 @@ spec:
                     items:
                       properties:
                         description:
-                          description: description of the existing resource
+                          description: description is a human-readable description
+                            for the resource.
                           type: string
                         direction:
                           description: |-

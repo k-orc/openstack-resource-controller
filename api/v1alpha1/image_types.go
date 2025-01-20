@@ -87,16 +87,19 @@ type ImageHWBus string
 
 type ImagePropertiesHardware struct {
 	// cpuSockets is the preferred number of sockets to expose to the guest
+	// +kubebuilder:validation:Minimum:=1
 	// +optional
-	CPUSockets *int `json:"cpuSockets,omitempty" glance:"hw_cpu_sockets"`
+	CPUSockets *int32 `json:"cpuSockets,omitempty" glance:"hw_cpu_sockets"`
 
 	// cpuCores is the preferred number of cores to expose to the guest
+	// +kubebuilder:validation:Minimum:=1
 	// +optional
-	CPUCores *int `json:"cpuCores,omitempty" glance:"hw_cpu_cores"`
+	CPUCores *int32 `json:"cpuCores,omitempty" glance:"hw_cpu_cores"`
 
 	// cpuThreads is the preferred number of threads to expose to the guest
+	// +kubebuilder:validation:Minimum:=1
 	// +optional
-	CPUThreads *int `json:"cpuThreads,omitempty" glance:"hw_cpu_threads"`
+	CPUThreads *int32 `json:"cpuThreads,omitempty" glance:"hw_cpu_threads"`
 
 	// cpuPolicy is used to pin the virtual CPUs (vCPUs) of instances to the
 	// host's physical CPU cores (pCPUs). Host aggregates should be used to
@@ -188,12 +191,12 @@ type ImageProperties struct {
 	// minDiskGB is the minimum amount of disk space in GB that is required to boot the image
 	// +kubebuilder:validation:Minimum:=1
 	// +optional
-	MinDiskGB *int `json:"minDiskGB,omitempty"`
+	MinDiskGB *int32 `json:"minDiskGB,omitempty"`
 
 	// minMemoryMB is the minimum amount of RAM in MB that is required to boot the image.
 	// +kubebuilder:validation:Minimum:=1
 	// +optional
-	MinMemoryMB *int `json:"minMemoryMB,omitempty"`
+	MinMemoryMB *int32 `json:"minMemoryMB,omitempty"`
 
 	// hardware is a set of properties which control the virtual hardware
 	// created by Nova.
@@ -307,9 +310,7 @@ type ImageResourceSpec struct {
 type ImageFilter struct {
 	// name specifies the name of a Glance image
 	// +optional
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=1000
-	Name *string `json:"name,omitempty"`
+	Name *OpenStackName `json:"name,omitempty"`
 }
 
 // ImageResourceStatus represents the observed state of a Glance image
@@ -338,5 +339,5 @@ type ImageResourceStatus struct {
 type ImageStatusExtra struct {
 	// downloadAttempts is the number of times the controller has attempted to download the image contents
 	// +optional
-	DownloadAttempts *int `json:"downloadAttempts,omitempty"`
+	DownloadAttempts *int32 `json:"downloadAttempts,omitempty"`
 }

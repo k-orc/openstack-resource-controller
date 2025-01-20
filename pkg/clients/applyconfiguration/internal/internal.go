@@ -48,6 +48,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: subnetRef
       type:
         scalar: string
+      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPool
   map:
     fields:
@@ -65,17 +66,16 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: end
       type:
         scalar: string
-      default: ""
     - name: start
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPair
   map:
     fields:
     - name: ip
       type:
         scalar: string
+      default: ""
     - name: mac
       type:
         scalar: string
@@ -85,7 +85,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ip
       type:
         scalar: string
-      default: ""
     - name: mac
       type:
         scalar: string
@@ -113,14 +112,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: networkID
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FixedIPStatus
   map:
     fields:
     - name: ip
       type:
         scalar: string
-      default: ""
     - name: subnetID
       type:
         scalar: string
@@ -157,6 +154,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ram
       type:
         scalar: numeric
+    - name: vcpus
+      type:
+        scalar: numeric
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorImport
   map:
     fields:
@@ -175,6 +175,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: disk
       type:
         scalar: numeric
+      default: 0
     - name: ephemeral
       type:
         scalar: numeric
@@ -275,11 +276,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: destination
       type:
         scalar: string
-      default: ""
     - name: nextHop
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
   map:
     fields:
@@ -533,9 +532,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -602,7 +598,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: adminStateUp
       type:
         scalar: boolean
-      default: false
     - name: availabilityZoneHints
       type:
         list:
@@ -635,7 +630,7 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: provider
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderProperties
+        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderPropertiesStatus
     - name: revisionNumber
       type:
         scalar: numeric
@@ -738,9 +733,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -805,15 +797,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: projectID
-      type:
-        scalar: string
     - name: securityGroupRefs
       type:
         list:
           elementType:
             scalar: string
-          elementRelationship: atomic
+          elementRelationship: associative
     - name: tags
       type:
         list:
@@ -923,7 +912,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderProperties
+- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderPropertiesStatus
   map:
     fields:
     - name: networkType
@@ -977,9 +966,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -1098,7 +1084,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: adminStateUp
       type:
         scalar: boolean
-      default: false
     - name: availabilityZoneHints
       type:
         list:
@@ -1207,9 +1192,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -1467,7 +1449,7 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             scalar: string
-          elementRelationship: associative
+          elementRelationship: atomic
     - name: status
       type:
         scalar: string
@@ -1561,9 +1543,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: projectID
-      type:
-        scalar: string
     - name: tags
       type:
         list:
@@ -1642,9 +1621,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: projectID
-      type:
-        scalar: string
     - name: routerRef
       type:
         scalar: string
@@ -1666,7 +1642,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: cidr
       type:
         scalar: string
-      default: ""
     - name: createdAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
@@ -1685,7 +1660,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: enableDHCP
       type:
         scalar: boolean
-      default: false
     - name: gatewayIP
       type:
         scalar: string
@@ -1698,7 +1672,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ipVersion
       type:
         scalar: numeric
-      default: 0
     - name: ipv6AddressMode
       type:
         scalar: string
@@ -1708,11 +1681,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-      default: ""
     - name: projectID
       type:
         scalar: string
-      default: ""
     - name: revisionNumber
       type:
         scalar: numeric

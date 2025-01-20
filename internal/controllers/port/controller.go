@@ -44,7 +44,7 @@ var (
 	subnetDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet]("spec.resource.addresses[].subnetRef", func(port *orcv1alpha1.Port) []string {
 		subnets := make([]string, len(port.Spec.Resource.Addresses))
 		for i := range port.Spec.Resource.Addresses {
-			subnets[i] = string(*port.Spec.Resource.Addresses[i].SubnetRef)
+			subnets[i] = string(port.Spec.Resource.Addresses[i].SubnetRef)
 		}
 		return subnets
 	})

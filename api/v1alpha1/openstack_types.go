@@ -21,9 +21,5 @@ package v1alpha1
 type UUID string
 
 // +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=1024
+// +kubebuilder:validation:MaxLength:=255
 type OpenStackName string
-
-// +kubebuilder:validation:MinLength:=1
-// +kubebuilder:validation:MaxLength:=1024
-type OpenStackDescription string
