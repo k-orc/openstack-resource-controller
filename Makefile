@@ -97,12 +97,12 @@ test-e2e:
 	./hack/e2e.sh
 
 .PHONY: lint
-lint: golangci-lint ## Run golangci-lint linter
-	$(GOLANGCI_LINT) run
+lint: golangci-kal ## Run golangci-kal linter
+	$(GOLANGCI_KAL) run
 
 .PHONY: lint-fix
-lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
-	$(GOLANGCI_LINT) run --fix
+lint-fix: golangci-kal ## Run golangci-lint linter and perform fixes
+	$(GOLANGCI_KAL) run --fix
 
 ##@ Build
 
@@ -214,6 +214,7 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
+GOLANGCI_KAL = $(LOCALBIN)/golangci-kal
 MOCKGEN = $(LOCALBIN)/mockgen
 
 ## Tool Versions
@@ -221,6 +222,7 @@ KUSTOMIZE_VERSION ?= v5.4.2
 CONTROLLER_TOOLS_VERSION ?= v0.17.0
 ENVTEST_VERSION ?= release-0.19
 GOLANGCI_LINT_VERSION ?= v1.63.4
+KAL_VERSION ?= v0.0.0-20250120175744-495588b8c987
 MOCKGEN_VERSION ?= v0.4.0
 
 .PHONY: kustomize
@@ -242,6 +244,24 @@ $(ENVTEST): $(LOCALBIN)
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
 	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+
+define custom-gcl
+version:  $(GOLANGCI_LINT_VERSION)
+name: golangci-kal
+destination: $(LOCALBIN)
+plugins:
+- module: 'github.com/JoelSpeed/kal'
+  version: $(KAL_VERSION)
+endef
+export custom-gcl
+
+CUSTOM_GCL_FILE ?= $(shell pwd)/.custom-gcl.yml
+
+.PHONY: golangci-kal
+golangci-kal: $(GOLANGCI_KAL)
+$(GOLANGCI_KAL): $(LOCALBIN) $(GOLANGCI_LINT)
+	$(file >$(CUSTOM_GCL_FILE),$(custom-gcl))
+	$(GOLANGCI_LINT) custom
 
 .PHONY: mockgen
 mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.

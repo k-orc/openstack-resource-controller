@@ -32,3 +32,4 @@ __pycache__/
 # Custom
 /openapi.json
 /.custom-deploy
+/.custom-gcl.yml
