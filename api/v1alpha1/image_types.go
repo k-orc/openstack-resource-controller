@@ -23,17 +23,18 @@ const GlanceTag = "glance"
 // +kubebuilder:validation:MaxLength:=255
 type ImageTag string
 
-// +kubebuilder:validation:Enum:=ami;ari;aki;bare;ovf;ova;docker
+// +kubebuilder:validation:Enum:=ami;ari;aki;bare;ovf;ova;docker;compressed
 type ImageContainerFormat string
 
 const (
-	ImageContainerFormatAKI    ImageContainerFormat = "aki"
-	ImageContainerFormatAMI    ImageContainerFormat = "ami"
-	ImageContainerFormatARI    ImageContainerFormat = "ari"
-	ImageContainerFormatBare   ImageContainerFormat = "bare"
-	ImageContainerFormatDocker ImageContainerFormat = "docker"
-	ImageContainerFormatOVA    ImageContainerFormat = "ova"
-	ImageContainerFormatOVF    ImageContainerFormat = "ovf"
+	ImageContainerFormatAKI        ImageContainerFormat = "aki"
+	ImageContainerFormatAMI        ImageContainerFormat = "ami"
+	ImageContainerFormatARI        ImageContainerFormat = "ari"
+	ImageContainerFormatBare       ImageContainerFormat = "bare"
+	ImageContainerFormatCompressed ImageContainerFormat = "compressed"
+	ImageContainerFormatDocker     ImageContainerFormat = "docker"
+	ImageContainerFormatOVA        ImageContainerFormat = "ova"
+	ImageContainerFormatOVF        ImageContainerFormat = "ovf"
 )
 
 // +kubebuilder:validation:Enum:=ami;ari;aki;vhd;vhdx;vmdk;raw;qcow2;vdi;ploop;iso
