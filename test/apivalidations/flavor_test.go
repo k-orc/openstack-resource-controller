@@ -170,14 +170,25 @@ var _ = Describe("ORC Flavor API validations", func() {
 		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
 	})
 
-	It("should permit import filter with name", func(ctx context.Context) {
+	It("should permit import filter with values within bound", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
 		patch := baseFlavorPatch(flavor)
 		patch.Spec.
 			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
 			WithImport(applyconfigv1alpha1.FlavorImport().
-				WithFilter(applyconfigv1alpha1.FlavorFilter().WithName("foo")))
+				WithFilter(applyconfigv1alpha1.FlavorFilter().
+					WithName("foo").WithRAM(1)))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
+	})
+
+	It("should reject import filter with value less than minimal", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		patch.Spec.
+			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
+			WithImport(applyconfigv1alpha1.FlavorImport().
+				WithFilter(applyconfigv1alpha1.FlavorFilter().WithRAM(0)))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import.filter.ram in body should be greater than or equal to 1")))
 	})
 
 	It("should require resource for managed", func(ctx context.Context) {
