@@ -30,6 +30,7 @@ type waitingOnType int
 
 const (
 	WaitingOnCreation waitingOnType = iota
+	WaitingOnUpdate
 	WaitingOnReady
 	WaitingOnDeletion
 )
@@ -47,6 +48,8 @@ func (e waitingOnORC) Message() string {
 	switch e.waitingOn {
 	case WaitingOnCreation:
 		outcome = "created"
+	case WaitingOnUpdate:
+		outcome = "updated"
 	case WaitingOnReady:
 		outcome = "ready"
 	case WaitingOnDeletion:
@@ -113,6 +116,10 @@ func WaitingOnOpenStackCreate(pollingPeriod time.Duration) WaitingOnEvent {
 	return newWaitingOnOpenStack(WaitingOnCreation, pollingPeriod)
 }
 
+func WaitingOnOpenStackUpdate(pollingPeriod time.Duration) WaitingOnEvent {
+	return newWaitingOnOpenStack(WaitingOnUpdate, pollingPeriod)
+}
+
 func WaitingOnOpenStackReady(pollingPeriod time.Duration) WaitingOnEvent {
 	return newWaitingOnOpenStack(WaitingOnReady, pollingPeriod)
 }
@@ -126,6 +133,8 @@ func (e waitingOnOpenStack) Message() string {
 	switch e.waitingOn {
 	case WaitingOnCreation:
 		outcome = "be created externally"
+	case WaitingOnUpdate:
+		outcome = "be updated"
 	case WaitingOnReady:
 		outcome = "be ready"
 	case WaitingOnDeletion:

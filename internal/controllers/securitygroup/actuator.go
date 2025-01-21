@@ -18,7 +18,9 @@ package securitygroup
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
@@ -137,31 +139,6 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context) ([]gen
 		return nil, nil, err
 	}
 
-	ruleCreateOpts := make([]rules.CreateOpts, len(resource.Rules))
-
-	for i := range resource.Rules {
-		ruleCreateOpts[i] = rules.CreateOpts{
-			SecGroupID:     osResource.ID,
-			Description:    string(ptr.Deref(resource.Rules[i].Description, "")),
-			Direction:      rules.RuleDirection(ptr.Deref(resource.Rules[i].Direction, "")),
-			RemoteIPPrefix: string(ptr.Deref(resource.Rules[i].RemoteIPPrefix, "")),
-			Protocol:       rules.RuleProtocol(ptr.Deref(resource.Rules[i].Protocol, "")),
-			EtherType:      rules.RuleEtherType(resource.Rules[i].Ethertype),
-		}
-		if resource.Rules[i].PortRange != nil {
-			ruleCreateOpts[i].PortRangeMin = int(resource.Rules[i].PortRange.Min)
-			ruleCreateOpts[i].PortRangeMax = int(resource.Rules[i].PortRange.Max)
-		}
-	}
-
-	if _, err := actuator.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
-		if orcerrors.IsConflict(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-		}
-		return nil, nil, err
-	}
-
 	return nil, osResource, nil
 }
 
@@ -224,6 +201,7 @@ type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
 func (actuator securityGroupActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
 	return []resourceUpdater{
 		actuator.updateTags,
+		actuator.updateRules,
 	}, nil
 }
 
@@ -239,6 +217,120 @@ func (actuator securityGroupActuator) updateTags(ctx context.Context, orcObject 
 		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "security-groups", osResource.ID, &opts)
 	}
 	return nil, orcObject, osResource, err
+}
+
+func rulesMatch(orcRule *orcv1alpha1.SecurityGroupRule, osRule *rules.SecGroupRule) bool {
+	// Don't compare description if it's not set in the spec
+	if orcRule.Description != nil && string(*orcRule.Description) != osRule.Description {
+		return false
+	}
+
+	// Don't compare direction if it's not set in the spec.
+	// TODO check what we get from neutron in this field if we didn't set it in the spec
+	if orcRule.Direction != nil && string(*orcRule.Direction) != osRule.Direction {
+		return false
+	}
+
+	// Always compare RemoteIPPrefix. If unset in ORC it must be empty in OpenStack
+	if string(ptr.Deref(orcRule.RemoteIPPrefix, "")) != osRule.RemoteIPPrefix {
+		return false
+	}
+
+	// Always compare protocol. Unset == "" from gophercloud
+	if string(ptr.Deref(orcRule.Protocol, "")) != osRule.Protocol {
+		return false
+	}
+
+	if string(orcRule.Ethertype) != osRule.EtherType {
+		return false
+	}
+
+	if orcRule.PortRange == nil {
+		if osRule.PortRangeMin != 0 || osRule.PortRangeMax != 0 {
+			return false
+		}
+	} else {
+		if int(orcRule.PortRange.Min) != osRule.PortRangeMin || int(orcRule.PortRange.Max) != osRule.PortRangeMax {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+	resource := orcObject.Spec.Resource
+	if resource == nil {
+		return nil, orcObject, osResource, nil
+	}
+
+	matchedRuleIDs := set.New[string]()
+	allRuleIDS := set.New[string]()
+	var createRules []*orcv1alpha1.SecurityGroupRule
+
+orcRules:
+	for i := range resource.Rules {
+		orcRule := &resource.Rules[i]
+		for j := range osResource.Rules {
+			osRule := &osResource.Rules[j]
+
+			if rulesMatch(orcRule, osRule) {
+				matchedRuleIDs.Insert(osRule.ID)
+				continue orcRules
+			}
+		}
+		createRules = append(createRules, orcRule)
+	}
+
+	for i := range osResource.Rules {
+		allRuleIDS.Insert(osResource.Rules[i].ID)
+	}
+	deleteRuleIDs := allRuleIDS.Difference(matchedRuleIDs)
+
+	ruleCreateOpts := make([]rules.CreateOpts, len(createRules))
+	for i := range createRules {
+		ruleCreateOpts[i] = rules.CreateOpts{
+			SecGroupID:     osResource.ID,
+			Description:    string(ptr.Deref(createRules[i].Description, "")),
+			Direction:      rules.RuleDirection(ptr.Deref(createRules[i].Direction, "")),
+			RemoteIPPrefix: string(ptr.Deref(createRules[i].RemoteIPPrefix, "")),
+			Protocol:       rules.RuleProtocol(ptr.Deref(createRules[i].Protocol, "")),
+			EtherType:      rules.RuleEtherType(createRules[i].Ethertype),
+		}
+		if createRules[i].PortRange != nil {
+			ruleCreateOpts[i].PortRangeMin = int(resource.Rules[i].PortRange.Min)
+			ruleCreateOpts[i].PortRangeMax = int(resource.Rules[i].PortRange.Max)
+		}
+	}
+
+	var err error
+	if len(ruleCreateOpts) > 0 {
+		if _, createErr := actuator.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); createErr != nil {
+			// We should require the spec to be updated before retrying a create which returned a conflict
+			if orcerrors.IsRetryable(createErr) {
+				createErr = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+createErr.Error(), createErr)
+			} else {
+				createErr = fmt.Errorf("creating security group rules: %w", createErr)
+			}
+
+			err = errors.Join(err, createErr)
+		}
+	}
+
+	for _, id := range deleteRuleIDs.UnsortedList() {
+		if deleteErr := actuator.osClient.DeleteSecGroupRule(ctx, id); deleteErr != nil {
+			err = errors.Join(err, fmt.Errorf("deleting security group rule %s: %w", id, deleteErr))
+		}
+	}
+
+	var waitEvents []generic.WaitingOnEvent
+
+	// If we added or removed any rules above, schedule another reconcile so we can observe the updated security group
+	if len(ruleCreateOpts) > 0 || len(deleteRuleIDs) > 0 {
+		waitEvents = []generic.WaitingOnEvent{generic.WaitingOnOpenStackUpdate(time.Second)}
+	}
+
+	return waitEvents, orcObject, osResource, err
 }
 
 type securityGroupActuatorFactory struct{}
