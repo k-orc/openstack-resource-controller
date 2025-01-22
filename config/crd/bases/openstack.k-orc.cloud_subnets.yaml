@@ -145,6 +145,7 @@ spec:
                         description: name of the existing resource
                         maxLength: 255
                         minLength: 1
+                        pattern: ^[^,]+$
                         type: string
                       notTags:
                         description: |-
@@ -401,6 +402,7 @@ spec:
                       set, the object's name will be used.
                     maxLength: 255
                     minLength: 1
+                    pattern: ^[^,]+$
                     type: string
                   routerRef:
                     description: routerRef specifies a router to attach the subnet

@@ -22,4 +22,5 @@ type UUID string
 
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=255
+// +kubebuilder:validation:Pattern:="^[^,]+$"
 type OpenStackName string
