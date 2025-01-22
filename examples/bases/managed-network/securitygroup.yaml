@@ -17,12 +17,12 @@ spec:
         protocol: tcp
         ethertype: IPv4
         portRange:
-       	    min: 21
-       	    max: 21
+          min: 21
+          max: 21
         remoteIPPrefix: "192.168.0.0/24"
       - direction: egress
-        protocol: "6"
+        protocol: tcp
         ethertype: IPv6
         portRange:
-       	    min: 3838
-       	    max: 3840
+          min: 3838
+          max: 3840
