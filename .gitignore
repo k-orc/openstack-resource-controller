@@ -33,3 +33,6 @@ __pycache__/
 /openapi.json
 /.custom-deploy
 /.custom-gcl.yml
+
+# kuttl generates a kubeconfig
+/kubeconfig
