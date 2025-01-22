@@ -216,6 +216,7 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
 GOLANGCI_KAL = $(LOCALBIN)/golangci-kal
 MOCKGEN = $(LOCALBIN)/mockgen
+KUTTL = $(LOCALBIN)/kubectl-kuttl
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.4.2
@@ -224,6 +225,7 @@ ENVTEST_VERSION ?= release-0.19
 GOLANGCI_LINT_VERSION ?= v1.63.4
 KAL_VERSION ?= v0.0.0-20250120175744-495588b8c987
 MOCKGEN_VERSION ?= v0.4.0
+KUTTL_VERSION ?= v0.20.0
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
@@ -267,6 +269,11 @@ $(GOLANGCI_KAL): $(LOCALBIN) $(GOLANGCI_LINT)
 mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.
 $(MOCKGEN): $(LOCALBIN)
 	$(call go-install-tool,$(MOCKGEN),go.uber.org/mock/mockgen,$(MOCKGEN_VERSION))
+
+.PHONY: kuttl
+kuttl: $(KUTTL) ## Download kuttl locally if necessary.
+$(KUTTL): $(LOCALBIN)
+	$(call go-install-tool,$(KUTTL),github.com/kudobuilder/kuttl/cmd/kubectl-kuttl,$(KUTTL_VERSION))
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary
