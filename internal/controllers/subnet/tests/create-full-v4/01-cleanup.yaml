@@ -1,0 +1,9 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: create-full-v4
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Network
+  name: create-full-v4

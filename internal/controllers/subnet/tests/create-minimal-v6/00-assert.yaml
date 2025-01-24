@@ -1,0 +1,21 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: create-minimal-v6
+status:
+  resource:
+    name: create-minimal-v6
+    allocationPools:
+      - start: fc00:1::1
+        end: fc00:1::ffff:ffff:ffff:ffff
+    cidr: fc00:1::/64
+    dnsPublishFixedIP: false
+    enableDHCP: true
+    gatewayIP: "fc00:1::"
+    ipVersion: 6
+    # FIXME: we shouldn't see empty strings
+    # https://github.com/k-orc/openstack-resource-controller/issues/188
+    description: ""
+    ipv6AddressMode: ""
+    ipv6RAMode: ""

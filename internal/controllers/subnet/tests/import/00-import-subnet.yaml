@@ -1,0 +1,24 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: import
+spec:
+  cloudCredentialsRef:
+    cloudName: devstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  networkRef: import
+  import:
+    filter:
+      name: import-external
+      description: Subnet from "import" test
+      ipVersion: 6
+      cidr: fc00:3::/64
+      gatewayIP: "fc00:3::"
+      ipv6:
+        addressMode: dhcpv6-stateful
+        raMode: dhcpv6-stateful
+      tags:
+      - tag1
+      - tag2
