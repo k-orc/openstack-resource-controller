@@ -36,3 +36,22 @@ status:
     enableDHCP: true
     ipv6AddressMode: slaac
     ipv6RAMode: slaac
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: create-full-v6-subnet
+spec:
+  routerRef: create-full-v6
+  subnetRef: create-full-v6
+  type: Subnet
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success

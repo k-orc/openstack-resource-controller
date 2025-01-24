@@ -10,7 +10,3 @@ Also validate that the OpenStack resource uses the name from the spec when it is
 
 Validate we're able to delete resources.
 Cleaning up resources also avoids a race where kuttl could delete the secret before the other resources.
-
-## TODO
-
-- Validate `routerRef`

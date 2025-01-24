@@ -36,3 +36,22 @@ status:
         nextHop: 192.168.6.1
     ipv6AddressMode: ""
     ipv6RAMode: ""
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: create-full-v4-subnet
+spec:
+  routerRef: create-full-v4
+  subnetRef: create-full-v4
+  type: Subnet
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
