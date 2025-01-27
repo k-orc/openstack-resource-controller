@@ -26,6 +26,7 @@ package mock
 
 import (
 	context "context"
+	iter "iter"
 	reflect "reflect"
 
 	extensions "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions"
@@ -38,7 +39,7 @@ import (
 	networks "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	ports "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	subnets "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
-	pagination "github.com/gophercloud/gophercloud/v2/pagination"
+	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -96,11 +97,12 @@ func (mr *MockNetworkClientMockRecorder) CreateFloatingIP(opts any) *gomock.Call
 }
 
 // CreateNetwork mocks base method.
-func (m *MockNetworkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) networks.CreateResult {
+func (m *MockNetworkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) (*osclients.NetworkExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateNetwork", ctx, opts)
-	ret0, _ := ret[0].(networks.CreateResult)
-	return ret0
+	ret0, _ := ret[0].(*osclients.NetworkExt)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateNetwork indicates an expected call of CreateNetwork.
@@ -214,10 +216,10 @@ func (mr *MockNetworkClientMockRecorder) DeleteFloatingIP(id any) *gomock.Call {
 }
 
 // DeleteNetwork mocks base method.
-func (m *MockNetworkClient) DeleteNetwork(ctx context.Context, id string) networks.DeleteResult {
+func (m *MockNetworkClient) DeleteNetwork(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteNetwork", ctx, id)
-	ret0, _ := ret[0].(networks.DeleteResult)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -327,11 +329,12 @@ func (mr *MockNetworkClientMockRecorder) GetFloatingIP(id any) *gomock.Call {
 }
 
 // GetNetwork mocks base method.
-func (m *MockNetworkClient) GetNetwork(ctx context.Context, id string) networks.GetResult {
+func (m *MockNetworkClient) GetNetwork(ctx context.Context, id string) (*osclients.NetworkExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetNetwork", ctx, id)
-	ret0, _ := ret[0].(networks.GetResult)
-	return ret0
+	ret0, _ := ret[0].(*osclients.NetworkExt)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetNetwork indicates an expected call of GetNetwork.
@@ -446,17 +449,17 @@ func (mr *MockNetworkClientMockRecorder) ListFloatingIP(opts any) *gomock.Call {
 }
 
 // ListNetwork mocks base method.
-func (m *MockNetworkClient) ListNetwork(opts networks.ListOptsBuilder) pagination.Pager {
+func (m *MockNetworkClient) ListNetwork(ctx context.Context, opts networks.ListOptsBuilder) iter.Seq2[*osclients.NetworkExt, error] {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListNetwork", opts)
-	ret0, _ := ret[0].(pagination.Pager)
+	ret := m.ctrl.Call(m, "ListNetwork", ctx, opts)
+	ret0, _ := ret[0].(iter.Seq2[*osclients.NetworkExt, error])
 	return ret0
 }
 
 // ListNetwork indicates an expected call of ListNetwork.
-func (mr *MockNetworkClientMockRecorder) ListNetwork(opts any) *gomock.Call {
+func (mr *MockNetworkClientMockRecorder) ListNetwork(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListNetwork", reflect.TypeOf((*MockNetworkClient)(nil).ListNetwork), opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListNetwork", reflect.TypeOf((*MockNetworkClient)(nil).ListNetwork), ctx, opts)
 }
 
 // ListPort mocks base method.
@@ -624,11 +627,12 @@ func (mr *MockNetworkClientMockRecorder) UpdateFloatingIP(id, opts any) *gomock.
 }
 
 // UpdateNetwork mocks base method.
-func (m *MockNetworkClient) UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) networks.UpdateResult {
+func (m *MockNetworkClient) UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) (*osclients.NetworkExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateNetwork", ctx, id, opts)
-	ret0, _ := ret[0].(networks.UpdateResult)
-	return ret0
+	ret0, _ := ret[0].(*osclients.NetworkExt)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateNetwork indicates an expected call of UpdateNetwork.

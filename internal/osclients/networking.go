@@ -19,13 +19,19 @@ package osclients
 import (
 	"context"
 	"fmt"
+	"iter"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
@@ -35,6 +41,15 @@ import (
 	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
+
+type NetworkExt struct {
+	networks.Network
+	dns.NetworkDNSExt
+	external.NetworkExternalExt
+	mtu.NetworkMTUExt
+	portsecurity.PortSecurityExt
+	provider.NetworkProviderExt
+}
 
 type NetworkClient interface {
 	ListFloatingIP(opts floatingips.ListOptsBuilder) ([]floatingips.FloatingIP, error)
@@ -75,11 +90,11 @@ type NetworkClient interface {
 	DeleteSecGroupRule(ctx context.Context, id string) error
 	GetSecGroupRule(ctx context.Context, id string) (*rules.SecGroupRule, error)
 
-	ListNetwork(opts networks.ListOptsBuilder) pagination.Pager
-	CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) networks.CreateResult
-	DeleteNetwork(ctx context.Context, id string) networks.DeleteResult
-	GetNetwork(ctx context.Context, id string) networks.GetResult
-	UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) networks.UpdateResult
+	ListNetwork(ctx context.Context, opts networks.ListOptsBuilder) iter.Seq2[*NetworkExt, error]
+	CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) (*NetworkExt, error)
+	DeleteNetwork(ctx context.Context, id string) error
+	GetNetwork(ctx context.Context, id string) (*NetworkExt, error)
+	UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) (*NetworkExt, error)
 
 	ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error)
 	CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error)
@@ -268,24 +283,48 @@ func (c networkClient) GetSecGroupRule(ctx context.Context, id string) (*rules.S
 	return rules.Get(ctx, c.serviceClient, id).Extract()
 }
 
-func (c networkClient) ListNetwork(opts networks.ListOptsBuilder) pagination.Pager {
-	return networks.List(c.serviceClient, opts)
+func (c networkClient) ListNetwork(ctx context.Context, opts networks.ListOptsBuilder) iter.Seq2[*NetworkExt, error] {
+	extractNetworkExt := func(p pagination.Page) ([]NetworkExt, error) {
+		var resources []NetworkExt
+		err := networks.ExtractNetworksInto(p, &resources)
+		if err != nil {
+			return nil, err
+		}
+		return resources, nil
+	}
+	pager := networks.List(c.serviceClient, opts)
+	return func(yield func(*NetworkExt, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(extractNetworkExt, yield))
+	}
 }
 
-func (c networkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) networks.CreateResult {
-	return networks.Create(ctx, c.serviceClient, opts)
+func (c networkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) (*NetworkExt, error) {
+	createResult := networks.Create(ctx, c.serviceClient, opts)
+	networkExt := NetworkExt{}
+	if err := createResult.ExtractInto(&networkExt); err != nil {
+		return nil, err
+	}
+	return &networkExt, nil
 }
 
-func (c networkClient) DeleteNetwork(ctx context.Context, id string) networks.DeleteResult {
-	return networks.Delete(ctx, c.serviceClient, id)
+func (c networkClient) DeleteNetwork(ctx context.Context, id string) error {
+	return networks.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetNetwork(ctx context.Context, id string) networks.GetResult {
-	return networks.Get(ctx, c.serviceClient, id)
+func (c networkClient) GetNetwork(ctx context.Context, id string) (*NetworkExt, error) {
+	networkExt := NetworkExt{}
+	if err := networks.Get(ctx, c.serviceClient, id).ExtractInto(&networkExt); err != nil {
+		return nil, err
+	}
+	return &networkExt, nil
 }
 
-func (c networkClient) UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) networks.UpdateResult {
-	return networks.Update(ctx, c.serviceClient, id, opts)
+func (c networkClient) UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) (*NetworkExt, error) {
+	networkExt := NetworkExt{}
+	if err := networks.Update(ctx, c.serviceClient, id, opts).ExtractInto(&networkExt); err != nil {
+		return nil, err
+	}
+	return &networkExt, nil
 }
 
 func (c networkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error) {
