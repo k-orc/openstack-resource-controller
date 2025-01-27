@@ -37,7 +37,6 @@ import (
 )
 
 type osResourcePT = *groups.SecGroup
-type orcObjectPT = *orcv1alpha1.SecurityGroup
 
 type securityGroupActuator struct {
 	obj        *orcv1alpha1.SecurityGroup
@@ -144,14 +143,6 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context) ([]gen
 
 func (actuator securityGroupActuator) DeleteResource(ctx context.Context, osResource *groups.SecGroup) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteSecGroup(ctx, osResource.ID)
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.SecurityGroup) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.SecurityGroupFilter) groups.ListOpts {

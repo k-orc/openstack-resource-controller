@@ -34,7 +34,6 @@ import (
 )
 
 type osResourcePT = *servers.Server
-type orcObjectPT = *orcv1alpha1.Server
 
 const (
 	// The frequency to poll when waiting for a server to become active
@@ -222,14 +221,6 @@ func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.Wa
 
 func (actuator serverActuator) DeleteResource(ctx context.Context, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteServer(ctx, osResource.ID)
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Server) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = serverActuator{}

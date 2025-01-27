@@ -192,14 +192,6 @@ func (obj imageActuator) DeleteResource(ctx context.Context, osResource *images.
 	return nil, obj.osClient.DeleteImage(ctx, osResource.ID)
 }
 
-// getResourceName returns the name of the glance image we should use.
-func getResourceName(orcImage *orcv1alpha1.Image) orcv1alpha1.OpenStackName {
-	if orcImage.Spec.Resource.Name != nil {
-		return *orcImage.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcImage.Name)
-}
-
 func listOptsFromImportFilter(filter *orcv1alpha1.ImageFilter) images.ListOptsBuilder {
 	return images.ListOpts{Name: string(ptr.Deref(filter.Name, ""))}
 }

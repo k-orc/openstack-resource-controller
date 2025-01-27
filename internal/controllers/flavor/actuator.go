@@ -31,7 +31,6 @@ import (
 )
 
 type osResourcePT = *flavors.Flavor
-type orcObjectPT = *orcv1alpha1.Flavor
 
 type flavorActuator struct {
 	obj        *orcv1alpha1.Flavor
@@ -136,14 +135,6 @@ func (actuator flavorActuator) CreateResource(ctx context.Context) ([]generic.Wa
 
 func (actuator flavorActuator) DeleteResource(ctx context.Context, flavor *flavors.Flavor) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteFlavor(ctx, flavor.ID)
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Flavor) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 type flavorActuatorFactory struct{}

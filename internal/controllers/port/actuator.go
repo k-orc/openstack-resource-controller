@@ -36,7 +36,6 @@ import (
 )
 
 type osResourcePT = *ports.Port
-type orcObjectPT = *orcv1alpha1.Port
 
 type portActuator struct {
 	obj        *orcv1alpha1.Port
@@ -213,14 +212,6 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context) ([]generi
 
 func (actuator portActuator) DeleteResource(ctx context.Context, flavor *ports.Port) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeletePort(ctx, flavor.ID)
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Port) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.PortFilter, networkID orcv1alpha1.UUID) ports.ListOptsBuilder {

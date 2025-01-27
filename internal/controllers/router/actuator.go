@@ -36,7 +36,6 @@ import (
 )
 
 type osResourcePT = *routers.Router
-type orcObjectPT = *orcv1alpha1.Router
 
 type routerActuator struct {
 	obj        *orcv1alpha1.Router
@@ -181,14 +180,6 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context) ([]gene
 
 func (actuator routerActuator) DeleteResource(ctx context.Context, router *routers.Router) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteRouter(ctx, router.ID)
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Router) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.RouterFilter) routers.ListOpts {

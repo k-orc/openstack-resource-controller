@@ -42,7 +42,6 @@ import (
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=subnets/status,verbs=get;update;patch
 
 type osResourcePT = *subnets.Subnet
-type orcObjectPT = *orcv1alpha1.Subnet
 
 type subnetActuator struct {
 	obj        *orcv1alpha1.Subnet
@@ -204,14 +203,6 @@ func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, osResou
 	}
 
 	return nil, actuator.osClient.DeleteSubnet(ctx, *actuator.obj.Status.ID)
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Subnet) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.SubnetFilter, networkID string) subnets.ListOptsBuilder {

@@ -48,7 +48,6 @@ type networkExt struct {
 	provider.NetworkProviderExt
 }
 
-type orcObjectPT = *orcv1alpha1.Network
 type osResourcePT = *networkExt
 
 type networkActuator struct {
@@ -210,14 +209,6 @@ func (actuator networkActuator) CreateResource(ctx context.Context) ([]generic.W
 
 func (actuator networkActuator) DeleteResource(ctx context.Context, network *networkExt) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteNetwork(ctx, network.ID).ExtractErr()
-}
-
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Network) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
 }
 
 func listOptsFromImportFilter(filter *orcv1alpha1.NetworkFilter) networks.ListOptsBuilder {
