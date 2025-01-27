@@ -26,6 +26,7 @@ package mock
 
 import (
 	context "context"
+	iter "iter"
 	reflect "reflect"
 
 	attachinterfaces "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
@@ -193,10 +194,10 @@ func (mr *MockComputeClientMockRecorder) ListAvailabilityZones() *gomock.Call {
 }
 
 // ListFlavors mocks base method.
-func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan osclients.Result[*flavors.Flavor] {
+func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListFlavors", ctx, listOpts)
-	ret0, _ := ret[0].(<-chan osclients.Result[*flavors.Flavor])
+	ret0, _ := ret[0].(iter.Seq2[*flavors.Flavor, error])
 	return ret0
 }
 

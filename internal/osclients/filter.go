@@ -1,5 +1,12 @@
 package osclients
 
+import (
+	"context"
+	"iter"
+
+	"github.com/gophercloud/gophercloud/v2/pagination"
+)
+
 type result[T any] struct {
 	ok  T
 	err error
@@ -22,25 +29,27 @@ func NewResultErr[T any](err error) result[T] {
 	return result[T]{err: err}
 }
 
-func Filter[T any, R Result[T]](in <-chan R, filters ...func(T) bool) <-chan R {
-	out := make(chan (R))
-	go func() {
-		defer close(out)
+type ResourceFilter[osResourceT any] func(*osResourceT) bool
+
+func Filter[osResourceT any](in iter.Seq2[*osResourceT, error], filters ...ResourceFilter[osResourceT]) iter.Seq2[*osResourceT, error] {
+	return func(yield func(*osResourceT, error) bool) {
 	next:
-		for result := range in {
-			if err := result.Err(); err != nil {
-				out <- result
-				continue
+		for osResource, err := range in {
+			if err != nil {
+				yield(nil, err)
+				return
 			}
 			for _, filter := range filters {
-				if !filter(result.Ok()) {
+				if !filter(osResource) {
 					continue next
 				}
 			}
-			out <- result
+			if !yield(osResource, nil) {
+				return
+			}
 		}
-	}()
-	return out
+	}
+
 }
 
 func JustOne[T any, R Result[*T]](in <-chan R, duplicateError error) (*T, error) {
@@ -56,4 +65,27 @@ func JustOne[T any, R Result[*T]](in <-chan R, duplicateError error) (*T, error)
 		found = ok
 	}
 	return found, nil
+}
+
+func yieldPage[osResourcePT *osResourceT, osResourceT any](extracter func(pagination.Page) ([]osResourceT, error), yield func(osResourcePT, error) bool) func(context.Context, pagination.Page) (bool, error) {
+	return func(ctx context.Context, page pagination.Page) (bool, error) {
+		pageItems, err := extracter(page)
+		if err != nil {
+			_ = yield(nil, err)
+			return false, err
+		}
+		for i := range pageItems {
+			select {
+			case <-ctx.Done():
+				err := ctx.Err()
+				_ = yield(nil, err)
+				return false, err
+			default:
+				if !yield(&pageItems[i], nil) {
+					return false, nil
+				}
+			}
+		}
+		return true, nil
+	}
 }

@@ -18,11 +18,11 @@ package flavor
 
 import (
 	"context"
+	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
@@ -30,80 +30,106 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
-type osResourcePT = *flavors.Flavor
+// OpenStack resource types
+type (
+	osResourceT = flavors.Flavor
+
+	createResourceActuator = generic.CreateResourceActuator2[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = generic.DeleteResourceActuator2[orcObjectPT, orcObjectT, osResourceT]
+	helperFactory          = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+)
+
+type flavorClient interface {
+	GetFlavor(context.Context, string) (*flavors.Flavor, error)
+	ListFlavors(context.Context, flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error]
+	CreateFlavor(context.Context, flavors.CreateOptsBuilder) (*flavors.Flavor, error)
+	DeleteFlavor(context.Context, string) error
+}
 
 type flavorActuator struct {
-	obj        *orcv1alpha1.Flavor
-	osClient   osclients.ComputeClient
-	controller generic.ResourceController
+	osClient flavorClient
 }
 
-var _ generic.CreateResourceActuator[osResourcePT] = flavorActuator{}
-var _ generic.DeleteResourceActuator[osResourcePT] = flavorActuator{}
-
-func (actuator flavorActuator) GetObject() client.Object {
-	return actuator.obj
-}
-
-func (actuator flavorActuator) GetController() generic.ResourceController {
-	return actuator.controller
-}
-
-func (actuator flavorActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return actuator.obj.Spec.ManagementPolicy
-}
-
-func (actuator flavorActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return actuator.obj.Spec.ManagedOptions
-}
+var _ createResourceActuator = flavorActuator{}
+var _ deleteResourceActuator = flavorActuator{}
 
 func (flavorActuator) GetResourceID(osResource *flavors.Flavor) string {
 	return osResource.ID
 }
 
-func (actuator flavorActuator) GetStatusID() *string {
-	return actuator.obj.Status.ID
+func (actuator flavorActuator) GetOSResourceByID(ctx context.Context, id string) (*flavors.Flavor, error) {
+	return actuator.osClient.GetFlavor(ctx, id)
 }
 
-func (actuator flavorActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *flavors.Flavor, error) {
-	if actuator.obj.Status.ID == nil {
-		return false, nil, nil
+func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*flavors.Flavor, error], bool) {
+	resourceSpec := orcObject.Spec.Resource
+	if resourceSpec == nil {
+		return nil, false
 	}
-	flavor, err := actuator.osClient.GetFlavor(ctx, *actuator.obj.Status.ID)
-	return true, flavor, err
+
+	var filters []osclients.ResourceFilter[osResourceT]
+	listOpts := flavors.ListOpts{}
+
+	filters = append(filters,
+		func(f *flavors.Flavor) bool {
+			name := getResourceName(orcObject)
+			// Compare non-pointer values
+			return f.Name == string(name) &&
+				f.RAM == int(resourceSpec.RAM) &&
+				f.VCPUs == int(resourceSpec.Vcpus) &&
+				f.Disk == int(resourceSpec.Disk) &&
+				f.Swap == int(resourceSpec.Swap) &&
+				f.Ephemeral == int(resourceSpec.Ephemeral)
+		},
+	)
+
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(f *flavors.Flavor) bool {
+			return f.Description == *resourceSpec.Description
+		})
+	}
+
+	// We can select on isPublic server-side, so add it to listOpts
+	if resourceSpec.IsPublic != nil {
+		if *resourceSpec.IsPublic {
+			listOpts.AccessType = flavors.PublicAccess
+		} else {
+			listOpts.AccessType = flavors.PrivateAccess
+		}
+	}
+
+	return actuator.listOSResources(ctx, filters, &listOpts), true
 }
 
-func (actuator flavorActuator) GetOSResourceBySpec(ctx context.Context) (*flavors.Flavor, error) {
-	if actuator.obj.Spec.Resource == nil {
-		return nil, nil
+func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*flavors.Flavor, error] {
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	if filter.Name != nil {
+		filters = append(filters, func(f *flavors.Flavor) bool { return f.Name == string(*filter.Name) })
 	}
-	return GetByFilter(ctx, actuator.osClient, specToFilter(*actuator.obj.Spec.Resource))
+
+	if filter.RAM != nil {
+		filters = append(filters, func(f *flavors.Flavor) bool { return f.RAM == int(*filter.RAM) })
+	}
+
+	if filter.Vcpus != nil {
+		filters = append(filters, func(f *flavors.Flavor) bool { return f.VCPUs == int(*filter.Vcpus) })
+	}
+
+	if filter.Disk != nil {
+		filters = append(filters, func(f *flavors.Flavor) bool { return f.Disk == int(*filter.Disk) })
+	}
+
+	return actuator.listOSResources(ctx, filters, &flavors.ListOpts{})
 }
 
-func (actuator flavorActuator) GetOSResourceByImportID(ctx context.Context) (bool, *flavors.Flavor, error) {
-	if actuator.obj.Spec.Import == nil {
-		return false, nil, nil
-	}
-	if actuator.obj.Spec.Import.ID == nil {
-		return false, nil, nil
-	}
-	flavor, err := actuator.osClient.GetFlavor(ctx, *actuator.obj.Spec.Import.ID)
-	return true, flavor, err
+func (actuator flavorActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+	flavors := actuator.osClient.ListFlavors(ctx, listOpts)
+	return osclients.Filter(flavors, filters...)
 }
 
-func (actuator flavorActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *flavors.Flavor, error) {
-	if actuator.obj.Spec.Import == nil {
-		return false, nil, nil
-	}
-	if actuator.obj.Spec.Import.Filter == nil {
-		return false, nil, nil
-	}
-	flavor, err := GetByFilter(ctx, actuator.osClient, *actuator.obj.Spec.Import.Filter)
-	return true, flavor, err
-}
-
-func (actuator flavorActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *flavors.Flavor, error) {
-	resource := actuator.obj.Spec.Resource
+func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.WaitingOnEvent, *flavors.Flavor, error) {
+	resource := obj.Spec.Resource
 
 	if resource == nil {
 		// Should have been caught by API validation
@@ -111,7 +137,7 @@ func (actuator flavorActuator) CreateResource(ctx context.Context) ([]generic.Wa
 	}
 
 	createOpts := flavors.CreateOpts{
-		Name:        string(getResourceName(actuator.obj)),
+		Name:        string(getResourceName(obj)),
 		RAM:         int(resource.RAM),
 		VCPUs:       int(resource.Vcpus),
 		Disk:        ptr.To(int(resource.Disk)),
@@ -133,13 +159,13 @@ func (actuator flavorActuator) CreateResource(ctx context.Context) ([]generic.Wa
 	return nil, osResource, nil
 }
 
-func (actuator flavorActuator) DeleteResource(ctx context.Context, flavor *flavors.Flavor) ([]generic.WaitingOnEvent, error) {
+func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteFlavor(ctx, flavor.ID)
 }
 
-type flavorActuatorFactory struct{}
+type flavorHelperFactory struct{}
 
-var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = flavorActuatorFactory{}
+var _ helperFactory = flavorHelperFactory{}
 
 func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
@@ -154,18 +180,20 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller 
 	}
 
 	return flavorActuator{
-		obj:        orcObject,
-		osClient:   osClient,
-		controller: controller,
+		osClient: osClient,
 	}, nil
 }
 
-func (flavorActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+func (flavorHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
+	return flavorAdapter{obj}
+}
+
+func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }
 
-func (flavorActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }

@@ -19,6 +19,7 @@ package osclients
 import (
 	"context"
 	"fmt"
+	"iter"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -49,7 +50,7 @@ type ComputeClient interface {
 	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
 	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
 	DeleteFlavor(ctx context.Context, id string) error
-	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor])
+	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error]
 
 	CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error)
 	DeleteServer(ctx context.Context, serverID string) error
@@ -98,29 +99,11 @@ func (c computeClient) DeleteFlavor(ctx context.Context, id string) error {
 	return flavors.Delete(ctx, c.client, id).ExtractErr()
 }
 
-func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor]) {
-	ch := make(chan (Result[*flavors.Flavor]))
-	go func() {
-		defer close(ch)
-		if err := flavors.ListDetail(c.client, opts).EachPage(ctx, func(ctx context.Context, page pagination.Page) (bool, error) {
-			pageFlavors, err := flavors.ExtractFlavors(page)
-			if err != nil {
-				return false, err
-			}
-			for i := range pageFlavors {
-				select {
-				case <-ctx.Done():
-					return false, ctx.Err()
-				default:
-					ch <- NewResultOk(&pageFlavors[i])
-				}
-			}
-			return true, nil
-		}); err != nil {
-			ch <- NewResultErr[*flavors.Flavor](err)
-		}
-	}()
-	return ch
+func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+	pager := flavors.ListDetail(c.client, opts)
+	return func(yield func(*flavors.Flavor, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(flavors.ExtractFlavors, yield))
+	}
 }
 
 func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
@@ -196,13 +179,10 @@ func (e computeErrorClient) GetFlavor(ctx context.Context, id string) (*flavors.
 func (e computeErrorClient) DeleteFlavor(ctx context.Context, id string) error {
 	return e.error
 }
-func (e computeErrorClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor]) {
-	ch := make(chan (Result[*flavors.Flavor]))
-	go func() {
-		defer close(ch)
-		ch <- NewResultErr[*flavors.Flavor](e.error)
-	}()
-	return ch
+func (e computeErrorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+	return func(yield func(*flavors.Flavor, error) bool) {
+		yield(nil, e.error)
+	}
 }
 
 func (e computeErrorClient) ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error) {
