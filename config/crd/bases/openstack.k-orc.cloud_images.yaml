@@ -164,6 +164,7 @@ spec:
                         - ovf
                         - ova
                         - docker
+                        - compressed
                         type: string
                       diskFormat:
                         description: |-
