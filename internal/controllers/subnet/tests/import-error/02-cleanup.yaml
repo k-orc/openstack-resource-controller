@@ -1,0 +1,15 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: import-error
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: import-error-external-1
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: import-error-external-2
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Network
+  name: import-error

@@ -47,6 +47,28 @@ Create your resource in one of the example directory in `examples/`.
 Add your resource to `examples/components/kustomizeconfig/kustomizeconfig.yaml`
 so that the resource name get prefixed with your username.
 
+## Unit tests
+
+Add API validation tests for your controller in `test/apivalidations`.
+
 ## e2e tests
 
-Add e2e tests for your resource.
+ORC uses [kuttl](https://kuttl.dev/) for end-to-end testing. Add tests for the
+controllers you're writing. Check out the [flavor][flavor-tests] and the
+[subnet][subnet-tests] that should cover all the patterns we're expecting to
+see tested.
+
+Each test runs in a separate kubernetes namespace, however because they all run
+in the same openstack tenant, we still need to be careful about name clash when
+referencing resources, and filters for importing resources:
+
+- a test must only reference resources it created. Resources created on
+  OpenStack must have a unique name among the whole test suite.
+- a test must ensure their filters match resources uniquely
+
+This is the condition to run tests concurrently.
+
+Each test contains a `README.md` file describing what the test does.
+
+[flavor-tests]: https://github.com/k-orc/openstack-resource-controller/tree/main/internal/controllers/flavor/tests
+[subnet-tests]: https://github.com/k-orc/openstack-resource-controller/tree/main/internal/controllers/subnet/tests

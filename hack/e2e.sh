@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+kubectl kuttl test
+
 # HACK: Update the devstack default provider network name to match the one
 # hardcoded in the cirros example
 export OS_CLOUD=devstack-admin

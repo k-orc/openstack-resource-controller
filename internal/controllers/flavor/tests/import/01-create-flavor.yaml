@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: devstack-admin-demo
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    ram: 12
+    vcpus: 13
+    disk: 14

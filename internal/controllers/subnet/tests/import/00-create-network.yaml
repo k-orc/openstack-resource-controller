@@ -1,0 +1,13 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: import
+spec:
+  cloudCredentialsRef:
+    cloudName: devstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # FIXME: just having the name causes a panic
+    # https://github.com/k-orc/openstack-resource-controller/issues/187
+    description: import

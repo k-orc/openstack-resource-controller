@@ -1,0 +1,6 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: dependency
+  deletionGracePeriodSeconds: 0

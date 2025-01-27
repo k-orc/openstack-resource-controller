@@ -1,0 +1,21 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: create-minimal-v4
+status:
+  resource:
+    name: create-minimal-v4
+    allocationPools:
+      - start: 192.168.0.2
+        end: 192.168.0.254
+    cidr: 192.168.0.0/24
+    dnsPublishFixedIP: false
+    enableDHCP: true
+    gatewayIP: 192.168.0.1
+    ipVersion: 4
+    # FIXME: we shouldn't see empty strings
+    # https://github.com/k-orc/openstack-resource-controller/issues/188
+    description: ""
+    ipv6AddressMode: ""
+    ipv6RAMode: ""
