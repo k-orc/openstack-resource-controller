@@ -72,7 +72,7 @@ func (portReconcilerConstructor) GetName() string {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController2(c.GetName(), mgr.GetClient(), c.scopeFactory, portHelperFactory{}, portStatusWriter{})
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, portHelperFactory{}, portStatusWriter{})
 
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 

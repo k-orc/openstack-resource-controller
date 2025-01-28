@@ -34,8 +34,8 @@ import (
 type (
 	osResourceT = flavors.Flavor
 
-	createResourceActuator = generic.CreateResourceActuator2[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = generic.DeleteResourceActuator2[orcObjectPT, orcObjectT, osResourceT]
+	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	helperFactory          = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 

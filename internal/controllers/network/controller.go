@@ -48,7 +48,7 @@ func (networkReconcilerConstructor) GetName() string {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c networkReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController2(c.GetName(), mgr.GetClient(), c.scopeFactory, networkHelperFactory{}, networkStatusWriter{})
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, networkHelperFactory{}, networkStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Network{}).

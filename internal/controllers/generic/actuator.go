@@ -19,16 +19,15 @@ package generic
 import (
 	"context"
 	"fmt"
+	"iter"
 	"time"
 
 	"github.com/go-logr/logr"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 const (
@@ -49,52 +48,6 @@ const (
 	SSATransactionStatus    SSATransactionID = "status"
 )
 
-type ActuatorFactory[orcObjectPT any, osResourcePT any] interface {
-	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, CreateResourceActuator[osResourcePT], error)
-	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, DeleteResourceActuator[osResourcePT], error)
-}
-
-type ResourceController interface {
-	GetName() string
-
-	GetK8sClient() client.Client
-	GetScopeFactory() scope.Factory
-}
-
-type BaseResourceActuator[osResourcePT any] interface {
-	GetObject() client.Object
-	GetController() ResourceController
-
-	GetManagementPolicy() orcv1alpha1.ManagementPolicy
-	GetManagedOptions() *orcv1alpha1.ManagedOptions
-
-	GetResourceID(osResource osResourcePT) string
-	GetStatusID() *string
-
-	GetOSResourceByStatusID(ctx context.Context) (bool, osResourcePT, error)
-	GetOSResourceBySpec(ctx context.Context) (osResourcePT, error)
-}
-
-type CreateResourceActuator[osResourcePT any] interface {
-	BaseResourceActuator[osResourcePT]
-
-	GetOSResourceByImportID(ctx context.Context) (bool, osResourcePT, error)
-	GetOSResourceByImportFilter(ctx context.Context) (bool, osResourcePT, error)
-	CreateResource(ctx context.Context) ([]WaitingOnEvent, osResourcePT, error)
-}
-
-type ResourceUpdater[orcObjectPT, osResourcePT any] func(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]WaitingOnEvent, orcObjectPT, osResourcePT, error)
-
-type UpdateResourceActuator[orcObjectPT, osResourcePT any] interface {
-	GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller ResourceController) ([]ResourceUpdater[orcObjectPT, osResourcePT], error)
-}
-
-type DeleteResourceActuator[osResourcePT any] interface {
-	BaseResourceActuator[osResourcePT]
-
-	DeleteResource(ctx context.Context, osResource osResourcePT) ([]WaitingOnEvent, error)
-}
-
 func getSSAFieldOwnerString(controller ResourceController) string {
 	return ORCK8SPrefix + "/" + controller.GetName() + "controller"
 }
@@ -113,20 +66,94 @@ func GetFinalizerName(controller ResourceController) string {
 	return ORCK8SPrefix + "/" + controller.GetName()
 }
 
-func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator CreateResourceActuator[osResourcePT]) ([]WaitingOnEvent, osResourcePT, error) {
-	orcObject := actuator.GetObject()
-	controller := actuator.GetController()
+type ResourceHelperFactory[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	resourceSpecT any, filterT any,
+	osResourceT any,
+] interface {
+	NewAPIObjectAdapter(orcObject orcObjectPT) APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
+
+	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT], error)
+	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT], error)
+}
+
+type BaseResourceActuator[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	osResourceT any,
+] interface {
+	GetResourceID(osResource *osResourceT) string
+
+	GetOSResourceByID(ctx context.Context, id string) (*osResourceT, error)
+	ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool)
+}
+
+type CreateResourceActuator[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	filterT any,
+	osResourceT any,
+] interface {
+	BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+
+	CreateResource(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, *osResourceT, error)
+	ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osResourceT, error]
+}
+
+type DeleteResourceActuator[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	osResourceT any,
+] interface {
+	BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+
+	DeleteResource(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]WaitingOnEvent, error)
+}
+
+type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]WaitingOnEvent, error)
+
+type ReconcileResourceActuator[orcObjectPT, osResourceT any] interface {
+	GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller ResourceController) ([]ResourceReconciler[orcObjectPT, osResourceT], error)
+}
+
+func GetOrCreateOSResource[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	resourceSpecT any, filterT any,
+	osResourceT any,
+](
+	ctx context.Context, log logr.Logger, controller ResourceController,
+	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
+	actuator CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
+) ([]WaitingOnEvent, *osResourceT, error) {
+	k8sClient := controller.GetK8sClient()
 
 	finalizer := GetFinalizerName(controller)
-	if !controllerutil.ContainsFinalizer(orcObject, finalizer) {
-		patch := finalizers.SetFinalizerPatch(orcObject, finalizer)
-		if err := k8sClient.Patch(ctx, orcObject, patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+	if !controllerutil.ContainsFinalizer(objAdapter.GetObject(), finalizer) {
+		patch := finalizers.SetFinalizerPatch(objAdapter.GetObject(), finalizer)
+		if err := k8sClient.Patch(ctx, objAdapter.GetObject(), patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
 			return nil, nil, fmt.Errorf("setting finalizer: %w", err)
 		}
 	}
 
-	// Get by status ID
-	if hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx); hasStatusID {
+	if resourceID := objAdapter.GetStatusID(); resourceID != nil {
+		osResource, err := actuator.GetOSResourceByID(ctx, *resourceID)
 		if orcerrors.IsNotFound(err) {
 			// An OpenStack resource we previously referenced has been deleted unexpectedly. We can't recover from this.
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "resource has been deleted from OpenStack")
@@ -138,7 +165,8 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	}
 
 	// Import by ID
-	if hasImportID, osResource, err := actuator.GetOSResourceByImportID(ctx); hasImportID {
+	if resourceID := objAdapter.GetImportID(); resourceID != nil {
+		osResource, err := actuator.GetOSResourceByID(ctx, *resourceID)
 		if orcerrors.IsNotFound(err) {
 			// We assume that a resource imported by ID must already exist. It's a terminal error if it doesn't.
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "referenced resource does not exist in OpenStack")
@@ -150,22 +178,27 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	}
 
 	// Import by filter
-	if hasImportFilter, osResource, err := actuator.GetOSResourceByImportFilter(ctx); hasImportFilter {
-		var waitEvents []WaitingOnEvent
-		if osResource == nil {
-			waitEvents = []WaitingOnEvent{WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
+	if filter := objAdapter.GetImportFilter(); filter != nil {
+		osResource, err := getResourceForImport(ctx, actuator, *filter)
+		if err != nil {
+			return nil, nil, err
 		}
-		return waitEvents, osResource, err
+		if osResource == nil {
+			// Poll until we find a resource
+			waitEvents := []WaitingOnEvent{WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
+			return waitEvents, nil, nil
+		}
+		return nil, osResource, nil
 	}
 
 	// Create
-	if actuator.GetManagementPolicy() == orcv1alpha1.ManagementPolicyUnmanaged {
+	if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyUnmanaged {
 		// We never create an unmanaged resource
 		// API validation should have ensured that one of the above functions returned
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Not creating unmanaged resource")
 	}
 
-	osResource, err := actuator.GetOSResourceBySpec(ctx)
+	osResource, err := getResourceForAdoption(ctx, actuator, objAdapter)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -175,29 +208,106 @@ func GetOrCreateOSResource[osResourcePT *osResourceT, osResourceT any](ctx conte
 	}
 
 	log.V(3).Info("Creating resource")
-	return actuator.CreateResource(ctx)
+	return actuator.CreateResource(ctx, objAdapter.GetObject())
 }
 
-func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Context, log logr.Logger, k8sClient client.Client, actuator DeleteResourceActuator[osResourcePT]) (bool, []WaitingOnEvent, osResourcePT, error) {
-	obj := actuator.GetObject()
-	controller := actuator.GetController()
+func atMostOne[osResourceT any](resourceIter iter.Seq2[*osResourceT, error], multipleErr error) (*osResourceT, error) {
+	next, stop := iter.Pull2(resourceIter)
+	defer stop()
+
+	// Try to fetch the first result
+	osResource, err, ok := next()
+	if err != nil {
+		return nil, err
+	} else if !ok {
+		// No first result
+		return nil, nil
+	}
+
+	// Check that there are no other results
+	_, err, ok = next()
+	if err != nil {
+		return nil, err
+	} else if ok {
+		return nil, multipleErr
+	}
+
+	return osResource, nil
+}
+
+func getResourceForAdoption[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	resourceSpecT any, filterT any,
+	osResourceT any,
+](
+	ctx context.Context,
+	actuator BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT],
+	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
+) (*osResourceT, error) {
+	resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, objAdapter.GetObject())
+	if !canAdopt {
+		return nil, nil
+	}
+
+	return atMostOne(resourceIter, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "found more than one matching OpenStack resource during adoption"))
+}
+
+func getResourceForImport[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	filterT any,
+	osResourceT any,
+](
+	ctx context.Context,
+	actuator CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
+	filter filterT,
+) (*osResourceT, error) {
+	resourceIter := actuator.ListOSResourcesForImport(ctx, filter)
+	return atMostOne(resourceIter, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "found more than one matching OpenStack resource during import"))
+}
+
+func DeleteResource[
+	orcObjectPT interface {
+		*orcObjectT
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	}, orcObjectT any,
+	resourceSpecT any, filterT any,
+	osResourceT any,
+](
+	ctx context.Context, log logr.Logger, controller ResourceController,
+	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
+	actuator DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT],
+) (bool, []WaitingOnEvent, *osResourceT, error) {
+	var osResource *osResourceT
 
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
-	hasStatusID, osResource, err := actuator.GetOSResourceByStatusID(ctx)
-	if err != nil {
-		if !orcerrors.IsNotFound(err) {
-			return false, nil, osResource, err
+	statusID := objAdapter.GetStatusID()
+	if statusID != nil {
+		var err error
+		osResource, err = actuator.GetOSResourceByID(ctx, *statusID)
+		if err != nil {
+			if !orcerrors.IsNotFound(err) {
+				return false, nil, osResource, err
+			}
+			// Gophercloud can return an empty non-nil object when returning errors,
+			// which will confuse us below.
+			osResource = nil
 		}
-		// Gophercloud can return an empty non-nil object when returning errors,
-		// which will confuse us below.
-		osResource = nil
 	}
 
 	finalizer := GetFinalizerName(controller)
 
 	var waitEvents []WaitingOnEvent
 	var foundFinalizer bool
-	for _, f := range obj.GetFinalizers() {
+	for _, f := range objAdapter.GetFinalizers() {
 		if f == finalizer {
 			foundFinalizer = true
 		} else {
@@ -216,15 +326,15 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	removeFinalizer := func() error {
-		if err := k8sClient.Patch(ctx, obj, finalizers.RemoveFinalizerPatch(obj), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+		if err := controller.GetK8sClient().Patch(ctx, objAdapter.GetObject(), finalizers.RemoveFinalizerPatch(objAdapter.GetObject()), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
 			return fmt.Errorf("removing finalizer: %w", err)
 		}
 		return nil
 	}
 
 	// We won't delete the resource for an unmanaged object, or if onDelete is detach
-	managementPolicy := actuator.GetManagementPolicy()
-	managedOptions := actuator.GetManagedOptions()
+	managementPolicy := objAdapter.GetManagementPolicy()
+	managedOptions := objAdapter.GetManagedOptions()
 	if managementPolicy == orcv1alpha1.ManagementPolicyUnmanaged || managedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
 		logPolicy := []any{"managementPolicy", managementPolicy}
 		if managementPolicy == orcv1alpha1.ManagementPolicyManaged {
@@ -235,8 +345,9 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	// If status.ID was not set, we still need to check if there's an orphaned object.
-	if osResource == nil && !hasStatusID {
-		osResource, err = actuator.GetOSResourceBySpec(ctx)
+	if osResource == nil && statusID == nil {
+		var err error
+		osResource, err = getResourceForAdoption(ctx, actuator, objAdapter)
 		if err != nil {
 			return false, waitEvents, osResource, err
 		}
@@ -249,7 +360,7 @@ func DeleteResource[osResourcePT *osResourceT, osResourceT any](ctx context.Cont
 	}
 
 	log.V(4).Info("Deleting OpenStack resource")
-	waitEvents, err = actuator.DeleteResource(ctx, osResource)
+	waitEvents, err := actuator.DeleteResource(ctx, objAdapter.GetObject(), osResource)
 
 	// If there are no other wait events, we still need to poll for the deletion
 	// of the OpenStack resource

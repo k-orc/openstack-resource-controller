@@ -36,8 +36,8 @@ import (
 type (
 	osResourceT = images.Image
 
-	createResourceActuator = generic.CreateResourceActuator2[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = generic.DeleteResourceActuator2[orcObjectPT, orcObjectT, osResourceT]
+	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	imageIterator          = iter.Seq2[*osResourceT, error]
 )
 

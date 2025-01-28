@@ -82,7 +82,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 	}
 
 	adapter := imageAdapter{orcObject}
-	waitEvents, osResource, err := generic.GetOrCreateOSResource2(ctx, log, r, adapter, actuator)
+	waitEvents, osResource, err := generic.GetOrCreateOSResource(ctx, log, r, adapter, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -203,7 +203,7 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcObject *orc
 	}
 
 	adapter := imageAdapter{orcObject}
-	deleted, waitEvents, osResource, err := generic.DeleteResource2(ctx, log, r, adapter, actuator)
+	deleted, waitEvents, osResource, err := generic.DeleteResource(ctx, log, r, adapter, actuator)
 	addStatus(withResource(osResource))
 	return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, err
 }
