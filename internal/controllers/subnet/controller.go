@@ -59,7 +59,7 @@ var networkDependency = dependency.NewDependency[*orcv1alpha1.SubnetList, *orcv1
 
 // SetupWithManager sets up the controller with the Manager.
 func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, subnetActuatorFactory{}, subnetStatusWriter{})
+	reconciler := generic.NewController2(c.GetName(), mgr.GetClient(), c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{})
 
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 

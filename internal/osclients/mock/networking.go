@@ -523,12 +523,11 @@ func (mr *MockNetworkClientMockRecorder) ListSecGroupRule(ctx, opts any) *gomock
 }
 
 // ListSubnet mocks base method.
-func (m *MockNetworkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error) {
+func (m *MockNetworkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) iter.Seq2[*subnets.Subnet, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListSubnet", ctx, opts)
-	ret0, _ := ret[0].([]subnets.Subnet)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(iter.Seq2[*subnets.Subnet, error])
+	return ret0
 }
 
 // ListSubnet indicates an expected call of ListSubnet.

@@ -96,7 +96,7 @@ type NetworkClient interface {
 	GetNetwork(ctx context.Context, id string) (*NetworkExt, error)
 	UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) (*NetworkExt, error)
 
-	ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error)
+	ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) iter.Seq2[*subnets.Subnet, error]
 	CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error)
 	DeleteSubnet(ctx context.Context, id string) error
 	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
@@ -327,12 +327,11 @@ func (c networkClient) UpdateNetwork(ctx context.Context, id string, opts networ
 	return &networkExt, nil
 }
 
-func (c networkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) ([]subnets.Subnet, error) {
-	allPages, err := subnets.List(c.serviceClient, opts).AllPages(context.TODO())
-	if err != nil {
-		return nil, err
+func (c networkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) iter.Seq2[*subnets.Subnet, error] {
+	pager := subnets.List(c.serviceClient, opts)
+	return func(yield func(*subnets.Subnet, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(subnets.ExtractSubnets, yield))
 	}
-	return subnets.ExtractSubnets(allPages)
 }
 
 func (c networkClient) CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error) {

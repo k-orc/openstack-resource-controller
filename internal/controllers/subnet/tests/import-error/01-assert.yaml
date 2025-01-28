@@ -6,10 +6,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Expected to find exactly one OpenStack resource to import. Found 2
+      message: found more than one matching OpenStack resource during import
       status: "False"
       reason: InvalidConfiguration
     - type: Progressing
-      message: Expected to find exactly one OpenStack resource to import. Found 2
+      message: found more than one matching OpenStack resource during import
       status: "False"
       reason: InvalidConfiguration
