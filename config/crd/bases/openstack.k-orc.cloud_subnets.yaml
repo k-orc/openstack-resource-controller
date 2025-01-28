@@ -566,6 +566,7 @@ spec:
                     description: dnsNameservers is a list of name servers used by
                       hosts in this subnet.
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 16
                     type: array
@@ -637,6 +638,7 @@ spec:
                   tags:
                     description: tags optionally set via extensions/attributestags
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 32
                     type: array

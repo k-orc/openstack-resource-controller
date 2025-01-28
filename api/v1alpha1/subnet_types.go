@@ -155,6 +155,7 @@ type SubnetResourceStatus struct {
 
 	// dnsNameservers is a list of name servers used by hosts in this subnet.
 	// +kubebuilder:validation:MaxItems:=16
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	DNSNameservers []string `json:"dnsNameservers,omitempty"`
@@ -204,6 +205,7 @@ type SubnetResourceStatus struct {
 
 	// tags optionally set via extensions/attributestags
 	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`

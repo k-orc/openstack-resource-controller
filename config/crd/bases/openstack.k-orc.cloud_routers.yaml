@@ -399,6 +399,7 @@ spec:
                       availabilityZoneHints is the availability zone candidate for the
                       router.
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 32
                     type: array
@@ -438,6 +439,7 @@ spec:
                   tags:
                     description: tags is the list of tags on the resource.
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 32
                     type: array

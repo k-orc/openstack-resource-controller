@@ -342,6 +342,7 @@ spec:
                       securityGroups includes the security groups that this instance has
                       applied to it.
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 32
                     type: array

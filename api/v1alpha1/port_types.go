@@ -146,6 +146,7 @@ type PortResourceStatus struct {
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -188,6 +189,7 @@ type PortResourceStatus struct {
 
 	// securityGroups contains the IDs of security groups applied to the port.
 	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	SecurityGroups []string `json:"securityGroups,omitempty"`

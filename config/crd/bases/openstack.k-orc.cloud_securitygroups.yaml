@@ -563,6 +563,7 @@ spec:
                   tags:
                     description: tags is the list of tags on the resource.
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 32
                     type: array

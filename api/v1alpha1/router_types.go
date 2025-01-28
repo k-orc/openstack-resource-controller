@@ -108,6 +108,7 @@ type RouterResourceStatus struct {
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -126,6 +127,7 @@ type RouterResourceStatus struct {
 	// availabilityZoneHints is the availability zone candidate for the
 	// router.
 	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`

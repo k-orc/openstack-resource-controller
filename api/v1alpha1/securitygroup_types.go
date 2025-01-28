@@ -244,6 +244,7 @@ type SecurityGroupResourceStatus struct {
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
