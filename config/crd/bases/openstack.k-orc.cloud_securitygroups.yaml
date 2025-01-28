@@ -471,13 +471,16 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 1024
                     type: string
                   name:
                     description: name is a Human-readable name for the security group.
                       Might not be unique.
+                    maxLength: 1024
                     type: string
                   projectID:
                     description: projectID is the project owner of the security group.
+                    maxLength: 1024
                     type: string
                   revisionNumber:
                     description: revisionNumber optionally set via extensions/standard-attr-revisions
@@ -491,19 +494,23 @@ spec:
                         description:
                           description: description is a human-readable description
                             for the resource.
+                          maxLength: 1024
                           type: string
                         direction:
                           description: |-
                             direction represents the direction in which the security group rule
                             is applied. Can be ingress or egress.
+                          maxLength: 1024
                           type: string
                         ethertype:
                           description: |-
                             ethertype must be IPv4 or IPv6, and addresses represented in CIDR
                             must match the ingress or egress rules.
+                          maxLength: 1024
                           type: string
                         id:
                           description: id is the ID of the security group rule.
+                          maxLength: 1024
                           type: string
                         portRange:
                           description: |-
@@ -532,15 +539,18 @@ spec:
                           description: |-
                             protocol is the IP protocol can be represented by a string, an
                             integer, or null
+                          maxLength: 1024
                           type: string
                         remoteGroupID:
                           description: |-
                             remoteGroupID is the remote group UUID to associate with this security group rule
                             RemoteGroupID
+                          maxLength: 1024
                           type: string
                         remoteIPPrefix:
                           description: remoteIPPrefix is an IP address block. Should
                             match the Ethertype (IPv4 or IPv6)
+                          maxLength: 1024
                           type: string
                       type: object
                     type: array

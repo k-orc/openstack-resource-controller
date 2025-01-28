@@ -331,6 +331,7 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 65535
                     type: string
                   disk:
                     description: disk is the size of the root disk that will be created
@@ -348,6 +349,7 @@ spec:
                   name:
                     description: name is a Human-readable name for the flavor. Might
                       not be unique.
+                    maxLength: 1024
                     type: string
                   ram:
                     description: ram is the memory of the flavor, measured in MB.

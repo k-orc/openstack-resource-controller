@@ -585,6 +585,7 @@ spec:
                     type: integer
                   status:
                     description: status is the image status as reported by Glance
+                    maxLength: 1024
                     type: string
                   virtualSizeB:
                     description: virtualSizeB is the size of the disk the image data

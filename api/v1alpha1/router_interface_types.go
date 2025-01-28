@@ -108,6 +108,7 @@ type RouterInterfaceStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 
 	// id is the unique identifier of the port created for the router interface
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 }

@@ -421,11 +421,13 @@ spec:
                           description: |-
                             ip contains an IP address which a server connected to the port can
                             send packets with.
+                          maxLength: 1024
                           type: string
                         mac:
                           description: |-
                             mac contains a MAC address which a server connected to the port can
                             send packets with.
+                          maxLength: 1024
                           type: string
                       type: object
                     type: array
@@ -438,12 +440,15 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 1024
                     type: string
                   deviceID:
                     description: deviceID is the ID of the device that uses this port.
+                    maxLength: 1024
                     type: string
                   deviceOwner:
                     description: deviceOwner is the entity type that uses this port.
+                    maxLength: 1024
                     type: string
                   fixedIPs:
                     description: |-
@@ -455,23 +460,28 @@ spec:
                         ip:
                           description: ip contains a fixed IP address assigned to
                             the port.
+                          maxLength: 1024
                           type: string
                         subnetID:
                           description: subnetID is the ID of the subnet this IP is
                             allocated from.
+                          maxLength: 1024
                           type: string
                       type: object
                     type: array
                     x-kubernetes-list-type: atomic
                   macAddress:
                     description: macAddress is the MAC address of the port.
+                    maxLength: 1024
                     type: string
                   name:
                     description: name is the human-readable name of the resource.
                       Might not be unique.
+                    maxLength: 1024
                     type: string
                   projectID:
                     description: projectID is the project owner of the resource.
+                    maxLength: 1024
                     type: string
                   propagateUplinkStatus:
                     description: |-
@@ -491,6 +501,7 @@ spec:
                     x-kubernetes-list-type: atomic
                   status:
                     description: status indicates the current status of the resource.
+                    maxLength: 1024
                     type: string
                   tags:
                     description: tags is the list of tags on the resource.

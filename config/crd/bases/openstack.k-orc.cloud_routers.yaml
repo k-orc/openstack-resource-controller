@@ -405,6 +405,7 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 1024
                     type: string
                   externalGateways:
                     description: externalGateways is a list of external gateways for
@@ -414,6 +415,7 @@ spec:
                         networkID:
                           description: networkID is the ID of the network the gateway
                             is on.
+                          maxLength: 1024
                           type: string
                       type: object
                     type: array
@@ -421,12 +423,15 @@ spec:
                   name:
                     description: name is the human-readable name of the resource.
                       Might not be unique.
+                    maxLength: 1024
                     type: string
                   projectID:
                     description: projectID is the project owner of the resource.
+                    maxLength: 1024
                     type: string
                   status:
                     description: status indicates the current status of the resource.
+                    maxLength: 1024
                     type: string
                   tags:
                     description: tags is the list of tags on the resource.

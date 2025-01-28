@@ -158,6 +158,7 @@ spec:
               id:
                 description: id is the unique identifier of the port created for the
                   router interface
+                maxLength: 1024
                 type: string
             type: object
         type: object

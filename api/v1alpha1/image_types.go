@@ -317,6 +317,7 @@ type ImageFilter struct {
 // ImageResourceStatus represents the observed state of a Glance image
 type ImageResourceStatus struct {
 	// status is the image status as reported by Glance
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Status *string `json:"status,omitempty"`
 

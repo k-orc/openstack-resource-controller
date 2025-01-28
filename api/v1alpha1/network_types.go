@@ -20,6 +20,7 @@ type ProviderPropertiesStatus struct {
 	// networkType is the type of physical network that this
 	// network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
 	// Valid values depend on the networking back-end.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	NetworkType string `json:"networkType,omitempty"`
 
@@ -28,6 +29,7 @@ type ProviderPropertiesStatus struct {
 	// way to list available physical networks. For example, the Open
 	// vSwitch plug-in configuration file defines a symbolic name that maps
 	// to specific bridges on each compute host.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
 
@@ -127,20 +129,24 @@ type NetworkFilter struct {
 // NetworkResourceStatus represents the observed state of the resource.
 type NetworkResourceStatus struct {
 	// name is a Human-readable name for the network. Might not be unique.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
 
 	// projectID is the project owner of the network.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
 	// status indicates whether network is currently operational. Possible values
 	// include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
 	// additional values.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Status string `json:"status,omitempty"`
 
@@ -163,6 +169,7 @@ type NetworkResourceStatus struct {
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
 
 	// dnsDomain is the DNS domain of the network
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DNSDomain string `json:"dnsDomain,omitempty"`
 

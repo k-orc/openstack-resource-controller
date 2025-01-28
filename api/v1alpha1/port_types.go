@@ -52,11 +52,13 @@ type AllowedAddressPair struct {
 type AllowedAddressPairStatus struct {
 	// ip contains an IP address which a server connected to the port can
 	// send packets with.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	IP string `json:"ip,omitempty"`
 
 	// mac contains a MAC address which a server connected to the port can
 	// send packets with.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	MAC string `json:"mac,omitempty"`
 }
@@ -76,10 +78,12 @@ type Address struct {
 
 type FixedIPStatus struct {
 	// ip contains a fixed IP address assigned to the port.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	IP string `json:"ip,omitempty"`
 
 	// subnetID is the ID of the subnet this IP is allocated from.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	SubnetID string `json:"subnetID,omitempty"`
 }
@@ -121,18 +125,22 @@ type PortResourceSpec struct {
 
 type PortResourceStatus struct {
 	// name is the human-readable name of the resource. Might not be unique.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
 
 	// projectID is the project owner of the resource.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
 	// status indicates the current status of the resource.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Status string `json:"status,omitempty"`
 
@@ -147,14 +155,17 @@ type PortResourceStatus struct {
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// macAddress is the MAC address of the port.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	MACAddress string `json:"macAddress,omitempty"`
 
 	// deviceID is the ID of the device that uses this port.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DeviceID string `json:"deviceID,omitempty"`
 
 	// deviceOwner is the entity type that uses this port.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DeviceOwner string `json:"deviceOwner,omitempty"`
 
