@@ -2,7 +2,19 @@
 
 set -euo pipefail
 
-kubectl kuttl test
+# Path to a clouds.yaml to use for e2e tests.
+# Exported because it is referenced in kuttl tests.
+export E2E_OSCLOUDS=${E2E_OSCLOUDS:-/etc/openstack/clouds.yaml}
+
+# Run kuttl tests from a specific directory.
+# Defaults to empty string (all discovered kuttl directories)
+E2E_KUTTL_DIR=${E2E_KUTTL_DIR:-}
+
+# Run a specific kuttl test.
+# Defaults to empty string (run all tests)
+E2E_KUTTL_TEST=${E2E_KUTTL_TEST:-}
+
+kubectl kuttl test $E2E_KUTTL_DIR --test "$E2E_KUTTL_TEST"
 
 # HACK: Update the devstack default provider network name to match the one
 # hardcoded in the cirros example
