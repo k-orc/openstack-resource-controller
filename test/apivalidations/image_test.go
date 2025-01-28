@@ -67,9 +67,9 @@ func testImageImport() *applyconfigv1alpha1.ImageImportApplyConfiguration {
 	return applyconfigv1alpha1.ImageImport().WithID(imageID)
 }
 
-type getWithFn[argType, returnType any] func(*applyconfigv1alpha1.ImageApplyConfiguration) func(argType) returnType
+type getWithImageFn[argType, returnType any] func(*applyconfigv1alpha1.ImageApplyConfiguration) func(argType) returnType
 
-func testMutability[argType, returnType any](ctx context.Context, namespace *corev1.Namespace, getFn getWithFn[argType, returnType], valueA, valueB argType, allowsUnset bool, initFns ...func(*applyconfigv1alpha1.ImageApplyConfiguration)) {
+func testImageMutability[argType, returnType any](ctx context.Context, namespace *corev1.Namespace, getFn getWithImageFn[argType, returnType], valueA, valueB argType, allowsUnset bool, initFns ...func(*applyconfigv1alpha1.ImageApplyConfiguration)) {
 	setup := func(name string) (client.Object, *applyconfigv1alpha1.ImageApplyConfiguration, func(argType) returnType) {
 		obj := imageStub(name, namespace)
 		patch := minimalManagedPatch(obj)
@@ -280,7 +280,7 @@ var _ = Describe("ORC Image API validations", func() {
 	})
 
 	It("should not permit modifying resource.name", func(ctx context.Context) {
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(orcv1alpha1.OpenStackName) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithName
 			},
@@ -289,7 +289,7 @@ var _ = Describe("ORC Image API validations", func() {
 	})
 
 	It("should not permit modifying resource.protected", func(ctx context.Context) {
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(bool) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithProtected
 			}, true, false, true,
@@ -297,7 +297,7 @@ var _ = Describe("ORC Image API validations", func() {
 	})
 
 	It("should not permit modifying resource.tags", func(ctx context.Context) {
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(string) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return func(tag string) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 					return applyConfig.Spec.Resource.WithTags(orcv1alpha1.ImageTag(tag))
@@ -307,7 +307,7 @@ var _ = Describe("ORC Image API validations", func() {
 	})
 
 	It("should not permit modifying resource.visibility", func(ctx context.Context) {
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(orcv1alpha1.ImageVisibility) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithVisibility
 			}, orcv1alpha1.ImageVisibilityPublic, orcv1alpha1.ImageVisibilityPrivate, true,
@@ -318,7 +318,7 @@ var _ = Describe("ORC Image API validations", func() {
 		valueA := applyconfigv1alpha1.ImageProperties().WithMinDiskGB(1)
 		valueB := applyconfigv1alpha1.ImageProperties().WithMinDiskGB(2)
 
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(*applyconfigv1alpha1.ImagePropertiesApplyConfiguration) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithProperties
 			}, valueA, valueB, true,
@@ -329,7 +329,7 @@ var _ = Describe("ORC Image API validations", func() {
 		valueA := applyconfigv1alpha1.ImagePropertiesHardware().WithCPUCores(1)
 		valueB := applyconfigv1alpha1.ImagePropertiesHardware().WithCPUCores(2)
 
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(*applyconfigv1alpha1.ImagePropertiesHardwareApplyConfiguration) *applyconfigv1alpha1.ImagePropertiesApplyConfiguration {
 				return applyConfig.Spec.Resource.Properties.WithHardware
 			}, valueA, valueB, true,
@@ -340,7 +340,7 @@ var _ = Describe("ORC Image API validations", func() {
 	})
 
 	It("should not permit modifying resource.content.containerFormat", func(ctx context.Context) {
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(orcv1alpha1.ImageContainerFormat) *applyconfigv1alpha1.ImageContentApplyConfiguration {
 				return func(fmt orcv1alpha1.ImageContainerFormat) *applyconfigv1alpha1.ImageContentApplyConfiguration {
 					content := applyConfig.Spec.Resource.Content
@@ -361,7 +361,7 @@ var _ = Describe("ORC Image API validations", func() {
 	})
 
 	It("should not permit modifying resource.content.download", func(ctx context.Context) {
-		testMutability(ctx, namespace,
+		testImageMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(string) *applyconfigv1alpha1.ImageContentSourceDownloadApplyConfiguration {
 				return applyConfig.Spec.Resource.Content.Download.WithURL
 			}, "https://example.com/image1.qcow2", "https://example.com/image2.qcow2", false,

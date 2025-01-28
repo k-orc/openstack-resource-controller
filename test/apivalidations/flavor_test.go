@@ -18,10 +18,12 @@ package apivalidations
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/format"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -59,6 +61,38 @@ func baseWorkingFlavorPatch(flavor client.Object) *applyconfigv1alpha1.FlavorApp
 
 func testFlavorImport() *applyconfigv1alpha1.FlavorImportApplyConfiguration {
 	return applyconfigv1alpha1.FlavorImport().WithID(flavorID)
+}
+
+type getWithFlavorFn[argType, returnType any] func(*applyconfigv1alpha1.FlavorApplyConfiguration) func(argType) returnType
+
+func testFlavorMutability[argType, returnType any](ctx context.Context, namespace *corev1.Namespace, getFn getWithFlavorFn[argType, returnType], valueA, valueB argType, allowsUnset bool, initFns ...func(*applyconfigv1alpha1.FlavorApplyConfiguration)) {
+	setup := func() (client.Object, *applyconfigv1alpha1.FlavorApplyConfiguration, func(argType) returnType) {
+		obj := flavorStub(namespace)
+		patch := baseWorkingFlavorPatch(obj)
+		for _, initFn := range initFns {
+			initFn(patch)
+		}
+		withFn := getFn(patch)
+
+		return obj, patch, withFn
+	}
+
+	if allowsUnset {
+		obj, patch, withFn := setup()
+
+		Expect(applyObj(ctx, obj, patch)).To(Succeed(), fmt.Sprintf("create with value unset: %s", format.Object(patch, 2)))
+
+		withFn(valueA)
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), fmt.Sprintf("update with value set: %s", format.Object(patch, 2)))
+	}
+
+	obj, patch, withFn := setup()
+
+	withFn(valueA)
+	Expect(applyObj(ctx, obj, patch)).To(Succeed(), fmt.Sprintf("create with value '%v': %s", valueA, format.Object(patch, 2)))
+
+	withFn(valueB)
+	Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), fmt.Sprintf("update with value '%v': %s", valueB, format.Object(patch, 2)))
 }
 
 var _ = Describe("ORC Flavor API validations", func() {
@@ -231,4 +265,68 @@ var _ = Describe("ORC Flavor API validations", func() {
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
 		Expect(flavor.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
+
+	It("should not permit modifying flavor resource.name", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(orcv1alpha1.OpenStackName) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithName
+			},
+			"foo", "bar", false,
+		)
+	})
+
+	It("should permit modifying flavor resource.vcpus", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(int32) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithVcpus
+			},
+			1, 2, false,
+		)
+	})
+
+	It("should permit modifying flavor resource.ram", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(int32) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithRAM
+			},
+			1, 2, false,
+		)
+	})
+
+	It("should permit modifying flavor resource.disk", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(int32) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithDisk
+			},
+			1, 2, false,
+		)
+	})
+
+	It("should permit modifying flavor resource.swap", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(int32) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithSwap
+			},
+			1, 2, false,
+		)
+	})
+
+	It("should permit modifying flavor resource.isPublic", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(bool) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithIsPublic
+			},
+			true, false, false,
+		)
+	})
+
+	It("should permit modifying flavor resource.ephermal", func(ctx context.Context) {
+		testFlavorMutability(ctx, namespace,
+			func(applyConfig *applyconfigv1alpha1.FlavorApplyConfiguration) func(int32) *applyconfigv1alpha1.FlavorResourceSpecApplyConfiguration {
+				return applyConfig.Spec.Resource.WithEphemeral
+			},
+			0, 1, false,
+		)
+	})
+
 })
