@@ -544,6 +544,7 @@ spec:
                           maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   cidr:
@@ -566,6 +567,7 @@ spec:
                       hosts in this subnet.
                     items:
                       type: string
+                    maxItems: 16
                     type: array
                     x-kubernetes-list-type: atomic
                   dnsPublishFixedIP:
@@ -596,6 +598,7 @@ spec:
                           maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
                   ipVersion:
@@ -635,6 +638,7 @@ spec:
                     description: tags optionally set via extensions/attributestags
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:

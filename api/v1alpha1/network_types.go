@@ -151,6 +151,7 @@ type NetworkResourceStatus struct {
 	Status string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -164,6 +165,7 @@ type NetworkResourceStatus struct {
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// network.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
@@ -205,6 +207,7 @@ type NetworkResourceStatus struct {
 	Shared *bool `json:"shared,omitempty"`
 
 	// subnets associated with this network.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	Subnets []string `json:"subnets,omitempty"`

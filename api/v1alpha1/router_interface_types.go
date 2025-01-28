@@ -55,6 +55,7 @@ type RouterInterfaceList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// items contains a list of RouterInterface.
+	// +kubebuilder:validation:MaxItems:=32
 	// +required
 	Items []RouterInterface `json:"items"`
 }
@@ -100,6 +101,7 @@ type RouterInterfaceStatus struct {
 	// Progressing is True, an observer waiting on the resource should continue
 	// to wait.
 	//
+	// +kubebuilder:validation:MaxItems:=32
 	// +patchMergeKey=type
 	// +patchStrategy=merge
 	// +listType=map

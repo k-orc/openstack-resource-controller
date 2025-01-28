@@ -154,6 +154,7 @@ type SubnetResourceStatus struct {
 	GatewayIP string `json:"gatewayIP,omitempty"`
 
 	// dnsNameservers is a list of name servers used by hosts in this subnet.
+	// +kubebuilder:validation:MaxItems:=16
 	// +listType=atomic
 	// +optional
 	DNSNameservers []string `json:"dnsNameservers,omitempty"`
@@ -164,12 +165,14 @@ type SubnetResourceStatus struct {
 
 	// allocationPools is a list of sub-ranges within CIDR available for dynamic
 	// allocation to ports.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	AllocationPools []AllocationPoolStatus `json:"allocationPools,omitempty"`
 
 	// hostRoutes is a list of routes that should be used by devices with IPs
 	// from this subnet (not including local subnet route).
+	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
 	// +optional
 	HostRoutes []HostRouteStatus `json:"hostRoutes,omitempty"`
@@ -200,6 +203,7 @@ type SubnetResourceStatus struct {
 	SubnetPoolID string `json:"subnetPoolID,omitempty"`
 
 	// tags optionally set via extensions/attributestags
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`

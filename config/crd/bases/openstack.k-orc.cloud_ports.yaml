@@ -430,6 +430,7 @@ spec:
                           maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   createdAt:
@@ -468,6 +469,7 @@ spec:
                           maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   macAddress:
@@ -497,6 +499,7 @@ spec:
                       applied to the port.
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   status:
@@ -507,6 +510,7 @@ spec:
                     description: tags is the list of tags on the resource.
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:

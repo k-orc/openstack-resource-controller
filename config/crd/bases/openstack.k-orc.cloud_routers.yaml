@@ -400,6 +400,7 @@ spec:
                       router.
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   description:
@@ -418,6 +419,7 @@ spec:
                           maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
@@ -437,6 +439,7 @@ spec:
                     description: tags is the list of tags on the resource.
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                 type: object

@@ -243,6 +243,7 @@ type SecurityGroupResourceStatus struct {
 	ProjectID string `json:"projectID,omitempty"`
 
 	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -252,6 +253,7 @@ type SecurityGroupResourceStatus struct {
 	Stateful bool `json:"stateful,omitempty"`
 
 	// rules is a list of security group rules belonging to this SG.
+	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
 	// +optional
 	Rules []SecurityGroupRuleStatus `json:"rules,omitempty"`

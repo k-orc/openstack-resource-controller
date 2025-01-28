@@ -112,6 +112,7 @@ type ServerResourceStatus struct {
 
 	// securityGroups includes the security groups that this instance has
 	// applied to it.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	SecurityGroups []string `json:"securityGroups,omitempty"`

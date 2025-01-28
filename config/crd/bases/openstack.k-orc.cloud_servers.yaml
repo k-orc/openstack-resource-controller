@@ -343,6 +343,7 @@ spec:
                       applied to it.
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   status:

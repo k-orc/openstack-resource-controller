@@ -107,6 +107,7 @@ type RouterResourceStatus struct {
 	Status string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -117,12 +118,14 @@ type RouterResourceStatus struct {
 	AdminStateUp *bool `json:"adminStateUp"`
 
 	// externalGateways is a list of external gateways for the router.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	ExternalGateways []ExternalGatewayStatus `json:"externalGateways,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// router.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`

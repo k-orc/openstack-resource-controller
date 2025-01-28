@@ -145,6 +145,7 @@ type PortResourceStatus struct {
 	Status string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -172,6 +173,7 @@ type PortResourceStatus struct {
 	// allowedAddressPairs is a set of zero or more allowed address pair
 	// objects each where address pair object contains an IP address and
 	// MAC address.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	AllowedAddressPairs []AllowedAddressPairStatus `json:"allowedAddressPairs,omitempty"`
@@ -179,11 +181,13 @@ type PortResourceStatus struct {
 	// fixedIPs is a set of zero or more fixed IP objects each where fixed
 	// IP object contains an IP address and subnet ID from which the IP
 	// address is assigned.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	FixedIPs []FixedIPStatus `json:"fixedIPs,omitempty"`
 
 	// securityGroups contains the IDs of security groups applied to the port.
+	// +kubebuilder:validation:MaxItems=32
 	// +listType=atomic
 	// +optional
 	SecurityGroups []string `json:"securityGroups,omitempty"`

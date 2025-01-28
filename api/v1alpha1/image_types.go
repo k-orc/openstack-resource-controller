@@ -288,6 +288,7 @@ type ImageResourceSpec struct {
 	Protected *bool `json:"protected,omitempty"`
 
 	// tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
 	Tags []ImageTag `json:"tags,omitempty"`

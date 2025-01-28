@@ -553,6 +553,7 @@ spec:
                           maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
                   stateful:
@@ -563,6 +564,7 @@ spec:
                     description: tags is the list of tags on the resource.
                     items:
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:
