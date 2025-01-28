@@ -71,7 +71,7 @@ type NetworkClient interface {
 	ListTrunkSubports(trunkID string) ([]trunks.Subport, error)
 	RemoveSubports(id string, opts trunks.RemoveSubportsOpts) error
 
-	ListRouter(ctx context.Context, opts routers.ListOpts) ([]routers.Router, error)
+	ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error]
 	CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error)
 	DeleteRouter(ctx context.Context, id string) error
 	GetRouter(ctx context.Context, id string) (*routers.Router, error)
@@ -138,12 +138,11 @@ func (c networkClient) ReplaceAllAttributesTags(ctx context.Context, resourceTyp
 	return attributestags.ReplaceAll(ctx, c.serviceClient, resourceType, resourceID, opts).Extract()
 }
 
-func (c networkClient) ListRouter(ctx context.Context, opts routers.ListOpts) ([]routers.Router, error) {
-	allPages, err := routers.List(c.serviceClient, opts).AllPages(ctx)
-	if err != nil {
-		return nil, err
+func (c networkClient) ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error] {
+	pager := routers.List(c.serviceClient, opts)
+	return func(yield func(*routers.Router, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(routers.ExtractRouters, yield))
 	}
-	return routers.ExtractRouters(allPages)
 }
 
 func (c networkClient) ListFloatingIP(opts floatingips.ListOptsBuilder) ([]floatingips.FloatingIP, error) {

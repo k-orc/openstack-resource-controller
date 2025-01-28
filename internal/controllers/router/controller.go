@@ -69,7 +69,7 @@ var externalGWDep = dependency.NewDependency[*orcv1alpha1.RouterList, *orcv1alph
 func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, routerActuatorFactory{}, routerStatusWriter{})
+	reconciler := generic.NewController2(c.GetName(), mgr.GetClient(), c.scopeFactory, routerHelperFactory{}, routerStatusWriter{})
 
 	finalizer := generic.GetFinalizerName(&reconciler)
 	fieldOwner := generic.GetSSAFieldOwner(&reconciler)

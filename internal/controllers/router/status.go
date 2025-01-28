@@ -32,18 +32,18 @@ type statusApplyPT = *orcapplyconfigv1alpha1.RouterStatusApplyConfiguration
 
 type routerStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT] = routerStatusWriter{}
+var _ generic.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = routerStatusWriter{}
 
 func (routerStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
 	return orcapplyconfigv1alpha1.Router
 }
 
-func (routerStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource osResourcePT) (bool, bool) {
+func (routerStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource *osResourceT) (bool, bool) {
 	available := orcObject.Status.ID != nil && osResource != nil && osResource.Status == RouterStatusActive
 	return available, available
 }
 
-func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT) {
+func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	status := orcapplyconfigv1alpha1.RouterResourceStatus().
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).

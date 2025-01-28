@@ -477,12 +477,11 @@ func (mr *MockNetworkClientMockRecorder) ListPort(ctx, opts any) *gomock.Call {
 }
 
 // ListRouter mocks base method.
-func (m *MockNetworkClient) ListRouter(ctx context.Context, opts routers.ListOpts) ([]routers.Router, error) {
+func (m *MockNetworkClient) ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListRouter", ctx, opts)
-	ret0, _ := ret[0].([]routers.Router)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(iter.Seq2[*routers.Router, error])
+	return ret0
 }
 
 // ListRouter indicates an expected call of ListRouter.
