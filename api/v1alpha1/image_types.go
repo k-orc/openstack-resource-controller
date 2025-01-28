@@ -236,6 +236,7 @@ type ImageContent struct {
 type ImageContentSourceDownload struct {
 	// url containing image data
 	// +kubebuilder:validation:Format=uri
+	// +kubebuilder:validation:MaxLength=2048
 	// +required
 	URL string `json:"url"`
 

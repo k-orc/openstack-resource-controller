@@ -234,6 +234,7 @@ spec:
                           url:
                             description: url containing image data
                             format: uri
+                            maxLength: 2048
                             type: string
                         required:
                         - url
