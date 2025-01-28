@@ -491,12 +491,11 @@ func (mr *MockNetworkClientMockRecorder) ListRouter(ctx, opts any) *gomock.Call 
 }
 
 // ListSecGroup mocks base method.
-func (m *MockNetworkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) ([]groups.SecGroup, error) {
+func (m *MockNetworkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) iter.Seq2[*groups.SecGroup, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListSecGroup", ctx, opts)
-	ret0, _ := ret[0].([]groups.SecGroup)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(iter.Seq2[*groups.SecGroup, error])
+	return ret0
 }
 
 // ListSecGroup indicates an expected call of ListSecGroup.

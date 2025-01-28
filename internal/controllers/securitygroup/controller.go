@@ -48,7 +48,7 @@ func (securitygroupReconcilerConstructor) GetName() string {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c securitygroupReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, securityGroupActuatorFactory{}, securityGroupStatusWriter{})
+	reconciler := generic.NewController2(c.GetName(), mgr.GetClient(), c.scopeFactory, securityGroupHelperFactory{}, securityGroupStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.SecurityGroup{}).

@@ -79,7 +79,7 @@ type NetworkClient interface {
 	AddRouterInterface(ctx context.Context, id string, opts routers.AddInterfaceOptsBuilder) (*routers.InterfaceInfo, error)
 	RemoveRouterInterface(ctx context.Context, id string, opts routers.RemoveInterfaceOptsBuilder) (*routers.InterfaceInfo, error)
 
-	ListSecGroup(ctx context.Context, opts groups.ListOpts) ([]groups.SecGroup, error)
+	ListSecGroup(ctx context.Context, opts groups.ListOpts) iter.Seq2[*groups.SecGroup, error]
 	CreateSecGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.SecGroup, error)
 	DeleteSecGroup(ctx context.Context, id string) error
 	GetSecGroup(ctx context.Context, id string) (*groups.SecGroup, error)
@@ -237,12 +237,11 @@ func (c networkClient) UpdateRouter(ctx context.Context, id string, opts routers
 	return routers.Update(context.TODO(), c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) ([]groups.SecGroup, error) {
-	allPages, err := groups.List(c.serviceClient, opts).AllPages(ctx)
-	if err != nil {
-		return nil, err
+func (c networkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) iter.Seq2[*groups.SecGroup, error] {
+	pager := groups.List(c.serviceClient, opts)
+	return func(yield func(*groups.SecGroup, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(groups.ExtractGroups, yield))
 	}
-	return groups.ExtractGroups(allPages)
 }
 
 func (c networkClient) CreateSecGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.SecGroup, error) {
