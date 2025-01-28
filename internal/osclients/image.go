@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -30,8 +31,8 @@ import (
 )
 
 type ImageClient interface {
-	ListImages(listOpts images.ListOptsBuilder) ([]images.Image, error)
-	GetImage(id string) (*images.Image, error)
+	ListImages(ctx context.Context, listOpts images.ListOptsBuilder) iter.Seq2[*images.Image, error]
+	GetImage(ctx context.Context, id string) (*images.Image, error)
 	CreateImage(ctx context.Context, createOpts images.CreateOptsBuilder) (*images.Image, error)
 	DeleteImage(ctx context.Context, id string) error
 	UploadData(ctx context.Context, id string, data io.Reader) error
@@ -54,17 +55,16 @@ func NewImageClient(providerClient *gophercloud.ProviderClient, providerClientOp
 	return imageClient{images}, nil
 }
 
-func (c imageClient) ListImages(listOpts images.ListOptsBuilder) ([]images.Image, error) {
-	pages, err := images.List(c.client, listOpts).AllPages(context.TODO())
-	if err != nil {
-		return nil, err
+func (c imageClient) ListImages(ctx context.Context, listOpts images.ListOptsBuilder) iter.Seq2[*images.Image, error] {
+	pager := images.List(c.client, listOpts)
+	return func(yield func(*images.Image, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(images.ExtractImages, yield))
 	}
-	return images.ExtractImages(pages)
 }
 
-func (c imageClient) GetImage(id string) (*images.Image, error) {
+func (c imageClient) GetImage(ctx context.Context, id string) (*images.Image, error) {
 	image := &images.Image{}
-	err := images.Get(context.TODO(), c.client, id).ExtractInto(image)
+	err := images.Get(ctx, c.client, id).ExtractInto(image)
 	if err != nil {
 		return nil, err
 	}
@@ -102,11 +102,13 @@ func NewImageErrorClient(e error) ImageClient {
 	return imageErrorClient{e}
 }
 
-func (e imageErrorClient) ListImages(_ images.ListOptsBuilder) ([]images.Image, error) {
-	return nil, e.error
+func (e imageErrorClient) ListImages(_ context.Context, _ images.ListOptsBuilder) iter.Seq2[*images.Image, error] {
+	return func(yield func(*images.Image, error) bool) {
+		yield(nil, e.error)
+	}
 }
 
-func (e imageErrorClient) GetImage(_ string) (*images.Image, error) {
+func (e imageErrorClient) GetImage(_ context.Context, _ string) (*images.Image, error) {
 	return nil, e.error
 }
 
