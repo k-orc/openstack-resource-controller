@@ -33,18 +33,18 @@ type statusApplyPT = *orcapplyconfigv1alpha1.ServerStatusApplyConfiguration
 
 type serverStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT] = serverStatusWriter{}
+var _ generic.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = serverStatusWriter{}
 
 func (serverStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
 	return orcapplyconfigv1alpha1.Server
 }
 
-func (serverStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource osResourcePT) (bool, bool) {
+func (serverStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource *osResourceT) (bool, bool) {
 	available := orcObject.Status.ID != nil && osResource != nil && osResource.Status == ServerStatusActive
 	return available, available
 }
 
-func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT) {
+func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	// TODO: Add the rest of the OpenStack data to Status
 	status := orcapplyconfigv1alpha1.ServerResourceStatus().
 		WithName(osResource.Name).
