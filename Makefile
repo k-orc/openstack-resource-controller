@@ -91,6 +91,15 @@ test: envtest
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list $(TEST_PATHS) | grep -v /e2e) -coverprofile cover.out
 
 # Utilize Kind or modify the e2e tests to load the image locally, enabling compatibility with other vendors.
+# The kuttl tests executed by test-e2e support the following environment
+# variables:
+# - E2E_OSCLOUDS: if set, the path to a clouds.yaml to use for the test run. If
+#   not set, defaults to /etc/openstack/clouds.yaml.
+# - E2E_KUTTL_DIR: if set, the path to a directory containing kuttl tests, e.g.
+#   ./internal/controllers/flavor/tests. Only tests from this directory will
+#   run. If not set, all discovered kuttl tests will run.
+# - E2E_KUTTL_TEST: if set, only run the specific named test, e.g.
+#   'create-full-v4'. If not set, all tests will run.
 .PHONY: test-e2e  # Run the e2e tests against a Kind k8s instance that is spun up.
 test-e2e: kuttl
 	# go test ./test/e2e/ -v -ginkgo.v
