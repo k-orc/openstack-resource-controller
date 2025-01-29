@@ -22,6 +22,8 @@ import (
 	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -126,6 +128,31 @@ func (c *Controller[
 	return c.reconcileNormal(ctx, adapter)
 }
 
+// shouldReconcile filters events when the object status is up to date, and its
+// status indicates that no further reconciliation is required.
+//
+// Specifically it looks at the Progressing condition. It has the following behaviour:
+// - Progressing condition is not present -> reconcile
+// - Progressing condition is present and True -> reconcile
+// - Progressing condition is present and False, but observedGeneration is old -> reconcile
+// - Progressing condition is false and observedGeneration is up to date -> do not reconcile
+//
+// If shouldReconcile is preventing an object from being reconciled which should
+// be reconciled, consider if that object's actuator is correctly returning a
+// ProgressStatus indicating that the reconciliation should continue.
+func shouldReconcile(obj orcv1alpha1.ObjectWithConditions) bool {
+	progressing := meta.FindStatusCondition(obj.GetConditions(), orcv1alpha1.ConditionProgressing)
+	if progressing == nil {
+		return true
+	}
+
+	if progressing.Status == metav1.ConditionTrue {
+		return true
+	}
+
+	return progressing.ObservedGeneration != obj.GetGeneration()
+}
+
 func (c *Controller[
 	orcObjectPT, orcObjectT,
 	resourceSpecT, filterT,
@@ -134,6 +161,15 @@ func (c *Controller[
 	osResourceT,
 ]) reconcileNormal(ctx context.Context, objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
+
+	// We do this here rather than in a predicate because predicates only cover
+	// a single watch. Doing it here means we cover all sources of
+	// reconciliation, including our dependencies.
+	if !shouldReconcile(objAdapter.GetObject()) {
+		log.V(3).Info("Status is up to date: not reconciling")
+		return ctrl.Result{}, nil
+	}
+
 	log.V(3).Info("Reconciling resource")
 
 	var osResource *osResourceT
