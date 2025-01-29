@@ -26,9 +26,7 @@ status:
     dnsNameservers:
       - 1.1.1.1
       - 8.8.8.8
-    # FIXME: dnsPublishFixedIP is not honored
-    # https://github.com/k-orc/openstack-resource-controller/issues/189
-    dnsPublishFixedIP: false
+    dnsPublishFixedIP: true
     hostRoutes:
       - destination: 192.168.3.0/24
         nextHop: 192.168.4.1
