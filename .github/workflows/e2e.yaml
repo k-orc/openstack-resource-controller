@@ -34,7 +34,9 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: ${{ matrix.additional_services }}
+        conf_overrides: |
+          enable_plugin designate https://github.com/openstack/designate ${{ matrix.openstack_version }}
+        enabled_services: "designate,designate-central,designate-api,designate-worker,designate-producer,designate-mdns,${{ matrix.additional_services }}"
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb
