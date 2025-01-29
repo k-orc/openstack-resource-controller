@@ -29,19 +29,19 @@ type statusApplyPT = *orcapplyconfigv1alpha1.PortStatusApplyConfiguration
 
 type portStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT] = portStatusWriter{}
+var _ generic.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = portStatusWriter{}
 
 func (portStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
 	return orcapplyconfigv1alpha1.Port
 }
 
-func (portStatusWriter) GetCommonStatus(_ orcObjectPT, osResource osResourcePT) (bool, bool) {
+func (portStatusWriter) GetCommonStatus(_ orcObjectPT, osResource *osResourceT) (bool, bool) {
 	// A port is available as soon as it exists
 	available := osResource != nil
 	return available, available
 }
 
-func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT) {
+func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	resourceStatus := orcapplyconfigv1alpha1.PortResourceStatus().
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).

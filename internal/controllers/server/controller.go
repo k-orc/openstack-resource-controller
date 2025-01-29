@@ -109,7 +109,7 @@ var (
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", c.GetName())
 
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, serverActuatorFactory{}, serverStatusWriter{})
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, serverHelperFactory{}, serverStatusWriter{})
 
 	finalizer := generic.GetFinalizerName(&reconciler)
 	fieldOwner := generic.GetSSAFieldOwner(&reconciler)

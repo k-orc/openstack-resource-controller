@@ -88,9 +88,14 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, fmt.Errorf("getting network client: %w", err)
 	}
 
-	routerInterfacePorts, err := networkClient.ListPort(ctx, &listOpts)
-	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("fetching router interface ports: %w", err)
+	routerInterfacePortIterator := networkClient.ListPort(ctx, &listOpts)
+	// We're going to iterate over all interfaces multiple times, so pull them all in to a slice
+	var routerInterfacePorts []ports.Port //nolint:prealloc // We don't know how many ports there are
+	for port, err := range routerInterfacePortIterator {
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("fetching router interface ports: %w", err)
+		}
+		routerInterfacePorts = append(routerInterfacePorts, *port)
 	}
 
 	errs := make([]error, len(routerInterfaces))

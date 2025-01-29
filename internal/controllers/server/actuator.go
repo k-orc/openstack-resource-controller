@@ -19,11 +19,13 @@ package server
 import (
 	"context"
 	"fmt"
+	"iter"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -33,8 +35,16 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
-type osResourcePT = *servers.Server
-type orcObjectPT = *orcv1alpha1.Server
+type (
+	osResourceT = servers.Server
+
+	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	serverIterator            = iter.Seq2[*osResourceT, error]
+)
 
 const (
 	// The frequency to poll when waiting for a server to become active
@@ -42,87 +52,52 @@ const (
 )
 
 type serverActuator struct {
-	obj        *orcv1alpha1.Server
-	osClient   osclients.ComputeClient
-	controller generic.ResourceController
+	osClient  osclients.ComputeClient
+	k8sClient client.Client
 }
 
-var _ generic.DeleteResourceActuator[osResourcePT] = serverActuator{}
-var _ generic.CreateResourceActuator[osResourcePT] = serverActuator{}
-
-func (actuator serverActuator) GetObject() client.Object {
-	return actuator.obj
-}
-
-func (actuator serverActuator) GetController() generic.ResourceController {
-	return actuator.controller
-}
-
-func (actuator serverActuator) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return actuator.obj.Spec.ManagementPolicy
-}
-
-func (actuator serverActuator) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return actuator.obj.Spec.ManagedOptions
-}
+var _ createResourceActuator = serverActuator{}
+var _ deleteResourceActuator = serverActuator{}
 
 func (serverActuator) GetResourceID(osResource *servers.Server) string {
 	return osResource.ID
 }
 
-func (actuator serverActuator) GetStatusID() *string {
-	return actuator.obj.Status.ID
+func (actuator serverActuator) GetOSResourceByID(ctx context.Context, id string) (*servers.Server, error) {
+	return actuator.osClient.GetServer(ctx, id)
 }
 
-func (actuator serverActuator) GetOSResourceByStatusID(ctx context.Context) (bool, *servers.Server, error) {
-	if actuator.obj.Status.ID == nil {
-		return false, nil, nil
+func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Server) (serverIterator, bool) {
+	if obj.Spec.Resource == nil {
+		return nil, false
 	}
 
-	osResource, err := actuator.osClient.GetServer(ctx, *actuator.obj.Status.ID)
-	return true, osResource, err
-}
-
-func (actuator serverActuator) GetOSResourceBySpec(ctx context.Context) (*servers.Server, error) {
-	if actuator.obj.Spec.Resource == nil {
-		return nil, nil
+	listOpts := servers.ListOpts{
+		Name: string(getResourceName(obj)),
 	}
-
-	return GetByFilter(ctx, actuator.osClient, specToFilter(actuator.obj))
+	return actuator.osClient.ListServers(ctx, listOpts), true
 }
 
-func (actuator serverActuator) GetOSResourceByImportID(ctx context.Context) (bool, *servers.Server, error) {
-	if actuator.obj.Spec.Import == nil || actuator.obj.Spec.Import.ID == nil {
-		return false, nil, nil
+func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) serverIterator {
+	listOpts := servers.ListOpts{
+		Name: string(ptr.Deref(filter.Name, "")),
 	}
-
-	osResource, err := actuator.osClient.GetServer(ctx, *actuator.obj.Spec.Import.ID)
-	return true, osResource, err
+	return actuator.osClient.ListServers(ctx, listOpts)
 }
 
-func (actuator serverActuator) GetOSResourceByImportFilter(ctx context.Context) (bool, *servers.Server, error) {
-	if actuator.obj.Spec.Import == nil || actuator.obj.Spec.Import.Filter == nil {
-		return false, nil, nil
-	}
-
-	osResource, err := GetByFilter(ctx, actuator.osClient, *actuator.obj.Spec.Import.Filter)
-	return true, osResource, err
-}
-
-func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.WaitingOnEvent, *servers.Server, error) {
-	resource := actuator.obj.Spec.Resource
+func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]generic.WaitingOnEvent, *servers.Server, error) {
+	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
 	var waitEvents []generic.WaitingOnEvent
-	k8sClient := actuator.controller.GetK8sClient()
 
 	image := &orcv1alpha1.Image{}
 	{
-		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: actuator.obj.Namespace}
-		if err := k8sClient.Get(ctx, imageKey, image); err != nil {
+		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, imageKey, image); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Image", imageKey.Name))
 			} else {
@@ -136,8 +111,8 @@ func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.Wa
 
 	flavor := &orcv1alpha1.Flavor{}
 	{
-		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: actuator.obj.Namespace}
-		if err := k8sClient.Get(ctx, flavorKey, flavor); err != nil {
+		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
 				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
 			} else {
@@ -161,8 +136,8 @@ func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.Wa
 			}
 
 			portObject := &orcv1alpha1.Port{}
-			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: actuator.obj.Namespace}
-			if err := k8sClient.Get(ctx, portKey, portObject); err != nil {
+			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: obj.Namespace}
+			if err := actuator.k8sClient.Get(ctx, portKey, portObject); err != nil {
 				if apierrors.IsNotFound(err) {
 					waitEvents = append(waitEvents, generic.WaitingOnORCExist("Port", portKey.Name))
 					continue
@@ -181,8 +156,8 @@ func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.Wa
 	var userData []byte
 	if resource.UserData != nil && resource.UserData.SecretRef != nil {
 		secret := &corev1.Secret{}
-		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: actuator.obj.Namespace}
-		if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, secretKey, secret); err != nil {
 			if !apierrors.IsNotFound(err) {
 				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
 			}
@@ -201,7 +176,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.Wa
 	}
 
 	createOpts := servers.CreateOpts{
-		Name:      string(getResourceName(actuator.obj)),
+		Name:      string(getResourceName(obj)),
 		ImageRef:  *image.Status.ID,
 		FlavorRef: *flavor.Status.ID,
 		Networks:  portList,
@@ -220,29 +195,19 @@ func (actuator serverActuator) CreateResource(ctx context.Context) ([]generic.Wa
 	return nil, osResource, err
 }
 
-func (actuator serverActuator) DeleteResource(ctx context.Context, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
+func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
 	return nil, actuator.osClient.DeleteServer(ctx, osResource.ID)
 }
 
-// getResourceName returns the name of the OpenStack resource we should use.
-func getResourceName(orcObject *orcv1alpha1.Server) orcv1alpha1.OpenStackName {
-	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
-	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
-}
+var _ reconcileResourceActuator = serverActuator{}
 
-var _ generic.UpdateResourceActuator[orcObjectPT, osResourcePT] = serverActuator{}
-
-type resourceUpdater = generic.ResourceUpdater[orcObjectPT, osResourcePT]
-
-func (actuator serverActuator) GetResourceUpdaters(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT, controller generic.ResourceController) ([]resourceUpdater, error) {
-	return []resourceUpdater{
+func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, error) {
+	return []resourceReconciler{
 		actuator.checkStatus,
 	}, nil
 }
 
-func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource osResourcePT) ([]generic.WaitingOnEvent, orcObjectPT, osResourcePT, error) {
+func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.WaitingOnEvent, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	var waitEvents []generic.WaitingOnEvent
@@ -258,19 +223,23 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		waitEvents = append(waitEvents, generic.WaitingOnOpenStackReady(serverActivePollingPeriod))
 	}
 
-	return waitEvents, orcObject, osResource, err
+	return waitEvents, err
 }
 
-type serverActuatorFactory struct{}
+type serverHelperFactory struct{}
 
-var _ generic.ActuatorFactory[orcObjectPT, osResourcePT] = serverActuatorFactory{}
+var _ helperFactory = serverHelperFactory{}
 
-func (serverActuatorFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.CreateResourceActuator[osResourcePT], error) {
+func (serverHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
+	return serverAdapter{obj}
+}
+
+func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	return nil, actuator, err
 }
 
-func (serverActuatorFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, generic.DeleteResourceActuator[osResourcePT], error) {
+func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	return nil, actuator, err
 }
@@ -291,8 +260,7 @@ func newActuator(ctx context.Context, controller generic.ResourceController, orc
 	}
 
 	return serverActuator{
-		obj:        orcObject,
-		osClient:   osClient,
-		controller: controller,
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
 	}, nil
 }

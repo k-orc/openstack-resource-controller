@@ -29,18 +29,18 @@ type statusApplyPT = *orcapplyconfigv1alpha1.SecurityGroupStatusApplyConfigurati
 
 type securityGroupStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT] = securityGroupStatusWriter{}
+var _ generic.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = securityGroupStatusWriter{}
 
 func (securityGroupStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
 	return orcapplyconfigv1alpha1.SecurityGroup
 }
 
-func (securityGroupStatusWriter) GetCommonStatus(_ orcObjectPT, osResource osResourcePT) (bool, bool) {
+func (securityGroupStatusWriter) GetCommonStatus(_ orcObjectPT, osResource *osResourceT) (bool, bool) {
 	available := osResource != nil
 	return available, available
 }
 
-func (securityGroupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT) {
+func (securityGroupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	securitygroupResourceStatus := orcapplyconfigv1alpha1.SecurityGroupResourceStatus().
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).

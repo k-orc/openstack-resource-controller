@@ -28,19 +28,19 @@ type statusApplyPT = *orcapplyconfigv1alpha1.SubnetStatusApplyConfiguration
 
 type subnetStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT] = subnetStatusWriter{}
+var _ generic.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = subnetStatusWriter{}
 
 func (subnetStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
 	return orcapplyconfigv1alpha1.Subnet
 }
 
-func (subnetStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource osResourcePT) (bool, bool) {
+func (subnetStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource *osResourceT) (bool, bool) {
 	// Subnet is available as soon as it exists
 	available := osResource != nil
 	return available, available
 }
 
-func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT) {
+func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	status := orcapplyconfigv1alpha1.SubnetResourceStatus().
 		WithName(osResource.Name).
 		WithDescription(osResource.Description).

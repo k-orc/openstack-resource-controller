@@ -73,7 +73,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 	tests := []struct {
 		name       string
 		orcObject  orcObjectPT
-		osResource osResourcePT
+		osResource *osResourceT
 		expect     func(*mock.MockNetworkClientMockRecorder)
 		wantEvents []generic.WaitingOnEvent
 		wantErrs   []error
@@ -422,7 +422,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				tt.expect(recorder)
 			}
 
-			gotWaitEvents, gotORCObject, gotOSResource, err := actuator.updateRules(context.TODO(), tt.orcObject, tt.osResource)
+			gotWaitEvents, err := actuator.updateRules(context.TODO(), tt.orcObject, tt.osResource)
 			if len(tt.wantErrs) == 0 && err != nil {
 				t.Errorf("securityGroupActuator.updateRules() error = %v, want 0 errors", err)
 			}
@@ -433,12 +433,6 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 			}
 			// How to assert that err doesn't contain any errors that we didn't want?
 
-			if gotORCObject != tt.orcObject {
-				t.Errorf("securityGroupActuator.updateRules() did not pass through orcObject")
-			}
-			if gotOSResource != tt.osResource {
-				t.Errorf("securityGroupActuator.updateRules() did not pass through osResource")
-			}
 			if !reflect.DeepEqual(gotWaitEvents, tt.wantEvents) {
 				t.Errorf("securityGroupActuator.updateRules() waitEvents = %v, want %v", gotWaitEvents, tt.wantEvents)
 			}

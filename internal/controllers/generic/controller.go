@@ -30,32 +30,37 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
 
+type ResourceController interface {
+	GetName() string
+
+	GetK8sClient() client.Client
+	GetScopeFactory() scope.Factory
+}
+
 func NewController[
 	orcObjectPT interface {
 		*orcObjectT
 		client.Object
 		orcv1alpha1.ObjectWithConditions
-	},
-	orcObjectT any,
-	osResourcePT *osResourceT,
-	osResourceT any,
+	}, orcObjectT any,
+	resourceSpecT any, filterT any,
 	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
 		ORCStatusApplyConfig[statusApplyPT]
-	},
-	statusApplyT any,
+	}, statusApplyT any,
+	osResourceT any,
 ](
 	name string, k8sClient client.Client, scopeFactory scope.Factory,
-	actuatorFactory ActuatorFactory[orcObjectPT, osResourcePT],
-	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
-) Controller[orcObjectPT, orcObjectT, osResourcePT, osResourceT, objectApplyPT, statusApplyPT, statusApplyT] {
-	return Controller[orcObjectPT, orcObjectT, osResourcePT, osResourceT, objectApplyPT, statusApplyPT, statusApplyT]{
-		name:            name,
-		client:          k8sClient,
-		scopeFactory:    scopeFactory,
-		actuatorFactory: actuatorFactory,
-		statusWriter:    statusWriter,
+	helperFactory ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT],
+	statusWriter ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT],
+) Controller[orcObjectPT, orcObjectT, resourceSpecT, filterT, objectApplyPT, statusApplyPT, statusApplyT, osResourceT] {
+	return Controller[orcObjectPT, orcObjectT, resourceSpecT, filterT, objectApplyPT, statusApplyPT, statusApplyT, osResourceT]{
+		name:          name,
+		client:        k8sClient,
+		scopeFactory:  scopeFactory,
+		helperFactory: helperFactory,
+		statusWriter:  statusWriter,
 	}
 }
 
@@ -66,36 +71,43 @@ type Controller[
 		orcv1alpha1.ObjectWithConditions
 	},
 	orcObjectT any,
-	osResourcePT *osResourceT,
-	osResourceT any,
+	resourceSpecT any,
+	filterT any,
 	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
 		ORCStatusApplyConfig[statusApplyPT]
 	},
 	statusApplyT any,
+	osResourceT any,
 ] struct {
 	name         string
 	client       client.Client
 	scopeFactory scope.Factory
 
-	actuatorFactory ActuatorFactory[orcObjectPT, osResourcePT]
-	statusWriter    ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT]
+	helperFactory ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	statusWriter  ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT]
 }
 
-func (c *Controller[_, _, _, _, _, _, _]) GetName() string {
+func (c *Controller[_, _, _, _, _, _, _, _]) GetName() string {
 	return c.name
 }
 
-func (c *Controller[_, _, _, _, _, _, _]) GetK8sClient() client.Client {
+func (c *Controller[_, _, _, _, _, _, _, _]) GetK8sClient() client.Client {
 	return c.client
 }
 
-func (c *Controller[_, _, _, _, _, _, _]) GetScopeFactory() scope.Factory {
+func (c *Controller[_, _, _, _, _, _, _, _]) GetScopeFactory() scope.Factory {
 	return c.scopeFactory
 }
 
-func (c *Controller[orcObjectPT, orcObjectT, _, _, _, _, _]) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (c *Controller[
+	orcObjectPT, orcObjectT,
+	resourceSpecT, filterT,
+	objectApplyPT,
+	statusApplyPT, statusApplyT,
+	osResourceT,
+]) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var orcObject orcObjectPT = new(orcObjectT)
 	err := c.client.Get(ctx, req.NamespacedName, orcObject)
 	if err != nil {
@@ -105,23 +117,31 @@ func (c *Controller[orcObjectPT, orcObjectT, _, _, _, _, _]) Reconcile(ctx conte
 		return ctrl.Result{}, err
 	}
 
+	adapter := c.helperFactory.NewAPIObjectAdapter(orcObject)
+
 	if !orcObject.GetDeletionTimestamp().IsZero() {
-		return c.reconcileDelete(ctx, orcObject)
+		return c.reconcileDelete(ctx, adapter)
 	}
 
-	return c.reconcileNormal(ctx, orcObject)
+	return c.reconcileNormal(ctx, adapter)
 }
 
-func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(ctx context.Context, orcObject orcObjectPT) (_ ctrl.Result, err error) {
+func (c *Controller[
+	orcObjectPT, orcObjectT,
+	resourceSpecT, filterT,
+	objectApplyPT,
+	statusApplyPT, statusApplyT,
+	osResourceT,
+]) reconcileNormal(ctx context.Context, objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling resource")
 
-	var osResource osResourcePT
+	var osResource *osResourceT
 	var waitEvents []WaitingOnEvent
 
 	// Ensure we always update status
 	defer func() {
-		err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, orcObject, osResource, nil, waitEvents, err))
+		err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, nil, waitEvents, err))
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
@@ -130,7 +150,7 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 		}
 	}()
 
-	waitEvents, actuator, err := c.actuatorFactory.NewCreateActuator(ctx, orcObject, c)
+	waitEvents, actuator, err := c.helperFactory.NewCreateActuator(ctx, objAdapter.GetObject(), c)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -140,7 +160,7 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
 	}
 
-	waitEvents, osResource, err = GetOrCreateOSResource(ctx, log, c.client, actuator)
+	waitEvents, osResource, err = GetOrCreateOSResource(ctx, log, c, objAdapter, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -155,8 +175,9 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 		return ctrl.Result{}, fmt.Errorf("oResource is not set, but no wait events or error")
 	}
 
-	if actuator.GetStatusID() == nil {
-		if err := SetStatusID(ctx, actuator, c.statusWriter, osResource); err != nil {
+	if objAdapter.GetStatusID() == nil {
+		resourceID := actuator.GetResourceID(osResource)
+		if err := SetStatusID(ctx, c, objAdapter.GetObject(), resourceID, c.statusWriter); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -165,18 +186,18 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 	log.V(4).Info("Got resource")
 	ctx = ctrl.LoggerInto(ctx, log)
 
-	if actuator.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged {
-		if updater, ok := actuator.(UpdateResourceActuator[orcObjectPT, osResourcePT]); ok {
-			// We deliberately execute all updaters returned by GetResourceUpdates, even if it returns an error.
-			var updaters []ResourceUpdater[orcObjectPT, osResourcePT]
-			updaters, err = updater.GetResourceUpdaters(ctx, orcObject, osResource, c)
+	if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged {
+		if reconciler, ok := actuator.(ReconcileResourceActuator[orcObjectPT, osResourceT]); ok {
+			// We deliberately execute all reconcilers returned by GetResourceUpdates, even if it returns an error.
+			var reconcilers []ResourceReconciler[orcObjectPT, osResourceT]
+			reconcilers, err = reconciler.GetResourceReconcilers(ctx, objAdapter.GetObject(), osResource, c)
 
 			// We execute all returned updaters, even if some return errors
-			for _, updater := range updaters {
+			for _, updater := range reconcilers {
 				var updaterErr error
 				var updaterWaitEvents []WaitingOnEvent
 
-				updaterWaitEvents, orcObject, osResource, updaterErr = updater(ctx, orcObject, osResource)
+				updaterWaitEvents, updaterErr = updater(ctx, objAdapter.GetObject(), osResource)
 				err = errors.Join(err, updaterErr)
 				waitEvents = append(waitEvents, updaterWaitEvents...)
 			}
@@ -190,22 +211,29 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileNormal(c
 	return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
 }
 
-func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileDelete(ctx context.Context, orcObject orcObjectPT) (_ ctrl.Result, err error) {
+func (c *Controller[
+	orcObjectPT, orcObjectT,
+	resourceSpecT,
+	filterT,
+	objectApplyPT,
+	statusApplyPT, statusApplyT,
+	osResourceT,
+]) reconcileDelete(ctx context.Context, objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(3).Info("Reconciling OpenStack resource delete")
 
-	var osResource osResourcePT
+	var osResource *osResourceT
 	var waitEvents []WaitingOnEvent
 
 	deleted := false
 	defer func() {
 		// No point updating status after removing the finalizer
 		if !deleted {
-			err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, orcObject, osResource, nil, waitEvents, err))
+			err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, nil, waitEvents, err))
 		}
 	}()
 
-	waitEvents, actuator, err := c.actuatorFactory.NewDeleteActuator(ctx, orcObject, c)
+	waitEvents, actuator, err := c.helperFactory.NewDeleteActuator(ctx, objAdapter.GetObject(), c)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -215,6 +243,6 @@ func (c *Controller[orcObjectPT, _, osResourcePT, _, _, _, _]) reconcileDelete(c
 		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
 	}
 
-	deleted, waitEvents, osResource, err = DeleteResource(ctx, log, c.client, actuator)
+	deleted, waitEvents, osResource, err = DeleteResource(ctx, log, c, objAdapter, actuator)
 	return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, err
 }

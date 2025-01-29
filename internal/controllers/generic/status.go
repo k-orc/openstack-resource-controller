@@ -52,31 +52,32 @@ type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourceP
 }
 
 func SetStatusID[
-	osResourcePT any,
-	objectPT orcv1alpha1.ObjectWithConditions,
+	orcObjectPT interface {
+		client.Object
+		orcv1alpha1.ObjectWithConditions
+	},
 	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
 		ORCStatusApplyConfig[statusApplyPT]
 	},
 	statusApplyT any,
+	osResourcePT any,
 ](
 	ctx context.Context,
-	actuator BaseResourceActuator[osResourcePT],
-	statusWriter ResourceStatusWriter[objectPT, osResourcePT, objectApplyPT, statusApplyPT],
-	osResource osResourcePT,
+	controller ResourceController,
+	orcObject orcObjectPT,
+	resourceID string,
+	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
 ) error {
 	var status statusApplyPT = new(statusApplyT)
-	status.WithID(actuator.GetResourceID(osResource))
+	status.WithID(resourceID)
 
-	orcObject := actuator.GetObject()
 	applyConfig := statusWriter.GetApplyConfigConstructor()(orcObject.GetName(), orcObject.GetNamespace()).
 		WithUID(orcObject.GetUID()).
-		WithStatus(status.
-			WithID(actuator.GetResourceID(osResource)))
+		WithStatus(status)
 
-	k8sClient := actuator.GetController().GetK8sClient()
-	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.MergePatchType, applyConfig))
+	return controller.GetK8sClient().Status().Patch(ctx, orcObject, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
 func UpdateStatus[

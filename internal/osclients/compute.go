@@ -19,6 +19,7 @@ package osclients
 import (
 	"context"
 	"fmt"
+	"iter"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -27,7 +28,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
-	"github.com/gophercloud/gophercloud/v2/pagination"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -49,12 +49,12 @@ type ComputeClient interface {
 	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
 	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
 	DeleteFlavor(ctx context.Context, id string) error
-	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor])
+	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error]
 
 	CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error)
 	DeleteServer(ctx context.Context, serverID string) error
 	GetServer(ctx context.Context, serverID string) (*servers.Server, error)
-	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) <-chan (Result[*servers.Server])
+	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error]
 
 	ListAttachedInterfaces(serverID string) ([]attachinterfaces.Interface, error)
 	DeleteAttachedInterface(serverID, portID string) error
@@ -98,29 +98,11 @@ func (c computeClient) DeleteFlavor(ctx context.Context, id string) error {
 	return flavors.Delete(ctx, c.client, id).ExtractErr()
 }
 
-func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor]) {
-	ch := make(chan (Result[*flavors.Flavor]))
-	go func() {
-		defer close(ch)
-		if err := flavors.ListDetail(c.client, opts).EachPage(ctx, func(ctx context.Context, page pagination.Page) (bool, error) {
-			pageFlavors, err := flavors.ExtractFlavors(page)
-			if err != nil {
-				return false, err
-			}
-			for i := range pageFlavors {
-				select {
-				case <-ctx.Done():
-					return false, ctx.Err()
-				default:
-					ch <- NewResultOk(&pageFlavors[i])
-				}
-			}
-			return true, nil
-		}); err != nil {
-			ch <- NewResultErr[*flavors.Flavor](err)
-		}
-	}()
-	return ch
+func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+	pager := flavors.ListDetail(c.client, opts)
+	return func(yield func(*flavors.Flavor, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(flavors.ExtractFlavors, yield))
+	}
 }
 
 func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
@@ -135,29 +117,11 @@ func (c computeClient) GetServer(ctx context.Context, serverID string) (*servers
 	return servers.Get(ctx, c.client, serverID).Extract()
 }
 
-func (c computeClient) ListServers(ctx context.Context, opts servers.ListOptsBuilder) <-chan (Result[*servers.Server]) {
-	ch := make(chan (Result[*servers.Server]))
-	go func() {
-		defer close(ch)
-		if err := servers.List(c.client, opts).EachPage(ctx, func(ctx context.Context, page pagination.Page) (bool, error) {
-			allItems, err := servers.ExtractServers(page)
-			if err != nil {
-				return false, err
-			}
-			for i := range allItems {
-				select {
-				case <-ctx.Done():
-					return false, ctx.Err()
-				default:
-					ch <- NewResultOk(&allItems[i])
-				}
-			}
-			return true, nil
-		}); err != nil {
-			ch <- NewResultErr[*servers.Server](err)
-		}
-	}()
-	return ch
+func (c computeClient) ListServers(ctx context.Context, opts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error] {
+	pager := servers.List(c.client, opts)
+	return func(yield func(*servers.Server, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(servers.ExtractServers, yield))
+	}
 }
 
 func (c computeClient) ListAttachedInterfaces(serverID string) ([]attachinterfaces.Interface, error) {
@@ -196,13 +160,10 @@ func (e computeErrorClient) GetFlavor(ctx context.Context, id string) (*flavors.
 func (e computeErrorClient) DeleteFlavor(ctx context.Context, id string) error {
 	return e.error
 }
-func (e computeErrorClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) <-chan (Result[*flavors.Flavor]) {
-	ch := make(chan (Result[*flavors.Flavor]))
-	go func() {
-		defer close(ch)
-		ch <- NewResultErr[*flavors.Flavor](e.error)
-	}()
-	return ch
+func (e computeErrorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+	return func(yield func(*flavors.Flavor, error) bool) {
+		yield(nil, e.error)
+	}
 }
 
 func (e computeErrorClient) ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error) {
@@ -221,13 +182,10 @@ func (e computeErrorClient) GetServer(_ context.Context, _ string) (*servers.Ser
 	return nil, e.error
 }
 
-func (e computeErrorClient) ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) <-chan (Result[*servers.Server]) {
-	ch := make(chan (Result[*servers.Server]))
-	go func() {
-		defer close(ch)
-		ch <- NewResultErr[*servers.Server](e.error)
-	}()
-	return ch
+func (e computeErrorClient) ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error] {
+	return func(yield func(*servers.Server, error) bool) {
+		yield(nil, e.error)
+	}
 }
 
 func (e computeErrorClient) ListAttachedInterfaces(_ string) ([]attachinterfaces.Interface, error) {

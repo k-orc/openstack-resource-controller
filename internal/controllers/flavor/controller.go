@@ -46,7 +46,7 @@ func (flavorReconcilerConstructor) GetName() string {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c flavorReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, flavorActuatorFactory{}, flavorStatusWriter{})
+	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, flavorHelperFactory{}, flavorStatusWriter{})
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Flavor{}).
