@@ -96,7 +96,7 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 	{
 		createOptsBase := networks.CreateOpts{
 			Name:         string(getResourceName(obj)),
-			Description:  string(*resource.Description),
+			Description:  string(ptr.Deref(resource.Description, "")),
 			AdminStateUp: resource.AdminStateUp,
 			Shared:       resource.Shared,
 		}
