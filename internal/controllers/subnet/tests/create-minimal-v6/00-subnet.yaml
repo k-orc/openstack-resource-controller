@@ -8,9 +8,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    # FIXME: just having the name causes a panic
-    # https://github.com/k-orc/openstack-resource-controller/issues/187
-    description: create-minimal-v6
+    name: create-minimal-v6
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
