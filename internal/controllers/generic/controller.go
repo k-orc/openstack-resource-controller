@@ -137,37 +137,37 @@ func (c *Controller[
 	log.V(3).Info("Reconciling resource")
 
 	var osResource *osResourceT
-	var waitEvents []WaitingOnEvent
+	var progressStatus []ProgressStatus
 
 	// Ensure we always update status
 	defer func() {
-		err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, nil, waitEvents, err))
+		err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, progressStatus, err))
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
-			log.Error(err, "not scheduling further reconciles for terminal error")
+			log.V(2).Info("not scheduling further reconciles for terminal error", "err", err.Error())
 			err = nil
 		}
 	}()
 
-	waitEvents, actuator, err := c.helperFactory.NewCreateActuator(ctx, objAdapter.GetObject(), c)
+	progressStatus, actuator, err := c.helperFactory.NewCreateActuator(ctx, objAdapter.GetObject(), c)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	if len(waitEvents) > 0 {
+	if len(progressStatus) > 0 {
 		log.V(3).Info("Waiting on events before creation")
-		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
+		return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, nil
 	}
 
-	waitEvents, osResource, err = GetOrCreateOSResource(ctx, log, c, objAdapter, actuator)
+	progressStatus, osResource, err = GetOrCreateOSResource(ctx, log, c, objAdapter, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	if len(waitEvents) > 0 {
+	if len(progressStatus) > 0 {
 		log.V(3).Info("Waiting on events before creation")
-		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
+		return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, nil
 	}
 
 	if osResource == nil {
@@ -195,11 +195,11 @@ func (c *Controller[
 			// We execute all returned updaters, even if some return errors
 			for _, updater := range reconcilers {
 				var updaterErr error
-				var updaterWaitEvents []WaitingOnEvent
+				var updaterProgressStatus []ProgressStatus
 
-				updaterWaitEvents, updaterErr = updater(ctx, objAdapter.GetObject(), osResource)
+				updaterProgressStatus, updaterErr = updater(ctx, objAdapter.GetObject(), osResource)
 				err = errors.Join(err, updaterErr)
-				waitEvents = append(waitEvents, updaterWaitEvents...)
+				progressStatus = append(progressStatus, updaterProgressStatus...)
 			}
 
 			if err != nil {
@@ -208,7 +208,7 @@ func (c *Controller[
 		}
 	}
 
-	return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
+	return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, nil
 }
 
 func (c *Controller[
@@ -223,26 +223,26 @@ func (c *Controller[
 	log.V(3).Info("Reconciling OpenStack resource delete")
 
 	var osResource *osResourceT
-	var waitEvents []WaitingOnEvent
+	var progressStatus []ProgressStatus
 
 	deleted := false
 	defer func() {
 		// No point updating status after removing the finalizer
 		if !deleted {
-			err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, nil, waitEvents, err))
+			err = errors.Join(err, UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, progressStatus, err))
 		}
 	}()
 
-	waitEvents, actuator, err := c.helperFactory.NewDeleteActuator(ctx, objAdapter.GetObject(), c)
+	progressStatus, actuator, err := c.helperFactory.NewDeleteActuator(ctx, objAdapter.GetObject(), c)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	if len(waitEvents) > 0 {
+	if len(progressStatus) > 0 {
 		log.V(3).Info("Waiting on events before deletion")
-		return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, nil
+		return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, nil
 	}
 
-	deleted, waitEvents, osResource, err = DeleteResource(ctx, log, c, objAdapter, actuator)
-	return ctrl.Result{RequeueAfter: MaxRequeue(waitEvents)}, err
+	deleted, progressStatus, osResource, err = DeleteResource(ctx, log, c, objAdapter, actuator)
+	return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, err
 }

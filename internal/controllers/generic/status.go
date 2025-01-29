@@ -22,7 +22,6 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
-	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/go-logr/logr"
@@ -47,7 +46,7 @@ type ORCApplyConfigConstructor[objectApplyPT ORCApplyConfig[objectApplyPT, statu
 
 type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourcePT any, objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
 	GetApplyConfigConstructor() ORCApplyConfigConstructor[objectApplyPT, statusApplyPT]
-	GetCommonStatus(orcObject objectPT, osResource osResourcePT) (isAvailable, isUpToDate bool)
+	ResourceIsAvailable(orcObject objectPT, osResource osResourcePT) bool
 	ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
 }
 
@@ -97,7 +96,7 @@ func UpdateStatus[
 	ctx context.Context,
 	controller ResourceController,
 	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
-	orcObject orcObjectPT, osResource osResourcePT, progressMessage *string, waitEvents []WaitingOnEvent, err error,
+	orcObject orcObjectPT, osResource osResourcePT, progressStatus []ProgressStatus, err error,
 ) error {
 	log := ctrl.LoggerFrom(ctx)
 	now := metav1.NewTime(time.Now())
@@ -112,14 +111,9 @@ func UpdateStatus[
 		statusWriter.ApplyResourceStatus(log, osResource, applyConfigStatus)
 	}
 
-	// TODO: Should we display all wait events here?
-	if progressMessage == nil && len(waitEvents) > 0 {
-		progressMessage = ptr.To(waitEvents[0].Message())
-	}
-
 	// Set common conditions
-	available, upToDate := statusWriter.GetCommonStatus(orcObject, osResource)
-	SetCommonConditions(orcObject, applyConfigStatus, available, upToDate, progressMessage, err, now)
+	available := statusWriter.ResourceIsAvailable(orcObject, osResource)
+	SetCommonConditions(orcObject, applyConfigStatus, available, progressStatus, err, now)
 
 	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()

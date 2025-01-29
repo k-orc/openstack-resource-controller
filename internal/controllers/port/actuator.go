@@ -91,7 +91,7 @@ func (actuator portCreateActuator) ListOSResourcesForImport(ctx context.Context,
 	return actuator.osClient.ListPort(ctx, listOpts)
 }
 
-func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]generic.WaitingOnEvent, *ports.Port, error) {
+func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]generic.ProgressStatus, *ports.Port, error) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -115,7 +115,7 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 		}
 	}
 
-	var waitEvents []generic.WaitingOnEvent
+	var waitEvents []generic.ProgressStatus
 
 	// We explicitly disable creation of IP addresses by passing an empty
 	// value whenever the user does not specify addresses
@@ -181,7 +181,7 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	return nil, osResource, nil
 }
 
-func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *ports.Port) ([]generic.WaitingOnEvent, error) {
+func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *ports.Port) ([]generic.ProgressStatus, error) {
 	return nil, actuator.osClient.DeletePort(ctx, flavor.ID)
 }
 
@@ -193,7 +193,7 @@ func (actuator portActuator) GetResourceReconcilers(ctx context.Context, orcObje
 	}, nil
 }
 
-func (actuator portActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.WaitingOnEvent, error) {
+func (actuator portActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
 	resourceTagSet := set.New[string](osResource.Tags...)
 	objectTagSet := set.New[string]()
 	for i := range orcObject.Spec.Resource.Tags {
@@ -215,12 +215,12 @@ func (portHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return portAdapter{obj}
 }
 
-func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
+func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
 	waitEvents, actuator, err := newCreateActuator(ctx, orcObject, controller)
 	return waitEvents, actuator, err
 }
 
-func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
+func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }
@@ -242,20 +242,20 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller ge
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) ([]generic.WaitingOnEvent, *portCreateActuator, error) {
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) ([]generic.ProgressStatus, *portCreateActuator, error) {
 	k8sClient := controller.GetK8sClient()
 
 	orcNetwork := &orcv1alpha1.Network{}
 	networkRef := string(orcObject.Spec.NetworkRef)
 	if err := k8sClient.Get(ctx, client.ObjectKey{Name: networkRef, Namespace: orcObject.Namespace}, orcNetwork); err != nil {
 		if apierrors.IsNotFound(err) {
-			return []generic.WaitingOnEvent{generic.WaitingOnORCExist("network", networkRef)}, nil, nil
+			return []generic.ProgressStatus{generic.WaitingOnORCExist("network", networkRef)}, nil, nil
 		}
 		return nil, nil, err
 	}
 
 	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
-		return []generic.WaitingOnEvent{generic.WaitingOnORCReady("network", networkRef)}, nil, nil
+		return []generic.ProgressStatus{generic.WaitingOnORCReady("network", networkRef)}, nil, nil
 	}
 	networkID := orcv1alpha1.UUID(*orcNetwork.Status.ID)
 

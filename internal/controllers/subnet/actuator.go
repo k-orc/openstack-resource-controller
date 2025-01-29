@@ -107,7 +107,7 @@ func (actuator subnetCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	return actuator.osClient.ListSubnet(ctx, listOpts)
 }
 
-func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.WaitingOnEvent, *subnets.Subnet, error) {
+func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.ProgressStatus, *subnets.Subnet, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -175,7 +175,7 @@ func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orc
 	return nil, osResource, err
 }
 
-func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) ([]generic.WaitingOnEvent, error) {
+func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) ([]generic.ProgressStatus, error) {
 	// Delete any RouterInterface first, as this would prevent deletion of the subnet
 	routerInterface, err := getRouterInterface(ctx, actuator.k8sClient, obj)
 	if err != nil {
@@ -189,7 +189,7 @@ func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orc
 				return nil, err
 			}
 		}
-		return []generic.WaitingOnEvent{generic.WaitingOnORCDeleted("RouterInterface", routerInterface.GetName())}, nil
+		return []generic.ProgressStatus{generic.WaitingOnORCDeleted("RouterInterface", routerInterface.GetName())}, nil
 	}
 
 	return nil, actuator.osClient.DeleteSubnet(ctx, osResource.ID)
@@ -204,8 +204,8 @@ func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcOb
 	}, nil
 }
 
-func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.WaitingOnEvent, error) {
-	var waitEvents []generic.WaitingOnEvent
+func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
+	var waitEvents []generic.ProgressStatus
 	var err error
 
 	routerInterface, err := getRouterInterface(ctx, actuator.k8sClient, orcObject)
@@ -252,7 +252,7 @@ func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObj
 	return waitEvents, err
 }
 
-func (actuator subnetActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.WaitingOnEvent, error) {
+func (actuator subnetActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
 	resourceTagSet := set.New[string](osResource.Tags...)
 	objectTagSet := set.New[string]()
 	for i := range orcObject.Spec.Resource.Tags {
@@ -320,17 +320,17 @@ func (subnetHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return subnetAdapter{obj}
 }
 
-func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
+func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
 	orcNetwork := &orcv1alpha1.Network{}
 	if err := controller.GetK8sClient().Get(ctx, client.ObjectKey{Name: string(orcObject.Spec.NetworkRef), Namespace: orcObject.Namespace}, orcNetwork); err != nil {
 		if apierrors.IsNotFound(err) {
-			return []generic.WaitingOnEvent{generic.WaitingOnORCExist("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
+			return []generic.ProgressStatus{generic.WaitingOnORCExist("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
 		}
 		return nil, nil, err
 	}
 
 	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
-		return []generic.WaitingOnEvent{generic.WaitingOnORCReady("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
+		return []generic.ProgressStatus{generic.WaitingOnORCReady("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
 	}
 
 	actuator, err := newActuator(ctx, controller, orcObject)
@@ -343,7 +343,7 @@ func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcO
 	}, nil
 }
 
-func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
+func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	if err != nil {
 		return nil, nil, err

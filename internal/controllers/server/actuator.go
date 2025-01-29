@@ -85,14 +85,14 @@ func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, fil
 	return actuator.osClient.ListServers(ctx, listOpts)
 }
 
-func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]generic.WaitingOnEvent, *servers.Server, error) {
+func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]generic.ProgressStatus, *servers.Server, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var waitEvents []generic.WaitingOnEvent
+	var waitEvents []generic.ProgressStatus
 
 	image := &orcv1alpha1.Image{}
 	{
@@ -195,7 +195,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	return nil, osResource, err
 }
 
-func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) ([]generic.WaitingOnEvent, error) {
+func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) ([]generic.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteServer(ctx, osResource.ID)
 }
 
@@ -207,10 +207,10 @@ func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcOb
 	}, nil
 }
 
-func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.WaitingOnEvent, error) {
+func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	var waitEvents []generic.WaitingOnEvent
+	var waitEvents []generic.ProgressStatus
 	var err error
 
 	switch osResource.Status {
@@ -234,12 +234,12 @@ func (serverHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return serverAdapter{obj}
 }
 
-func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
+func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	return nil, actuator, err
 }
 
-func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
+func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, controller, orcObject)
 	return nil, actuator, err
 }

@@ -128,7 +128,7 @@ func (actuator flavorActuator) listOSResources(ctx context.Context, filters []os
 	return osclients.Filter(flavors, filters...)
 }
 
-func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.WaitingOnEvent, *flavors.Flavor, error) {
+func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.ProgressStatus, *flavors.Flavor, error) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -159,7 +159,7 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 	return nil, osResource, nil
 }
 
-func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) ([]generic.WaitingOnEvent, error) {
+func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) ([]generic.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteFlavor(ctx, flavor.ID)
 }
 
@@ -188,12 +188,12 @@ func (flavorHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return flavorAdapter{obj}
 }
 
-func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
+func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }
 
-func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
+func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }

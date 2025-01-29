@@ -40,9 +40,8 @@ func (networkStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigCon
 	return orcapplyconfigv1alpha1.Network
 }
 
-func (networkStatusWriter) GetCommonStatus(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) (bool, bool) {
-	available := osResource != nil && osResource.Status == NetworkStatusActive
-	return available, available
+func (networkStatusWriter) ResourceIsAvailable(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) bool {
+	return osResource != nil && osResource.Status == NetworkStatusActive
 }
 
 func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osclients.NetworkExt, statusApply *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration) {

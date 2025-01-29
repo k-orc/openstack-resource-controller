@@ -35,10 +35,9 @@ func (portStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstr
 	return orcapplyconfigv1alpha1.Port
 }
 
-func (portStatusWriter) GetCommonStatus(_ orcObjectPT, osResource *osResourceT) (bool, bool) {
+func (portStatusWriter) ResourceIsAvailable(_ orcObjectPT, osResource *osResourceT) bool {
 	// A port is available as soon as it exists
-	available := osResource != nil
-	return available, available
+	return osResource != nil
 }
 
 func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

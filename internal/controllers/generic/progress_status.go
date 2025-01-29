@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-type WaitingOnEvent interface {
+type ProgressStatus interface {
 	Message() string
 	Requeue() time.Duration
 }
@@ -41,7 +41,7 @@ type waitingOnORC struct {
 	waitingOn waitingOnType
 }
 
-var _ WaitingOnEvent = waitingOnORC{}
+var _ ProgressStatus = waitingOnORC{}
 
 func (e waitingOnORC) Message() string {
 	var outcome string
@@ -58,7 +58,7 @@ func (e waitingOnORC) Message() string {
 	return fmt.Sprintf("Waiting for %s/%s to be %s", e.kind, e.name, outcome)
 }
 
-func newWaitingOnORC(kind, name string, event waitingOnType) WaitingOnEvent {
+func newWaitingOnORC(kind, name string, event waitingOnType) ProgressStatus {
 	return waitingOnORC{
 		kind:      kind,
 		name:      name,
@@ -66,15 +66,15 @@ func newWaitingOnORC(kind, name string, event waitingOnType) WaitingOnEvent {
 	}
 }
 
-func WaitingOnORCExist(kind, name string) WaitingOnEvent {
+func WaitingOnORCExist(kind, name string) ProgressStatus {
 	return newWaitingOnORC(kind, name, WaitingOnCreation)
 }
 
-func WaitingOnORCReady(kind, name string) WaitingOnEvent {
+func WaitingOnORCReady(kind, name string) ProgressStatus {
 	return newWaitingOnORC(kind, name, WaitingOnReady)
 }
 
-func WaitingOnORCDeleted(kind, name string) WaitingOnEvent {
+func WaitingOnORCDeleted(kind, name string) ProgressStatus {
 	return newWaitingOnORC(kind, name, WaitingOnDeletion)
 }
 
@@ -94,7 +94,7 @@ func (e waitingOnFinalizer) Requeue() time.Duration {
 	return 0
 }
 
-func WaitingOnFinalizer(finalizer string) WaitingOnEvent {
+func WaitingOnFinalizer(finalizer string) ProgressStatus {
 	return waitingOnFinalizer{finalizer: finalizer}
 }
 
@@ -103,28 +103,28 @@ type waitingOnOpenStack struct {
 	pollingPeriod time.Duration
 }
 
-var _ WaitingOnEvent = waitingOnOpenStack{}
+var _ ProgressStatus = waitingOnOpenStack{}
 
-func newWaitingOnOpenStack(event waitingOnType, pollingPeriod time.Duration) WaitingOnEvent {
+func newWaitingOnOpenStack(event waitingOnType, pollingPeriod time.Duration) ProgressStatus {
 	return waitingOnOpenStack{
 		waitingOn:     event,
 		pollingPeriod: pollingPeriod,
 	}
 }
 
-func WaitingOnOpenStackCreate(pollingPeriod time.Duration) WaitingOnEvent {
+func WaitingOnOpenStackCreate(pollingPeriod time.Duration) ProgressStatus {
 	return newWaitingOnOpenStack(WaitingOnCreation, pollingPeriod)
 }
 
-func WaitingOnOpenStackUpdate(pollingPeriod time.Duration) WaitingOnEvent {
+func WaitingOnOpenStackUpdate(pollingPeriod time.Duration) ProgressStatus {
 	return newWaitingOnOpenStack(WaitingOnUpdate, pollingPeriod)
 }
 
-func WaitingOnOpenStackReady(pollingPeriod time.Duration) WaitingOnEvent {
+func WaitingOnOpenStackReady(pollingPeriod time.Duration) ProgressStatus {
 	return newWaitingOnOpenStack(WaitingOnReady, pollingPeriod)
 }
 
-func WaitingOnOpenStackDeleted(pollingPeriod time.Duration) WaitingOnEvent {
+func WaitingOnOpenStackDeleted(pollingPeriod time.Duration) ProgressStatus {
 	return newWaitingOnOpenStack(WaitingOnDeletion, pollingPeriod)
 }
 
@@ -147,7 +147,7 @@ func (e waitingOnOpenStack) Requeue() time.Duration {
 	return e.pollingPeriod
 }
 
-func MaxRequeue(evts []WaitingOnEvent) time.Duration {
+func MaxRequeue(evts []ProgressStatus) time.Duration {
 	var ret time.Duration
 	for _, evt := range evts {
 		if evt.Requeue() > ret {
