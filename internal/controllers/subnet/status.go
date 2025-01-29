@@ -34,10 +34,9 @@ func (subnetStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigCons
 	return orcapplyconfigv1alpha1.Subnet
 }
 
-func (subnetStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource *osResourceT) (bool, bool) {
+func (subnetStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
 	// Subnet is available as soon as it exists
-	available := osResource != nil
-	return available, available
+	return osResource != nil
 }
 
 func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

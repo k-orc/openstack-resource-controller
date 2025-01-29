@@ -38,9 +38,8 @@ func (routerStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigCons
 	return orcapplyconfigv1alpha1.Router
 }
 
-func (routerStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource *osResourceT) (bool, bool) {
-	available := orcObject.Status.ID != nil && osResource != nil && osResource.Status == RouterStatusActive
-	return available, available
+func (routerStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
+	return orcObject.Status.ID != nil && osResource != nil && osResource.Status == RouterStatusActive
 }
 
 func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

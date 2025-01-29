@@ -35,9 +35,8 @@ func (securityGroupStatusWriter) GetApplyConfigConstructor() generic.ORCApplyCon
 	return orcapplyconfigv1alpha1.SecurityGroup
 }
 
-func (securityGroupStatusWriter) GetCommonStatus(_ orcObjectPT, osResource *osResourceT) (bool, bool) {
-	available := osResource != nil
-	return available, available
+func (securityGroupStatusWriter) ResourceIsAvailable(_ orcObjectPT, osResource *osResourceT) bool {
+	return osResource != nil
 }
 
 func (securityGroupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

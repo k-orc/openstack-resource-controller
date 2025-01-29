@@ -87,7 +87,7 @@ func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, filt
 	return actuator.osClient.ListImages(ctx, listOpts)
 }
 
-func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) ([]generic.WaitingOnEvent, *images.Image, error) {
+func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) ([]generic.ProgressStatus, *images.Image, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -147,7 +147,7 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	return nil, image, err
 }
 
-func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *images.Image) ([]generic.WaitingOnEvent, error) {
+func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *images.Image) ([]generic.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteImage(ctx, osResource.ID)
 }
 

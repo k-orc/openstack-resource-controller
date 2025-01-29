@@ -39,9 +39,8 @@ func (serverStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigCons
 	return orcapplyconfigv1alpha1.Server
 }
 
-func (serverStatusWriter) GetCommonStatus(orcObject orcObjectPT, osResource *osResourceT) (bool, bool) {
-	available := orcObject.Status.ID != nil && osResource != nil && osResource.Status == ServerStatusActive
-	return available, available
+func (serverStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
+	return orcObject.Status.ID != nil && osResource != nil && osResource.Status == ServerStatusActive
 }
 
 func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

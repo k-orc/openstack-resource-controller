@@ -77,8 +77,8 @@ type ResourceHelperFactory[
 ] interface {
 	NewAPIObjectAdapter(orcObject orcObjectPT) APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
 
-	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT], error)
-	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]WaitingOnEvent, DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT], error)
+	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]ProgressStatus, CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT], error)
+	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]ProgressStatus, DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT], error)
 }
 
 type BaseResourceActuator[
@@ -106,7 +106,7 @@ type CreateResourceActuator[
 ] interface {
 	BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 
-	CreateResource(ctx context.Context, orcObject orcObjectPT) ([]WaitingOnEvent, *osResourceT, error)
+	CreateResource(ctx context.Context, orcObject orcObjectPT) ([]ProgressStatus, *osResourceT, error)
 	ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osResourceT, error]
 }
 
@@ -120,10 +120,10 @@ type DeleteResourceActuator[
 ] interface {
 	BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 
-	DeleteResource(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]WaitingOnEvent, error)
+	DeleteResource(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]ProgressStatus, error)
 }
 
-type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]WaitingOnEvent, error)
+type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]ProgressStatus, error)
 
 type ReconcileResourceActuator[orcObjectPT, osResourceT any] interface {
 	GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller ResourceController) ([]ResourceReconciler[orcObjectPT, osResourceT], error)
@@ -141,7 +141,7 @@ func GetOrCreateOSResource[
 	ctx context.Context, log logr.Logger, controller ResourceController,
 	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
 	actuator CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
-) ([]WaitingOnEvent, *osResourceT, error) {
+) ([]ProgressStatus, *osResourceT, error) {
 	k8sClient := controller.GetK8sClient()
 
 	finalizer := GetFinalizerName(controller)
@@ -185,8 +185,8 @@ func GetOrCreateOSResource[
 		}
 		if osResource == nil {
 			// Poll until we find a resource
-			waitEvents := []WaitingOnEvent{WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
-			return waitEvents, nil, nil
+			progressStatus := []ProgressStatus{WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
+			return progressStatus, nil, nil
 		}
 		return nil, osResource, nil
 	}
@@ -285,7 +285,7 @@ func DeleteResource[
 	ctx context.Context, log logr.Logger, controller ResourceController,
 	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
 	actuator DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT],
-) (bool, []WaitingOnEvent, *osResourceT, error) {
+) (bool, []ProgressStatus, *osResourceT, error) {
 	var osResource *osResourceT
 
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
@@ -305,24 +305,24 @@ func DeleteResource[
 
 	finalizer := GetFinalizerName(controller)
 
-	var waitEvents []WaitingOnEvent
+	var progressStatus []ProgressStatus
 	var foundFinalizer bool
 	for _, f := range objAdapter.GetFinalizers() {
 		if f == finalizer {
 			foundFinalizer = true
 		} else {
-			waitEvents = append(waitEvents, WaitingOnFinalizer(f))
+			progressStatus = append(progressStatus, WaitingOnFinalizer(f))
 		}
 	}
 
 	// Cleanup not required if our finalizer is not present
 	if !foundFinalizer {
-		return true, waitEvents, osResource, nil
+		return true, progressStatus, osResource, nil
 	}
 
-	if len(waitEvents) > 0 {
+	if len(progressStatus) > 0 {
 		log.V(4).Info("Deferring resource cleanup due to remaining external finalizers")
-		return false, waitEvents, osResource, nil
+		return false, progressStatus, osResource, nil
 	}
 
 	removeFinalizer := func() error {
@@ -341,7 +341,7 @@ func DeleteResource[
 			logPolicy = append(logPolicy, "onDelete", managedOptions.GetOnDelete())
 		}
 		log.V(4).Info("Not deleting OpenStack resource due to policy", logPolicy...)
-		return true, waitEvents, osResource, removeFinalizer()
+		return true, progressStatus, osResource, removeFinalizer()
 	}
 
 	// If status.ID was not set, we still need to check if there's an orphaned object.
@@ -349,23 +349,23 @@ func DeleteResource[
 		var err error
 		osResource, err = getResourceForAdoption(ctx, actuator, objAdapter)
 		if err != nil {
-			return false, waitEvents, osResource, err
+			return false, progressStatus, osResource, err
 		}
 	}
 
 	if osResource == nil {
 		log.V(4).Info("Resource is no longer observed")
 
-		return true, waitEvents, osResource, removeFinalizer()
+		return true, progressStatus, osResource, removeFinalizer()
 	}
 
 	log.V(4).Info("Deleting OpenStack resource")
-	waitEvents, err := actuator.DeleteResource(ctx, objAdapter.GetObject(), osResource)
+	progressStatus, err := actuator.DeleteResource(ctx, objAdapter.GetObject(), osResource)
 
 	// If there are no other wait events, we still need to poll for the deletion
 	// of the OpenStack resource
-	if len(waitEvents) == 0 {
-		waitEvents = []WaitingOnEvent{WaitingOnOpenStackDeleted(deletePollingPeriod)}
+	if len(progressStatus) == 0 {
+		progressStatus = []ProgressStatus{WaitingOnOpenStackDeleted(deletePollingPeriod)}
 	}
-	return false, waitEvents, osResource, err
+	return false, progressStatus, osResource, err
 }

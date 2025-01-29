@@ -23,7 +23,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -40,29 +39,31 @@ type updateStatusOpts struct {
 	err    error
 }
 
-func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (bool, bool, *string) {
+func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (_ bool, progressStatus []generic.ProgressStatus) {
+	// Probably a programming error?
 	if routerInterface == nil {
-		return false, false, nil
+		return false, nil
 	}
 
 	if routerInterface.Spec.Type == orcv1alpha1.RouterInterfaceTypeSubnet {
-		if opts.subnet == nil {
-			return false, false, ptr.To("Waiting for subnet object to be created")
+		if opts.subnet == nil && routerInterface.Spec.SubnetRef != nil {
+			progressStatus = append(progressStatus, generic.WaitingOnORCExist("Subnet", string(*routerInterface.Spec.SubnetRef)))
 		}
 		if opts.subnet.Status.ID == nil {
-			return false, false, ptr.To("Waiting for subnet resource to be created")
+			progressStatus = append(progressStatus, generic.WaitingOnORCReady("Subnet", string(*routerInterface.Spec.SubnetRef)))
 		}
 	}
 
-	if opts.port == nil {
-		return false, false, ptr.To("Waiting for interface to be created")
+	available := false
+	if opts.port != nil {
+		if opts.port.Status == portStatusActive {
+			available = true
+		} else {
+			progressStatus = append(progressStatus, generic.WaitingOnOpenStackReady(portStatusPollingPeriod))
+		}
 	}
 
-	if opts.port.Status != portStatusActive {
-		return false, false, ptr.To("Waiting for interface to be ACTIVE, currently " + opts.port.Status)
-	}
-
-	return true, true, nil
+	return available, progressStatus
 }
 
 // createStatusUpdate computes a complete status update based on the given
@@ -79,8 +80,8 @@ func createStatusUpdate(orcObject *orcv1alpha1.RouterInterface, now metav1.Time,
 		applyConfigStatus.WithID(statusOpts.port.ID)
 	}
 
-	isAvailable, isUpToDate, progressMessage := getStatusSummary(orcObject, statusOpts)
-	generic.SetCommonConditions(orcObject, applyConfigStatus, isAvailable, isUpToDate, progressMessage, statusOpts.err, now)
+	isAvailable, progressStatus := getStatusSummary(orcObject, statusOpts)
+	generic.SetCommonConditions(orcObject, applyConfigStatus, isAvailable, progressStatus, statusOpts.err, now)
 
 	return applyConfig
 }

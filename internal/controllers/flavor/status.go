@@ -36,9 +36,8 @@ func (flavorStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigCons
 	return orcapplyconfigv1alpha1.Flavor
 }
 
-func (flavorStatusWriter) GetCommonStatus(_ *orcv1alpha1.Flavor, osResource *flavors.Flavor) (bool, bool) {
-	available := osResource != nil
-	return available, available
+func (flavorStatusWriter) ResourceIsAvailable(_ *orcv1alpha1.Flavor, osResource *flavors.Flavor) bool {
+	return osResource != nil
 }
 
 func (flavorStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *flavors.Flavor, statusApply *statusApplyT) {

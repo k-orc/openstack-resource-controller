@@ -17,11 +17,11 @@ package generic
 
 import (
 	"errors"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
-	"k8s.io/utils/ptr"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
@@ -32,7 +32,7 @@ type WithConditionsApplyConfiguration[T any] interface {
 	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) T
 }
 
-func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], isAvailable, isUpToDate bool, progressMessage *string, err error, now metav1.Time) {
+func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], isAvailable bool, progressStatus []ProgressStatus, err error, now metav1.Time) {
 	availableCondition := applyconfigv1.Condition().
 		WithType(orcv1alpha1.ConditionAvailable).
 		WithObservedGeneration(orcObject.GetGeneration())
@@ -40,19 +40,13 @@ func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, appl
 		WithType(orcv1alpha1.ConditionProgressing).
 		WithObservedGeneration(orcObject.GetGeneration())
 
-	if err == nil {
-		if isUpToDate {
-			progressingCondition.
-				WithStatus(metav1.ConditionFalse).
-				WithReason(orcv1alpha1.ConditionReasonSuccess).
-				WithMessage("OpenStack resource is up to date")
-		} else {
-			progressingCondition.
-				WithStatus(metav1.ConditionTrue).
-				WithReason(orcv1alpha1.ConditionReasonProgressing).
-				WithMessage(ptr.Deref(progressMessage, "Reconciliation is progressing"))
-		}
-	} else {
+	// We are Progressing iff we are anticipating being reconciled again. This
+	// means one of:
+	// - err contains a non-terminal error, so we expect an error backoff
+	// - progressStatus is non-empty, so the actuator has either specified a
+	//   polling period, or is expecting another triggering k8s event
+
+	if err != nil {
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
 			progressingCondition.
@@ -65,6 +59,21 @@ func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, appl
 				WithReason(orcv1alpha1.ConditionReasonTransientError).
 				WithMessage(err.Error())
 		}
+	} else if len(progressStatus) > 0 {
+		messages := make([]string, len(progressStatus))
+		for i := range progressStatus {
+			messages[i] = progressStatus[i].Message()
+		}
+
+		progressingCondition.
+			WithStatus(metav1.ConditionTrue).
+			WithReason(orcv1alpha1.ConditionReasonProgressing).
+			WithMessage(strings.Join(messages, "; "))
+	} else {
+		progressingCondition.
+			WithStatus(metav1.ConditionFalse).
+			WithReason(orcv1alpha1.ConditionReasonSuccess).
+			WithMessage("OpenStack resource is up to date")
 	}
 
 	if isAvailable {

@@ -88,14 +88,14 @@ func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	return actuator.osClient.ListRouter(ctx, listOpts)
 }
 
-func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) ([]generic.WaitingOnEvent, *routers.Router, error) {
+func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) ([]generic.ProgressStatus, *routers.Router, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var waitEvents []generic.WaitingOnEvent
+	var waitEvents []generic.ProgressStatus
 
 	var gatewayInfo *routers.GatewayInfo
 	for name, result := range externalGWDep.GetDependencies(ctx, actuator.k8sClient, obj) {
@@ -149,7 +149,7 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 	return nil, osResource, err
 }
 
-func (actuator routerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, router *routers.Router) ([]generic.WaitingOnEvent, error) {
+func (actuator routerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, router *routers.Router) ([]generic.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteRouter(ctx, router.ID)
 }
 
@@ -161,7 +161,7 @@ func (actuator routerActuator) GetResourceReconcilers(ctx context.Context, orcOb
 	}, nil
 }
 
-func (actuator routerActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.WaitingOnEvent, error) {
+func (actuator routerActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
 	resourceTagSet := set.New[string](osResource.Tags...)
 	objectTagSet := set.New[string]()
 	for i := range orcObject.Spec.Resource.Tags {
@@ -183,12 +183,12 @@ func (routerHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return routerAdapter{obj}
 }
 
-func (routerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, createResourceActuator, error) {
+func (routerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
 	actuator, err := newCreateActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }
 
-func (routerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.WaitingOnEvent, deleteResourceActuator, error) {
+func (routerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }
