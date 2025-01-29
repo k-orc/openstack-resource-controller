@@ -9,7 +9,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: import-error-external-1
     ram: 22
     vcpus: 23
     disk: 24
@@ -24,9 +23,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    # FIXME: name shouldn't be necessary
-    # https://github.com/k-orc/openstack-resource-controller/issues/185
-    name: import-error-external-2
     ram: 22
     vcpus: 23
     disk: 24
