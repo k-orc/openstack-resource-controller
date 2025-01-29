@@ -321,7 +321,7 @@ type ImageResourceStatus struct {
 	// status is the image status as reported by Glance
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status *string `json:"status,omitempty"`
+	Status string `json:"status,omitempty"`
 
 	// hash is the hash of the image data published by Glance. Note that this is
 	// a hash of the data stored internally by Glance, which will have been
