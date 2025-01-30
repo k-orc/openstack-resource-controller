@@ -127,15 +127,18 @@ type SecurityGroupRule struct {
 
 type SecurityGroupRuleStatus struct {
 	// id is the ID of the security group rule.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ID string `json:"id,omitempty"`
 
 	// description is a human-readable description for the resource.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
 
 	// direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Direction string `json:"direction,omitempty"`
 
@@ -143,20 +146,24 @@ type SecurityGroupRuleStatus struct {
 
 	// remoteGroupID is the remote group UUID to associate with this security group rule
 	// RemoteGroupID
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	RemoteGroupID string `json:"remoteGroupID,omitempty"`
 
 	// remoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	RemoteIPPrefix string `json:"remoteIPPrefix,omitempty"`
 
 	// protocol is the IP protocol can be represented by a string, an
 	// integer, or null
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Protocol string `json:"protocol,omitempty"`
 
 	// ethertype must be IPv4 or IPv6, and addresses represented in CIDR
 	// must match the ingress or egress rules.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Ethertype string `json:"ethertype,omitempty"`
 
@@ -221,18 +228,23 @@ type SecurityGroupFilter struct {
 // SecurityGroupResourceStatus represents the observed state of the resource.
 type SecurityGroupResourceStatus struct {
 	// name is a Human-readable name for the security group. Might not be unique.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
 
 	// projectID is the project owner of the security group.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
 	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
@@ -242,6 +254,7 @@ type SecurityGroupResourceStatus struct {
 	Stateful bool `json:"stateful,omitempty"`
 
 	// rules is a list of security group rules belonging to this SG.
+	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
 	// +optional
 	Rules []SecurityGroupRuleStatus `json:"rules,omitempty"`

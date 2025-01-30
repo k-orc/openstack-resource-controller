@@ -397,7 +397,9 @@ spec:
                       availabilityZoneHints is the availability zone candidate for the
                       network.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   createdAt:
@@ -408,9 +410,11 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 1024
                     type: string
                   dnsDomain:
                     description: dnsDomain is the DNS domain of the network
+                    maxLength: 1024
                     type: string
                   external:
                     description: |-
@@ -431,6 +435,7 @@ spec:
                   name:
                     description: name is a Human-readable name for the network. Might
                       not be unique.
+                    maxLength: 1024
                     type: string
                   portSecurityEnabled:
                     description: |-
@@ -441,6 +446,7 @@ spec:
                     type: boolean
                   projectID:
                     description: projectID is the project owner of the network.
+                    maxLength: 1024
                     type: string
                   provider:
                     description: provider contains provider-network properties.
@@ -450,6 +456,7 @@ spec:
                           networkType is the type of physical network that this
                           network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
                           Valid values depend on the networking back-end.
+                        maxLength: 1024
                         type: string
                       physicalNetwork:
                         description: |-
@@ -458,6 +465,7 @@ spec:
                           way to list available physical networks. For example, the Open
                           vSwitch plug-in configuration file defines a symbolic name that maps
                           to specific bridges on each compute host.
+                        maxLength: 1024
                         type: string
                       segmentationID:
                         description: |-
@@ -483,17 +491,22 @@ spec:
                       status indicates whether network is currently operational. Possible values
                       include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
                       additional values.
+                    maxLength: 1024
                     type: string
                   subnets:
                     description: subnets associated with this network.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   tags:
                     description: tags is the list of tags on the resource.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:

@@ -55,6 +55,7 @@ type RouterInterfaceList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// items contains a list of RouterInterface.
+	// +kubebuilder:validation:MaxItems:=32
 	// +required
 	Items []RouterInterface `json:"items"`
 }
@@ -100,6 +101,7 @@ type RouterInterfaceStatus struct {
 	// Progressing is True, an observer waiting on the resource should continue
 	// to wait.
 	//
+	// +kubebuilder:validation:MaxItems:=32
 	// +patchMergeKey=type
 	// +patchStrategy=merge
 	// +listType=map
@@ -108,6 +110,7 @@ type RouterInterfaceStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 
 	// id is the unique identifier of the port created for the router interface
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 }

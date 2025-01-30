@@ -73,38 +73,47 @@ type ServerFilter struct {
 // ServerResourceStatus represents the observed state of the resource.
 type ServerResourceStatus struct {
 	// name is the human-readable name of the resource. Might not be unique.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
 
 	// hostID is the host where the server is located in the cloud.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	HostID string `json:"hostID,omitempty"`
 
 	// status contains the current operational status of the server,
 	// such as IN_PROGRESS or ACTIVE.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Status string `json:"status,omitempty"`
 
 	// accessIPv4 contains the IPv4 addresses of the server, suitable for
 	// remote access for administration.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	AccessIPv4 string `json:"accessIPv4,omitempty"`
 
 	// accessIPv6 contains the IPv6 addresses of the server, suitable for
 	// remote access for administration.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	AccessIPv6 string `json:"accessIPv6,omitempty"`
 
 	// imageID indicates the OS image used to deploy the server.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
 
 	// keyName indicates which public key was injected into the server on launch.
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	KeyName string `json:"keyName,omitempty"`
 
 	// securityGroups includes the security groups that this instance has
 	// applied to it.
+	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
 	SecurityGroups []string `json:"securityGroups,omitempty"`

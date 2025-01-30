@@ -309,40 +309,49 @@ spec:
                     description: |-
                       accessIPv4 contains the IPv4 addresses of the server, suitable for
                       remote access for administration.
+                    maxLength: 1024
                     type: string
                   accessIPv6:
                     description: |-
                       accessIPv6 contains the IPv6 addresses of the server, suitable for
                       remote access for administration.
+                    maxLength: 1024
                     type: string
                   hostID:
                     description: hostID is the host where the server is located in
                       the cloud.
+                    maxLength: 1024
                     type: string
                   imageID:
                     description: imageID indicates the OS image used to deploy the
                       server.
+                    maxLength: 1024
                     type: string
                   keyName:
                     description: keyName indicates which public key was injected into
                       the server on launch.
+                    maxLength: 1024
                     type: string
                   name:
                     description: name is the human-readable name of the resource.
                       Might not be unique.
+                    maxLength: 1024
                     type: string
                   securityGroups:
                     description: |-
                       securityGroups includes the security groups that this instance has
                       applied to it.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   status:
                     description: |-
                       status contains the current operational status of the server,
                       such as IN_PROGRESS or ACTIVE.
+                    maxLength: 1024
                     type: string
                 type: object
             type: object

@@ -236,6 +236,7 @@ type ImageContent struct {
 type ImageContentSourceDownload struct {
 	// url containing image data
 	// +kubebuilder:validation:Format=uri
+	// +kubebuilder:validation:MaxLength=2048
 	// +required
 	URL string `json:"url"`
 
@@ -287,6 +288,7 @@ type ImageResourceSpec struct {
 	Protected *bool `json:"protected,omitempty"`
 
 	// tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters.
+	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
 	Tags []ImageTag `json:"tags,omitempty"`
@@ -317,8 +319,9 @@ type ImageFilter struct {
 // ImageResourceStatus represents the observed state of a Glance image
 type ImageResourceStatus struct {
 	// status is the image status as reported by Glance
+	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status *string `json:"status,omitempty"`
+	Status string `json:"status,omitempty"`
 
 	// hash is the hash of the image data published by Glance. Note that this is
 	// a hash of the data stored internally by Glance, which will have been

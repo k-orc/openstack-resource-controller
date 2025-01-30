@@ -536,17 +536,21 @@ spec:
                         end:
                           description: end is the last IP address in the allocation
                             pool.
+                          maxLength: 1024
                           type: string
                         start:
                           description: start is the first IP address in the allocation
                             pool.
+                          maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   cidr:
                     description: cidr representing IP range for this subnet, based
                       on IP version.
+                    maxLength: 1024
                     type: string
                   createdAt:
                     description: createdAt shows the date and time when the resource
@@ -556,12 +560,15 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 1024
                     type: string
                   dnsNameservers:
                     description: dnsNameservers is a list of name servers used by
                       hosts in this subnet.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 16
                     type: array
                     x-kubernetes-list-type: atomic
                   dnsPublishFixedIP:
@@ -575,6 +582,7 @@ spec:
                   gatewayIP:
                     description: gatewayIP is the default gateway used by devices
                       in this subnet, if any.
+                    maxLength: 1024
                     type: string
                   hostRoutes:
                     description: |-
@@ -584,11 +592,14 @@ spec:
                       properties:
                         destination:
                           description: destination for the additional route.
+                          maxLength: 1024
                           type: string
                         nextHop:
                           description: nextHop for the additional route.
+                          maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
                   ipVersion:
@@ -598,18 +609,22 @@ spec:
                   ipv6AddressMode:
                     description: ipv6AddressMode specifies mechanisms for assigning
                       IPv6 IP addresses.
+                    maxLength: 1024
                     type: string
                   ipv6RAMode:
                     description: |-
                       ipv6RAMode is the IPv6 router advertisement mode. It specifies
                       whether the networking service should transmit ICMPv6 packets.
+                    maxLength: 1024
                     type: string
                   name:
                     description: name is the human-readable name of the subnet. Might
                       not be unique.
+                    maxLength: 1024
                     type: string
                   projectID:
                     description: projectID is the project owner of the subnet.
+                    maxLength: 1024
                     type: string
                   revisionNumber:
                     description: revisionNumber optionally set via extensions/standard-attr-revisions
@@ -618,11 +633,14 @@ spec:
                   subnetPoolID:
                     description: subnetPoolID is the id of the subnet pool associated
                       with the subnet.
+                    maxLength: 1024
                     type: string
                   tags:
                     description: tags optionally set via extensions/attributestags
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:

@@ -399,12 +399,15 @@ spec:
                       availabilityZoneHints is the availability zone candidate for the
                       router.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   description:
                     description: description is a human-readable description for the
                       resource.
+                    maxLength: 1024
                     type: string
                   externalGateways:
                     description: externalGateways is a list of external gateways for
@@ -414,24 +417,31 @@ spec:
                         networkID:
                           description: networkID is the ID of the network the gateway
                             is on.
+                          maxLength: 1024
                           type: string
                       type: object
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
                     description: name is the human-readable name of the resource.
                       Might not be unique.
+                    maxLength: 1024
                     type: string
                   projectID:
                     description: projectID is the project owner of the resource.
+                    maxLength: 1024
                     type: string
                   status:
                     description: status indicates the current status of the resource.
+                    maxLength: 1024
                     type: string
                   tags:
                     description: tags is the list of tags on the resource.
                     items:
+                      maxLength: 1024
                       type: string
+                    maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
                 type: object
