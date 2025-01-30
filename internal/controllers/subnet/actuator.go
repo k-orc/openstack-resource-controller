@@ -22,13 +22,11 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2"
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
-	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -199,7 +197,7 @@ var _ reconcileResourceActuator = subnetActuator{}
 
 func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) (reconcilers []resourceReconciler, err error) {
 	return []resourceReconciler{
-		actuator.updateTags,
+		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "subnets", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 		actuator.ensureRouterInterface,
 	}, nil
 }
@@ -250,20 +248,6 @@ func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObj
 	waitEvents = append(waitEvents, generic.WaitingOnORCReady("routerinterface", routerInterface.Name))
 
 	return waitEvents, err
-}
-
-func (actuator subnetActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
-	resourceTagSet := set.New[string](osResource.Tags...)
-	objectTagSet := set.New[string]()
-	for i := range orcObject.Spec.Resource.Tags {
-		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
-	}
-	var err error
-	if !objectTagSet.Equal(resourceTagSet) {
-		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
-		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "subnets", osResource.ID, &opts)
-	}
-	return nil, err
 }
 
 func getRouterInterfaceName(orcObject *orcv1alpha1.Subnet) string {

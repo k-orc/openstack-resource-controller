@@ -17,9 +17,15 @@ limitations under the License.
 package neutrontags
 
 import (
+	"context"
 	"strings"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
+	"k8s.io/utils/set"
+
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 )
 
 // Join joins a slice of tags into a comma separated list of tags.
@@ -32,4 +38,25 @@ func Join(tags []orcv1alpha1.NeutronTag) string {
 		b.WriteString(string(tags[i]))
 	}
 	return b.String()
+}
+
+func ReconcileTags[orcObjectPT, osResourceT any](
+	networkClient osclients.NetworkClient,
+	resourceType string, resourceID string,
+	specTags []orcv1alpha1.NeutronTag,
+	observedTags []string,
+) generic.ResourceReconciler[orcObjectPT, osResourceT] {
+	return func(ctx context.Context, _ orcObjectPT, _ *osResourceT) ([]generic.ProgressStatus, error) {
+		observedTagSet := set.New(observedTags...)
+		specTagSet := set.New[string]()
+		for i := range specTags {
+			specTagSet.Insert(string(specTags[i]))
+		}
+		var err error
+		if !specTagSet.Equal(observedTagSet) {
+			opts := attributestags.ReplaceAllOpts{Tags: specTagSet.SortedList()}
+			_, err = networkClient.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
+		}
+		return nil, err
+	}
 }
