@@ -72,7 +72,7 @@ To recompile, kill the process with ++ctrl+c++ and re-run it.
 
 ### Create OpenStack credentials
 
-Create a `clouds.yaml` file in `examples/credentials`. The name of the cloud in this clouds.yaml must be `openstack`.
+Create a `clouds.yaml` file in `examples/local-config`. The name of the cloud in this clouds.yaml must be `openstack`.
 
 This file is in both `.gitignore` and `.dockerignore`, so should not be accidentally added to the git repo or a container build.
 
@@ -82,23 +82,34 @@ Note that we intentionally create credentials separately from other modules.
 This allows us to delete an entire example kustomize module without also
 deleting the credentials, which would prevent the deletion from completing.
 
+### Define an external network to use
+
+Create a `external-network-filter.yaml` file in `examples/local-config`. This
+must contain a network filter which uniquely identifies an external network to
+use in the current cloud. `external-network-filter.yaml.example` is provided as
+a template.
+
 ### Initialise the kustomize environment and load OpenStack credentials
 
 In the examples directory, run:
 ```bash
 $ make
 echo "$KUSTOMIZATION" > components/dev-settings/kustomization.yaml
-kubectl apply -k apply/credentials --server-side
+kubectl apply -k apply/local-config --server-side
 secret/mbooth-cloud-config-g4ckbm986f serverside-applied
+network.openstack.k-orc.cloud/mbooth-external-network serverside-applied
+subnet.openstack.k-orc.cloud/mbooth-external-subnet-ipv4 serverside-applied
 ```
 
-This did 2 things. Firstly, it generated the `dev-settings` kustomize component, which adds the current user's username as a `namePrefix`. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
+This did a few things. Firstly, it generated the `dev-settings` kustomize component, which adds the current user's username as a `namePrefix`. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
 
-Secondly, it created a secret containing the clouds.yaml we copied into place above. If you missed the first step you will see an error like:
-```bash
-$ make
-Makefile:41: *** You must copy an appropriate clouds.yaml to /home/mbooth/src/openstack-resource-controller/examples/credentials/clouds.yaml. The name of the contained cloud must be 'openstack'..  Stop.
-```
+Secondly, it initialises local configuration, including:
+- a secret containing the clouds.yaml we defined above
+- network and subnet objects referencing the external network we referenced
+  above
+
+It will display an error if you have not created the required local
+configuraiton.
 
 Note that failing to initialise the kustomize environment will result in an error like the following when attempting to generate one of the example modules:
 ```

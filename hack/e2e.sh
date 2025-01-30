@@ -14,21 +14,20 @@ E2E_KUTTL_DIR=${E2E_KUTTL_DIR:-}
 # Defaults to empty string (run all tests)
 E2E_KUTTL_TEST=${E2E_KUTTL_TEST:-}
 
-kubectl kuttl test $E2E_KUTTL_DIR --test "$E2E_KUTTL_TEST"
+# Define a custom external network
+export E2E_EXTERNAL_NETWORK_NAME=${E2E_EXTERNAL_NETWORK_NAME:-private}
 
-# HACK: Update the devstack default provider network name to match the one
-# hardcoded in the cirros example
-export OS_CLOUD=devstack-admin
-openstack network set --name provider_net_dualstack_1 private
+kubectl kuttl test $E2E_KUTTL_DIR --test "$E2E_KUTTL_TEST"
 
 # Now drop admin privileges
 export OS_CLOUD=devstack
 
 cd examples
 
-# Populate example credentials
-sed "s/  devstack:/  openstack:/g" /etc/openstack/clouds.yaml > credentials/clouds.yaml
-make load-credentials
+# Populate local config
+sed "s/  devstack:/  openstack:/g" /etc/openstack/clouds.yaml > local-config/clouds.yaml
+envsubst < local-config/external-network-filter.yaml.example > local-config/external-network-filter.yaml
+make local-config
 
 # Apply the cirros server example and wait for the server to be available
 kubectl apply -k apply/cirros --server-side

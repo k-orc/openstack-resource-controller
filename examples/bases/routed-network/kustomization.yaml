@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
 - internal-network.yaml
-- provider-network.yaml
 - router.yaml
 - subnet-ipv4.yaml
 - subnet-ipv6.yaml

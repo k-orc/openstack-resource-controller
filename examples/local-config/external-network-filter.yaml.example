@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: external-network
+spec:
+  import:
+    filter:
+      name: ${E2E_EXTERNAL_NETWORK_NAME}

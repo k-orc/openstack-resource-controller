@@ -6,4 +6,4 @@ components:
 - ../../components/kustomizeconfig
 
 resources:
-- ../../credentials
+- ../../local-config
