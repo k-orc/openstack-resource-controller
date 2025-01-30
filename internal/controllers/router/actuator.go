@@ -20,11 +20,9 @@ import (
 	"context"
 	"iter"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
-	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -157,22 +155,8 @@ var _ reconcileResourceActuator = routerActuator{}
 
 func (actuator routerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, error) {
 	return []resourceReconciler{
-		actuator.updateTags,
+		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "routers", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
-}
-
-func (actuator routerActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
-	resourceTagSet := set.New[string](osResource.Tags...)
-	objectTagSet := set.New[string]()
-	for i := range orcObject.Spec.Resource.Tags {
-		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
-	}
-	var err error
-	if !objectTagSet.Equal(resourceTagSet) {
-		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
-		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "routers", osResource.ID, &opts)
-	}
-	return nil, err
 }
 
 type routerHelperFactory struct{}

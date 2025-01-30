@@ -23,7 +23,6 @@ import (
 	"iter"
 	"time"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -120,23 +119,9 @@ var _ reconcileResourceActuator = securityGroupActuator{}
 
 func (actuator securityGroupActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, error) {
 	return []resourceReconciler{
-		actuator.updateTags,
+		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "security-groups", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 		actuator.updateRules,
 	}, nil
-}
-
-func (actuator securityGroupActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
-	resourceTagSet := set.New[string](osResource.Tags...)
-	objectTagSet := set.New[string]()
-	for i := range orcObject.Spec.Resource.Tags {
-		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
-	}
-	var err error
-	if !objectTagSet.Equal(resourceTagSet) {
-		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
-		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "security-groups", osResource.ID, &opts)
-	}
-	return nil, err
 }
 
 func rulesMatch(orcRule *orcv1alpha1.SecurityGroupRule, osRule *rules.SecGroupRule) bool {

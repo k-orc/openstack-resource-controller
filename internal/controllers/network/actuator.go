@@ -20,14 +20,12 @@ import (
 	"context"
 	"iter"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	"k8s.io/utils/ptr"
-	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
@@ -156,22 +154,8 @@ func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectP
 
 func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller generic.ResourceController) ([]resourceReconciler, error) {
 	return []resourceReconciler{
-		actuator.updateTags,
+		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "networks", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
-}
-
-func (actuator networkActuator) updateTags(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt) ([]generic.ProgressStatus, error) {
-	resourceTagSet := set.New[string](osResource.Tags...)
-	objectTagSet := set.New[string]()
-	for i := range orcObject.Spec.Resource.Tags {
-		objectTagSet.Insert(string(orcObject.Spec.Resource.Tags[i]))
-	}
-	var err error
-	if !objectTagSet.Equal(resourceTagSet) {
-		opts := attributestags.ReplaceAllOpts{Tags: objectTagSet.SortedList()}
-		_, err = actuator.osClient.ReplaceAllAttributesTags(ctx, "networks", osResource.ID, &opts)
-	}
-	return nil, err
 }
 
 type networkHelperFactory struct{}
