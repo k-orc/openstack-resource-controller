@@ -1,100 +1,61 @@
-# orc
-// TODO(user): Add simple overview of use/purpose
+# ORC: openstack-resource-controller
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+[**openstack-resource-controller**][orc], or **ORC**, is a Kubernetes API for
+declarative management of OpenStack resources. By fully controlling the order
+of OpenStack operations, it allows consumers to easily create, manage, and
+reproduce complex deployments. ORC aims to be easily consumed both directly by
+users, and by higher level controllers. ORC aims to cover all OpenStack APIs
+which can be expressed declaratively.
+
+ORC is based on [Gophercloud][gophercloud], the OpenStack Go SDK.
+
+Join us on kubernetes slack, on [#gophercloud](https://kubernetes.slack.com/archives/C05G4NJ6P6X). Visit [slack.k8s.io](https://slack.k8s.io) for an invitation.
+
+[orc]: https://github.com/k-orc/openstack-resource-controller
+[gophercloud]: https://github.com/gophercloud/gophercloud
 
 ## Getting Started
 
 ### Prerequisites
-- go version v1.22.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+ORC heavily uses [CEL validations](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules) and thus depends on kubenetes v1.29 or above.
 
-```sh
-make docker-build docker-push IMG=<some-registry>/orc:tag
+### Installation
+
+To install a released version of ORC, the simplest is probably to use the provided kustomization file:
+
+```
+export ORC_RELEASE="https://github.com/k-orc/openstack-resource-controller/dist?ref=v1.0.0"
+kubectl apply --server-side -k $ORC_RELEASE
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
-
-**Install the CRDs into the cluster:**
-
-```sh
-make install
+You may later uninstall ORC using the same kustomization file:
+```
+kubectl delete -k $ORC_RELEASE
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
+### Usage
 
-```sh
-make deploy IMG=<some-registry>/orc:tag
-```
+* [Deploy your first OpenStack resource using ORC](https://k-orc.cloud/getting-started/)
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
+## Supported resources
 
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+| **controller** | **1.x** | **main** |
+|:--------------:|:-------:|:--------:|
+| flavor         |         |     ✔    |
+| image          |    ✔    |     ✔    |
+| network        |         |     ◐    |
+| port           |         |     ◐    |
+| router         |         |     ◐    |
+| security group |         |     ✔    |
+| server         |         |     ◐    |
+| subnet         |         |     ◐    |
 
-```sh
-kubectl apply -k config/samples/
-```
+✔: mostly implemented
 
->**NOTE**: Ensure that the samples has default values to test it out.
-
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
-
-```sh
-kubectl delete -k config/samples/
-```
-
-**Delete the APIs(CRDs) from the cluster:**
-
-```sh
-make uninstall
-```
-
-**UnDeploy the controller from the cluster:**
-
-```sh
-make undeploy
-```
-
-## Project Distribution
-
-Following are the steps to build the installer and distribute this project to users.
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/orc:tag
-```
-
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
-
-2. Using the installer
-
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/orc/<tag or branch>/dist/install.yaml
-```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+◐: partially implemented
 
 ## License
 
