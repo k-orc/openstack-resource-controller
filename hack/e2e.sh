@@ -3,17 +3,18 @@
 set -euo pipefail
 
 # Path to a clouds.yaml to use for e2e tests.
-# Exported because it is referenced in kuttl tests.
-export E2E_OSCLOUDS=${E2E_OSCLOUDS:-/etc/openstack/clouds.yaml}
+E2E_OSCLOUDS=${E2E_OSCLOUDS:-/etc/openstack/clouds.yaml}
 
 # Path to a cacert file to use to connect to OpenStack.
 E2E_CACERT=${E2E_CACERT:-}
-
-E2E_CACERT_OPT=
+E2E_KUTTL_CACERT_OPT=
 if [ -n "$E2E_CACERT" ]; then
-    export E2E_CACERT_OPT="--from-file=cacert=${E2E_CACERT}"
+    E2E_KUTTL_CACERT_OPT="--from-file=cacert=${E2E_CACERT}"
 fi
-export E2E_CACERT_OPT
+
+# Export variables referenced in kuttl tests.
+export E2E_KUTTL_OSCLOUDS
+export E2E_KUTTL_CACERT_OPT
 
 # Run kuttl tests from a specific directory.
 # Defaults to empty string (all discovered kuttl directories)
