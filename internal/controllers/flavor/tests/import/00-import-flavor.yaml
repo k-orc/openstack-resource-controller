@@ -6,7 +6,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # Import does not require admin creds
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:

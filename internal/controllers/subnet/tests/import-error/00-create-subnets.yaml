@@ -5,7 +5,7 @@ metadata:
   name: import-error-external-1
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   networkRef: import-error
@@ -20,7 +20,7 @@ metadata:
   name: import-error-external-2
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   networkRef: import-error

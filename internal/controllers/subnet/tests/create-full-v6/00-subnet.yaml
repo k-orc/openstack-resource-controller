@@ -4,7 +4,7 @@ metadata:
   name: create-full-v6
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -16,7 +16,7 @@ metadata:
   name: create-full-v6-gateway
 spec:
   cloudCredentialsRef:
-    cloudName: devstack-admin-demo
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -28,7 +28,7 @@ metadata:
   name: create-full-v6-gateway
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   networkRef: create-full-v6-gateway
@@ -42,7 +42,7 @@ metadata:
   name: create-full-v6
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -55,7 +55,7 @@ metadata:
   name: create-full-v6
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   networkRef: create-full-v6

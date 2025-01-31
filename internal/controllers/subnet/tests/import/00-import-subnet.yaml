@@ -5,7 +5,7 @@ metadata:
   name: import
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
   networkRef: import
