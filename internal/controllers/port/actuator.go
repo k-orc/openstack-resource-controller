@@ -52,7 +52,7 @@ type portActuator struct {
 type portCreateActuator struct {
 	portActuator
 	k8sClient client.Client
-	networkID orcv1alpha1.UUID
+	networkID string
 }
 
 var _ createResourceActuator = portCreateActuator{}
@@ -79,7 +79,7 @@ func (actuator portCreateActuator) ListOSResourcesForImport(ctx context.Context,
 	listOpts := ports.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		NetworkID:   string(actuator.networkID),
+		NetworkID:   actuator.networkID,
 		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
 		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
 		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
@@ -98,7 +98,7 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	}
 
 	createOpts := ports.CreateOpts{
-		NetworkID:   string(actuator.networkID),
+		NetworkID:   actuator.networkID,
 		Name:        string(getResourceName(obj)),
 		Description: string(ptr.Deref(resource.Description, "")),
 	}
@@ -241,7 +241,7 @@ func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, control
 	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
 		return []generic.ProgressStatus{generic.WaitingOnORCReady("network", networkRef)}, nil, nil
 	}
-	networkID := orcv1alpha1.UUID(*orcNetwork.Status.ID)
+	networkID := *orcNetwork.Status.ID
 
 	portActuator, err := newActuator(ctx, orcObject, controller)
 	if err != nil {
