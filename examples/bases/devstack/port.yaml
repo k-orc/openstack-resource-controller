@@ -15,5 +15,6 @@ spec:
     securityGroupRefs:
     - allow-ssh
     - devstack
+    - default
     addresses:
     - subnetRef: external-subnet-ipv4
