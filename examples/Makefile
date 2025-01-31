@@ -1,5 +1,5 @@
 .PHONY: default
-default: load-credentials
+default: local-config
 
 KUBECTL ?= kubectl
 
@@ -27,22 +27,22 @@ $(dev_settings_kustomization): Makefile
 	echo "$$KUSTOMIZATION" > $@
 
 ##
-## check-credentials
+## check-prereqs
 ##
 ## Emits an error message if clouds.yaml has not been populated.
 
-credentials=credentials/clouds.yaml
+prereqs=local-config/clouds.yaml local-config/external-network-filter.yaml
 
-.PHONY: check-credentials
-check-credentials: $(credentials)
+.PHONY: check-prereqs
+check-local-config: $(prereqs)
 
-$(credentials):
-	$(error You must copy an appropriate clouds.yaml to $(PWD)/$(credentials). The name of the contained cloud must be 'openstack'.)
+$(prereqs):
+	$(error You must pre-create $(prereqs). See README.md for details.)
 
 ##
 ## Utility targets
 ##
 
-.PHONY: load-credentials
-load-credentials: check-credentials dev-settings
-	$(KUBECTL) apply -k apply/credentials --server-side
+.PHONY: local-config
+local-config: check-prereqs dev-settings
+	$(KUBECTL) apply -k apply/local-config --server-side

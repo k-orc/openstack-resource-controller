@@ -7,4 +7,4 @@ components:
 
 resources:
 - ../../bases/cirros-image
-- ../../bases/credentials-reference
+- ../../bases/local-config-ref
