@@ -5,7 +5,7 @@ metadata:
   name: create-full
 spec:
   cloudCredentialsRef:
-    cloudName: devstack-admin-demo
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
