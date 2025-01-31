@@ -117,6 +117,6 @@ func UpdateStatus[
 
 	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()
-	ssaFieldOwner := GetSSAFieldOwnerWithTxn(controller, SSATransactionStatus)
+	ssaFieldOwner := GetSSAFieldOwnerWithTxn(controller.GetName(), SSATransactionStatus)
 	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner)
 }

@@ -107,12 +107,12 @@ var (
 
 // SetupWithManager sets up the controller with the Manager.
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", c.GetName())
+	controllerName := c.GetName()
+	log := mgr.GetLogger().WithValues("controller", controllerName)
+	k8sClient := mgr.GetClient()
 
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, serverHelperFactory{}, serverStatusWriter{})
-
-	finalizer := generic.GetFinalizerName(&reconciler)
-	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
+	finalizer := generic.GetFinalizerName(controllerName)
+	fieldOwner := generic.GetSSAFieldOwner(controllerName)
 
 	if err := errors.Join(
 		flavorDependency.AddIndexer(ctx, mgr),
@@ -132,23 +132,24 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	flavorWatchEventHandler, err := flavorDependency.WatchEventHandler(log, mgr.GetClient())
+	flavorWatchEventHandler, err := flavorDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
-	imageWatchEventHandler, err := imageDependency.WatchEventHandler(log, mgr.GetClient())
+	imageWatchEventHandler, err := imageDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
-	portWatchEventHandler, err := portDependency.WatchEventHandler(log, mgr.GetClient())
+	portWatchEventHandler, err := portDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
-	secretWatchEventHandler, err := secretDependency.WatchEventHandler(log, mgr.GetClient())
+	secretWatchEventHandler, err := secretDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, serverHelperFactory{}, serverStatusWriter{})
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Server{}).
 		WithOptions(options).

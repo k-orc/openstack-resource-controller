@@ -30,8 +30,8 @@ const (
 	SSATransactionStatus    SSATransactionID = "status"
 )
 
-func getSSAFieldOwnerString(controller ResourceController) string {
-	return ORCK8SPrefix + "/" + controller.GetName() + "controller"
+func getSSAFieldOwnerString(controllerName string) string {
+	return ORCK8SPrefix + "/" + controllerName + "controller"
 }
 
 // GetSSAFieldOwner returns a field owner string for a controller without a
@@ -41,8 +41,8 @@ func getSSAFieldOwnerString(controller ResourceController) string {
 // The returned string is of the form:
 //
 //	openstack.k-orc.cloud/<controllername>controller
-func GetSSAFieldOwner(controller ResourceController) client.FieldOwner {
-	return client.FieldOwner(getSSAFieldOwnerString(controller))
+func GetSSAFieldOwner(controllerName string) client.FieldOwner {
+	return client.FieldOwner(getSSAFieldOwnerString(controllerName))
 }
 
 // GetSSAFieldOwnerWithTxn returns a field owner string for a specific named SSA
@@ -52,8 +52,8 @@ func GetSSAFieldOwner(controller ResourceController) client.FieldOwner {
 // The returned string is of the form:
 //
 //	openstack.k-orc.cloud/<controllername>controller/<txn>
-func GetSSAFieldOwnerWithTxn(controller ResourceController, txn SSATransactionID) client.FieldOwner {
-	return client.FieldOwner(getSSAFieldOwnerString(controller) + "/" + string(txn))
+func GetSSAFieldOwnerWithTxn(controllerName string, txn SSATransactionID) client.FieldOwner {
+	return client.FieldOwner(getSSAFieldOwnerString(controllerName) + "/" + string(txn))
 }
 
 // GetFinalizerName returns the finalizer to be used for the given actuator
@@ -61,6 +61,6 @@ func GetSSAFieldOwnerWithTxn(controller ResourceController, txn SSATransactionID
 // The returned string is of the form:
 //
 //	openstack.k-orc.cloud/<controllername>
-func GetFinalizerName(controller ResourceController) string {
-	return ORCK8SPrefix + "/" + controller.GetName()
+func GetFinalizerName(controllerName string) string {
+	return ORCK8SPrefix + "/" + controllerName
 }
