@@ -49,7 +49,7 @@ jobs:
     - name: Deploy orc
       run: |
         kubectl config use-context kind-orc
-        make deploy IMG=${{ env.image_tag }}
+        make deploy IMG=${{ env.image_tag }} LOGLEVEL=5
 
     - name: Run e2e tests
       run: make test-e2e
