@@ -29,6 +29,14 @@ sed "s/  devstack:/  openstack:/g" /etc/openstack/clouds.yaml > local-config/clo
 envsubst < local-config/external-network-filter.yaml.example > local-config/external-network-filter.yaml
 make local-config
 
+function logresources() {
+    # Log all resources if exiting with an error
+    if [ $? != 0 ]; then
+        kubectl get openstack -o yaml -A
+    fi
+}
+trap logresources EXIT
+
 # Apply the cirros server example and wait for the server to be available
 kubectl apply -k apply/cirros --server-side
 kubectl wait --timeout=10m --for=condition=available server ${USER}-cirros-server
