@@ -16,9 +16,11 @@ jobs:
           - name: "dalmatian"
             openstack_version: "stable/2024.2"
             ubuntu_version: "22.04"
+            additional_services: "openstack-cli-server"
           - name: "caracal"
             openstack_version: "stable/2024.1"
             ubuntu_version: "22.04"
+            additional_services: ""
     env:
       image_tag: virtual-registry.k-orc.cloud/ci:commit-${GITHUB_SHA::7}
 
@@ -32,6 +34,7 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
+        enabled_services: "${{ matrix.additional_services }}"
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb
@@ -46,7 +49,7 @@ jobs:
     - name: Deploy orc
       run: |
         kubectl config use-context kind-orc
-        make deploy IMG=${{ env.image_tag }}
+        make deploy IMG=${{ env.image_tag }} LOGLEVEL=5
 
     - name: Run e2e tests
       run: make test-e2e
