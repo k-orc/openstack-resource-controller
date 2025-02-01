@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
 - external-network.yaml
+- securitygroup.yaml
 
 patches:
 - path: external-network-filter.yaml

@@ -14,5 +14,6 @@ spec:
     - orc-test
     securityGroupRefs:
     - allow-ssh
+    - default
     addresses:
     - subnetRef: external-subnet-ipv4
