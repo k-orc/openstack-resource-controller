@@ -280,5 +280,8 @@ func (c *Controller[
 	}
 
 	deleted, progressStatus, osResource, err = DeleteResource(ctx, log, c, objAdapter, actuator)
-	return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, err
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	return ctrl.Result{RequeueAfter: MaxRequeue(progressStatus)}, nil
 }
