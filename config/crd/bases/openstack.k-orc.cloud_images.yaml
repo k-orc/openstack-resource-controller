@@ -99,6 +99,7 @@ spec:
                         description: name specifies the name of a Glance image
                         maxLength: 255
                         minLength: 1
+                        pattern: ^[^,]+$
                         type: string
                     type: object
                   id:
@@ -251,6 +252,7 @@ spec:
                       name of the Image object will be used.
                     maxLength: 255
                     minLength: 1
+                    pattern: ^[^,]+$
                     type: string
                   properties:
                     description: properties is metadata available to consumers of

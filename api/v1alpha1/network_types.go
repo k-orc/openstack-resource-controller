@@ -46,9 +46,12 @@ type ProviderPropertiesStatus struct {
 
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=255
+// +kubebuilder:validation:Pattern:="^[A-Za-z0-9]{1,63}(.[A-Za-z0-9-]{1,63})*(.[A-Za-z]{2,63})*.?$"
+
 type DNSDomain string
 
 // +kubebuilder:validation:Minimum:=68
+// +kubebuilder:validation:Maximum:=9216
 type MTU int32
 
 // NetworkResourceSpec contains the desired state of a network
@@ -63,7 +66,7 @@ type NetworkResourceSpec struct {
 	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the network.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`

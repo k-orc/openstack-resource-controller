@@ -109,6 +109,7 @@ spec:
                         description: name of the existing resource
                         maxLength: 255
                         minLength: 1
+                        pattern: ^[^,]+$
                         type: string
                       notTags:
                         description: |-
@@ -238,6 +239,7 @@ spec:
                     description: dnsDomain is the DNS domain of the network
                     maxLength: 255
                     minLength: 1
+                    pattern: ^[A-Za-z0-9]{1,63}(.[A-Za-z0-9-]{1,63})*(.[A-Za-z]{2,63})*.?$
                     type: string
                   external:
                     description: |-
@@ -250,6 +252,7 @@ spec:
                       fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
                       Defaults to 1500.
                     format: int32
+                    maximum: 9216
                     minimum: 68
                     type: integer
                   name:
@@ -258,6 +261,7 @@ spec:
                       name of the ORC object will be used.
                     maxLength: 255
                     minLength: 1
+                    pattern: ^[^,]+$
                     type: string
                   portSecurityEnabled:
                     description: |-
@@ -282,7 +286,7 @@ spec:
                       maxLength: 255
                       minLength: 1
                       type: string
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: set
                 type: object

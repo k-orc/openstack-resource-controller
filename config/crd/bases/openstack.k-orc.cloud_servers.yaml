@@ -99,6 +99,7 @@ spec:
                         description: name of the existing resource
                         maxLength: 255
                         minLength: 1
+                        pattern: ^[^,]+$
                         type: string
                     type: object
                   id:
@@ -166,6 +167,7 @@ spec:
                       name of the ORC object will be used.
                     maxLength: 255
                     minLength: 1
+                    pattern: ^[^,]+$
                     type: string
                   ports:
                     description: ports defines a list of ports which will be attached
