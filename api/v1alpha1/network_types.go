@@ -47,7 +47,6 @@ type ProviderPropertiesStatus struct {
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=255
 // +kubebuilder:validation:Pattern:="^[A-Za-z0-9]{1,63}(.[A-Za-z0-9-]{1,63})*(.[A-Za-z]{2,63})*.?$"
-
 type DNSDomain string
 
 // +kubebuilder:validation:Minimum:=68
