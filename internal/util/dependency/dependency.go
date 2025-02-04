@@ -178,7 +178,7 @@ func (d *Dependency[objectTP, _, depTP, _, _, depT]) WatchEventHandler(log logr.
 }
 
 // AddDeletionGuard adds a deletion guard controller to the given manager appropriate for this dependency
-func (d *Dependency[objectTP, _, depTP, _, _, _]) AddDeletionGuard(mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner) error {
+func (d *Dependency[objectTP, _, _, _, _, _]) AddDeletionGuard(mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner) error {
 	getDependencyRefsForClientObject := func(cObj client.Object) []string {
 		obj, ok := cObj.(objectTP)
 		if !ok {
@@ -187,5 +187,5 @@ func (d *Dependency[objectTP, _, depTP, _, _, _]) AddDeletionGuard(mgr ctrl.Mana
 		return d.getDependencyRefs(obj)
 	}
 
-	return AddDeletionGuard[depTP, objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
+	return AddDeletionGuard[objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
 }

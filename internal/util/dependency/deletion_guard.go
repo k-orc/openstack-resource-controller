@@ -34,35 +34,29 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-type pointerToObject[T any] interface {
-	*T
-	client.Object
-}
-
 // A deletion guard is a controller which prevents the deletion of objects that objects of another type depend on.
 //
-// Example: Network and Subnet
+// Example: Subnet depends on Network
 //
-// We add a deletion guard to network that prevents the network from being
-// deleted if it is still in use by any subnet. It is added by the subnet
-// controller, but it is a separate controller which reconciles network objects.
+// We add a deletion guard to Network that prevents the Network from being
+// deleted if it is still in use by any Subnet. It is added by the Subnet
+// controller, but it is a separate controller which reconciles Network objects.
 
-func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToObject[dependency], guarded, dependency any](
+func AddDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], depT any](
 	mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner,
-	getGuardedRefsFromDependency func(client.Object) []string,
-	getDependenciesFromGuarded func(context.Context, client.Client, guardedP) ([]dependency, error),
+	getDepRefsFromObject func(client.Object) []string,
+	getObjectsFromDep func(context.Context, client.Client, depTP) ([]objT, error),
 ) error {
-	// deletionGuard reconciles the guarded object
-	// It adds a finalizer to any guarded object which is not marked as deleted
-	// If the guarded object is marked deleted, we remove the finalizer only if there are no dependent objects
+	// deletionGuard reconciles the dependency object
+	// If the dependency is marked deleted, we remove the finalizer only when there are no objects referencing it
 	deletionGuard := reconcile.Func(func(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 		log := ctrl.LoggerFrom(ctx, "name", req.Name, "namespace", req.Namespace)
 		log.V(5).Info("Reconciling deletion guard")
 
 		k8sClient := mgr.GetClient()
 
-		var guarded guardedP = new(guarded)
-		err := k8sClient.Get(ctx, req.NamespacedName, guarded)
+		var dep depTP = new(depT)
+		err := k8sClient.Get(ctx, req.NamespacedName, dep)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
 				return ctrl.Result{}, nil
@@ -71,11 +65,11 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 		}
 
 		// If the object hasn't been deleted, we simply check that it has our finalizer
-		if guarded.GetDeletionTimestamp().IsZero() {
-			if !slices.Contains(guarded.GetFinalizers(), finalizer) {
+		if dep.GetDeletionTimestamp().IsZero() {
+			if !slices.Contains(dep.GetFinalizers(), finalizer) {
 				log.V(4).Info("Adding finalizer")
-				patch := finalizers.SetFinalizerPatch(guarded, finalizer)
-				return ctrl.Result{}, k8sClient.Patch(ctx, guarded, patch, client.ForceOwnership, fieldOwner)
+				patch := finalizers.SetFinalizerPatch(dep, finalizer)
+				return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
 			}
 
 			log.V(5).Info("Finalizer already present")
@@ -84,46 +78,47 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 
 		log.V(4).Info("Handling delete")
 
-		dependencies, err := getDependenciesFromGuarded(ctx, k8sClient, guarded)
+		refObjects, err := getObjectsFromDep(ctx, k8sClient, dep)
 		if err != nil {
 			return reconcile.Result{}, nil
 		}
-		if len(dependencies) == 0 {
+		if len(refObjects) == 0 {
 			log.V(4).Info("Removing finalizer")
-			patch := finalizers.RemoveFinalizerPatch(guarded)
-			return ctrl.Result{}, k8sClient.Patch(ctx, guarded, patch, client.ForceOwnership, fieldOwner)
+			patch := finalizers.RemoveFinalizerPatch(dep)
+			return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
 		}
-		log.V(5).Info("Waiting for dependencies", "dependencies", len(dependencies))
+		log.V(5).Info("Waiting for dependencies", "dependencies", len(refObjects))
 		return ctrl.Result{}, nil
 	})
 
-	var guardedSpecimen guardedP = new(guarded)
-	var dependencySpecimen dependencyP = new(dependency)
+	var depSpecimen depTP = new(depT)
+	var objSpecimen objTP = new(objT)
 
 	scheme := mgr.GetScheme()
-	guardedName, err := prettyName(guardedSpecimen, scheme)
+	depKind, err := getObjectKind(depSpecimen, scheme)
 	if err != nil {
 		return err
 	}
-	dependencyName, err := prettyName(dependencySpecimen, scheme)
+	objKind, err := getObjectKind(objSpecimen, scheme)
 	if err != nil {
 		return err
 	}
 
-	controllerName := guardedName + "_deletion_guard_for_" + dependencyName
+	controllerName := strings.ToLower(depKind) + "_deletion_guard_for_" + strings.ToLower(objKind)
 
-	// Register deletionGuard with the manager as a reconciler of guarded.
-	// We also watch dependency, but we're only interested in deletion events.
-	// We need to ensure that if the guarded object is marked deleted we will
-	// continue to call deletionGuard every time a dependent object is deleted
-	// so that we will eventually be called when the last dependent object is
-	// deleted and we can remove the dependency.
+	// Register deletionGuard with the manager as a reconciler of the
+	// dependency.  We also watch for referring objects, but we're only
+	// interested in deletion events.  We need to ensure that if the depdency
+	// object is marked deleted we will continue to call deletionGuard every
+	// time a referring object is deleted so that we will eventually be called
+	// when the last dependent object is deleted and we can remove the
+	// dependency.
 	err = builder.ControllerManagedBy(mgr).
-		For(guardedSpecimen).
-		Watches(dependencySpecimen,
+		For(depSpecimen).
+		Watches(objSpecimen,
 			handler.Funcs{
 				DeleteFunc: func(ctx context.Context, evt event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-					for _, guarded := range getGuardedRefsFromDependency(evt.Object) {
+					for _, guarded := range getDepRefsFromObject(evt.Object) {
 						q.Add(reconcile.Request{
 							NamespacedName: types.NamespacedName{
 								Namespace: evt.Object.GetNamespace(),
@@ -138,13 +133,13 @@ func AddDeletionGuard[guardedP pointerToObject[guarded], dependencyP pointerToOb
 		Complete(deletionGuard)
 
 	if err != nil {
-		return fmt.Errorf("failed to construct %s deletion guard for %s controller: %w", guardedName, dependencyName, err)
+		return fmt.Errorf("failed to construct %s deletion guard for %s controller: %w", depKind, objKind, err)
 	}
 
 	return nil
 }
 
-func prettyName(obj runtime.Object, scheme *runtime.Scheme) (string, error) {
+func getObjectKind(obj runtime.Object, scheme *runtime.Scheme) (string, error) {
 	gvks, _, err := scheme.ObjectKinds(obj)
 	if err != nil {
 		return "", fmt.Errorf("looking up GVK for guarded object %T: %w", obj, err)
@@ -153,5 +148,5 @@ func prettyName(obj runtime.Object, scheme *runtime.Scheme) (string, error) {
 		return "", fmt.Errorf("no registered kind for guarded object %T", obj)
 	}
 
-	return strings.ToLower(gvks[0].Kind), nil
+	return gvks[0].Kind, nil
 }

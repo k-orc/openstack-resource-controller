@@ -59,12 +59,12 @@ var networkDependency = dependency.NewDependency[*orcv1alpha1.SubnetList, *orcv1
 
 // SetupWithManager sets up the controller with the Manager.
 func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{})
+	controllerName := c.GetName()
+	log := mgr.GetLogger().WithValues("controller", controllerName)
+	k8sClient := mgr.GetClient()
 
-	log := mgr.GetLogger().WithValues("controller", c.GetName())
-
-	finalizer := generic.GetFinalizerName(&reconciler)
-	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
+	finalizer := generic.GetFinalizerName(controllerName)
+	fieldOwner := generic.GetSSAFieldOwner(controllerName)
 
 	if err := errors.Join(
 		networkDependency.AddIndexer(ctx, mgr),
@@ -73,11 +73,12 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, mgr.GetClient())
+	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{})
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Subnet{}).
 		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,

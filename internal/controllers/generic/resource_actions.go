@@ -53,10 +53,10 @@ func GetOrCreateOSResource[
 ) ([]ProgressStatus, *osResourceT, error) {
 	k8sClient := controller.GetK8sClient()
 
-	finalizer := GetFinalizerName(controller)
+	finalizer := GetFinalizerName(controller.GetName())
 	if !controllerutil.ContainsFinalizer(objAdapter.GetObject(), finalizer) {
 		patch := finalizers.SetFinalizerPatch(objAdapter.GetObject(), finalizer)
-		if err := k8sClient.Patch(ctx, objAdapter.GetObject(), patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+		if err := k8sClient.Patch(ctx, objAdapter.GetObject(), patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller.GetName(), SSATransactionFinalizer)); err != nil {
 			return nil, nil, fmt.Errorf("setting finalizer: %w", err)
 		}
 	}
@@ -150,7 +150,7 @@ func DeleteResource[
 		}
 	}
 
-	finalizer := GetFinalizerName(controller)
+	finalizer := GetFinalizerName(controller.GetName())
 
 	var progressStatus []ProgressStatus
 	var foundFinalizer bool
@@ -173,7 +173,7 @@ func DeleteResource[
 	}
 
 	removeFinalizer := func() error {
-		if err := controller.GetK8sClient().Patch(ctx, objAdapter.GetObject(), finalizers.RemoveFinalizerPatch(objAdapter.GetObject()), GetSSAFieldOwnerWithTxn(controller, SSATransactionFinalizer)); err != nil {
+		if err := controller.GetK8sClient().Patch(ctx, objAdapter.GetObject(), finalizers.RemoveFinalizerPatch(objAdapter.GetObject()), GetSSAFieldOwnerWithTxn(controller.GetName(), SSATransactionFinalizer)); err != nil {
 			return fmt.Errorf("removing finalizer: %w", err)
 		}
 		return nil

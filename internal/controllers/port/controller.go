@@ -72,12 +72,12 @@ func (portReconcilerConstructor) GetName() string {
 
 // SetupWithManager sets up the controller with the Manager.
 func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, portHelperFactory{}, portStatusWriter{})
+	controllerName := c.GetName()
+	log := mgr.GetLogger().WithValues("controller", controllerName)
+	k8sClient := mgr.GetClient()
 
-	log := mgr.GetLogger().WithValues("controller", c.GetName())
-
-	finalizer := generic.GetFinalizerName(&reconciler)
-	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
+	finalizer := generic.GetFinalizerName(controllerName)
+	fieldOwner := generic.GetSSAFieldOwner(controllerName)
 
 	if err := errors.Join(
 		networkDependency.AddIndexer(ctx, mgr),
@@ -90,21 +90,22 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
-	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, mgr.GetClient())
+	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
-	subnetWatchEventHandler, err := subnetDependency.WatchEventHandler(log, mgr.GetClient())
+	subnetWatchEventHandler, err := subnetDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
-	securityGroupWatchEventHandler, err := securityGroupDependency.WatchEventHandler(log, mgr.GetClient())
+	securityGroupWatchEventHandler, err := securityGroupDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, portHelperFactory{}, portStatusWriter{})
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Port{}).
 		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,

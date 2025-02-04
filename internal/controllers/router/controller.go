@@ -67,12 +67,12 @@ var externalGWDep = dependency.NewDependency[*orcv1alpha1.RouterList, *orcv1alph
 
 // SetupWithManager sets up the controller with the Manager.
 func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", c.GetName())
+	controllerName := c.GetName()
+	log := mgr.GetLogger().WithValues("controller", controllerName)
+	k8sClient := mgr.GetClient()
 
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, routerHelperFactory{}, routerStatusWriter{})
-
-	finalizer := generic.GetFinalizerName(&reconciler)
-	fieldOwner := generic.GetSSAFieldOwner(&reconciler)
+	finalizer := generic.GetFinalizerName(controllerName)
+	fieldOwner := generic.GetSSAFieldOwner(controllerName)
 
 	if err := errors.Join(
 		externalGWDep.AddIndexer(ctx, mgr),
@@ -81,11 +81,12 @@ func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	externalGWHandler, err := externalGWDep.WatchEventHandler(log, mgr.GetClient())
+	externalGWHandler, err := externalGWDep.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, routerHelperFactory{}, routerStatusWriter{})
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Router{}).
 		Watches(&orcv1alpha1.Network{}, externalGWHandler,
