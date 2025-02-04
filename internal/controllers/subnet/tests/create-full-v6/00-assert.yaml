@@ -19,9 +19,7 @@ status:
       # - start: "fc00:2:0:0:2::"
       #   end: "fc00:2::2:ffff:ffff:ffff"
     enableDHCP: false
-    # FIXME: we should not have a gateway
-    # https://github.com/k-orc/openstack-resource-controller/issues/190
-    gatewayIP: "fc00:2::"
+    gatewayIP: "fc00:2::2"
     dnsNameservers:
       - 2606:4700:4700::1111
       - 2001:4860:4860::8888

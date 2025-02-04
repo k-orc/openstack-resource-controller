@@ -19,9 +19,7 @@ status:
       # - start: 192.168.1.20
       #   end: 192.168.1.25
     enableDHCP: false
-    # FIXME: we should not have a gateway
-    # https://github.com/k-orc/openstack-resource-controller/issues/190
-    gatewayIP: 192.168.1.1
+    gatewayIP: 192.168.1.2
     enableDHCP: false
     dnsNameservers:
       - 1.1.1.1
