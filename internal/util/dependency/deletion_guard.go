@@ -82,13 +82,34 @@ func AddDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], 
 		if err != nil {
 			return reconcile.Result{}, nil
 		}
-		if len(refObjects) == 0 {
-			log.V(4).Info("Removing finalizer")
-			patch := finalizers.RemoveFinalizerPatch(dep)
-			return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
+
+		depKind := dep.GetObjectKind().GroupVersionKind().Kind
+		depUID := dep.GetUID()
+		depOwns := func(obj objTP) bool {
+			owners := obj.GetOwnerReferences()
+			for i := range owners {
+				owner := &owners[i]
+				if owner.Kind == depKind && owner.UID == depUID {
+					return true
+				}
+			}
+			return false
 		}
-		log.V(5).Info("Waiting for dependencies", "dependencies", len(refObjects))
-		return ctrl.Result{}, nil
+
+		// Don't proceed if there are any referring objects, except owners of this object.
+		// We don't block the deletion of the object which created us, because
+		// that would cause a deadlock.
+		for i := range refObjects {
+			refObject := &refObjects[i]
+			if !depOwns(refObject) {
+				log.V(4).Info("Waiting for dependencies", "dependencies", len(refObjects))
+				return ctrl.Result{}, nil
+			}
+		}
+
+		log.V(4).Info("Removing finalizer")
+		patch := finalizers.RemoveFinalizerPatch(dep)
+		return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
 	})
 
 	var depSpecimen depTP = new(depT)
