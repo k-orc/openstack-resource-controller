@@ -28,13 +28,13 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Deploy devstack
-      uses: EmilienM/devstack-action@40c77372dbc135a17adc877eb77fc226a134305c
+      uses: EmilienM/devstack-action@e82a9cbead099cba72f99537e82a360c3e319c69
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
 
     - name: Deploy a Kind Cluster
-      uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb
+      uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3
       with:
         cluster_name: orc
 
