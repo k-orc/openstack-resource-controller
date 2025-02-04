@@ -1,0 +1,64 @@
+# Please see the documentation for all configuration options: https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+## main branch config starts here
+# github-actions
+- directory: "/"
+  package-ecosystem: "github-actions"
+  schedule:
+    interval: "weekly"
+    day: "monday"
+  target-branch: main
+  groups:
+    all-github-actions:
+      patterns: [ "*" ]
+  commit-message:
+    prefix: ":seedling:"
+    include: scope
+# Go directories
+- directories:
+  - "/"
+  package-ecosystem: "gomod"
+  schedule:
+    interval: "weekly"
+    day: "monday"
+  target-branch: main
+  groups:
+    all-go-mod-patch-and-minor:
+      patterns: [ "*" ]
+      update-types: [ "patch", "minor" ]
+  commit-message:
+    prefix: ":seedling:"
+    include: scope
+## main branch config ends here
+## release-1.0 branch config starts here
+# github-actions
+- directory: "/"
+  package-ecosystem: "github-actions"
+  schedule:
+    interval: "weekly"
+    day: "monday"
+  target-branch: release-1.0
+  groups:
+    all-github-actions:
+      patterns: [ "*" ]
+  commit-message:
+    prefix: ":seedling:"
+    include: scope
+# Go directories
+- directories:
+  - "/"
+  package-ecosystem: "gomod"
+  schedule:
+    interval: "weekly"
+    day: "monday"
+  target-branch: release-1.0
+  groups:
+    all-go-mod-patch-and-minor:
+      patterns: [ "*" ]
+      update-types: [ "patch", "minor" ]
+  commit-message:
+    prefix: ":seedling:"
+    include: scope
+## release-1.0 branch config ends here
