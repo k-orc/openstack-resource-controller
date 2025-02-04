@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
@@ -245,7 +246,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context
 	statusOpts.port = routerInterfacePort
 
 	if routerInterfacePort != nil {
-		if routerInterfacePort.Status == portStatusActive {
+		if routerInterfacePort.Status == port.PortStatusActive {
 			// We're done
 			return false, nil, nil
 		}
