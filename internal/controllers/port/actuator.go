@@ -18,11 +18,11 @@ package port
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -91,10 +91,31 @@ func (actuator portCreateActuator) ListOSResourcesForImport(ctx context.Context,
 
 func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]generic.ProgressStatus, *ports.Port, error) {
 	resource := obj.Spec.Resource
-
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+	}
+
+	var progressStatus []generic.ProgressStatus
+
+	// Fetch all dependencies and ensure they have our finalizer
+	subnetMap, subnetProgress, subnetErr := subnetDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Subnet) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	secGroupMap, secGroupProgress, secGroupErr := securityGroupDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
+			return dep.Status.ID != nil
+		},
+	)
+
+	progressStatus = append(progressStatus, subnetProgress...)
+	progressStatus = append(progressStatus, secGroupProgress...)
+	err := errors.Join(subnetErr, secGroupErr)
+
+	if len(progressStatus) != 0 || err != nil {
+		return progressStatus, nil, err
 	}
 
 	createOpts := ports.CreateOpts{
@@ -113,25 +134,15 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 		}
 	}
 
-	var waitEvents []generic.ProgressStatus
-
 	// We explicitly disable creation of IP addresses by passing an empty
 	// value whenever the user does not specify addresses
 	fixedIPs := make([]ports.IP, len(resource.Addresses))
 	for i := range resource.Addresses {
-		subnet := &orcv1alpha1.Subnet{}
-		key := client.ObjectKey{Name: string(resource.Addresses[i].SubnetRef), Namespace: obj.Namespace}
-		if err := actuator.k8sClient.Get(ctx, key, subnet); err != nil {
-			if apierrors.IsNotFound(err) {
-				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
-				continue
-			}
-			return nil, nil, fmt.Errorf("fetching subnet %s: %w", key.Name, err)
-		}
-
-		if !orcv1alpha1.IsAvailable(subnet) || subnet.Status.ID == nil {
-			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Subnet", key.Name))
-			continue
+		subnetName := string(resource.Addresses[i].SubnetRef)
+		subnet, ok := subnetMap[subnetName]
+		if !ok {
+			// Programming error
+			return nil, nil, fmt.Errorf("subnet %s was not returned by GetDependencies", subnetName)
 		}
 		fixedIPs[i].SubnetID = *subnet.Status.ID
 
@@ -145,27 +156,15 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
 	for i := range resource.SecurityGroupRefs {
-		securityGroup := &orcv1alpha1.SecurityGroup{}
-		key := client.ObjectKey{Name: string(resource.SecurityGroupRefs[i]), Namespace: obj.Namespace}
-		if err := actuator.k8sClient.Get(ctx, key, securityGroup); err != nil {
-			if apierrors.IsNotFound(err) {
-				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Subnet", key.Name))
-				continue
-			}
-			return nil, nil, fmt.Errorf("fetching securitygroup %s: %w", key.Name, err)
+		secGroupName := string(resource.SecurityGroupRefs[i])
+		secGroup, ok := secGroupMap[secGroupName]
+		if !ok {
+			// Programming error
+			return nil, nil, fmt.Errorf("security group %s was not returned by GetDependencies", secGroupName)
 		}
-
-		if !orcv1alpha1.IsAvailable(securityGroup) || securityGroup.Status.ID == nil {
-			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Subnet", key.Name))
-			continue
-		}
-		securityGroups[i] = *securityGroup.Status.ID
+		securityGroups[i] = *secGroup.Status.ID
 	}
 	createOpts.SecurityGroups = &securityGroups
-
-	if len(waitEvents) > 0 {
-		return waitEvents, nil, nil
-	}
 
 	osResource, err := actuator.osClient.CreatePort(ctx, &createOpts)
 	if err != nil {
@@ -227,19 +226,13 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller ge
 }
 
 func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) ([]generic.ProgressStatus, *portCreateActuator, error) {
-	k8sClient := controller.GetK8sClient()
-
-	orcNetwork := &orcv1alpha1.Network{}
-	networkRef := string(orcObject.Spec.NetworkRef)
-	if err := k8sClient.Get(ctx, client.ObjectKey{Name: networkRef, Namespace: orcObject.Namespace}, orcNetwork); err != nil {
-		if apierrors.IsNotFound(err) {
-			return []generic.ProgressStatus{generic.WaitingOnORCExist("network", networkRef)}, nil, nil
-		}
-		return nil, nil, err
-	}
-
-	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
-		return []generic.ProgressStatus{generic.WaitingOnORCReady("network", networkRef)}, nil, nil
+	orcNetwork, progressStatus, err := networkDependency.GetDependency(
+		ctx, controller.GetK8sClient(), orcObject, func(dep *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	if len(progressStatus) != 0 || err != nil {
+		return progressStatus, nil, err
 	}
 	networkID := *orcNetwork.Status.ID
 

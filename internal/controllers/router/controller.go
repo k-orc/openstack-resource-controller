@@ -45,38 +45,41 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (routerReconcilerConstructor) GetName() string {
-	return "router"
+	return controllerName
 }
 
-// Router depends on its external gateways, which are Networks
-var externalGWDep = dependency.NewDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
-	"spec.resource.externalGateways[].networkRef",
-	func(router *orcv1alpha1.Router) []string {
-		resource := router.Spec.Resource
-		if resource == nil {
-			return nil
-		}
+const controllerName = "router"
 
-		networks := make([]string, len(resource.ExternalGateways))
-		for i := range resource.ExternalGateways {
-			networks[i] = string(resource.ExternalGateways[i].NetworkRef)
-		}
-		return networks
-	},
+var (
+	finalizer  = generic.GetFinalizerName(controllerName)
+	fieldOwner = generic.GetSSAFieldOwner(controllerName)
+
+	// Router depends on its external gateways, which are Networks
+	externalGWDep = dependency.NewDeletionGuardDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
+		"spec.resource.externalGateways[].networkRef",
+		func(router *orcv1alpha1.Router) []string {
+			resource := router.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			networks := make([]string, len(resource.ExternalGateways))
+			for i := range resource.ExternalGateways {
+				networks[i] = string(resource.ExternalGateways[i].NetworkRef)
+			}
+			return networks
+		},
+		finalizer, fieldOwner,
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
 func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	controllerName := c.GetName()
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	finalizer := generic.GetFinalizerName(controllerName)
-	fieldOwner := generic.GetSSAFieldOwner(controllerName)
-
 	if err := errors.Join(
-		externalGWDep.AddIndexer(ctx, mgr),
-		externalGWDep.AddDeletionGuard(mgr, finalizer, fieldOwner),
+		externalGWDep.AddToManager(ctx, mgr),
 	); err != nil {
 		return err
 	}

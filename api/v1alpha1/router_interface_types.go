@@ -61,6 +61,10 @@ type RouterInterfaceList struct {
 	Items []RouterInterface `json:"items"`
 }
 
+func (l *RouterInterfaceList) GetItems() []RouterInterface {
+	return l.Items
+}
+
 // +kubebuilder:validation:Enum:=Subnet
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=8

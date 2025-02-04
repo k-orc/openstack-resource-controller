@@ -305,16 +305,13 @@ func (subnetHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	orcNetwork := &orcv1alpha1.Network{}
-	if err := controller.GetK8sClient().Get(ctx, client.ObjectKey{Name: string(orcObject.Spec.NetworkRef), Namespace: orcObject.Namespace}, orcNetwork); err != nil {
-		if apierrors.IsNotFound(err) {
-			return []generic.ProgressStatus{generic.WaitingOnORCExist("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
-		}
-		return nil, nil, err
-	}
-
-	if !orcv1alpha1.IsAvailable(orcNetwork) || orcNetwork.Status.ID == nil {
-		return []generic.ProgressStatus{generic.WaitingOnORCReady("Network", string(orcObject.Spec.NetworkRef))}, nil, nil
+	orcNetwork, progressStatus, err := networkDependency.GetDependency(
+		ctx, controller.GetK8sClient(), orcObject, func(network *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
+		},
+	)
+	if len(progressStatus) != 0 || err != nil {
+		return progressStatus, nil, err
 	}
 
 	actuator, err := newActuator(ctx, controller, orcObject)

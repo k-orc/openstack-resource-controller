@@ -45,10 +45,17 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (serverReconcilerConstructor) GetName() string {
-	return "server"
+	return controllerName
 }
 
+const controllerName = "server"
+
 var (
+	finalizer  = generic.GetFinalizerName(controllerName)
+	fieldOwner = generic.GetSSAFieldOwner(controllerName)
+
+	// No deletion guard for flavor, because flavors can be safely deleted while
+	// referenced by a server
 	flavorDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
 		"spec.resource.flavorRef",
 		func(server *orcv1alpha1.Server) []string {
@@ -61,7 +68,10 @@ var (
 		},
 	)
 
-	imageDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
+	// Image can sometimes, but not always (e.g. when an RBD-backed image has
+	// been cloned), be safely deleted while referenced by a server. We just
+	// prevent it always.
+	imageDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
 		"spec.resource.imageRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -71,9 +81,10 @@ var (
 
 			return []string{string(resource.ImageRef)}
 		},
+		finalizer, fieldOwner,
 	)
 
-	portDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
+	portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
 		"spec.resource.ports",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -90,9 +101,12 @@ var (
 			}
 			return refs
 		},
+		finalizer, fieldOwner,
 	)
 
-	secretDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
+	// We don't need a deletion guard on the user-data secret because it's only
+	// used on creation.
+	userDataDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
 		"spec.resource.userData.secretRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
@@ -107,27 +121,14 @@ var (
 
 // SetupWithManager sets up the controller with the Manager.
 func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	controllerName := c.GetName()
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	finalizer := generic.GetFinalizerName(controllerName)
-	fieldOwner := generic.GetSSAFieldOwner(controllerName)
-
 	if err := errors.Join(
-		flavorDependency.AddIndexer(ctx, mgr),
-		// No deletion guard for flavor, because flavors can be safely deleted
-		// while referenced by a server
-		imageDependency.AddIndexer(ctx, mgr),
-		// Image can sometimes, but not always (e.g. when an RBD-backed image
-		// has been cloned), be safely deleted while referenced by a server. We
-		// just prevent it always.
-		imageDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
-		portDependency.AddIndexer(ctx, mgr),
-		portDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
-		secretDependency.AddIndexer(ctx, mgr),
-		// We don't need a deletion guard on the user-data secret because it's
-		// only used on creation.
+		flavorDependency.AddToManager(ctx, mgr),
+		imageDependency.AddToManager(ctx, mgr),
+		portDependency.AddToManager(ctx, mgr),
+		userDataDependency.AddToManager(ctx, mgr),
 	); err != nil {
 		return err
 	}
@@ -144,7 +145,7 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
-	secretWatchEventHandler, err := secretDependency.WatchEventHandler(log, k8sClient)
+	userDataWatchEventHandler, err := userDataDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
@@ -169,6 +170,6 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		//
 		// These will require separate solutions. For the latter we should
 		// probably use a MetadataOnly watch only secrets.
-		Watches(&corev1.Secret{}, secretWatchEventHandler).
+		Watches(&corev1.Secret{}, userDataWatchEventHandler).
 		Complete(&reconciler)
 }

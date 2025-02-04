@@ -45,10 +45,9 @@ func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *update
 	}
 
 	if routerInterface.Spec.Type == orcv1alpha1.RouterInterfaceTypeSubnet {
-		if opts.subnet == nil && routerInterface.Spec.SubnetRef != nil {
+		if opts.subnet == nil {
 			progressStatus = append(progressStatus, generic.WaitingOnORCExist("Subnet", string(*routerInterface.Spec.SubnetRef)))
-		}
-		if opts.subnet.Status.ID == nil {
+		} else if opts.subnet.Status.ID == nil {
 			progressStatus = append(progressStatus, generic.WaitingOnORCReady("Subnet", string(*routerInterface.Spec.SubnetRef)))
 		}
 	}
@@ -90,5 +89,5 @@ func (r *orcRouterInterfaceReconciler) updateStatus(ctx context.Context, orcObje
 	now := metav1.NewTime(time.Now())
 
 	statusUpdate := createStatusUpdate(orcObject, now, opts)
-	return r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, ssaFieldOwner(SSAStatusTxn))
+	return r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, generic.GetSSAFieldOwnerWithTxn(controllerName, generic.SSATransactionFinalizer))
 }

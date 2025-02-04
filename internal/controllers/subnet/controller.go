@@ -47,14 +47,22 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (subnetReconcilerConstructor) GetName() string {
-	return "subnet"
+	return controllerName
 }
 
-var networkDependency = dependency.NewDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Network](
-	"spec.resource.networkRef",
-	func(subnet *orcv1alpha1.Subnet) []string {
-		return []string{string(subnet.Spec.NetworkRef)}
-	},
+const controllerName = "subnet"
+
+var (
+	finalizer  = generic.GetFinalizerName(controllerName)
+	fieldOwner = generic.GetSSAFieldOwner(controllerName)
+
+	networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Network](
+		"spec.resource.networkRef",
+		func(subnet *orcv1alpha1.Subnet) []string {
+			return []string{string(subnet.Spec.NetworkRef)}
+		},
+		finalizer, fieldOwner,
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -63,12 +71,8 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	finalizer := generic.GetFinalizerName(controllerName)
-	fieldOwner := generic.GetSSAFieldOwner(controllerName)
-
 	if err := errors.Join(
-		networkDependency.AddIndexer(ctx, mgr),
-		networkDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
+		networkDependency.AddToManager(ctx, mgr),
 	); err != nil {
 		return err
 	}

@@ -18,11 +18,11 @@ package routerinterface
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -34,24 +34,10 @@ import (
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
-
-const (
-	Finalizer = "openstack.k-orc.cloud/routerinterface"
-
-	FieldOwner = "openstack.k-orc.cloud/routerinterfacecontroller"
-	// Field owner of the object finalizer.
-	SSAFinalizerTxn = "finalizer"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
 
 const (
 	// The time to wait between polling a port for ACTIVE status
@@ -67,97 +53,61 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (routerInterfaceReconcilerConstructor) GetName() string {
-	return "router interface"
+	return controllerName
 }
 
 // orcRouterInterfaceReconciler reconciles an ORC Subnet.
 type orcRouterInterfaceReconciler struct {
 	client       client.Client
-	recorder     record.EventRecorder
 	scopeFactory scope.Factory
 }
 
-// Index subnets by referenced network
-const routerRefPath = "spec.routerRef"
+const controllerName = "routerinterface"
 
-func getRouterInterfacesForRouter(ctx context.Context, k8sClient client.Client, obj *orcv1alpha1.Router) ([]orcv1alpha1.RouterInterface, error) {
-	routerInterfaceList := &orcv1alpha1.RouterInterfaceList{}
-	if err := k8sClient.List(ctx, routerInterfaceList, client.InNamespace(obj.Namespace), client.MatchingFields{routerRefPath: obj.Name}); err != nil {
-		return nil, err
-	}
+var (
+	finalizer  = generic.GetFinalizerName(controllerName)
+	fieldOwner = generic.GetSSAFieldOwner(controllerName)
 
-	return routerInterfaceList.Items, nil
-}
+	routerDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RouterInterfaceList, *orcv1alpha1.Router](
+		"spec.routerRef",
+		func(routerIf *orcv1alpha1.RouterInterface) []string {
+			return []string{string(routerIf.Spec.RouterRef)}
+		},
+		finalizer, fieldOwner,
+	)
+
+	subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RouterInterfaceList, *orcv1alpha1.Subnet](
+		"spec.subnetRef",
+		func(routerIf *orcv1alpha1.RouterInterface) []string {
+			if routerIf.Spec.SubnetRef == nil {
+				return nil
+			}
+			return []string{string(*routerIf.Spec.SubnetRef)}
+		},
+		finalizer, fieldOwner,
+	)
+)
 
 // SetupWithManager sets up the controller with the Manager.
 func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	log := mgr.GetLogger().WithValues("controller", "router interface")
+	log := mgr.GetLogger().WithValues("controller", controllerName)
+
+	if err := errors.Join(
+		routerDependency.AddToManager(ctx, mgr),
+		subnetDependency.AddToManager(ctx, mgr),
+	); err != nil {
+		return err
+	}
+
+	k8sClient := mgr.GetClient()
+
+	// NOTE: RouterInterface can't use the watch event handler from its
+	// dependencies because it reconciles Routers, not RouterInterfaces.
 
 	reconciler := orcRouterInterfaceReconciler{
-		client:       mgr.GetClient(),
-		recorder:     mgr.GetEventRecorderFor("orc-router-interface-controller"),
+		client:       k8sClient,
 		scopeFactory: c.scopeFactory,
 	}
-
-	getRouterRefsForRouterInterface := func(obj client.Object) []string {
-		routerInterface, ok := obj.(*orcv1alpha1.RouterInterface)
-		if !ok {
-			return nil
-		}
-		return []string{string(routerInterface.Spec.RouterRef)}
-	}
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.RouterInterface{}, routerRefPath, func(obj client.Object) []string {
-		return getRouterRefsForRouterInterface(obj)
-	}); err != nil {
-		return fmt.Errorf("adding routers by routerinterface index: %w", err)
-	}
-
-	err := dependency.AddDeletionGuard(mgr, Finalizer, FieldOwner, getRouterRefsForRouterInterface, getRouterInterfacesForRouter)
-	if err != nil {
-		return err
-	}
-
-	const subnetRefPath = "spec.subnetRef"
-
-	if err := mgr.GetFieldIndexer().IndexField(ctx, &orcv1alpha1.RouterInterface{}, subnetRefPath, func(obj client.Object) []string {
-		routerInterface, ok := obj.(*orcv1alpha1.RouterInterface)
-		if !ok {
-			return nil
-		}
-		subnetRef := routerInterface.Spec.SubnetRef
-		if subnetRef == nil {
-			return nil
-		}
-		return []string{string(*subnetRef)}
-	}); err != nil {
-		return err
-	}
-
-	getRoutersForSubnet := func(ctx context.Context, k8sClient client.Client, subnet *orcv1alpha1.Subnet) ([]reconcile.Request, error) {
-		routerInterfaceList := &orcv1alpha1.RouterInterfaceList{}
-		err := k8sClient.List(ctx, routerInterfaceList, client.InNamespace(subnet.Namespace), client.MatchingFields{subnetRefPath: subnet.Name})
-		if err != nil {
-			return nil, fmt.Errorf("fetching router interfaces for %s: %w", client.ObjectKeyFromObject(subnet), err)
-		}
-
-		// Get a list of unique router names
-		routerSet := make(map[string]struct{})
-		for i := range routerInterfaceList.Items {
-			routerInterface := &routerInterfaceList.Items[i]
-			routerSet[string(routerInterface.Spec.RouterRef)] = struct{}{}
-		}
-
-		i := 0
-		routers := make([]reconcile.Request, len(routerSet))
-		for router := range routerSet {
-			routers[i].Name = router
-			routers[i].Namespace = subnet.Namespace
-			i++
-		}
-		return routers, nil
-	}
-
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Router{}, builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Router{}))).
 		Named("router_interface").
@@ -177,18 +127,29 @@ func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Conte
 		Watches(&orcv1alpha1.Subnet{},
 			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
 				log := ctrl.LoggerFrom(ctx).WithValues("watch", "Subnet", "name", obj.GetName(), "namespace", obj.GetNamespace())
+
 				subnet, ok := obj.(*orcv1alpha1.Subnet)
 				if !ok {
 					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
 					return nil
 				}
 
-				routers, err := getRoutersForSubnet(ctx, mgr.GetClient(), subnet)
+				routerIfs, err := subnetDependency.GetObjectsForDependency(ctx, k8sClient, subnet)
 				if err != nil {
 					log.Error(err, "fetching routers for subnet")
 					return nil
 				}
-				return routers
+
+				var requests []reconcile.Request
+				for i := range routerIfs {
+					routerIf := &routerIfs[i]
+					if routerIf.Spec.SubnetRef != nil {
+						requests = append(requests, reconcile.Request{
+							NamespacedName: types.NamespacedName{Name: string(routerIf.Spec.RouterRef), Namespace: subnet.Namespace},
+						})
+					}
+				}
+				return requests
 			}),
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
 		).

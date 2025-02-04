@@ -36,26 +36,43 @@ import (
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports/status,verbs=get;update;patch
 
+const controllerName = "port"
+
 var (
-	networkDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network]("spec.resource.networkRef", func(port *orcv1alpha1.Port) []string {
-		return []string{string(port.Spec.NetworkRef)}
-	})
+	finalizer  = generic.GetFinalizerName(controllerName)
+	fieldOwner = generic.GetSSAFieldOwner(controllerName)
 
-	subnetDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet]("spec.resource.addresses[].subnetRef", func(port *orcv1alpha1.Port) []string {
-		subnets := make([]string, len(port.Spec.Resource.Addresses))
-		for i := range port.Spec.Resource.Addresses {
-			subnets[i] = string(port.Spec.Resource.Addresses[i].SubnetRef)
-		}
-		return subnets
-	})
+	networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network](
+		"spec.resource.networkRef",
+		func(port *orcv1alpha1.Port) []string {
+			return []string{string(port.Spec.NetworkRef)}
+		},
+		finalizer, fieldOwner,
+	)
 
-	securityGroupDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup]("spec.resource.securityGroupRefs", func(port *orcv1alpha1.Port) []string {
-		securityGroups := make([]string, len(port.Spec.Resource.SecurityGroupRefs))
-		for i := range port.Spec.Resource.SecurityGroupRefs {
-			securityGroups[i] = string(port.Spec.Resource.SecurityGroupRefs[i])
-		}
-		return securityGroups
-	})
+	subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet](
+		"spec.resource.addresses[].subnetRef",
+		func(port *orcv1alpha1.Port) []string {
+			subnets := make([]string, len(port.Spec.Resource.Addresses))
+			for i := range port.Spec.Resource.Addresses {
+				subnets[i] = string(port.Spec.Resource.Addresses[i].SubnetRef)
+			}
+			return subnets
+		},
+		finalizer, fieldOwner,
+	)
+
+	securityGroupDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup](
+		"spec.resource.securityGroupRefs",
+		func(port *orcv1alpha1.Port) []string {
+			securityGroups := make([]string, len(port.Spec.Resource.SecurityGroupRefs))
+			for i := range port.Spec.Resource.SecurityGroupRefs {
+				securityGroups[i] = string(port.Spec.Resource.SecurityGroupRefs[i])
+			}
+			return securityGroups
+		},
+		finalizer, fieldOwner,
+	)
 )
 
 type portReconcilerConstructor struct {
@@ -67,25 +84,18 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (portReconcilerConstructor) GetName() string {
-	return "port"
+	return controllerName
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	controllerName := c.GetName()
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	finalizer := generic.GetFinalizerName(controllerName)
-	fieldOwner := generic.GetSSAFieldOwner(controllerName)
-
 	if err := errors.Join(
-		networkDependency.AddIndexer(ctx, mgr),
-		networkDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
-		subnetDependency.AddIndexer(ctx, mgr),
-		subnetDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
-		securityGroupDependency.AddIndexer(ctx, mgr),
-		securityGroupDependency.AddDeletionGuard(mgr, finalizer, fieldOwner),
+		networkDependency.AddToManager(ctx, mgr),
+		subnetDependency.AddToManager(ctx, mgr),
+		securityGroupDependency.AddToManager(ctx, mgr),
 	); err != nil {
 		return err
 	}

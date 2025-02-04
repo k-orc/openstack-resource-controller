@@ -18,7 +18,6 @@ package dependency
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
@@ -31,6 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -42,7 +42,7 @@ import (
 // deleted if it is still in use by any Subnet. It is added by the Subnet
 // controller, but it is a separate controller which reconciles Network objects.
 
-func AddDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], depT any](
+func addDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], depT any](
 	mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner,
 	getDepRefsFromObject func(client.Object) []string,
 	getObjectsFromDep func(context.Context, client.Client, depTP) ([]objT, error),
@@ -64,15 +64,10 @@ func AddDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], 
 			return ctrl.Result{}, err
 		}
 
-		// If the object hasn't been deleted, we simply check that it has our finalizer
+		// Nothing to do if the object isn't marked deleted
+		// NOTE: we also try to arrange our triggers so we won't be reconciled in this case
 		if dep.GetDeletionTimestamp().IsZero() {
-			if !slices.Contains(dep.GetFinalizers(), finalizer) {
-				log.V(4).Info("Adding finalizer")
-				patch := finalizers.SetFinalizerPatch(dep, finalizer)
-				return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
-			}
-
-			log.V(5).Info("Finalizer already present")
+			log.V(4).Info("Dependency is not marked deleted")
 			return ctrl.Result{}, nil
 		}
 
@@ -135,7 +130,19 @@ func AddDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], 
 	// when the last dependent object is deleted and we can remove the
 	// dependency.
 	err = builder.ControllerManagedBy(mgr).
-		For(depSpecimen).
+		For(depSpecimen,
+			// Only reconcile objects which are marked deleted and have our finalizer
+			builder.WithPredicates(predicate.NewPredicateFuncs(func(obj client.Object) bool {
+				if obj.GetDeletionTimestamp().IsZero() {
+					return false
+				}
+				for _, objFinalizer := range obj.GetFinalizers() {
+					if objFinalizer == finalizer {
+						return true
+					}
+				}
+				return false
+			}))).
 		Watches(objSpecimen,
 			handler.Funcs{
 				DeleteFunc: func(ctx context.Context, evt event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {

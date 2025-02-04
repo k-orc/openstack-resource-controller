@@ -18,17 +18,20 @@ package dependency
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"iter"
+	"slices"
 
 	"github.com/go-logr/logr"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/k-orc/openstack-resource-controller/internal/util/result"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 )
 
 // NewDependency returns a new Dependency, which can perform tasks necessary to manage a dependency between 2 object types. The 2 object types are:
@@ -47,9 +50,8 @@ import (
 //   - indexName: a name representing the path to the Dependency reference in Object.
 //   - getDependencyRefs: a function that takes a pointer to Object and returns a slice of strings containing the names of Dependencies
 //
-// Taking the Port -> Subnet example, the type parameters are:
+// Taking the Port -> Subnet example, the required type parameter is:
 //   - *PortList: pointer to the list type of Port
-//   - *Subnet: pointer to the Dependency type
 //
 // and the arguments are:
 //   - indexName: "spec.resource.addresses[].subnetRef" - a symbolic path to the subnet reference in a Port
@@ -67,6 +69,25 @@ func NewDependency[
 	}
 }
 
+// NewDeletionGuardDependency returns a Dependency which can additionally create a deletion guard for the dependency. See NewDependency for a discussion of the base functionality.
+//
+// In addition to the arguments required by NewDependency, NewDeletionGuardDependency requires:
+// - finalizer: the string to add to Finalizers in objects that we depend on
+// - fieldOwner: a client.FieldOwner identifying this controller when adding a finalizer to objects we depend on
+func NewDeletionGuardDependency[
+	objectListTP objectListType[objectListT, objectT],
+	depTP dependencyType[depT],
+
+	objectTP objectType[objectT],
+	objectT any, objectListT any, depT any,
+](indexName string, getDependencyRefs func(objectTP) []string, finalizer string, fieldOwner client.FieldOwner) DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT] {
+	return DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]{
+		Dependency: NewDependency[objectListTP, depTP](indexName, getDependencyRefs),
+		finalizer:  finalizer,
+		fieldOwner: fieldOwner,
+	}
+}
+
 type Dependency[
 	objectTP objectType[objectT],
 	objectListTP objectListType[objectListT, objectT],
@@ -76,6 +97,19 @@ type Dependency[
 ] struct {
 	indexName         string
 	getDependencyRefs func(objectTP) []string
+}
+
+type DeletionGuardDependency[
+	objectTP objectType[objectT],
+	objectListTP objectListType[objectListT, objectT],
+	depTP dependencyType[depT],
+
+	objectT any, objectListT any, depT any,
+] struct {
+	Dependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]
+
+	finalizer  string
+	fieldOwner client.FieldOwner
 }
 
 type objectType[objectT any] interface {
@@ -95,31 +129,8 @@ type dependencyType[depT any] interface {
 	client.Object
 }
 
-// GetDependencies returns an iterator over Dependencies for a given Object. For each dependency it returns:
-//   - the dependency's name
-//   - a Result of fetching the dependency
-func (d *Dependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP) iter.Seq2[string, result.Result[depT]] {
-	depRefs := d.getDependencyRefs(obj)
-	return func(yield func(string, result.Result[depT]) bool) {
-		for _, depRef := range depRefs {
-			var dep depTP = new(depT)
-			err := k8sClient.Get(ctx, types.NamespacedName{Name: depRef, Namespace: obj.GetNamespace()}, dep)
-
-			var r result.Result[depT]
-			if err != nil {
-				r = result.Err[depT](err)
-			} else {
-				r = result.Ok(dep)
-			}
-			if !yield(depRef, r) {
-				return
-			}
-		}
-	}
-}
-
-// GetObjects returns a slice of all Objects which depend on the given Dependency
-func (d *Dependency[_, objectListTP, depTP, objectT, objectListT, _]) GetObjects(ctx context.Context, k8sClient client.Client, dep depTP) ([]objectT, error) {
+// GetObjectsForDependency returns a slice of all Objects which depend on the given Dependency.
+func (d *Dependency[_, objectListTP, depTP, objectT, objectListT, _]) GetObjectsForDependency(ctx context.Context, k8sClient client.Client, dep depTP) ([]objectT, error) {
 	var objectList objectListTP = new(objectListT)
 	if err := k8sClient.List(ctx, objectList, client.InNamespace(dep.GetNamespace()), client.MatchingFields{d.indexName: dep.GetName()}); err != nil {
 		return nil, err
@@ -127,8 +138,9 @@ func (d *Dependency[_, objectListTP, depTP, objectT, objectListT, _]) GetObjects
 	return objectList.GetItems(), nil
 }
 
-// AddIndexer adds the required field indexer for this dependency to a manager
-func (d *Dependency[objectTP, _, _, objectT, _, _]) AddIndexer(ctx context.Context, mgr ctrl.Manager) error {
+// addIndexer adds the required field indexer for this dependency to a manager
+// Called by AddToManager
+func (d *Dependency[objectTP, _, _, objectT, _, _]) addIndexer(ctx context.Context, mgr ctrl.Manager) error {
 	return mgr.GetFieldIndexer().IndexField(ctx, objectTP(new(objectT)), d.indexName, func(cObj client.Object) []string {
 		obj, ok := cObj.(objectTP)
 		if !ok {
@@ -139,18 +151,18 @@ func (d *Dependency[objectTP, _, _, objectT, _, _]) AddIndexer(ctx context.Conte
 	})
 }
 
+func (d *Dependency[_, _, _, _, _, _]) AddToManager(ctx context.Context, mgr ctrl.Manager) error {
+	return d.addIndexer(ctx, mgr)
+}
+
 // WatchEventHandler returns an EventHandler which maps a Dependency to all Objects which depend on it
 func (d *Dependency[objectTP, _, depTP, _, _, depT]) WatchEventHandler(log logr.Logger, k8sClient client.Client) (handler.EventHandler, error) {
-	dependencySpecimen := depTP(new(depT))
-	gvks, _, err := k8sClient.Scheme().ObjectKinds(dependencySpecimen)
+	depKind, err := getObjectKind(depTP(new(depT)), k8sClient.Scheme())
 	if err != nil {
 		return nil, err
 	}
-	if len(gvks) == 0 {
-		return nil, fmt.Errorf("no registered GVK for %T", dependencySpecimen)
-	}
-	log = log.WithValues("watch", gvks[0].Kind)
 
+	log = log.WithValues("watch", depKind)
 	return handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
 		log := log.WithValues("name", obj.GetName(), "namespace", obj.GetNamespace())
 
@@ -160,7 +172,7 @@ func (d *Dependency[objectTP, _, depTP, _, _, depT]) WatchEventHandler(log logr.
 			return nil
 		}
 
-		objects, err := d.GetObjects(ctx, k8sClient, dependency)
+		objects, err := d.GetObjectsForDependency(ctx, k8sClient, dependency)
 		if err != nil {
 			log.Error(err, "listing Routers")
 			return nil
@@ -177,8 +189,9 @@ func (d *Dependency[objectTP, _, depTP, _, _, depT]) WatchEventHandler(log logr.
 	}), nil
 }
 
-// AddDeletionGuard adds a deletion guard controller to the given manager appropriate for this dependency
-func (d *Dependency[objectTP, _, _, _, _, _]) AddDeletionGuard(mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner) error {
+// addDeletionGuard adds a deletion guard controller to the given manager appropriate for this dependency
+// Called by AddToManager
+func (d *DeletionGuardDependency[objectTP, _, _, _, _, _]) addDeletionGuard(mgr ctrl.Manager) error {
 	getDependencyRefsForClientObject := func(cObj client.Object) []string {
 		obj, ok := cObj.(objectTP)
 		if !ok {
@@ -187,5 +200,88 @@ func (d *Dependency[objectTP, _, _, _, _, _]) AddDeletionGuard(mgr ctrl.Manager,
 		return d.getDependencyRefs(obj)
 	}
 
-	return AddDeletionGuard[objectTP](mgr, finalizer, fieldOwner, getDependencyRefsForClientObject, d.GetObjects)
+	return addDeletionGuard[objectTP](mgr, d.finalizer, d.fieldOwner, getDependencyRefsForClientObject, d.GetObjectsForDependency)
+}
+
+// GetDependencies returns the dependencies of the given object, ensuring that all returned dependencies have the required finalizer. It returns:
+// - a map of name -> object containing all objects which exist and are ready
+// - a list of progressStatus for all dependencies which are not yet ready
+// - an error
+//
+// Dependencies are filtered by the readyFilter argument. Dependencies which are not ready will be in progressStatus but not in the returned object map.
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depsMap map[string]depTP, progressStatus []generic.ProgressStatus, err error) {
+	depKind, err := getObjectKind(depTP(new(depT)), k8sClient.Scheme())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	depsMap = make(map[string]depTP)
+	for _, depRef := range d.getDependencyRefs(obj) {
+		var dep depTP = new(depT)
+
+		if depErr := k8sClient.Get(ctx, types.NamespacedName{Name: depRef, Namespace: obj.GetNamespace()}, dep); depErr != nil {
+			if apierrors.IsNotFound(depErr) {
+				progressStatus = append(progressStatus, generic.WaitingOnORCExist(depKind, depRef))
+			} else {
+				err = errors.Join(depErr)
+			}
+
+			continue
+		}
+
+		if readyFilter(dep) {
+			// Don't add the finalizer until the dependency is ready. This makes
+			// it easier to delete incorrectly created objects which never
+			// became ready.
+			if depErr := EnsureFinalizer(ctx, k8sClient, dep, d.finalizer, d.fieldOwner); depErr != nil {
+				err = errors.Join(depErr)
+				continue
+			}
+
+			depsMap[depRef] = dep
+		} else {
+			progressStatus = append(progressStatus, generic.WaitingOnORCReady(depKind, depRef))
+		}
+	}
+
+	return depsMap, progressStatus, err
+}
+
+// GetDependency is a convenience wrapper around GetDependencies when the caller only expects a single result.
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, []generic.ProgressStatus, error) {
+	depsMap, progressStatus, err := d.GetDependencies(ctx, k8sClient, obj, readyFilter)
+	if len(progressStatus) > 0 || err != nil {
+		return nil, progressStatus, err
+	}
+	if len(depsMap) > 1 {
+		// Programming error
+		return nil, nil, fmt.Errorf("GetDependencies returned multiple dependencies, expected one")
+	}
+	for _, dep := range depsMap {
+		return dep, nil, nil
+	}
+	// Programming error
+	return nil, nil, fmt.Errorf("GetDependencies returned empty depsMap, progressStatus, and error")
+}
+
+func (d *DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]) AddToManager(ctx context.Context, mgr ctrl.Manager) error {
+	return errors.Join(
+		d.addIndexer(ctx, mgr),
+		d.addDeletionGuard(mgr),
+	)
+}
+
+// EnsureFinalizer adds a finalizer to the given object if it is not already present. It does nothing if the finalizer is already present.
+func EnsureFinalizer[objPT interface {
+	client.Object
+	*objT
+}, objT any](ctx context.Context, k8sClient client.Client, obj objPT, finalizer string, fieldOwner client.FieldOwner) error {
+	if slices.Contains(obj.GetFinalizers(), finalizer) {
+		return nil
+	}
+
+	log := ctrl.LoggerFrom(ctx)
+	log.V(4).Info("Adding finalizer", "objectName", obj.GetName(), "objectKind", obj.GetObjectKind().GroupVersionKind().Kind)
+	patch := finalizers.SetFinalizerPatch(obj, finalizer)
+	return k8sClient.Patch(ctx, obj, patch, client.ForceOwnership, fieldOwner)
 }
