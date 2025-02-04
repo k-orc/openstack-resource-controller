@@ -4,7 +4,7 @@ metadata:
   name: create-minimal-v6
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -16,7 +16,7 @@ metadata:
   name: create-minimal-v6
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   networkRef: create-minimal-v6

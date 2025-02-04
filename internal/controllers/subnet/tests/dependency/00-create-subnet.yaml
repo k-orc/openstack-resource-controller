@@ -5,7 +5,7 @@ metadata:
   name: dependency
 spec:
   cloudCredentialsRef:
-    cloudName: devstack
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   networkRef: dependency
