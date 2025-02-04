@@ -1,0 +1,21 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: create-full-net
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: create-full-network
+    adminStateUp: false
+    description: Network from "create full" test
+    dnsDomain: "foo.com."
+    external: true
+    mtu: 1400
+    portSecurityEnabled: false
+    shared: true
+    tags:
+      - foo1
+      - foo2

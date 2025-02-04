@@ -2,5 +2,6 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
 - ./internal/controllers/flavor/tests/
+- ./internal/controllers/network/tests/
 - ./internal/controllers/subnet/tests/
 timeout: 120

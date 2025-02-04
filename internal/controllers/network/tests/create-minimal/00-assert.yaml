@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: create-minimal
+status:
+  resource:
+    name: create-minimal
+    adminStateUp: true
+    description: "Network create-minimal"
+    dnsDomain: ""
+    external: false
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE
