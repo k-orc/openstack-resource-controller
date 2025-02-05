@@ -76,8 +76,9 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r, orcObject)
-	if err != nil {
+	actuator, progressStatus, err := newActuator(ctx, r, orcObject)
+	if len(progressStatus) > 0 || err != nil {
+		addStatus(withProgressStatus(progressStatus...))
 		return ctrl.Result{}, err
 	}
 
@@ -197,8 +198,9 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcObject *orc
 		}
 	}()
 
-	actuator, err := newActuator(ctx, r, orcObject)
-	if err != nil {
+	actuator, progressStatus, err := newActuator(ctx, r, orcObject)
+	if len(progressStatus) > 0 || err != nil {
+		addStatus(withProgressStatus(progressStatus...))
 		return ctrl.Result{}, err
 	}
 

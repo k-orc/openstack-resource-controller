@@ -24,9 +24,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.Image
-	resourceSpecT = orcv1alpha1.ImageResourceSpec
-	filterT       = orcv1alpha1.ImageFilter
+	orcObjectT     = orcv1alpha1.Image
+	orcObjectListT = orcv1alpha1.ImageList
+	resourceSpecT  = orcv1alpha1.ImageResourceSpec
+	filterT        = orcv1alpha1.ImageFilter
 )
 
 // Derived types

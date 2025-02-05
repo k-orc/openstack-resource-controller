@@ -240,32 +240,39 @@ func (serverHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	actuator, err := newActuator(ctx, controller, orcObject)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
+	return progressStatus, actuator, err
 }
 
 func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, controller, orcObject)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
+	return progressStatus, actuator, err
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, []generic.ProgressStatus, error) {
 	if orcObject == nil {
-		return serverActuator{}, fmt.Errorf("orcObject may not be nil")
+		return serverActuator{}, nil, fmt.Errorf("orcObject may not be nil")
 	}
 
 	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return serverActuator{}, progressStatus, err
+	}
+
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return serverActuator{}, err
+		return serverActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewComputeClient()
 	if err != nil {
-		return serverActuator{}, err
+		return serverActuator{}, nil, err
 	}
 
 	return serverActuator{
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
-	}, nil
+	}, nil, nil
 }

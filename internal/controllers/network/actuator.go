@@ -25,6 +25,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -162,21 +163,27 @@ type networkHelperFactory struct{}
 
 var _ helperFactory = networkHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller generic.ResourceController) (networkActuator, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller generic.ResourceController) (networkActuator, []generic.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return networkActuator{}, progressStatus, err
+	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return networkActuator{}, err
+		return networkActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return networkActuator{}, err
+		return networkActuator{}, nil, err
 	}
 
 	return networkActuator{
 		osClient: osClient,
-	}, nil
+	}, nil, nil
 }
 
 func (networkHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
@@ -184,11 +191,11 @@ func (networkHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (networkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
 func (networkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }

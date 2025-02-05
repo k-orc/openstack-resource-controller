@@ -23,6 +23,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -314,9 +315,9 @@ func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcO
 		return progressStatus, nil, err
 	}
 
-	actuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return nil, nil, err
+	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
+	if len(progressStatus) > 0 || err != nil {
+		return progressStatus, nil, err
 	}
 	return nil, subnetCreateActuator{
 		subnetActuator: actuator,
@@ -325,32 +326,38 @@ func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcO
 }
 
 func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, controller, orcObject)
-	if err != nil {
-		return nil, nil, err
+	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
+	if len(progressStatus) > 0 || err != nil {
+		return progressStatus, nil, err
 	}
 	return nil, subnetDeleteActuator{
 		subnetActuator: actuator,
 	}, nil
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, []generic.ProgressStatus, error) {
 	if orcObject == nil {
-		return subnetActuator{}, fmt.Errorf("orcObject may not be nil")
+		return subnetActuator{}, nil, fmt.Errorf("orcObject may not be nil")
+	}
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return subnetActuator{}, progressStatus, err
 	}
 
 	log := ctrl.LoggerFrom(ctx)
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return subnetActuator{}, err
+		return subnetActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return subnetActuator{}, err
+		return subnetActuator{}, nil, err
 	}
 
 	return subnetActuator{
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
-	}, nil
+	}, nil, nil
 }

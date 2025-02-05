@@ -29,6 +29,7 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 )
@@ -51,9 +52,6 @@ func (serverReconcilerConstructor) GetName() string {
 const controllerName = "server"
 
 var (
-	finalizer  = generic.GetFinalizerName(controllerName)
-	fieldOwner = generic.GetSSAFieldOwner(controllerName)
-
 	// No deletion guard for flavor, because flavors can be safely deleted while
 	// referenced by a server
 	flavorDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Flavor](
@@ -81,7 +79,7 @@ var (
 
 			return []string{string(resource.ImageRef)}
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 
 	portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
@@ -101,7 +99,7 @@ var (
 			}
 			return refs
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 
 	// We don't need a deletion guard on the user-data secret because it's only
@@ -124,15 +122,6 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	if err := errors.Join(
-		flavorDependency.AddToManager(ctx, mgr),
-		imageDependency.AddToManager(ctx, mgr),
-		portDependency.AddToManager(ctx, mgr),
-		userDataDependency.AddToManager(ctx, mgr),
-	); err != nil {
-		return err
-	}
-
 	flavorWatchEventHandler, err := flavorDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -150,10 +139,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, serverHelperFactory{}, serverStatusWriter{})
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.Server{}).
+	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
+		For(&orcv1alpha1.Server{}).
 		Watches(&orcv1alpha1.Flavor{}, flavorWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
 		).
@@ -170,6 +158,19 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		//
 		// These will require separate solutions. For the latter we should
 		// probably use a MetadataOnly watch only secrets.
-		Watches(&corev1.Secret{}, userDataWatchEventHandler).
-		Complete(&reconciler)
+		Watches(&corev1.Secret{}, userDataWatchEventHandler)
+
+	if err := errors.Join(
+		flavorDependency.AddToManager(ctx, mgr),
+		imageDependency.AddToManager(ctx, mgr),
+		portDependency.AddToManager(ctx, mgr),
+		userDataDependency.AddToManager(ctx, mgr),
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, serverHelperFactory{}, serverStatusWriter{})
+	return builder.Complete(&reconciler)
 }

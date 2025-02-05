@@ -30,6 +30,7 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
@@ -51,9 +52,6 @@ func (routerReconcilerConstructor) GetName() string {
 const controllerName = "router"
 
 var (
-	finalizer  = generic.GetFinalizerName(controllerName)
-	fieldOwner = generic.GetSSAFieldOwner(controllerName)
-
 	// Router depends on its external gateways, which are Networks
 	externalGWDep = dependency.NewDeletionGuardDependency[*orcv1alpha1.RouterList, *orcv1alpha1.Network](
 		"spec.resource.externalGateways[].networkRef",
@@ -69,7 +67,7 @@ var (
 			}
 			return networks
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 )
 
@@ -78,23 +76,26 @@ func (c routerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	if err := errors.Join(
-		externalGWDep.AddToManager(ctx, mgr),
-	); err != nil {
-		return err
-	}
-
 	externalGWHandler, err := externalGWDep.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
-	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, routerHelperFactory{}, routerStatusWriter{})
-	return ctrl.NewControllerManagedBy(mgr).
+	builder := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(options).
 		For(&orcv1alpha1.Router{}).
 		Watches(&orcv1alpha1.Network{}, externalGWHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
-		).
-		WithOptions(options).
-		Complete(&reconciler)
+		)
+
+	if err := errors.Join(
+		externalGWDep.AddToManager(ctx, mgr),
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, routerHelperFactory{}, routerStatusWriter{})
+	return builder.Complete(&reconciler)
 }

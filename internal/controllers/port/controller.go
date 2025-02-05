@@ -30,6 +30,7 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
@@ -39,15 +40,12 @@ import (
 const controllerName = "port"
 
 var (
-	finalizer  = generic.GetFinalizerName(controllerName)
-	fieldOwner = generic.GetSSAFieldOwner(controllerName)
-
 	networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network](
 		"spec.resource.networkRef",
 		func(port *orcv1alpha1.Port) []string {
 			return []string{string(port.Spec.NetworkRef)}
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 
 	subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet](
@@ -59,7 +57,7 @@ var (
 			}
 			return subnets
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 
 	securityGroupDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup](
@@ -71,7 +69,7 @@ var (
 			}
 			return securityGroups
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 )
 
@@ -92,14 +90,6 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	if err := errors.Join(
-		networkDependency.AddToManager(ctx, mgr),
-		subnetDependency.AddToManager(ctx, mgr),
-		securityGroupDependency.AddToManager(ctx, mgr),
-	); err != nil {
-		return err
-	}
-
 	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -115,8 +105,8 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
-	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, portHelperFactory{}, portStatusWriter{})
-	return ctrl.NewControllerManagedBy(mgr).
+	builder := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(options).
 		For(&orcv1alpha1.Port{}).
 		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
@@ -126,7 +116,18 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		).
 		Watches(&orcv1alpha1.SecurityGroup{}, securityGroupWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.SecurityGroup{})),
-		).
-		WithOptions(options).
-		Complete(&reconciler)
+		)
+
+	if err := errors.Join(
+		networkDependency.AddToManager(ctx, mgr),
+		subnetDependency.AddToManager(ctx, mgr),
+		securityGroupDependency.AddToManager(ctx, mgr),
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, portHelperFactory{}, portStatusWriter{})
+	return builder.Complete(&reconciler)
 }

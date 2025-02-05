@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -42,11 +43,28 @@ import (
 // deleted if it is still in use by any Subnet. It is added by the Subnet
 // controller, but it is a separate controller which reconciles Network objects.
 
-func addDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], depT any](
+func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], depT any](
 	mgr ctrl.Manager, finalizer string, fieldOwner client.FieldOwner,
 	getDepRefsFromObject func(client.Object) []string,
 	getObjectsFromDep func(context.Context, client.Client, depTP) ([]objT, error),
+	overrideDependencyName *string,
 ) error {
+	var depSpecimen depTP = new(depT)
+	var objSpecimen objTP = new(objT)
+
+	scheme := mgr.GetScheme()
+	depKind, err := getObjectKind(depSpecimen, scheme)
+	if err != nil {
+		return err
+	}
+	objKind, err := getObjectKind(objSpecimen, scheme)
+	if err != nil {
+		return err
+	}
+
+	dependencyName := ptr.Deref(overrideDependencyName, strings.ToLower(depKind))
+	controllerName := dependencyName + "_deletion_guard_for_" + strings.ToLower(objKind)
+
 	// deletionGuard reconciles the dependency object
 	// If the dependency is marked deleted, we remove the finalizer only when there are no objects referencing it
 	deletionGuard := reconcile.Func(func(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
@@ -78,7 +96,6 @@ func addDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], 
 			return reconcile.Result{}, nil
 		}
 
-		depKind := dep.GetObjectKind().GroupVersionKind().Kind
 		depUID := dep.GetUID()
 		depOwns := func(obj objTP) bool {
 			owners := obj.GetOwnerReferences()
@@ -106,21 +123,6 @@ func addDeletionGuard[objTP objectType[objT], objT any, depTP objectType[depT], 
 		patch := finalizers.RemoveFinalizerPatch(dep)
 		return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
 	})
-
-	var depSpecimen depTP = new(depT)
-	var objSpecimen objTP = new(objT)
-
-	scheme := mgr.GetScheme()
-	depKind, err := getObjectKind(depSpecimen, scheme)
-	if err != nil {
-		return err
-	}
-	objKind, err := getObjectKind(objSpecimen, scheme)
-	if err != nil {
-		return err
-	}
-
-	controllerName := strings.ToLower(depKind) + "_deletion_guard_for_" + strings.ToLower(objKind)
 
 	// Register deletionGuard with the manager as a reconciler of the
 	// dependency.  We also watch for referring objects, but we're only

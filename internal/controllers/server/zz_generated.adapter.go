@@ -24,9 +24,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.Server
-	resourceSpecT = orcv1alpha1.ServerResourceSpec
-	filterT       = orcv1alpha1.ServerFilter
+	orcObjectT     = orcv1alpha1.Server
+	orcObjectListT = orcv1alpha1.ServerList
+	resourceSpecT  = orcv1alpha1.ServerResourceSpec
+	filterT        = orcv1alpha1.ServerFilter
 )
 
 // Derived types

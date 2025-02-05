@@ -18,6 +18,7 @@ package image
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"k8s.io/client-go/tools/record"
@@ -30,12 +31,15 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 )
 
 const (
 	FieldOwner = "openstack.k-orc.cloud/imagecontroller"
 	// Field owner of transient status.
 	SSAStatusTxn = "status"
+
+	controllerName = "image"
 )
 
 // ssaFieldOwner returns the field owner for a specific named SSA transaction.
@@ -63,7 +67,7 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (imageReconcilerConstructor) GetName() string {
-	return "image"
+	return controllerName
 }
 
 // orcImageReconciler reconciles an ORC Image.
@@ -85,16 +89,25 @@ func (r *orcImageReconciler) GetScopeFactory() scope.Factory {
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (c imageReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c imageReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	log := ctrl.LoggerFrom(ctx)
+
+	builder := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(options).
+		For(&orcv1alpha1.Image{})
+
+	if err := errors.Join(
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
 	reconciler := orcImageReconciler{
 		client:   mgr.GetClient(),
 		recorder: mgr.GetEventRecorderFor("orc-image-controller"),
 
 		imageReconcilerConstructor: c,
 	}
-
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.Image{}).
-		WithOptions(options).
-		Complete(&reconciler)
+	return builder.Complete(&reconciler)
 }

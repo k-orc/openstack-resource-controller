@@ -24,9 +24,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.Flavor
-	resourceSpecT = orcv1alpha1.FlavorResourceSpec
-	filterT       = orcv1alpha1.FlavorFilter
+	orcObjectT     = orcv1alpha1.Flavor
+	orcObjectListT = orcv1alpha1.FlavorList
+	resourceSpecT  = orcv1alpha1.FlavorResourceSpec
+	filterT        = orcv1alpha1.FlavorFilter
 )
 
 // Derived types

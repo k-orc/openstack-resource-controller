@@ -18,6 +18,7 @@ package flavor
 
 import (
 	"context"
+	"errors"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -27,7 +28,10 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 )
+
+const controllerName = "flavor"
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=flavors,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=flavors/status,verbs=get;update;patch
@@ -41,15 +45,24 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (flavorReconcilerConstructor) GetName() string {
-	return "flavor"
+	return controllerName
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (c flavorReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, flavorHelperFactory{}, flavorStatusWriter{})
+	log := ctrl.LoggerFrom(ctx)
 
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.Flavor{}).
+	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		Complete(&reconciler)
+		For(&orcv1alpha1.Flavor{})
+
+	if err := errors.Join(
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, mgr.GetClient(), c.scopeFactory, flavorHelperFactory{}, flavorStatusWriter{})
+	return builder.Complete(&reconciler)
 }

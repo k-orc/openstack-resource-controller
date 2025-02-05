@@ -18,6 +18,7 @@ package network
 
 import (
 	"context"
+	"errors"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -27,7 +28,10 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 )
+
+const controllerName = "network"
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=networks,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=networks/status,verbs=get;update;patch
@@ -43,15 +47,24 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (networkReconcilerConstructor) GetName() string {
-	return "network"
+	return controllerName
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (c networkReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, networkHelperFactory{}, networkStatusWriter{})
+func (c networkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	log := ctrl.LoggerFrom(ctx)
 
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.Network{}).
+	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		Complete(&reconciler)
+		For(&orcv1alpha1.Network{})
+
+	if err := errors.Join(
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, mgr.GetClient(), c.scopeFactory, networkHelperFactory{}, networkStatusWriter{})
+	return builder.Complete(&reconciler)
 }

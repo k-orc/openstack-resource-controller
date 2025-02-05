@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -57,6 +58,7 @@ type updateStatusOpts struct {
 	progressMessage           *string
 	err                       error
 	incrementDownloadAttempts bool
+	progressStatus            []generic.ProgressStatus
 }
 
 type updateStatusOpt func(*updateStatusOpts)
@@ -70,6 +72,12 @@ func withResource(glanceImage *images.Image) updateStatusOpt {
 func withError(err error) updateStatusOpt {
 	return func(opts *updateStatusOpts) {
 		opts.err = err
+	}
+}
+
+func withProgressStatus(progressStatus ...generic.ProgressStatus) updateStatusOpt {
+	return func(opts *updateStatusOpts) {
+		opts.progressStatus = append(opts.progressStatus, progressStatus...)
 	}
 }
 
@@ -171,11 +179,16 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 				WithStatus(metav1.ConditionTrue).
 				WithReason(orcv1alpha1.ConditionReasonProgressing)
 
-			if statusOpts.progressMessage == nil {
-				progressingCondition.WithMessage("Reconciliation is progressing")
+			progressMessage := ""
+			if len(statusOpts.progressStatus) > 0 {
+				progressMessage = statusOpts.progressStatus[0].Message()
+			} else if statusOpts.progressMessage != nil {
+				progressMessage = *statusOpts.progressMessage
 			} else {
-				progressingCondition.WithMessage(*statusOpts.progressMessage)
+				progressMessage = "Reconciliation is progressing"
 			}
+
+			progressingCondition.WithMessage(progressMessage)
 		}
 	} else {
 		progressingCondition.WithStatus(metav1.ConditionFalse)

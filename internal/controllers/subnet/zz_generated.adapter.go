@@ -24,9 +24,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.Subnet
-	resourceSpecT = orcv1alpha1.SubnetResourceSpec
-	filterT       = orcv1alpha1.SubnetFilter
+	orcObjectT     = orcv1alpha1.Subnet
+	orcObjectListT = orcv1alpha1.SubnetList
+	resourceSpecT  = orcv1alpha1.SubnetResourceSpec
+	filterT        = orcv1alpha1.SubnetFilter
 )
 
 // Derived types
