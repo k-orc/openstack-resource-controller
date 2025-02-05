@@ -24,6 +24,11 @@ import (
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
+const (
+	PortStatusActive = "ACTIVE"
+	PortStatusDown   = "DOWN"
+)
+
 type objectApplyPT = *orcapplyconfigv1alpha1.PortApplyConfiguration
 type statusApplyPT = *orcapplyconfigv1alpha1.PortStatusApplyConfiguration
 
@@ -35,9 +40,12 @@ func (portStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstr
 	return orcapplyconfigv1alpha1.Port
 }
 
-func (portStatusWriter) ResourceIsAvailable(_ orcObjectPT, osResource *osResourceT) bool {
-	// A port is available as soon as it exists
-	return osResource != nil
+func (portStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
+	// Both active and down ports
+	return orcObject.Status.ID != nil && osResource != nil &&
+		(osResource.Status == PortStatusActive ||
+			osResource.Status == PortStatusDown)
+
 }
 
 func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

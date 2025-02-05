@@ -27,11 +27,10 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-
-const portStatusActive = "ACTIVE"
 
 type updateStatusOpts struct {
 	subnet *orcv1alpha1.Subnet
@@ -56,7 +55,7 @@ func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *update
 
 	available := false
 	if opts.port != nil {
-		if opts.port.Status == portStatusActive {
+		if opts.port.Status == port.PortStatusActive {
 			available = true
 		} else {
 			progressStatus = append(progressStatus, generic.WaitingOnOpenStackReady(portStatusPollingPeriod))
