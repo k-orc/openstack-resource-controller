@@ -20,7 +20,7 @@ Join us on kubernetes slack, on [#gophercloud](https://kubernetes.slack.com/arch
 
 ### Prerequisites
 
-ORC heavily uses [CEL validations](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules) and thus depends on kubenetes v1.29 or above.
+ORC heavily uses [CEL validations](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules) and thus depends on Kubernetes v1.29 or above.
 
 ### Installation
 
