@@ -25,19 +25,18 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
+	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
-	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 const noRequeue time.Duration = 0
@@ -49,20 +48,19 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 	log := ctrl.LoggerFrom(ctx)
 
 	router := &orcv1alpha1.Router{}
-	err := r.client.Get(ctx, req.NamespacedName, router)
-	if err != nil {
+	if err := r.client.Get(ctx, req.NamespacedName, router); err != nil {
 		if apierrors.IsNotFound(err) {
 			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, err
 	}
 
-	if !orcv1alpha1.IsAvailable(router) {
+	if !orcv1alpha1.IsAvailable(router) || router.Status.ID == nil {
 		log.V(4).Info("Not reconciling interfaces for not-Available router")
 		return ctrl.Result{}, nil
 	}
 
-	routerInterfaces, err := getRouterInterfacesForRouter(ctx, r.client, router)
+	routerInterfaces, err := routerDependency.GetObjectsForDependency(ctx, r.client, router)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("fetching router interfaces: %w", err)
 	}
@@ -72,11 +70,9 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, nil
 	}
 
-	if router.Status.ID == nil {
-		// Programming error
-		// No point return an error here because we need the router to be updated before trying again
-		log.Info("router is available, but router ID is not set")
-		return ctrl.Result{}, nil
+	// If there are interfaces, the router should have our finalizer
+	if err := dependency.EnsureFinalizer(ctx, r.client, router, finalizer, fieldOwner); err != nil {
+		return ctrl.Result{}, fmt.Errorf("writing finalizer: %w", err)
 	}
 
 	listOpts := ports.ListOpts{
@@ -99,21 +95,20 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		routerInterfacePorts = append(routerInterfacePorts, *port)
 	}
 
-	errs := make([]error, len(routerInterfaces))
+	// TODO: refactor this loop so reconcileNormal and reconcileDelete both use and return progressStatus
 	requeues := make([]time.Duration, len(routerInterfaces))
 	for i := range routerInterfaces {
-		err := &errs[i]
-		requeue := &requeues[i]
 		routerInterface := &routerInterfaces[i]
+		ifRequeue := &requeues[i]
 
+		var ifError error
 		if routerInterface.GetDeletionTimestamp().IsZero() {
-			*requeue, *err = r.reconcileNormal(ctx, router, routerInterface, routerInterfacePorts, networkClient)
+			*ifRequeue, ifError = r.reconcileNormal(ctx, router, routerInterface, routerInterfacePorts, networkClient)
 		} else {
-			*requeue, *err = r.reconcileDelete(ctx, router, routerInterface, routerInterfacePorts, networkClient)
+			*ifRequeue, ifError = r.reconcileDelete(ctx, router, routerInterface, routerInterfacePorts, networkClient)
 		}
+		err = errors.Join(err, ifError)
 	}
-
-	err = errors.Join(errs...)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -182,11 +177,8 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 		// Adding the finalizer only when creating a resource means we don't add
 		// it until all dependent resources are available, which means we don't
 		// have to handle unavailable dependencies in the delete flow
-		if !controllerutil.ContainsFinalizer(routerInterface, Finalizer) {
-			patch := finalizers.SetFinalizerPatch(routerInterface, Finalizer)
-			if err := r.client.Patch(ctx, routerInterface, patch, client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn)); err != nil {
-				return noRequeue, fmt.Errorf("setting finalizer for %s: %w", client.ObjectKeyFromObject(routerInterface), err)
-			}
+		if err := dependency.EnsureFinalizer(ctx, r.client, routerInterface, finalizer, generic.GetSSAFieldOwnerWithTxn(controllerName, generic.SSATransactionFinalizer)); err != nil {
+			return noRequeue, fmt.Errorf("setting finalizer for %s: %w", client.ObjectKeyFromObject(routerInterface), err)
 		}
 
 		_, err := networkClient.AddRouterInterface(ctx, *router.Status.ID, createOpts)
@@ -221,6 +213,8 @@ func findPortBySubnetID(routerInterfacePorts []ports.Port, subnetID string) *por
 }
 
 func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, statusOpts *updateStatusOpts) (bool, routers.AddInterfaceOptsBuilder, error) {
+	log := ctrl.LoggerFrom(ctx)
+
 	subnet := &orcv1alpha1.Subnet{}
 	subnetKey := client.ObjectKey{
 		Namespace: routerInterface.Namespace,
@@ -234,6 +228,19 @@ func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context
 
 		return false, nil, fmt.Errorf("fetching subnet %s: %w", subnetKey, err)
 	}
+	log = log.WithValues("subnet", subnet.Name)
+
+	// Don't reconcile for a subnet which has been deleted
+	if !subnet.GetDeletionTimestamp().IsZero() {
+		log.V(4).Info("Not reconciling interface for deleted subnet")
+		return false, nil, nil
+	}
+
+	// Ensure the dependent subnet has our finalizer
+	if err := dependency.EnsureFinalizer(ctx, r.client, subnet, finalizer, fieldOwner); err != nil {
+		return false, nil, fmt.Errorf("adding finalizer to subnet: %w", err)
+	}
+
 	statusOpts.subnet = subnet
 
 	if subnet.Status.ID == nil {
@@ -261,7 +268,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context
 func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, networkClient osclients.NetworkClient) (_ time.Duration, err error) {
 	log := ctrl.LoggerFrom(ctx).WithValues("interface name", routerInterface.Name)
 
-	if !controllerutil.ContainsFinalizer(routerInterface, Finalizer) {
+	if !controllerutil.ContainsFinalizer(routerInterface, finalizer) {
 		log.V(4).Info("Not reconciling delete for router interface without finalizer")
 		return noRequeue, nil
 	}
@@ -313,8 +320,7 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, rout
 
 	// Clear the finalizer
 	log.V(3).Info("Router interface deleted")
-	applyConfig := orcapplyconfigv1alpha1.RouterInterface(routerInterface.Name, routerInterface.Namespace).WithUID(routerInterface.UID)
-	return noRequeue, r.client.Patch(ctx, routerInterface, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner(SSAFinalizerTxn))
+	return noRequeue, r.client.Patch(ctx, routerInterface, finalizers.RemoveFinalizerPatch(routerInterface), client.ForceOwnership, generic.GetSSAFieldOwnerWithTxn(controllerName, generic.SSATransactionFinalizer))
 }
 
 func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, statusOpts *updateStatusOpts) (bool, routers.RemoveInterfaceOptsBuilder, error) {

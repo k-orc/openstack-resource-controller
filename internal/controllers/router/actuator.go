@@ -21,7 +21,6 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -93,33 +92,19 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var waitEvents []generic.ProgressStatus
+	var progressStatus []generic.ProgressStatus
 
-	var gatewayInfo *routers.GatewayInfo
-	for name, result := range externalGWDep.GetDependencies(ctx, actuator.k8sClient, obj) {
-		err := result.Err()
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Network", name))
-				continue
-			}
-			return nil, nil, err
-		}
-
-		network := result.Ok()
-		if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
-			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Network", name))
-			continue
-		}
-
-		gatewayInfo = &routers.GatewayInfo{
-			NetworkID: *network.Status.ID,
-		}
-		break
+	// Fetch dependencies and ensure they have our finalizer
+	externalGW, progressStatus, err := externalGWDep.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	if len(progressStatus) != 0 || err != nil {
+		return progressStatus, nil, err
 	}
-
-	if len(waitEvents) > 0 {
-		return waitEvents, nil, nil
+	gatewayInfo := &routers.GatewayInfo{
+		NetworkID: *externalGW.Status.ID,
 	}
 
 	createOpts := routers.CreateOpts{

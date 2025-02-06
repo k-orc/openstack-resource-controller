@@ -92,20 +92,22 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var waitEvents []generic.ProgressStatus
+	var progressStatus []generic.ProgressStatus
 
 	image := &orcv1alpha1.Image{}
 	{
-		imageKey := client.ObjectKey{Name: string(resource.ImageRef), Namespace: obj.Namespace}
-		if err := actuator.k8sClient.Get(ctx, imageKey, image); err != nil {
-			if apierrors.IsNotFound(err) {
-				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Image", imageKey.Name))
-			} else {
-				return nil, nil, fmt.Errorf("fetching image %s: %w", imageKey.Name, err)
-			}
+		dep, imageProgressStatus, err := imageDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(image *orcv1alpha1.Image) bool {
+				return orcv1alpha1.IsAvailable(image) && image.Status.ID != nil
+			},
+		)
+		if err != nil {
+			return nil, nil, fmt.Errorf("fetching images for %s: %w", obj.Name, err)
 		}
-		if !orcv1alpha1.IsAvailable(image) || image.Status.ID == nil {
-			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Image", imageKey.Name))
+		if len(imageProgressStatus) > 0 {
+			progressStatus = append(progressStatus, imageProgressStatus...)
+		} else {
+			image = dep
 		}
 	}
 
@@ -114,42 +116,45 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
 		if err := actuator.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
-				waitEvents = append(waitEvents, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
+				progressStatus = append(progressStatus, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
 			} else {
 				return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
 			}
 		}
 		if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
-			waitEvents = append(waitEvents, generic.WaitingOnORCReady("Flavor", flavorKey.Name))
+			progressStatus = append(progressStatus, generic.WaitingOnORCReady("Flavor", flavorKey.Name))
 		}
 	}
 
 	portList := make([]servers.Network, len(resource.Ports))
 	{
-		for i := range resource.Ports {
-			portSpec := &resource.Ports[i]
-			port := &portList[i]
+		portsMap, portsProgressStatus, err := portDependency.GetDependencies(
+			ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
+				return port.Status.ID != nil
+			},
+		)
+		if err != nil {
+			return nil, nil, fmt.Errorf("fetching ports: %w", err)
+		}
+		if len(portsProgressStatus) > 0 {
+			progressStatus = append(progressStatus, portsProgressStatus...)
+		} else {
+			for i := range resource.Ports {
+				portSpec := &resource.Ports[i]
+				serverNetwork := &portList[i]
 
-			if portSpec.PortRef == nil {
-				// Should have been caught by API validation
-				return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec")
-			}
-
-			portObject := &orcv1alpha1.Port{}
-			portKey := client.ObjectKey{Name: string(*portSpec.PortRef), Namespace: obj.Namespace}
-			if err := actuator.k8sClient.Get(ctx, portKey, portObject); err != nil {
-				if apierrors.IsNotFound(err) {
-					waitEvents = append(waitEvents, generic.WaitingOnORCExist("Port", portKey.Name))
-					continue
+				if portSpec.PortRef == nil {
+					// Should have been caught by API validation
+					return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec")
 				}
-				return nil, nil, fmt.Errorf("fetching port %s: %w", portKey.Name, err)
-			}
-			if !orcv1alpha1.IsAvailable(portObject) || portObject.Status.ID == nil {
-				waitEvents = append(waitEvents, generic.WaitingOnORCReady("Port", portKey.Name))
-				continue
-			}
 
-			port.Port = *portObject.Status.ID
+				if port, ok := portsMap[string(*portSpec.PortRef)]; !ok {
+					// Programming error
+					return nil, nil, fmt.Errorf("port %s not present in portsMap", *portSpec.PortRef)
+				} else {
+					serverNetwork.Port = *port.Status.ID
+				}
+			}
 		}
 	}
 
@@ -161,18 +166,18 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 			if !apierrors.IsNotFound(err) {
 				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
 			}
-			waitEvents = append(waitEvents, generic.WaitingOnORCExist("Secret", secretKey.Name))
+			progressStatus = append(progressStatus, generic.WaitingOnORCExist("Secret", secretKey.Name))
 		} else {
 			var ok bool
 			userData, ok = secret.Data["value"]
 			if !ok {
-				waitEvents = append(waitEvents, generic.WaitingOnORCReady("Secret", secret.Name))
+				progressStatus = append(progressStatus, generic.WaitingOnORCReady("Secret", secret.Name))
 			}
 		}
 	}
 
-	if len(waitEvents) > 0 {
-		return waitEvents, nil, nil
+	if len(progressStatus) > 0 {
+		return progressStatus, nil, nil
 	}
 
 	createOpts := servers.CreateOpts{
