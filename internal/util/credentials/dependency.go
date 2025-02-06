@@ -26,6 +26,24 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
+/*
+	NOTE: These are cluster-wide permissions on secrets, which is not ideal.
+
+	On the update privilege: we only need this for adding finalizers. Although
+	the OwnerReferencesPermissionEnforcement
+	(https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#ownerreferencespermissionenforcement)
+	may make it look like there is, there is no real finalizers subresource, so
+	we can't confine this to the ability to write the finalizer.
+
+	I (mdbooth) suspect that the future may bring new capabilities, either in
+	kube or its supporting ecosystem, which may allow us to reduce these
+	privileges in the future. We should periodically take some time to find out
+	if that has happened yet.
+*/
+
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=update;patch
+
 func AddCredentialsWatch[
 	objectTP dependency.ObjectType[objectT],
 	objectListTP dependency.ObjectListType[objectListT, objectT],

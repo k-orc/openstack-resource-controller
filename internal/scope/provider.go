@@ -239,8 +239,6 @@ func (g gophercloudLogger) Printf(format string, args ...interface{}) {
 	g.logger.Info(fmt.Sprintf(format, args...))
 }
 
-// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
-
 // getCloudFromSecret extract a Cloud from the given namespace:secretName.
 func getCloudFromSecret(ctx context.Context, ctrlClient client.Client, secretNamespace string, secretName string, cloudName string) (clientconfig.Cloud, []byte, error) {
 	emptyCloud := clientconfig.Cloud{}
