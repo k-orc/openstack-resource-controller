@@ -52,7 +52,7 @@ modules:
 	go mod tidy
 
 .PHONY: generate
-generate: generate-resources generate-controller-gen generate-codegen generate-go modules manifests
+generate: generate-resources generate-controller-gen generate-codegen generate-go manifests
 
 .PHONY: generate-resources
 generate-resources:
@@ -69,6 +69,16 @@ generate-codegen: generate-controller-gen ## codegen requires DeepCopy etc
 .PHONY: generate-go
 generate-go: mockgen
 	go generate ./...
+
+.PHONY: verify 
+verify: verify-modules verify-generated
+
+.PHONY: verify-modules
+verify-modules: modules
+	@if !(git diff --quiet HEAD -- go.*); then \
+		git diff; \
+		echo "go module files are out of date"; exit 1; \
+	fi
 
 .PHONY: verify-generated
 verify-generated: generate
