@@ -1,0 +1,21 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: import-external
+    adminStateUp: false
+    description: Network import-external from "import" test
+    dnsDomain: "foo.com."
+    external: true
+    mtu: 1400
+    portSecurityEnabled: false
+    shared: true
+    tags:
+      - tag1
+      - tag2
