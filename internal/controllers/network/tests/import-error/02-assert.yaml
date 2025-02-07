@@ -3,7 +3,7 @@ kind: TestAssert
 commands:
 - script: "! kubectl get network import-error --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get network import-network-error-external-1 --namespace $NAMESPACE"
+- script: "! kubectl get network import-error-external-1 --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get network import-network-error-external-2--namespace $NAMESPACE"
+- script: "! kubectl get network import-error-external-2 --namespace $NAMESPACE"
   skipLogOutput: true
