@@ -15,14 +15,13 @@ status:
       reason: Success
   resource:
     name: import-external
-    adminStateUp: false
     description: Network import-external from "import" test
-    # Skipped until https://github.com/k-orc/openstack-resource-controller/issues/189 is fixed
-    #dnsDomain: "foo.com"
+    adminStateUp: true
+    dnsDomain: ""
     external: true
-    mtu: 1400
-    portSecurityEnabled: false
-    shared: true
+    mtu: 1442
+    portSecurityEnabled: true
+    shared: false
     status: ACTIVE
     # Skipped until https://github.com/k-orc/openstack-resource-controller/issues/242 is fixed
     # tags:

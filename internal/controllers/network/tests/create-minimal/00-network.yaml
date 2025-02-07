@@ -8,4 +8,4 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: "Network create-minimal"
+    name: create-minimal

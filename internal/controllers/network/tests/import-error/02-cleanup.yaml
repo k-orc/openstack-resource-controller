@@ -3,10 +3,10 @@ kind: TestStep
 delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Network
-  name: import-network-error
+  name: import-error
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Network
-  name: import-network-error-external-1
+  name: import-error-external-1
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Network
-  name: import-network-error-external-2
+  name: import-error-external-2

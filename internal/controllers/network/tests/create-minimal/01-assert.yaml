@@ -1,5 +1,5 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 commands:
-- script: "! kubectl get network create-minimal-network --namespace $NAMESPACE"
+- script: "! kubectl get network create-minimal --namespace $NAMESPACE"
   skipLogOutput: true
