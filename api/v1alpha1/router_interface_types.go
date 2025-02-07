@@ -25,8 +25,7 @@ import (
 // +kubebuilder:resource:categories=openstack
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"
-// +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Available')].message",description="Message describing current availability status"
-// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Time duration since creation"
+// +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Progressing')].message",description="Message describing current progress status"
 
 // RouterInterface is the Schema for an ORC resource.
 type RouterInterface struct {

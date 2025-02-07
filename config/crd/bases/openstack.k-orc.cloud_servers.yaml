@@ -25,14 +25,10 @@ spec:
       jsonPath: .status.conditions[?(@.type=='Available')].status
       name: Available
       type: string
-    - description: Message describing current availability status
-      jsonPath: .status.conditions[?(@.type=='Available')].message
+    - description: Message describing current progress status
+      jsonPath: .status.conditions[?(@.type=='Progressing')].message
       name: Message
       type: string
-    - description: Time duration since creation
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
     name: v1alpha1
     schema:
       openAPIV3Schema:
