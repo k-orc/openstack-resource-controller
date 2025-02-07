@@ -11,13 +11,8 @@ spec:
   import:
     filter:
       name: import-external
-      adminStateUp: false
       description: Network import-external from "import" test
-      dnsDomain: "foo.com."
       external: true
-      mtu: 1400
-      portSecurityEnabled: false
-      shared: true
       tags:
         - tag1
         - tag2
