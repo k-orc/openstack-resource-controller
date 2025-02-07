@@ -147,6 +147,22 @@ func (e waitingOnOpenStack) Requeue() time.Duration {
 	return e.pollingPeriod
 }
 
+type needsRefresh struct{}
+
+var _ ProgressStatus = needsRefresh{}
+
+func (needsRefresh) Message() string {
+	return "Resource status will be refreshed"
+}
+
+func (needsRefresh) Requeue() time.Duration {
+	return 0
+}
+
+func NeedsRefresh() ProgressStatus {
+	return needsRefresh{}
+}
+
 func MaxRequeue(evts []ProgressStatus) time.Duration {
 	var ret time.Duration
 	for _, evt := range evts {

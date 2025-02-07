@@ -52,11 +52,16 @@ func ReconcileTags[orcObjectPT, osResourceT any](
 		for i := range specTags {
 			specTagSet.Insert(string(specTags[i]))
 		}
+		var progressStatus []generic.ProgressStatus
 		var err error
 		if !specTagSet.Equal(observedTagSet) {
 			opts := attributestags.ReplaceAllOpts{Tags: specTagSet.SortedList()}
 			_, err = networkClient.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
+			if err == nil {
+				// If we updated the tags we need another reconcile to refresh the resource status
+				progressStatus = []generic.ProgressStatus{generic.NeedsRefresh()}
+			}
 		}
-		return nil, err
+		return progressStatus, err
 	}
 }
