@@ -17,5 +17,5 @@ spec:
     portSecurityEnabled: false
     shared: true
     tags:
-      - foo1
-      - foo2
+      - tag1
+      - tag2
