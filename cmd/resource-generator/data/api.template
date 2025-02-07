@@ -46,9 +46,9 @@ type {{ .Name }}Import struct {
 // +kubebuilder:validation:XValidation:rule="self.managementPolicy == 'unmanaged' ? !has(self.resource) : true",message="resource may not be specified when policy is unmanaged"
 // +kubebuilder:validation:XValidation:rule="self.managementPolicy == 'unmanaged' ? has(self.__import__) : true",message="import must be specified when policy is unmanaged"
 // +kubebuilder:validation:XValidation:rule="has(self.managedOptions) ? self.managementPolicy == 'managed' : true",message="managedOptions may only be provided when policy is managed"
-{{ range .SpecExtraValidations -}}
+{{- range .SpecExtraValidations }}
 // +kubebuilder:validation:XValidation:rule="{{ .Rule }}",message="{{ .Message }}"
-{{ end -}}
+{{- end }}
 type {{ .Name }}Spec struct {
 {{- if .SpecExtraType }}
 	{{ .SpecExtraType }} `json:",inline"`
@@ -132,6 +132,9 @@ func (i *{{ .Name }}) GetConditions() []metav1.Condition {
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="ID",type="string",JSONPath=".status.id",description="Resource ID"
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"
+{{- range .AdditionalPrintColumns }}
+// +kubebuilder:printcolumn:name="{{ .Name }}",type="{{ .Type }}",JSONPath="{{ .JSONPath }}",description="{{ .Description }}"
+{{- end }}
 // +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Progressing')].message",description="Message describing current progress status"
 
 // {{ .Name }} is the Schema for an ORC resource.

@@ -25,6 +25,10 @@ spec:
       jsonPath: .status.conditions[?(@.type=='Available')].status
       name: Available
       type: string
+    - description: Allocated IP addresses
+      jsonPath: .status.resource.fixedIPs[*].ip
+      name: Addresses
+      type: string
     - description: Message describing current progress status
       jsonPath: .status.conditions[?(@.type=='Progressing')].message
       name: Message

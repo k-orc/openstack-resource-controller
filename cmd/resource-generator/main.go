@@ -25,14 +25,22 @@ type specExtraValidation struct {
 	Message string
 }
 
+type additionalPrintColumn struct {
+	Name        string
+	Type        string
+	JSONPath    string
+	Description string
+}
+
 type templateFields struct {
-	APIVersion           string
-	Year                 string
-	Name                 string
-	NameLower            string
-	SpecExtraType        string
-	StatusExtraType      string
-	SpecExtraValidations []specExtraValidation
+	APIVersion             string
+	Year                   string
+	Name                   string
+	NameLower              string
+	SpecExtraType          string
+	StatusExtraType        string
+	SpecExtraValidations   []specExtraValidation
+	AdditionalPrintColumns []additionalPrintColumn
 }
 
 var allResources []templateFields = []templateFields{
@@ -64,6 +72,14 @@ var allResources []templateFields = []templateFields{
 	{
 		Name:          "Port",
 		SpecExtraType: "PortRefs",
+		AdditionalPrintColumns: []additionalPrintColumn{
+			{
+				Name:        "Addresses",
+				Type:        "string",
+				JSONPath:    ".status.resource.fixedIPs[*].ip",
+				Description: "Allocated IP addresses",
+			},
+		},
 	},
 	{
 		Name: "SecurityGroup",
