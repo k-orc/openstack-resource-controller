@@ -1,7 +1,7 @@
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.31.0
+ENVTEST_K8S_VERSION = 1.32.0
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -228,12 +228,12 @@ MOCKGEN = $(LOCALBIN)/mockgen
 KUTTL = $(LOCALBIN)/kubectl-kuttl
 
 ## Tool Versions
-KUSTOMIZE_VERSION ?= v5.4.2
-CONTROLLER_TOOLS_VERSION ?= v0.17.0
+KUSTOMIZE_VERSION ?= v5.6.0
+CONTROLLER_TOOLS_VERSION ?= v0.17.1
 ENVTEST_VERSION ?= release-0.19
 GOLANGCI_LINT_VERSION ?= v1.63.4
 KAL_VERSION ?= v0.0.0-20250120175744-495588b8c987
-MOCKGEN_VERSION ?= v0.4.0
+MOCKGEN_VERSION ?= v0.5.0
 KUTTL_VERSION ?= v0.20.0
 
 .PHONY: kustomize
