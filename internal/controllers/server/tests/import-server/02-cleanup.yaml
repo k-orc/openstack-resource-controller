@@ -1,0 +1,27 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: import
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: import-external
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: import-error  
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Flavor
+  name: server-flavor 
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Port
+  name: import-external-port-server
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: import-external-subnet-server
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Network
+  name: import-external-network-server
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Image
+  name: import-external-image-server     

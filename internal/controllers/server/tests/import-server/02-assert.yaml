@@ -1,0 +1,12 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get server import --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get server import-external--namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get server import-error --namespace $NAMESPACE"
+  skipLogOutput: true  
+- script: "! kubectl get flavor server-flavor --namespace $NAMESPACE"
+  skipLogOutput: true
