@@ -6,10 +6,17 @@ nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Reference: crd-reference.md
-  - Design decisions: design-decisions.md
-  - API contracts: api-contracts.md
-  - Local development: local-development.md
-  - Writing controllers: writing-controllers.md
+  - Local development quickstart: development/quickstart.md
+  - Developing controllers:
+    - development/index.md
+    - Generating scaffolding: development/scaffolding.md
+    - Writing an API: development/api-contracts.md
+    - Controller design considerations: development/controller-design.md
+    - Controller initialisation: development/controller-init.md
+    - Resource-specific interfaces: development/interfaces.md
+    - Writing tests: development/writing-tests.md
+    - General design considerations: development/design-decisions.md
+    - Interface reference: development/godoc/generic-interfaces.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
   analytics:
@@ -27,6 +34,8 @@ theme:
   custom_dir: overrides
   features:
     - navigation.footer
+    - navigation.indexes
+    - navigation.expand
 plugins:
   - search:
   - minify:
