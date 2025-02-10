@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // SecurityGroupFilterApplyConfiguration represents a declarative configuration of the SecurityGroupFilter type for use
 // with apply.
 type SecurityGroupFilterApplyConfiguration struct {
-	Name                                  *v1alpha1.OpenStackName      `json:"name,omitempty"`
-	Description                           *v1alpha1.NeutronDescription `json:"description,omitempty"`
+	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -39,7 +39,7 @@ func SecurityGroupFilter() *SecurityGroupFilterApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *SecurityGroupFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *SecurityGroupFilterApplyConfiguration {
+func (b *SecurityGroupFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *SecurityGroupFilterApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -47,7 +47,7 @@ func (b *SecurityGroupFilterApplyConfiguration) WithName(value v1alpha1.OpenStac
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SecurityGroupFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SecurityGroupFilterApplyConfiguration {
+func (b *SecurityGroupFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SecurityGroupFilterApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -55,9 +55,9 @@ func (b *SecurityGroupFilterApplyConfiguration) WithDescription(value v1alpha1.N
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *SecurityGroupFilterApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
+func (b *SecurityGroupFilterApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
 	for i := range values {
-		b.Tags = append(b.Tags, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.Tags = append(b.FilterByNeutronTagsApplyConfiguration.Tags, values[i])
 	}
 	return b
 }
@@ -65,9 +65,9 @@ func (b *SecurityGroupFilterApplyConfiguration) WithTags(values ...v1alpha1.Neut
 // WithTagsAny adds the given value to the TagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the TagsAny field.
-func (b *SecurityGroupFilterApplyConfiguration) WithTagsAny(values ...v1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
+func (b *SecurityGroupFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
 	for i := range values {
-		b.TagsAny = append(b.TagsAny, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.TagsAny = append(b.FilterByNeutronTagsApplyConfiguration.TagsAny, values[i])
 	}
 	return b
 }
@@ -75,9 +75,9 @@ func (b *SecurityGroupFilterApplyConfiguration) WithTagsAny(values ...v1alpha1.N
 // WithNotTags adds the given value to the NotTags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTags field.
-func (b *SecurityGroupFilterApplyConfiguration) WithNotTags(values ...v1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
+func (b *SecurityGroupFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
 	for i := range values {
-		b.NotTags = append(b.NotTags, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.NotTags = append(b.FilterByNeutronTagsApplyConfiguration.NotTags, values[i])
 	}
 	return b
 }
@@ -85,9 +85,9 @@ func (b *SecurityGroupFilterApplyConfiguration) WithNotTags(values ...v1alpha1.N
 // WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTagsAny field.
-func (b *SecurityGroupFilterApplyConfiguration) WithNotTagsAny(values ...v1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
+func (b *SecurityGroupFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.NeutronTag) *SecurityGroupFilterApplyConfiguration {
 	for i := range values {
-		b.NotTagsAny = append(b.NotTagsAny, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.NotTagsAny = append(b.FilterByNeutronTagsApplyConfiguration.NotTagsAny, values[i])
 	}
 	return b
 }

@@ -19,16 +19,16 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ImageResourceSpecApplyConfiguration represents a declarative configuration of the ImageResourceSpec type for use
 // with apply.
 type ImageResourceSpecApplyConfiguration struct {
-	Name       *v1alpha1.OpenStackName            `json:"name,omitempty"`
+	Name       *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
 	Protected  *bool                              `json:"protected,omitempty"`
-	Tags       []v1alpha1.ImageTag                `json:"tags,omitempty"`
-	Visibility *v1alpha1.ImageVisibility          `json:"visibility,omitempty"`
+	Tags       []apiv1alpha1.ImageTag             `json:"tags,omitempty"`
+	Visibility *apiv1alpha1.ImageVisibility       `json:"visibility,omitempty"`
 	Properties *ImagePropertiesApplyConfiguration `json:"properties,omitempty"`
 	Content    *ImageContentApplyConfiguration    `json:"content,omitempty"`
 }
@@ -42,7 +42,7 @@ func ImageResourceSpec() *ImageResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *ImageResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *ImageResourceSpecApplyConfiguration {
+func (b *ImageResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ImageResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -58,7 +58,7 @@ func (b *ImageResourceSpecApplyConfiguration) WithProtected(value bool) *ImageRe
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *ImageResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.ImageTag) *ImageResourceSpecApplyConfiguration {
+func (b *ImageResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.ImageTag) *ImageResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
@@ -68,7 +68,7 @@ func (b *ImageResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.ImageT
 // WithVisibility sets the Visibility field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Visibility field is set to the value of the last call.
-func (b *ImageResourceSpecApplyConfiguration) WithVisibility(value v1alpha1.ImageVisibility) *ImageResourceSpecApplyConfiguration {
+func (b *ImageResourceSpecApplyConfiguration) WithVisibility(value apiv1alpha1.ImageVisibility) *ImageResourceSpecApplyConfiguration {
 	b.Visibility = &value
 	return b
 }

@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	openstackresourcecontrollerapiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
 	internalinterfaces "github.com/k-orc/openstack-resource-controller/pkg/clients/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // Routers.
 type RouterInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.RouterLister
+	Lister() apiv1alpha1.RouterLister
 }
 
 type routerInformer struct {
@@ -71,7 +71,7 @@ func NewFilteredRouterInformer(client clientset.Interface, namespace string, res
 				return client.OpenstackV1alpha1().Routers(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&apiv1alpha1.Router{},
+		&openstackresourcecontrollerapiv1alpha1.Router{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +82,9 @@ func (f *routerInformer) defaultInformer(client clientset.Interface, resyncPerio
 }
 
 func (f *routerInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apiv1alpha1.Router{}, f.defaultInformer)
+	return f.factory.InformerFor(&openstackresourcecontrollerapiv1alpha1.Router{}, f.defaultInformer)
 }
 
-func (f *routerInformer) Lister() v1alpha1.RouterLister {
-	return v1alpha1.NewRouterLister(f.Informer().GetIndexer())
+func (f *routerInformer) Lister() apiv1alpha1.RouterLister {
+	return apiv1alpha1.NewRouterLister(f.Informer().GetIndexer())
 }

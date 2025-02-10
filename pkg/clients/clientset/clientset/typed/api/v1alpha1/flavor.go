@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type FlavorsGetter interface {
 
 // FlavorInterface has methods to work with Flavor resources.
 type FlavorInterface interface {
-	Create(ctx context.Context, flavor *v1alpha1.Flavor, opts v1.CreateOptions) (*v1alpha1.Flavor, error)
-	Update(ctx context.Context, flavor *v1alpha1.Flavor, opts v1.UpdateOptions) (*v1alpha1.Flavor, error)
+	Create(ctx context.Context, flavor *apiv1alpha1.Flavor, opts v1.CreateOptions) (*apiv1alpha1.Flavor, error)
+	Update(ctx context.Context, flavor *apiv1alpha1.Flavor, opts v1.UpdateOptions) (*apiv1alpha1.Flavor, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, flavor *v1alpha1.Flavor, opts v1.UpdateOptions) (*v1alpha1.Flavor, error)
+	UpdateStatus(ctx context.Context, flavor *apiv1alpha1.Flavor, opts v1.UpdateOptions) (*apiv1alpha1.Flavor, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.Flavor, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.FlavorList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.Flavor, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.FlavorList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Flavor, err error)
-	Apply(ctx context.Context, flavor *apiv1alpha1.FlavorApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Flavor, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.Flavor, err error)
+	Apply(ctx context.Context, flavor *applyconfigurationapiv1alpha1.FlavorApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Flavor, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, flavor *apiv1alpha1.FlavorApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Flavor, err error)
+	ApplyStatus(ctx context.Context, flavor *applyconfigurationapiv1alpha1.FlavorApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Flavor, err error)
 	FlavorExpansion
 }
 
 // flavors implements FlavorInterface
 type flavors struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.Flavor, *v1alpha1.FlavorList, *apiv1alpha1.FlavorApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.Flavor, *apiv1alpha1.FlavorList, *applyconfigurationapiv1alpha1.FlavorApplyConfiguration]
 }
 
 // newFlavors returns a Flavors
 func newFlavors(c *OpenstackV1alpha1Client, namespace string) *flavors {
 	return &flavors{
-		gentype.NewClientWithListAndApply[*v1alpha1.Flavor, *v1alpha1.FlavorList, *apiv1alpha1.FlavorApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.Flavor, *apiv1alpha1.FlavorList, *applyconfigurationapiv1alpha1.FlavorApplyConfiguration](
 			"flavors",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.Flavor { return &v1alpha1.Flavor{} },
-			func() *v1alpha1.FlavorList { return &v1alpha1.FlavorList{} }),
+			func() *apiv1alpha1.Flavor { return &apiv1alpha1.Flavor{} },
+			func() *apiv1alpha1.FlavorList { return &apiv1alpha1.FlavorList{} },
+		),
 	}
 }

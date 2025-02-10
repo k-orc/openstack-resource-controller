@@ -19,15 +19,15 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // RouterInterfaceSpecApplyConfiguration represents a declarative configuration of the RouterInterfaceSpec type for use
 // with apply.
 type RouterInterfaceSpecApplyConfiguration struct {
-	Type      *v1alpha1.RouterInterfaceType `json:"type,omitempty"`
-	RouterRef *v1alpha1.KubernetesNameRef   `json:"routerRef,omitempty"`
-	SubnetRef *v1alpha1.KubernetesNameRef   `json:"subnetRef,omitempty"`
+	Type      *apiv1alpha1.RouterInterfaceType `json:"type,omitempty"`
+	RouterRef *apiv1alpha1.KubernetesNameRef   `json:"routerRef,omitempty"`
+	SubnetRef *apiv1alpha1.KubernetesNameRef   `json:"subnetRef,omitempty"`
 }
 
 // RouterInterfaceSpecApplyConfiguration constructs a declarative configuration of the RouterInterfaceSpec type for use with
@@ -39,7 +39,7 @@ func RouterInterfaceSpec() *RouterInterfaceSpecApplyConfiguration {
 // WithType sets the Type field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Type field is set to the value of the last call.
-func (b *RouterInterfaceSpecApplyConfiguration) WithType(value v1alpha1.RouterInterfaceType) *RouterInterfaceSpecApplyConfiguration {
+func (b *RouterInterfaceSpecApplyConfiguration) WithType(value apiv1alpha1.RouterInterfaceType) *RouterInterfaceSpecApplyConfiguration {
 	b.Type = &value
 	return b
 }
@@ -47,7 +47,7 @@ func (b *RouterInterfaceSpecApplyConfiguration) WithType(value v1alpha1.RouterIn
 // WithRouterRef sets the RouterRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RouterRef field is set to the value of the last call.
-func (b *RouterInterfaceSpecApplyConfiguration) WithRouterRef(value v1alpha1.KubernetesNameRef) *RouterInterfaceSpecApplyConfiguration {
+func (b *RouterInterfaceSpecApplyConfiguration) WithRouterRef(value apiv1alpha1.KubernetesNameRef) *RouterInterfaceSpecApplyConfiguration {
 	b.RouterRef = &value
 	return b
 }
@@ -55,7 +55,7 @@ func (b *RouterInterfaceSpecApplyConfiguration) WithRouterRef(value v1alpha1.Kub
 // WithSubnetRef sets the SubnetRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the SubnetRef field is set to the value of the last call.
-func (b *RouterInterfaceSpecApplyConfiguration) WithSubnetRef(value v1alpha1.KubernetesNameRef) *RouterInterfaceSpecApplyConfiguration {
+func (b *RouterInterfaceSpecApplyConfiguration) WithSubnetRef(value apiv1alpha1.KubernetesNameRef) *RouterInterfaceSpecApplyConfiguration {
 	b.SubnetRef = &value
 	return b
 }
