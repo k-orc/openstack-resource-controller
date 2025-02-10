@@ -31,6 +31,13 @@ updates:
   commit-message:
     prefix: ":seedling:"
     include: scope
+  ignore:
+  # Ignore controller-runtime major and minor bumps as its upgraded manually.
+  - dependency-name: "sigs.k8s.io/controller-runtime"
+    update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  # Ignore k8s major and minor bumps and its transitives modules
+  - dependency-name: "k8s.io/*"
+    update-types: ["version-update:semver-major", "version-update:semver-minor"]
 ## main branch config ends here
 ## release-1.0 branch config starts here
 # github-actions
