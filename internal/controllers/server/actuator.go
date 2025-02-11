@@ -73,7 +73,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	}
 
 	listOpts := servers.ListOpts{
-		Name: string(getResourceName(obj)),
+		Name: fmt.Sprintf("^%s$", string(getResourceName(obj))),
 	}
 	return actuator.osClient.ListServers(ctx, listOpts), true
 }
