@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // HostRouteApplyConfiguration represents a declarative configuration of the HostRoute type for use
 // with apply.
 type HostRouteApplyConfiguration struct {
-	Destination *v1alpha1.CIDR   `json:"destination,omitempty"`
-	NextHop     *v1alpha1.IPvAny `json:"nextHop,omitempty"`
+	Destination *apiv1alpha1.CIDR   `json:"destination,omitempty"`
+	NextHop     *apiv1alpha1.IPvAny `json:"nextHop,omitempty"`
 }
 
 // HostRouteApplyConfiguration constructs a declarative configuration of the HostRoute type for use with
@@ -38,7 +38,7 @@ func HostRoute() *HostRouteApplyConfiguration {
 // WithDestination sets the Destination field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Destination field is set to the value of the last call.
-func (b *HostRouteApplyConfiguration) WithDestination(value v1alpha1.CIDR) *HostRouteApplyConfiguration {
+func (b *HostRouteApplyConfiguration) WithDestination(value apiv1alpha1.CIDR) *HostRouteApplyConfiguration {
 	b.Destination = &value
 	return b
 }
@@ -46,7 +46,7 @@ func (b *HostRouteApplyConfiguration) WithDestination(value v1alpha1.CIDR) *Host
 // WithNextHop sets the NextHop field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NextHop field is set to the value of the last call.
-func (b *HostRouteApplyConfiguration) WithNextHop(value v1alpha1.IPvAny) *HostRouteApplyConfiguration {
+func (b *HostRouteApplyConfiguration) WithNextHop(value apiv1alpha1.IPvAny) *HostRouteApplyConfiguration {
 	b.NextHop = &value
 	return b
 }

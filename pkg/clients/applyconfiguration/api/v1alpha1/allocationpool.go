@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // AllocationPoolApplyConfiguration represents a declarative configuration of the AllocationPool type for use
 // with apply.
 type AllocationPoolApplyConfiguration struct {
-	Start *v1alpha1.IPvAny `json:"start,omitempty"`
-	End   *v1alpha1.IPvAny `json:"end,omitempty"`
+	Start *apiv1alpha1.IPvAny `json:"start,omitempty"`
+	End   *apiv1alpha1.IPvAny `json:"end,omitempty"`
 }
 
 // AllocationPoolApplyConfiguration constructs a declarative configuration of the AllocationPool type for use with
@@ -38,7 +38,7 @@ func AllocationPool() *AllocationPoolApplyConfiguration {
 // WithStart sets the Start field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Start field is set to the value of the last call.
-func (b *AllocationPoolApplyConfiguration) WithStart(value v1alpha1.IPvAny) *AllocationPoolApplyConfiguration {
+func (b *AllocationPoolApplyConfiguration) WithStart(value apiv1alpha1.IPvAny) *AllocationPoolApplyConfiguration {
 	b.Start = &value
 	return b
 }
@@ -46,7 +46,7 @@ func (b *AllocationPoolApplyConfiguration) WithStart(value v1alpha1.IPvAny) *All
 // WithEnd sets the End field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the End field is set to the value of the last call.
-func (b *AllocationPoolApplyConfiguration) WithEnd(value v1alpha1.IPvAny) *AllocationPoolApplyConfiguration {
+func (b *AllocationPoolApplyConfiguration) WithEnd(value apiv1alpha1.IPvAny) *AllocationPoolApplyConfiguration {
 	b.End = &value
 	return b
 }

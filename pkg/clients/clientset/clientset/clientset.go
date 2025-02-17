@@ -19,8 +19,8 @@ limitations under the License.
 package clientset
 
 import (
-	"fmt"
-	"net/http"
+	fmt "fmt"
+	http "net/http"
 
 	openstackv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1"
 	discovery "k8s.io/client-go/discovery"

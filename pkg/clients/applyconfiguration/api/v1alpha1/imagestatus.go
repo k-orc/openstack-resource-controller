@@ -70,6 +70,6 @@ func (b *ImageStatusApplyConfiguration) WithResource(value *ImageResourceStatusA
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DownloadAttempts field is set to the value of the last call.
 func (b *ImageStatusApplyConfiguration) WithDownloadAttempts(value int32) *ImageStatusApplyConfiguration {
-	b.DownloadAttempts = &value
+	b.ImageStatusExtraApplyConfiguration.DownloadAttempts = &value
 	return b
 }

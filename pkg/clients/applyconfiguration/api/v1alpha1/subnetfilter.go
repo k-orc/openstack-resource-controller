@@ -19,18 +19,18 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // SubnetFilterApplyConfiguration represents a declarative configuration of the SubnetFilter type for use
 // with apply.
 type SubnetFilterApplyConfiguration struct {
-	Name                                  *v1alpha1.OpenStackName        `json:"name,omitempty"`
-	Description                           *v1alpha1.NeutronDescription   `json:"description,omitempty"`
-	IPVersion                             *v1alpha1.IPVersion            `json:"ipVersion,omitempty"`
-	GatewayIP                             *v1alpha1.IPvAny               `json:"gatewayIP,omitempty"`
-	CIDR                                  *v1alpha1.CIDR                 `json:"cidr,omitempty"`
-	IPv6                                  *IPv6OptionsApplyConfiguration `json:"ipv6,omitempty"`
+	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
+	IPVersion                             *apiv1alpha1.IPVersion          `json:"ipVersion,omitempty"`
+	GatewayIP                             *apiv1alpha1.IPvAny             `json:"gatewayIP,omitempty"`
+	CIDR                                  *apiv1alpha1.CIDR               `json:"cidr,omitempty"`
+	IPv6                                  *IPv6OptionsApplyConfiguration  `json:"ipv6,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -43,7 +43,7 @@ func SubnetFilter() *SubnetFilterApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *SubnetFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *SubnetFilterApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -51,7 +51,7 @@ func (b *SubnetFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) 
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SubnetFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SubnetFilterApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -59,7 +59,7 @@ func (b *SubnetFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronD
 // WithIPVersion sets the IPVersion field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the IPVersion field is set to the value of the last call.
-func (b *SubnetFilterApplyConfiguration) WithIPVersion(value v1alpha1.IPVersion) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithIPVersion(value apiv1alpha1.IPVersion) *SubnetFilterApplyConfiguration {
 	b.IPVersion = &value
 	return b
 }
@@ -67,7 +67,7 @@ func (b *SubnetFilterApplyConfiguration) WithIPVersion(value v1alpha1.IPVersion)
 // WithGatewayIP sets the GatewayIP field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the GatewayIP field is set to the value of the last call.
-func (b *SubnetFilterApplyConfiguration) WithGatewayIP(value v1alpha1.IPvAny) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithGatewayIP(value apiv1alpha1.IPvAny) *SubnetFilterApplyConfiguration {
 	b.GatewayIP = &value
 	return b
 }
@@ -75,7 +75,7 @@ func (b *SubnetFilterApplyConfiguration) WithGatewayIP(value v1alpha1.IPvAny) *S
 // WithCIDR sets the CIDR field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CIDR field is set to the value of the last call.
-func (b *SubnetFilterApplyConfiguration) WithCIDR(value v1alpha1.CIDR) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithCIDR(value apiv1alpha1.CIDR) *SubnetFilterApplyConfiguration {
 	b.CIDR = &value
 	return b
 }
@@ -91,9 +91,9 @@ func (b *SubnetFilterApplyConfiguration) WithIPv6(value *IPv6OptionsApplyConfigu
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *SubnetFilterApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
 	for i := range values {
-		b.Tags = append(b.Tags, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.Tags = append(b.FilterByNeutronTagsApplyConfiguration.Tags, values[i])
 	}
 	return b
 }
@@ -101,9 +101,9 @@ func (b *SubnetFilterApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag)
 // WithTagsAny adds the given value to the TagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the TagsAny field.
-func (b *SubnetFilterApplyConfiguration) WithTagsAny(values ...v1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
 	for i := range values {
-		b.TagsAny = append(b.TagsAny, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.TagsAny = append(b.FilterByNeutronTagsApplyConfiguration.TagsAny, values[i])
 	}
 	return b
 }
@@ -111,9 +111,9 @@ func (b *SubnetFilterApplyConfiguration) WithTagsAny(values ...v1alpha1.NeutronT
 // WithNotTags adds the given value to the NotTags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTags field.
-func (b *SubnetFilterApplyConfiguration) WithNotTags(values ...v1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
 	for i := range values {
-		b.NotTags = append(b.NotTags, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.NotTags = append(b.FilterByNeutronTagsApplyConfiguration.NotTags, values[i])
 	}
 	return b
 }
@@ -121,9 +121,9 @@ func (b *SubnetFilterApplyConfiguration) WithNotTags(values ...v1alpha1.NeutronT
 // WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTagsAny field.
-func (b *SubnetFilterApplyConfiguration) WithNotTagsAny(values ...v1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
+func (b *SubnetFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.NeutronTag) *SubnetFilterApplyConfiguration {
 	for i := range values {
-		b.NotTagsAny = append(b.NotTagsAny, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.NotTagsAny = append(b.FilterByNeutronTagsApplyConfiguration.NotTagsAny, values[i])
 	}
 	return b
 }

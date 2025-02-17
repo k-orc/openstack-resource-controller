@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type SubnetsGetter interface {
 
 // SubnetInterface has methods to work with Subnet resources.
 type SubnetInterface interface {
-	Create(ctx context.Context, subnet *v1alpha1.Subnet, opts v1.CreateOptions) (*v1alpha1.Subnet, error)
-	Update(ctx context.Context, subnet *v1alpha1.Subnet, opts v1.UpdateOptions) (*v1alpha1.Subnet, error)
+	Create(ctx context.Context, subnet *apiv1alpha1.Subnet, opts v1.CreateOptions) (*apiv1alpha1.Subnet, error)
+	Update(ctx context.Context, subnet *apiv1alpha1.Subnet, opts v1.UpdateOptions) (*apiv1alpha1.Subnet, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, subnet *v1alpha1.Subnet, opts v1.UpdateOptions) (*v1alpha1.Subnet, error)
+	UpdateStatus(ctx context.Context, subnet *apiv1alpha1.Subnet, opts v1.UpdateOptions) (*apiv1alpha1.Subnet, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.Subnet, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.SubnetList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.Subnet, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.SubnetList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Subnet, err error)
-	Apply(ctx context.Context, subnet *apiv1alpha1.SubnetApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Subnet, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.Subnet, err error)
+	Apply(ctx context.Context, subnet *applyconfigurationapiv1alpha1.SubnetApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Subnet, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, subnet *apiv1alpha1.SubnetApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Subnet, err error)
+	ApplyStatus(ctx context.Context, subnet *applyconfigurationapiv1alpha1.SubnetApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Subnet, err error)
 	SubnetExpansion
 }
 
 // subnets implements SubnetInterface
 type subnets struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.Subnet, *v1alpha1.SubnetList, *apiv1alpha1.SubnetApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.Subnet, *apiv1alpha1.SubnetList, *applyconfigurationapiv1alpha1.SubnetApplyConfiguration]
 }
 
 // newSubnets returns a Subnets
 func newSubnets(c *OpenstackV1alpha1Client, namespace string) *subnets {
 	return &subnets{
-		gentype.NewClientWithListAndApply[*v1alpha1.Subnet, *v1alpha1.SubnetList, *apiv1alpha1.SubnetApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.Subnet, *apiv1alpha1.SubnetList, *applyconfigurationapiv1alpha1.SubnetApplyConfiguration](
 			"subnets",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.Subnet { return &v1alpha1.Subnet{} },
-			func() *v1alpha1.SubnetList { return &v1alpha1.SubnetList{} }),
+			func() *apiv1alpha1.Subnet { return &apiv1alpha1.Subnet{} },
+			func() *apiv1alpha1.SubnetList { return &apiv1alpha1.SubnetList{} },
+		),
 	}
 }

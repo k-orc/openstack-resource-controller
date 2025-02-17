@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // UserDataSpecApplyConfiguration represents a declarative configuration of the UserDataSpec type for use
 // with apply.
 type UserDataSpecApplyConfiguration struct {
-	SecretRef *v1alpha1.KubernetesNameRef `json:"secretRef,omitempty"`
+	SecretRef *apiv1alpha1.KubernetesNameRef `json:"secretRef,omitempty"`
 }
 
 // UserDataSpecApplyConfiguration constructs a declarative configuration of the UserDataSpec type for use with
@@ -37,7 +37,7 @@ func UserDataSpec() *UserDataSpecApplyConfiguration {
 // WithSecretRef sets the SecretRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the SecretRef field is set to the value of the last call.
-func (b *UserDataSpecApplyConfiguration) WithSecretRef(value v1alpha1.KubernetesNameRef) *UserDataSpecApplyConfiguration {
+func (b *UserDataSpecApplyConfiguration) WithSecretRef(value apiv1alpha1.KubernetesNameRef) *UserDataSpecApplyConfiguration {
 	b.SecretRef = &value
 	return b
 }

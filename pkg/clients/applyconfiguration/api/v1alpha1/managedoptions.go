@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ManagedOptionsApplyConfiguration represents a declarative configuration of the ManagedOptions type for use
 // with apply.
 type ManagedOptionsApplyConfiguration struct {
-	OnDelete *v1alpha1.OnDelete `json:"onDelete,omitempty"`
+	OnDelete *apiv1alpha1.OnDelete `json:"onDelete,omitempty"`
 }
 
 // ManagedOptionsApplyConfiguration constructs a declarative configuration of the ManagedOptions type for use with
@@ -37,7 +37,7 @@ func ManagedOptions() *ManagedOptionsApplyConfiguration {
 // WithOnDelete sets the OnDelete field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the OnDelete field is set to the value of the last call.
-func (b *ManagedOptionsApplyConfiguration) WithOnDelete(value v1alpha1.OnDelete) *ManagedOptionsApplyConfiguration {
+func (b *ManagedOptionsApplyConfiguration) WithOnDelete(value apiv1alpha1.OnDelete) *ManagedOptionsApplyConfiguration {
 	b.OnDelete = &value
 	return b
 }
