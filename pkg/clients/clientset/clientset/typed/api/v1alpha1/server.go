@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type ServersGetter interface {
 
 // ServerInterface has methods to work with Server resources.
 type ServerInterface interface {
-	Create(ctx context.Context, server *v1alpha1.Server, opts v1.CreateOptions) (*v1alpha1.Server, error)
-	Update(ctx context.Context, server *v1alpha1.Server, opts v1.UpdateOptions) (*v1alpha1.Server, error)
+	Create(ctx context.Context, server *apiv1alpha1.Server, opts v1.CreateOptions) (*apiv1alpha1.Server, error)
+	Update(ctx context.Context, server *apiv1alpha1.Server, opts v1.UpdateOptions) (*apiv1alpha1.Server, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, server *v1alpha1.Server, opts v1.UpdateOptions) (*v1alpha1.Server, error)
+	UpdateStatus(ctx context.Context, server *apiv1alpha1.Server, opts v1.UpdateOptions) (*apiv1alpha1.Server, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.Server, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.ServerList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.Server, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.ServerList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Server, err error)
-	Apply(ctx context.Context, server *apiv1alpha1.ServerApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Server, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.Server, err error)
+	Apply(ctx context.Context, server *applyconfigurationapiv1alpha1.ServerApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Server, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, server *apiv1alpha1.ServerApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Server, err error)
+	ApplyStatus(ctx context.Context, server *applyconfigurationapiv1alpha1.ServerApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Server, err error)
 	ServerExpansion
 }
 
 // servers implements ServerInterface
 type servers struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.Server, *v1alpha1.ServerList, *apiv1alpha1.ServerApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.Server, *apiv1alpha1.ServerList, *applyconfigurationapiv1alpha1.ServerApplyConfiguration]
 }
 
 // newServers returns a Servers
 func newServers(c *OpenstackV1alpha1Client, namespace string) *servers {
 	return &servers{
-		gentype.NewClientWithListAndApply[*v1alpha1.Server, *v1alpha1.ServerList, *apiv1alpha1.ServerApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.Server, *apiv1alpha1.ServerList, *applyconfigurationapiv1alpha1.ServerApplyConfiguration](
 			"servers",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.Server { return &v1alpha1.Server{} },
-			func() *v1alpha1.ServerList { return &v1alpha1.ServerList{} }),
+			func() *apiv1alpha1.Server { return &apiv1alpha1.Server{} },
+			func() *apiv1alpha1.ServerList { return &apiv1alpha1.ServerList{} },
+		),
 	}
 }

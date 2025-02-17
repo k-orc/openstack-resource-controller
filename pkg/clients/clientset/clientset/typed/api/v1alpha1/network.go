@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type NetworksGetter interface {
 
 // NetworkInterface has methods to work with Network resources.
 type NetworkInterface interface {
-	Create(ctx context.Context, network *v1alpha1.Network, opts v1.CreateOptions) (*v1alpha1.Network, error)
-	Update(ctx context.Context, network *v1alpha1.Network, opts v1.UpdateOptions) (*v1alpha1.Network, error)
+	Create(ctx context.Context, network *apiv1alpha1.Network, opts v1.CreateOptions) (*apiv1alpha1.Network, error)
+	Update(ctx context.Context, network *apiv1alpha1.Network, opts v1.UpdateOptions) (*apiv1alpha1.Network, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, network *v1alpha1.Network, opts v1.UpdateOptions) (*v1alpha1.Network, error)
+	UpdateStatus(ctx context.Context, network *apiv1alpha1.Network, opts v1.UpdateOptions) (*apiv1alpha1.Network, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.Network, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.NetworkList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.Network, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.NetworkList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Network, err error)
-	Apply(ctx context.Context, network *apiv1alpha1.NetworkApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Network, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.Network, err error)
+	Apply(ctx context.Context, network *applyconfigurationapiv1alpha1.NetworkApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Network, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, network *apiv1alpha1.NetworkApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Network, err error)
+	ApplyStatus(ctx context.Context, network *applyconfigurationapiv1alpha1.NetworkApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Network, err error)
 	NetworkExpansion
 }
 
 // networks implements NetworkInterface
 type networks struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.Network, *v1alpha1.NetworkList, *apiv1alpha1.NetworkApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.Network, *apiv1alpha1.NetworkList, *applyconfigurationapiv1alpha1.NetworkApplyConfiguration]
 }
 
 // newNetworks returns a Networks
 func newNetworks(c *OpenstackV1alpha1Client, namespace string) *networks {
 	return &networks{
-		gentype.NewClientWithListAndApply[*v1alpha1.Network, *v1alpha1.NetworkList, *apiv1alpha1.NetworkApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.Network, *apiv1alpha1.NetworkList, *applyconfigurationapiv1alpha1.NetworkApplyConfiguration](
 			"networks",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.Network { return &v1alpha1.Network{} },
-			func() *v1alpha1.NetworkList { return &v1alpha1.NetworkList{} }),
+			func() *apiv1alpha1.Network { return &apiv1alpha1.Network{} },
+			func() *apiv1alpha1.NetworkList { return &apiv1alpha1.NetworkList{} },
+		),
 	}
 }

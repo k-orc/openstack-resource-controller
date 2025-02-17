@@ -187,7 +187,7 @@ func (b *SubnetResourceStatusApplyConfiguration) WithTags(values ...string) *Sub
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreatedAt field is set to the value of the last call.
 func (b *SubnetResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *SubnetResourceStatusApplyConfiguration {
-	b.CreatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
 	return b
 }
 
@@ -195,7 +195,7 @@ func (b *SubnetResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *S
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UpdatedAt field is set to the value of the last call.
 func (b *SubnetResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *SubnetResourceStatusApplyConfiguration {
-	b.UpdatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
 	return b
 }
 
@@ -203,6 +203,6 @@ func (b *SubnetResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *S
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RevisionNumber field is set to the value of the last call.
 func (b *SubnetResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *SubnetResourceStatusApplyConfiguration {
-	b.RevisionNumber = &value
+	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

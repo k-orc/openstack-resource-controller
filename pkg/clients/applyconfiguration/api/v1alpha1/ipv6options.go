@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // IPv6OptionsApplyConfiguration represents a declarative configuration of the IPv6Options type for use
 // with apply.
 type IPv6OptionsApplyConfiguration struct {
-	AddressMode *v1alpha1.IPv6AddressMode `json:"addressMode,omitempty"`
-	RAMode      *v1alpha1.IPv6RAMode      `json:"raMode,omitempty"`
+	AddressMode *apiv1alpha1.IPv6AddressMode `json:"addressMode,omitempty"`
+	RAMode      *apiv1alpha1.IPv6RAMode      `json:"raMode,omitempty"`
 }
 
 // IPv6OptionsApplyConfiguration constructs a declarative configuration of the IPv6Options type for use with
@@ -38,7 +38,7 @@ func IPv6Options() *IPv6OptionsApplyConfiguration {
 // WithAddressMode sets the AddressMode field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the AddressMode field is set to the value of the last call.
-func (b *IPv6OptionsApplyConfiguration) WithAddressMode(value v1alpha1.IPv6AddressMode) *IPv6OptionsApplyConfiguration {
+func (b *IPv6OptionsApplyConfiguration) WithAddressMode(value apiv1alpha1.IPv6AddressMode) *IPv6OptionsApplyConfiguration {
 	b.AddressMode = &value
 	return b
 }
@@ -46,7 +46,7 @@ func (b *IPv6OptionsApplyConfiguration) WithAddressMode(value v1alpha1.IPv6Addre
 // WithRAMode sets the RAMode field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RAMode field is set to the value of the last call.
-func (b *IPv6OptionsApplyConfiguration) WithRAMode(value v1alpha1.IPv6RAMode) *IPv6OptionsApplyConfiguration {
+func (b *IPv6OptionsApplyConfiguration) WithRAMode(value apiv1alpha1.IPv6RAMode) *IPv6OptionsApplyConfiguration {
 	b.RAMode = &value
 	return b
 }

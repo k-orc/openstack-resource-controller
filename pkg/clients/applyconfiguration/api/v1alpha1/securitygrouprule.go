@@ -19,17 +19,17 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // SecurityGroupRuleApplyConfiguration represents a declarative configuration of the SecurityGroupRule type for use
 // with apply.
 type SecurityGroupRuleApplyConfiguration struct {
-	Description    *v1alpha1.NeutronDescription     `json:"description,omitempty"`
-	Direction      *v1alpha1.RuleDirection          `json:"direction,omitempty"`
-	RemoteIPPrefix *v1alpha1.CIDR                   `json:"remoteIPPrefix,omitempty"`
-	Protocol       *v1alpha1.Protocol               `json:"protocol,omitempty"`
-	Ethertype      *v1alpha1.Ethertype              `json:"ethertype,omitempty"`
+	Description    *apiv1alpha1.NeutronDescription  `json:"description,omitempty"`
+	Direction      *apiv1alpha1.RuleDirection       `json:"direction,omitempty"`
+	RemoteIPPrefix *apiv1alpha1.CIDR                `json:"remoteIPPrefix,omitempty"`
+	Protocol       *apiv1alpha1.Protocol            `json:"protocol,omitempty"`
+	Ethertype      *apiv1alpha1.Ethertype           `json:"ethertype,omitempty"`
 	PortRange      *PortRangeSpecApplyConfiguration `json:"portRange,omitempty"`
 }
 
@@ -42,7 +42,7 @@ func SecurityGroupRule() *SecurityGroupRuleApplyConfiguration {
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SecurityGroupRuleApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -50,7 +50,7 @@ func (b *SecurityGroupRuleApplyConfiguration) WithDescription(value v1alpha1.Neu
 // WithDirection sets the Direction field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Direction field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithDirection(value v1alpha1.RuleDirection) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithDirection(value apiv1alpha1.RuleDirection) *SecurityGroupRuleApplyConfiguration {
 	b.Direction = &value
 	return b
 }
@@ -58,7 +58,7 @@ func (b *SecurityGroupRuleApplyConfiguration) WithDirection(value v1alpha1.RuleD
 // WithRemoteIPPrefix sets the RemoteIPPrefix field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RemoteIPPrefix field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithRemoteIPPrefix(value v1alpha1.CIDR) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithRemoteIPPrefix(value apiv1alpha1.CIDR) *SecurityGroupRuleApplyConfiguration {
 	b.RemoteIPPrefix = &value
 	return b
 }
@@ -66,7 +66,7 @@ func (b *SecurityGroupRuleApplyConfiguration) WithRemoteIPPrefix(value v1alpha1.
 // WithProtocol sets the Protocol field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Protocol field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithProtocol(value v1alpha1.Protocol) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithProtocol(value apiv1alpha1.Protocol) *SecurityGroupRuleApplyConfiguration {
 	b.Protocol = &value
 	return b
 }
@@ -74,7 +74,7 @@ func (b *SecurityGroupRuleApplyConfiguration) WithProtocol(value v1alpha1.Protoc
 // WithEthertype sets the Ethertype field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Ethertype field is set to the value of the last call.
-func (b *SecurityGroupRuleApplyConfiguration) WithEthertype(value v1alpha1.Ethertype) *SecurityGroupRuleApplyConfiguration {
+func (b *SecurityGroupRuleApplyConfiguration) WithEthertype(value apiv1alpha1.Ethertype) *SecurityGroupRuleApplyConfiguration {
 	b.Ethertype = &value
 	return b
 }

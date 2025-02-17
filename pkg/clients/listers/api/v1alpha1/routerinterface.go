@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/listers"
-	"k8s.io/client-go/tools/cache"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // RouterInterfaceLister helps list RouterInterfaces.
@@ -30,7 +30,7 @@ import (
 type RouterInterfaceLister interface {
 	// List lists all RouterInterfaces in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.RouterInterface, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.RouterInterface, err error)
 	// RouterInterfaces returns an object that can list and get RouterInterfaces.
 	RouterInterfaces(namespace string) RouterInterfaceNamespaceLister
 	RouterInterfaceListerExpansion
@@ -38,17 +38,17 @@ type RouterInterfaceLister interface {
 
 // routerInterfaceLister implements the RouterInterfaceLister interface.
 type routerInterfaceLister struct {
-	listers.ResourceIndexer[*v1alpha1.RouterInterface]
+	listers.ResourceIndexer[*apiv1alpha1.RouterInterface]
 }
 
 // NewRouterInterfaceLister returns a new RouterInterfaceLister.
 func NewRouterInterfaceLister(indexer cache.Indexer) RouterInterfaceLister {
-	return &routerInterfaceLister{listers.New[*v1alpha1.RouterInterface](indexer, v1alpha1.Resource("routerinterface"))}
+	return &routerInterfaceLister{listers.New[*apiv1alpha1.RouterInterface](indexer, apiv1alpha1.Resource("routerinterface"))}
 }
 
 // RouterInterfaces returns an object that can list and get RouterInterfaces.
 func (s *routerInterfaceLister) RouterInterfaces(namespace string) RouterInterfaceNamespaceLister {
-	return routerInterfaceNamespaceLister{listers.NewNamespaced[*v1alpha1.RouterInterface](s.ResourceIndexer, namespace)}
+	return routerInterfaceNamespaceLister{listers.NewNamespaced[*apiv1alpha1.RouterInterface](s.ResourceIndexer, namespace)}
 }
 
 // RouterInterfaceNamespaceLister helps list and get RouterInterfaces.
@@ -56,15 +56,15 @@ func (s *routerInterfaceLister) RouterInterfaces(namespace string) RouterInterfa
 type RouterInterfaceNamespaceLister interface {
 	// List lists all RouterInterfaces in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.RouterInterface, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.RouterInterface, err error)
 	// Get retrieves the RouterInterface from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.RouterInterface, error)
+	Get(name string) (*apiv1alpha1.RouterInterface, error)
 	RouterInterfaceNamespaceListerExpansion
 }
 
 // routerInterfaceNamespaceLister implements the RouterInterfaceNamespaceLister
 // interface.
 type routerInterfaceNamespaceLister struct {
-	listers.ResourceIndexer[*v1alpha1.RouterInterface]
+	listers.ResourceIndexer[*apiv1alpha1.RouterInterface]
 }

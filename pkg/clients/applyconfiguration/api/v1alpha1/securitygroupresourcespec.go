@@ -19,15 +19,15 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // SecurityGroupResourceSpecApplyConfiguration represents a declarative configuration of the SecurityGroupResourceSpec type for use
 // with apply.
 type SecurityGroupResourceSpecApplyConfiguration struct {
-	Name        *v1alpha1.OpenStackName               `json:"name,omitempty"`
-	Description *v1alpha1.NeutronDescription          `json:"description,omitempty"`
-	Tags        []v1alpha1.NeutronTag                 `json:"tags,omitempty"`
+	Name        *apiv1alpha1.OpenStackName            `json:"name,omitempty"`
+	Description *apiv1alpha1.NeutronDescription       `json:"description,omitempty"`
+	Tags        []apiv1alpha1.NeutronTag              `json:"tags,omitempty"`
 	Stateful    *bool                                 `json:"stateful,omitempty"`
 	Rules       []SecurityGroupRuleApplyConfiguration `json:"rules,omitempty"`
 }
@@ -41,7 +41,7 @@ func SecurityGroupResourceSpec() *SecurityGroupResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *SecurityGroupResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *SecurityGroupResourceSpecApplyConfiguration {
+func (b *SecurityGroupResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *SecurityGroupResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -49,7 +49,7 @@ func (b *SecurityGroupResourceSpecApplyConfiguration) WithName(value v1alpha1.Op
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SecurityGroupResourceSpecApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SecurityGroupResourceSpecApplyConfiguration {
+func (b *SecurityGroupResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SecurityGroupResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -57,7 +57,7 @@ func (b *SecurityGroupResourceSpecApplyConfiguration) WithDescription(value v1al
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *SecurityGroupResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *SecurityGroupResourceSpecApplyConfiguration {
+func (b *SecurityGroupResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *SecurityGroupResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}

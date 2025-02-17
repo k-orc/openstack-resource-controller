@@ -19,22 +19,22 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // NetworkResourceSpecApplyConfiguration represents a declarative configuration of the NetworkResourceSpec type for use
 // with apply.
 type NetworkResourceSpecApplyConfiguration struct {
-	Name                  *v1alpha1.OpenStackName         `json:"name,omitempty"`
-	Description           *v1alpha1.NeutronDescription    `json:"description,omitempty"`
-	Tags                  []v1alpha1.NeutronTag           `json:"tags,omitempty"`
-	AdminStateUp          *bool                           `json:"adminStateUp,omitempty"`
-	DNSDomain             *v1alpha1.DNSDomain             `json:"dnsDomain,omitempty"`
-	MTU                   *v1alpha1.MTU                   `json:"mtu,omitempty"`
-	PortSecurityEnabled   *bool                           `json:"portSecurityEnabled,omitempty"`
-	External              *bool                           `json:"external,omitempty"`
-	Shared                *bool                           `json:"shared,omitempty"`
-	AvailabilityZoneHints []v1alpha1.AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
+	Name                  *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
+	Description           *apiv1alpha1.NeutronDescription    `json:"description,omitempty"`
+	Tags                  []apiv1alpha1.NeutronTag           `json:"tags,omitempty"`
+	AdminStateUp          *bool                              `json:"adminStateUp,omitempty"`
+	DNSDomain             *apiv1alpha1.DNSDomain             `json:"dnsDomain,omitempty"`
+	MTU                   *apiv1alpha1.MTU                   `json:"mtu,omitempty"`
+	PortSecurityEnabled   *bool                              `json:"portSecurityEnabled,omitempty"`
+	External              *bool                              `json:"external,omitempty"`
+	Shared                *bool                              `json:"shared,omitempty"`
+	AvailabilityZoneHints []apiv1alpha1.AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
 }
 
 // NetworkResourceSpecApplyConfiguration constructs a declarative configuration of the NetworkResourceSpec type for use with
@@ -46,7 +46,7 @@ func NetworkResourceSpec() *NetworkResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *NetworkResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *NetworkResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -54,7 +54,7 @@ func (b *NetworkResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStac
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *NetworkResourceSpecApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *NetworkResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -62,7 +62,7 @@ func (b *NetworkResourceSpecApplyConfiguration) WithDescription(value v1alpha1.N
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *NetworkResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *NetworkResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
@@ -80,7 +80,7 @@ func (b *NetworkResourceSpecApplyConfiguration) WithAdminStateUp(value bool) *Ne
 // WithDNSDomain sets the DNSDomain field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DNSDomain field is set to the value of the last call.
-func (b *NetworkResourceSpecApplyConfiguration) WithDNSDomain(value v1alpha1.DNSDomain) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithDNSDomain(value apiv1alpha1.DNSDomain) *NetworkResourceSpecApplyConfiguration {
 	b.DNSDomain = &value
 	return b
 }
@@ -88,7 +88,7 @@ func (b *NetworkResourceSpecApplyConfiguration) WithDNSDomain(value v1alpha1.DNS
 // WithMTU sets the MTU field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the MTU field is set to the value of the last call.
-func (b *NetworkResourceSpecApplyConfiguration) WithMTU(value v1alpha1.MTU) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithMTU(value apiv1alpha1.MTU) *NetworkResourceSpecApplyConfiguration {
 	b.MTU = &value
 	return b
 }
@@ -120,7 +120,7 @@ func (b *NetworkResourceSpecApplyConfiguration) WithShared(value bool) *NetworkR
 // WithAvailabilityZoneHints adds the given value to the AvailabilityZoneHints field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the AvailabilityZoneHints field.
-func (b *NetworkResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values ...v1alpha1.AvailabilityZoneHint) *NetworkResourceSpecApplyConfiguration {
+func (b *NetworkResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values ...apiv1alpha1.AvailabilityZoneHint) *NetworkResourceSpecApplyConfiguration {
 	for i := range values {
 		b.AvailabilityZoneHints = append(b.AvailabilityZoneHints, values[i])
 	}

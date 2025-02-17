@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ImageHashApplyConfiguration represents a declarative configuration of the ImageHash type for use
 // with apply.
 type ImageHashApplyConfiguration struct {
-	Algorithm *v1alpha1.ImageHashAlgorithm `json:"algorithm,omitempty"`
-	Value     *string                      `json:"value,omitempty"`
+	Algorithm *apiv1alpha1.ImageHashAlgorithm `json:"algorithm,omitempty"`
+	Value     *string                         `json:"value,omitempty"`
 }
 
 // ImageHashApplyConfiguration constructs a declarative configuration of the ImageHash type for use with
@@ -38,7 +38,7 @@ func ImageHash() *ImageHashApplyConfiguration {
 // WithAlgorithm sets the Algorithm field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Algorithm field is set to the value of the last call.
-func (b *ImageHashApplyConfiguration) WithAlgorithm(value v1alpha1.ImageHashAlgorithm) *ImageHashApplyConfiguration {
+func (b *ImageHashApplyConfiguration) WithAlgorithm(value apiv1alpha1.ImageHashAlgorithm) *ImageHashApplyConfiguration {
 	b.Algorithm = &value
 	return b
 }

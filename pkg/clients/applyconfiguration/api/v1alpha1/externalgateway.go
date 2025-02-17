@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ExternalGatewayApplyConfiguration represents a declarative configuration of the ExternalGateway type for use
 // with apply.
 type ExternalGatewayApplyConfiguration struct {
-	NetworkRef *v1alpha1.KubernetesNameRef `json:"networkRef,omitempty"`
+	NetworkRef *apiv1alpha1.KubernetesNameRef `json:"networkRef,omitempty"`
 }
 
 // ExternalGatewayApplyConfiguration constructs a declarative configuration of the ExternalGateway type for use with
@@ -37,7 +37,7 @@ func ExternalGateway() *ExternalGatewayApplyConfiguration {
 // WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NetworkRef field is set to the value of the last call.
-func (b *ExternalGatewayApplyConfiguration) WithNetworkRef(value v1alpha1.KubernetesNameRef) *ExternalGatewayApplyConfiguration {
+func (b *ExternalGatewayApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *ExternalGatewayApplyConfiguration {
 	b.NetworkRef = &value
 	return b
 }

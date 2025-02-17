@@ -19,20 +19,20 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // FlavorResourceSpecApplyConfiguration represents a declarative configuration of the FlavorResourceSpec type for use
 // with apply.
 type FlavorResourceSpecApplyConfiguration struct {
-	Name        *v1alpha1.OpenStackName `json:"name,omitempty"`
-	Description *string                 `json:"description,omitempty"`
-	RAM         *int32                  `json:"ram,omitempty"`
-	Vcpus       *int32                  `json:"vcpus,omitempty"`
-	Disk        *int32                  `json:"disk,omitempty"`
-	Swap        *int32                  `json:"swap,omitempty"`
-	IsPublic    *bool                   `json:"isPublic,omitempty"`
-	Ephemeral   *int32                  `json:"ephemeral,omitempty"`
+	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Description *string                    `json:"description,omitempty"`
+	RAM         *int32                     `json:"ram,omitempty"`
+	Vcpus       *int32                     `json:"vcpus,omitempty"`
+	Disk        *int32                     `json:"disk,omitempty"`
+	Swap        *int32                     `json:"swap,omitempty"`
+	IsPublic    *bool                      `json:"isPublic,omitempty"`
+	Ephemeral   *int32                     `json:"ephemeral,omitempty"`
 }
 
 // FlavorResourceSpecApplyConfiguration constructs a declarative configuration of the FlavorResourceSpec type for use with
@@ -44,7 +44,7 @@ func FlavorResourceSpec() *FlavorResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *FlavorResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *FlavorResourceSpecApplyConfiguration {
+func (b *FlavorResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *FlavorResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }

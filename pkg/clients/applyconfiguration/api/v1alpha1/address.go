@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // AddressApplyConfiguration represents a declarative configuration of the Address type for use
 // with apply.
 type AddressApplyConfiguration struct {
-	IP        *v1alpha1.IPvAny            `json:"ip,omitempty"`
-	SubnetRef *v1alpha1.KubernetesNameRef `json:"subnetRef,omitempty"`
+	IP        *apiv1alpha1.IPvAny            `json:"ip,omitempty"`
+	SubnetRef *apiv1alpha1.KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 
 // AddressApplyConfiguration constructs a declarative configuration of the Address type for use with
@@ -38,7 +38,7 @@ func Address() *AddressApplyConfiguration {
 // WithIP sets the IP field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the IP field is set to the value of the last call.
-func (b *AddressApplyConfiguration) WithIP(value v1alpha1.IPvAny) *AddressApplyConfiguration {
+func (b *AddressApplyConfiguration) WithIP(value apiv1alpha1.IPvAny) *AddressApplyConfiguration {
 	b.IP = &value
 	return b
 }
@@ -46,7 +46,7 @@ func (b *AddressApplyConfiguration) WithIP(value v1alpha1.IPvAny) *AddressApplyC
 // WithSubnetRef sets the SubnetRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the SubnetRef field is set to the value of the last call.
-func (b *AddressApplyConfiguration) WithSubnetRef(value v1alpha1.KubernetesNameRef) *AddressApplyConfiguration {
+func (b *AddressApplyConfiguration) WithSubnetRef(value apiv1alpha1.KubernetesNameRef) *AddressApplyConfiguration {
 	b.SubnetRef = &value
 	return b
 }
