@@ -43,7 +43,10 @@ import (
 	// +kubebuilder:scaffold:imports
 )
 
-var defaultCACertsPath string
+var (
+	defaultCACertsPath string
+	namespaceList      []string
+)
 
 func main() {
 	setupLog := ctrl.Log.WithName("setup")
@@ -64,6 +67,11 @@ func main() {
 			"Setting this value to 0 means no cache.")
 	flag.StringVar(&defaultCACertsPath, "default-ca-certs", "",
 		"The path to a PEM-encoded CA Certificate file to supply as default for OpenStack API requests.")
+	flag.Func("namespace", "A namespace that the controller watches to reconcile ORC objects. "+
+		"Can be specified multiple times.", func(ns string) error {
+		namespaceList = append(namespaceList, ns)
+		return nil
+	})
 
 	zapOpts := zap.Options{
 		Development: true,
@@ -101,6 +109,7 @@ func main() {
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
+	orcOpts.WatchNamespaces = namespaceList
 	err := internalmanager.Run(ctx, &orcOpts, restConfig, scheme.New(), setupLog, log, controllers)
 	if err != nil {
 		setupLog.Error(err, "Error starting manager")
