@@ -1,0 +1,27 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: create-adoption
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Port
+  name: create-adoption
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: adoption
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Port
+  name: adoption  
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: create-adoption
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Network
+  name: create-adoption
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Flavor
+  name: server-flavor
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Image
+  name: create-adoption  

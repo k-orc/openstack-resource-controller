@@ -1,0 +1,28 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: adoption
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  networkRef: create-adoption
+  resource:
+    addresses:
+    - subnetRef: create-adoption
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: adoption
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: create-adoption
+    flavorRef: server-flavor
+    ports:
+    - portRef: adoption

@@ -20,6 +20,9 @@ E2E_KUTTL_DIR=${E2E_KUTTL_DIR:-}
 # Defaults to empty string (run all tests)
 E2E_KUTTL_TEST=${E2E_KUTTL_TEST:-}
 
+# default flavor name to use for tests
+export E2E_KUTTL_FLAVOR=${E2E_KUTTL_FLAVOR:-m1.tiny}
+
 # Define a custom external network
 export E2E_EXTERNAL_NETWORK_NAME=${E2E_EXTERNAL_NETWORK_NAME:-private}
 
