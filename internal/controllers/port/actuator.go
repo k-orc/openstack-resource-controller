@@ -23,6 +23,7 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -199,8 +200,8 @@ func (portHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	waitEvents, actuator, err := newCreateActuator(ctx, orcObject, controller)
-	return waitEvents, actuator, err
+	actuator, progressStatus, err := newCreateActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
 func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
@@ -225,14 +226,20 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller ge
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) ([]generic.ProgressStatus, *portCreateActuator, error) {
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) (*portCreateActuator, []generic.ProgressStatus, error) {
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return nil, progressStatus, err
+	}
+
 	orcNetwork, progressStatus, err := networkDependency.GetDependency(
 		ctx, controller.GetK8sClient(), orcObject, func(dep *orcv1alpha1.Network) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
 	if len(progressStatus) != 0 || err != nil {
-		return progressStatus, nil, err
+		return nil, progressStatus, err
 	}
 	networkID := *orcNetwork.Status.ID
 
@@ -241,9 +248,9 @@ func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, control
 		return nil, nil, err
 	}
 
-	return nil, &portCreateActuator{
+	return &portCreateActuator{
 		portActuator: portActuator,
 		k8sClient:    controller.GetK8sClient(),
 		networkID:    networkID,
-	}, nil
+	}, nil, nil
 }

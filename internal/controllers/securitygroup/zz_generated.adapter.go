@@ -24,9 +24,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.SecurityGroup
-	resourceSpecT = orcv1alpha1.SecurityGroupResourceSpec
-	filterT       = orcv1alpha1.SecurityGroupFilter
+	orcObjectT     = orcv1alpha1.SecurityGroup
+	orcObjectListT = orcv1alpha1.SecurityGroupList
+	resourceSpecT  = orcv1alpha1.SecurityGroupResourceSpec
+	filterT        = orcv1alpha1.SecurityGroupFilter
 )
 
 // Derived types

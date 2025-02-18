@@ -21,6 +21,7 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -167,21 +168,27 @@ type flavorHelperFactory struct{}
 
 var _ helperFactory = flavorHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, []generic.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return flavorActuator{}, progressStatus, err
+	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return flavorActuator{}, err
+		return flavorActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewComputeClient()
 	if err != nil {
-		return flavorActuator{}, err
+		return flavorActuator{}, nil, err
 	}
 
 	return flavorActuator{
 		osClient: osClient,
-	}, nil
+	}, nil, nil
 }
 
 func (flavorHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
@@ -189,11 +196,11 @@ func (flavorHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
 func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }

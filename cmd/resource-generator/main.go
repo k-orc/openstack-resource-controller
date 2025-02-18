@@ -20,6 +20,9 @@ var api_template string
 //go:embed data/adapter.template
 var adapter_template string
 
+//go:embed data/controller.template
+var controller_template string
+
 type specExtraValidation struct {
 	Rule    string
 	Message string
@@ -92,6 +95,7 @@ var allResources []templateFields = []templateFields{
 func main() {
 	apiTemplate := template.Must(template.New("api").Parse(api_template))
 	adapterTemplate := template.Must(template.New("adapter").Parse(adapter_template))
+	controllerTemplate := template.Must(template.New("controller").Parse(controller_template))
 
 	for i := range allResources {
 		resource := &allResources[i]
@@ -112,8 +116,13 @@ func main() {
 			panic(err)
 		}
 
-		facadePath := filepath.Join("internal", "controllers", resourceLower, "zz_generated.adapter.go")
-		if err := writeTemplate(facadePath, adapterTemplate, resource); err != nil {
+		adapterPath := filepath.Join("internal", "controllers", resourceLower, "zz_generated.adapter.go")
+		if err := writeTemplate(adapterPath, adapterTemplate, resource); err != nil {
+			panic(err)
+		}
+
+		controllerPath := filepath.Join("internal", "controllers", resourceLower, "zz_generated.controller.go")
+		if err := writeTemplate(controllerPath, controllerTemplate, resource); err != nil {
 			panic(err)
 		}
 	}

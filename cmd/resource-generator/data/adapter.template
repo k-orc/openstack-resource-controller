@@ -23,9 +23,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.{{ .Name }}
-	resourceSpecT = orcv1alpha1.{{ .Name }}ResourceSpec
-	filterT       = orcv1alpha1.{{ .Name }}Filter
+	orcObjectT     = orcv1alpha1.{{ .Name }}
+	orcObjectListT = orcv1alpha1.{{ .Name }}List
+	resourceSpecT  = orcv1alpha1.{{ .Name }}ResourceSpec
+	filterT        = orcv1alpha1.{{ .Name }}Filter
 )
 
 // Derived types

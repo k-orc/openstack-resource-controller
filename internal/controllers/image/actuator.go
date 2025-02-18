@@ -24,6 +24,7 @@ import (
 	"slices"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -45,21 +46,27 @@ type imageActuator struct {
 	osClient osclients.ImageClient
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, error) {
+func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, []generic.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return imageActuator{}, progressStatus, err
+	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return imageActuator{}, err
+		return imageActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewImageClient()
 	if err != nil {
-		return imageActuator{}, err
+		return imageActuator{}, nil, err
 	}
 
 	return imageActuator{
 		osClient: osClient,
-	}, nil
+	}, nil, nil
 }
 
 var _ createResourceActuator = imageActuator{}

@@ -24,9 +24,10 @@ import (
 
 // Fundamental types
 type (
-	orcObjectT    = orcv1alpha1.Router
-	resourceSpecT = orcv1alpha1.RouterResourceSpec
-	filterT       = orcv1alpha1.RouterFilter
+	orcObjectT     = orcv1alpha1.Router
+	orcObjectListT = orcv1alpha1.RouterList
+	resourceSpecT  = orcv1alpha1.RouterResourceSpec
+	filterT        = orcv1alpha1.RouterFilter
 )
 
 // Derived types

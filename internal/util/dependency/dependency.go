@@ -57,15 +57,27 @@ import (
 //   - indexName: "spec.resource.addresses[].subnetRef" - a symbolic path to the subnet reference in a Port
 //   - getDependencyRefs: func(object *Port) []string{ ... returns a slice containing all subnetRefs in this Port's addresses ... }
 func NewDependency[
-	objectListTP objectListType[objectListT, objectT],
-	depTP dependencyType[depT],
+	objectListTP ObjectListType[objectListT, objectT],
+	depTP DependencyType[depT],
 
-	objectTP objectType[objectT],
+	objectTP ObjectType[objectT],
 	objectT any, objectListT any, depT any,
 ](indexName string, getDependencyRefs func(objectTP) []string) Dependency[objectTP, objectListTP, depTP, objectT, objectListT, depT] {
 	return Dependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]{
 		indexName:         indexName,
 		getDependencyRefs: getDependencyRefs,
+	}
+}
+
+type deletionGuardConfig struct {
+	overrideDependencyName *string
+}
+
+type deletionGuardOpt = func(*deletionGuardConfig)
+
+func OverrideDependencyName(name string) deletionGuardOpt {
+	return func(opts *deletionGuardConfig) {
+		opts.overrideDependencyName = &name
 	}
 }
 
@@ -75,23 +87,29 @@ func NewDependency[
 // - finalizer: the string to add to Finalizers in objects that we depend on
 // - fieldOwner: a client.FieldOwner identifying this controller when adding a finalizer to objects we depend on
 func NewDeletionGuardDependency[
-	objectListTP objectListType[objectListT, objectT],
-	depTP dependencyType[depT],
+	objectListTP ObjectListType[objectListT, objectT],
+	depTP DependencyType[depT],
 
-	objectTP objectType[objectT],
+	objectTP ObjectType[objectT],
 	objectT any, objectListT any, depT any,
-](indexName string, getDependencyRefs func(objectTP) []string, finalizer string, fieldOwner client.FieldOwner) DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT] {
+](indexName string, getDependencyRefs func(objectTP) []string, finalizer string, fieldOwner client.FieldOwner, opts ...deletionGuardOpt) DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT] {
+	config := deletionGuardConfig{}
+	for _, opt := range opts {
+		opt(&config)
+	}
+
 	return DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]{
-		Dependency: NewDependency[objectListTP, depTP](indexName, getDependencyRefs),
-		finalizer:  finalizer,
-		fieldOwner: fieldOwner,
+		Dependency:             NewDependency[objectListTP, depTP](indexName, getDependencyRefs),
+		finalizer:              finalizer,
+		fieldOwner:             fieldOwner,
+		overrideDependencyName: config.overrideDependencyName,
 	}
 }
 
 type Dependency[
-	objectTP objectType[objectT],
-	objectListTP objectListType[objectListT, objectT],
-	depTP dependencyType[depT],
+	objectTP ObjectType[objectT],
+	objectListTP ObjectListType[objectListT, objectT],
+	depTP DependencyType[depT],
 
 	objectT any, objectListT any, depT any,
 ] struct {
@@ -100,31 +118,32 @@ type Dependency[
 }
 
 type DeletionGuardDependency[
-	objectTP objectType[objectT],
-	objectListTP objectListType[objectListT, objectT],
-	depTP dependencyType[depT],
+	objectTP ObjectType[objectT],
+	objectListTP ObjectListType[objectListT, objectT],
+	depTP DependencyType[depT],
 
 	objectT any, objectListT any, depT any,
 ] struct {
 	Dependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]
 
-	finalizer  string
-	fieldOwner client.FieldOwner
+	finalizer              string
+	fieldOwner             client.FieldOwner
+	overrideDependencyName *string
 }
 
-type objectType[objectT any] interface {
+type ObjectType[objectT any] interface {
 	*objectT
 	client.Object
 }
 
-type objectListType[objectListT any, objectT any] interface {
+type ObjectListType[objectListT any, objectT any] interface {
 	client.ObjectList
 	*objectListT
 
 	GetItems() []objectT
 }
 
-type dependencyType[depT any] interface {
+type DependencyType[depT any] interface {
 	*depT
 	client.Object
 }
@@ -200,7 +219,7 @@ func (d *DeletionGuardDependency[objectTP, _, _, _, _, _]) addDeletionGuard(mgr 
 		return d.getDependencyRefs(obj)
 	}
 
-	return addDeletionGuard[objectTP](mgr, d.finalizer, d.fieldOwner, getDependencyRefsForClientObject, d.GetObjectsForDependency)
+	return addDeletionGuard[objectTP](mgr, d.finalizer, d.fieldOwner, getDependencyRefsForClientObject, d.GetObjectsForDependency, d.overrideDependencyName)
 }
 
 // GetDependencies returns the dependencies of the given object, ensuring that all returned dependencies have the required finalizer. It returns:

@@ -30,12 +30,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
-
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 )
 
 type subnetReconcilerConstructor struct {
@@ -53,15 +53,12 @@ func (subnetReconcilerConstructor) GetName() string {
 const controllerName = "subnet"
 
 var (
-	finalizer  = generic.GetFinalizerName(controllerName)
-	fieldOwner = generic.GetSSAFieldOwner(controllerName)
-
 	networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Network](
 		"spec.resource.networkRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
 			return []string{string(subnet.Spec.NetworkRef)}
 		},
-		finalizer, fieldOwner,
+		finalizer, externalObjectFieldOwner,
 	)
 )
 
@@ -71,19 +68,13 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
-	if err := errors.Join(
-		networkDependency.AddToManager(ctx, mgr),
-	); err != nil {
-		return err
-	}
-
 	networkWatchEventHandler, err := networkDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
 
-	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{})
-	return ctrl.NewControllerManagedBy(mgr).
+	builder := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(options).
 		For(&orcv1alpha1.Subnet{}).
 		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
@@ -105,7 +96,16 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 				}
 			}),
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.RouterInterface{})),
-		).
-		WithOptions(options).
-		Complete(&reconciler)
+		)
+
+	if err := errors.Join(
+		networkDependency.AddToManager(ctx, mgr),
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{})
+	return builder.Complete(&reconciler)
 }

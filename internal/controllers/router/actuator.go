@@ -21,6 +21,7 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -153,40 +154,46 @@ func (routerHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (routerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	actuator, err := newCreateActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newCreateActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
 func (routerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerActuator, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerActuator, []generic.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return routerActuator{}, progressStatus, err
+	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return routerActuator{}, err
+		return routerActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return routerActuator{}, err
+		return routerActuator{}, nil, err
 	}
 
 	return routerActuator{
 		osClient: osClient,
-	}, nil
+	}, nil, nil
 }
 
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerCreateActuator, error) {
-	routerActuator, err := newActuator(ctx, orcObject, controller)
-	if err != nil {
-		return routerCreateActuator{}, err
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller generic.ResourceController) (routerCreateActuator, []generic.ProgressStatus, error) {
+	routerActuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	if len(progressStatus) > 0 || err != nil {
+		return routerCreateActuator{}, progressStatus, err
 	}
 
 	return routerCreateActuator{
 		routerActuator: routerActuator,
 		k8sClient:      controller.GetK8sClient(),
-	}, nil
+	}, nil, nil
 }

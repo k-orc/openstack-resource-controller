@@ -18,6 +18,7 @@ package securitygroup
 
 import (
 	"context"
+	"errors"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -27,7 +28,10 @@ import (
 	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 )
+
+const controllerName = "securitygroup"
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=securitygroups,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=securitygroups/status,verbs=get;update;patch
@@ -43,16 +47,25 @@ func New(scopeFactory scope.Factory) ctrlexport.Controller {
 }
 
 func (securitygroupReconcilerConstructor) GetName() string {
-	return "securitygroup"
+	return controllerName
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (c securitygroupReconcilerConstructor) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
-	reconciler := generic.NewController(c.GetName(), mgr.GetClient(), c.scopeFactory, securityGroupHelperFactory{}, securityGroupStatusWriter{})
+func (c securitygroupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	log := ctrl.LoggerFrom(ctx)
 
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&orcv1alpha1.SecurityGroup{}).
+	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		Complete(&reconciler)
+		For(&orcv1alpha1.SecurityGroup{})
+
+	if err := errors.Join(
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	reconciler := generic.NewController(controllerName, mgr.GetClient(), c.scopeFactory, securityGroupHelperFactory{}, securityGroupStatusWriter{})
+	return builder.Complete(&reconciler)
 
 }

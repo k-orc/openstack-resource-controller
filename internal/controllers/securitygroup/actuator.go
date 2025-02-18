@@ -30,6 +30,7 @@ import (
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -247,28 +248,34 @@ func (securityGroupHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI 
 }
 
 func (securityGroupHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
 func (securityGroupHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller generic.ResourceController) (securityGroupActuator, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller generic.ResourceController) (securityGroupActuator, []generic.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return securityGroupActuator{}, progressStatus, err
+	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return securityGroupActuator{}, err
+		return securityGroupActuator{}, nil, err
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return securityGroupActuator{}, err
+		return securityGroupActuator{}, nil, err
 	}
 
 	return securityGroupActuator{
 		osClient: osClient,
-	}, nil
+	}, nil, nil
 }
