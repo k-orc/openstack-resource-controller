@@ -850,7 +850,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /manager
-        image: quay.io/orc/openstack-resource-controller:v1.0.0
+        image: quay.io/orc/openstack-resource-controller:v1.0.1
         livenessProbe:
           httpGet:
             path: /healthz
@@ -876,7 +876,13 @@ spec:
           capabilities:
             drop:
             - ALL
+          privileged: false
+          runAsGroup: 65532
+          runAsUser: 65532
+        terminationMessagePolicy: FallbackToLogsOnError
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: orc-controller-manager
       terminationGracePeriodSeconds: 10
