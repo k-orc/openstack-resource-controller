@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type RoutersGetter interface {
 
 // RouterInterface has methods to work with Router resources.
 type RouterInterface interface {
-	Create(ctx context.Context, router *v1alpha1.Router, opts v1.CreateOptions) (*v1alpha1.Router, error)
-	Update(ctx context.Context, router *v1alpha1.Router, opts v1.UpdateOptions) (*v1alpha1.Router, error)
+	Create(ctx context.Context, router *apiv1alpha1.Router, opts v1.CreateOptions) (*apiv1alpha1.Router, error)
+	Update(ctx context.Context, router *apiv1alpha1.Router, opts v1.UpdateOptions) (*apiv1alpha1.Router, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, router *v1alpha1.Router, opts v1.UpdateOptions) (*v1alpha1.Router, error)
+	UpdateStatus(ctx context.Context, router *apiv1alpha1.Router, opts v1.UpdateOptions) (*apiv1alpha1.Router, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.Router, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.RouterList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.Router, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.RouterList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Router, err error)
-	Apply(ctx context.Context, router *apiv1alpha1.RouterApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Router, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.Router, err error)
+	Apply(ctx context.Context, router *applyconfigurationapiv1alpha1.RouterApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Router, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, router *apiv1alpha1.RouterApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Router, err error)
+	ApplyStatus(ctx context.Context, router *applyconfigurationapiv1alpha1.RouterApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Router, err error)
 	RouterExpansion
 }
 
 // routers implements RouterInterface
 type routers struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.Router, *v1alpha1.RouterList, *apiv1alpha1.RouterApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.Router, *apiv1alpha1.RouterList, *applyconfigurationapiv1alpha1.RouterApplyConfiguration]
 }
 
 // newRouters returns a Routers
 func newRouters(c *OpenstackV1alpha1Client, namespace string) *routers {
 	return &routers{
-		gentype.NewClientWithListAndApply[*v1alpha1.Router, *v1alpha1.RouterList, *apiv1alpha1.RouterApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.Router, *apiv1alpha1.RouterList, *applyconfigurationapiv1alpha1.RouterApplyConfiguration](
 			"routers",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.Router { return &v1alpha1.Router{} },
-			func() *v1alpha1.RouterList { return &v1alpha1.RouterList{} }),
+			func() *apiv1alpha1.Router { return &apiv1alpha1.Router{} },
+			func() *apiv1alpha1.RouterList { return &apiv1alpha1.RouterList{} },
+		),
 	}
 }

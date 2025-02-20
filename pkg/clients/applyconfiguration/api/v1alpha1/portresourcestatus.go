@@ -169,7 +169,7 @@ func (b *PortResourceStatusApplyConfiguration) WithPropagateUplinkStatus(value b
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreatedAt field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *PortResourceStatusApplyConfiguration {
-	b.CreatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
 	return b
 }
 
@@ -177,7 +177,7 @@ func (b *PortResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *Por
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UpdatedAt field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *PortResourceStatusApplyConfiguration {
-	b.UpdatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
 	return b
 }
 
@@ -185,6 +185,6 @@ func (b *PortResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *Por
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RevisionNumber field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *PortResourceStatusApplyConfiguration {
-	b.RevisionNumber = &value
+	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

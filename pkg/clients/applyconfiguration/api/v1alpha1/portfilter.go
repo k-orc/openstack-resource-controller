@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // PortFilterApplyConfiguration represents a declarative configuration of the PortFilter type for use
 // with apply.
 type PortFilterApplyConfiguration struct {
-	Name                                  *v1alpha1.OpenStackName      `json:"name,omitempty"`
-	Description                           *v1alpha1.NeutronDescription `json:"description,omitempty"`
+	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -39,7 +39,7 @@ func PortFilter() *PortFilterApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *PortFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *PortFilterApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -47,7 +47,7 @@ func (b *PortFilterApplyConfiguration) WithName(value v1alpha1.OpenStackName) *P
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *PortFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *PortFilterApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -55,9 +55,9 @@ func (b *PortFilterApplyConfiguration) WithDescription(value v1alpha1.NeutronDes
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *PortFilterApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *PortFilterApplyConfiguration {
 	for i := range values {
-		b.Tags = append(b.Tags, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.Tags = append(b.FilterByNeutronTagsApplyConfiguration.Tags, values[i])
 	}
 	return b
 }
@@ -65,9 +65,9 @@ func (b *PortFilterApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *
 // WithTagsAny adds the given value to the TagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the TagsAny field.
-func (b *PortFilterApplyConfiguration) WithTagsAny(values ...v1alpha1.NeutronTag) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.NeutronTag) *PortFilterApplyConfiguration {
 	for i := range values {
-		b.TagsAny = append(b.TagsAny, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.TagsAny = append(b.FilterByNeutronTagsApplyConfiguration.TagsAny, values[i])
 	}
 	return b
 }
@@ -75,9 +75,9 @@ func (b *PortFilterApplyConfiguration) WithTagsAny(values ...v1alpha1.NeutronTag
 // WithNotTags adds the given value to the NotTags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTags field.
-func (b *PortFilterApplyConfiguration) WithNotTags(values ...v1alpha1.NeutronTag) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.NeutronTag) *PortFilterApplyConfiguration {
 	for i := range values {
-		b.NotTags = append(b.NotTags, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.NotTags = append(b.FilterByNeutronTagsApplyConfiguration.NotTags, values[i])
 	}
 	return b
 }
@@ -85,9 +85,9 @@ func (b *PortFilterApplyConfiguration) WithNotTags(values ...v1alpha1.NeutronTag
 // WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTagsAny field.
-func (b *PortFilterApplyConfiguration) WithNotTagsAny(values ...v1alpha1.NeutronTag) *PortFilterApplyConfiguration {
+func (b *PortFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.NeutronTag) *PortFilterApplyConfiguration {
 	for i := range values {
-		b.NotTagsAny = append(b.NotTagsAny, values[i])
+		b.FilterByNeutronTagsApplyConfiguration.NotTagsAny = append(b.FilterByNeutronTagsApplyConfiguration.NotTagsAny, values[i])
 	}
 	return b
 }

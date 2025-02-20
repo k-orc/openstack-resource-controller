@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/listers"
-	"k8s.io/client-go/tools/cache"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // ServerLister helps list Servers.
@@ -30,7 +30,7 @@ import (
 type ServerLister interface {
 	// List lists all Servers in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.Server, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.Server, err error)
 	// Servers returns an object that can list and get Servers.
 	Servers(namespace string) ServerNamespaceLister
 	ServerListerExpansion
@@ -38,17 +38,17 @@ type ServerLister interface {
 
 // serverLister implements the ServerLister interface.
 type serverLister struct {
-	listers.ResourceIndexer[*v1alpha1.Server]
+	listers.ResourceIndexer[*apiv1alpha1.Server]
 }
 
 // NewServerLister returns a new ServerLister.
 func NewServerLister(indexer cache.Indexer) ServerLister {
-	return &serverLister{listers.New[*v1alpha1.Server](indexer, v1alpha1.Resource("server"))}
+	return &serverLister{listers.New[*apiv1alpha1.Server](indexer, apiv1alpha1.Resource("server"))}
 }
 
 // Servers returns an object that can list and get Servers.
 func (s *serverLister) Servers(namespace string) ServerNamespaceLister {
-	return serverNamespaceLister{listers.NewNamespaced[*v1alpha1.Server](s.ResourceIndexer, namespace)}
+	return serverNamespaceLister{listers.NewNamespaced[*apiv1alpha1.Server](s.ResourceIndexer, namespace)}
 }
 
 // ServerNamespaceLister helps list and get Servers.
@@ -56,15 +56,15 @@ func (s *serverLister) Servers(namespace string) ServerNamespaceLister {
 type ServerNamespaceLister interface {
 	// List lists all Servers in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.Server, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.Server, err error)
 	// Get retrieves the Server from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.Server, error)
+	Get(name string) (*apiv1alpha1.Server, error)
 	ServerNamespaceListerExpansion
 }
 
 // serverNamespaceLister implements the ServerNamespaceLister
 // interface.
 type serverNamespaceLister struct {
-	listers.ResourceIndexer[*v1alpha1.Server]
+	listers.ResourceIndexer[*apiv1alpha1.Server]
 }

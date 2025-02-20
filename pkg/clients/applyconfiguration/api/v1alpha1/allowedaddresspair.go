@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // AllowedAddressPairApplyConfiguration represents a declarative configuration of the AllowedAddressPair type for use
 // with apply.
 type AllowedAddressPairApplyConfiguration struct {
-	IP  *v1alpha1.IPvAny `json:"ip,omitempty"`
-	MAC *v1alpha1.MAC    `json:"mac,omitempty"`
+	IP  *apiv1alpha1.IPvAny `json:"ip,omitempty"`
+	MAC *apiv1alpha1.MAC    `json:"mac,omitempty"`
 }
 
 // AllowedAddressPairApplyConfiguration constructs a declarative configuration of the AllowedAddressPair type for use with
@@ -38,7 +38,7 @@ func AllowedAddressPair() *AllowedAddressPairApplyConfiguration {
 // WithIP sets the IP field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the IP field is set to the value of the last call.
-func (b *AllowedAddressPairApplyConfiguration) WithIP(value v1alpha1.IPvAny) *AllowedAddressPairApplyConfiguration {
+func (b *AllowedAddressPairApplyConfiguration) WithIP(value apiv1alpha1.IPvAny) *AllowedAddressPairApplyConfiguration {
 	b.IP = &value
 	return b
 }
@@ -46,7 +46,7 @@ func (b *AllowedAddressPairApplyConfiguration) WithIP(value v1alpha1.IPvAny) *Al
 // WithMAC sets the MAC field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the MAC field is set to the value of the last call.
-func (b *AllowedAddressPairApplyConfiguration) WithMAC(value v1alpha1.MAC) *AllowedAddressPairApplyConfiguration {
+func (b *AllowedAddressPairApplyConfiguration) WithMAC(value apiv1alpha1.MAC) *AllowedAddressPairApplyConfiguration {
 	b.MAC = &value
 	return b
 }

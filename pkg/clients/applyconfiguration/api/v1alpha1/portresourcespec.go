@@ -19,18 +19,18 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // PortResourceSpecApplyConfiguration represents a declarative configuration of the PortResourceSpec type for use
 // with apply.
 type PortResourceSpecApplyConfiguration struct {
-	Name                *v1alpha1.OpenStackName                `json:"name,omitempty"`
-	Description         *v1alpha1.NeutronDescription           `json:"description,omitempty"`
-	Tags                []v1alpha1.NeutronTag                  `json:"tags,omitempty"`
+	Name                *apiv1alpha1.OpenStackName             `json:"name,omitempty"`
+	Description         *apiv1alpha1.NeutronDescription        `json:"description,omitempty"`
+	Tags                []apiv1alpha1.NeutronTag               `json:"tags,omitempty"`
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
-	SecurityGroupRefs   []v1alpha1.OpenStackName               `json:"securityGroupRefs,omitempty"`
+	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
 }
 
 // PortResourceSpecApplyConfiguration constructs a declarative configuration of the PortResourceSpec type for use with
@@ -42,7 +42,7 @@ func PortResourceSpec() *PortResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *PortResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *PortResourceSpecApplyConfiguration {
+func (b *PortResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *PortResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -50,7 +50,7 @@ func (b *PortResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackNa
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *PortResourceSpecApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *PortResourceSpecApplyConfiguration {
+func (b *PortResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *PortResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -58,7 +58,7 @@ func (b *PortResourceSpecApplyConfiguration) WithDescription(value v1alpha1.Neut
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *PortResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *PortResourceSpecApplyConfiguration {
+func (b *PortResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *PortResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
@@ -94,7 +94,7 @@ func (b *PortResourceSpecApplyConfiguration) WithAddresses(values ...*AddressApp
 // WithSecurityGroupRefs adds the given value to the SecurityGroupRefs field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the SecurityGroupRefs field.
-func (b *PortResourceSpecApplyConfiguration) WithSecurityGroupRefs(values ...v1alpha1.OpenStackName) *PortResourceSpecApplyConfiguration {
+func (b *PortResourceSpecApplyConfiguration) WithSecurityGroupRefs(values ...apiv1alpha1.OpenStackName) *PortResourceSpecApplyConfiguration {
 	for i := range values {
 		b.SecurityGroupRefs = append(b.SecurityGroupRefs, values[i])
 	}

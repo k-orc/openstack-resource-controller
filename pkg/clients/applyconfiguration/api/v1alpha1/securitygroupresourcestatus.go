@@ -99,7 +99,7 @@ func (b *SecurityGroupResourceStatusApplyConfiguration) WithRules(values ...*Sec
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreatedAt field is set to the value of the last call.
 func (b *SecurityGroupResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *SecurityGroupResourceStatusApplyConfiguration {
-	b.CreatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
 	return b
 }
 
@@ -107,7 +107,7 @@ func (b *SecurityGroupResourceStatusApplyConfiguration) WithCreatedAt(value v1.T
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UpdatedAt field is set to the value of the last call.
 func (b *SecurityGroupResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *SecurityGroupResourceStatusApplyConfiguration {
-	b.UpdatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
 	return b
 }
 
@@ -115,6 +115,6 @@ func (b *SecurityGroupResourceStatusApplyConfiguration) WithUpdatedAt(value v1.T
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RevisionNumber field is set to the value of the last call.
 func (b *SecurityGroupResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *SecurityGroupResourceStatusApplyConfiguration {
-	b.RevisionNumber = &value
+	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

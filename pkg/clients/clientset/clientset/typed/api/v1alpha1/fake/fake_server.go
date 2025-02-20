@@ -19,179 +19,33 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-	json "encoding/json"
-	"fmt"
-
 	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	typedapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeServers implements ServerInterface
-type FakeServers struct {
+// fakeServers implements ServerInterface
+type fakeServers struct {
+	*gentype.FakeClientWithListAndApply[*v1alpha1.Server, *v1alpha1.ServerList, *apiv1alpha1.ServerApplyConfiguration]
 	Fake *FakeOpenstackV1alpha1
-	ns   string
 }
 
-var serversResource = v1alpha1.SchemeGroupVersion.WithResource("servers")
-
-var serversKind = v1alpha1.SchemeGroupVersion.WithKind("Server")
-
-// Get takes name of the server, and returns the corresponding server object, and an error if there is any.
-func (c *FakeServers) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.Server, err error) {
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewGetActionWithOptions(serversResource, c.ns, name, options), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
+func newFakeServers(fake *FakeOpenstackV1alpha1, namespace string) typedapiv1alpha1.ServerInterface {
+	return &fakeServers{
+		gentype.NewFakeClientWithListAndApply[*v1alpha1.Server, *v1alpha1.ServerList, *apiv1alpha1.ServerApplyConfiguration](
+			fake.Fake,
+			namespace,
+			v1alpha1.SchemeGroupVersion.WithResource("servers"),
+			v1alpha1.SchemeGroupVersion.WithKind("Server"),
+			func() *v1alpha1.Server { return &v1alpha1.Server{} },
+			func() *v1alpha1.ServerList { return &v1alpha1.ServerList{} },
+			func(dst, src *v1alpha1.ServerList) { dst.ListMeta = src.ListMeta },
+			func(list *v1alpha1.ServerList) []*v1alpha1.Server { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1alpha1.ServerList, items []*v1alpha1.Server) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1alpha1.Server), err
-}
-
-// List takes label and field selectors, and returns the list of Servers that match those selectors.
-func (c *FakeServers) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.ServerList, err error) {
-	emptyResult := &v1alpha1.ServerList{}
-	obj, err := c.Fake.
-		Invokes(testing.NewListActionWithOptions(serversResource, serversKind, c.ns, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.ServerList{ListMeta: obj.(*v1alpha1.ServerList).ListMeta}
-	for _, item := range obj.(*v1alpha1.ServerList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested servers.
-func (c *FakeServers) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchActionWithOptions(serversResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a server and creates it.  Returns the server's representation of the server, and an error, if there is any.
-func (c *FakeServers) Create(ctx context.Context, server *v1alpha1.Server, opts v1.CreateOptions) (result *v1alpha1.Server, err error) {
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateActionWithOptions(serversResource, c.ns, server, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Server), err
-}
-
-// Update takes the representation of a server and updates it. Returns the server's representation of the server, and an error, if there is any.
-func (c *FakeServers) Update(ctx context.Context, server *v1alpha1.Server, opts v1.UpdateOptions) (result *v1alpha1.Server, err error) {
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateActionWithOptions(serversResource, c.ns, server, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Server), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeServers) UpdateStatus(ctx context.Context, server *v1alpha1.Server, opts v1.UpdateOptions) (result *v1alpha1.Server, err error) {
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceActionWithOptions(serversResource, "status", c.ns, server, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Server), err
-}
-
-// Delete takes name of the server and deletes it. Returns an error if one occurs.
-func (c *FakeServers) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(serversResource, c.ns, name, opts), &v1alpha1.Server{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeServers) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionActionWithOptions(serversResource, c.ns, opts, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.ServerList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched server.
-func (c *FakeServers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Server, err error) {
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(serversResource, c.ns, name, pt, data, opts, subresources...), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Server), err
-}
-
-// Apply takes the given apply declarative configuration, applies it and returns the applied server.
-func (c *FakeServers) Apply(ctx context.Context, server *apiv1alpha1.ServerApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Server, err error) {
-	if server == nil {
-		return nil, fmt.Errorf("server provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(server)
-	if err != nil {
-		return nil, err
-	}
-	name := server.Name
-	if name == nil {
-		return nil, fmt.Errorf("server.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(serversResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions()), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Server), err
-}
-
-// ApplyStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakeServers) ApplyStatus(ctx context.Context, server *apiv1alpha1.ServerApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Server, err error) {
-	if server == nil {
-		return nil, fmt.Errorf("server provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(server)
-	if err != nil {
-		return nil, err
-	}
-	name := server.Name
-	if name == nil {
-		return nil, fmt.Errorf("server.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.Server{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(serversResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions(), "status"), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Server), err
 }

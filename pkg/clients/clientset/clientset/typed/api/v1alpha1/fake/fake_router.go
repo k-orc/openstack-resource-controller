@@ -19,179 +19,33 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-	json "encoding/json"
-	"fmt"
-
 	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	typedapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeRouters implements RouterInterface
-type FakeRouters struct {
+// fakeRouters implements RouterInterface
+type fakeRouters struct {
+	*gentype.FakeClientWithListAndApply[*v1alpha1.Router, *v1alpha1.RouterList, *apiv1alpha1.RouterApplyConfiguration]
 	Fake *FakeOpenstackV1alpha1
-	ns   string
 }
 
-var routersResource = v1alpha1.SchemeGroupVersion.WithResource("routers")
-
-var routersKind = v1alpha1.SchemeGroupVersion.WithKind("Router")
-
-// Get takes name of the router, and returns the corresponding router object, and an error if there is any.
-func (c *FakeRouters) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.Router, err error) {
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewGetActionWithOptions(routersResource, c.ns, name, options), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
+func newFakeRouters(fake *FakeOpenstackV1alpha1, namespace string) typedapiv1alpha1.RouterInterface {
+	return &fakeRouters{
+		gentype.NewFakeClientWithListAndApply[*v1alpha1.Router, *v1alpha1.RouterList, *apiv1alpha1.RouterApplyConfiguration](
+			fake.Fake,
+			namespace,
+			v1alpha1.SchemeGroupVersion.WithResource("routers"),
+			v1alpha1.SchemeGroupVersion.WithKind("Router"),
+			func() *v1alpha1.Router { return &v1alpha1.Router{} },
+			func() *v1alpha1.RouterList { return &v1alpha1.RouterList{} },
+			func(dst, src *v1alpha1.RouterList) { dst.ListMeta = src.ListMeta },
+			func(list *v1alpha1.RouterList) []*v1alpha1.Router { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1alpha1.RouterList, items []*v1alpha1.Router) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1alpha1.Router), err
-}
-
-// List takes label and field selectors, and returns the list of Routers that match those selectors.
-func (c *FakeRouters) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.RouterList, err error) {
-	emptyResult := &v1alpha1.RouterList{}
-	obj, err := c.Fake.
-		Invokes(testing.NewListActionWithOptions(routersResource, routersKind, c.ns, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.RouterList{ListMeta: obj.(*v1alpha1.RouterList).ListMeta}
-	for _, item := range obj.(*v1alpha1.RouterList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested routers.
-func (c *FakeRouters) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchActionWithOptions(routersResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a router and creates it.  Returns the server's representation of the router, and an error, if there is any.
-func (c *FakeRouters) Create(ctx context.Context, router *v1alpha1.Router, opts v1.CreateOptions) (result *v1alpha1.Router, err error) {
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateActionWithOptions(routersResource, c.ns, router, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Router), err
-}
-
-// Update takes the representation of a router and updates it. Returns the server's representation of the router, and an error, if there is any.
-func (c *FakeRouters) Update(ctx context.Context, router *v1alpha1.Router, opts v1.UpdateOptions) (result *v1alpha1.Router, err error) {
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateActionWithOptions(routersResource, c.ns, router, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Router), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeRouters) UpdateStatus(ctx context.Context, router *v1alpha1.Router, opts v1.UpdateOptions) (result *v1alpha1.Router, err error) {
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceActionWithOptions(routersResource, "status", c.ns, router, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Router), err
-}
-
-// Delete takes name of the router and deletes it. Returns an error if one occurs.
-func (c *FakeRouters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(routersResource, c.ns, name, opts), &v1alpha1.Router{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeRouters) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionActionWithOptions(routersResource, c.ns, opts, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.RouterList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched router.
-func (c *FakeRouters) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Router, err error) {
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(routersResource, c.ns, name, pt, data, opts, subresources...), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Router), err
-}
-
-// Apply takes the given apply declarative configuration, applies it and returns the applied router.
-func (c *FakeRouters) Apply(ctx context.Context, router *apiv1alpha1.RouterApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Router, err error) {
-	if router == nil {
-		return nil, fmt.Errorf("router provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(router)
-	if err != nil {
-		return nil, err
-	}
-	name := router.Name
-	if name == nil {
-		return nil, fmt.Errorf("router.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(routersResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions()), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Router), err
-}
-
-// ApplyStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakeRouters) ApplyStatus(ctx context.Context, router *apiv1alpha1.RouterApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Router, err error) {
-	if router == nil {
-		return nil, fmt.Errorf("router provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(router)
-	if err != nil {
-		return nil, err
-	}
-	name := router.Name
-	if name == nil {
-		return nil, fmt.Errorf("router.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.Router{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(routersResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions(), "status"), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Router), err
 }

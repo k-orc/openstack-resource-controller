@@ -19,179 +19,31 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-	json "encoding/json"
-	"fmt"
-
 	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	typedapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakePorts implements PortInterface
-type FakePorts struct {
+// fakePorts implements PortInterface
+type fakePorts struct {
+	*gentype.FakeClientWithListAndApply[*v1alpha1.Port, *v1alpha1.PortList, *apiv1alpha1.PortApplyConfiguration]
 	Fake *FakeOpenstackV1alpha1
-	ns   string
 }
 
-var portsResource = v1alpha1.SchemeGroupVersion.WithResource("ports")
-
-var portsKind = v1alpha1.SchemeGroupVersion.WithKind("Port")
-
-// Get takes name of the port, and returns the corresponding port object, and an error if there is any.
-func (c *FakePorts) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.Port, err error) {
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewGetActionWithOptions(portsResource, c.ns, name, options), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
+func newFakePorts(fake *FakeOpenstackV1alpha1, namespace string) typedapiv1alpha1.PortInterface {
+	return &fakePorts{
+		gentype.NewFakeClientWithListAndApply[*v1alpha1.Port, *v1alpha1.PortList, *apiv1alpha1.PortApplyConfiguration](
+			fake.Fake,
+			namespace,
+			v1alpha1.SchemeGroupVersion.WithResource("ports"),
+			v1alpha1.SchemeGroupVersion.WithKind("Port"),
+			func() *v1alpha1.Port { return &v1alpha1.Port{} },
+			func() *v1alpha1.PortList { return &v1alpha1.PortList{} },
+			func(dst, src *v1alpha1.PortList) { dst.ListMeta = src.ListMeta },
+			func(list *v1alpha1.PortList) []*v1alpha1.Port { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1alpha1.PortList, items []*v1alpha1.Port) { list.Items = gentype.FromPointerSlice(items) },
+		),
+		fake,
 	}
-	return obj.(*v1alpha1.Port), err
-}
-
-// List takes label and field selectors, and returns the list of Ports that match those selectors.
-func (c *FakePorts) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.PortList, err error) {
-	emptyResult := &v1alpha1.PortList{}
-	obj, err := c.Fake.
-		Invokes(testing.NewListActionWithOptions(portsResource, portsKind, c.ns, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.PortList{ListMeta: obj.(*v1alpha1.PortList).ListMeta}
-	for _, item := range obj.(*v1alpha1.PortList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested ports.
-func (c *FakePorts) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchActionWithOptions(portsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a port and creates it.  Returns the server's representation of the port, and an error, if there is any.
-func (c *FakePorts) Create(ctx context.Context, port *v1alpha1.Port, opts v1.CreateOptions) (result *v1alpha1.Port, err error) {
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateActionWithOptions(portsResource, c.ns, port, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Port), err
-}
-
-// Update takes the representation of a port and updates it. Returns the server's representation of the port, and an error, if there is any.
-func (c *FakePorts) Update(ctx context.Context, port *v1alpha1.Port, opts v1.UpdateOptions) (result *v1alpha1.Port, err error) {
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateActionWithOptions(portsResource, c.ns, port, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Port), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakePorts) UpdateStatus(ctx context.Context, port *v1alpha1.Port, opts v1.UpdateOptions) (result *v1alpha1.Port, err error) {
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceActionWithOptions(portsResource, "status", c.ns, port, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Port), err
-}
-
-// Delete takes name of the port and deletes it. Returns an error if one occurs.
-func (c *FakePorts) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(portsResource, c.ns, name, opts), &v1alpha1.Port{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakePorts) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionActionWithOptions(portsResource, c.ns, opts, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.PortList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched port.
-func (c *FakePorts) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Port, err error) {
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(portsResource, c.ns, name, pt, data, opts, subresources...), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Port), err
-}
-
-// Apply takes the given apply declarative configuration, applies it and returns the applied port.
-func (c *FakePorts) Apply(ctx context.Context, port *apiv1alpha1.PortApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Port, err error) {
-	if port == nil {
-		return nil, fmt.Errorf("port provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(port)
-	if err != nil {
-		return nil, err
-	}
-	name := port.Name
-	if name == nil {
-		return nil, fmt.Errorf("port.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(portsResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions()), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Port), err
-}
-
-// ApplyStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakePorts) ApplyStatus(ctx context.Context, port *apiv1alpha1.PortApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Port, err error) {
-	if port == nil {
-		return nil, fmt.Errorf("port provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(port)
-	if err != nil {
-		return nil, err
-	}
-	name := port.Name
-	if name == nil {
-		return nil, fmt.Errorf("port.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.Port{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(portsResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions(), "status"), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.Port), err
 }

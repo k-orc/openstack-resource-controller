@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	openstackresourcecontrollerapiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
 	internalinterfaces "github.com/k-orc/openstack-resource-controller/pkg/clients/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // Images.
 type ImageInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.ImageLister
+	Lister() apiv1alpha1.ImageLister
 }
 
 type imageInformer struct {
@@ -71,7 +71,7 @@ func NewFilteredImageInformer(client clientset.Interface, namespace string, resy
 				return client.OpenstackV1alpha1().Images(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&apiv1alpha1.Image{},
+		&openstackresourcecontrollerapiv1alpha1.Image{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +82,9 @@ func (f *imageInformer) defaultInformer(client clientset.Interface, resyncPeriod
 }
 
 func (f *imageInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apiv1alpha1.Image{}, f.defaultInformer)
+	return f.factory.InformerFor(&openstackresourcecontrollerapiv1alpha1.Image{}, f.defaultInformer)
 }
 
-func (f *imageInformer) Lister() v1alpha1.ImageLister {
-	return v1alpha1.NewImageLister(f.Informer().GetIndexer())
+func (f *imageInformer) Lister() apiv1alpha1.ImageLister {
+	return apiv1alpha1.NewImageLister(f.Informer().GetIndexer())
 }

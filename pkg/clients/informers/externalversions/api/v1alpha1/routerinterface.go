@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	openstackresourcecontrollerapiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
 	internalinterfaces "github.com/k-orc/openstack-resource-controller/pkg/clients/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // RouterInterfaces.
 type RouterInterfaceInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.RouterInterfaceLister
+	Lister() apiv1alpha1.RouterInterfaceLister
 }
 
 type routerInterfaceInformer struct {
@@ -71,7 +71,7 @@ func NewFilteredRouterInterfaceInformer(client clientset.Interface, namespace st
 				return client.OpenstackV1alpha1().RouterInterfaces(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&apiv1alpha1.RouterInterface{},
+		&openstackresourcecontrollerapiv1alpha1.RouterInterface{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +82,9 @@ func (f *routerInterfaceInformer) defaultInformer(client clientset.Interface, re
 }
 
 func (f *routerInterfaceInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apiv1alpha1.RouterInterface{}, f.defaultInformer)
+	return f.factory.InformerFor(&openstackresourcecontrollerapiv1alpha1.RouterInterface{}, f.defaultInformer)
 }
 
-func (f *routerInterfaceInformer) Lister() v1alpha1.RouterInterfaceLister {
-	return v1alpha1.NewRouterInterfaceLister(f.Informer().GetIndexer())
+func (f *routerInterfaceInformer) Lister() apiv1alpha1.RouterInterfaceLister {
+	return apiv1alpha1.NewRouterInterfaceLister(f.Informer().GetIndexer())
 }

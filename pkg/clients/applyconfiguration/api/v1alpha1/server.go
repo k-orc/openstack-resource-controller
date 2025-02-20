@@ -87,7 +87,7 @@ func extractServer(server *apiv1alpha1.Server, fieldManager string, subresource 
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Kind field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithKind(value string) *ServerApplyConfiguration {
-	b.Kind = &value
+	b.TypeMetaApplyConfiguration.Kind = &value
 	return b
 }
 
@@ -95,7 +95,7 @@ func (b *ServerApplyConfiguration) WithKind(value string) *ServerApplyConfigurat
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the APIVersion field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithAPIVersion(value string) *ServerApplyConfiguration {
-	b.APIVersion = &value
+	b.TypeMetaApplyConfiguration.APIVersion = &value
 	return b
 }
 
@@ -104,7 +104,7 @@ func (b *ServerApplyConfiguration) WithAPIVersion(value string) *ServerApplyConf
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithName(value string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.Name = &value
+	b.ObjectMetaApplyConfiguration.Name = &value
 	return b
 }
 
@@ -113,7 +113,7 @@ func (b *ServerApplyConfiguration) WithName(value string) *ServerApplyConfigurat
 // If called multiple times, the GenerateName field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithGenerateName(value string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.GenerateName = &value
+	b.ObjectMetaApplyConfiguration.GenerateName = &value
 	return b
 }
 
@@ -122,7 +122,7 @@ func (b *ServerApplyConfiguration) WithGenerateName(value string) *ServerApplyCo
 // If called multiple times, the Namespace field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithNamespace(value string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.Namespace = &value
+	b.ObjectMetaApplyConfiguration.Namespace = &value
 	return b
 }
 
@@ -131,7 +131,7 @@ func (b *ServerApplyConfiguration) WithNamespace(value string) *ServerApplyConfi
 // If called multiple times, the UID field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithUID(value types.UID) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.UID = &value
+	b.ObjectMetaApplyConfiguration.UID = &value
 	return b
 }
 
@@ -140,7 +140,7 @@ func (b *ServerApplyConfiguration) WithUID(value types.UID) *ServerApplyConfigur
 // If called multiple times, the ResourceVersion field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithResourceVersion(value string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.ResourceVersion = &value
+	b.ObjectMetaApplyConfiguration.ResourceVersion = &value
 	return b
 }
 
@@ -149,7 +149,7 @@ func (b *ServerApplyConfiguration) WithResourceVersion(value string) *ServerAppl
 // If called multiple times, the Generation field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithGeneration(value int64) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.Generation = &value
+	b.ObjectMetaApplyConfiguration.Generation = &value
 	return b
 }
 
@@ -158,7 +158,7 @@ func (b *ServerApplyConfiguration) WithGeneration(value int64) *ServerApplyConfi
 // If called multiple times, the CreationTimestamp field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithCreationTimestamp(value metav1.Time) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.CreationTimestamp = &value
+	b.ObjectMetaApplyConfiguration.CreationTimestamp = &value
 	return b
 }
 
@@ -167,7 +167,7 @@ func (b *ServerApplyConfiguration) WithCreationTimestamp(value metav1.Time) *Ser
 // If called multiple times, the DeletionTimestamp field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithDeletionTimestamp(value metav1.Time) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.DeletionTimestamp = &value
+	b.ObjectMetaApplyConfiguration.DeletionTimestamp = &value
 	return b
 }
 
@@ -176,7 +176,7 @@ func (b *ServerApplyConfiguration) WithDeletionTimestamp(value metav1.Time) *Ser
 // If called multiple times, the DeletionGracePeriodSeconds field is set to the value of the last call.
 func (b *ServerApplyConfiguration) WithDeletionGracePeriodSeconds(value int64) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	b.DeletionGracePeriodSeconds = &value
+	b.ObjectMetaApplyConfiguration.DeletionGracePeriodSeconds = &value
 	return b
 }
 
@@ -186,11 +186,11 @@ func (b *ServerApplyConfiguration) WithDeletionGracePeriodSeconds(value int64) *
 // overwriting an existing map entries in Labels field with the same key.
 func (b *ServerApplyConfiguration) WithLabels(entries map[string]string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	if b.Labels == nil && len(entries) > 0 {
-		b.Labels = make(map[string]string, len(entries))
+	if b.ObjectMetaApplyConfiguration.Labels == nil && len(entries) > 0 {
+		b.ObjectMetaApplyConfiguration.Labels = make(map[string]string, len(entries))
 	}
 	for k, v := range entries {
-		b.Labels[k] = v
+		b.ObjectMetaApplyConfiguration.Labels[k] = v
 	}
 	return b
 }
@@ -201,11 +201,11 @@ func (b *ServerApplyConfiguration) WithLabels(entries map[string]string) *Server
 // overwriting an existing map entries in Annotations field with the same key.
 func (b *ServerApplyConfiguration) WithAnnotations(entries map[string]string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
-	if b.Annotations == nil && len(entries) > 0 {
-		b.Annotations = make(map[string]string, len(entries))
+	if b.ObjectMetaApplyConfiguration.Annotations == nil && len(entries) > 0 {
+		b.ObjectMetaApplyConfiguration.Annotations = make(map[string]string, len(entries))
 	}
 	for k, v := range entries {
-		b.Annotations[k] = v
+		b.ObjectMetaApplyConfiguration.Annotations[k] = v
 	}
 	return b
 }
@@ -219,7 +219,7 @@ func (b *ServerApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerRefere
 		if values[i] == nil {
 			panic("nil value passed to WithOwnerReferences")
 		}
-		b.OwnerReferences = append(b.OwnerReferences, *values[i])
+		b.ObjectMetaApplyConfiguration.OwnerReferences = append(b.ObjectMetaApplyConfiguration.OwnerReferences, *values[i])
 	}
 	return b
 }
@@ -230,7 +230,7 @@ func (b *ServerApplyConfiguration) WithOwnerReferences(values ...*v1.OwnerRefere
 func (b *ServerApplyConfiguration) WithFinalizers(values ...string) *ServerApplyConfiguration {
 	b.ensureObjectMetaApplyConfigurationExists()
 	for i := range values {
-		b.Finalizers = append(b.Finalizers, values[i])
+		b.ObjectMetaApplyConfiguration.Finalizers = append(b.ObjectMetaApplyConfiguration.Finalizers, values[i])
 	}
 	return b
 }
@@ -260,5 +260,5 @@ func (b *ServerApplyConfiguration) WithStatus(value *ServerStatusApplyConfigurat
 // GetName retrieves the value of the Name field in the declarative configuration.
 func (b *ServerApplyConfiguration) GetName() *string {
 	b.ensureObjectMetaApplyConfigurationExists()
-	return b.Name
+	return b.ObjectMetaApplyConfiguration.Name
 }

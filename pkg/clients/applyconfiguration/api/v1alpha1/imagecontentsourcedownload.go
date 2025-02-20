@@ -19,15 +19,15 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ImageContentSourceDownloadApplyConfiguration represents a declarative configuration of the ImageContentSourceDownload type for use
 // with apply.
 type ImageContentSourceDownloadApplyConfiguration struct {
-	URL        *string                      `json:"url,omitempty"`
-	Decompress *v1alpha1.ImageCompression   `json:"decompress,omitempty"`
-	Hash       *ImageHashApplyConfiguration `json:"hash,omitempty"`
+	URL        *string                       `json:"url,omitempty"`
+	Decompress *apiv1alpha1.ImageCompression `json:"decompress,omitempty"`
+	Hash       *ImageHashApplyConfiguration  `json:"hash,omitempty"`
 }
 
 // ImageContentSourceDownloadApplyConfiguration constructs a declarative configuration of the ImageContentSourceDownload type for use with
@@ -47,7 +47,7 @@ func (b *ImageContentSourceDownloadApplyConfiguration) WithURL(value string) *Im
 // WithDecompress sets the Decompress field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Decompress field is set to the value of the last call.
-func (b *ImageContentSourceDownloadApplyConfiguration) WithDecompress(value v1alpha1.ImageCompression) *ImageContentSourceDownloadApplyConfiguration {
+func (b *ImageContentSourceDownloadApplyConfiguration) WithDecompress(value apiv1alpha1.ImageCompression) *ImageContentSourceDownloadApplyConfiguration {
 	b.Decompress = &value
 	return b
 }
