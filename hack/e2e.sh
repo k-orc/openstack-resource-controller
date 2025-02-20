@@ -24,6 +24,7 @@ if [ -n "$E2E_CACERT" ]; then
 fi
 
 # Export variables referenced in kuttl tests.
+export E2E_EXTERNAL_NETWORK_NAME
 export E2E_KUTTL_OSCLOUDS=${PREPARED_OSCLOUDS}
 export E2E_KUTTL_CACERT_OPT
 export E2E_KUTTL_FLAVOR
