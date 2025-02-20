@@ -1,0 +1,20 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get server create-adoption --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get port create-adoption --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get server adoption --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get port adoption --namespace $NAMESPACE"
+  skipLogOutput: true  
+- script: "! kubectl get subnet create-adoption --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get network create-adoption --namespace $NAMESPACE"
+  skipLogOutput: true      
+- script: "! kubectl get flavor server-flavor --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get image create-adoption --namespace $NAMESPACE"
+  skipLogOutput: true
+  
