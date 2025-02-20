@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: create-full
+status:
+  resource: 
+    adminStateUp: true
+    name: create-full
+    status: ACTIVE
+    description: Router from "create full" test
+    tags:
+      - tag1
+      - tag2
+    adminStateUp: false
+  #  externalGateways:
+  #    - networkRef: external-network
