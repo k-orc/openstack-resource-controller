@@ -93,19 +93,21 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var progressStatus []generic.ProgressStatus
+	gatewayInfo := &routers.GatewayInfo{}
 
-	// Fetch dependencies and ensure they have our finalizer
-	externalGW, progressStatus, err := externalGWDep.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
-	)
-	if len(progressStatus) != 0 || err != nil {
-		return progressStatus, nil, err
-	}
-	gatewayInfo := &routers.GatewayInfo{
-		NetworkID: *externalGW.Status.ID,
+	if len(resource.ExternalGateways) > 0 {
+		var progressStatus []generic.ProgressStatus
+
+		// Fetch dependencies and ensure they have our finalizer
+		externalGW, progressStatus, err := externalGWDep.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if len(progressStatus) != 0 || err != nil {
+			return progressStatus, nil, err
+		}
+		gatewayInfo.NetworkID = *externalGW.Status.ID
 	}
 
 	createOpts := routers.CreateOpts{
