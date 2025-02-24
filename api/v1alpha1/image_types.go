@@ -217,7 +217,7 @@ const (
 type ImageContent struct {
 	// containerFormat is the format of the image container.
 	// qcow2 and raw images do not usually have a container. This is specified as "bare", which is also the default.
-	// Permitted values are ami, ari, aki, bare, ovf, ova, and docker.
+	// Permitted values are ami, ari, aki, bare, compressed, ovf, ova, and docker.
 	// +kubebuilder:default:=bare
 	// +optional
 	ContainerFormat ImageContainerFormat `json:"containerFormat,omitempty"`

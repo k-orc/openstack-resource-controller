@@ -1290,7 +1290,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref co
 				Properties: map[string]spec.Schema{
 					"containerFormat": {
 						SchemaProps: spec.SchemaProps{
-							Description: "containerFormat is the format of the image container. qcow2 and raw images do not usually have a container. This is specified as \"bare\", which is also the default. Permitted values are ami, ari, aki, bare, ovf, ova, and docker.",
+							Description: "containerFormat is the format of the image container. qcow2 and raw images do not usually have a container. This is specified as \"bare\", which is also the default. Permitted values are ami, ari, aki, bare, compressed, ovf, ova, and docker.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
