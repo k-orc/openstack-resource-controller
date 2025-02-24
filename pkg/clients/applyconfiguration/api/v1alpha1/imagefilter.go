@@ -26,6 +26,7 @@ import (
 // with apply.
 type ImageFilterApplyConfiguration struct {
 	Name *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Tags []apiv1alpha1.ImageTag     `json:"tags,omitempty"`
 }
 
 // ImageFilterApplyConfiguration constructs a declarative configuration of the ImageFilter type for use with
@@ -39,5 +40,15 @@ func ImageFilter() *ImageFilterApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *ImageFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ImageFilterApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *ImageFilterApplyConfiguration) WithTags(values ...apiv1alpha1.ImageTag) *ImageFilterApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }

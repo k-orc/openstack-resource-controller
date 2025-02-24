@@ -314,6 +314,12 @@ type ImageFilter struct {
 	// name specifies the name of a Glance image
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
+
+	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
+	// +optional
+	Tags []ImageTag `json:"tags,omitempty"`
 }
 
 // ImageResourceStatus represents the observed state of a Glance image

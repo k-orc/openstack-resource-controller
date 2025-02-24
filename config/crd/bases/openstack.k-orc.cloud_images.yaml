@@ -97,6 +97,15 @@ spec:
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
+                      tags:
+                        description: tags is the list of tags on the resource.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
                     type: object
                   id:
                     description: |-
