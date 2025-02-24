@@ -126,6 +126,10 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 		resourceStatus := orcapplyconfigv1alpha1.ImageResourceStatus()
 		applyConfigStatus.WithResource(resourceStatus)
 		resourceStatus.WithStatus(string(glanceImage.Status))
+		resourceStatus.WithName(glanceImage.Name)
+		resourceStatus.WithProtected(glanceImage.Protected)
+		resourceStatus.WithVisibility(string(glanceImage.Visibility))
+		resourceStatus.WithTags(glanceImage.Tags...)
 
 		if glanceImage.SizeBytes > 0 {
 			resourceStatus.WithSizeB(glanceImage.SizeBytes)

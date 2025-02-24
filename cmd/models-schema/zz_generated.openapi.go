@@ -1666,9 +1666,30 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus
 				Description: "ImageResourceStatus represents the observed state of a Glance image",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the image. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status is the image status as reported by Glance",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protected": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protected specifies that the image is protected from deletion.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"visibility": {
+						SchemaProps: spec.SchemaProps{
+							Description: "visibility of the image",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1691,6 +1712,26 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus
 							Description: "virtualSizeB is the size of the disk the image data represents, in bytes",
 							Type:        []string{"integer"},
 							Format:      "int64",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},

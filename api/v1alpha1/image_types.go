@@ -318,10 +318,24 @@ type ImageFilter struct {
 
 // ImageResourceStatus represents the observed state of a Glance image
 type ImageResourceStatus struct {
+	// name is a Human-readable name for the image. Might not be unique.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Name string `json:"name,omitempty"`
+
 	// status is the image status as reported by Glance
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Status string `json:"status,omitempty"`
+
+	// protected specifies that the image is protected from deletion.
+	// +optional
+	Protected bool `json:"protected,omitempty"`
+
+	// visibility of the image
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Visibility string `json:"visibility,omitempty"`
 
 	// hash is the hash of the image data published by Glance. Note that this is
 	// a hash of the data stored internally by Glance, which will have been
@@ -338,6 +352,13 @@ type ImageResourceStatus struct {
 	// virtualSizeB is the size of the disk the image data represents, in bytes
 	// +optional
 	VirtualSizeB *int64 `json:"virtualSizeB,omitempty"`
+
+	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
+	// +listType=atomic
+	// +optional
+	Tags []string `json:"tags,omitempty"`
 }
 
 type ImageStatusExtra struct {

@@ -579,6 +579,15 @@ spec:
                     - algorithm
                     - value
                     type: object
+                  name:
+                    description: name is a Human-readable name for the image. Might
+                      not be unique.
+                    maxLength: 1024
+                    type: string
+                  protected:
+                    description: protected specifies that the image is protected from
+                      deletion.
+                    type: boolean
                   sizeB:
                     description: sizeB is the size of the image data, in bytes
                     format: int64
@@ -587,11 +596,23 @@ spec:
                     description: status is the image status as reported by Glance
                     maxLength: 1024
                     type: string
+                  tags:
+                    description: tags is the list of tags on the resource.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                   virtualSizeB:
                     description: virtualSizeB is the size of the disk the image data
                       represents, in bytes
                     format: int64
                     type: integer
+                  visibility:
+                    description: visibility of the image
+                    maxLength: 1024
+                    type: string
                 type: object
             type: object
         type: object
