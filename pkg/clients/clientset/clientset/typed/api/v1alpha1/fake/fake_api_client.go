@@ -29,39 +29,39 @@ type FakeOpenstackV1alpha1 struct {
 }
 
 func (c *FakeOpenstackV1alpha1) Flavors(namespace string) v1alpha1.FlavorInterface {
-	return &FakeFlavors{c, namespace}
+	return newFakeFlavors(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Images(namespace string) v1alpha1.ImageInterface {
-	return &FakeImages{c, namespace}
+	return newFakeImages(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Networks(namespace string) v1alpha1.NetworkInterface {
-	return &FakeNetworks{c, namespace}
+	return newFakeNetworks(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Ports(namespace string) v1alpha1.PortInterface {
-	return &FakePorts{c, namespace}
+	return newFakePorts(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Routers(namespace string) v1alpha1.RouterInterface {
-	return &FakeRouters{c, namespace}
+	return newFakeRouters(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) RouterInterfaces(namespace string) v1alpha1.RouterInterfaceInterface {
-	return &FakeRouterInterfaces{c, namespace}
+	return newFakeRouterInterfaces(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) SecurityGroups(namespace string) v1alpha1.SecurityGroupInterface {
-	return &FakeSecurityGroups{c, namespace}
+	return newFakeSecurityGroups(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Servers(namespace string) v1alpha1.ServerInterface {
-	return &FakeServers{c, namespace}
+	return newFakeServers(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterface {
-	return &FakeSubnets{c, namespace}
+	return newFakeSubnets(c, namespace)
 }
 
 // RESTClient returns a RESTClient that is used to communicate

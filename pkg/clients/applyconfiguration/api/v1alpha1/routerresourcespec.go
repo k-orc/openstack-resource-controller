@@ -19,20 +19,20 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // RouterResourceSpecApplyConfiguration represents a declarative configuration of the RouterResourceSpec type for use
 // with apply.
 type RouterResourceSpecApplyConfiguration struct {
-	Name                                    *v1alpha1.OpenStackName             `json:"name,omitempty"`
-	Description                             *v1alpha1.NeutronDescription        `json:"description,omitempty"`
-	Tags                                    []v1alpha1.NeutronTag               `json:"tags,omitempty"`
+	Name                                    *apiv1alpha1.OpenStackName          `json:"name,omitempty"`
+	Description                             *apiv1alpha1.NeutronDescription     `json:"description,omitempty"`
+	Tags                                    []apiv1alpha1.NeutronTag            `json:"tags,omitempty"`
 	AdminStateUp                            *bool                               `json:"adminStateUp,omitempty"`
 	ExternalGateways                        []ExternalGatewayApplyConfiguration `json:"externalGateways,omitempty"`
 	Distributed                             *bool                               `json:"distributed,omitempty"`
-	AvailabilityZoneHints                   []v1alpha1.AvailabilityZoneHint     `json:"availabilityZoneHints,omitempty"`
+	AvailabilityZoneHints                   []apiv1alpha1.AvailabilityZoneHint  `json:"availabilityZoneHints,omitempty"`
 	NeutronStatusMetadataApplyConfiguration `json:",inline"`
 }
 
@@ -45,7 +45,7 @@ func RouterResourceSpec() *RouterResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *RouterResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *RouterResourceSpecApplyConfiguration {
+func (b *RouterResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *RouterResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -53,7 +53,7 @@ func (b *RouterResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStack
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *RouterResourceSpecApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *RouterResourceSpecApplyConfiguration {
+func (b *RouterResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *RouterResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -61,7 +61,7 @@ func (b *RouterResourceSpecApplyConfiguration) WithDescription(value v1alpha1.Ne
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *RouterResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *RouterResourceSpecApplyConfiguration {
+func (b *RouterResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *RouterResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
@@ -100,7 +100,7 @@ func (b *RouterResourceSpecApplyConfiguration) WithDistributed(value bool) *Rout
 // WithAvailabilityZoneHints adds the given value to the AvailabilityZoneHints field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the AvailabilityZoneHints field.
-func (b *RouterResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values ...v1alpha1.AvailabilityZoneHint) *RouterResourceSpecApplyConfiguration {
+func (b *RouterResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values ...apiv1alpha1.AvailabilityZoneHint) *RouterResourceSpecApplyConfiguration {
 	for i := range values {
 		b.AvailabilityZoneHints = append(b.AvailabilityZoneHints, values[i])
 	}
@@ -111,7 +111,7 @@ func (b *RouterResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values 
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreatedAt field is set to the value of the last call.
 func (b *RouterResourceSpecApplyConfiguration) WithCreatedAt(value v1.Time) *RouterResourceSpecApplyConfiguration {
-	b.CreatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
 	return b
 }
 
@@ -119,7 +119,7 @@ func (b *RouterResourceSpecApplyConfiguration) WithCreatedAt(value v1.Time) *Rou
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UpdatedAt field is set to the value of the last call.
 func (b *RouterResourceSpecApplyConfiguration) WithUpdatedAt(value v1.Time) *RouterResourceSpecApplyConfiguration {
-	b.UpdatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
 	return b
 }
 
@@ -127,6 +127,6 @@ func (b *RouterResourceSpecApplyConfiguration) WithUpdatedAt(value v1.Time) *Rou
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RevisionNumber field is set to the value of the last call.
 func (b *RouterResourceSpecApplyConfiguration) WithRevisionNumber(value int64) *RouterResourceSpecApplyConfiguration {
-	b.RevisionNumber = &value
+	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

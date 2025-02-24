@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	openstackresourcecontrollerapiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
 	internalinterfaces "github.com/k-orc/openstack-resource-controller/pkg/clients/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // Ports.
 type PortInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.PortLister
+	Lister() apiv1alpha1.PortLister
 }
 
 type portInformer struct {
@@ -71,7 +71,7 @@ func NewFilteredPortInformer(client clientset.Interface, namespace string, resyn
 				return client.OpenstackV1alpha1().Ports(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&apiv1alpha1.Port{},
+		&openstackresourcecontrollerapiv1alpha1.Port{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +82,9 @@ func (f *portInformer) defaultInformer(client clientset.Interface, resyncPeriod 
 }
 
 func (f *portInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apiv1alpha1.Port{}, f.defaultInformer)
+	return f.factory.InformerFor(&openstackresourcecontrollerapiv1alpha1.Port{}, f.defaultInformer)
 }
 
-func (f *portInformer) Lister() v1alpha1.PortLister {
-	return v1alpha1.NewPortLister(f.Informer().GetIndexer())
+func (f *portInformer) Lister() apiv1alpha1.PortLister {
+	return apiv1alpha1.NewPortLister(f.Informer().GetIndexer())
 }

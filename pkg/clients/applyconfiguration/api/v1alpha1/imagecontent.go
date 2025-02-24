@@ -19,14 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ImageContentApplyConfiguration represents a declarative configuration of the ImageContent type for use
 // with apply.
 type ImageContentApplyConfiguration struct {
-	ContainerFormat *v1alpha1.ImageContainerFormat                `json:"containerFormat,omitempty"`
-	DiskFormat      *v1alpha1.ImageDiskFormat                     `json:"diskFormat,omitempty"`
+	ContainerFormat *apiv1alpha1.ImageContainerFormat             `json:"containerFormat,omitempty"`
+	DiskFormat      *apiv1alpha1.ImageDiskFormat                  `json:"diskFormat,omitempty"`
 	Download        *ImageContentSourceDownloadApplyConfiguration `json:"download,omitempty"`
 }
 
@@ -39,7 +39,7 @@ func ImageContent() *ImageContentApplyConfiguration {
 // WithContainerFormat sets the ContainerFormat field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ContainerFormat field is set to the value of the last call.
-func (b *ImageContentApplyConfiguration) WithContainerFormat(value v1alpha1.ImageContainerFormat) *ImageContentApplyConfiguration {
+func (b *ImageContentApplyConfiguration) WithContainerFormat(value apiv1alpha1.ImageContainerFormat) *ImageContentApplyConfiguration {
 	b.ContainerFormat = &value
 	return b
 }
@@ -47,7 +47,7 @@ func (b *ImageContentApplyConfiguration) WithContainerFormat(value v1alpha1.Imag
 // WithDiskFormat sets the DiskFormat field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the DiskFormat field is set to the value of the last call.
-func (b *ImageContentApplyConfiguration) WithDiskFormat(value v1alpha1.ImageDiskFormat) *ImageContentApplyConfiguration {
+func (b *ImageContentApplyConfiguration) WithDiskFormat(value apiv1alpha1.ImageDiskFormat) *ImageContentApplyConfiguration {
 	b.DiskFormat = &value
 	return b
 }

@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	openstackresourcecontrollerapiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
 	internalinterfaces "github.com/k-orc/openstack-resource-controller/pkg/clients/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // Subnets.
 type SubnetInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.SubnetLister
+	Lister() apiv1alpha1.SubnetLister
 }
 
 type subnetInformer struct {
@@ -71,7 +71,7 @@ func NewFilteredSubnetInformer(client clientset.Interface, namespace string, res
 				return client.OpenstackV1alpha1().Subnets(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&apiv1alpha1.Subnet{},
+		&openstackresourcecontrollerapiv1alpha1.Subnet{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +82,9 @@ func (f *subnetInformer) defaultInformer(client clientset.Interface, resyncPerio
 }
 
 func (f *subnetInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apiv1alpha1.Subnet{}, f.defaultInformer)
+	return f.factory.InformerFor(&openstackresourcecontrollerapiv1alpha1.Subnet{}, f.defaultInformer)
 }
 
-func (f *subnetInformer) Lister() v1alpha1.SubnetLister {
-	return v1alpha1.NewSubnetLister(f.Informer().GetIndexer())
+func (f *subnetInformer) Lister() apiv1alpha1.SubnetLister {
+	return apiv1alpha1.NewSubnetLister(f.Informer().GetIndexer())
 }

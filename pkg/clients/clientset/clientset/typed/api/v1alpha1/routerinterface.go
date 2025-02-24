@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type RouterInterfacesGetter interface {
 
 // RouterInterfaceInterface has methods to work with RouterInterface resources.
 type RouterInterfaceInterface interface {
-	Create(ctx context.Context, routerInterface *v1alpha1.RouterInterface, opts v1.CreateOptions) (*v1alpha1.RouterInterface, error)
-	Update(ctx context.Context, routerInterface *v1alpha1.RouterInterface, opts v1.UpdateOptions) (*v1alpha1.RouterInterface, error)
+	Create(ctx context.Context, routerInterface *apiv1alpha1.RouterInterface, opts v1.CreateOptions) (*apiv1alpha1.RouterInterface, error)
+	Update(ctx context.Context, routerInterface *apiv1alpha1.RouterInterface, opts v1.UpdateOptions) (*apiv1alpha1.RouterInterface, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, routerInterface *v1alpha1.RouterInterface, opts v1.UpdateOptions) (*v1alpha1.RouterInterface, error)
+	UpdateStatus(ctx context.Context, routerInterface *apiv1alpha1.RouterInterface, opts v1.UpdateOptions) (*apiv1alpha1.RouterInterface, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.RouterInterface, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.RouterInterfaceList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.RouterInterface, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.RouterInterfaceList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.RouterInterface, err error)
-	Apply(ctx context.Context, routerInterface *apiv1alpha1.RouterInterfaceApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.RouterInterface, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.RouterInterface, err error)
+	Apply(ctx context.Context, routerInterface *applyconfigurationapiv1alpha1.RouterInterfaceApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.RouterInterface, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, routerInterface *apiv1alpha1.RouterInterfaceApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.RouterInterface, err error)
+	ApplyStatus(ctx context.Context, routerInterface *applyconfigurationapiv1alpha1.RouterInterfaceApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.RouterInterface, err error)
 	RouterInterfaceExpansion
 }
 
 // routerInterfaces implements RouterInterfaceInterface
 type routerInterfaces struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.RouterInterface, *v1alpha1.RouterInterfaceList, *apiv1alpha1.RouterInterfaceApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.RouterInterface, *apiv1alpha1.RouterInterfaceList, *applyconfigurationapiv1alpha1.RouterInterfaceApplyConfiguration]
 }
 
 // newRouterInterfaces returns a RouterInterfaces
 func newRouterInterfaces(c *OpenstackV1alpha1Client, namespace string) *routerInterfaces {
 	return &routerInterfaces{
-		gentype.NewClientWithListAndApply[*v1alpha1.RouterInterface, *v1alpha1.RouterInterfaceList, *apiv1alpha1.RouterInterfaceApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.RouterInterface, *apiv1alpha1.RouterInterfaceList, *applyconfigurationapiv1alpha1.RouterInterfaceApplyConfiguration](
 			"routerinterfaces",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.RouterInterface { return &v1alpha1.RouterInterface{} },
-			func() *v1alpha1.RouterInterfaceList { return &v1alpha1.RouterInterfaceList{} }),
+			func() *apiv1alpha1.RouterInterface { return &apiv1alpha1.RouterInterface{} },
+			func() *apiv1alpha1.RouterInterfaceList { return &apiv1alpha1.RouterInterfaceList{} },
+		),
 	}
 }

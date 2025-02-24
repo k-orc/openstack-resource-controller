@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/listers"
-	"k8s.io/client-go/tools/cache"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // RouterLister helps list Routers.
@@ -30,7 +30,7 @@ import (
 type RouterLister interface {
 	// List lists all Routers in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.Router, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.Router, err error)
 	// Routers returns an object that can list and get Routers.
 	Routers(namespace string) RouterNamespaceLister
 	RouterListerExpansion
@@ -38,17 +38,17 @@ type RouterLister interface {
 
 // routerLister implements the RouterLister interface.
 type routerLister struct {
-	listers.ResourceIndexer[*v1alpha1.Router]
+	listers.ResourceIndexer[*apiv1alpha1.Router]
 }
 
 // NewRouterLister returns a new RouterLister.
 func NewRouterLister(indexer cache.Indexer) RouterLister {
-	return &routerLister{listers.New[*v1alpha1.Router](indexer, v1alpha1.Resource("router"))}
+	return &routerLister{listers.New[*apiv1alpha1.Router](indexer, apiv1alpha1.Resource("router"))}
 }
 
 // Routers returns an object that can list and get Routers.
 func (s *routerLister) Routers(namespace string) RouterNamespaceLister {
-	return routerNamespaceLister{listers.NewNamespaced[*v1alpha1.Router](s.ResourceIndexer, namespace)}
+	return routerNamespaceLister{listers.NewNamespaced[*apiv1alpha1.Router](s.ResourceIndexer, namespace)}
 }
 
 // RouterNamespaceLister helps list and get Routers.
@@ -56,15 +56,15 @@ func (s *routerLister) Routers(namespace string) RouterNamespaceLister {
 type RouterNamespaceLister interface {
 	// List lists all Routers in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.Router, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.Router, err error)
 	// Get retrieves the Router from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.Router, error)
+	Get(name string) (*apiv1alpha1.Router, error)
 	RouterNamespaceListerExpansion
 }
 
 // routerNamespaceLister implements the RouterNamespaceLister
 // interface.
 type routerNamespaceLister struct {
-	listers.ResourceIndexer[*v1alpha1.Router]
+	listers.ResourceIndexer[*apiv1alpha1.Router]
 }

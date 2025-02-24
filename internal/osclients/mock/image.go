@@ -39,6 +39,7 @@ import (
 type MockImageClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockImageClientMockRecorder
+	isgomock struct{}
 }
 
 // MockImageClientMockRecorder is the mock recorder for MockImageClient.

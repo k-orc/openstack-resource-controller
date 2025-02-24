@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -38,36 +38,37 @@ type PortsGetter interface {
 
 // PortInterface has methods to work with Port resources.
 type PortInterface interface {
-	Create(ctx context.Context, port *v1alpha1.Port, opts v1.CreateOptions) (*v1alpha1.Port, error)
-	Update(ctx context.Context, port *v1alpha1.Port, opts v1.UpdateOptions) (*v1alpha1.Port, error)
+	Create(ctx context.Context, port *apiv1alpha1.Port, opts v1.CreateOptions) (*apiv1alpha1.Port, error)
+	Update(ctx context.Context, port *apiv1alpha1.Port, opts v1.UpdateOptions) (*apiv1alpha1.Port, error)
 	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-	UpdateStatus(ctx context.Context, port *v1alpha1.Port, opts v1.UpdateOptions) (*v1alpha1.Port, error)
+	UpdateStatus(ctx context.Context, port *apiv1alpha1.Port, opts v1.UpdateOptions) (*apiv1alpha1.Port, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.Port, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.PortList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*apiv1alpha1.Port, error)
+	List(ctx context.Context, opts v1.ListOptions) (*apiv1alpha1.PortList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.Port, err error)
-	Apply(ctx context.Context, port *apiv1alpha1.PortApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Port, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *apiv1alpha1.Port, err error)
+	Apply(ctx context.Context, port *applyconfigurationapiv1alpha1.PortApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Port, err error)
 	// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-	ApplyStatus(ctx context.Context, port *apiv1alpha1.PortApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.Port, err error)
+	ApplyStatus(ctx context.Context, port *applyconfigurationapiv1alpha1.PortApplyConfiguration, opts v1.ApplyOptions) (result *apiv1alpha1.Port, err error)
 	PortExpansion
 }
 
 // ports implements PortInterface
 type ports struct {
-	*gentype.ClientWithListAndApply[*v1alpha1.Port, *v1alpha1.PortList, *apiv1alpha1.PortApplyConfiguration]
+	*gentype.ClientWithListAndApply[*apiv1alpha1.Port, *apiv1alpha1.PortList, *applyconfigurationapiv1alpha1.PortApplyConfiguration]
 }
 
 // newPorts returns a Ports
 func newPorts(c *OpenstackV1alpha1Client, namespace string) *ports {
 	return &ports{
-		gentype.NewClientWithListAndApply[*v1alpha1.Port, *v1alpha1.PortList, *apiv1alpha1.PortApplyConfiguration](
+		gentype.NewClientWithListAndApply[*apiv1alpha1.Port, *apiv1alpha1.PortList, *applyconfigurationapiv1alpha1.PortApplyConfiguration](
 			"ports",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *v1alpha1.Port { return &v1alpha1.Port{} },
-			func() *v1alpha1.PortList { return &v1alpha1.PortList{} }),
+			func() *apiv1alpha1.Port { return &apiv1alpha1.Port{} },
+			func() *apiv1alpha1.PortList { return &apiv1alpha1.PortList{} },
+		),
 	}
 }
