@@ -67,7 +67,6 @@ func (r *orcImageReconciler) canWebDownload(ctx context.Context, orcImage *orcv1
 		debugLog("not type URL")
 		return false, nil
 	}
-
 	// web-download does not deterministically support decompression.
 	// Glance can be configured to do automatic decompression of imported
 	// images, but there's no way to determine if it is enabled so it can't

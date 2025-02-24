@@ -238,6 +238,7 @@ spec:
                         type: object
                     required:
                     - diskFormat
+                    - download
                     type: object
                     x-kubernetes-validations:
                     - message: content is immutable

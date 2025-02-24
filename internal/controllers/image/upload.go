@@ -87,7 +87,6 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 		// Should have been caught by validation
 		return orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "image source type URL has no url entry")
 	}
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, download.URL, http.NoBody)
 	if err != nil {
 		return fmt.Errorf("error creating request for %s: %w", download.URL, err)
