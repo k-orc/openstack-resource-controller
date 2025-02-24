@@ -1,0 +1,34 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: import-error-external-1
+status:
+  conditions:
+    # Message is inconsistent with other resources
+    # https://github.com/k-orc/openstack-resource-controller/issues/267
+    - type: Available
+      message: Glance image is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: Glance image is available
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: import-error-external-2
+status:
+  conditions:
+    # Message is inconsistent with other resources
+    # https://github.com/k-orc/openstack-resource-controller/issues/267
+    - type: Available
+      message: Glance image is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: Glance image is available
+      status: "False"
+      reason: Success

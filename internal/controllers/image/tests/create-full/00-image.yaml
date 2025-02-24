@@ -1,0 +1,41 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: create-full-override
+    # FIXME(mandre) Unable to delete protected image
+    # must call `openstack image set --unprotected <image_name>` prior to deletion
+    protected: false
+    tags:
+      - tag1
+      - tag2
+    visibility: public
+    properties:
+      minDiskGB: 1
+      minMemoryMB: 1
+      hardware:
+        cpuSockets: 1
+        cpuCores: 1
+        cpuThreads: 1
+        cpuPolicy: shared
+        cpuThreadPolicy: prefer
+        cdromBus: scsi
+        diskBus: virtio
+        scsiModel: virtio-scsi
+        vifModel: e1000
+    content:
+      containerFormat: docker
+      diskFormat: qcow2
+      download:
+        url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img.gz
+        decompress: "gz"
+        hash:
+          algorithm: sha256
+          value: 453b059e88a2ced8f02bab81099881f64fb9870abb846c6bd5cb3d54753b63af

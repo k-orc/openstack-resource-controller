@@ -1,0 +1,9 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get image import-error --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get image import-error-external-1 --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get image import-error-external-2 --namespace $NAMESPACE"
+  skipLogOutput: true
