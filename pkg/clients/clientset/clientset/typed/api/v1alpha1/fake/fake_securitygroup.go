@@ -19,179 +19,35 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-	json "encoding/json"
-	"fmt"
-
 	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	typedapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeSecurityGroups implements SecurityGroupInterface
-type FakeSecurityGroups struct {
+// fakeSecurityGroups implements SecurityGroupInterface
+type fakeSecurityGroups struct {
+	*gentype.FakeClientWithListAndApply[*v1alpha1.SecurityGroup, *v1alpha1.SecurityGroupList, *apiv1alpha1.SecurityGroupApplyConfiguration]
 	Fake *FakeOpenstackV1alpha1
-	ns   string
 }
 
-var securitygroupsResource = v1alpha1.SchemeGroupVersion.WithResource("securitygroups")
-
-var securitygroupsKind = v1alpha1.SchemeGroupVersion.WithKind("SecurityGroup")
-
-// Get takes name of the securityGroup, and returns the corresponding securityGroup object, and an error if there is any.
-func (c *FakeSecurityGroups) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.SecurityGroup, err error) {
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewGetActionWithOptions(securitygroupsResource, c.ns, name, options), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
+func newFakeSecurityGroups(fake *FakeOpenstackV1alpha1, namespace string) typedapiv1alpha1.SecurityGroupInterface {
+	return &fakeSecurityGroups{
+		gentype.NewFakeClientWithListAndApply[*v1alpha1.SecurityGroup, *v1alpha1.SecurityGroupList, *apiv1alpha1.SecurityGroupApplyConfiguration](
+			fake.Fake,
+			namespace,
+			v1alpha1.SchemeGroupVersion.WithResource("securitygroups"),
+			v1alpha1.SchemeGroupVersion.WithKind("SecurityGroup"),
+			func() *v1alpha1.SecurityGroup { return &v1alpha1.SecurityGroup{} },
+			func() *v1alpha1.SecurityGroupList { return &v1alpha1.SecurityGroupList{} },
+			func(dst, src *v1alpha1.SecurityGroupList) { dst.ListMeta = src.ListMeta },
+			func(list *v1alpha1.SecurityGroupList) []*v1alpha1.SecurityGroup {
+				return gentype.ToPointerSlice(list.Items)
+			},
+			func(list *v1alpha1.SecurityGroupList, items []*v1alpha1.SecurityGroup) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1alpha1.SecurityGroup), err
-}
-
-// List takes label and field selectors, and returns the list of SecurityGroups that match those selectors.
-func (c *FakeSecurityGroups) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.SecurityGroupList, err error) {
-	emptyResult := &v1alpha1.SecurityGroupList{}
-	obj, err := c.Fake.
-		Invokes(testing.NewListActionWithOptions(securitygroupsResource, securitygroupsKind, c.ns, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.SecurityGroupList{ListMeta: obj.(*v1alpha1.SecurityGroupList).ListMeta}
-	for _, item := range obj.(*v1alpha1.SecurityGroupList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested securityGroups.
-func (c *FakeSecurityGroups) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchActionWithOptions(securitygroupsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a securityGroup and creates it.  Returns the server's representation of the securityGroup, and an error, if there is any.
-func (c *FakeSecurityGroups) Create(ctx context.Context, securityGroup *v1alpha1.SecurityGroup, opts v1.CreateOptions) (result *v1alpha1.SecurityGroup, err error) {
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateActionWithOptions(securitygroupsResource, c.ns, securityGroup, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.SecurityGroup), err
-}
-
-// Update takes the representation of a securityGroup and updates it. Returns the server's representation of the securityGroup, and an error, if there is any.
-func (c *FakeSecurityGroups) Update(ctx context.Context, securityGroup *v1alpha1.SecurityGroup, opts v1.UpdateOptions) (result *v1alpha1.SecurityGroup, err error) {
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateActionWithOptions(securitygroupsResource, c.ns, securityGroup, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.SecurityGroup), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeSecurityGroups) UpdateStatus(ctx context.Context, securityGroup *v1alpha1.SecurityGroup, opts v1.UpdateOptions) (result *v1alpha1.SecurityGroup, err error) {
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceActionWithOptions(securitygroupsResource, "status", c.ns, securityGroup, opts), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.SecurityGroup), err
-}
-
-// Delete takes name of the securityGroup and deletes it. Returns an error if one occurs.
-func (c *FakeSecurityGroups) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(securitygroupsResource, c.ns, name, opts), &v1alpha1.SecurityGroup{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeSecurityGroups) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionActionWithOptions(securitygroupsResource, c.ns, opts, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.SecurityGroupList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched securityGroup.
-func (c *FakeSecurityGroups) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.SecurityGroup, err error) {
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(securitygroupsResource, c.ns, name, pt, data, opts, subresources...), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.SecurityGroup), err
-}
-
-// Apply takes the given apply declarative configuration, applies it and returns the applied securityGroup.
-func (c *FakeSecurityGroups) Apply(ctx context.Context, securityGroup *apiv1alpha1.SecurityGroupApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.SecurityGroup, err error) {
-	if securityGroup == nil {
-		return nil, fmt.Errorf("securityGroup provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(securityGroup)
-	if err != nil {
-		return nil, err
-	}
-	name := securityGroup.Name
-	if name == nil {
-		return nil, fmt.Errorf("securityGroup.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(securitygroupsResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions()), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.SecurityGroup), err
-}
-
-// ApplyStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakeSecurityGroups) ApplyStatus(ctx context.Context, securityGroup *apiv1alpha1.SecurityGroupApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.SecurityGroup, err error) {
-	if securityGroup == nil {
-		return nil, fmt.Errorf("securityGroup provided to Apply must not be nil")
-	}
-	data, err := json.Marshal(securityGroup)
-	if err != nil {
-		return nil, err
-	}
-	name := securityGroup.Name
-	if name == nil {
-		return nil, fmt.Errorf("securityGroup.Name must be provided to Apply")
-	}
-	emptyResult := &v1alpha1.SecurityGroup{}
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(securitygroupsResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions(), "status"), emptyResult)
-
-	if obj == nil {
-		return emptyResult, err
-	}
-	return obj.(*v1alpha1.SecurityGroup), err
 }

@@ -19,25 +19,25 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // SubnetResourceSpecApplyConfiguration represents a declarative configuration of the SubnetResourceSpec type for use
 // with apply.
 type SubnetResourceSpecApplyConfiguration struct {
-	Name              *v1alpha1.OpenStackName            `json:"name,omitempty"`
-	Description       *v1alpha1.NeutronDescription       `json:"description,omitempty"`
-	Tags              []v1alpha1.NeutronTag              `json:"tags,omitempty"`
-	IPVersion         *v1alpha1.IPVersion                `json:"ipVersion,omitempty"`
-	CIDR              *v1alpha1.CIDR                     `json:"cidr,omitempty"`
+	Name              *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
+	Description       *apiv1alpha1.NeutronDescription    `json:"description,omitempty"`
+	Tags              []apiv1alpha1.NeutronTag           `json:"tags,omitempty"`
+	IPVersion         *apiv1alpha1.IPVersion             `json:"ipVersion,omitempty"`
+	CIDR              *apiv1alpha1.CIDR                  `json:"cidr,omitempty"`
 	AllocationPools   []AllocationPoolApplyConfiguration `json:"allocationPools,omitempty"`
 	Gateway           *SubnetGatewayApplyConfiguration   `json:"gateway,omitempty"`
 	EnableDHCP        *bool                              `json:"enableDHCP,omitempty"`
-	DNSNameservers    []v1alpha1.IPvAny                  `json:"dnsNameservers,omitempty"`
+	DNSNameservers    []apiv1alpha1.IPvAny               `json:"dnsNameservers,omitempty"`
 	DNSPublishFixedIP *bool                              `json:"dnsPublishFixedIP,omitempty"`
 	HostRoutes        []HostRouteApplyConfiguration      `json:"hostRoutes,omitempty"`
 	IPv6              *IPv6OptionsApplyConfiguration     `json:"ipv6,omitempty"`
-	RouterRef         *v1alpha1.KubernetesNameRef        `json:"routerRef,omitempty"`
+	RouterRef         *apiv1alpha1.KubernetesNameRef     `json:"routerRef,omitempty"`
 }
 
 // SubnetResourceSpecApplyConfiguration constructs a declarative configuration of the SubnetResourceSpec type for use with
@@ -49,7 +49,7 @@ func SubnetResourceSpec() *SubnetResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *SubnetResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *SubnetResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -57,7 +57,7 @@ func (b *SubnetResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStack
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SubnetResourceSpecApplyConfiguration) WithDescription(value v1alpha1.NeutronDescription) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SubnetResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -65,7 +65,7 @@ func (b *SubnetResourceSpecApplyConfiguration) WithDescription(value v1alpha1.Ne
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *SubnetResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.NeutronTag) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *SubnetResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
@@ -75,7 +75,7 @@ func (b *SubnetResourceSpecApplyConfiguration) WithTags(values ...v1alpha1.Neutr
 // WithIPVersion sets the IPVersion field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the IPVersion field is set to the value of the last call.
-func (b *SubnetResourceSpecApplyConfiguration) WithIPVersion(value v1alpha1.IPVersion) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithIPVersion(value apiv1alpha1.IPVersion) *SubnetResourceSpecApplyConfiguration {
 	b.IPVersion = &value
 	return b
 }
@@ -83,7 +83,7 @@ func (b *SubnetResourceSpecApplyConfiguration) WithIPVersion(value v1alpha1.IPVe
 // WithCIDR sets the CIDR field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CIDR field is set to the value of the last call.
-func (b *SubnetResourceSpecApplyConfiguration) WithCIDR(value v1alpha1.CIDR) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithCIDR(value apiv1alpha1.CIDR) *SubnetResourceSpecApplyConfiguration {
 	b.CIDR = &value
 	return b
 }
@@ -120,7 +120,7 @@ func (b *SubnetResourceSpecApplyConfiguration) WithEnableDHCP(value bool) *Subne
 // WithDNSNameservers adds the given value to the DNSNameservers field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the DNSNameservers field.
-func (b *SubnetResourceSpecApplyConfiguration) WithDNSNameservers(values ...v1alpha1.IPvAny) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithDNSNameservers(values ...apiv1alpha1.IPvAny) *SubnetResourceSpecApplyConfiguration {
 	for i := range values {
 		b.DNSNameservers = append(b.DNSNameservers, values[i])
 	}
@@ -159,7 +159,7 @@ func (b *SubnetResourceSpecApplyConfiguration) WithIPv6(value *IPv6OptionsApplyC
 // WithRouterRef sets the RouterRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RouterRef field is set to the value of the last call.
-func (b *SubnetResourceSpecApplyConfiguration) WithRouterRef(value v1alpha1.KubernetesNameRef) *SubnetResourceSpecApplyConfiguration {
+func (b *SubnetResourceSpecApplyConfiguration) WithRouterRef(value apiv1alpha1.KubernetesNameRef) *SubnetResourceSpecApplyConfiguration {
 	b.RouterRef = &value
 	return b
 }

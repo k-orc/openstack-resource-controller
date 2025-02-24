@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/listers"
-	"k8s.io/client-go/tools/cache"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // SubnetLister helps list Subnets.
@@ -30,7 +30,7 @@ import (
 type SubnetLister interface {
 	// List lists all Subnets in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.Subnet, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.Subnet, err error)
 	// Subnets returns an object that can list and get Subnets.
 	Subnets(namespace string) SubnetNamespaceLister
 	SubnetListerExpansion
@@ -38,17 +38,17 @@ type SubnetLister interface {
 
 // subnetLister implements the SubnetLister interface.
 type subnetLister struct {
-	listers.ResourceIndexer[*v1alpha1.Subnet]
+	listers.ResourceIndexer[*apiv1alpha1.Subnet]
 }
 
 // NewSubnetLister returns a new SubnetLister.
 func NewSubnetLister(indexer cache.Indexer) SubnetLister {
-	return &subnetLister{listers.New[*v1alpha1.Subnet](indexer, v1alpha1.Resource("subnet"))}
+	return &subnetLister{listers.New[*apiv1alpha1.Subnet](indexer, apiv1alpha1.Resource("subnet"))}
 }
 
 // Subnets returns an object that can list and get Subnets.
 func (s *subnetLister) Subnets(namespace string) SubnetNamespaceLister {
-	return subnetNamespaceLister{listers.NewNamespaced[*v1alpha1.Subnet](s.ResourceIndexer, namespace)}
+	return subnetNamespaceLister{listers.NewNamespaced[*apiv1alpha1.Subnet](s.ResourceIndexer, namespace)}
 }
 
 // SubnetNamespaceLister helps list and get Subnets.
@@ -56,15 +56,15 @@ func (s *subnetLister) Subnets(namespace string) SubnetNamespaceLister {
 type SubnetNamespaceLister interface {
 	// List lists all Subnets in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.Subnet, err error)
+	List(selector labels.Selector) (ret []*apiv1alpha1.Subnet, err error)
 	// Get retrieves the Subnet from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.Subnet, error)
+	Get(name string) (*apiv1alpha1.Subnet, error)
 	SubnetNamespaceListerExpansion
 }
 
 // subnetNamespaceLister implements the SubnetNamespaceLister
 // interface.
 type subnetNamespaceLister struct {
-	listers.ResourceIndexer[*v1alpha1.Subnet]
+	listers.ResourceIndexer[*apiv1alpha1.Subnet]
 }

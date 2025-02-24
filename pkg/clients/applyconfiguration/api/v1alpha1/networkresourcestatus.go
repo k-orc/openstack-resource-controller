@@ -94,7 +94,7 @@ func (b *NetworkResourceStatusApplyConfiguration) WithTags(values ...string) *Ne
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the CreatedAt field is set to the value of the last call.
 func (b *NetworkResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *NetworkResourceStatusApplyConfiguration {
-	b.CreatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
 	return b
 }
 
@@ -102,7 +102,7 @@ func (b *NetworkResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the UpdatedAt field is set to the value of the last call.
 func (b *NetworkResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *NetworkResourceStatusApplyConfiguration {
-	b.UpdatedAt = &value
+	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
 	return b
 }
 
@@ -110,7 +110,7 @@ func (b *NetworkResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the RevisionNumber field is set to the value of the last call.
 func (b *NetworkResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *NetworkResourceStatusApplyConfiguration {
-	b.RevisionNumber = &value
+	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }
 

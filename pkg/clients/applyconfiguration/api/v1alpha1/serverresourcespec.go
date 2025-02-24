@@ -19,15 +19,15 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
 // ServerResourceSpecApplyConfiguration represents a declarative configuration of the ServerResourceSpec type for use
 // with apply.
 type ServerResourceSpecApplyConfiguration struct {
-	Name      *v1alpha1.OpenStackName            `json:"name,omitempty"`
-	ImageRef  *v1alpha1.KubernetesNameRef        `json:"imageRef,omitempty"`
-	FlavorRef *v1alpha1.KubernetesNameRef        `json:"flavorRef,omitempty"`
+	Name      *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
+	ImageRef  *apiv1alpha1.KubernetesNameRef     `json:"imageRef,omitempty"`
+	FlavorRef *apiv1alpha1.KubernetesNameRef     `json:"flavorRef,omitempty"`
 	UserData  *UserDataSpecApplyConfiguration    `json:"userData,omitempty"`
 	Ports     []ServerPortSpecApplyConfiguration `json:"ports,omitempty"`
 }
@@ -41,7 +41,7 @@ func ServerResourceSpec() *ServerResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *ServerResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStackName) *ServerResourceSpecApplyConfiguration {
+func (b *ServerResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ServerResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -49,7 +49,7 @@ func (b *ServerResourceSpecApplyConfiguration) WithName(value v1alpha1.OpenStack
 // WithImageRef sets the ImageRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ImageRef field is set to the value of the last call.
-func (b *ServerResourceSpecApplyConfiguration) WithImageRef(value v1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
+func (b *ServerResourceSpecApplyConfiguration) WithImageRef(value apiv1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
 	b.ImageRef = &value
 	return b
 }
@@ -57,7 +57,7 @@ func (b *ServerResourceSpecApplyConfiguration) WithImageRef(value v1alpha1.Kuber
 // WithFlavorRef sets the FlavorRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the FlavorRef field is set to the value of the last call.
-func (b *ServerResourceSpecApplyConfiguration) WithFlavorRef(value v1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
+func (b *ServerResourceSpecApplyConfiguration) WithFlavorRef(value apiv1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
 	b.FlavorRef = &value
 	return b
 }

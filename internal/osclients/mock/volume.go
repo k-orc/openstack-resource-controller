@@ -35,6 +35,7 @@ import (
 type MockVolumeClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockVolumeClientMockRecorder
+	isgomock struct{}
 }
 
 // MockVolumeClientMockRecorder is the mock recorder for MockVolumeClient.
