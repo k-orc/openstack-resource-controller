@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: import
+  name: import-external-not-this-one
 status:
   conditions:
     - type: Available
@@ -14,11 +14,19 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external
-    description: ""
-    ram: 12
-    vcpus: 13
-    disk: 14
-    swap: 0
-    isPublic: true
-    ephemeral: 0
+    name: import-external-not-this-one
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be created externally
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing

@@ -1,0 +1,13 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get subnet import --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get subnet import-external --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get subnet import-external-not-this-one --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get network import --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get network import-not-this-one --namespace $NAMESPACE"
+  skipLogOutput: true

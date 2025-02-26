@@ -1,7 +1,38 @@
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-- script: "! kubectl get flavor import --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get flavor import-external --namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: import-external
+      ref: flavor1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: import-external-not-this-one
+      ref: flavor2
+assertAll:
+    - celExpr: "flavor1.status.id != flavor2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: import-external
+    description: ""
+    ram: 12
+    vcpus: 13
+    disk: 14
+    swap: 0
+    isPublic: true
+    ephemeral: 0
