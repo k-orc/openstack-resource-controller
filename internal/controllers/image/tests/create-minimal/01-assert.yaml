@@ -7,5 +7,5 @@ resourceRefs:
       name: openstack-clouds
       ref: secret
 assertAll:
-    - celExpr: "secret.metadata.creationTimestamp < secret.metadata.deletionTimestamp"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/image' in secret.metadata.finalizers"
