@@ -8,5 +8,4 @@ Also validate that the OpenStack resource uses the name of the ORC object when i
 
 ## Step 01
 
-Validate we're able to delete resources.
-Cleaning up resources also avoids a race where kuttl could delete the secret before the other resources.
+Try deleting the secret and ensure that it is not deleted thanks to the finalizer.
