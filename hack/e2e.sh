@@ -15,6 +15,9 @@ E2E_KUTTL_DIR=${E2E_KUTTL_DIR:-}
 # Defaults to empty string (run all tests)
 E2E_KUTTL_TEST=${E2E_KUTTL_TEST:-}
 
+# Flavor name to use for tests
+E2E_KUTTL_FLAVOR=${E2E_KUTTL_FLAVOR:-m1.tiny}
+
 E2E_KUTTL_CACERT_OPT=
 if [ -n "$E2E_CACERT" ]; then
     E2E_KUTTL_CACERT_OPT="--from-file=cacert=${E2E_CACERT}"
@@ -23,5 +26,6 @@ fi
 # Export variables referenced in kuttl tests.
 export E2E_KUTTL_OSCLOUDS=${PREPARED_OSCLOUDS}
 export E2E_KUTTL_CACERT_OPT
+export E2E_KUTTL_FLAVOR
 
 kubectl kuttl test $E2E_KUTTL_DIR --test "$E2E_KUTTL_TEST"
