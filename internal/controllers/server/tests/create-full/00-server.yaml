@@ -1,0 +1,32 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  networkRef: create-full
+  resource:
+    addresses:
+      - subnetRef: create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: create-full-override
+    imageRef: create-full
+    flavorRef: server-flavor
+    ports:
+      - portRef: create-full
+    tags:
+      - tag1
+      - tag2
