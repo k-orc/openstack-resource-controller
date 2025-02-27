@@ -341,6 +341,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
   map:
     fields:
@@ -433,15 +439,30 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: hash
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
+    - name: name
+      type:
+        scalar: string
+    - name: protected
+      type:
+        scalar: boolean
     - name: sizeB
       type:
         scalar: numeric
     - name: status
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
     - name: virtualSizeB
       type:
         scalar: numeric
+    - name: visibility
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageSpec
   map:
     fields:

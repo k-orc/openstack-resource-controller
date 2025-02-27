@@ -234,7 +234,7 @@ ENVTEST_VERSION ?= release-0.19
 GOLANGCI_LINT_VERSION ?= v1.63.4
 KAL_VERSION ?= v0.0.0-20250120175744-495588b8c987
 MOCKGEN_VERSION ?= v0.5.0
-KUTTL_VERSION ?= v0.20.0
+KUTTL_VERSION ?= v0.22.0
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
