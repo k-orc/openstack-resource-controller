@@ -256,6 +256,7 @@ spec:
                 required:
                 - flavorRef
                 - imageRef
+                - ports
                 type: object
             required:
             - cloudCredentialsRef

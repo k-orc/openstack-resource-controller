@@ -85,8 +85,8 @@ type ServerResourceSpec struct {
 	// ports defines a list of ports which will be attached to the server.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
-	// +optional
-	Ports []ServerPortSpec `json:"ports,omitempty"`
+	// +required
+	Ports []ServerPortSpec `json:"ports"`
 
 	// tags is a list of tags which will be applied to the server.
 	// +kubebuilder:validation:MaxItems:=32

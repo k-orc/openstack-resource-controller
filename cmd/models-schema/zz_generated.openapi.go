@@ -5080,7 +5080,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 						},
 					},
 				},
-				Required: []string{"imageRef", "flavorRef"},
+				Required: []string{"imageRef", "flavorRef", "ports"},
 			},
 		},
 		Dependencies: []string{
