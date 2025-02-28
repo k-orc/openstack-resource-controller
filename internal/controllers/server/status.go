@@ -18,6 +18,7 @@ package server
 
 import (
 	"github.com/go-logr/logr"
+	"k8s.io/utils/ptr"
 
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -50,6 +51,8 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
 		WithAccessIPv4(osResource.AccessIPv4).
-		WithAccessIPv6(osResource.AccessIPv6)
+		WithAccessIPv6(osResource.AccessIPv6).
+		WithTags(ptr.Deref(osResource.Tags, []string{})...)
+
 	statusApply.WithResource(status)
 }

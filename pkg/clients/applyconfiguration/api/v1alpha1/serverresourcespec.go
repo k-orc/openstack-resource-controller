@@ -30,6 +30,7 @@ type ServerResourceSpecApplyConfiguration struct {
 	FlavorRef *apiv1alpha1.KubernetesNameRef     `json:"flavorRef,omitempty"`
 	UserData  *UserDataSpecApplyConfiguration    `json:"userData,omitempty"`
 	Ports     []ServerPortSpecApplyConfiguration `json:"ports,omitempty"`
+	Tags      []apiv1alpha1.ServerTag            `json:"tags,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -79,6 +80,16 @@ func (b *ServerResourceSpecApplyConfiguration) WithPorts(values ...*ServerPortSp
 			panic("nil value passed to WithPorts")
 		}
 		b.Ports = append(b.Ports, *values[i])
+	}
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *ServerResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.ServerTag) *ServerResourceSpecApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
 	}
 	return b
 }

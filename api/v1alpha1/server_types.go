@@ -16,6 +16,41 @@ limitations under the License.
 
 package v1alpha1
 
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=80
+type ServerTag string
+
+type FilterByServerTags struct {
+	// tags is a list of tags to filter by. If specified, the resource must
+	// have all of the tags specified to be included in the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	Tags []ServerTag `json:"tags,omitempty"`
+
+	// tagsAny is a list of tags to filter by. If specified, the resource
+	// must have at least one of the tags specified to be included in the
+	// result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	TagsAny []ServerTag `json:"tagsAny,omitempty"`
+
+	// notTags is a list of tags to filter by. If specified, resources which
+	// contain all of the given tags will be excluded from the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	NotTags []ServerTag `json:"notTags,omitempty"`
+
+	// notTagsAny is a list of tags to filter by. If specified, resources
+	// which contain any of the given tags will be excluded from the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	NotTagsAny []ServerTag `json:"notTagsAny,omitempty"`
+}
+
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:MaxProperties:=1
 type ServerPortSpec struct {
@@ -52,6 +87,12 @@ type ServerResourceSpec struct {
 	// +listType=atomic
 	// +optional
 	Ports []ServerPortSpec `json:"ports,omitempty"`
+
+	// tags is a list of tags which will be applied to the server.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
+	// +optional
+	Tags []ServerTag `json:"tags,omitempty"`
 }
 
 // +kubebuilder:validation:MinProperties:=1
@@ -68,6 +109,8 @@ type ServerFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
+
+	FilterByServerTags `json:",inline"`
 }
 
 // ServerResourceStatus represents the observed state of the resource.
@@ -117,4 +160,11 @@ type ServerResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	SecurityGroups []string `json:"securityGroups,omitempty"`
+
+	// tags is the list of tags on the resource.
+	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
+	// +listType=atomic
+	// +optional
+	Tags []string `json:"tags,omitempty"`
 }

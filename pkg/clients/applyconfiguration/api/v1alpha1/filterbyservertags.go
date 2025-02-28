@@ -22,33 +22,27 @@ import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 )
 
-// ServerFilterApplyConfiguration represents a declarative configuration of the ServerFilter type for use
+// FilterByServerTagsApplyConfiguration represents a declarative configuration of the FilterByServerTags type for use
 // with apply.
-type ServerFilterApplyConfiguration struct {
-	Name                                 *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	FilterByServerTagsApplyConfiguration `json:",inline"`
+type FilterByServerTagsApplyConfiguration struct {
+	Tags       []apiv1alpha1.ServerTag `json:"tags,omitempty"`
+	TagsAny    []apiv1alpha1.ServerTag `json:"tagsAny,omitempty"`
+	NotTags    []apiv1alpha1.ServerTag `json:"notTags,omitempty"`
+	NotTagsAny []apiv1alpha1.ServerTag `json:"notTagsAny,omitempty"`
 }
 
-// ServerFilterApplyConfiguration constructs a declarative configuration of the ServerFilter type for use with
+// FilterByServerTagsApplyConfiguration constructs a declarative configuration of the FilterByServerTags type for use with
 // apply.
-func ServerFilter() *ServerFilterApplyConfiguration {
-	return &ServerFilterApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *ServerFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ServerFilterApplyConfiguration {
-	b.Name = &value
-	return b
+func FilterByServerTags() *FilterByServerTagsApplyConfiguration {
+	return &FilterByServerTagsApplyConfiguration{}
 }
 
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *ServerFilterApplyConfiguration) WithTags(values ...apiv1alpha1.ServerTag) *ServerFilterApplyConfiguration {
+func (b *FilterByServerTagsApplyConfiguration) WithTags(values ...apiv1alpha1.ServerTag) *FilterByServerTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByServerTagsApplyConfiguration.Tags = append(b.FilterByServerTagsApplyConfiguration.Tags, values[i])
+		b.Tags = append(b.Tags, values[i])
 	}
 	return b
 }
@@ -56,9 +50,9 @@ func (b *ServerFilterApplyConfiguration) WithTags(values ...apiv1alpha1.ServerTa
 // WithTagsAny adds the given value to the TagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the TagsAny field.
-func (b *ServerFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.ServerTag) *ServerFilterApplyConfiguration {
+func (b *FilterByServerTagsApplyConfiguration) WithTagsAny(values ...apiv1alpha1.ServerTag) *FilterByServerTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByServerTagsApplyConfiguration.TagsAny = append(b.FilterByServerTagsApplyConfiguration.TagsAny, values[i])
+		b.TagsAny = append(b.TagsAny, values[i])
 	}
 	return b
 }
@@ -66,9 +60,9 @@ func (b *ServerFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.Serve
 // WithNotTags adds the given value to the NotTags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTags field.
-func (b *ServerFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.ServerTag) *ServerFilterApplyConfiguration {
+func (b *FilterByServerTagsApplyConfiguration) WithNotTags(values ...apiv1alpha1.ServerTag) *FilterByServerTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByServerTagsApplyConfiguration.NotTags = append(b.FilterByServerTagsApplyConfiguration.NotTags, values[i])
+		b.NotTags = append(b.NotTags, values[i])
 	}
 	return b
 }
@@ -76,9 +70,9 @@ func (b *ServerFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.Serve
 // WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTagsAny field.
-func (b *ServerFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.ServerTag) *ServerFilterApplyConfiguration {
+func (b *FilterByServerTagsApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.ServerTag) *FilterByServerTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByServerTagsApplyConfiguration.NotTagsAny = append(b.FilterByServerTagsApplyConfiguration.NotTagsAny, values[i])
+		b.NotTagsAny = append(b.NotTagsAny, values[i])
 	}
 	return b
 }

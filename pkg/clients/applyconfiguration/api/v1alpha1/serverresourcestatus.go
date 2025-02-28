@@ -29,6 +29,7 @@ type ServerResourceStatusApplyConfiguration struct {
 	ImageID        *string  `json:"imageID,omitempty"`
 	KeyName        *string  `json:"keyName,omitempty"`
 	SecurityGroups []string `json:"securityGroups,omitempty"`
+	Tags           []string `json:"tags,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
@@ -99,6 +100,16 @@ func (b *ServerResourceStatusApplyConfiguration) WithKeyName(value string) *Serv
 func (b *ServerResourceStatusApplyConfiguration) WithSecurityGroups(values ...string) *ServerResourceStatusApplyConfiguration {
 	for i := range values {
 		b.SecurityGroups = append(b.SecurityGroups, values[i])
+	}
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *ServerResourceStatusApplyConfiguration) WithTags(values ...string) *ServerResourceStatusApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
 	}
 	return b
 }

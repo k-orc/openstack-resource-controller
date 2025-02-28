@@ -1397,6 +1397,30 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerImport
   map:
     fields:
@@ -1432,6 +1456,12 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerPortSpec
           elementRelationship: atomic
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: userData
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.UserDataSpec
@@ -1465,6 +1495,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: status
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerSpec
   map:
     fields:
