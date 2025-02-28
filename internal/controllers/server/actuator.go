@@ -75,7 +75,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	}
 
 	listOpts := servers.ListOpts{
-		Name: string(getResourceName(obj)),
+		Name: fmt.Sprintf("^%s$", string(getResourceName(obj))),
 		Tags: neutrontags.Join(obj.Spec.Resource.Tags),
 	}
 
@@ -84,7 +84,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) serverIterator {
 	listOpts := servers.ListOpts{
-		Name:       string(ptr.Deref(filter.Name, "")),
+		Name:       fmt.Sprintf("^%s$", string(ptr.Deref(filter.Name, ""))),
 		Tags:       neutrontags.Join(filter.FilterByServerTags.Tags),
 		TagsAny:    neutrontags.Join(filter.FilterByServerTags.TagsAny),
 		NotTags:    neutrontags.Join(filter.FilterByServerTags.NotTags),
