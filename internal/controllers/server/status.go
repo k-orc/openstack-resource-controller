@@ -17,6 +17,8 @@ limitations under the License.
 package server
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
 	"k8s.io/utils/ptr"
 
@@ -51,6 +53,10 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
 		WithTags(ptr.Deref(osResource.Tags, []string{})...)
+
+	if imageID, ok := osResource.Image["id"]; ok {
+		status.WithImageID(fmt.Sprintf("%s", imageID))
+	}
 
 	statusApply.WithResource(status)
 }
