@@ -131,35 +131,10 @@ type ServerResourceStatus struct {
 	// +optional
 	Status string `json:"status,omitempty"`
 
-	// accessIPv4 contains the IPv4 addresses of the server, suitable for
-	// remote access for administration.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	AccessIPv4 string `json:"accessIPv4,omitempty"`
-
-	// accessIPv6 contains the IPv6 addresses of the server, suitable for
-	// remote access for administration.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	AccessIPv6 string `json:"accessIPv6,omitempty"`
-
 	// imageID indicates the OS image used to deploy the server.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
-
-	// keyName indicates which public key was injected into the server on launch.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	KeyName string `json:"keyName,omitempty"`
-
-	// securityGroups includes the security groups that this instance has
-	// applied to it.
-	// +kubebuilder:validation:MaxItems:=32
-	// +kubebuilder:validation:items:MaxLength=1024
-	// +listType=atomic
-	// +optional
-	SecurityGroups []string `json:"securityGroups,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32

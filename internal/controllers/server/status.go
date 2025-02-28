@@ -50,8 +50,6 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithName(osResource.Name).
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
-		WithAccessIPv4(osResource.AccessIPv4).
-		WithAccessIPv6(osResource.AccessIPv6).
 		WithTags(ptr.Deref(osResource.Tags, []string{})...)
 
 	statusApply.WithResource(status)

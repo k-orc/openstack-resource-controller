@@ -1468,30 +1468,15 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
   map:
     fields:
-    - name: accessIPv4
-      type:
-        scalar: string
-    - name: accessIPv6
-      type:
-        scalar: string
     - name: hostID
       type:
         scalar: string
     - name: imageID
       type:
         scalar: string
-    - name: keyName
-      type:
-        scalar: string
     - name: name
       type:
         scalar: string
-    - name: securityGroups
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: atomic
     - name: status
       type:
         scalar: string

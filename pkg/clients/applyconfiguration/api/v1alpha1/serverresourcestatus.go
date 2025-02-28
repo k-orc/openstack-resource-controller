@@ -21,15 +21,11 @@ package v1alpha1
 // ServerResourceStatusApplyConfiguration represents a declarative configuration of the ServerResourceStatus type for use
 // with apply.
 type ServerResourceStatusApplyConfiguration struct {
-	Name           *string  `json:"name,omitempty"`
-	HostID         *string  `json:"hostID,omitempty"`
-	Status         *string  `json:"status,omitempty"`
-	AccessIPv4     *string  `json:"accessIPv4,omitempty"`
-	AccessIPv6     *string  `json:"accessIPv6,omitempty"`
-	ImageID        *string  `json:"imageID,omitempty"`
-	KeyName        *string  `json:"keyName,omitempty"`
-	SecurityGroups []string `json:"securityGroups,omitempty"`
-	Tags           []string `json:"tags,omitempty"`
+	Name    *string  `json:"name,omitempty"`
+	HostID  *string  `json:"hostID,omitempty"`
+	Status  *string  `json:"status,omitempty"`
+	ImageID *string  `json:"imageID,omitempty"`
+	Tags    []string `json:"tags,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
@@ -62,45 +58,11 @@ func (b *ServerResourceStatusApplyConfiguration) WithStatus(value string) *Serve
 	return b
 }
 
-// WithAccessIPv4 sets the AccessIPv4 field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the AccessIPv4 field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithAccessIPv4(value string) *ServerResourceStatusApplyConfiguration {
-	b.AccessIPv4 = &value
-	return b
-}
-
-// WithAccessIPv6 sets the AccessIPv6 field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the AccessIPv6 field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithAccessIPv6(value string) *ServerResourceStatusApplyConfiguration {
-	b.AccessIPv6 = &value
-	return b
-}
-
 // WithImageID sets the ImageID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ImageID field is set to the value of the last call.
 func (b *ServerResourceStatusApplyConfiguration) WithImageID(value string) *ServerResourceStatusApplyConfiguration {
 	b.ImageID = &value
-	return b
-}
-
-// WithKeyName sets the KeyName field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the KeyName field is set to the value of the last call.
-func (b *ServerResourceStatusApplyConfiguration) WithKeyName(value string) *ServerResourceStatusApplyConfiguration {
-	b.KeyName = &value
-	return b
-}
-
-// WithSecurityGroups adds the given value to the SecurityGroups field in the declarative configuration
-// and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the SecurityGroups field.
-func (b *ServerResourceStatusApplyConfiguration) WithSecurityGroups(values ...string) *ServerResourceStatusApplyConfiguration {
-	for i := range values {
-		b.SecurityGroups = append(b.SecurityGroups, values[i])
-	}
 	return b
 }
 

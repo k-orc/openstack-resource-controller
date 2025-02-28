@@ -5116,52 +5116,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 							Format:      "",
 						},
 					},
-					"accessIPv4": {
-						SchemaProps: spec.SchemaProps{
-							Description: "accessIPv4 contains the IPv4 addresses of the server, suitable for remote access for administration.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"accessIPv6": {
-						SchemaProps: spec.SchemaProps{
-							Description: "accessIPv6 contains the IPv6 addresses of the server, suitable for remote access for administration.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"imageID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "imageID indicates the OS image used to deploy the server.",
 							Type:        []string{"string"},
 							Format:      "",
-						},
-					},
-					"keyName": {
-						SchemaProps: spec.SchemaProps{
-							Description: "keyName indicates which public key was injected into the server on launch.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"securityGroups": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "atomic",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "securityGroups includes the security groups that this instance has applied to it.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
 						},
 					},
 					"tags": {
