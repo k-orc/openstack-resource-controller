@@ -59,7 +59,9 @@ Example terminal errors:
 
 By default, all errors should be treated as transient. No special handling is required for transient errors. If your method returns an error it will eventually be passed to the status writer. A transient error results in a Progressing status of True. The condition's reason will be set to TransientError, and the error message itself will be reported to the user via the condition's message. The controller will enter a default exponential backoff loop, so the object will continue to be reconciled indefinitely until the error no longer occurs.
 
-> **NOTE**: we currently report *all* error messages to the user. At some point we may restrict this to only OpenStack errors to avoid potentially leaking internal configuration details.
+!!! note
+
+    We currently report *all* error messages to the user. At some point we may restrict this to only OpenStack errors to avoid potentially leaking internal configuration details.
 
 When you are confident that an error will never be resolved we can instead return a terminal error. As well as not wasting resources by continuing to attempt an operation which will never succeed, this will clearly communicate to any API user waiting for the object to be reconciled that they can stop waiting.
 
@@ -75,7 +77,9 @@ Dependencies are at the core of what ORC does. At the lowest level ORC performs 
 
 It achieves this through dependency management.
 
-> **NOTE**: in ORC dependencies can *only* be expressed between ORC objects. Therefore if one OpenStack resource depends on another, that relationship can only be expressed in ORC if both resources have corresponding ORC objects. Resoruces which a user may depend on but cannot create, like a flavor or a provider network, can be expressed by importing an existing resource.
+!!! note
+
+    ORC dependencies can *only* be expressed between ORC objects. Therefore if one OpenStack resource depends on another, that relationship can only be expressed in ORC if both resources have corresponding ORC objects. Resoruces which a user may depend on but cannot create, like a flavor or a provider network, can be expressed by importing an existing resource.
 
 A dependency is used anywhere that the controller must reference another object to complete an action. The dependency has features that enable us to:
 
@@ -111,7 +115,9 @@ There are 2 ways we can address this:
 
 A deletion dependency works, and this is how this is currently implemented. The disadvantage is that it makes it harder to reconfigure an existing deployment, and reduces a user's flexibility to resolve deployment issues without resorting to manually removing finalizers, or having to delete more resources than strictly necessary. Where possible, a reconcile dependency should be favoured.
 
-> **NOTE**: Reconcile dependencies are not currently implemented.
+!!! warning
+
+    Reconcile dependencies are not currently implemented. For now, this section is simply something to consider.
 
 ### Deletion dependencies
 
