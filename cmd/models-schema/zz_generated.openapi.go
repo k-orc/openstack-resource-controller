@@ -1310,7 +1310,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref co
 						},
 					},
 				},
-				Required: []string{"diskFormat"},
+				Required: []string{"diskFormat", "download"},
 			},
 		},
 		Dependencies: []string{
