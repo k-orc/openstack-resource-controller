@@ -18,4 +18,23 @@ This will generate 3 files for you:
 
 > These files are generated using a very simplistic text templating system in `cmd/resource-generator`. If you are wondering why we didn't use generics, which are widely used throughout the rest of the code, it's because `controller-gen`, which generates CRDs from the API, doesn't yet support them. Consequently we generate manually what generics would have generated implicitly. This code may be rewritten in the future if `controller-gen` gains support for generics.
 
-The code will not compile at this point, as the generated code will refer to code you have not yet written.
+The code will not compile at this point, as the generated code will refer to code you have not yet written. You will also have to write:
+
+## Controller initialisation
+
+These are typically defined in:
+
+* `internal/controllers/<resource>/controller.go`
+* `internal/controllers/<resource>/reconcile.go`
+
+## The actuator
+
+This is typically defined in:
+
+* `internal/controllers/<resource>/actuator.go`
+
+## The status writer
+
+This is typically defined in:
+
+* `internal/controllers/<resource>/status.go`
