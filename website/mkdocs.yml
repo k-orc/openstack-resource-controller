@@ -6,10 +6,11 @@ nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Reference: reference.md
-  - Design decisions: design-decisions.md
-  - API contracts: api-contracts.md
-  - Local development: local-development.md
-  - Writing controllers: writing-controllers.md
+  - Development:
+    - Design decisions: development/design-decisions.md
+    - API contracts: development/api-contracts.md
+    - Local development: development/local-development.md
+    - Writing controllers: development/writing-controllers.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
   analytics:
