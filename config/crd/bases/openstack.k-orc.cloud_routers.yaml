@@ -221,11 +221,6 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
-                  createdAt:
-                    description: createdAt shows the date and time when the resource
-                      was created. The date and time stamp format is ISO 8601
-                    format: date-time
-                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -263,10 +258,6 @@ spec:
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
-                  revisionNumber:
-                    description: revisionNumber optionally set via extensions/standard-attr-revisions
-                    format: int64
-                    type: integer
                   tags:
                     description: tags is a list of tags which will be applied to the
                       router.
@@ -280,11 +271,6 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
-                  updatedAt:
-                    description: updatedAt shows the date and time when the resource
-                      was updated. The date and time stamp format is ISO 8601
-                    format: date-time
-                    type: string
                 type: object
             required:
             - cloudCredentialsRef
@@ -403,6 +389,11 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                  createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -431,6 +422,10 @@ spec:
                     description: projectID is the project owner of the resource.
                     maxLength: 1024
                     type: string
+                  revisionNumber:
+                    description: revisionNumber optionally set via extensions/standard-attr-revisions
+                    format: int64
+                    type: integer
                   status:
                     description: status indicates the current status of the resource.
                     maxLength: 1024
@@ -443,6 +438,11 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                  updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
                 type: object
             type: object
         type: object
