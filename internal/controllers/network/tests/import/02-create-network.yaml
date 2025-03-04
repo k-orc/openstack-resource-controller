@@ -8,7 +8,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: import-external
     description: Network import-external from "import" test
     external: true
     tags:

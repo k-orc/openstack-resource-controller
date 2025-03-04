@@ -1,0 +1,27 @@
+---
+# This `import-external-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
+# - ensure that importing a resource which name is a substring of it will not pick this one.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  networkRef: import-not-this-one
+  resource:
+    description: Subnet from "import" test
+    ipVersion: 6
+    cidr: fc00:3::/64
+    tags:
+    - tag1
+    - tag2
+    # NOTE: enable_dhcp must be enabled for setting ipv6_ra_mode or ipv6_address_mode
+    enableDHCP: true
+    # NOTE: when both ipv6_ra_mode and ipv6_address_mode are set they must be identical
+    ipv6:
+      addressMode: dhcpv6-stateful
+      raMode: dhcpv6-stateful

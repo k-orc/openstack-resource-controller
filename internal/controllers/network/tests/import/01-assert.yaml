@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import
+  name: import-external-not-this-one
 status:
   conditions:
     - type: Available
@@ -14,7 +14,7 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external
+    name: import-external-not-this-one
     description: Network import-external from "import" test
     adminStateUp: true
     dnsDomain: ""
@@ -26,3 +26,18 @@ status:
     tags:
      - tag1
      - tag2
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be created externally
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing

@@ -1,3 +1,4 @@
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
@@ -9,3 +10,15 @@ spec:
   managementPolicy: managed
   resource:
     name: import
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: import-not-this-one

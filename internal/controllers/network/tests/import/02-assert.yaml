@@ -1,8 +1,42 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-- script: "! kubectl get network import --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get network import-external--namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: import-external
+      ref: network1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: import-external-not-this-one
+      ref: network2
+assertAll:
+    - celExpr: "network1.status.id != network2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: import-external
+    description: Network import-external from "import" test
+    adminStateUp: true
+    dnsDomain: ""
+    external: true
+    mtu: 1442
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE
+    tags:
+     - tag1
+     - tag2
