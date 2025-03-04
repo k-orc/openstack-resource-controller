@@ -37,5 +37,10 @@ trap cleanup EXIT
 PREPARED_OSCLOUDS="${creds_dir}/clouds.yaml"
 
 cp "${E2E_OSCLOUDS}" "${PREPARED_OSCLOUDS}"
-sed -r -i "s/^(\s+)${E2E_OPENSTACK_CLOUD_NAME}:/\1openstack:/g" "${PREPARED_OSCLOUDS}"
-sed -r -i "s/^(\s+)${E2E_OPENSTACK_ADMIN_CLOUD_NAME}:/\1openstack-admin:/g" "${PREPARED_OSCLOUDS}"
+if sed --version 2>/dev/null | grep -q GNU; then
+    sed -E -i "s/^([[:space:]]+)${E2E_OPENSTACK_CLOUD_NAME}:/\1openstack:/g" "${PREPARED_OSCLOUDS}"
+    sed -E -i "s/^([[:space:]]+)${E2E_OPENSTACK_ADMIN_CLOUD_NAME}:/\1openstack-admin:/g" "${PREPARED_OSCLOUDS}"
+else
+    sed -E -i' ' "s/^([[:space:]]+)${E2E_OPENSTACK_CLOUD_NAME}:/\1openstack:/g" "${PREPARED_OSCLOUDS}"
+    sed -E -i' ' "s/^([[:space:]]+)${E2E_OPENSTACK_ADMIN_CLOUD_NAME}:/\1openstack-admin:/g" "${PREPARED_OSCLOUDS}"
+fi
