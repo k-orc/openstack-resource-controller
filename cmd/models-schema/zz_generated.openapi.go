@@ -3916,30 +3916,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 							},
 						},
 					},
-					"createdAt": {
-						SchemaProps: spec.SchemaProps{
-							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-					"updatedAt": {
-						SchemaProps: spec.SchemaProps{
-							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-					"revisionNumber": {
-						SchemaProps: spec.SchemaProps{
-							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
-							Type:        []string{"integer"},
-							Format:      "int64",
-						},
-					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGatewayStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGatewayStatus"},
 	}
 }
 
