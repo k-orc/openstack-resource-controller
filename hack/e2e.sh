@@ -53,7 +53,27 @@ cp "${E2E_OSCLOUDS}" "${E2E_KUTTL_OSCLOUDS}"
 sed -r -i "s/^(\s+)${E2E_OPENSTACK_CLOUD_NAME}:/\1openstack:/g" "${E2E_KUTTL_OSCLOUDS}"
 sed -r -i "s/^(\s+)${E2E_OPENSTACK_ADMIN_CLOUD_NAME}:/\1openstack-admin:/g" "${E2E_KUTTL_OSCLOUDS}"
 
+echo OpenStack Networks before running kuttl
+set -x
+echo "As demo user"
+OS_CLOUD=devstack openstack network list --debug
+OS_CLOUD=devstack openstack subnet list --debug
+echo "As admin user"
+OS_CLOUD=devstack-admin openstack network list --debug
+OS_CLOUD=devstack-admin openstack subnet list --debug
+set +x
+
 kubectl kuttl test $E2E_KUTTL_DIR --test "$E2E_KUTTL_TEST"
+
+echo OpenStack Networks after running kuttl
+set -x
+echo "As demo user"
+OS_CLOUD=devstack openstack network list --debug
+OS_CLOUD=devstack openstack subnet list --debug
+echo "As admin user"
+OS_CLOUD=devstack-admin openstack network list --debug
+OS_CLOUD=devstack-admin openstack subnet list --debug
+set +x
 
 # Now drop admin privileges
 export OS_CLOUD=devstack
