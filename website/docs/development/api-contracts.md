@@ -41,6 +41,39 @@ This is located at `status.resource` in the base object. It contains the observe
 * All fields should be optional and have the `omitempty` tag.
 * strings do not need to be pointers.
 
+## Generating CRDs
+
+The CRDs are automatically generated from the Go API. To generate them, run:
+
+```bash
+$ make generate
+```
+
+However, note that this will not add a new CRD to the list of CRDs to load. This must be done manually by adding the new CRD to the list in `config/crd/kustomization.yaml`.
+
+This will also generate all other artifacts, including the apply configurations in `pkg/clients/applyconfiguration`.
+
+## Kustomize references
+
+You should update `examples/components/kustomizeconfig/kustomizeconfig.yaml` with any references defined by your API. This will ensure that kustomize handles them correctly during transformations.
+
+!!! note
+
+    `kustomizeconfig.yaml` is currently used only by the examples, but we intend to eventually publish it as a release artifact.
+
+## Generating API artifacts
+
+There are a number of artifacts which are automatically generated from the API. Of primary interest are:
+
+* The CRDs
+* The apply configurations in `pkg/clients`
+
+Every time you make a change to the API you should ensure these are up to date by running:
+
+```
+$ make generate
+```
+
 ## General API guidelines
 
 * Do not define API fields which are not implemented. We will define them when we implement them.
