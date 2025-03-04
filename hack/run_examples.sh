@@ -3,8 +3,7 @@
 set -euo pipefail
 
 # Move to top level directory
-REAL_PATH=$(realpath $0)
-cd "$(dirname "$REAL_PATH")/.."
+cd "$(git rev-parse --show-toplevel)"
 
 source ./hack/init_test_env.sh
 
