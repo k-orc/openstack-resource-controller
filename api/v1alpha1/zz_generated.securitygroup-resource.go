@@ -95,6 +95,7 @@ type SecurityGroupStatus struct {
 	// Progressing is True, an observer waiting on the resource should continue
 	// to wait.
 	//
+	// +kubebuilder:validation:MaxItems:=32
 	// +patchMergeKey=type
 	// +patchStrategy=merge
 	// +listType=map

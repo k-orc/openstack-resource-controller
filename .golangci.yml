@@ -65,10 +65,13 @@ linters-settings:
           # NOTE: we have a number of boolean fields. Should we convert them to
           # string?
           # - "nobools"
+          - "nofloats"
           - "nophase"
           - "optionalorrequired"
           - "requiredfields"
+          - "statussubresource"
         lintersConfig:
           conditions:
             isFirstField: Warn
-            useProtobuf: Ignore
+            useProtobuf: Forbid
+            usePatchStrategy: Ignore
