@@ -81,8 +81,6 @@ type RouterResourceSpec struct {
 	// +listType=set
 	// +optional
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
-
-	NeutronStatusMetadata `json:",inline"`
 }
 
 type RouterResourceStatus struct {
@@ -131,4 +129,6 @@ type RouterResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
+
+	NeutronStatusMetadata `json:",inline"`
 }
