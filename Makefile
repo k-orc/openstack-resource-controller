@@ -105,6 +105,10 @@ test-e2e: kuttl
 	# go test ./test/e2e/ -v -ginkgo.v
 	./hack/e2e.sh
 
+.PHONY: test-examples
+test-examples:
+	./hack/run_examples.sh
+
 .PHONY: lint
 lint: golangci-kal ## Run golangci-kal linter
 	$(GOLANGCI_KAL) run
