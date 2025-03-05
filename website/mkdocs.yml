@@ -31,6 +31,8 @@ hooks:
 theme:
   name: material
   custom_dir: overrides
+  features:
+    - navigation.footer
 plugins:
   - search:
   - minify:
