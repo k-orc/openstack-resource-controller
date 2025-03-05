@@ -129,6 +129,4 @@ type RouterResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
-
-	NeutronStatusMetadata `json:",inline"`
 }

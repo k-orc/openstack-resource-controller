@@ -18,22 +18,17 @@ limitations under the License.
 
 package v1alpha1
 
-import (
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
 // RouterResourceStatusApplyConfiguration represents a declarative configuration of the RouterResourceStatus type for use
 // with apply.
 type RouterResourceStatusApplyConfiguration struct {
-	Name                                    *string                                   `json:"name,omitempty"`
-	Description                             *string                                   `json:"description,omitempty"`
-	ProjectID                               *string                                   `json:"projectID,omitempty"`
-	Status                                  *string                                   `json:"status,omitempty"`
-	Tags                                    []string                                  `json:"tags,omitempty"`
-	AdminStateUp                            *bool                                     `json:"adminStateUp,omitempty"`
-	ExternalGateways                        []ExternalGatewayStatusApplyConfiguration `json:"externalGateways,omitempty"`
-	AvailabilityZoneHints                   []string                                  `json:"availabilityZoneHints,omitempty"`
-	NeutronStatusMetadataApplyConfiguration `json:",inline"`
+	Name                  *string                                   `json:"name,omitempty"`
+	Description           *string                                   `json:"description,omitempty"`
+	ProjectID             *string                                   `json:"projectID,omitempty"`
+	Status                *string                                   `json:"status,omitempty"`
+	Tags                  []string                                  `json:"tags,omitempty"`
+	AdminStateUp          *bool                                     `json:"adminStateUp,omitempty"`
+	ExternalGateways      []ExternalGatewayStatusApplyConfiguration `json:"externalGateways,omitempty"`
+	AvailabilityZoneHints []string                                  `json:"availabilityZoneHints,omitempty"`
 }
 
 // RouterResourceStatusApplyConfiguration constructs a declarative configuration of the RouterResourceStatus type for use with
@@ -112,29 +107,5 @@ func (b *RouterResourceStatusApplyConfiguration) WithAvailabilityZoneHints(value
 	for i := range values {
 		b.AvailabilityZoneHints = append(b.AvailabilityZoneHints, values[i])
 	}
-	return b
-}
-
-// WithCreatedAt sets the CreatedAt field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the CreatedAt field is set to the value of the last call.
-func (b *RouterResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *RouterResourceStatusApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
-	return b
-}
-
-// WithUpdatedAt sets the UpdatedAt field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the UpdatedAt field is set to the value of the last call.
-func (b *RouterResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *RouterResourceStatusApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
-	return b
-}
-
-// WithRevisionNumber sets the RevisionNumber field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the RevisionNumber field is set to the value of the last call.
-func (b *RouterResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *RouterResourceStatusApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }
