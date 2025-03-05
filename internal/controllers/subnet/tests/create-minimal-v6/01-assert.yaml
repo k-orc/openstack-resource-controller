@@ -1,7 +1,11 @@
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-- script: "! kubectl get subnet create-minimal-v6 --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get network create-minimal-v6 --namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: v1
+      kind: Secret
+      name: openstack-clouds
+      ref: secret
+assertAll:
+    - celExpr: "secret.metadata.creationTimestamp < secret.metadata.deletionTimestamp"
+    - celExpr: "'openstack.k-orc.cloud/subnet' in secret.metadata.finalizers"
