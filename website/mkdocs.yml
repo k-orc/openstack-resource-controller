@@ -8,6 +8,7 @@ nav:
   - Reference: reference.md
   - Local development quickstart: development/quickstart.md
   - Developing controllers:
+    - development/index.md
     - Generating scaffolding: development/scaffolding.md
     - Writing an API: development/api-contracts.md
     - Controller design considerations: development/controller-design.md
@@ -33,6 +34,8 @@ theme:
   custom_dir: overrides
   features:
     - navigation.footer
+    - navigation.indexes
+    - navigation.expand
 plugins:
   - search:
   - minify:
