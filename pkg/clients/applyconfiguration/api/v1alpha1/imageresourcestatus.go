@@ -21,10 +21,14 @@ package v1alpha1
 // ImageResourceStatusApplyConfiguration represents a declarative configuration of the ImageResourceStatus type for use
 // with apply.
 type ImageResourceStatusApplyConfiguration struct {
+	Name         *string                      `json:"name,omitempty"`
 	Status       *string                      `json:"status,omitempty"`
+	Protected    *bool                        `json:"protected,omitempty"`
+	Visibility   *string                      `json:"visibility,omitempty"`
 	Hash         *ImageHashApplyConfiguration `json:"hash,omitempty"`
 	SizeB        *int64                       `json:"sizeB,omitempty"`
 	VirtualSizeB *int64                       `json:"virtualSizeB,omitempty"`
+	Tags         []string                     `json:"tags,omitempty"`
 }
 
 // ImageResourceStatusApplyConfiguration constructs a declarative configuration of the ImageResourceStatus type for use with
@@ -33,11 +37,35 @@ func ImageResourceStatus() *ImageResourceStatusApplyConfiguration {
 	return &ImageResourceStatusApplyConfiguration{}
 }
 
+// WithName sets the Name field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Name field is set to the value of the last call.
+func (b *ImageResourceStatusApplyConfiguration) WithName(value string) *ImageResourceStatusApplyConfiguration {
+	b.Name = &value
+	return b
+}
+
 // WithStatus sets the Status field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Status field is set to the value of the last call.
 func (b *ImageResourceStatusApplyConfiguration) WithStatus(value string) *ImageResourceStatusApplyConfiguration {
 	b.Status = &value
+	return b
+}
+
+// WithProtected sets the Protected field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Protected field is set to the value of the last call.
+func (b *ImageResourceStatusApplyConfiguration) WithProtected(value bool) *ImageResourceStatusApplyConfiguration {
+	b.Protected = &value
+	return b
+}
+
+// WithVisibility sets the Visibility field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Visibility field is set to the value of the last call.
+func (b *ImageResourceStatusApplyConfiguration) WithVisibility(value string) *ImageResourceStatusApplyConfiguration {
+	b.Visibility = &value
 	return b
 }
 
@@ -62,5 +90,15 @@ func (b *ImageResourceStatusApplyConfiguration) WithSizeB(value int64) *ImageRes
 // If called multiple times, the VirtualSizeB field is set to the value of the last call.
 func (b *ImageResourceStatusApplyConfiguration) WithVirtualSizeB(value int64) *ImageResourceStatusApplyConfiguration {
 	b.VirtualSizeB = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *ImageResourceStatusApplyConfiguration) WithTags(values ...string) *ImageResourceStatusApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }

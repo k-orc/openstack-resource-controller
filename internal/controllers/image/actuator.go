@@ -85,12 +85,33 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 		return nil, false
 	}
 
-	listOpts := images.ListOpts{Name: string(getResourceName(obj))}
-	return actuator.osClient.ListImages(ctx, listOpts), true
+	listOpts := images.ListOpts{
+		Name: string(getResourceName(obj)),
+	}
+
+	if len(obj.Spec.Resource.Tags) > 0 {
+		listOpts.Tags = make([]string, len(obj.Spec.Resource.Tags))
+		for i := range obj.Spec.Resource.Tags {
+			listOpts.Tags[i] = string(obj.Spec.Resource.Tags[i])
+		}
+	}
+
+	existingImage := actuator.osClient.ListImages(ctx, listOpts)
+	return existingImage, true
 }
 
 func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) imageIterator {
-	listOpts := images.ListOpts{Name: string(ptr.Deref(filter.Name, ""))}
+	listOpts := images.ListOpts{
+		Name: string(ptr.Deref(filter.Name, "")),
+	}
+
+	if len(filter.Tags) > 0 {
+		listOpts.Tags = make([]string, len(filter.Tags))
+		for i := range filter.Tags {
+			listOpts.Tags[i] = string(filter.Tags[i])
+		}
+	}
+
 	return actuator.osClient.ListImages(ctx, listOpts)
 }
 

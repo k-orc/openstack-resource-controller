@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: import
+  name: import-external-not-this-one
 status:
   conditions:
     - type: Available
@@ -25,7 +25,22 @@ status:
     ipVersion: 6
     ipv6AddressMode: dhcpv6-stateful
     ipv6RAMode: dhcpv6-stateful
-    name: import-external
+    name: import-external-not-this-one
     tags:
     - tag1
     - tag2
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be created externally
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing

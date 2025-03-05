@@ -174,6 +174,10 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantStatus: func() *orcapplyconfigv1alpha1.ImageStatusApplyConfiguration {
 				return orcapplyconfigv1alpha1.ImageStatus().
 					WithResource(orcapplyconfigv1alpha1.ImageResourceStatus().
+						WithName("test-image").
+						WithProtected(true).
+						WithVisibility("public").
+						WithTags("foo", "bar").
 						WithStatus(string(images.ImageStatusQueued)))
 			},
 			wantAvailable: func(now metav1.Time) *applyconfigv1.ConditionApplyConfiguration {
@@ -200,6 +204,10 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantStatus: func() *orcapplyconfigv1alpha1.ImageStatusApplyConfiguration {
 				return orcapplyconfigv1alpha1.ImageStatus().
 					WithResource(orcapplyconfigv1alpha1.ImageResourceStatus().
+						WithName("test-image").
+						WithProtected(true).
+						WithVisibility("public").
+						WithTags("foo", "bar").
 						WithStatus(string(images.ImageStatusActive)).
 						WithSizeB(testSize).
 						WithVirtualSizeB(testVirtualSize).
@@ -231,6 +239,10 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantStatus: func() *orcapplyconfigv1alpha1.ImageStatusApplyConfiguration {
 				return orcapplyconfigv1alpha1.ImageStatus().
 					WithResource(orcapplyconfigv1alpha1.ImageResourceStatus().
+						WithName("test-image").
+						WithProtected(true).
+						WithVisibility("public").
+						WithTags("foo", "bar").
 						WithStatus(string(images.ImageStatusActive)).
 						WithSizeB(testSize).
 						WithVirtualSizeB(testVirtualSize).
@@ -284,6 +296,10 @@ func Test_orcImageReconciler_updateStatus(t *testing.T) {
 			wantStatus: func() *orcapplyconfigv1alpha1.ImageStatusApplyConfiguration {
 				return orcapplyconfigv1alpha1.ImageStatus().
 					WithResource(orcapplyconfigv1alpha1.ImageResourceStatus().
+						WithName("test-image").
+						WithProtected(true).
+						WithVisibility("public").
+						WithTags("foo", "bar").
 						WithStatus(string(images.ImageStatusActive)).
 						WithSizeB(testSize).
 						WithVirtualSizeB(testVirtualSize).

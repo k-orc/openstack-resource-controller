@@ -1,9 +1,45 @@
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-- script: "! kubectl get subnet import --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get subnet import-external --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get network import --namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: import-external
+      ref: subnet1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: import-external-not-this-one
+      ref: subnet2
+assertAll:
+    - celExpr: "subnet1.status.id != subnet2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    allocationPools:
+      - start: "fc00:3::1"
+        end: "fc00:3::ffff:ffff:ffff:ffff"
+    cidr: fc00:3::/64
+    description: Subnet from "import" test
+    dnsPublishFixedIP: false
+    enableDHCP: true
+    gatewayIP: 'fc00:3::'
+    ipVersion: 6
+    ipv6AddressMode: dhcpv6-stateful
+    ipv6RAMode: dhcpv6-stateful
+    name: import-external
+    tags:
+    - tag1
+    - tag2

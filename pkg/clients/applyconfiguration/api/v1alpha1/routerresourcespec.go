@@ -20,20 +20,18 @@ package v1alpha1
 
 import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // RouterResourceSpecApplyConfiguration represents a declarative configuration of the RouterResourceSpec type for use
 // with apply.
 type RouterResourceSpecApplyConfiguration struct {
-	Name                                    *apiv1alpha1.OpenStackName          `json:"name,omitempty"`
-	Description                             *apiv1alpha1.NeutronDescription     `json:"description,omitempty"`
-	Tags                                    []apiv1alpha1.NeutronTag            `json:"tags,omitempty"`
-	AdminStateUp                            *bool                               `json:"adminStateUp,omitempty"`
-	ExternalGateways                        []ExternalGatewayApplyConfiguration `json:"externalGateways,omitempty"`
-	Distributed                             *bool                               `json:"distributed,omitempty"`
-	AvailabilityZoneHints                   []apiv1alpha1.AvailabilityZoneHint  `json:"availabilityZoneHints,omitempty"`
-	NeutronStatusMetadataApplyConfiguration `json:",inline"`
+	Name                  *apiv1alpha1.OpenStackName          `json:"name,omitempty"`
+	Description           *apiv1alpha1.NeutronDescription     `json:"description,omitempty"`
+	Tags                  []apiv1alpha1.NeutronTag            `json:"tags,omitempty"`
+	AdminStateUp          *bool                               `json:"adminStateUp,omitempty"`
+	ExternalGateways      []ExternalGatewayApplyConfiguration `json:"externalGateways,omitempty"`
+	Distributed           *bool                               `json:"distributed,omitempty"`
+	AvailabilityZoneHints []apiv1alpha1.AvailabilityZoneHint  `json:"availabilityZoneHints,omitempty"`
 }
 
 // RouterResourceSpecApplyConfiguration constructs a declarative configuration of the RouterResourceSpec type for use with
@@ -104,29 +102,5 @@ func (b *RouterResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values 
 	for i := range values {
 		b.AvailabilityZoneHints = append(b.AvailabilityZoneHints, values[i])
 	}
-	return b
-}
-
-// WithCreatedAt sets the CreatedAt field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the CreatedAt field is set to the value of the last call.
-func (b *RouterResourceSpecApplyConfiguration) WithCreatedAt(value v1.Time) *RouterResourceSpecApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
-	return b
-}
-
-// WithUpdatedAt sets the UpdatedAt field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the UpdatedAt field is set to the value of the last call.
-func (b *RouterResourceSpecApplyConfiguration) WithUpdatedAt(value v1.Time) *RouterResourceSpecApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
-	return b
-}
-
-// WithRevisionNumber sets the RevisionNumber field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the RevisionNumber field is set to the value of the last call.
-func (b *RouterResourceSpecApplyConfiguration) WithRevisionNumber(value int64) *RouterResourceSpecApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

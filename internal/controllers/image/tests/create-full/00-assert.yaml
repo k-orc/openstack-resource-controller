@@ -1,0 +1,28 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: create-full
+      ref: image
+assertAll:
+    # Tags order is not consistent
+    - celExpr: "image.status.resource.tags.size() == 2"
+    - celExpr: "'tag1' in image.status.resource.tags"
+    - celExpr: "'tag2' in image.status.resource.tags"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: create-full
+status:
+  resource:
+    name: create-full-override
+    status: active
+    protected: false
+    visibility: public
+    hash:
+      algorithm: sha512
+      value: d6292685b380e338e025b3415a90fe8f9d39a46e7bdba8cb78c50a338cefca741f69e4e46411c32de1afdedfb268e579a51f81ff85e56f55b0ee7c33fe8c25c9
+    sizeB: 1048576

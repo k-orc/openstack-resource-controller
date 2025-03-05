@@ -291,10 +291,7 @@ func (d *DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectL
 }
 
 // EnsureFinalizer adds a finalizer to the given object if it is not already present. It does nothing if the finalizer is already present.
-func EnsureFinalizer[objPT interface {
-	client.Object
-	*objT
-}, objT any](ctx context.Context, k8sClient client.Client, obj objPT, finalizer string, fieldOwner client.FieldOwner) error {
+func EnsureFinalizer(ctx context.Context, k8sClient client.Client, obj client.Object, finalizer string, fieldOwner client.FieldOwner) error {
 	if slices.Contains(obj.GetFinalizers(), finalizer) {
 		return nil
 	}

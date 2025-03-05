@@ -341,6 +341,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
   map:
     fields:
@@ -433,15 +439,30 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: hash
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
+    - name: name
+      type:
+        scalar: string
+    - name: protected
+      type:
+        scalar: boolean
     - name: sizeB
       type:
         scalar: numeric
     - name: status
       type:
         scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
     - name: virtualSizeB
       type:
         scalar: numeric
+    - name: visibility
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageSpec
   map:
     fields:
@@ -1048,9 +1069,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: createdAt
-      type:
-        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: description
       type:
         scalar: string
@@ -1066,18 +1084,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: revisionNumber
-      type:
-        scalar: numeric
     - name: tags
       type:
         list:
           elementType:
             scalar: string
           elementRelationship: associative
-    - name: updatedAt
-      type:
-        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceStatus
   map:
     fields:
@@ -1090,6 +1102,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: description
       type:
         scalar: string
@@ -1105,6 +1120,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectID
       type:
         scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
     - name: status
       type:
         scalar: string
@@ -1114,6 +1132,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterSpec
   map:
     fields:
