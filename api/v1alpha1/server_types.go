@@ -16,6 +16,41 @@ limitations under the License.
 
 package v1alpha1
 
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=80
+type ServerTag string
+
+type FilterByServerTags struct {
+	// tags is a list of tags to filter by. If specified, the resource must
+	// have all of the tags specified to be included in the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	Tags []ServerTag `json:"tags,omitempty"`
+
+	// tagsAny is a list of tags to filter by. If specified, the resource
+	// must have at least one of the tags specified to be included in the
+	// result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	TagsAny []ServerTag `json:"tagsAny,omitempty"`
+
+	// notTags is a list of tags to filter by. If specified, resources which
+	// contain all of the given tags will be excluded from the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	NotTags []ServerTag `json:"notTags,omitempty"`
+
+	// notTagsAny is a list of tags to filter by. If specified, resources
+	// which contain any of the given tags will be excluded from the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=32
+	NotTagsAny []ServerTag `json:"notTagsAny,omitempty"`
+}
+
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:MaxProperties:=1
 type ServerPortSpec struct {
@@ -50,8 +85,14 @@ type ServerResourceSpec struct {
 	// ports defines a list of ports which will be attached to the server.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
+	// +required
+	Ports []ServerPortSpec `json:"ports"`
+
+	// tags is a list of tags which will be applied to the server.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
 	// +optional
-	Ports []ServerPortSpec `json:"ports,omitempty"`
+	Tags []ServerTag `json:"tags,omitempty"`
 }
 
 // +kubebuilder:validation:MinProperties:=1
@@ -68,6 +109,8 @@ type ServerFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
+
+	FilterByServerTags `json:",inline"`
 }
 
 // ServerResourceStatus represents the observed state of the resource.
@@ -88,33 +131,15 @@ type ServerResourceStatus struct {
 	// +optional
 	Status string `json:"status,omitempty"`
 
-	// accessIPv4 contains the IPv4 addresses of the server, suitable for
-	// remote access for administration.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	AccessIPv4 string `json:"accessIPv4,omitempty"`
-
-	// accessIPv6 contains the IPv6 addresses of the server, suitable for
-	// remote access for administration.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	AccessIPv6 string `json:"accessIPv6,omitempty"`
-
 	// imageID indicates the OS image used to deploy the server.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
 
-	// keyName indicates which public key was injected into the server on launch.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	KeyName string `json:"keyName,omitempty"`
-
-	// securityGroups includes the security groups that this instance has
-	// applied to it.
+	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
-	SecurityGroups []string `json:"securityGroups,omitempty"`
+	Tags []string `json:"tags,omitempty"`
 }

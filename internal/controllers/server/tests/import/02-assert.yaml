@@ -1,0 +1,39 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: import-external
+      ref: server1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: import-external-not-this-one
+      ref: server2
+assertAll:
+    - celExpr: "server1.status.id != server2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: import
+status:
+  conditions:
+    - type: Available
+      # Workaround for https://github.com/k-orc/openstack-resource-controller/issues/280
+      # The status should be True
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    # TODO(mandre) add more fields
+    name: import-external
+    tags:
+      - tag1
+      - tag2
+    # Commented out because of https://github.com/k-orc/openstack-resource-controller/issues/280
+    # status: ACTIVE

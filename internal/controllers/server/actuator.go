@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"slices"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
@@ -33,6 +34,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
 )
 
 type (
@@ -73,15 +75,22 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	}
 
 	listOpts := servers.ListOpts{
-		Name: string(getResourceName(obj)),
+		Name: fmt.Sprintf("^%s$", string(getResourceName(obj))),
+		Tags: neutrontags.Join(obj.Spec.Resource.Tags),
 	}
+
 	return actuator.osClient.ListServers(ctx, listOpts), true
 }
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) serverIterator {
 	listOpts := servers.ListOpts{
-		Name: string(ptr.Deref(filter.Name, "")),
+		Name:       fmt.Sprintf("^%s$", string(ptr.Deref(filter.Name, ""))),
+		Tags:       neutrontags.Join(filter.FilterByServerTags.Tags),
+		TagsAny:    neutrontags.Join(filter.FilterByServerTags.TagsAny),
+		NotTags:    neutrontags.Join(filter.FilterByServerTags.NotTags),
+		NotTagsAny: neutrontags.Join(filter.FilterByServerTags.NotTagsAny),
 	}
+
 	return actuator.osClient.ListServers(ctx, listOpts)
 }
 
@@ -176,6 +185,13 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		}
 	}
 
+	tags := make([]string, len(resource.Tags))
+	for i := range resource.Tags {
+		tags[i] = string(resource.Tags[i])
+	}
+	// Sort tags before creation to simplify comparisons
+	slices.Sort(tags)
+
 	if len(progressStatus) > 0 {
 		return progressStatus, nil, nil
 	}
@@ -186,6 +202,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		FlavorRef: *flavor.Status.ID,
 		Networks:  portList,
 		UserData:  userData,
+		Tags:      tags,
 	}
 
 	schedulerHints := servers.SchedulerHintOpts{}
