@@ -76,7 +76,8 @@ generate-docs:
 
 .PHONY: verify-generated
 verify-generated: generate
-	@if !(git diff --quiet HEAD); then \
+	@if test -n "`git status --porcelain`"; then \
+		git status; \
 		git diff; \
 		echo "generated files are out of date, run make generate"; exit 1; \
 	fi
