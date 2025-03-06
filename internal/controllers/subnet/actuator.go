@@ -32,7 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
@@ -45,11 +46,11 @@ import (
 type (
 	osResourceT = subnets.Subnet
 
-	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
-	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type subnetActuator struct {
@@ -106,7 +107,7 @@ func (actuator subnetCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	return actuator.osClient.ListSubnet(ctx, listOpts)
 }
 
-func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.ProgressStatus, *subnets.Subnet, error) {
+func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *subnets.Subnet, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -174,7 +175,7 @@ func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orc
 	return nil, osResource, err
 }
 
-func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) ([]generic.ProgressStatus, error) {
+func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) ([]progress.ProgressStatus, error) {
 	// Delete any RouterInterface first, as this would prevent deletion of the subnet
 	routerInterface, err := getRouterInterface(ctx, actuator.k8sClient, obj)
 	if err != nil {
@@ -188,7 +189,7 @@ func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orc
 				return nil, err
 			}
 		}
-		return []generic.ProgressStatus{generic.WaitingOnORCDeleted("RouterInterface", routerInterface.GetName())}, nil
+		return []progress.ProgressStatus{progress.WaitingOnORCDeleted("RouterInterface", routerInterface.GetName())}, nil
 	}
 
 	return nil, actuator.osClient.DeleteSubnet(ctx, osResource.ID)
@@ -196,15 +197,15 @@ func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orc
 
 var _ reconcileResourceActuator = subnetActuator{}
 
-func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) (reconcilers []resourceReconciler, err error) {
+func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) (reconcilers []resourceReconciler, err error) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "subnets", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 		actuator.ensureRouterInterface,
 	}, nil
 }
 
-func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
-	var waitEvents []generic.ProgressStatus
+func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error) {
+	var waitEvents []progress.ProgressStatus
 	var err error
 
 	routerInterface, err := getRouterInterface(ctx, actuator.k8sClient, orcObject)
@@ -220,7 +221,7 @@ func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObj
 				return waitEvents, fmt.Errorf("deleting RouterInterface %s: %w", client.ObjectKeyFromObject(routerInterface), err)
 			}
 		}
-		waitEvents = append(waitEvents, generic.WaitingOnORCDeleted("routerinterface", routerInterface.Name))
+		waitEvents = append(waitEvents, progress.WaitingOnORCDeleted("routerinterface", routerInterface.Name))
 		return waitEvents, err
 	}
 
@@ -246,7 +247,7 @@ func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObj
 	if err := actuator.k8sClient.Create(ctx, routerInterface); err != nil {
 		return waitEvents, fmt.Errorf("creating RouterInterface %s: %w", client.ObjectKeyFromObject(orcObject), err)
 	}
-	waitEvents = append(waitEvents, generic.WaitingOnORCReady("routerinterface", routerInterface.Name))
+	waitEvents = append(waitEvents, progress.WaitingOnORCReady("routerinterface", routerInterface.Name))
 
 	return waitEvents, err
 }
@@ -305,7 +306,7 @@ func (subnetHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return subnetAdapter{obj}
 }
 
-func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
+func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
 	orcNetwork, progressStatus, err := networkDependency.GetDependency(
 		ctx, controller.GetK8sClient(), orcObject, func(network *orcv1alpha1.Network) bool {
 			return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
@@ -325,7 +326,7 @@ func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcO
 	}, nil
 }
 
-func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
+func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
 	if len(progressStatus) > 0 || err != nil {
 		return progressStatus, nil, err
@@ -335,7 +336,7 @@ func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcO
 	}, nil
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, []generic.ProgressStatus, error) {
+func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, []progress.ProgressStatus, error) {
 	if orcObject == nil {
 		return subnetActuator{}, nil, fmt.Errorf("orcObject may not be nil")
 	}

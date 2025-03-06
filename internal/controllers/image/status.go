@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -58,7 +58,7 @@ type updateStatusOpts struct {
 	progressMessage           *string
 	err                       error
 	incrementDownloadAttempts bool
-	progressStatus            []generic.ProgressStatus
+	progressStatus            []progress.ProgressStatus
 }
 
 type updateStatusOpt func(*updateStatusOpts)
@@ -75,7 +75,7 @@ func withError(err error) updateStatusOpt {
 	}
 }
 
-func withProgressStatus(progressStatus ...generic.ProgressStatus) updateStatusOpt {
+func withProgressStatus(progressStatus ...progress.ProgressStatus) updateStatusOpt {
 	return func(opts *updateStatusOpts) {
 		opts.progressStatus = append(opts.progressStatus, progressStatus...)
 	}

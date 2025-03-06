@@ -36,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/go-logr/logr"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/export"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -51,7 +51,7 @@ type Options struct {
 	WatchNamespaces      []string
 }
 
-func Run(ctx context.Context, opts *Options, restConfig *rest.Config, scheme *runtime.Scheme, setupLog, log logr.Logger, controllers []export.Controller) error {
+func Run(ctx context.Context, opts *Options, restConfig *rest.Config, scheme *runtime.Scheme, setupLog, log logr.Logger, controllers []interfaces.Controller) error {
 	// if the enable-http2 flag is false (the default), http/2 should be disabled
 	// due to its vulnerabilities. More specifically, disabling http/2 will
 	// prevent from being vulnerable to the HTTP/2 Stream Cancellation and

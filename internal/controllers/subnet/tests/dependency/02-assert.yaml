@@ -1,6 +1,11 @@
 ---
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
-metadata:
-  name: dependency
-  deletionGracePeriodSeconds: 0
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: dependency
+      ref: network
+assertAll:
+    - celExpr: "network.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/subnet' in network.metadata.finalizers"

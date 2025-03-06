@@ -17,9 +17,12 @@ limitations under the License.
 package server
 
 import (
-	"github.com/go-logr/logr"
+	"fmt"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/go-logr/logr"
+	"k8s.io/utils/ptr"
+
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -33,9 +36,9 @@ type statusApplyPT = *orcapplyconfigv1alpha1.ServerStatusApplyConfiguration
 
 type serverStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = serverStatusWriter{}
+var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = serverStatusWriter{}
 
-func (serverStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
+func (serverStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
 	return orcapplyconfigv1alpha1.Server
 }
 
@@ -49,7 +52,11 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithName(osResource.Name).
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
-		WithAccessIPv4(osResource.AccessIPv4).
-		WithAccessIPv6(osResource.AccessIPv6)
+		WithTags(ptr.Deref(osResource.Tags, []string{})...)
+
+	if imageID, ok := osResource.Image["id"]; ok {
+		status.WithImageID(fmt.Sprintf("%s", imageID))
+	}
+
 	statusApply.WithResource(status)
 }

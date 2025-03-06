@@ -28,8 +28,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
-	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 )
@@ -62,7 +61,7 @@ type imageReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
 
-func New(scopeFactory scope.Factory) ctrlexport.Controller {
+func New(scopeFactory scope.Factory) interfaces.Controller {
 	return imageReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
@@ -78,7 +77,7 @@ type orcImageReconciler struct {
 	imageReconcilerConstructor
 }
 
-var _ generic.ResourceController = &orcImageReconciler{}
+var _ interfaces.ResourceController = &orcImageReconciler{}
 
 func (r *orcImageReconciler) GetK8sClient() client.Client {
 	return r.client

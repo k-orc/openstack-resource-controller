@@ -23,7 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
@@ -34,9 +34,9 @@ const (
 
 type networkStatusWriter struct{}
 
-var _ generic.ResourceStatusWriter[*orcv1alpha1.Network, *osclients.NetworkExt, *orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] = networkStatusWriter{}
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Network, *osclients.NetworkExt, *orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] = networkStatusWriter{}
 
-func (networkStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[*orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] {
+func (networkStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[*orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] {
 	return orcapplyconfigv1alpha1.Network
 }
 

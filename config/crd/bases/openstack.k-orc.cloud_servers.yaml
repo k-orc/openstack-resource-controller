@@ -97,6 +97,51 @@ spec:
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
+                      notTags:
+                        description: |-
+                          notTags is a list of tags to filter by. If specified, resources which
+                          contain all of the given tags will be excluded from the result.
+                        items:
+                          maxLength: 80
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                      notTagsAny:
+                        description: |-
+                          notTagsAny is a list of tags to filter by. If specified, resources
+                          which contain any of the given tags will be excluded from the result.
+                        items:
+                          maxLength: 80
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                      tags:
+                        description: |-
+                          tags is a list of tags to filter by. If specified, the resource must
+                          have all of the tags specified to be included in the result.
+                        items:
+                          maxLength: 80
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                      tagsAny:
+                        description: |-
+                          tagsAny is a list of tags to filter by. If specified, the resource
+                          must have at least one of the tags specified to be included in the
+                          result.
+                        items:
+                          maxLength: 80
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
                     type: object
                   id:
                     description: |-
@@ -183,6 +228,16 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                  tags:
+                    description: tags is a list of tags which will be applied to the
+                      server.
+                    items:
+                      maxLength: 80
+                      minLength: 1
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: set
                   userData:
                     description: |-
                       userData specifies data which will be made available to the server at
@@ -201,6 +256,7 @@ spec:
                 required:
                 - flavorRef
                 - imageRef
+                - ports
                 type: object
             required:
             - cloudCredentialsRef
@@ -304,18 +360,6 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
-                  accessIPv4:
-                    description: |-
-                      accessIPv4 contains the IPv4 addresses of the server, suitable for
-                      remote access for administration.
-                    maxLength: 1024
-                    type: string
-                  accessIPv6:
-                    description: |-
-                      accessIPv6 contains the IPv6 addresses of the server, suitable for
-                      remote access for administration.
-                    maxLength: 1024
-                    type: string
                   hostID:
                     description: hostID is the host where the server is located in
                       the cloud.
@@ -326,32 +370,25 @@ spec:
                       server.
                     maxLength: 1024
                     type: string
-                  keyName:
-                    description: keyName indicates which public key was injected into
-                      the server on launch.
-                    maxLength: 1024
-                    type: string
                   name:
                     description: name is the human-readable name of the resource.
                       Might not be unique.
                     maxLength: 1024
                     type: string
-                  securityGroups:
-                    description: |-
-                      securityGroups includes the security groups that this instance has
-                      applied to it.
-                    items:
-                      maxLength: 1024
-                      type: string
-                    maxItems: 32
-                    type: array
-                    x-kubernetes-list-type: atomic
                   status:
                     description: |-
                       status contains the current operational status of the server,
                       such as IN_PROGRESS or ACTIVE.
                     maxLength: 1024
                     type: string
+                  tags:
+                    description: tags is the list of tags on the resource.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                 type: object
             type: object
         type: object

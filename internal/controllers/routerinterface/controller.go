@@ -33,10 +33,10 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
-	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
 )
 
 const (
@@ -48,7 +48,7 @@ type routerInterfaceReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
 
-func New(scopeFactory scope.Factory) ctrlexport.Controller {
+func New(scopeFactory scope.Factory) interfaces.Controller {
 	return routerInterfaceReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
@@ -65,8 +65,8 @@ type orcRouterInterfaceReconciler struct {
 const controllerName = "routerinterface"
 
 var (
-	finalizer  = generic.GetFinalizerName(controllerName)
-	fieldOwner = generic.GetSSAFieldOwner(controllerName)
+	finalizer  = orcstrings.GetFinalizerName(controllerName)
+	fieldOwner = orcstrings.GetSSAFieldOwner(controllerName)
 
 	routerDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RouterInterfaceList, *orcv1alpha1.Router](
 		"spec.routerRef",

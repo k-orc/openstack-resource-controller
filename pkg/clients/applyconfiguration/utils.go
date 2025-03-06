@@ -50,6 +50,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ExternalGatewayStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("FilterByNeutronTags"):
 		return &apiv1alpha1.FilterByNeutronTagsApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("FilterByServerTags"):
+		return &apiv1alpha1.FilterByServerTagsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("FixedIPStatus"):
 		return &apiv1alpha1.FixedIPStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Flavor"):

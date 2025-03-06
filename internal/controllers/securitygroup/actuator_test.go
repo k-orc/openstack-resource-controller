@@ -26,7 +26,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients/mock"
 	"go.uber.org/mock/gomock"
 	"k8s.io/utils/ptr"
@@ -75,7 +75,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 		orcObject  orcObjectPT
 		osResource *osResourceT
 		expect     func(*mock.MockNetworkClientMockRecorder)
-		wantEvents []generic.ProgressStatus
+		wantEvents []progress.ProgressStatus
 		wantErrs   []error
 	}{
 		{
@@ -115,8 +115,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				}
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 		},
 		{
@@ -164,8 +164,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 			expect: func(recorder *mock.MockNetworkClientMockRecorder) {
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(nil)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 		},
 		{
@@ -207,8 +207,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(nil)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 		},
 		{
@@ -259,8 +259,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				}
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 		},
 		{
@@ -302,8 +302,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, createError)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(nil)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 			wantErrs: []error{createError},
 		},
@@ -357,8 +357,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(deleteError)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID2).Return(nil)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 			wantErrs: []error{deleteError},
 		},
@@ -401,8 +401,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, createError)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(deleteError)
 			},
-			wantEvents: []generic.ProgressStatus{
-				generic.WaitingOnOpenStackUpdate(time.Second),
+			wantEvents: []progress.ProgressStatus{
+				progress.WaitingOnOpenStackUpdate(time.Second),
 			},
 			wantErrs: []error{createError, deleteError},
 		},

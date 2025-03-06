@@ -27,8 +27,8 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
 
-	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
@@ -77,7 +77,7 @@ type portReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
 
-func New(scopeFactory scope.Factory) ctrlexport.Controller {
+func New(scopeFactory scope.Factory) interfaces.Controller {
 	return portReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
@@ -128,6 +128,6 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
-	reconciler := generic.NewController(controllerName, k8sClient, c.scopeFactory, portHelperFactory{}, portStatusWriter{})
-	return builder.Complete(&reconciler)
+	r := reconciler.NewController(controllerName, k8sClient, c.scopeFactory, portHelperFactory{}, portStatusWriter{})
+	return builder.Complete(&r)
 }

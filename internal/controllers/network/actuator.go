@@ -30,7 +30,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
@@ -39,11 +40,11 @@ import (
 type (
 	osResourceT = osclients.NetworkExt
 
-	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
-	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type networkActuator struct {
@@ -84,7 +85,7 @@ func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, fi
 	return actuator.osClient.ListNetwork(ctx, listOpts)
 }
 
-func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.ProgressStatus, *osclients.NetworkExt, error) {
+func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *osclients.NetworkExt, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -149,11 +150,11 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 	return nil, osResource, nil
 }
 
-func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, network *osclients.NetworkExt) ([]generic.ProgressStatus, error) {
+func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, network *osclients.NetworkExt) ([]progress.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteNetwork(ctx, network.ID)
 }
 
-func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller generic.ResourceController) ([]resourceReconciler, error) {
+func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller interfaces.ResourceController) ([]resourceReconciler, error) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "networks", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
@@ -163,7 +164,7 @@ type networkHelperFactory struct{}
 
 var _ helperFactory = networkHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller generic.ResourceController) (networkActuator, []generic.ProgressStatus, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller interfaces.ResourceController) (networkActuator, []progress.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
@@ -190,12 +191,12 @@ func (networkHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return networkAdapter{obj}
 }
 
-func (networkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
+func (networkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
 	return progressStatus, actuator, err
 }
 
-func (networkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
+func (networkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
 	return progressStatus, actuator, err
 }

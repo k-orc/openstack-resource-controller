@@ -13,11 +13,6 @@ Create a subnet which name is a superstring of the one specified in the import f
 Create a subnet matching the filter and verify that the observed status on the imported subnet corresponds to the spec of the created subnet.
 Also verify that the created subnet didn't adopt the one which name is a superstring of it.
 
-## Step 03
-
-Validate we're able to delete resources.
-Cleaning up resources also avoids a race where kuttl could delete the secret before the other resources.
-
 ## TODO
 
 Possibly check that adding a new subnet matching the import filter does not cause issues after it successfully imported the first one.

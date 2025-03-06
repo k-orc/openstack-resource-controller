@@ -24,12 +24,17 @@ import (
 	"k8s.io/utils/set"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 )
 
+type StringTag interface {
+	orcv1alpha1.NeutronTag | orcv1alpha1.ServerTag | orcv1alpha1.ImageTag
+}
+
 // Join joins a slice of tags into a comma separated list of tags.
-func Join(tags []orcv1alpha1.NeutronTag) string {
+func Join[T StringTag](tags []T) string {
 	var b strings.Builder
 	for i := range tags {
 		if i > 0 {
@@ -45,21 +50,21 @@ func ReconcileTags[orcObjectPT, osResourceT any](
 	resourceType string, resourceID string,
 	specTags []orcv1alpha1.NeutronTag,
 	observedTags []string,
-) generic.ResourceReconciler[orcObjectPT, osResourceT] {
-	return func(ctx context.Context, _ orcObjectPT, _ *osResourceT) ([]generic.ProgressStatus, error) {
+) interfaces.ResourceReconciler[orcObjectPT, osResourceT] {
+	return func(ctx context.Context, _ orcObjectPT, _ *osResourceT) ([]progress.ProgressStatus, error) {
 		observedTagSet := set.New(observedTags...)
 		specTagSet := set.New[string]()
 		for i := range specTags {
 			specTagSet.Insert(string(specTags[i]))
 		}
-		var progressStatus []generic.ProgressStatus
+		var progressStatus []progress.ProgressStatus
 		var err error
 		if !specTagSet.Equal(observedTagSet) {
 			opts := attributestags.ReplaceAllOpts{Tags: specTagSet.SortedList()}
 			_, err = networkClient.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
 			if err == nil {
 				// If we updated the tags we need another reconcile to refresh the resource status
-				progressStatus = []generic.ProgressStatus{generic.NeedsRefresh()}
+				progressStatus = []progress.ProgressStatus{progress.NeedsRefresh()}
 			}
 		}
 		return progressStatus, err

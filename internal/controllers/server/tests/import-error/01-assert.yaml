@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: import-error
+status:
+  conditions:
+    - type: Available
+      message: found more than one matching OpenStack resource during import
+      status: "False"
+      reason: InvalidConfiguration
+    - type: Progressing
+      message: found more than one matching OpenStack resource during import
+      status: "False"
+      reason: InvalidConfiguration

@@ -1,0 +1,30 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: create-minimal
+      ref: server
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: create-minimal
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: create-minimal
+      ref: port
+assertAll:
+    - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.imageID == image.status.id"
+    # Commented out because of https://github.com/k-orc/openstack-resource-controller/issues/282
+    # - celExpr: "port.status.resource.deviceID == server.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: create-minimal
+status:
+  resource:
+    name: create-minimal
+    status: ACTIVE

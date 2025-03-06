@@ -29,7 +29,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
@@ -38,11 +39,11 @@ import (
 type (
 	osResourceT = ports.Port
 
-	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
-	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 	portIterator              = iter.Seq2[*osResourceT, error]
 )
 
@@ -90,14 +91,14 @@ func (actuator portCreateActuator) ListOSResourcesForImport(ctx context.Context,
 	return actuator.osClient.ListPort(ctx, listOpts)
 }
 
-func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]generic.ProgressStatus, *ports.Port, error) {
+func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *ports.Port, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var progressStatus []generic.ProgressStatus
+	var progressStatus []progress.ProgressStatus
 
 	// Fetch all dependencies and ensure they have our finalizer
 	subnetMap, subnetProgress, subnetErr := subnetDependency.GetDependencies(
@@ -179,13 +180,13 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	return nil, osResource, nil
 }
 
-func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *ports.Port) ([]generic.ProgressStatus, error) {
+func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *ports.Port) ([]progress.ProgressStatus, error) {
 	return nil, actuator.osClient.DeletePort(ctx, flavor.ID)
 }
 
 var _ reconcileResourceActuator = portActuator{}
 
-func (actuator portActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, error) {
+func (actuator portActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "ports", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
@@ -199,17 +200,17 @@ func (portHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return portAdapter{obj}
 }
 
-func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
+func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
 	actuator, progressStatus, err := newCreateActuator(ctx, orcObject, controller)
 	return progressStatus, actuator, err
 }
 
-func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
+func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
 	actuator, err := newActuator(ctx, orcObject, controller)
 	return nil, actuator, err
 }
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) (portActuator, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller interfaces.ResourceController) (portActuator, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
@@ -226,7 +227,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller ge
 	}, nil
 }
 
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller generic.ResourceController) (*portCreateActuator, []generic.ProgressStatus, error) {
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller interfaces.ResourceController) (*portCreateActuator, []progress.ProgressStatus, error) {
 	// Ensure credential secrets exist and have our finalizer
 	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if len(progressStatus) > 0 || err != nil {
