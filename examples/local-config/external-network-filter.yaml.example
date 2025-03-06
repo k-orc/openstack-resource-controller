@@ -6,4 +6,4 @@ metadata:
 spec:
   import:
     filter:
-      name: ${E2E_EXTERNAL_NETWORK_NAME}
+      name: ${EXAMPLE_EXTERNAL_NETWORK_NAME}
