@@ -27,8 +27,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/export"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/flavor"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
@@ -96,7 +96,7 @@ func main() {
 	}
 	scopeFactory := scope.NewFactory(orcOpts.ScopeCacheMaxSize, caCerts)
 
-	controllers := []export.Controller{
+	controllers := []interfaces.Controller{
 		image.New(scopeFactory),
 		network.New(scopeFactory),
 		subnet.New(scopeFactory),

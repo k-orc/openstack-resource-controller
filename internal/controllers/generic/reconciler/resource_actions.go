@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package generic
+package reconciler
 
 import (
 	"context"
@@ -23,11 +23,15 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
+	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
 )
 
 const (
@@ -48,15 +52,15 @@ func GetOrCreateOSResource[
 	osResourceT any,
 ](
 	ctx context.Context, log logr.Logger, controller ResourceController,
-	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
-	actuator CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
-) ([]ProgressStatus, *osResourceT, error) {
+	objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
+	actuator interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
+) ([]progress.ProgressStatus, *osResourceT, error) {
 	k8sClient := controller.GetK8sClient()
 
-	finalizer := GetFinalizerName(controller.GetName())
+	finalizer := orcstrings.GetFinalizerName(controller.GetName())
 	if !controllerutil.ContainsFinalizer(objAdapter.GetObject(), finalizer) {
 		patch := finalizers.SetFinalizerPatch(objAdapter.GetObject(), finalizer)
-		if err := k8sClient.Patch(ctx, objAdapter.GetObject(), patch, client.ForceOwnership, GetSSAFieldOwnerWithTxn(controller.GetName(), SSATransactionFinalizer)); err != nil {
+		if err := k8sClient.Patch(ctx, objAdapter.GetObject(), patch, client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controller.GetName(), orcstrings.SSATransactionFinalizer)); err != nil {
 			return nil, nil, fmt.Errorf("setting finalizer: %w", err)
 		}
 	}
@@ -94,7 +98,7 @@ func GetOrCreateOSResource[
 		}
 		if osResource == nil {
 			// Poll until we find a resource
-			progressStatus := []ProgressStatus{WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
+			progressStatus := []progress.ProgressStatus{progress.WaitingOnOpenStackCreate(externalUpdatePollingPeriod)}
 			return progressStatus, nil, nil
 		}
 		return nil, osResource, nil
@@ -130,9 +134,9 @@ func DeleteResource[
 	osResourceT any,
 ](
 	ctx context.Context, log logr.Logger, controller ResourceController,
-	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
-	actuator DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT],
-) (bool, []ProgressStatus, *osResourceT, error) {
+	objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
+	actuator interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT],
+) (bool, []progress.ProgressStatus, *osResourceT, error) {
 	var osResource *osResourceT
 
 	// We always fetch the resource by ID so we can continue to report status even when waiting for a finalizer
@@ -150,15 +154,15 @@ func DeleteResource[
 		}
 	}
 
-	finalizer := GetFinalizerName(controller.GetName())
+	finalizer := orcstrings.GetFinalizerName(controller.GetName())
 
-	var progressStatus []ProgressStatus
+	var progressStatus []progress.ProgressStatus
 	var foundFinalizer bool
 	for _, f := range objAdapter.GetFinalizers() {
 		if f == finalizer {
 			foundFinalizer = true
 		} else {
-			progressStatus = append(progressStatus, WaitingOnFinalizer(f))
+			progressStatus = append(progressStatus, progress.WaitingOnFinalizer(f))
 		}
 	}
 
@@ -173,7 +177,7 @@ func DeleteResource[
 	}
 
 	removeFinalizer := func() error {
-		if err := controller.GetK8sClient().Patch(ctx, objAdapter.GetObject(), finalizers.RemoveFinalizerPatch(objAdapter.GetObject()), GetSSAFieldOwnerWithTxn(controller.GetName(), SSATransactionFinalizer)); err != nil {
+		if err := controller.GetK8sClient().Patch(ctx, objAdapter.GetObject(), finalizers.RemoveFinalizerPatch(objAdapter.GetObject()), orcstrings.GetSSAFieldOwnerWithTxn(controller.GetName(), orcstrings.SSATransactionFinalizer)); err != nil {
 			return fmt.Errorf("removing finalizer: %w", err)
 		}
 		return nil
@@ -212,7 +216,7 @@ func DeleteResource[
 	// If there are no other wait events, we still need to poll for the deletion
 	// of the OpenStack resource
 	if len(progressStatus) == 0 {
-		progressStatus = []ProgressStatus{WaitingOnOpenStackDeleted(deletePollingPeriod)}
+		progressStatus = []progress.ProgressStatus{progress.WaitingOnOpenStackDeleted(deletePollingPeriod)}
 	}
 	return false, progressStatus, osResource, err
 }
@@ -251,8 +255,8 @@ func getResourceForAdoption[
 	osResourceT any,
 ](
 	ctx context.Context,
-	actuator baseResourceActuator[orcObjectPT, orcObjectT, osResourceT],
-	objAdapter APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
+	actuator interfaces.BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT],
+	objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT],
 ) (*osResourceT, error) {
 	resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, objAdapter.GetObject())
 	if !canAdopt {
@@ -272,7 +276,7 @@ func getResourceForImport[
 	osResourceT any,
 ](
 	ctx context.Context,
-	actuator CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
+	actuator interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
 	filter filterT,
 ) (*osResourceT, error) {
 	resourceIter := actuator.ListOSResourcesForImport(ctx, filter)

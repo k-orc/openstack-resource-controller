@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package generic
+package status
 
 import (
 	"errors"
@@ -24,6 +24,7 @@ import (
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -32,7 +33,7 @@ type WithConditionsApplyConfiguration[T any] interface {
 	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) T
 }
 
-func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], isAvailable bool, progressStatus []ProgressStatus, err error, now metav1.Time) {
+func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], isAvailable bool, progressStatus []progress.ProgressStatus, err error, now metav1.Time) {
 	availableCondition := applyconfigv1.Condition().
 		WithType(orcv1alpha1.ConditionAvailable).
 		WithObservedGeneration(orcObject.GetGeneration())

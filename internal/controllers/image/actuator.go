@@ -29,7 +29,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -37,8 +38,8 @@ import (
 type (
 	osResourceT = images.Image
 
-	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	imageIterator          = iter.Seq2[*osResourceT, error]
 )
 
@@ -46,7 +47,7 @@ type imageActuator struct {
 	osClient osclients.ImageClient
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, []generic.ProgressStatus, error) {
+func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, []progress.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
@@ -115,7 +116,7 @@ func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, filt
 	return actuator.osClient.ListImages(ctx, listOpts)
 }
 
-func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) ([]generic.ProgressStatus, *images.Image, error) {
+func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) ([]progress.ProgressStatus, *images.Image, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -175,7 +176,7 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	return nil, image, err
 }
 
-func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *images.Image) ([]generic.ProgressStatus, error) {
+func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *images.Image) ([]progress.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteImage(ctx, osResource.ID)
 }
 

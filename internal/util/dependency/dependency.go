@@ -30,7 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 )
 
@@ -228,7 +228,7 @@ func (d *DeletionGuardDependency[objectTP, _, _, _, _, _]) addDeletionGuard(mgr 
 // - an error
 //
 // Dependencies are filtered by the readyFilter argument. Dependencies which are not ready will be in progressStatus but not in the returned object map.
-func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depsMap map[string]depTP, progressStatus []generic.ProgressStatus, err error) {
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depsMap map[string]depTP, progressStatus []progress.ProgressStatus, err error) {
 	depKind, err := getObjectKind(depTP(new(depT)), k8sClient.Scheme())
 	if err != nil {
 		return nil, nil, err
@@ -240,7 +240,7 @@ func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencie
 
 		if depErr := k8sClient.Get(ctx, types.NamespacedName{Name: depRef, Namespace: obj.GetNamespace()}, dep); depErr != nil {
 			if apierrors.IsNotFound(depErr) {
-				progressStatus = append(progressStatus, generic.WaitingOnORCExist(depKind, depRef))
+				progressStatus = append(progressStatus, progress.WaitingOnORCExist(depKind, depRef))
 			} else {
 				err = errors.Join(depErr)
 			}
@@ -259,7 +259,7 @@ func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencie
 
 			depsMap[depRef] = dep
 		} else {
-			progressStatus = append(progressStatus, generic.WaitingOnORCReady(depKind, depRef))
+			progressStatus = append(progressStatus, progress.WaitingOnORCReady(depKind, depRef))
 		}
 	}
 
@@ -267,7 +267,7 @@ func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencie
 }
 
 // GetDependency is a convenience wrapper around GetDependencies when the caller only expects a single result.
-func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, []generic.ProgressStatus, error) {
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, []progress.ProgressStatus, error) {
 	depsMap, progressStatus, err := d.GetDependencies(ctx, k8sClient, obj, readyFilter)
 	if len(progressStatus) > 0 || err != nil {
 		return nil, progressStatus, err

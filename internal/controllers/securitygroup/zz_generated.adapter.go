@@ -19,7 +19,7 @@ package securitygroup
 
 import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 )
 
 // Fundamental types
@@ -33,7 +33,7 @@ type (
 // Derived types
 type (
 	orcObjectPT    = *orcObjectT
-	adapterI       = generic.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
+	adapterI       = interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
 	adapterT       = securitygroupAdapter
 )
 

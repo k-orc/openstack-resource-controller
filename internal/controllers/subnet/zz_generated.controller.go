@@ -20,7 +20,7 @@ package subnet
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+        orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 )
 
@@ -28,11 +28,11 @@ var (
 	// NOTE: controllerName must be defined in any controller using this template
 
 	// finalizer is the string this controller adds to an object's Finalizers
-	finalizer  = generic.GetFinalizerName(controllerName)
+	finalizer  = orcstrings.GetFinalizerName(controllerName)
 
 	// externalObjectFieldOwner is the field owner we use when using
 	// server-side-apply on objects we don't control
-	externalObjectFieldOwner = generic.GetSSAFieldOwner(controllerName)
+	externalObjectFieldOwner = orcstrings.GetSSAFieldOwner(controllerName)
 
 	credentialsDependency = dependency.NewDeletionGuardDependency[*orcObjectListT, *corev1.Secret](
 		"spec.cloudCredentialsRef.secretName",

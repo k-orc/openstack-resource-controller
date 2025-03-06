@@ -14,14 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package generic
+package interfaces
 
 import (
 	"context"
 	"iter"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 )
 
 // ResourceHelperFactory is an interface defining constructors for objects
@@ -43,7 +45,7 @@ type ResourceHelperFactory[
 	// one or more ProgressStatuses, or an error. If returning ProgressStatuses,
 	// these MUST ensure that the object will be reconciled again at an
 	// appropriate time.
-	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]ProgressStatus, CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT], error)
+	NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]progress.ProgressStatus, CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT], error)
 
 	// NewDeleteActuator returns a DeleteResourceActuator for the given
 	// orcObject. If it is not able to return an actuator, it MUST return either
@@ -55,10 +57,10 @@ type ResourceHelperFactory[
 	// initialisation dependencies as a CreateResourceActuator. Consider that we
 	// may want to delete a resource that is partially or not initialised, or
 	// whose creation dependencies may no longer be in a healthy state.
-	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]ProgressStatus, DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT], error)
+	NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller ResourceController) ([]progress.ProgressStatus, DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT], error)
 }
 
-type baseResourceActuator[
+type BaseResourceActuator[
 	orcObjectPT interface {
 		*orcObjectT
 		client.Object
@@ -104,7 +106,7 @@ type CreateResourceActuator[
 	filterT any,
 	osResourceT any,
 ] interface {
-	baseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 
 	// ListOSResourcesForImport returns all OpenStack resources matching the
 	// given resource import filter.
@@ -136,7 +138,7 @@ type CreateResourceActuator[
 	// more ProgressStatuses, or an error. If returning ProgressStatuses, these
 	// MUST be sufficient to ensure that the object will be reconciled again at
 	// an appropriate time.
-	CreateResource(ctx context.Context, orcObject orcObjectPT) ([]ProgressStatus, *osResourceT, error)
+	CreateResource(ctx context.Context, orcObject orcObjectPT) ([]progress.ProgressStatus, *osResourceT, error)
 }
 
 // DeleteResourceActuator provides methods required by the generic controller
@@ -149,7 +151,7 @@ type DeleteResourceActuator[
 	}, orcObjectT any,
 	osResourceT any,
 ] interface {
-	baseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	BaseResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 
 	// DeleteResource deletes the OpenStack resource owned by the current
 	// object.
@@ -169,7 +171,7 @@ type DeleteResourceActuator[
 	// more ProgressStatuses, or an error. If returning ProgressStatuses, these
 	// MUST be sufficient to ensure that the objet will be reconciled again at
 	// an appropriate time.
-	DeleteResource(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]ProgressStatus, error)
+	DeleteResource(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error)
 }
 
 // ResourceReconciler is a function which reconciles an object after creation.
@@ -185,7 +187,7 @@ type DeleteResourceActuator[
 // ProgressStatus returned by a ResourceReconciler may be used to cause the
 // controller to poll, for example because the resource has not yet reached an
 // ACTIVE status.
-type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]ProgressStatus, error)
+type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error)
 
 type ReconcileResourceActuator[orcObjectPT, osResourceT any] interface {
 	// GetResourceReconcilers returns zero or more ResourceReconcilers to be executed during the current reconcile.

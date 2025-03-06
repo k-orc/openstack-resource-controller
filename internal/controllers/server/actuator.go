@@ -31,7 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
@@ -40,11 +41,11 @@ import (
 type (
 	osResourceT = servers.Server
 
-	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
-	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 	serverIterator            = iter.Seq2[*osResourceT, error]
 )
 
@@ -94,14 +95,14 @@ func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, fil
 	return actuator.osClient.ListServers(ctx, listOpts)
 }
 
-func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]generic.ProgressStatus, *servers.Server, error) {
+func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]progress.ProgressStatus, *servers.Server, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var progressStatus []generic.ProgressStatus
+	var progressStatus []progress.ProgressStatus
 
 	image := &orcv1alpha1.Image{}
 	{
@@ -125,13 +126,13 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
 		if err := actuator.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
-				progressStatus = append(progressStatus, generic.WaitingOnORCExist("Flavor", flavorKey.Name))
+				progressStatus = append(progressStatus, progress.WaitingOnORCExist("Flavor", flavorKey.Name))
 			} else {
 				return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
 			}
 		}
 		if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
-			progressStatus = append(progressStatus, generic.WaitingOnORCReady("Flavor", flavorKey.Name))
+			progressStatus = append(progressStatus, progress.WaitingOnORCReady("Flavor", flavorKey.Name))
 		}
 	}
 
@@ -175,12 +176,12 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 			if !apierrors.IsNotFound(err) {
 				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
 			}
-			progressStatus = append(progressStatus, generic.WaitingOnORCExist("Secret", secretKey.Name))
+			progressStatus = append(progressStatus, progress.WaitingOnORCExist("Secret", secretKey.Name))
 		} else {
 			var ok bool
 			userData, ok = secret.Data["value"]
 			if !ok {
-				progressStatus = append(progressStatus, generic.WaitingOnORCReady("Secret", secret.Name))
+				progressStatus = append(progressStatus, progress.WaitingOnORCReady("Secret", secret.Name))
 			}
 		}
 	}
@@ -217,22 +218,22 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	return nil, osResource, err
 }
 
-func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) ([]generic.ProgressStatus, error) {
+func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) ([]progress.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteServer(ctx, osResource.ID)
 }
 
 var _ reconcileResourceActuator = serverActuator{}
 
-func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, error) {
+func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
 	return []resourceReconciler{
 		actuator.checkStatus,
 	}, nil
 }
 
-func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]generic.ProgressStatus, error) {
+func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	var waitEvents []generic.ProgressStatus
+	var waitEvents []progress.ProgressStatus
 	var err error
 
 	switch osResource.Status {
@@ -242,7 +243,7 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		// fall through
 	default:
 		log.V(3).Info("Waiting for OpenStack resource to be ACTIVE")
-		waitEvents = append(waitEvents, generic.WaitingOnOpenStackReady(serverActivePollingPeriod))
+		waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(serverActivePollingPeriod))
 	}
 
 	return waitEvents, err
@@ -256,17 +257,17 @@ func (serverHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return serverAdapter{obj}
 }
 
-func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
+func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
 	return progressStatus, actuator, err
 }
 
-func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
+func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
 	return progressStatus, actuator, err
 }
 
-func newActuator(ctx context.Context, controller generic.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, []generic.ProgressStatus, error) {
+func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, []progress.ProgressStatus, error) {
 	if orcObject == nil {
 		return serverActuator{}, nil, fmt.Errorf("orcObject may not be nil")
 	}
