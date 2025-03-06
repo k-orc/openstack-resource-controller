@@ -52,7 +52,7 @@ modules:
 	go mod tidy
 
 .PHONY: generate
-generate: generate-resources generate-controller-gen generate-codegen generate-go modules manifests
+generate: generate-resources generate-controller-gen generate-codegen generate-go generate-docs modules manifests
 
 .PHONY: generate-resources
 generate-resources:
@@ -70,9 +70,14 @@ generate-codegen: generate-controller-gen ## codegen requires DeepCopy etc
 generate-go: mockgen
 	go generate ./...
 
+.PHONY: generate-docs
+generate-docs:
+	$(MAKE) -C website generated
+
 .PHONY: verify-generated
 verify-generated: generate
-	@if !(git diff --quiet HEAD); then \
+	@if test -n "`git status --porcelain`"; then \
+		git status; \
 		git diff; \
 		echo "generated files are out of date, run make generate"; exit 1; \
 	fi

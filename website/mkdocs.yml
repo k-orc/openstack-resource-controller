@@ -5,7 +5,7 @@ site_url: https://k-orc.cloud/
 nav:
   - Home: index.md
   - Getting started: getting-started.md
-  - Reference: reference.md
+  - Reference: crd-reference.md
   - Local development quickstart: development/quickstart.md
   - Developing controllers:
     - development/index.md
