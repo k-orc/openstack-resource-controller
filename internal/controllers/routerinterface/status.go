@@ -26,9 +26,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
+	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -38,7 +40,7 @@ type updateStatusOpts struct {
 	err    error
 }
 
-func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (_ bool, progressStatus []generic.ProgressStatus) {
+func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (_ bool, progressStatus []progress.ProgressStatus) {
 	// Probably a programming error?
 	if routerInterface == nil {
 		return false, nil
@@ -46,9 +48,9 @@ func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *update
 
 	if routerInterface.Spec.Type == orcv1alpha1.RouterInterfaceTypeSubnet {
 		if opts.subnet == nil {
-			progressStatus = append(progressStatus, generic.WaitingOnORCExist("Subnet", string(*routerInterface.Spec.SubnetRef)))
+			progressStatus = append(progressStatus, progress.WaitingOnORCExist("Subnet", string(*routerInterface.Spec.SubnetRef)))
 		} else if opts.subnet.Status.ID == nil {
-			progressStatus = append(progressStatus, generic.WaitingOnORCReady("Subnet", string(*routerInterface.Spec.SubnetRef)))
+			progressStatus = append(progressStatus, progress.WaitingOnORCReady("Subnet", string(*routerInterface.Spec.SubnetRef)))
 		}
 	}
 
@@ -57,7 +59,7 @@ func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *update
 		if opts.port.Status == port.PortStatusActive {
 			available = true
 		} else {
-			progressStatus = append(progressStatus, generic.WaitingOnOpenStackReady(portStatusPollingPeriod))
+			progressStatus = append(progressStatus, progress.WaitingOnOpenStackReady(portStatusPollingPeriod))
 		}
 	}
 
@@ -79,7 +81,7 @@ func createStatusUpdate(orcObject *orcv1alpha1.RouterInterface, now metav1.Time,
 	}
 
 	isAvailable, progressStatus := getStatusSummary(orcObject, statusOpts)
-	generic.SetCommonConditions(orcObject, applyConfigStatus, isAvailable, progressStatus, statusOpts.err, now)
+	status.SetCommonConditions(orcObject, applyConfigStatus, isAvailable, progressStatus, statusOpts.err, now)
 
 	return applyConfig
 }
@@ -89,5 +91,5 @@ func (r *orcRouterInterfaceReconciler) updateStatus(ctx context.Context, orcObje
 	now := metav1.NewTime(time.Now())
 
 	statusUpdate := createStatusUpdate(orcObject, now, opts)
-	return r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, generic.GetSSAFieldOwnerWithTxn(controllerName, generic.SSATransactionFinalizer))
+	return r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer))
 }

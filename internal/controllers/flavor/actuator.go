@@ -26,7 +26,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	generic "github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -129,7 +130,7 @@ func (actuator flavorActuator) listOSResources(ctx context.Context, filters []os
 	return osclients.Filter(flavors, filters...)
 }
 
-func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]generic.ProgressStatus, *flavors.Flavor, error) {
+func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *flavors.Flavor, error) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -160,7 +161,7 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 	return nil, osResource, nil
 }
 
-func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) ([]generic.ProgressStatus, error) {
+func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) ([]progress.ProgressStatus, error) {
 	return nil, actuator.osClient.DeleteFlavor(ctx, flavor.ID)
 }
 
@@ -168,7 +169,7 @@ type flavorHelperFactory struct{}
 
 var _ helperFactory = flavorHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, []generic.ProgressStatus, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, []progress.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
@@ -195,12 +196,12 @@ func (flavorHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return flavorAdapter{obj}
 }
 
-func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, createResourceActuator, error) {
+func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
 	return progressStatus, actuator, err
 }
 
-func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]generic.ProgressStatus, deleteResourceActuator, error) {
+func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
 	return progressStatus, actuator, err
 }

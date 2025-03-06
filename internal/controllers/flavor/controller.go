@@ -25,8 +25,8 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 
-	ctrlexport "github.com/k-orc/openstack-resource-controller/internal/controllers/export"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
 )
@@ -40,7 +40,7 @@ type flavorReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
 
-func New(scopeFactory scope.Factory) ctrlexport.Controller {
+func New(scopeFactory scope.Factory) interfaces.Controller {
 	return flavorReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
@@ -63,6 +63,6 @@ func (c flavorReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	reconciler := generic.NewController(controllerName, mgr.GetClient(), c.scopeFactory, flavorHelperFactory{}, flavorStatusWriter{})
-	return builder.Complete(&reconciler)
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, flavorHelperFactory{}, flavorStatusWriter{})
+	return builder.Complete(&r)
 }

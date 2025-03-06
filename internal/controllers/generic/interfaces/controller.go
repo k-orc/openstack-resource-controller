@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright 2025 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,18 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package export
-
-// This file provides a minimal exported interface to non-exported controllers
+package interfaces
 
 import (
 	"context"
 
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+
+	"github.com/k-orc/openstack-resource-controller/internal/scope"
 )
 
 type Controller interface {
 	SetupWithManager(context.Context, ctrl.Manager, controller.Options) error
 	GetName() string
+}
+
+type ResourceController interface {
+	GetName() string
+
+	GetK8sClient() client.Client
+	GetScopeFactory() scope.Factory
 }

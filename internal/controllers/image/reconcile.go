@@ -27,7 +27,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/reconciler"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -83,7 +84,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 	}
 
 	adapter := imageAdapter{orcObject}
-	waitEvents, osResource, err := generic.GetOrCreateOSResource(ctx, log, r, adapter, actuator)
+	waitEvents, osResource, err := reconciler.GetOrCreateOSResource(ctx, log, r, adapter, actuator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -91,7 +92,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 	if len(waitEvents) > 0 {
 		log.V(3).Info("Waiting on events before creation")
 		addStatus(withProgressMessage(waitEvents[0].Message()))
-		return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, nil
+		return ctrl.Result{RequeueAfter: progress.MaxRequeue(waitEvents)}, nil
 	}
 
 	if osResource == nil {
@@ -205,9 +206,9 @@ func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcObject *orc
 	}
 
 	adapter := imageAdapter{orcObject}
-	deleted, waitEvents, osResource, err := generic.DeleteResource(ctx, log, r, adapter, actuator)
+	deleted, waitEvents, osResource, err := reconciler.DeleteResource(ctx, log, r, adapter, actuator)
 	addStatus(withResource(osResource))
-	return ctrl.Result{RequeueAfter: generic.MaxRequeue(waitEvents)}, err
+	return ctrl.Result{RequeueAfter: progress.MaxRequeue(waitEvents)}, err
 }
 
 func downloadingMessage(msg string, orcImage *orcv1alpha1.Image) string {

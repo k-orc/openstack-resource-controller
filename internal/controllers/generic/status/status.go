@@ -14,60 +14,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package generic
+package status
 
 import (
 	"context"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/go-logr/logr"
-	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
+	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
 )
-
-type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
-	WithUID(types.UID) objectApplyPT
-	WithStatus(statusApplyPT) objectApplyPT
-}
-
-type ORCStatusApplyConfig[statusApplyPT any] interface {
-	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
-	WithID(id string) statusApplyPT
-}
-
-type ORCApplyConfigConstructor[objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] func(name, namespace string) objectApplyPT
-
-type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourcePT any, objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
-	GetApplyConfigConstructor() ORCApplyConfigConstructor[objectApplyPT, statusApplyPT]
-	ResourceIsAvailable(orcObject objectPT, osResource osResourcePT) bool
-	ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
-}
 
 func SetStatusID[
 	orcObjectPT interface {
 		client.Object
 		orcv1alpha1.ObjectWithConditions
 	},
-	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
+	objectApplyPT interfaces.ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
-		ORCStatusApplyConfig[statusApplyPT]
+		interfaces.ORCStatusApplyConfig[statusApplyPT]
 	},
 	statusApplyT any,
 	osResourcePT any,
 ](
 	ctx context.Context,
-	controller ResourceController,
+	controller interfaces.ResourceController,
 	orcObject orcObjectPT,
 	resourceID string,
-	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
+	statusWriter interfaces.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
 ) error {
 	var status statusApplyPT = new(statusApplyT)
 	status.WithID(resourceID)
@@ -85,18 +68,18 @@ func UpdateStatus[
 		orcv1alpha1.ObjectWithConditions
 	},
 	osResourcePT *osResourceT,
-	objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT],
+	objectApplyPT interfaces.ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
-		ORCStatusApplyConfig[statusApplyPT]
+		interfaces.ORCStatusApplyConfig[statusApplyPT]
 		*statusApply
 	},
 	statusApply any,
 	osResourceT any,
 ](
 	ctx context.Context,
-	controller ResourceController,
-	statusWriter ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
-	orcObject orcObjectPT, osResource osResourcePT, progressStatus []ProgressStatus, err error,
+	controller interfaces.ResourceController,
+	statusWriter interfaces.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
+	orcObject orcObjectPT, osResource osResourcePT, progressStatus []progress.ProgressStatus, err error,
 ) error {
 	log := ctrl.LoggerFrom(ctx)
 	now := metav1.NewTime(time.Now())
@@ -117,6 +100,6 @@ func UpdateStatus[
 
 	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()
-	ssaFieldOwner := GetSSAFieldOwnerWithTxn(controller.GetName(), SSATransactionStatus)
+	ssaFieldOwner := orcstrings.GetSSAFieldOwnerWithTxn(controller.GetName(), orcstrings.SSATransactionStatus)
 	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner)
 }

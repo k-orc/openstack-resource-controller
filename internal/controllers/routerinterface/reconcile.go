@@ -31,12 +31,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
+	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
 )
 
 const noRequeue time.Duration = 0
@@ -177,7 +177,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 		// Adding the finalizer only when creating a resource means we don't add
 		// it until all dependent resources are available, which means we don't
 		// have to handle unavailable dependencies in the delete flow
-		if err := dependency.EnsureFinalizer(ctx, r.client, routerInterface, finalizer, generic.GetSSAFieldOwnerWithTxn(controllerName, generic.SSATransactionFinalizer)); err != nil {
+		if err := dependency.EnsureFinalizer(ctx, r.client, routerInterface, finalizer, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer)); err != nil {
 			return noRequeue, fmt.Errorf("setting finalizer for %s: %w", client.ObjectKeyFromObject(routerInterface), err)
 		}
 
@@ -320,7 +320,7 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, rout
 
 	// Clear the finalizer
 	log.V(3).Info("Router interface deleted")
-	return noRequeue, r.client.Patch(ctx, routerInterface, finalizers.RemoveFinalizerPatch(routerInterface), client.ForceOwnership, generic.GetSSAFieldOwnerWithTxn(controllerName, generic.SSATransactionFinalizer))
+	return noRequeue, r.client.Patch(ctx, routerInterface, finalizers.RemoveFinalizerPatch(routerInterface), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer))
 }
 
 func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, statusOpts *updateStatusOpts) (bool, routers.RemoveInterfaceOptsBuilder, error) {
