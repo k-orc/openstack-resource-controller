@@ -52,7 +52,7 @@ modules:
 	go mod tidy
 
 .PHONY: generate
-generate: generate-resources generate-controller-gen generate-codegen generate-go modules manifests
+generate: generate-resources generate-controller-gen generate-codegen generate-go generate-docs modules manifests
 
 .PHONY: generate-resources
 generate-resources:
@@ -69,6 +69,10 @@ generate-codegen: generate-controller-gen ## codegen requires DeepCopy etc
 .PHONY: generate-go
 generate-go: mockgen
 	go generate ./...
+
+.PHONY: generate-docs
+generate-docs:
+	$(MAKE) -C website generated
 
 .PHONY: verify-generated
 verify-generated: generate
