@@ -1,0 +1,29 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-create-full
+status:
+  resource: 
+    adminStateUp: true
+    name: router-create-full-override
+    status: ACTIVE
+    description: Router from "create full" test
+    tags:
+      - tag1
+      - tag2
+    adminStateUp: false
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: router
+      name: router-create-full
+      ref: router
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: network
+      name: router-external-network
+      ref: network
+assertAll:
+    - celExpr: "router.status.resource.externalGateways[0].networkID == network.status.id"

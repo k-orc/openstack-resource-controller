@@ -6,5 +6,6 @@ testDirs:
 - ./internal/controllers/network/tests/
 - ./internal/controllers/router/tests/
 - ./internal/controllers/securitygroup/tests/
+- ./internal/controllers/server/tests/
 - ./internal/controllers/subnet/tests/
 timeout: 120

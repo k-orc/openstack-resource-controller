@@ -26,7 +26,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -85,11 +84,14 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) serverIterator {
 	listOpts := servers.ListOpts{
-		Name:       fmt.Sprintf("^%s$", string(ptr.Deref(filter.Name, ""))),
 		Tags:       neutrontags.Join(filter.FilterByServerTags.Tags),
 		TagsAny:    neutrontags.Join(filter.FilterByServerTags.TagsAny),
 		NotTags:    neutrontags.Join(filter.FilterByServerTags.NotTags),
 		NotTagsAny: neutrontags.Join(filter.FilterByServerTags.NotTagsAny),
+	}
+
+	if filter.Name != nil {
+		listOpts.Name = fmt.Sprintf("^%s$", string(*filter.Name))
 	}
 
 	return actuator.osClient.ListServers(ctx, listOpts)

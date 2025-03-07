@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-import-error
+status:
+  conditions:
+    - type: Available
+      # FIXME: message is not consistent with other resources
+      # https://github.com/k-orc/openstack-resource-controller/issues/186
+      message: found more than one matching OpenStack resource during import
+      status: "False"
+      reason: InvalidConfiguration
+    - type: Progressing
+      message: found more than one matching OpenStack resource during import
+      status: "False"
+      reason: InvalidConfiguration

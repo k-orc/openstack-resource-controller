@@ -1,0 +1,26 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: securitygroup-import-error-external-1
+    description: SecurityGroup from "securitygroup-import-error" test
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: securitygroup-import-error-external-2
+    description: SecurityGroup from "securitygroup-import-error" test

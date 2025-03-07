@@ -1,0 +1,55 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-create-full-v6
+status:
+  resource:
+    name: subnet-create-full-v6-override
+    description: Subnet from "create full v6" test
+    tags:
+      - tag1
+      - tag2
+    ipVersion: 6
+    cidr: fc00:2::/64
+    allocationPools:
+      - start: "fc00:2:0:0:1::"
+        end: "fc00:2::1:ffff:ffff:ffff"
+      # NOTE: kuttl frequently complains about the items order. Is it a bug?
+      # - start: "fc00:2:0:0:2::"
+      #   end: "fc00:2::2:ffff:ffff:ffff"
+    enableDHCP: false
+    gatewayIP: "fc00:2::2"
+    dnsNameservers:
+      - 2606:4700:4700::1111
+      - 2001:4860:4860::8888
+    # FIXME: dnsPublishFixedIP is not honored
+    # https://github.com/k-orc/openstack-resource-controller/issues/189
+    dnsPublishFixedIP: false
+    hostRoutes:
+      - destination: fc00:3::/64
+        nextHop: "fc00:4::1"
+      - destination: fc00:5::/64
+        nextHop: "fc00:6::1"
+    enableDHCP: true
+    ipv6AddressMode: slaac
+    ipv6RAMode: slaac
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: subnet-create-full-v6-subnet
+spec:
+  routerRef: subnet-create-full-v6
+  subnetRef: subnet-create-full-v6
+  type: Subnet
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success

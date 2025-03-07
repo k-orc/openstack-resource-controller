@@ -1,14 +1,16 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Flavor
 metadata:
-  name: router-external-network
+  name: flavor-import-error
 spec:
   cloudCredentialsRef:
+    # Import does not require admin creds
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      name: "${E2E_EXTERNAL_NETWORK_NAME}"
-      external: True
+      ram: 22
+      vcpus: 23
+      disk: 24

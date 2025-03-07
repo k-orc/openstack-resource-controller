@@ -1,0 +1,25 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: subnet-create-minimal-v6
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: subnet-create-minimal-v6
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-create-minimal-v6
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  networkRef: subnet-create-minimal-v6
+  resource:
+    ipVersion: 6
+    cidr: fc00:1::/64

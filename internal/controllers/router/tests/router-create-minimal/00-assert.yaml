@@ -1,0 +1,11 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-create-minimal
+status:
+  resource:
+    adminStateUp: true
+    description: ""
+    name: router-create-minimal
+    status: ACTIVE

@@ -1,0 +1,40 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: image-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: image-import-error-external
+    content:
+      diskFormat: qcow2
+      download:
+        url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img
+    # This is how we workaround https://github.com/k-orc/openstack-resource-controller/issues/266
+    # to create images with identic names
+    tags:
+      - image-import-error-external-1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: image-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: image-import-error-external
+    content:
+      diskFormat: qcow2
+      download:
+        url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img
+    # This is how we workaround https://github.com/k-orc/openstack-resource-controller/issues/266
+    # to create images with identic names
+    tags:
+      - image-import-error-external-2

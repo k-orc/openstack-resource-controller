@@ -1,0 +1,8 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-create-minimal
+status:
+  resource:
+    name: securitygroup-create-minimal

@@ -1,8 +1,8 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Server
 metadata:
-  name: router-external-network
+  name: server-import
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -10,5 +10,7 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: "${E2E_EXTERNAL_NETWORK_NAME}"
-      external: True
+      name: server-import-external
+      tags:
+        - tag1
+        - tag2

@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-create-minimal
+status:
+  resource:
+    name: flavor-create-minimal
+    description: ""
+    ram: 1
+    vcpus: 2
+    disk: 0
+    swap: 0
+    isPublic: true
+    ephemeral: 0

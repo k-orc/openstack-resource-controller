@@ -1,14 +1,15 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Subnet
 metadata:
-  name: router-external-network
+  name: subnet-import-error
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
+  networkRef: subnet-import-error
   import:
     filter:
-      name: "${E2E_EXTERNAL_NETWORK_NAME}"
-      external: True
+      description: Subnet from "import error" test
+      ipVersion: 4
