@@ -4,5 +4,6 @@ testDirs:
 - ./internal/controllers/flavor/tests/
 - ./internal/controllers/image/tests/
 - ./internal/controllers/network/tests/
+- ./internal/controllers/securitygroup/tests/
 - ./internal/controllers/subnet/tests/
 timeout: 120
