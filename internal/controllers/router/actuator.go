@@ -112,7 +112,7 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 	}
 
 	createOpts := routers.CreateOpts{
-		Name:         string(ptr.Deref(resource.Name, "")),
+		Name:         string(getResourceName(obj)),
 		Description:  string(ptr.Deref(resource.Description, "")),
 		AdminStateUp: resource.AdminStateUp,
 		Distributed:  resource.Distributed,
