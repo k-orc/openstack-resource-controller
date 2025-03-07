@@ -453,6 +453,8 @@ spec:
                 - message: properties is immutable
                   rule: 'has(self.properties) ? self.properties == oldSelf.properties
                     : !has(oldSelf.properties)'
+                - message: ImageResourceSpec is immutable
+                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

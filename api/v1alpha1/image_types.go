@@ -277,6 +277,7 @@ type ImageHash struct {
 // +kubebuilder:validation:XValidation:rule="has(self.tags) ? self.tags == oldSelf.tags : !has(oldSelf.tags)",message="tags is immutable"
 // +kubebuilder:validation:XValidation:rule="has(self.visibility) ? self.visibility == oldSelf.visibility : !has(oldSelf.visibility)",message="visibility is immutable"
 // +kubebuilder:validation:XValidation:rule="has(self.properties) ? self.properties == oldSelf.properties : !has(oldSelf.properties)",message="properties is immutable"
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ImageResourceSpec is immutable"
 type ImageResourceSpec struct {
 	// name will be the name of the created Glance image. If not specified, the
 	// name of the Image object will be used.

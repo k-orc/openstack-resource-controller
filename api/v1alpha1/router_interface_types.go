@@ -74,6 +74,7 @@ const (
 )
 
 // +kubebuilder:validation:XValidation:rule="self.type == 'Subnet' ? has(self.subnetRef) : !has(self.subnetRef)",message="subnetRef is required when type is 'Subnet' and not permitted otherwise"
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="RouterInterfaceResourceSpec is immutable"
 type RouterInterfaceSpec struct {
 	// type specifies the type of the router interface.
 	// +required

@@ -88,6 +88,7 @@ type FixedIPStatus struct {
 	SubnetID string `json:"subnetID,omitempty"`
 }
 
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="PortResourceSpec is immutable"
 type PortResourceSpec struct {
 	// name is a human-readable name of the port. If not set, the object's name will be used.
 	// +optional

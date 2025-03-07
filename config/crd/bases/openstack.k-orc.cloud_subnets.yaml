@@ -423,6 +423,9 @@ spec:
                 - cidr
                 - ipVersion
                 type: object
+                x-kubernetes-validations:
+                - message: SubnetResourceSpec is immutable
+                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             - networkRef

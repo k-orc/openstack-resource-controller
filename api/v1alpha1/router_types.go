@@ -44,6 +44,7 @@ type ExternalGatewayStatus struct {
 	NetworkID string `json:"networkID,omitempty"`
 }
 
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="RouterResourceSpec is immutable"
 type RouterResourceSpec struct {
 	// name is a human-readable name of the router. If not set, the
 	// object's name will be used.

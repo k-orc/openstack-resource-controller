@@ -61,6 +61,7 @@ type ServerPortSpec struct {
 }
 
 // ServerResourceSpec contains the desired state of a server
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ServerResourceSpec is immutable"
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.

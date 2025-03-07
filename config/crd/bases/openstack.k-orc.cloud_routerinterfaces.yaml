@@ -77,6 +77,8 @@ spec:
             - message: subnetRef is required when type is 'Subnet' and not permitted
                 otherwise
               rule: 'self.type == ''Subnet'' ? has(self.subnetRef) : !has(self.subnetRef)'
+            - message: RouterInterfaceResourceSpec is immutable
+              rule: self == oldSelf
           status:
             description: status defines the observed state of the resource.
             properties:

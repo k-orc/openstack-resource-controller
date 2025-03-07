@@ -286,6 +286,9 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                 type: object
+                x-kubernetes-validations:
+                - message: NetworkResourceSpec is immutable
+                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object
