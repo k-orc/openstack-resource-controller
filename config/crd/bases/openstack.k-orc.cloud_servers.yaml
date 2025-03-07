@@ -258,6 +258,9 @@ spec:
                 - imageRef
                 - ports
                 type: object
+                x-kubernetes-validations:
+                - message: ServerResourceSpec is immutable
+                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

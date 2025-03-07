@@ -59,6 +59,7 @@ type SubnetFilter struct {
 	FilterByNeutronTags `json:",inline"`
 }
 
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="SubnetResourceSpec is immutable"
 type SubnetResourceSpec struct {
 	// name is a human-readable name of the subnet. If not set, the object's name will be used.
 	// +optional

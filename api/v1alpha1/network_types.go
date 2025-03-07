@@ -54,6 +54,7 @@ type DNSDomain string
 type MTU int32
 
 // NetworkResourceSpec contains the desired state of a network
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="NetworkResourceSpec is immutable"
 type NetworkResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
