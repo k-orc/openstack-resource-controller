@@ -9,7 +9,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: import-external
-    description: Router import-external from "import" test
+    description: Router from "import" test
     tags:
       - tag1

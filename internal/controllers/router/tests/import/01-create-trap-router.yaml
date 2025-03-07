@@ -1,4 +1,7 @@
 ---
+# This `import-external-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
+# - ensure that importing a resource which name is a substring of it will not pick this one.
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
@@ -9,5 +12,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    description: Router from "import" test
     tags:
       - tag1

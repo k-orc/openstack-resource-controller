@@ -7,6 +7,4 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    tags:
-      - tag1
+  resource: {}
