@@ -2,11 +2,11 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: create-full
+  name: router-create-full
 status:
   resource: 
     adminStateUp: true
-    name: create-full-override
+    name: router-create-full-override
     status: ACTIVE
     description: Router from "create full" test
     tags:
@@ -19,11 +19,11 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: router
-      name: create-full
+      name: router-create-full
       ref: router
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: network
-      name: external-network
+      name: router-external-network
       ref: network
 assertAll:
     - celExpr: "router.status.resource.externalGateways[0].networkID == network.status.id"

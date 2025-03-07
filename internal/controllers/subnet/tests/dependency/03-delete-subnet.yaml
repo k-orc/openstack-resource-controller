@@ -3,4 +3,4 @@ kind: TestStep
 delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Subnet
-  name: dependency
+  name: subnet-dependency

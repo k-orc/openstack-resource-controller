@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: dependency
+  name: subnet-dependency
 status:
   conditions:
     - type: Available

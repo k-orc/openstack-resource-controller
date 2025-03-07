@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: import
+  name: image-import
 status:
   conditions:
     - type: Available

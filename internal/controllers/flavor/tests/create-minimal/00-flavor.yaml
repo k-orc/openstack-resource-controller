@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: create-minimal
+  name: flavor-create-minimal
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin

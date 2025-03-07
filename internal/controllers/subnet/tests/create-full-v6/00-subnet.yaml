@@ -1,19 +1,19 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: create-full-v6
+  name: subnet-create-full-v6
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: create-full-v6
+    name: subnet-create-full-v6
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: create-full-v6-gateway
+  name: subnet-create-full-v6-gateway
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
@@ -25,13 +25,13 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: create-full-v6-gateway
+  name: subnet-create-full-v6-gateway
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: create-full-v6-gateway
+  networkRef: subnet-create-full-v6-gateway
   resource:
     ipVersion: 6
     cidr: fc00:8::/64
@@ -39,7 +39,7 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: create-full-v6
+  name: subnet-create-full-v6
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -47,20 +47,20 @@ spec:
   managementPolicy: managed
   resource:
     externalGateways:
-    - networkRef: create-full-v6-gateway
+    - networkRef: subnet-create-full-v6-gateway
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: create-full-v6
+  name: subnet-create-full-v6
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: create-full-v6
+  networkRef: subnet-create-full-v6
   resource:
-    name: create-full-v6-override
+    name: subnet-create-full-v6-override
     description: Subnet from "create full v6" test
     tags:
       - tag1
@@ -92,4 +92,4 @@ spec:
     ipv6:
       addressMode: slaac
       raMode: slaac
-    routerRef: create-full-v6
+    routerRef: subnet-create-full-v6

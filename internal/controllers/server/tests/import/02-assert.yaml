@@ -4,11 +4,11 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Server
-      name: import-external
+      name: server-import-external
       ref: server1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Server
-      name: import-external-not-this-one
+      name: server-import-external-not-this-one
       ref: server2
 assertAll:
     - celExpr: "server1.status.id != server2.status.id"
@@ -16,7 +16,7 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import
+  name: server-import
 status:
   conditions:
     - type: Available
@@ -31,7 +31,7 @@ status:
       reason: Success
   resource:
     # TODO(mandre) add more fields
-    name: import-external
+    name: server-import-external
     tags:
       - tag1
       - tag2

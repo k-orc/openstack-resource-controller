@@ -1,7 +1,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: dependency
+  name: subnet-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack

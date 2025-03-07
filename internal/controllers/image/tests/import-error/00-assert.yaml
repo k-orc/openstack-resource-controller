@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: import-error-external-1
+  name: image-import-error-external-1
 status:
   conditions:
     # Message is inconsistent with other resources
@@ -19,7 +19,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: import-error-external-2
+  name: image-import-error-external-2
 status:
   conditions:
     # Message is inconsistent with other resources

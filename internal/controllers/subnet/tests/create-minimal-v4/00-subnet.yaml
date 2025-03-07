@@ -1,25 +1,25 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: create-minimal-v4
+  name: subnet-create-minimal-v4
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: create-minimal-v4
+    name: subnet-create-minimal-v4
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: create-minimal-v4
+  name: subnet-create-minimal-v4
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: create-minimal-v4
+  networkRef: subnet-create-minimal-v4
   resource:
     ipVersion: 4
     cidr: 192.168.0.0/24

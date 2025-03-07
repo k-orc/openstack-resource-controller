@@ -4,11 +4,11 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Network
-      name: import-external
+      name: network-import-external
       ref: network1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Network
-      name: import-external-not-this-one
+      name: network-import-external-not-this-one
       ref: network2
 assertAll:
     - celExpr: "network1.status.id != network2.status.id"
@@ -16,7 +16,7 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import
+  name: network-import
 status:
   conditions:
     - type: Available
@@ -28,8 +28,8 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external
-    description: Network import-external from "import" test
+    name: network-import-external
+    description: Network network-import-external from "network-import" test
     adminStateUp: true
     dnsDomain: ""
     external: true

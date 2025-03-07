@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import
+  name: server-import
 status:
   conditions:
     - type: Available

@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import-external-not-this-one
+  name: network-import-external-not-this-one
 status:
   conditions:
     - type: Available
@@ -14,8 +14,8 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external-not-this-one
-    description: Network import-external from "import" test
+    name: network-import-external-not-this-one
+    description: Network network-import-external from "network-import" test
     adminStateUp: true
     dnsDomain: ""
     external: true
@@ -30,7 +30,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import
+  name: network-import
 status:
   conditions:
     - type: Available

@@ -2,15 +2,15 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: update
+  name: securitygroup-update
 status:
   resource:
-    name: update-override
-    description: SecurityGroup from "update" test
+    name: securitygroup-update-override
+    description: SecurityGroup from "securitygroup-update" test
     stateful: false
     rules:
     - direction: ingress
-      description: Ingress rule from "update" test for http
+      description: Ingress rule from "securitygroup-update" test for http
       ethertype: IPv4
       protocol: tcp
       portRange:

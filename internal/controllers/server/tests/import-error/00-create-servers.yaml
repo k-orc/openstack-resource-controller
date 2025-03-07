@@ -2,61 +2,61 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: import-error-external-1
+  name: server-import-error-external-1
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: import-error-external
+  networkRef: server-import-error-external
   resource:
     addresses:
-    - subnetRef: import-error-external
+    - subnetRef: server-import-error-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import-error-external-1
+  name: server-import-error-external-1
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    imageRef: import-error-external
+    imageRef: server-import-error-external
     flavorRef: server-flavor
     ports:
-    - portRef: import-error-external-1
+    - portRef: server-import-error-external-1
     tags:
     - import
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: import-error-external-2
+  name: server-import-error-external-2
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: import-error-external
+  networkRef: server-import-error-external
   resource:
     addresses:
-    - subnetRef: import-error-external
+    - subnetRef: server-import-error-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import-error-external-2
+  name: server-import-error-external-2
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    imageRef: import-error-external
+    imageRef: server-import-error-external
     flavorRef: server-flavor
     ports:
-    - portRef: import-error-external-2
+    - portRef: server-import-error-external-2
     tags:
     - import

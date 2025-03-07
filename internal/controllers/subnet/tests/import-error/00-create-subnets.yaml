@@ -2,13 +2,13 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: import-error-external-1
+  name: subnet-import-error-external-1
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: import-error
+  networkRef: subnet-import-error
   resource:
     description: Subnet from "import error" test
     ipVersion: 4
@@ -17,13 +17,13 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: import-error-external-2
+  name: subnet-import-error-external-2
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: import-error
+  networkRef: subnet-import-error
   resource:
     description: Subnet from "import error" test
     ipVersion: 4

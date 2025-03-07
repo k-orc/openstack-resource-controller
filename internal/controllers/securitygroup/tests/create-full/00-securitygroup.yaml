@@ -2,14 +2,14 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: create-full
+  name: securitygroup-create-full
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: create-full-override
+    name: securitygroup-create-full-override
     description: SecurityGroup from "create full" test
     stateful: false
     rules:

@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: import
+  name: image-import
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -10,6 +10,6 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: import-external
+      name: image-import-external
       tags:
-        - import
+        - image-import

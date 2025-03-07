@@ -2,10 +2,10 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: create-full-v4
+  name: subnet-create-full-v4
 status:
   resource:
-    name: create-full-v4-override
+    name: subnet-create-full-v4-override
     description: Subnet from "create full v4" test
     tags:
       - tag1
@@ -38,10 +38,10 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RouterInterface
 metadata:
-  name: create-full-v4-subnet
+  name: subnet-create-full-v4-subnet
 spec:
-  routerRef: create-full-v4
-  subnetRef: create-full-v4
+  routerRef: subnet-create-full-v4
+  subnetRef: subnet-create-full-v4
   type: Subnet
 status:
   conditions:

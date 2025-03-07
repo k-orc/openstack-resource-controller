@@ -2,10 +2,10 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: create-full
+  name: network-create-full
 status:
   resource:
-    name: create-full-override
+    name: network-create-full-override
     adminStateUp: false
     description: Network from "create full" test
     # Skipped until https://github.com/k-orc/openstack-resource-controller/issues/189 is fixed

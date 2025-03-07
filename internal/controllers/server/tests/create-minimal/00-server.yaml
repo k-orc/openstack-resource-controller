@@ -1,28 +1,28 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: create-minimal
+  name: server-create-minimal
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: create-minimal
+  networkRef: server-create-minimal
   resource:
     addresses:
-      - subnetRef: create-minimal
+      - subnetRef: server-create-minimal
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: create-minimal
+  name: server-create-minimal
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    imageRef: create-minimal
+    imageRef: server-create-minimal
     flavorRef: server-flavor
     ports:
-      - portRef: create-minimal
+      - portRef: server-create-minimal

@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import
+  name: network-import
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -10,8 +10,8 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: import-external
-      description: Network import-external from "import" test
+      name: network-import-external
+      description: Network network-import-external from "network-import" test
       external: true
       tags:
         - tag1

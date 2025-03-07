@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: create-minimal
+  name: image-create-minimal
 status:
   resource:
     status: active

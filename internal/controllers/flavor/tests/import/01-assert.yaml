@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: import-external-not-this-one
+  name: flavor-import-external-not-this-one
 status:
   conditions:
     - type: Available
@@ -14,12 +14,12 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external-not-this-one
+    name: flavor-import-external-not-this-one
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: import
+  name: flavor-import
 status:
   conditions:
     - type: Available

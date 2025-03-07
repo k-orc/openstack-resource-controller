@@ -2,18 +2,18 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: create-full
+  name: router-create-full
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: create-full-override
+    name: router-create-full-override
     description: Router from "create full" test
     tags:
       - tag1
       - tag2
     adminStateUp: false
     externalGateways:
-      - networkRef: external-network
+      - networkRef: router-external-network

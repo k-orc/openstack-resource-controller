@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: import-error
+  name: router-import-error
 status:
   conditions:
     - type: Available

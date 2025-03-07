@@ -4,15 +4,15 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Server
-      name: create-full
+      name: server-create-full
       ref: server
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Image
-      name: create-full
+      name: server-create-full
       ref: image
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Port
-      name: create-full
+      name: server-create-full
       ref: port
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
@@ -23,10 +23,10 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: create-full
+  name: server-create-full
 status:
   resource:
-    name: create-full-override
+    name: server-create-full-override
     status: ACTIVE
     tags:
       - tag1

@@ -4,11 +4,11 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Router
-      name: import-external
+      name: router-import-external
       ref: router1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Router
-      name: import-external-not-this-one
+      name: router-import-external-not-this-one
       ref: router2
 assertAll:
     - celExpr: "router1.status.id != router2.status.id"
@@ -16,7 +16,7 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: import
+  name: router-import
 status:
   conditions:
     - type: Available
@@ -28,7 +28,7 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external
-    description: Router from "import" test
+    name: router-import-external
+    description: Router from "router-import" test
     tags:
     - tag1

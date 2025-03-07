@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: import
+  name: flavor-import
 status:
   conditions:
     - type: Available

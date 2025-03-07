@@ -2,10 +2,10 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: create-minimal-v6
+  name: subnet-create-minimal-v6
 status:
   resource:
-    name: create-minimal-v6
+    name: subnet-create-minimal-v6
     allocationPools:
       - start: fc00:1::1
         end: fc00:1::ffff:ffff:ffff:ffff

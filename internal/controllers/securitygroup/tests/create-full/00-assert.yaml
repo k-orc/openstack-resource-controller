@@ -2,10 +2,10 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: create-full
+  name: securitygroup-create-full
 status:
   resource:
-    name: create-full-override
+    name: securitygroup-create-full-override
     description: SecurityGroup from "create full" test
     stateful: false
     rules:

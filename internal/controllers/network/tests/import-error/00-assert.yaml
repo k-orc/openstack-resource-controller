@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import-error-external-1
+  name: network-import-error-external-1
 status:
   conditions:
     - type: Available
@@ -17,7 +17,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import-error-external-2
+  name: network-import-error-external-2
 status:
   conditions:
     - type: Available

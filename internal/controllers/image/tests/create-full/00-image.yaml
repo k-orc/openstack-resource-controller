@@ -2,14 +2,14 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: create-full
+  name: image-create-full
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: create-full-override
+    name: image-create-full-override
     # FIXME(mandre) Unable to delete protected image
     # must call `openstack image set --unprotected <image_name>` prior to deletion
     protected: false

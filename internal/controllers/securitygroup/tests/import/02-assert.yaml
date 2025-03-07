@@ -4,11 +4,11 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SecurityGroup
-      name: import-external
+      name: securitygroup-import-external
       ref: securitygroup1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SecurityGroup
-      name: import-external-not-this-one
+      name: securitygroup-import-external-not-this-one
       ref: securitygroup2
 assertAll:
     - celExpr: "securitygroup1.status.id != securitygroup2.status.id"
@@ -16,7 +16,7 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: import
+  name: securitygroup-import
 status:
   conditions:
     - type: Available
@@ -28,8 +28,8 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external
-    description: SecurityGroup from "import" test
+    name: securitygroup-import-external
+    description: SecurityGroup from "securitygroup-import" test
     tags:
     - tag1
     - tag2

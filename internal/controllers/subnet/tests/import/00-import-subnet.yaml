@@ -2,17 +2,17 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: import
+  name: subnet-import
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
-  networkRef: import
+  networkRef: subnet-import
   import:
     filter:
-      name: import-external
-      description: Subnet from "import" test
+      name: subnet-import-external
+      description: Subnet from "subnet-import" test
       ipVersion: 6
       cidr: fc00:3::/64
       gatewayIP: "fc00:3::"

@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: import-error
+  name: network-import-error
 spec:
   cloudCredentialsRef:
     cloudName: openstack

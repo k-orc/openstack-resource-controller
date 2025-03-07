@@ -2,10 +2,10 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: create-minimal-v4
+  name: subnet-create-minimal-v4
 status:
   resource:
-    name: create-minimal-v4
+    name: subnet-create-minimal-v4
     allocationPools:
       - start: 192.168.0.2
         end: 192.168.0.254

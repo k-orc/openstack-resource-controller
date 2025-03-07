@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: import-error
+  name: subnet-import-error
 status:
   conditions:
     - type: Available

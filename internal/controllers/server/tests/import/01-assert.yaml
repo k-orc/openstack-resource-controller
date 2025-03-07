@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import-external-not-this-one
+  name: server-import-external-not-this-one
 status:
   conditions:
     - type: Available
@@ -14,12 +14,12 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external-not-this-one
+    name: server-import-external-not-this-one
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import
+  name: server-import
 status:
   conditions:
     - type: Available

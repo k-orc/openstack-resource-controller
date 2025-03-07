@@ -4,7 +4,7 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Image
-      name: create-full
+      name: image-create-full
       ref: image
 assertAll:
     # Tags order is not consistent
@@ -15,10 +15,10 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: create-full
+  name: image-create-full
 status:
   resource:
-    name: create-full-override
+    name: image-create-full-override
     status: active
     protected: false
     visibility: public

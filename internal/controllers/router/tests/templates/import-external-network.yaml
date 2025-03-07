@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: external-network
+  name: router-external-network
 spec:
   cloudCredentialsRef:
     cloudName: openstack

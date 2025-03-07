@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: import-error
+  name: securitygroup-import-error
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: SecurityGroup from "import-error" test
+      description: SecurityGroup from "securitygroup-import-error" test

@@ -4,15 +4,15 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Server
-      name: create-minimal
+      name: server-create-minimal
       ref: server
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Image
-      name: create-minimal
+      name: server-create-minimal
       ref: image
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Port
-      name: create-minimal
+      name: server-create-minimal
       ref: port
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
@@ -23,8 +23,8 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: create-minimal
+  name: server-create-minimal
 status:
   resource:
-    name: create-minimal
+    name: server-create-minimal
     status: ACTIVE

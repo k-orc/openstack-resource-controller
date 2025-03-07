@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import
+  name: server-import
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -10,7 +10,7 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: import-external
+      name: server-import-external
       tags:
         - tag1
         - tag2

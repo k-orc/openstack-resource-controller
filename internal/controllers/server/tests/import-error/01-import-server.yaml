@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: import-error
+  name: server-import-error
 spec:
   cloudCredentialsRef:
     cloudName: openstack

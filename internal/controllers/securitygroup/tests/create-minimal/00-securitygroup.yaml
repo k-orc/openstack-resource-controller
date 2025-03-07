@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: create-minimal
+  name: securitygroup-create-minimal
 spec:
   cloudCredentialsRef:
     cloudName: openstack

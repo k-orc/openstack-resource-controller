@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: import-error-external-1
+  name: flavor-import-error-external-1
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
@@ -16,7 +16,7 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: import-error-external-2
+  name: flavor-import-error-external-2
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin

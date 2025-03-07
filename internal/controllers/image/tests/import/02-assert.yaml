@@ -4,11 +4,11 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Image
-      name: import-external
+      name: image-import-external
       ref: image1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Image
-      name: import-external-not-this-one
+      name: image-import-external-not-this-one
       ref: image2
 assertAll:
     - celExpr: "image1.status.id != image2.status.id"
@@ -16,7 +16,7 @@ assertAll:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Image
 metadata:
-  name: import
+  name: image-import
 status:
   conditions:
     # Message is inconsistent with other resources
@@ -30,5 +30,5 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: import-external
+    name: image-import-external
     status: active
