@@ -19,14 +19,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install crd docs generator
-      run: go install github.com/elastic/crd-ref-docs@15438a197f339a5b68be2e622725327c3e367811
-
     - name: Pip install
       run: pip install -Ur website/requirements.txt
-
-    - name: Generate reference
-      run: /home/runner/go/bin/crd-ref-docs --config=website/crd-ref-docs-config.yaml --output-path=website/docs/reference.md --source-path=api/v1alpha1 --renderer=markdown
 
     - name: Build the site
       run: mkdocs build --verbose --strict --config-file website/mkdocs.yml --site-dir rendered

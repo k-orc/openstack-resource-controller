@@ -5,7 +5,7 @@ site_url: https://k-orc.cloud/
 nav:
   - Home: index.md
   - Getting started: getting-started.md
-  - Reference: reference.md
+  - Reference: crd-reference.md
   - Design decisions: design-decisions.md
   - API contracts: api-contracts.md
   - Local development: local-development.md

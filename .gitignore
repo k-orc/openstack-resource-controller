@@ -25,7 +25,6 @@ Dockerfile.cross
 
 # website dynamic assets
 /venv
-/website/docs/reference.md
 /website/rendered/
 __pycache__/
 
