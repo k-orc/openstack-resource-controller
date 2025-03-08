@@ -7,5 +7,4 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    name: subnet-import-error
+  resource: {}

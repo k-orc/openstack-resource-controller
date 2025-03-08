@@ -7,8 +7,7 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    name: subnet-create-minimal-v6
+  resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
