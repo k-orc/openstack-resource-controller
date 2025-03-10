@@ -8,8 +8,7 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    name: subnet-import
+  resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
@@ -20,5 +19,4 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    name: subnet-import-not-this-one
+  resource: {}
