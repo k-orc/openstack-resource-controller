@@ -13,7 +13,7 @@ nav:
     - Writing an API: development/api-contracts.md
     - Controller design considerations: development/controller-design.md
     - Controller initialisation: development/controller-init.md
-    - Actuator interface: development/actuator.md
+    - Resource-specific interfaces: development/interfaces.md
     - StatusWriter interface: development/statuswriter.md
     - Writing tests: development/writing-tests.md
     - General design considerations: development/design-decisions.md
