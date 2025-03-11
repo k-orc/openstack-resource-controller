@@ -27,6 +27,7 @@ import (
 type PortFilterApplyConfiguration struct {
 	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
 	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
+	NetworkID                             *apiv1alpha1.UUID               `json:"networkID,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -49,6 +50,14 @@ func (b *PortFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName)
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *PortFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *PortFilterApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithNetworkID sets the NetworkID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the NetworkID field is set to the value of the last call.
+func (b *PortFilterApplyConfiguration) WithNetworkID(value apiv1alpha1.UUID) *PortFilterApplyConfiguration {
+	b.NetworkID = &value
 	return b
 }
 

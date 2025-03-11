@@ -43,7 +43,11 @@ var (
 	networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network](
 		"spec.resource.networkRef",
 		func(port *orcv1alpha1.Port) []string {
-			return []string{string(port.Spec.NetworkRef)}
+			resource := port.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+			return []string{string(resource.NetworkRef)}
 		},
 		finalizer, externalObjectFieldOwner,
 	)

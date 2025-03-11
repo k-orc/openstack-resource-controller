@@ -72,8 +72,7 @@ var allResources []templateFields = []templateFields{
 		Name: "Router",
 	},
 	{
-		Name:          "Port",
-		SpecExtraType: "PortRefs",
+		Name: "Port",
 		AdditionalPrintColumns: []additionalPrintColumn{
 			{
 				Name:        "Addresses",

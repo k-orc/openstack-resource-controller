@@ -7,8 +7,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: server-create-full
   resource:
+    networkRef: server-create-full
     addresses:
       - subnetRef: server-create-full
 ---

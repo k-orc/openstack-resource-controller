@@ -16,12 +16,6 @@ limitations under the License.
 
 package v1alpha1
 
-type PortRefs struct {
-	// networkRef is a reference to the ORC Network which this port is associated with.
-	// +required
-	NetworkRef KubernetesNameRef `json:"networkRef"`
-}
-
 // PortFilter specifies a filter to select a port. At least one parameter must be specified.
 // +kubebuilder:validation:MinProperties:=1
 type PortFilter struct {
@@ -32,6 +26,10 @@ type PortFilter struct {
 	// description of the existing resource
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
+
+	// networkID is the ID of the attached network.
+	// +optional
+	NetworkID *UUID `json:"networkID,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -98,6 +96,10 @@ type PortResourceSpec struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
+	// networkRef is a reference to the ORC Network which this port is associated with.
+	// +required
+	NetworkRef KubernetesNameRef `json:"networkRef"`
+
 	// tags is a list of tags which will be applied to the port.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
@@ -134,6 +136,11 @@ type PortResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
+
+	// networkID is the ID of the attached network.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	NetworkID string `json:"networkID,omitempty"`
 
 	// projectID is the project owner of the resource.
 	// +kubebuilder:validation:MaxLength=1024

@@ -8,8 +8,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: server-import-external
   resource:
+    networkRef: server-import-external
     addresses:
       - subnetRef: server-import-external
 ---
