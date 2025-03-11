@@ -21,7 +21,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	generic "github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -30,9 +30,9 @@ type flavorStatusWriter struct{}
 type objectApplyT = orcapplyconfigv1alpha1.FlavorApplyConfiguration
 type statusApplyT = orcapplyconfigv1alpha1.FlavorStatusApplyConfiguration
 
-var _ generic.ResourceStatusWriter[*orcv1alpha1.Flavor, *flavors.Flavor, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Flavor, *flavors.Flavor, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
 
-func (flavorStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[*objectApplyT, *statusApplyT] {
+func (flavorStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[*objectApplyT, *statusApplyT] {
 	return orcapplyconfigv1alpha1.Flavor
 }
 
