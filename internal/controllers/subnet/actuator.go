@@ -58,17 +58,8 @@ type subnetActuator struct {
 	k8sClient client.Client
 }
 
-type subnetCreateActuator struct {
-	subnetActuator
-	networkID string
-}
-
-type subnetDeleteActuator struct {
-	subnetActuator
-}
-
-var _ createResourceActuator = subnetCreateActuator{}
-var _ deleteResourceActuator = subnetDeleteActuator{}
+var _ createResourceActuator = subnetActuator{}
+var _ deleteResourceActuator = subnetActuator{}
 
 func (subnetActuator) GetResourceID(osResource *subnets.Subnet) string {
 	return osResource.ID
@@ -86,7 +77,7 @@ func (actuator subnetActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.osClient.ListSubnet(ctx, listOpts), true
 }
 
-func (actuator subnetCreateActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osResourceT, error] {
+func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osResourceT, error] {
 	listOpts := subnets.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -107,7 +98,7 @@ func (actuator subnetCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	return actuator.osClient.ListSubnet(ctx, listOpts)
 }
 
-func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *subnets.Subnet, error) {
+func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *subnets.Subnet, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -198,7 +189,7 @@ func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orc
 	return nil, osResource, err
 }
 
-func (actuator subnetDeleteActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) ([]progress.ProgressStatus, error) {
+func (actuator subnetActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) ([]progress.ProgressStatus, error) {
 	// Delete any RouterInterface first, as this would prevent deletion of the subnet
 	routerInterface, err := getRouterInterface(ctx, actuator.k8sClient, obj)
 	if err != nil {
@@ -331,22 +322,12 @@ func (subnetHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 
 func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
-	if len(progressStatus) > 0 || err != nil {
-		return progressStatus, nil, err
-	}
-	return nil, subnetCreateActuator{
-		subnetActuator: actuator,
-	}, nil
+	return progressStatus, actuator, err
 }
 
 func (subnetHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
 	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
-	if len(progressStatus) > 0 || err != nil {
-		return progressStatus, nil, err
-	}
-	return nil, subnetDeleteActuator{
-		subnetActuator: actuator,
-	}, nil
+	return progressStatus, actuator, err
 }
 
 func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Subnet) (subnetActuator, []progress.ProgressStatus, error) {
