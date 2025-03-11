@@ -90,7 +90,7 @@ func (actuator subnetCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	listOpts := subnets.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		NetworkID:   actuator.networkID,
+		NetworkID:   string(ptr.Deref(filter.NetworkID, "")),
 		IPVersion:   int(ptr.Deref(filter.IPVersion, 0)),
 		GatewayIP:   string(ptr.Deref(filter.GatewayIP, "")),
 		CIDR:        string(ptr.Deref(filter.CIDR, "")),
@@ -114,8 +114,31 @@ func (actuator subnetCreateActuator) CreateResource(ctx context.Context, obj orc
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
+	var progressStatus []progress.ProgressStatus
+
+	network := &orcv1alpha1.Network{}
+	{
+		dep, networkProgressStatus, err := networkDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(network *orcv1alpha1.Network) bool {
+				return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
+			},
+		)
+		if err != nil {
+			return nil, nil, fmt.Errorf("fetching networks for %s: %w", obj.Name, err)
+		}
+		if len(networkProgressStatus) > 0 {
+			progressStatus = append(progressStatus, networkProgressStatus...)
+		} else {
+			network = dep
+		}
+	}
+
+	if len(progressStatus) > 0 {
+		return progressStatus, nil, nil
+	}
+
 	createOpts := subnets.CreateOpts{
-		NetworkID:         actuator.networkID,
+		NetworkID:         *network.Status.ID,
 		CIDR:              string(resource.CIDR),
 		Name:              string(getResourceName(obj)),
 		Description:       string(ptr.Deref(resource.Description, "")),
@@ -307,22 +330,12 @@ func (subnetHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (subnetHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	orcNetwork, progressStatus, err := networkDependency.GetDependency(
-		ctx, controller.GetK8sClient(), orcObject, func(network *orcv1alpha1.Network) bool {
-			return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
-		},
-	)
-	if len(progressStatus) != 0 || err != nil {
-		return progressStatus, nil, err
-	}
-
 	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
 	if len(progressStatus) > 0 || err != nil {
 		return progressStatus, nil, err
 	}
 	return nil, subnetCreateActuator{
 		subnetActuator: actuator,
-		networkID:      *orcNetwork.Status.ID,
 	}, nil
 }
 

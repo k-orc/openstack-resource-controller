@@ -978,9 +978,7 @@ _Appears in:_
 - [RouterInterfaceSpec](#routerinterfacespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
-- [SubnetRefs](#subnetrefs)
 - [SubnetResourceSpec](#subnetresourcespec)
-- [SubnetSpec](#subnetspec)
 - [UserDataSpec](#userdataspec)
 
 
@@ -2258,6 +2256,7 @@ _Appears in:_
 | `gatewayIP` _[IPvAny](#ipvany)_ | gatewayIP is the IP address of the gateway of the existing resource |  | MaxLength: 45 <br />MinLength: 1 <br /> |
 | `cidr` _[CIDR](#cidr)_ | cidr of the existing resource |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
 | `ipv6` _[IPv6Options](#ipv6options)_ | ipv6 options of the existing resource |  | MinProperties: 1 <br /> |
+| `networkID` _[UUID](#uuid)_ | networkID is the ID of the network to which the subnet belongs. |  | Format: uuid <br />MaxLength: 36 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -2332,22 +2331,6 @@ SubnetList contains a list of Subnet.
 | `items` _[Subnet](#subnet) array_ | items contains a list of Subnet. |  |  |
 
 
-#### SubnetRefs
-
-
-
-
-
-
-
-_Appears in:_
-- [SubnetSpec](#subnetspec)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-
-
 #### SubnetResourceSpec
 
 
@@ -2363,6 +2346,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the subnet. If not set, the object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the subnet. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP version for the subnet. |  | Enum: [4 6] <br /> |
 | `cidr` _[CIDR](#cidr)_ | cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
@@ -2399,6 +2383,7 @@ _Appears in:_
 | `allocationPools` _[AllocationPoolStatus](#allocationpoolstatus) array_ | allocationPools is a list of sub-ranges within CIDR available for dynamic<br />allocation to ports. |  | MaxItems: 32 <br /> |
 | `hostRoutes` _[HostRouteStatus](#hostroutestatus) array_ | hostRoutes is a list of routes that should be used by devices with IPs<br />from this subnet (not including local subnet route). |  | MaxItems: 256 <br /> |
 | `enableDHCP` _boolean_ | enableDHCP specifies whether DHCP is enabled for this subnet or not. |  |  |
+| `networkID` _string_ | networkID is the ID of the network to which the subnet belongs. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the subnet. |  | MaxLength: 1024 <br /> |
 | `ipv6AddressMode` _string_ | ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses. |  | MaxLength: 1024 <br /> |
 | `ipv6RAMode` _string_ | ipv6RAMode is the IPv6 router advertisement mode. It specifies<br />whether the networking service should transmit ICMPv6 packets. |  | MaxLength: 1024 <br /> |
@@ -2422,7 +2407,6 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `import` _[SubnetImport](#subnetimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `resource` _[SubnetResourceSpec](#subnetresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
@@ -2431,6 +2415,19 @@ _Appears in:_
 
 
 
+
+#### UUID
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Format: uuid
+- MaxLength: 36
+
+_Appears in:_
+- [SubnetFilter](#subnetfilter)
 
 
 

@@ -8,7 +8,6 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
-  networkRef: subnet-import-error
   import:
     filter:
       description: Subnet from "import error" test

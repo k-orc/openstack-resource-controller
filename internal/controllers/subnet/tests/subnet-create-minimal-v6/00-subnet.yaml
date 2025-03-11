@@ -18,7 +18,7 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-create-minimal-v6
   resource:
+    networkRef: subnet-create-minimal-v6
     ipVersion: 6
     cidr: fc00:1::/64

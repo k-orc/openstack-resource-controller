@@ -57,6 +57,7 @@ func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithGatewayIP(osResource.GatewayIP).
 		WithDNSPublishFixedIP(osResource.DNSPublishFixedIP).
 		WithEnableDHCP(osResource.EnableDHCP).
+		WithNetworkID(osResource.NetworkID).
 		WithProjectID(osResource.ProjectID).
 		WithRevisionNumber(int64(osResource.RevisionNumber)).
 		WithIPv6AddressMode(osResource.IPv6AddressMode).

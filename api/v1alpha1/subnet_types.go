@@ -23,12 +23,6 @@ package v1alpha1
 // * IPv6 may only be set if IPVersion is 6 (Spec and SubnetFilter)
 // * AllocationPools must be in CIDR
 
-type SubnetRefs struct {
-	// networkRef is a reference to the ORC Network which this subnet is associated with.
-	// +required
-	NetworkRef KubernetesNameRef `json:"networkRef"`
-}
-
 // SubnetFilter specifies a filter to select a subnet. At least one parameter must be specified.
 // +kubebuilder:validation:MinProperties:=1
 type SubnetFilter struct {
@@ -56,6 +50,10 @@ type SubnetFilter struct {
 	// +optional
 	IPv6 *IPv6Options `json:"ipv6,omitempty"`
 
+	// networkID is the ID of the network to which the subnet belongs.
+	// +optional
+	NetworkID *UUID `json:"networkID,omitempty"`
+
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -68,6 +66,10 @@ type SubnetResourceSpec struct {
 	// description is a human-readable description for the resource.
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
+
+	// networkRef is a reference to the ORC Network which this subnet is associated with.
+	// +required
+	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	// tags is a list of tags which will be applied to the subnet.
 	// +kubebuilder:validation:MaxItems:=32
@@ -182,6 +184,11 @@ type SubnetResourceStatus struct {
 	// enableDHCP specifies whether DHCP is enabled for this subnet or not.
 	// +optional
 	EnableDHCP *bool `json:"enableDHCP,omitempty"`
+
+	// networkID is the ID of the network to which the subnet belongs.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	NetworkID string `json:"networkID,omitempty"`
 
 	// projectID is the project owner of the subnet.
 	// +kubebuilder:validation:MaxLength=1024

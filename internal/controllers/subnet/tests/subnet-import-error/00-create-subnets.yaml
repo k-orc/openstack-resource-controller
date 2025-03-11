@@ -8,8 +8,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-import-error
   resource:
+    networkRef: subnet-import-error
     description: Subnet from "import error" test
     ipVersion: 4
     cidr: 192.168.0.0/24
@@ -23,8 +23,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-import-error
   resource:
+    networkRef: subnet-import-error
     description: Subnet from "import error" test
     ipVersion: 4
     cidr: 192.168.1.0/24

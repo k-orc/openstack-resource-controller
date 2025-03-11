@@ -10,8 +10,13 @@ resourceRefs:
       kind: Subnet
       name: subnet-import-external-not-this-one
       ref: subnet2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: subnet-import
+      ref: network
 assertAll:
     - celExpr: "subnet1.status.id != subnet2.status.id"
+    - celExpr: "subnet1.status.resource.networkID == network.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet

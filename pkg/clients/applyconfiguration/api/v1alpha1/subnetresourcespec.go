@@ -27,6 +27,7 @@ import (
 type SubnetResourceSpecApplyConfiguration struct {
 	Name              *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
 	Description       *apiv1alpha1.NeutronDescription    `json:"description,omitempty"`
+	NetworkRef        *apiv1alpha1.KubernetesNameRef     `json:"networkRef,omitempty"`
 	Tags              []apiv1alpha1.NeutronTag           `json:"tags,omitempty"`
 	IPVersion         *apiv1alpha1.IPVersion             `json:"ipVersion,omitempty"`
 	CIDR              *apiv1alpha1.CIDR                  `json:"cidr,omitempty"`
@@ -59,6 +60,14 @@ func (b *SubnetResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenSt
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *SubnetResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SubnetResourceSpecApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the NetworkRef field is set to the value of the last call.
+func (b *SubnetResourceSpecApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *SubnetResourceSpecApplyConfiguration {
+	b.NetworkRef = &value
 	return b
 }
 

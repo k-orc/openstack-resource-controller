@@ -1564,6 +1564,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: networkID
+      type:
+        scalar: string
     - name: notTags
       type:
         list:
@@ -1654,6 +1657,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: networkRef
+      type:
+        scalar: string
+      default: ""
     - name: routerRef
       type:
         scalar: string
@@ -1714,6 +1721,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: networkID
+      type:
+        scalar: string
     - name: projectID
       type:
         scalar: string
@@ -1748,10 +1758,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: managementPolicy
       type:
         scalar: string
-    - name: networkRef
-      type:
-        scalar: string
-      default: ""
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceSpec

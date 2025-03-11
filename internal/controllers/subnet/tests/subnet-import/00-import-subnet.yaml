@@ -8,7 +8,6 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
-  networkRef: subnet-import
   import:
     filter:
       name: subnet-import-external
