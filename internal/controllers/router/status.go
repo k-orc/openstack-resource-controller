@@ -34,8 +34,8 @@ type routerStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = routerStatusWriter{}
 
-func (routerStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Router
+func (routerStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Router(name, namespace)
 }
 
 func (routerStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {

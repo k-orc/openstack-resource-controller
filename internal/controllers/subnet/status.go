@@ -30,8 +30,8 @@ type subnetStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = subnetStatusWriter{}
 
-func (subnetStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Subnet
+func (subnetStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Subnet(name, namespace)
 }
 
 func (subnetStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {

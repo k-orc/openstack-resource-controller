@@ -38,8 +38,8 @@ type serverStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = serverStatusWriter{}
 
-func (serverStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Server
+func (serverStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Server(name, namespace)
 }
 
 func (serverStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {

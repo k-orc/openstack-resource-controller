@@ -32,8 +32,8 @@ type statusApplyT = orcapplyconfigv1alpha1.FlavorStatusApplyConfiguration
 
 var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Flavor, *flavors.Flavor, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
 
-func (flavorStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[*objectApplyT, *statusApplyT] {
-	return orcapplyconfigv1alpha1.Flavor
+func (flavorStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
+	return orcapplyconfigv1alpha1.Flavor(name, namespace)
 }
 
 func (flavorStatusWriter) ResourceIsAvailable(_ *orcv1alpha1.Flavor, osResource *flavors.Flavor) bool {

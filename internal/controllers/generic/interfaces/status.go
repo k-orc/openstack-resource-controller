@@ -34,10 +34,8 @@ type ORCStatusApplyConfig[statusApplyPT any] interface {
 	WithID(id string) statusApplyPT
 }
 
-type ORCApplyConfigConstructor[objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] func(name, namespace string) objectApplyPT
-
 type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourcePT any, objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
-	GetApplyConfigConstructor() ORCApplyConfigConstructor[objectApplyPT, statusApplyPT]
 	ResourceIsAvailable(orcObject objectPT, osResource osResourcePT) bool
+	GetApplyConfig(name, namespace string) objectApplyPT
 	ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
 }

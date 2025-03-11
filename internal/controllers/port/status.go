@@ -36,8 +36,8 @@ type portStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = portStatusWriter{}
 
-func (portStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Port
+func (portStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Port(name, namespace)
 }
 
 func (portStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {

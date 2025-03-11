@@ -31,8 +31,8 @@ type securityGroupStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = securityGroupStatusWriter{}
 
-func (securityGroupStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.SecurityGroup
+func (securityGroupStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.SecurityGroup(name, namespace)
 }
 
 func (securityGroupStatusWriter) ResourceIsAvailable(_ orcObjectPT, osResource *osResourceT) bool {

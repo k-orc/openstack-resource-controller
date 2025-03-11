@@ -36,8 +36,8 @@ type networkStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Network, *osclients.NetworkExt, *orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] = networkStatusWriter{}
 
-func (networkStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[*orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] {
-	return orcapplyconfigv1alpha1.Network
+func (networkStatusWriter) GetApplyConfig(name, namespace string) *orcapplyconfigv1alpha1.NetworkApplyConfiguration {
+	return orcapplyconfigv1alpha1.Network(name, namespace)
 }
 
 func (networkStatusWriter) ResourceIsAvailable(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) bool {
