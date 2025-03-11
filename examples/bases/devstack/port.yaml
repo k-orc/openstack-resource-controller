@@ -8,8 +8,8 @@ spec:
     cloudName: openstack
     secretName: cloud-config
   managementPolicy: managed
-  networkRef: external-network
   resource:
+    networkRef: external-network
     tags:
     - orc-test
     securityGroupRefs:

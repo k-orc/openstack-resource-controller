@@ -19,7 +19,7 @@ spec:
     cloudName: openstack
     secretName: cloud-config
   managementPolicy: unmanaged
-  networkRef: external-network
   import:
     filter:
+      # FIXME(mandre) We don't have a way to reference the network by orc resource
       ipVersion: 4
