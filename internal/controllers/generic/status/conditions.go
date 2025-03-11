@@ -33,9 +33,10 @@ type WithConditionsApplyConfiguration[T any] interface {
 	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) T
 }
 
-func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], isAvailable bool, progressStatus []progress.ProgressStatus, err error, now metav1.Time) {
+func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, applyConfig WithConditionsApplyConfiguration[T], availableStatus metav1.ConditionStatus, progressStatus []progress.ProgressStatus, err error, now metav1.Time) {
 	availableCondition := applyconfigv1.Condition().
 		WithType(orcv1alpha1.ConditionAvailable).
+		WithStatus(availableStatus).
 		WithObservedGeneration(orcObject.GetGeneration())
 	progressingCondition := applyconfigv1.Condition().
 		WithType(orcv1alpha1.ConditionProgressing).
@@ -77,15 +78,13 @@ func SetCommonConditions[T any](orcObject orcv1alpha1.ObjectWithConditions, appl
 			WithMessage("OpenStack resource is up to date")
 	}
 
-	if isAvailable {
+	if availableStatus == metav1.ConditionTrue {
 		availableCondition.
-			WithStatus(metav1.ConditionTrue).
 			WithReason(orcv1alpha1.ConditionReasonSuccess).
 			WithMessage("OpenStack resource is available")
 	} else {
 		// Copy reason and message from progressing
 		availableCondition.
-			WithStatus(metav1.ConditionFalse).
 			WithReason(*progressingCondition.Reason).
 			WithMessage(*progressingCondition.Message)
 	}

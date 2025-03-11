@@ -18,6 +18,7 @@ package interfaces
 
 import (
 	"github.com/go-logr/logr"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 
@@ -35,7 +36,7 @@ type ORCStatusApplyConfig[statusApplyPT any] interface {
 }
 
 type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourcePT any, objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
-	ResourceIsAvailable(orcObject objectPT, osResource osResourcePT) bool
 	GetApplyConfig(name, namespace string) objectApplyPT
+	ResourceAvailableStatus(orcObject objectPT, osResource osResourcePT) metav1.ConditionStatus
 	ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
 }

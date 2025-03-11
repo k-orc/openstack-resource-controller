@@ -40,10 +40,10 @@ type updateStatusOpts struct {
 	err    error
 }
 
-func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (_ bool, progressStatus []progress.ProgressStatus) {
+func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (_ metav1.ConditionStatus, progressStatus []progress.ProgressStatus) {
 	// Probably a programming error?
 	if routerInterface == nil {
-		return false, nil
+		return metav1.ConditionFalse, nil
 	}
 
 	if routerInterface.Spec.Type == orcv1alpha1.RouterInterfaceTypeSubnet {
@@ -54,10 +54,10 @@ func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *update
 		}
 	}
 
-	available := false
+	available := metav1.ConditionFalse
 	if opts.port != nil {
 		if opts.port.Status == port.PortStatusActive {
-			available = true
+			available = metav1.ConditionTrue
 		} else {
 			progressStatus = append(progressStatus, progress.WaitingOnOpenStackReady(portStatusPollingPeriod))
 		}

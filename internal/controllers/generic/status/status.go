@@ -95,7 +95,7 @@ func UpdateStatus[
 	}
 
 	// Set common conditions
-	available := statusWriter.ResourceIsAvailable(orcObject, osResource)
+	available := statusWriter.ResourceAvailableStatus(orcObject, osResource)
 	SetCommonConditions(orcObject, applyConfigStatus, available, progressStatus, err, now)
 
 	// Patch orcObject with the status transaction

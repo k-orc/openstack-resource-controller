@@ -40,8 +40,19 @@ func (networkStatusWriter) GetApplyConfig(name, namespace string) *orcapplyconfi
 	return orcapplyconfigv1alpha1.Network(name, namespace)
 }
 
-func (networkStatusWriter) ResourceIsAvailable(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) bool {
-	return osResource != nil && osResource.Status == NetworkStatusActive
+func (networkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
+
+	if osResource.Status == NetworkStatusActive {
+		return metav1.ConditionTrue
+	}
+	return metav1.ConditionFalse
 }
 
 func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osclients.NetworkExt, statusApply *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration) {

@@ -35,8 +35,17 @@ func (securityGroupStatusWriter) GetApplyConfig(name, namespace string) objectAp
 	return orcapplyconfigv1alpha1.SecurityGroup(name, namespace)
 }
 
-func (securityGroupStatusWriter) ResourceIsAvailable(_ orcObjectPT, osResource *osResourceT) bool {
-	return osResource != nil
+func (securityGroupStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
+
+	// SecurityGroup is available as soon as it exists
+	return metav1.ConditionTrue
 }
 
 func (securityGroupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

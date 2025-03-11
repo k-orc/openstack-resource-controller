@@ -18,6 +18,7 @@ package router
 
 import (
 	"github.com/go-logr/logr"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -38,8 +39,19 @@ func (routerStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
 	return orcapplyconfigv1alpha1.Router(name, namespace)
 }
 
-func (routerStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
-	return orcObject.Status.ID != nil && osResource != nil && osResource.Status == RouterStatusActive
+func (routerStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
+
+	if osResource.Status == RouterStatusActive {
+		return metav1.ConditionTrue
+	}
+	return metav1.ConditionFalse
 }
 
 func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
