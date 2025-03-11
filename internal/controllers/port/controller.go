@@ -51,7 +51,11 @@ var (
 	subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet](
 		"spec.resource.addresses[].subnetRef",
 		func(port *orcv1alpha1.Port) []string {
-			subnets := make([]string, len(port.Spec.Resource.Addresses))
+			var subnets []string
+			if port.Spec.Resource == nil {
+				return nil
+			}
+			subnets = make([]string, len(port.Spec.Resource.Addresses))
 			for i := range port.Spec.Resource.Addresses {
 				subnets[i] = string(port.Spec.Resource.Addresses[i].SubnetRef)
 			}
@@ -63,7 +67,11 @@ var (
 	securityGroupDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.SecurityGroup](
 		"spec.resource.securityGroupRefs",
 		func(port *orcv1alpha1.Port) []string {
-			securityGroups := make([]string, len(port.Spec.Resource.SecurityGroupRefs))
+			var securityGroups []string
+			if port.Spec.Resource == nil {
+				return nil
+			}
+			securityGroups = make([]string, len(port.Spec.Resource.SecurityGroupRefs))
 			for i := range port.Spec.Resource.SecurityGroupRefs {
 				securityGroups[i] = string(port.Spec.Resource.SecurityGroupRefs[i])
 			}
