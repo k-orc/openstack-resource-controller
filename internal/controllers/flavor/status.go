@@ -19,9 +19,10 @@ package flavor
 import (
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	generic "github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -30,14 +31,23 @@ type flavorStatusWriter struct{}
 type objectApplyT = orcapplyconfigv1alpha1.FlavorApplyConfiguration
 type statusApplyT = orcapplyconfigv1alpha1.FlavorStatusApplyConfiguration
 
-var _ generic.ResourceStatusWriter[*orcv1alpha1.Flavor, *flavors.Flavor, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Flavor, *flavors.Flavor, *objectApplyT, *statusApplyT] = flavorStatusWriter{}
 
-func (flavorStatusWriter) GetApplyConfigConstructor() generic.ORCApplyConfigConstructor[*objectApplyT, *statusApplyT] {
-	return orcapplyconfigv1alpha1.Flavor
+func (flavorStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
+	return orcapplyconfigv1alpha1.Flavor(name, namespace)
 }
 
-func (flavorStatusWriter) ResourceIsAvailable(_ *orcv1alpha1.Flavor, osResource *flavors.Flavor) bool {
-	return osResource != nil
+func (flavorStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Flavor, osResource *flavors.Flavor) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
+
+	// Flavor is available as soon as it exists
+	return metav1.ConditionTrue
 }
 
 func (flavorStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *flavors.Flavor, statusApply *statusApplyT) {

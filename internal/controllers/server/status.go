@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
@@ -38,12 +39,23 @@ type serverStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = serverStatusWriter{}
 
-func (serverStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Server
+func (serverStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Server(name, namespace)
 }
 
-func (serverStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
-	return orcObject.Status.ID != nil && osResource != nil && osResource.Status == ServerStatusActive
+func (serverStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
+
+	if osResource.Status == ServerStatusActive {
+		return metav1.ConditionTrue
+	}
+	return metav1.ConditionFalse
 }
 
 func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

@@ -18,6 +18,7 @@ package subnet
 
 import (
 	"github.com/go-logr/logr"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -30,13 +31,21 @@ type subnetStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = subnetStatusWriter{}
 
-func (subnetStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Subnet
+func (subnetStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Subnet(name, namespace)
 }
 
-func (subnetStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
+func (subnetStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
+
 	// Subnet is available as soon as it exists
-	return osResource != nil
+	return metav1.ConditionTrue
 }
 
 func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

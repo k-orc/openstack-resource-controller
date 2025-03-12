@@ -36,16 +36,24 @@ type portStatusWriter struct{}
 
 var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = portStatusWriter{}
 
-func (portStatusWriter) GetApplyConfigConstructor() interfaces.ORCApplyConfigConstructor[objectApplyPT, statusApplyPT] {
-	return orcapplyconfigv1alpha1.Port
+func (portStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Port(name, namespace)
 }
 
-func (portStatusWriter) ResourceIsAvailable(orcObject orcObjectPT, osResource *osResourceT) bool {
-	// Both active and down ports
-	return orcObject.Status.ID != nil && osResource != nil &&
-		(osResource.Status == PortStatusActive ||
-			osResource.Status == PortStatusDown)
+func (portStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
+		} else {
+			return metav1.ConditionUnknown
+		}
+	}
 
+	// Both active and down ports are Available
+	if osResource.Status == PortStatusActive || osResource.Status == PortStatusDown {
+		return metav1.ConditionTrue
+	}
+	return metav1.ConditionFalse
 }
 
 func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

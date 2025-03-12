@@ -55,7 +55,7 @@ func SetStatusID[
 	var status statusApplyPT = new(statusApplyT)
 	status.WithID(resourceID)
 
-	applyConfig := statusWriter.GetApplyConfigConstructor()(orcObject.GetName(), orcObject.GetNamespace()).
+	applyConfig := statusWriter.GetApplyConfig(orcObject.GetName(), orcObject.GetNamespace()).
 		WithUID(orcObject.GetUID()).
 		WithStatus(status)
 
@@ -86,7 +86,7 @@ func UpdateStatus[
 
 	// Create a new apply configuration for this status transaction
 	var applyConfigStatus statusApplyPT = new(statusApply)
-	applyConfig := statusWriter.GetApplyConfigConstructor()(orcObject.GetName(), orcObject.GetNamespace()).
+	applyConfig := statusWriter.GetApplyConfig(orcObject.GetName(), orcObject.GetNamespace()).
 		WithStatus(applyConfigStatus)
 
 	// Write resource status to the apply configuration
@@ -95,7 +95,7 @@ func UpdateStatus[
 	}
 
 	// Set common conditions
-	available := statusWriter.ResourceIsAvailable(orcObject, osResource)
+	available := statusWriter.ResourceAvailableStatus(orcObject, osResource)
 	SetCommonConditions(orcObject, applyConfigStatus, available, progressStatus, err, now)
 
 	// Patch orcObject with the status transaction
