@@ -14,7 +14,6 @@ import "github.com/k-orc/openstack-resource-controller/internal/controllers/gene
 - [type CreateResourceActuator](<#CreateResourceActuator>)
 - [type DeleteResourceActuator](<#DeleteResourceActuator>)
 - [type ORCApplyConfig](<#ORCApplyConfig>)
-- [type ORCApplyConfigConstructor](<#ORCApplyConfigConstructor>)
 - [type ORCStatusApplyConfig](<#ORCStatusApplyConfig>)
 - [type ReconcileResourceActuator](<#ReconcileResourceActuator>)
 - [type ResourceController](<#ResourceController>)
@@ -192,9 +191,9 @@ type DeleteResourceActuator[
 ```
 
 <a name="ORCApplyConfig"></a>
-## type [ORCApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L27-L30>)
+## type [ORCApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L31-L34>)
 
-
+ORCApplyConfig is an interface implemented by any apply configuration for an ORC API object. Specifically its WithStatus method is constrained to return an ORCStatusApplyConfig.
 
 ```go
 type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
@@ -203,19 +202,10 @@ type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[status
 }
 ```
 
-<a name="ORCApplyConfigConstructor"></a>
-## type [ORCApplyConfigConstructor](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L37>)
-
-
-
-```go
-type ORCApplyConfigConstructor[objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] func(name, namespace string) objectApplyPT
-```
-
 <a name="ORCStatusApplyConfig"></a>
-## type [ORCStatusApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L32-L35>)
+## type [ORCStatusApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L38-L41>)
 
-
+ORCStatusApplyConfig is an interface implemented by the status of any apply configuration for an ORC API object. It has Conditions and an ID field.
 
 ```go
 type ORCStatusApplyConfig[statusApplyPT any] interface {
@@ -323,14 +313,23 @@ type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, 
 ```
 
 <a name="ResourceStatusWriter"></a>
-## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L39-L43>)
+## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L44-L57>)
 
-
+ResourceStatusWriter defines methods for writing an ORC object status
 
 ```go
 type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourcePT any, objectApplyPT ORCApplyConfig[objectApplyPT, statusApplyPT], statusApplyPT ORCStatusApplyConfig[statusApplyPT]] interface {
-    GetApplyConfigConstructor() ORCApplyConfigConstructor[objectApplyPT, statusApplyPT]
-    ResourceIsAvailable(orcObject objectPT, osResource osResourcePT) bool
+    // GetApplyConfig returns an ORCApplyConfig for this object for use in an
+    // SSA transaction, initialised with a name and a namespace.
+    GetApplyConfig(name, namespace string) objectApplyPT
+
+    // ResourceAvailableStatus returns what the status of the Available
+    // condition should be set to based on the observed state of the given
+    // orcObject and osResource.
+    ResourceAvailableStatus(orcObject objectPT, osResource osResourcePT) metav1.ConditionStatus
+
+    // ApplyResourceStatus writes status.resource to the given status apply
+    // configuration based on the given osResource
     ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
 }
 ```
