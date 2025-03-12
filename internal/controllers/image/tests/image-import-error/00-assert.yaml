@@ -8,11 +8,11 @@ status:
     # Message is inconsistent with other resources
     # https://github.com/k-orc/openstack-resource-controller/issues/267
     - type: Available
-      message: Glance image is available
+      message: OpenStack resource is available
       status: "True"
       reason: Success
     - type: Progressing
-      message: Glance image is available
+      message: OpenStack resource is up to date
       status: "False"
       reason: Success
 ---
@@ -25,10 +25,10 @@ status:
     # Message is inconsistent with other resources
     # https://github.com/k-orc/openstack-resource-controller/issues/267
     - type: Available
-      message: Glance image is available
+      message: OpenStack resource is available
       status: "True"
       reason: Success
     - type: Progressing
-      message: Glance image is available
+      message: OpenStack resource is up to date
       status: "False"
       reason: Success

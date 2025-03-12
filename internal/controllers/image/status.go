@@ -164,7 +164,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 		availableCondition.
 			WithStatus(metav1.ConditionTrue).
 			WithReason(orcv1alpha1.ConditionReasonSuccess).
-			WithMessage("Glance image is available")
+			WithMessage("OpenStack resource is available")
 		available = true
 	} else {
 		// Image is not available. Reason and message will be copied from Progressing
@@ -177,7 +177,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 			progressingCondition.
 				WithStatus(metav1.ConditionFalse).
 				WithReason(orcv1alpha1.ConditionReasonSuccess).
-				WithMessage(*availableCondition.Message)
+				WithMessage("OpenStack resource is up to date")
 		} else {
 			progressingCondition.
 				WithStatus(metav1.ConditionTrue).

@@ -37,7 +37,7 @@ import (
 func Test_orcImageReconciler_updateStatus(t *testing.T) {
 	const (
 		progressingMsg      = "Reconciliation is progressing"
-		successMsg          = "Glance image is available"
+		successMsg          = "OpenStack resource is available"
 		hashVerifyFailedMsg = "Hash published by glance does not match expected image hash"
 
 		imageID         = "dc4d187c-a93c-4700-ab32-975c783c4b97"
