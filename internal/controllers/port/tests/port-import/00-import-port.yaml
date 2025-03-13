@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  # TODO: Remove when https://github.com/k-orc/openstack-resource-controller/issues/298 is fixed
+  networkRef: port-import
+  import:
+    filter:
+      name: port-import-external
+      description: Port from "port-import" test
+      tags:
+        - tag1

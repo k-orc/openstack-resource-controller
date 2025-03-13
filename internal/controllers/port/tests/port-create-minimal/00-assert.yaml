@@ -1,0 +1,29 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-create-minimal
+status:
+  resource:
+    name: port-create-minimal
+    adminStateUp: true
+    description: ""
+    deviceID: ""
+    deviceOwner: ""
+    propagateUplinkStatus: false
+    revisionNumber: 1
+    status: DOWN
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: port
+      name: port-create-minimal
+      ref: port
+assertAll:
+    - celExpr: "port.status.id != ''"
+    - celExpr: "port.status.resource.createdAt != ''"
+    - celExpr: "port.status.resource.updatedAt != ''"
+    - celExpr: "port.status.resource.macAddress != ''"
+    - celExpr: "!has(port.status.resource.fixedIPs)"
