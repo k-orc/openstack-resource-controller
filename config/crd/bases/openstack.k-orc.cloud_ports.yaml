@@ -280,6 +280,12 @@ spec:
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
+                  portSecurityEnabled:
+                    description: |-
+                      portSecurityEnabled enables or disables the port security when set.
+                      When not set, it takes the value of the corresponding field at the network level.
+                      if set to False, SecurityGroupRefs has to be empty
+                    type: boolean
                   securityGroupRefs:
                     description: |-
                       securityGroupRefs are the names of the security groups associated
@@ -305,6 +311,18 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
+                  vnicType:
+                    description: |-
+                      vnicType specifies the type of vNIC which this port should be
+                      attached to. This is used to determine which mechanism driver(s) to
+                      be used to bind the port. The valid values are normal, macvtap,
+                      direct, baremetal, direct-physical, virtio-forwarder, smart-nic and
+                      remote-managed, although these values will not be validated in this
+                      API to ensure compatibility with future neutron changes or custom
+                      implementations. What type of vNIC is actually available depends on
+                      deployments. If not specified, the Neutron default value is used.
+                    maxLength: 64
+                    type: string
                 type: object
                 x-kubernetes-validations:
                 - message: PortResourceSpec is immutable
@@ -488,6 +506,9 @@ spec:
                       Might not be unique.
                     maxLength: 1024
                     type: string
+                  portSecurityEnabled:
+                    description: portSecurityEnabled is the port security status.
+                    type: boolean
                   projectID:
                     description: projectID is the project owner of the resource.
                     maxLength: 1024
@@ -526,6 +547,11 @@ spec:
                     description: updatedAt shows the date and time when the resource
                       was updated. The date and time stamp format is ISO 8601
                     format: date-time
+                    type: string
+                  vnicType:
+                    description: vnicType is the type of vNIC which this port is attached
+                      to.
+                    maxLength: 64
                     type: string
                 type: object
             type: object

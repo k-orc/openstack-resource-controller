@@ -122,6 +122,24 @@ type PortResourceSpec struct {
 	// +listType=set
 	// +optional
 	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
+
+	// vnicType specifies the type of vNIC which this port should be
+	// attached to. This is used to determine which mechanism driver(s) to
+	// be used to bind the port. The valid values are normal, macvtap,
+	// direct, baremetal, direct-physical, virtio-forwarder, smart-nic and
+	// remote-managed, although these values will not be validated in this
+	// API to ensure compatibility with future neutron changes or custom
+	// implementations. What type of vNIC is actually available depends on
+	// deployments. If not specified, the Neutron default value is used.
+	// +kubebuilder:validation:MaxLength:=64
+	// +optional
+	VNICType *string `json:"vnicType,omitempty"`
+
+	// portSecurityEnabled enables or disables the port security when set.
+	// When not set, it takes the value of the corresponding field at the network level.
+	// if set to False, SecurityGroupRefs has to be empty
+	// +optional
+	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 }
 
 type PortResourceStatus struct {
@@ -199,6 +217,15 @@ type PortResourceStatus struct {
 	// the port.
 	// +optional
 	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
+
+	// vnicType is the type of vNIC which this port is attached to.
+	// +kubebuilder:validation:MaxLength:=64
+	// +optional
+	VNICType string `json:"vnicType,omitempty"`
+
+	// portSecurityEnabled is the port security status.
+	// +optional
+	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
 }
