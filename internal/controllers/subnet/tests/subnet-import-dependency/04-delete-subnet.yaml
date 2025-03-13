@@ -1,0 +1,12 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Subnet
+    name: subnet-import-dependency
+commands:
+  - script: |
+      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
+      export OS_CLOUD=openstack
+      openstack subnet delete subnet-import-dependency-external
+      openstack network delete subnet-import-dependency-external
