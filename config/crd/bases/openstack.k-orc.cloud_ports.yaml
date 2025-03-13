@@ -106,10 +106,11 @@ spec:
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
-                      networkID:
-                        description: networkID is the ID of the attached network.
-                        format: uuid
-                        maxLength: 36
+                      networkRef:
+                        description: networkRef is a reference to the ORC Network
+                          which this port is associated with.
+                        maxLength: 253
+                        minLength: 1
                         type: string
                       notTags:
                         description: |-

@@ -27,9 +27,9 @@ type PortFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	// networkID is the ID of the attached network.
+	// networkRef is a reference to the ORC Network which this port is associated with.
 	// +optional
-	NetworkID *UUID `json:"networkID,omitempty"`
+	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	FilterByNeutronTags `json:",inline"`
 }

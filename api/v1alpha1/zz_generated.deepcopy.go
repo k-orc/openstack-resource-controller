@@ -1362,11 +1362,6 @@ func (in *PortFilter) DeepCopyInto(out *PortFilter) {
 		*out = new(NeutronDescription)
 		**out = **in
 	}
-	if in.NetworkID != nil {
-		in, out := &in.NetworkID, &out.NetworkID
-		*out = new(UUID)
-		**out = **in
-	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 

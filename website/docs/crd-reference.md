@@ -973,6 +973,7 @@ _Validation:_
 _Appears in:_
 - [Address](#address)
 - [ExternalGateway](#externalgateway)
+- [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
 - [RouterInterfaceSpec](#routerinterfacespec)
 - [ServerPortSpec](#serverportspec)
@@ -1377,7 +1378,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `networkID` _[UUID](#uuid)_ | networkID is the ID of the attached network. |  | Format: uuid <br />MaxLength: 36 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -2401,19 +2402,6 @@ _Appears in:_
 
 
 
-
-#### UUID
-
-_Underlying type:_ _string_
-
-
-
-_Validation:_
-- Format: uuid
-- MaxLength: 36
-
-_Appears in:_
-- [PortFilter](#portfilter)
 
 
 

@@ -1,0 +1,11 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We don't want to create this port via ORC, because we want to assert that
+  # the imported port added the finalizer
+  - script: |
+      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
+      export OS_CLOUD=openstack
+      openstack network create port-import-dependency-external
+      openstack port create port-import-dependency-external --network port-import-dependency-external --description "port from port-import-dependency test"

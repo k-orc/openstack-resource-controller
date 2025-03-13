@@ -44,10 +44,14 @@ var (
 		"spec.resource.networkRef",
 		func(port *orcv1alpha1.Port) []string {
 			resource := port.Spec.Resource
-			if resource == nil {
-				return nil
+			if resource != nil {
+				return []string{string(resource.NetworkRef)}
 			}
-			return []string{string(resource.NetworkRef)}
+			importStruct := port.Spec.Import
+			if importStruct != nil && importStruct.Filter != nil {
+				return []string{string(importStruct.Filter.NetworkRef)}
+			}
+			return nil
 		},
 		finalizer, externalObjectFieldOwner,
 	)

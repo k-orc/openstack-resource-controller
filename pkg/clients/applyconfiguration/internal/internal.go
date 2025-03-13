@@ -742,9 +742,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: networkID
+    - name: networkRef
       type:
         scalar: string
+      default: ""
     - name: notTags
       type:
         list:

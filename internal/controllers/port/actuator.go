@@ -73,17 +73,40 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 }
 
 func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+	var progressStatus []progress.ProgressStatus
+	var networkID string
+
+	if filter.NetworkRef != "" {
+		dep, networkProgressStatus, err := networkDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(network *orcv1alpha1.Network) bool {
+				return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
+			},
+		)
+		if err != nil {
+			return progressStatus, nil, fmt.Errorf("fetching networks for %s: %w", obj.Name, err)
+		}
+		if len(networkProgressStatus) > 0 {
+			progressStatus = append(progressStatus, networkProgressStatus...)
+		} else {
+			networkID = *dep.Status.ID
+		}
+	}
+
+	if len(progressStatus) > 0 {
+		return progressStatus, nil, nil
+	}
+
 	listOpts := ports.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		NetworkID:   string(ptr.Deref(filter.NetworkID, "")),
+		NetworkID:   networkID,
 		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
 		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
 		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
 		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
 	}
 
-	return nil, actuator.osClient.ListPort(ctx, listOpts), nil
+	return progressStatus, actuator.osClient.ListPort(ctx, listOpts), nil
 }
 
 func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *ports.Port, error) {

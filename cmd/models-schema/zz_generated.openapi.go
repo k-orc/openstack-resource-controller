@@ -2724,9 +2724,10 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 							Format:      "",
 						},
 					},
-					"networkID": {
+					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "networkID is the ID of the attached network.",
+							Description: "networkRef is a reference to the ORC Network which this port is associated with.",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
