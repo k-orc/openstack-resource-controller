@@ -2617,11 +2617,6 @@ func (in *SubnetFilter) DeepCopyInto(out *SubnetFilter) {
 		*out = new(IPv6Options)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.NetworkID != nil {
-		in, out := &in.NetworkID, &out.NetworkID
-		*out = new(UUID)
-		**out = **in
-	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 

@@ -72,7 +72,7 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 	return actuator.osClient.ListPort(ctx, listOpts), true
 }
 
-func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, filter orcv1alpha1.PortFilter) portIterator {
+func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	listOpts := ports.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -83,7 +83,7 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, filte
 		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
 	}
 
-	return actuator.osClient.ListPort(ctx, listOpts)
+	return nil, actuator.osClient.ListPort(ctx, listOpts), nil
 }
 
 func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *ports.Port, error) {

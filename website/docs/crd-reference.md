@@ -977,6 +977,7 @@ _Appears in:_
 - [RouterInterfaceSpec](#routerinterfacespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
+- [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [UserDataSpec](#userdataspec)
 
@@ -2241,7 +2242,7 @@ _Appears in:_
 | `gatewayIP` _[IPvAny](#ipvany)_ | gatewayIP is the IP address of the gateway of the existing resource |  | MaxLength: 45 <br />MinLength: 1 <br /> |
 | `cidr` _[CIDR](#cidr)_ | cidr of the existing resource |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
 | `ipv6` _[IPv6Options](#ipv6options)_ | ipv6 options of the existing resource |  | MinProperties: 1 <br /> |
-| `networkID` _[UUID](#uuid)_ | networkID is the ID of the network to which the subnet belongs. |  | Format: uuid <br />MaxLength: 36 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -2413,7 +2414,6 @@ _Validation:_
 
 _Appears in:_
 - [PortFilter](#portfilter)
-- [SubnetFilter](#subnetfilter)
 
 
 

@@ -57,10 +57,14 @@ var (
 		"spec.resource.networkRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
 			resource := subnet.Spec.Resource
-			if resource == nil {
-				return nil
+			if resource != nil {
+				return []string{string(resource.NetworkRef)}
 			}
-			return []string{string(resource.NetworkRef)}
+			importStruct := subnet.Spec.Import
+			if importStruct != nil && importStruct.Filter != nil {
+				return []string{string(importStruct.Filter.NetworkRef)}
+			}
+			return nil
 		},
 		finalizer, externalObjectFieldOwner,
 	)

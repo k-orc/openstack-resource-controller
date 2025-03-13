@@ -50,9 +50,9 @@ type SubnetFilter struct {
 	// +optional
 	IPv6 *IPv6Options `json:"ipv6,omitempty"`
 
-	// networkID is the ID of the network to which the subnet belongs.
+	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +optional
-	NetworkID *UUID `json:"networkID,omitempty"`
+	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	FilterByNeutronTags `json:",inline"`
 }

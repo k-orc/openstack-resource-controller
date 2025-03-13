@@ -77,11 +77,34 @@ func (actuator subnetActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.osClient.ListSubnet(ctx, listOpts), true
 }
 
-func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osResourceT, error] {
+func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+	var progressStatus []progress.ProgressStatus
+	var networkID string
+
+	if filter.NetworkRef != "" {
+		dep, networkProgressStatus, err := networkDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(network *orcv1alpha1.Network) bool {
+				return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
+			},
+		)
+		if err != nil {
+			return progressStatus, nil, fmt.Errorf("fetching networks for %s: %w", obj.Name, err)
+		}
+		if len(networkProgressStatus) > 0 {
+			progressStatus = append(progressStatus, networkProgressStatus...)
+		} else {
+			networkID = *dep.Status.ID
+		}
+	}
+
+	if len(progressStatus) > 0 {
+		return progressStatus, nil, nil
+	}
+
 	listOpts := subnets.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		NetworkID:   string(ptr.Deref(filter.NetworkID, "")),
+		NetworkID:   networkID,
 		IPVersion:   int(ptr.Deref(filter.IPVersion, 0)),
 		GatewayIP:   string(ptr.Deref(filter.GatewayIP, "")),
 		CIDR:        string(ptr.Deref(filter.CIDR, "")),
@@ -95,7 +118,7 @@ func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, fil
 		listOpts.IPv6RAMode = string(ptr.Deref(filter.IPv6.RAMode, ""))
 	}
 
-	return actuator.osClient.ListSubnet(ctx, listOpts)
+	return progressStatus, actuator.osClient.ListSubnet(ctx, listOpts), nil
 }
 
 func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *subnets.Subnet, error) {

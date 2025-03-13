@@ -5339,9 +5339,10 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
 						},
 					},
-					"networkID": {
+					"networkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "networkID is the ID of the network to which the subnet belongs.",
+							Description: "networkRef is a reference to the ORC Network which this subnet is associated with.",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
