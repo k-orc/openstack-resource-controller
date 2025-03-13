@@ -7,8 +7,8 @@ spec:
     cloudName: openstack
     secretName: cloud-config
   managementPolicy: managed
-  networkRef: orc-managed-network
   resource:
+    networkRef: orc-managed-network
     description: Example IPv6 subnet
     tags:
     - orc-test

@@ -8,8 +8,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: server-import-error-external
   resource:
+    networkRef: server-import-error-external
     addresses:
     - subnetRef: server-import-error-external
 ---
@@ -39,8 +39,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: server-import-error-external
   resource:
+    networkRef: server-import-error-external
     addresses:
     - subnetRef: server-import-error-external
 ---

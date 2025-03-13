@@ -31,6 +31,7 @@ type SubnetFilterApplyConfiguration struct {
 	GatewayIP                             *apiv1alpha1.IPvAny             `json:"gatewayIP,omitempty"`
 	CIDR                                  *apiv1alpha1.CIDR               `json:"cidr,omitempty"`
 	IPv6                                  *IPv6OptionsApplyConfiguration  `json:"ipv6,omitempty"`
+	NetworkRef                            *apiv1alpha1.KubernetesNameRef  `json:"networkRef,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -85,6 +86,14 @@ func (b *SubnetFilterApplyConfiguration) WithCIDR(value apiv1alpha1.CIDR) *Subne
 // If called multiple times, the IPv6 field is set to the value of the last call.
 func (b *SubnetFilterApplyConfiguration) WithIPv6(value *IPv6OptionsApplyConfiguration) *SubnetFilterApplyConfiguration {
 	b.IPv6 = value
+	return b
+}
+
+// WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the NetworkRef field is set to the value of the last call.
+func (b *SubnetFilterApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *SubnetFilterApplyConfiguration {
+	b.NetworkRef = &value
 	return b
 }
 

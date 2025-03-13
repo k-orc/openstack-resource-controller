@@ -7,8 +7,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: server-create-minimal
   resource:
+    networkRef: server-create-minimal
     addresses:
       - subnetRef: server-create-minimal
 ---

@@ -103,7 +103,7 @@ func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.listOSResources(ctx, filters, &listOpts), true
 }
 
-func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*flavors.Flavor, error] {
+func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	var filters []osclients.ResourceFilter[osResourceT]
 
 	if filter.Name != nil {
@@ -122,7 +122,7 @@ func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, fil
 		filters = append(filters, func(f *flavors.Flavor) bool { return f.Disk == int(*filter.Disk) })
 	}
 
-	return actuator.listOSResources(ctx, filters, &flavors.ListOpts{})
+	return nil, actuator.listOSResources(ctx, filters, &flavors.ListOpts{}), nil
 }
 
 func (actuator flavorActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {

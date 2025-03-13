@@ -8,5 +8,5 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: port-create-minimal
-  resource: {}
+  resource:
+    networkRef: port-create-minimal

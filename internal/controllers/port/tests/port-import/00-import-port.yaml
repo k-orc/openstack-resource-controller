@@ -8,8 +8,6 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
-  # TODO: Remove when https://github.com/k-orc/openstack-resource-controller/issues/298 is fixed
-  networkRef: port-import
   import:
     filter:
       name: port-import-external

@@ -66,15 +66,13 @@ var allResources []templateFields = []templateFields{
 		APIVersion: "v1alpha1",
 	},
 	{
-		Name:          "Subnet",
-		SpecExtraType: "SubnetRefs",
+		Name: "Subnet",
 	},
 	{
 		Name: "Router",
 	},
 	{
-		Name:          "Port",
-		SpecExtraType: "PortRefs",
+		Name: "Port",
 		AdditionalPrintColumns: []additionalPrintColumn{
 			{
 				Name:        "Addresses",

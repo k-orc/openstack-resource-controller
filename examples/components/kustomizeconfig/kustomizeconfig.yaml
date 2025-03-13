@@ -22,11 +22,15 @@ nameReference:
 
 - kind: Network
   fieldSpecs:
-  - path: spec/networkRef
+  - path: spec/resource/networkRef
+    kind: Subnet
+  - path: spec/import/filter/networkRef
     kind: Subnet
   - path: spec/resource/externalGateways/networkRef
     kind: Router
-  - path: spec/networkRef
+  - path: spec/resource/networkRef
+    kind: Port
+  - path: spec/import/filter/networkRef
     kind: Port
 
 - kind: SecurityGroup

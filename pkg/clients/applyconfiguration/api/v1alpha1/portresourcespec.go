@@ -27,6 +27,7 @@ import (
 type PortResourceSpecApplyConfiguration struct {
 	Name                *apiv1alpha1.OpenStackName             `json:"name,omitempty"`
 	Description         *apiv1alpha1.NeutronDescription        `json:"description,omitempty"`
+	NetworkRef          *apiv1alpha1.KubernetesNameRef         `json:"networkRef,omitempty"`
 	Tags                []apiv1alpha1.NeutronTag               `json:"tags,omitempty"`
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
@@ -52,6 +53,14 @@ func (b *PortResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStac
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *PortResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *PortResourceSpecApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the NetworkRef field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *PortResourceSpecApplyConfiguration {
+	b.NetworkRef = &value
 	return b
 }
 

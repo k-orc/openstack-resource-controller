@@ -66,6 +66,7 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		WithDeviceOwner(osResource.DeviceOwner).
 		WithStatus(osResource.Status).
 		WithProjectID(osResource.ProjectID).
+		WithNetworkID(osResource.NetworkID).
 		WithTags(osResource.Tags...).
 		WithSecurityGroups(osResource.SecurityGroups...).
 		WithPropagateUplinkStatus(osResource.PropagateUplinkStatus).

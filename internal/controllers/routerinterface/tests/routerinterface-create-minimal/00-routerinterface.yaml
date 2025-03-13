@@ -19,8 +19,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: routerinterface-create-minimal
   resource:
+    networkRef: routerinterface-create-minimal
     ipVersion: 4
     cidr: 192.168.155.0/24
 ---
@@ -60,10 +60,10 @@ spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
-  networkRef: routerinterface-create-minimal
   managementPolicy: unmanaged
   import:
     filter:
+      networkRef: routerinterface-create-minimal
       name: routerinterface-create-minimal
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1

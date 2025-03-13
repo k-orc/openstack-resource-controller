@@ -27,6 +27,7 @@ import (
 type PortResourceStatusApplyConfiguration struct {
 	Name                                    *string                                      `json:"name,omitempty"`
 	Description                             *string                                      `json:"description,omitempty"`
+	NetworkID                               *string                                      `json:"networkID,omitempty"`
 	ProjectID                               *string                                      `json:"projectID,omitempty"`
 	Status                                  *string                                      `json:"status,omitempty"`
 	Tags                                    []string                                     `json:"tags,omitempty"`
@@ -60,6 +61,14 @@ func (b *PortResourceStatusApplyConfiguration) WithName(value string) *PortResou
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithDescription(value string) *PortResourceStatusApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithNetworkID sets the NetworkID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the NetworkID field is set to the value of the last call.
+func (b *PortResourceStatusApplyConfiguration) WithNetworkID(value string) *PortResourceStatusApplyConfiguration {
+	b.NetworkID = &value
 	return b
 }
 

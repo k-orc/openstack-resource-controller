@@ -56,7 +56,15 @@ var (
 	networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Network](
 		"spec.resource.networkRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
-			return []string{string(subnet.Spec.NetworkRef)}
+			resource := subnet.Spec.Resource
+			if resource != nil {
+				return []string{string(resource.NetworkRef)}
+			}
+			importStruct := subnet.Spec.Import
+			if importStruct != nil && importStruct.Filter != nil {
+				return []string{string(importStruct.Filter.NetworkRef)}
+			}
+			return nil
 		},
 		finalizer, externalObjectFieldOwner,
 	)

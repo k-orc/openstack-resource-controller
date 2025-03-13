@@ -25,26 +25,17 @@ import (
 // SubnetSpecApplyConfiguration represents a declarative configuration of the SubnetSpec type for use
 // with apply.
 type SubnetSpecApplyConfiguration struct {
-	SubnetRefsApplyConfiguration `json:",inline"`
-	Import                       *SubnetImportApplyConfiguration              `json:"import,omitempty"`
-	Resource                     *SubnetResourceSpecApplyConfiguration        `json:"resource,omitempty"`
-	ManagementPolicy             *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
-	ManagedOptions               *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
-	CloudCredentialsRef          *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
+	Import              *SubnetImportApplyConfiguration              `json:"import,omitempty"`
+	Resource            *SubnetResourceSpecApplyConfiguration        `json:"resource,omitempty"`
+	ManagementPolicy    *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
+	ManagedOptions      *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
+	CloudCredentialsRef *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
 }
 
 // SubnetSpecApplyConfiguration constructs a declarative configuration of the SubnetSpec type for use with
 // apply.
 func SubnetSpec() *SubnetSpecApplyConfiguration {
 	return &SubnetSpecApplyConfiguration{}
-}
-
-// WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the NetworkRef field is set to the value of the last call.
-func (b *SubnetSpecApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *SubnetSpecApplyConfiguration {
-	b.SubnetRefsApplyConfiguration.NetworkRef = &value
-	return b
 }
 
 // WithImport sets the Import field in the declarative configuration to the given value

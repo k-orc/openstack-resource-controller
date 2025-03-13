@@ -74,7 +74,7 @@ func (actuator routerActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.osClient.ListRouter(ctx, listOpts), true
 }
 
-func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) routerIterator {
+func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	listOpts := routers.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -84,7 +84,7 @@ func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Contex
 		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
 	}
 
-	return actuator.osClient.ListRouter(ctx, listOpts)
+	return nil, actuator.osClient.ListRouter(ctx, listOpts), nil
 }
 
 func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) ([]progress.ProgressStatus, *routers.Router, error) {

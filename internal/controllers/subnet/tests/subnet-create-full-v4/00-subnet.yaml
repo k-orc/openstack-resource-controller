@@ -31,8 +31,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-create-full-v4-gateway
   resource:
+    networkRef: subnet-create-full-v4-gateway
     ipVersion: 4
     cidr: 192.168.200.0/24
 ---
@@ -58,8 +58,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-create-full-v4
   resource:
+    networkRef: subnet-create-full-v4
     name: subnet-create-full-v4-override
     description: Subnet from "create full v4" test
     tags:

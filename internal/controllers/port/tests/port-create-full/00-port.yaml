@@ -19,8 +19,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: port-create-full
   resource:
+    networkRef: port-create-full
     ipVersion: 4
     cidr: 192.168.155.0/24
 ---
@@ -52,10 +52,10 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: port-create-full
   resource:
     name: port-create-full-override
     description: Port from "create full" test
+    networkRef: port-create-full
     allowedAddressPairs:
       - ip: "192.168.122.14"
         mac: "92:42:9c:13:98:82"

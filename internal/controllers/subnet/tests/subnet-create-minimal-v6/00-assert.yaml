@@ -1,4 +1,18 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: subnet-create-minimal-v6
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: subnet-create-minimal-v6
+      ref: network
+assertAll:
+    - celExpr: "subnet.status.resource.networkID == network.status.id"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:

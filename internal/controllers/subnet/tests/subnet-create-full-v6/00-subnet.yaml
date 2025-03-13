@@ -31,8 +31,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-create-full-v6-gateway
   resource:
+    networkRef: subnet-create-full-v6-gateway
     ipVersion: 6
     cidr: fc00:8::/64
 ---
@@ -58,10 +58,10 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-create-full-v6
   resource:
     name: subnet-create-full-v6-override
     description: Subnet from "create full v6" test
+    networkRef: subnet-create-full-v6
     tags:
       - tag1
       - tag2

@@ -973,14 +973,13 @@ _Validation:_
 _Appears in:_
 - [Address](#address)
 - [ExternalGateway](#externalgateway)
-- [PortRefs](#portrefs)
-- [PortSpec](#portspec)
+- [PortFilter](#portfilter)
+- [PortResourceSpec](#portresourcespec)
 - [RouterInterfaceSpec](#routerinterfacespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
-- [SubnetRefs](#subnetrefs)
+- [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
-- [SubnetSpec](#subnetspec)
 - [UserDataSpec](#userdataspec)
 
 
@@ -1379,6 +1378,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -1472,22 +1472,6 @@ _Appears in:_
 | `max` _integer_ | max is the maximum port number in the range that is matched by the security group rule.<br />If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal<br />to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code. |  |  |
 
 
-#### PortRefs
-
-
-
-
-
-
-
-_Appears in:_
-- [PortSpec](#portspec)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-
-
 #### PortResourceSpec
 
 
@@ -1503,6 +1487,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the port. If not set, the object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the port. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `allowedAddressPairs` _[AllowedAddressPair](#allowedaddresspair) array_ | allowedAddressPairs are allowed addresses associated with this port. |  | MaxItems: 32 <br /> |
 | `addresses` _[Address](#address) array_ | addresses are the IP addresses for the port. |  | MaxItems: 32 <br /> |
@@ -1524,6 +1509,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _string_ | name is the human-readable name of the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `networkID` _string_ | networkID is the ID of the attached network. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the port,<br />which is up (true) or down (false). |  |  |
@@ -1552,7 +1538,6 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `import` _[PortImport](#portimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `resource` _[PortResourceSpec](#portresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
@@ -2258,6 +2243,7 @@ _Appears in:_
 | `gatewayIP` _[IPvAny](#ipvany)_ | gatewayIP is the IP address of the gateway of the existing resource |  | MaxLength: 45 <br />MinLength: 1 <br /> |
 | `cidr` _[CIDR](#cidr)_ | cidr of the existing resource |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
 | `ipv6` _[IPv6Options](#ipv6options)_ | ipv6 options of the existing resource |  | MinProperties: 1 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -2332,22 +2318,6 @@ SubnetList contains a list of Subnet.
 | `items` _[Subnet](#subnet) array_ | items contains a list of Subnet. |  |  |
 
 
-#### SubnetRefs
-
-
-
-
-
-
-
-_Appears in:_
-- [SubnetSpec](#subnetspec)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-
-
 #### SubnetResourceSpec
 
 
@@ -2363,6 +2333,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the subnet. If not set, the object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the subnet. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP version for the subnet. |  | Enum: [4 6] <br /> |
 | `cidr` _[CIDR](#cidr)_ | cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
@@ -2399,6 +2370,7 @@ _Appears in:_
 | `allocationPools` _[AllocationPoolStatus](#allocationpoolstatus) array_ | allocationPools is a list of sub-ranges within CIDR available for dynamic<br />allocation to ports. |  | MaxItems: 32 <br /> |
 | `hostRoutes` _[HostRouteStatus](#hostroutestatus) array_ | hostRoutes is a list of routes that should be used by devices with IPs<br />from this subnet (not including local subnet route). |  | MaxItems: 256 <br /> |
 | `enableDHCP` _boolean_ | enableDHCP specifies whether DHCP is enabled for this subnet or not. |  |  |
+| `networkID` _string_ | networkID is the ID of the network to which the subnet belongs. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the subnet. |  | MaxLength: 1024 <br /> |
 | `ipv6AddressMode` _string_ | ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses. |  | MaxLength: 1024 <br /> |
 | `ipv6RAMode` _string_ | ipv6RAMode is the IPv6 router advertisement mode. It specifies<br />whether the networking service should transmit ICMPv6 packets. |  | MaxLength: 1024 <br /> |
@@ -2422,7 +2394,6 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `import` _[SubnetImport](#subnetimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `resource` _[SubnetResourceSpec](#subnetresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |

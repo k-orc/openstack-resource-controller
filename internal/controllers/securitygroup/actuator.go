@@ -72,7 +72,7 @@ func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Con
 	return actuator.osClient.ListSecGroup(ctx, listOpts), true
 }
 
-func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) securityGroupIterator {
+func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 
 	listOpts := groups.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
@@ -82,7 +82,7 @@ func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Conte
 		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
 		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
 	}
-	return actuator.osClient.ListSecGroup(ctx, listOpts)
+	return nil, actuator.osClient.ListSecGroup(ctx, listOpts), nil
 }
 
 func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.SecurityGroup) ([]progress.ProgressStatus, *groups.SecGroup, error) {

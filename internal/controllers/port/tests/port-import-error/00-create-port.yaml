@@ -8,10 +8,10 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: port-import-error
   resource:
+    networkRef: port-import-error
     tags:
-      - tag1    
+      - tag1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -22,7 +22,7 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: port-import-error
   resource:
+    networkRef: port-import-error
     tags:
-      - tag1    
+      - tag1

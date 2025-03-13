@@ -25,26 +25,17 @@ import (
 // PortSpecApplyConfiguration represents a declarative configuration of the PortSpec type for use
 // with apply.
 type PortSpecApplyConfiguration struct {
-	PortRefsApplyConfiguration `json:",inline"`
-	Import                     *PortImportApplyConfiguration                `json:"import,omitempty"`
-	Resource                   *PortResourceSpecApplyConfiguration          `json:"resource,omitempty"`
-	ManagementPolicy           *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
-	ManagedOptions             *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
-	CloudCredentialsRef        *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
+	Import              *PortImportApplyConfiguration                `json:"import,omitempty"`
+	Resource            *PortResourceSpecApplyConfiguration          `json:"resource,omitempty"`
+	ManagementPolicy    *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
+	ManagedOptions      *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
+	CloudCredentialsRef *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
 }
 
 // PortSpecApplyConfiguration constructs a declarative configuration of the PortSpec type for use with
 // apply.
 func PortSpec() *PortSpecApplyConfiguration {
 	return &PortSpecApplyConfiguration{}
-}
-
-// WithNetworkRef sets the NetworkRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the NetworkRef field is set to the value of the last call.
-func (b *PortSpecApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *PortSpecApplyConfiguration {
-	b.PortRefsApplyConfiguration.NetworkRef = &value
-	return b
 }
 
 // WithImport sets the Import field in the declarative configuration to the given value

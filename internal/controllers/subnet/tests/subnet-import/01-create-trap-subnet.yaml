@@ -11,8 +11,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: subnet-import-not-this-one
   resource:
+    networkRef: subnet-import-not-this-one
     description: Subnet from "subnet-import" test
     ipVersion: 6
     cidr: fc00:3::/64
