@@ -22,6 +22,8 @@ import (
 	"fmt"
 	"iter"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
@@ -37,7 +39,7 @@ import (
 )
 
 type (
-	osResourceT = ports.Port
+	osResourceT = osclients.PortExt
 
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
@@ -48,27 +50,23 @@ type (
 )
 
 type portActuator struct {
-	osClient osclients.NetworkClient
-}
-
-type portCreateActuator struct {
-	portActuator
+	osClient  osclients.NetworkClient
 	k8sClient client.Client
 	networkID string
 }
 
-var _ createResourceActuator = portCreateActuator{}
+var _ createResourceActuator = portActuator{}
 var _ deleteResourceActuator = portActuator{}
 
-func (portActuator) GetResourceID(osResource *ports.Port) string {
+func (portActuator) GetResourceID(osResource *osclients.PortExt) string {
 	return osResource.ID
 }
 
-func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (*ports.Port, error) {
+func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.PortExt, error) {
 	return actuator.osClient.GetPort(ctx, id)
 }
 
-func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Port) (portIterator, bool) {
+func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Port) (iter.Seq2[*osclients.PortExt, error], bool) {
 	if obj.Spec.Resource == nil {
 		return nil, false
 	}
@@ -77,7 +75,7 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 	return actuator.osClient.ListPort(ctx, listOpts), true
 }
 
-func (actuator portCreateActuator) ListOSResourcesForImport(ctx context.Context, filter orcv1alpha1.PortFilter) portIterator {
+func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, filter orcv1alpha1.PortFilter) portIterator {
 	listOpts := ports.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -91,7 +89,7 @@ func (actuator portCreateActuator) ListOSResourcesForImport(ctx context.Context,
 	return actuator.osClient.ListPort(ctx, listOpts)
 }
 
-func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *ports.Port, error) {
+func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *osclients.PortExt, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -127,6 +125,9 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
+		if resource.PortSecurityEnabled != nil && !*resource.PortSecurityEnabled {
+			return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurityEnabled is false")
+		}
 		createOpts.AllowedAddressPairs = make([]ports.AddressPair, len(resource.AllowedAddressPairs))
 		for i := range resource.AllowedAddressPairs {
 			createOpts.AllowedAddressPairs[i].IPAddress = string(resource.AllowedAddressPairs[i].IP)
@@ -157,6 +158,9 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	// We explicitly disable default security groups by passing an empty
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
+	if len(securityGroups) > 0 && resource.PortSecurityEnabled != nil && !*resource.PortSecurityEnabled {
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurityEnabled is false")
+	}
 	for i := range resource.SecurityGroupRefs {
 		secGroupName := string(resource.SecurityGroupRefs[i])
 		secGroup, ok := secGroupMap[secGroupName]
@@ -168,7 +172,19 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	}
 	createOpts.SecurityGroups = &securityGroups
 
-	osResource, err := actuator.osClient.CreatePort(ctx, &createOpts)
+	portsBindingOpts := portsbinding.CreateOptsExt{
+		CreateOptsBuilder: createOpts,
+		VNICType:          ptr.Deref(resource.VNICType, ""),
+	}
+
+	portSecurityOpts := portsecurity.PortCreateOptsExt{
+		CreateOptsBuilder: portsBindingOpts,
+	}
+	if resource.PortSecurityEnabled != nil {
+		portSecurityOpts.PortSecurityEnabled = resource.PortSecurityEnabled
+	}
+
+	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
@@ -180,8 +196,8 @@ func (actuator portCreateActuator) CreateResource(ctx context.Context, obj *orcv
 	return nil, osResource, nil
 }
 
-func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *ports.Port) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeletePort(ctx, flavor.ID)
+func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, port *osclients.PortExt) ([]progress.ProgressStatus, error) {
+	return nil, actuator.osClient.DeletePort(ctx, port.ID)
 }
 
 var _ reconcileResourceActuator = portActuator{}
@@ -201,37 +217,22 @@ func (portHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newCreateActuator(ctx, orcObject, controller)
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
 	return progressStatus, actuator, err
 }
 
 func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, err := newActuator(ctx, orcObject, controller)
-	return nil, actuator, err
+	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
+	return progressStatus, actuator, err
 }
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller interfaces.ResourceController) (portActuator, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller interfaces.ResourceController) (portActuator, []progress.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return portActuator{}, err
-	}
-	osClient, err := clientScope.NewNetworkClient()
-	if err != nil {
-		return portActuator{}, err
-	}
-
-	return portActuator{
-		osClient: osClient,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, controller interfaces.ResourceController) (*portCreateActuator, []progress.ProgressStatus, error) {
 	// Ensure credential secrets exist and have our finalizer
 	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if len(progressStatus) > 0 || err != nil {
-		return nil, progressStatus, err
+		return portActuator{}, progressStatus, err
 	}
 
 	orcNetwork, progressStatus, err := networkDependency.GetDependency(
@@ -240,18 +241,21 @@ func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Port, control
 		},
 	)
 	if len(progressStatus) != 0 || err != nil {
-		return nil, progressStatus, err
+		return portActuator{}, progressStatus, err
 	}
-	networkID := *orcNetwork.Status.ID
 
-	portActuator, err := newActuator(ctx, orcObject, controller)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return nil, nil, err
+		return portActuator{}, nil, err
+	}
+	osClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return portActuator{}, nil, err
 	}
 
-	return &portCreateActuator{
-		portActuator: portActuator,
-		k8sClient:    controller.GetK8sClient(),
-		networkID:    networkID,
+	return portActuator{
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
+		networkID: *orcNetwork.Status.ID,
 	}, nil, nil
 }

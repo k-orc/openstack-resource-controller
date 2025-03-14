@@ -13,6 +13,8 @@ status:
         mac: 92:42:9c:13:98:82
     deviceID: ""
     deviceOwner: ""
+    vnicType: normal
+    portSecurityEnabled: true
     propagateUplinkStatus: false
     status: DOWN
     tags:

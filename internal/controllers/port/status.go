@@ -68,6 +68,8 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		WithProjectID(osResource.ProjectID).
 		WithTags(osResource.Tags...).
 		WithSecurityGroups(osResource.SecurityGroups...).
+		WithVNICType(osResource.VNICType).
+		WithPortSecurityEnabled(osResource.PortSecurityEnabled).
 		WithPropagateUplinkStatus(osResource.PropagateUplinkStatus).
 		WithRevisionNumber(int64(osResource.RevisionNumber)).
 		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).

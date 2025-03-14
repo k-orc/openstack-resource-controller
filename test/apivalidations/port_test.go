@@ -1,0 +1,72 @@
+/*
+Copyright 2024 The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package apivalidations
+
+import (
+	"context"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	corev1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	applyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+)
+
+const (
+	portName = "port-foo"
+	portID   = "87e14a4c-5f16-4e45-8a2b-7c34b5b9d59f"
+)
+
+var longString = "adrmUWSxYcp5FPTxjE01uRjg6NP3BqCIHxd6spdrIWTiV6XtLxmM4AHAiIzhZ7bqlv"
+
+func portStub(namespace *corev1.Namespace) *orcv1alpha1.Port {
+	obj := &orcv1alpha1.Port{}
+	obj.Name = portName
+	obj.Namespace = namespace.Name
+	return obj
+}
+
+func basePortPatch(port client.Object) *applyconfigv1alpha1.PortApplyConfiguration {
+	return applyconfigv1alpha1.Port(port.GetName(), port.GetNamespace()).
+		WithSpec(applyconfigv1alpha1.PortSpec().
+			WithNetworkRef(orcv1alpha1.KubernetesNameRef("network-foo")).
+			WithCloudCredentialsRef(testCredentials()))
+}
+
+var _ = Describe("ORC Port API validations", func() {
+	var namespace *corev1.Namespace
+	BeforeEach(func() {
+		namespace = createNamespace()
+	})
+
+	It("should allow to create a minimal port and managementPolicy should default to managed", func(ctx context.Context) {
+		port := portStub(namespace)
+		patch := basePortPatch(port)
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec())
+		Expect(applyObj(ctx, port, patch)).To(Succeed())
+		Expect(port.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	})
+
+	It("should reject to create a port with an invalid vnicType", func(ctx context.Context) {
+		port := portStub(namespace)
+		patch := basePortPatch(port)
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().WithVNICType(longString))
+		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("spec.resource.vnicType: Too long: may not be more than 64 bytes")))
+	})
+})

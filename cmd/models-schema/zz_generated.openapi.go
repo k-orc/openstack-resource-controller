@@ -3067,6 +3067,20 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 							},
 						},
 					},
+					"vnicType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vnicType specifies the type of vNIC which this port should be attached to. This is used to determine which mechanism driver(s) to be used to bind the port. The valid values are normal, macvtap, direct, baremetal, direct-physical, virtio-forwarder, smart-nic and remote-managed, although these values will not be validated in this API to ensure compatibility with future neutron changes or custom implementations. What type of vNIC is actually available depends on deployments. If not specified, the Neutron default value is used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portSecurityEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portSecurityEnabled enables or disables the port security when set. When not set, it takes the value of the corresponding field at the network level. if set to False, SecurityGroupRefs has to be empty",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -3218,6 +3232,20 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 					"propagateUplinkStatus": {
 						SchemaProps: spec.SchemaProps{
 							Description: "propagateUplinkStatus represents the uplink status propagation of the port.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"vnicType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vnicType is the type of vNIC which this port is attached to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portSecurityEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portSecurityEnabled is the port security status.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},

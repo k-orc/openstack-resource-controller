@@ -31,6 +31,8 @@ type PortResourceSpecApplyConfiguration struct {
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
 	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
+	VNICType            *string                                `json:"vnicType,omitempty"`
+	PortSecurityEnabled *bool                                  `json:"portSecurityEnabled,omitempty"`
 }
 
 // PortResourceSpecApplyConfiguration constructs a declarative configuration of the PortResourceSpec type for use with
@@ -98,5 +100,21 @@ func (b *PortResourceSpecApplyConfiguration) WithSecurityGroupRefs(values ...api
 	for i := range values {
 		b.SecurityGroupRefs = append(b.SecurityGroupRefs, values[i])
 	}
+	return b
+}
+
+// WithVNICType sets the VNICType field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the VNICType field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithVNICType(value string) *PortResourceSpecApplyConfiguration {
+	b.VNICType = &value
+	return b
+}
+
+// WithPortSecurityEnabled sets the PortSecurityEnabled field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the PortSecurityEnabled field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithPortSecurityEnabled(value bool) *PortResourceSpecApplyConfiguration {
+	b.PortSecurityEnabled = &value
 	return b
 }
