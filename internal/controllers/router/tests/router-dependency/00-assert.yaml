@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Network/router-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Network/router-dependency to be created
+      status: "True"
+      reason: Progressing
