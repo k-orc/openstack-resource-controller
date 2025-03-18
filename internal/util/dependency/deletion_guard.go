@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -69,7 +70,7 @@ func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], 
 	// If the dependency is marked deleted, we remove the finalizer only when there are no objects referencing it
 	deletionGuard := reconcile.Func(func(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 		log := ctrl.LoggerFrom(ctx, "name", req.Name, "namespace", req.Namespace)
-		log.V(5).Info("Reconciling deletion guard")
+		log.V(logging.Verbose).Info("Reconciling deletion guard")
 
 		k8sClient := mgr.GetClient()
 
@@ -85,11 +86,11 @@ func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], 
 		// Nothing to do if the object isn't marked deleted
 		// NOTE: we also try to arrange our triggers so we won't be reconciled in this case
 		if dep.GetDeletionTimestamp().IsZero() {
-			log.V(4).Info("Dependency is not marked deleted")
+			log.V(logging.Verbose).Info("Dependency is not marked deleted")
 			return ctrl.Result{}, nil
 		}
 
-		log.V(4).Info("Handling delete")
+		log.V(logging.Debug).Info("Handling delete")
 
 		refObjects, err := getObjectsFromDep(ctx, k8sClient, dep)
 		if err != nil {
@@ -114,12 +115,12 @@ func addDeletionGuard[objTP ObjectType[objT], objT any, depTP ObjectType[depT], 
 		for i := range refObjects {
 			refObject := &refObjects[i]
 			if !depOwns(refObject) {
-				log.V(4).Info("Waiting for dependencies", "dependencies", len(refObjects))
+				log.V(logging.Verbose).Info("Waiting for dependencies", "dependencies", len(refObjects))
 				return ctrl.Result{}, nil
 			}
 		}
 
-		log.V(4).Info("Removing finalizer")
+		log.V(logging.Verbose).Info("Removing finalizer")
 		patch := finalizers.RemoveFinalizerPatch(dep)
 		return ctrl.Result{}, k8sClient.Patch(ctx, dep, patch, client.ForceOwnership, fieldOwner)
 	})

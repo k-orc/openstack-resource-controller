@@ -29,6 +29,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -38,9 +39,9 @@ func (r *orcImageReconciler) hashVerifier(ctx context.Context, orcImage *orcv1al
 
 	return func(hash string) error {
 		if hash == expectedValue {
-			log.V(4).Info("download hash verification succeeded")
+			log.V(logging.Verbose).Info("download hash verification succeeded")
 		} else {
-			log.V(2).Info("download hash verification failed", "expected", expectedValue, "got", hash)
+			log.V(logging.Info).Info("download hash verification failed", "expected", expectedValue, "got", hash)
 			msg := "download hash verification failed. got: " + hash
 			r.recorder.Eventf(orcImage, corev1.EventTypeWarning, "HashVerificationFailed", msg)
 			return errors.New(msg)
@@ -75,7 +76,7 @@ func (r *orcImageReconciler) downloadProgressReporter(ctx context.Context, orcIm
 
 func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *orcv1alpha1.Image, imageClient osclients.ImageClient, glanceImage *images.Image) (err error) {
 	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Uploading image content")
+	log.V(logging.Info).Info("Uploading image content")
 
 	content, err := requireResourceContent(orcImage)
 	if err != nil {
@@ -101,14 +102,14 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 	defer func() {
 		err = errors.Join(err, resp.Body.Close())
 	}()
-	log.V(4).Info("got response", "status", resp.Status, "contentLength", resp.ContentLength)
+	log.V(logging.Debug).Info("got response", "status", resp.Status, "contentLength", resp.ContentLength)
 
 	// Report progress while reading downloaded data
 	reader := newReaderWithProgress(resp.Body, r.downloadProgressReporter(ctx, orcImage, glanceImage, resp.ContentLength))
 
 	// If the content defines a hash, calculate the hash while downloading and verify it before returning a successful read to glance
 	if download.Hash != nil {
-		log.V(4).Info("will verify download hash", "algorithm", download.Hash.Algorithm, "value", download.Hash.Value)
+		log.V(logging.Verbose).Info("will verify download hash", "algorithm", download.Hash.Algorithm, "value", download.Hash.Value)
 		reader, err = newReaderWithHash(reader, download.Hash.Algorithm, r.hashVerifier(ctx, orcImage, download.Hash.Value))
 		if err != nil {
 			return err
@@ -121,7 +122,7 @@ func (r *orcImageReconciler) uploadImageContent(ctx context.Context, orcImage *o
 
 	// If the content requires decompression, decompress before sending to glance
 	if download.Decompress != nil {
-		log.V(4).Info("will decompress downladed content", "algorithm", *download.Decompress)
+		log.V(logging.Verbose).Info("will decompress downloaded content", "algorithm", *download.Decompress)
 		reader, err = newReaderWithDecompression(reader, *download.Decompress)
 		if err != nil {
 			return fmt.Errorf("opening %s: %w", download.URL, err)

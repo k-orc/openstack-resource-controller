@@ -32,6 +32,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/neutrontags"
@@ -244,7 +245,7 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 	case ServerStatusActive:
 		// fall through
 	default:
-		log.V(3).Info("Waiting for OpenStack resource to be ACTIVE")
+		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(serverActivePollingPeriod))
 	}
 

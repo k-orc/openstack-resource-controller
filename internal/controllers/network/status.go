@@ -24,6 +24,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 )
@@ -82,7 +83,7 @@ func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *oscl
 		if osResource.SegmentationID != "" {
 			segmentationID, err := strconv.ParseInt(osResource.SegmentationID, 10, 32)
 			if err != nil {
-				log.V(3).Error(err, "Invalid segmentation ID", "segmentationID", osResource.SegmentationID)
+				log.V(logging.Info).Error(err, "Invalid segmentation ID", "segmentationID", osResource.SegmentationID)
 			} else {
 				providerProperties.WithSegmentationID(int32(segmentationID))
 			}

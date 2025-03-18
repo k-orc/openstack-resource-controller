@@ -26,6 +26,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -54,7 +55,7 @@ func (r *orcImageReconciler) canWebDownload(ctx context.Context, orcImage *orcv1
 	log := ctrl.LoggerFrom(ctx)
 
 	debugLog := func(reason string, extra ...any) {
-		log.V(4).Info("Image cannot use web-download", slices.Concat([]any{"reason", reason}, extra)...)
+		log.V(logging.Verbose).Info("Image cannot use web-download", slices.Concat([]any{"reason", reason}, extra)...)
 	}
 
 	content, err := requireResourceContent(orcImage)
@@ -109,7 +110,7 @@ func (r *orcImageReconciler) canWebDownload(ctx context.Context, orcImage *orcv1
 
 func (r *orcImageReconciler) webDownload(ctx context.Context, orcImage *orcv1alpha1.Image, imageClient osclients.ImageClient, glanceImage *images.Image) error {
 	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Importing with web-download")
+	log.V(logging.Verbose).Info("Importing with web-download")
 
 	resource := orcImage.Spec.Resource
 	if resource == nil {
