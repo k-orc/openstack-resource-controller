@@ -1,0 +1,31 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: server-dependency
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Image
+  name: server-dependency
+commands:
+  - script: |
+      export E2E_KUTTL_CURRENT_TEST=server-dependency
+      cat ../templates/create-flavor.tmpl | envsubst | kubectl -n ${NAMESPACE} apply -f -
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: server-dependency
+    flavorRef: server-dependency
+    ports:
+      - portRef: server-dependency
+    userData:
+      secretRef: server-dependency

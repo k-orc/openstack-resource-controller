@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Image/server-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Image/server-dependency to be created
+      status: "True"
+      reason: Progressing
