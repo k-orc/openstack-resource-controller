@@ -1,8 +1,8 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
+kind: Router
 metadata:
-  name: subnet-dependency
+  name: router-dependency
 status:
   conditions:
     - type: Available

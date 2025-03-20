@@ -24,7 +24,7 @@ spec:
   resource:
     name: server-create-full-override
     imageRef: server-create-full
-    flavorRef: server-flavor
+    flavorRef: server-create-full
     ports:
       - portRef: server-create-full
     tags:

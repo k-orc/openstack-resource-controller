@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: server-dependency
+data:
+  value: I2Nsb3VkLWNvbmZpZwoKdXNlcnM6CiAgLSBkZWZhdWx0Cg==

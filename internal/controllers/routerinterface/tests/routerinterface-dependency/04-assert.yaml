@@ -1,0 +1,9 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get routerinterface routerinterface-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get router routerinterface-dependency-imported --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get subnet routerinterface-dependency-imported --namespace $NAMESPACE"
+  skipLogOutput: true

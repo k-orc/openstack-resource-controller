@@ -132,9 +132,10 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 			} else {
 				return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
 			}
-		}
-		if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
-			progressStatus = append(progressStatus, progress.WaitingOnORCReady("Flavor", flavorKey.Name))
+		} else {
+			if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
+				progressStatus = append(progressStatus, progress.WaitingOnORCReady("Flavor", flavorKey.Name))
+			}
 		}
 	}
 

@@ -1,32 +1,34 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Port
+  name: port-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: port-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: server-import-external
+  name: port-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: server-import-external
+    networkRef: port-dependency
+    securityGroupRefs:
+    - port-dependency
     addresses:
-      - subnetRef: server-import-external
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Server
-metadata:
-  name: server-import-external
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    imageRef: server-import-external
-    flavorRef: server-import
-    ports:
-      - portRef: server-import-external
-    tags:
-      - tag1
-      - tag2
+    - subnetRef: port-dependency

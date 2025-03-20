@@ -1,12 +1,13 @@
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Flavor
+kind: Router
 metadata:
-  name: ${E2E_KUTTL_CURRENT_TEST}
+  name: routerinterface-dependency-imported
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      name: ${E2E_KUTTL_FLAVOR}
+      name: routerinterface-dependency

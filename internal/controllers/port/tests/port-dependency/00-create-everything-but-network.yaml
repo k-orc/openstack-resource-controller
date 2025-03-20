@@ -1,28 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: port-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: server-create-minimal
+  name: port-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: server-create-minimal
-    addresses:
-      - subnetRef: server-create-minimal
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Server
-metadata:
-  name: server-create-minimal
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    imageRef: server-create-minimal
-    flavorRef: server-create-minimal
-    ports:
-      - portRef: server-create-minimal
+    networkRef: port-dependency
+    securityGroupRefs:
+    - port-dependency
+    # We can't add a subnetRef because it needs the network
+    # addresses:
+    # - subnetRef: port-dependency
