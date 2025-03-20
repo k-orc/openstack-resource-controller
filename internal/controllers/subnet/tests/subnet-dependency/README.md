@@ -2,20 +2,20 @@
 
 ## Step 00
 
-Create a subnet referencing a non-existing network, and verify that the subnet is waiting for the network to be created externally.
+Create a subnet referencing a non-existing network, and verify that it is waiting for the network to be created externally.
 
 ## Step 01
 
-Create the network the subnet depends on, and verify that the subnet is now available.
+Create a subnet referencing a non-existing router, and verify that it is waiting for the router to be created externally.
 
 ## Step 02
 
-Delete the network and check that ORC prevents deletion since there is still a resource that depends on it.
+Create the missing dependency, and verify that the subnet is now available.
+
+## Step 03
+
+Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
 
 ## Step 03
 
 Delete the subnet and validate that all resources are gone.
-
-## TODO
-
-- Validate `routerRef`

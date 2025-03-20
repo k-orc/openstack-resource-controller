@@ -1,5 +1,6 @@
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Router
 metadata:
   name: subnet-dependency
 spec:
@@ -8,4 +9,8 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Dependency
+    networkRef: subnet-dependency
+    ipVersion: 4
+    cidr: 192.168.0.0/24
+    externalGateways:
+    - networkRef: subnet-dependency-gateway
