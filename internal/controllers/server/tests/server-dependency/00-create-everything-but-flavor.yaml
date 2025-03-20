@@ -1,0 +1,79 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: server-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-dependency
+    ipVersion: 4
+    cidr: 192.168.200.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-dependency
+    addresses:
+      - subnetRef: server-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    content:
+      diskFormat: qcow2
+      download:
+        url: https://github.com/k-orc/openstack-resource-controller/raw/2ddc1857f5e22d2f0df6f5ee033353e4fd907121/internal/controllers/image/testdata/cirros-0.6.3-x86_64-disk.img
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: server-dependency
+data:
+  value: I2Nsb3VkLWNvbmZpZwoKdXNlcnM6CiAgLSBkZWZhdWx0Cg==
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: server-dependency
+    flavorRef: server-dependency
+    ports:
+      - portRef: server-dependency
+    userData:
+      secretRef: server-dependency

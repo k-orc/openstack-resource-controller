@@ -1,0 +1,13 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We should be able to delete the flavor and userdata secret
+  - command: kubectl delete flavor server-dependency
+    namespaced: true
+  - command: kubectl delete secret server-dependency
+    namespaced: true
+  # We expect the deletion to hang due to the finalizer, so use --wait=false
+  - command: kubectl delete image server-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete port server-dependency --wait=false
+    namespaced: true
