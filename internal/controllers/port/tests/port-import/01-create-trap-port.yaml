@@ -11,8 +11,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: port-import
   resource:
+    networkRef: port-import
     description: Port from "port-import" test
     tags:
       - tag1

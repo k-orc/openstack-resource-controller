@@ -35,6 +35,7 @@ type SubnetResourceStatusApplyConfiguration struct {
 	AllocationPools                         []AllocationPoolStatusApplyConfiguration `json:"allocationPools,omitempty"`
 	HostRoutes                              []HostRouteStatusApplyConfiguration      `json:"hostRoutes,omitempty"`
 	EnableDHCP                              *bool                                    `json:"enableDHCP,omitempty"`
+	NetworkID                               *string                                  `json:"networkID,omitempty"`
 	ProjectID                               *string                                  `json:"projectID,omitempty"`
 	IPv6AddressMode                         *string                                  `json:"ipv6AddressMode,omitempty"`
 	IPv6RAMode                              *string                                  `json:"ipv6RAMode,omitempty"`
@@ -138,6 +139,14 @@ func (b *SubnetResourceStatusApplyConfiguration) WithHostRoutes(values ...*HostR
 // If called multiple times, the EnableDHCP field is set to the value of the last call.
 func (b *SubnetResourceStatusApplyConfiguration) WithEnableDHCP(value bool) *SubnetResourceStatusApplyConfiguration {
 	b.EnableDHCP = &value
+	return b
+}
+
+// WithNetworkID sets the NetworkID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the NetworkID field is set to the value of the last call.
+func (b *SubnetResourceStatusApplyConfiguration) WithNetworkID(value string) *SubnetResourceStatusApplyConfiguration {
+	b.NetworkID = &value
 	return b
 }
 

@@ -92,9 +92,9 @@ func GetOrCreateOSResource[
 
 	// Import by filter
 	if filter := objAdapter.GetImportFilter(); filter != nil {
-		osResource, err := getResourceForImport(ctx, actuator, *filter)
-		if err != nil {
-			return nil, nil, err
+		progressStatus, osResource, err := getResourceForImport(ctx, actuator, objAdapter.GetObject(), *filter)
+		if len(progressStatus) > 0 || err != nil {
+			return progressStatus, nil, err
 		}
 		if osResource == nil {
 			// Poll until we find a resource
@@ -277,8 +277,13 @@ func getResourceForImport[
 ](
 	ctx context.Context,
 	actuator interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT],
+	obj orcObjectPT,
 	filter filterT,
-) (*osResourceT, error) {
-	resourceIter := actuator.ListOSResourcesForImport(ctx, filter)
-	return atMostOne(resourceIter, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "found more than one matching OpenStack resource during import"))
+) ([]progress.ProgressStatus, *osResourceT, error) {
+	progressStatus, resourceIter, err := actuator.ListOSResourcesForImport(ctx, obj, filter)
+	if len(progressStatus) > 0 || err != nil {
+		return progressStatus, nil, err
+	}
+	resource, err := atMostOne(resourceIter, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "found more than one matching OpenStack resource during import"))
+	return nil, resource, err
 }

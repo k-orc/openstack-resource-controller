@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Network/port-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Network/port-import-dependency to be ready
+      status: "True"
+      reason: Progressing

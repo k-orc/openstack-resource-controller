@@ -19,7 +19,7 @@ spec:
     cloudName: openstack
     secretName: cloud-config
   managementPolicy: unmanaged
-  networkRef: external-network
   import:
     filter:
+      networkRef: external-network
       ipVersion: 4

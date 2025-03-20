@@ -101,7 +101,7 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 	return existingImage, true
 }
 
-func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) imageIterator {
+func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, imageIterator, error) {
 	listOpts := images.ListOpts{
 		Name: string(ptr.Deref(filter.Name, "")),
 	}
@@ -113,7 +113,7 @@ func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, filt
 		}
 	}
 
-	return actuator.osClient.ListImages(ctx, listOpts)
+	return nil, actuator.osClient.ListImages(ctx, listOpts), nil
 }
 
 func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) ([]progress.ProgressStatus, *images.Image, error) {

@@ -82,7 +82,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.osClient.ListServers(ctx, listOpts), true
 }
 
-func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) serverIterator {
+func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	listOpts := servers.ListOpts{
 		Tags:       neutrontags.Join(filter.FilterByServerTags.Tags),
 		TagsAny:    neutrontags.Join(filter.FilterByServerTags.TagsAny),
@@ -94,7 +94,7 @@ func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, fil
 		listOpts.Name = fmt.Sprintf("^%s$", string(*filter.Name))
 	}
 
-	return actuator.osClient.ListServers(ctx, listOpts)
+	return nil, actuator.osClient.ListServers(ctx, listOpts), nil
 }
 
 func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]progress.ProgressStatus, *servers.Server, error) {

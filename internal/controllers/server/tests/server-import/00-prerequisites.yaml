@@ -43,7 +43,7 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: server-import-external
   resource:
+    networkRef: server-import-external
     ipVersion: 4
     cidr: 192.168.200.0/24

@@ -72,7 +72,7 @@ func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, 
 	return actuator.osClient.ListNetwork(ctx, listOpts), true
 }
 
-func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osclients.NetworkExt, error] {
+func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	listOpts := networks.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -82,7 +82,7 @@ func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, fi
 		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
 	}
 
-	return actuator.osClient.ListNetwork(ctx, listOpts)
+	return nil, actuator.osClient.ListNetwork(ctx, listOpts), nil
 }
 
 func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *osclients.NetworkExt, error) {
