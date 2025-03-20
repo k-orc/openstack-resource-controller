@@ -23,6 +23,6 @@ spec:
   managementPolicy: managed
   resource:
     imageRef: server-create-minimal
-    flavorRef: server-flavor
+    flavorRef: server-create-minimal
     ports:
       - portRef: server-create-minimal

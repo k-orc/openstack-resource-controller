@@ -24,7 +24,7 @@ spec:
   managementPolicy: managed
   resource:
     imageRef: server-import-external
-    flavorRef: server-flavor
+    flavorRef: server-import
     ports:
       - portRef: server-import-external
     tags:

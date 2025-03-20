@@ -1,7 +1,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:
-  name: server-flavor
+  name: ${E2E_KUTTL_CURRENT_TEST}
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
