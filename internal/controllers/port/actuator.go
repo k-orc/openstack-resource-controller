@@ -113,22 +113,11 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	var progressStatus []progress.ProgressStatus
 
 	// Fetch all dependencies and ensure they have our finalizer
-	network := &orcv1alpha1.Network{}
-	{
-		dep, networkProgressStatus, err := networkDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(network *orcv1alpha1.Network) bool {
-				return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
-			},
-		)
-		if err != nil {
-			return nil, nil, fmt.Errorf("fetching networks for %s: %w", obj.Name, err)
-		}
-		if len(networkProgressStatus) > 0 {
-			progressStatus = append(progressStatus, networkProgressStatus...)
-		} else {
-			network = dep
-		}
-	}
+	network, networkProgress, networkErr := networkDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
 	subnetMap, subnetProgress, subnetErr := subnetDependency.GetDependencies(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Subnet) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -140,9 +129,10 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		},
 	)
 
+	progressStatus = append(progressStatus, networkProgress...)
 	progressStatus = append(progressStatus, subnetProgress...)
 	progressStatus = append(progressStatus, secGroupProgress...)
-	err := errors.Join(subnetErr, secGroupErr)
+	err := errors.Join(networkErr, subnetErr, secGroupErr)
 
 	if len(progressStatus) != 0 || err != nil {
 		return progressStatus, nil, err

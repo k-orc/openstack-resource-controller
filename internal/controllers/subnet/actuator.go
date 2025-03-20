@@ -122,27 +122,14 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
 	}
 
-	var progressStatus []progress.ProgressStatus
+	network, progressStatus, err := networkDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
 
-	network := &orcv1alpha1.Network{}
-	{
-		dep, networkProgressStatus, err := networkDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(network *orcv1alpha1.Network) bool {
-				return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
-			},
-		)
-		if err != nil {
-			return nil, nil, fmt.Errorf("fetching networks for %s: %w", obj.Name, err)
-		}
-		if len(networkProgressStatus) > 0 {
-			progressStatus = append(progressStatus, networkProgressStatus...)
-		} else {
-			network = dep
-		}
-	}
-
-	if len(progressStatus) > 0 {
-		return progressStatus, nil, nil
+	if len(progressStatus) != 0 || err != nil {
+		return progressStatus, nil, err
 	}
 
 	createOpts := subnets.CreateOpts{
