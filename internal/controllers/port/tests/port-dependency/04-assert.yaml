@@ -1,0 +1,23 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: port-dependency
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: port-dependency
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: port-dependency
+      ref: sg
+assertAll:
+    - celExpr: "network.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in network.metadata.finalizers"
+    - celExpr: "subnet.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in subnet.metadata.finalizers"
+    - celExpr: "sg.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in sg.metadata.finalizers"

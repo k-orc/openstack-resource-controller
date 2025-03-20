@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Network/port-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Network/port-dependency to be created
+      status: "True"
+      reason: Progressing
