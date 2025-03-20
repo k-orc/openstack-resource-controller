@@ -119,7 +119,7 @@ type CreateResourceActuator[
 
     // ListOSResourcesForImport returns all OpenStack resources matching the
     // given resource import filter.
-    ListOSResourcesForImport(ctx context.Context, filter filterT) iter.Seq2[*osResourceT, error]
+    ListOSResourcesForImport(ctx context.Context, orcObject orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error)
 
     // CreateResource creates an OpenStack resource for the current object. It
     // will return successfully at most once for a managed object, at the time
