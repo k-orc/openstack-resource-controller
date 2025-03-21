@@ -286,6 +286,18 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                  portSecurity:
+                    default: Inherit
+                    description: |-
+                      portSecurity controls port security for this port.
+                      When set to Enabled, port security is enabled.
+                      When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.
+                      When set to Inherit (default), it takes the value from the network level.
+                    enum:
+                    - Enabled
+                    - Disabled
+                    - Inherit
+                    type: string
                   securityGroupRefs:
                     description: |-
                       securityGroupRefs are the names of the security groups associated
@@ -311,12 +323,28 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
+                  vnicType:
+                    description: |-
+                      vnicType specifies the type of vNIC which this port should be
+                      attached to. This is used to determine which mechanism driver(s) to
+                      be used to bind the port. The valid values are normal, macvtap,
+                      direct, baremetal, direct-physical, virtio-forwarder, smart-nic and
+                      remote-managed, although these values will not be validated in this
+                      API to ensure compatibility with future neutron changes or custom
+                      implementations. What type of vNIC is actually available depends on
+                      deployments. If not specified, the Neutron default value is used.
+                    maxLength: 64
+                    type: string
                 required:
                 - networkRef
                 type: object
                 x-kubernetes-validations:
                 - message: PortResourceSpec is immutable
                   rule: self == oldSelf
+                - message: securityGroupRefs must be empty when portSecurity is set
+                    to Disabled
+                  rule: 'has(self.portSecurity) && self.portSecurity == ''Disabled''
+                    ? !has(self.securityGroupRefs) : true'
             required:
             - cloudCredentialsRef
             type: object
@@ -499,6 +527,10 @@ spec:
                     description: networkID is the ID of the attached network.
                     maxLength: 1024
                     type: string
+                  portSecurityEnabled:
+                    description: portSecurityEnabled indicates whether port security
+                      is enabled or not.
+                    type: boolean
                   projectID:
                     description: projectID is the project owner of the resource.
                     maxLength: 1024
@@ -537,6 +569,11 @@ spec:
                     description: updatedAt shows the date and time when the resource
                       was updated. The date and time stamp format is ISO 8601
                     format: date-time
+                    type: string
+                  vnicType:
+                    description: vnicType is the type of vNIC which this port is attached
+                      to.
+                    maxLength: 64
                     type: string
                 type: object
             type: object

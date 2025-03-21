@@ -113,10 +113,10 @@ func (mr *MockNetworkClientMockRecorder) CreateNetwork(ctx, opts any) *gomock.Ca
 }
 
 // CreatePort mocks base method.
-func (m *MockNetworkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*ports.Port, error) {
+func (m *MockNetworkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*osclients.PortExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePort", ctx, opts)
-	ret0, _ := ret[0].(*ports.Port)
+	ret0, _ := ret[0].(*osclients.PortExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -345,10 +345,10 @@ func (mr *MockNetworkClientMockRecorder) GetNetwork(ctx, id any) *gomock.Call {
 }
 
 // GetPort mocks base method.
-func (m *MockNetworkClient) GetPort(ctx context.Context, id string) (*ports.Port, error) {
+func (m *MockNetworkClient) GetPort(ctx context.Context, id string) (*osclients.PortExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPort", ctx, id)
-	ret0, _ := ret[0].(*ports.Port)
+	ret0, _ := ret[0].(*osclients.PortExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -464,10 +464,10 @@ func (mr *MockNetworkClientMockRecorder) ListNetwork(ctx, opts any) *gomock.Call
 }
 
 // ListPort mocks base method.
-func (m *MockNetworkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*ports.Port, error] {
+func (m *MockNetworkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*osclients.PortExt, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListPort", ctx, opts)
-	ret0, _ := ret[0].(iter.Seq2[*ports.Port, error])
+	ret0, _ := ret[0].(iter.Seq2[*osclients.PortExt, error])
 	return ret0
 }
 
@@ -639,10 +639,10 @@ func (mr *MockNetworkClientMockRecorder) UpdateNetwork(ctx, id, opts any) *gomoc
 }
 
 // UpdatePort mocks base method.
-func (m *MockNetworkClient) UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*ports.Port, error) {
+func (m *MockNetworkClient) UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*osclients.PortExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePort", ctx, id, opts)
-	ret0, _ := ret[0].(*ports.Port)
+	ret0, _ := ret[0].(*osclients.PortExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

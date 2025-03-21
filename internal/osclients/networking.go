@@ -30,6 +30,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
@@ -51,6 +52,12 @@ type NetworkExt struct {
 	provider.NetworkProviderExt
 }
 
+type PortExt struct {
+	ports.Port
+	portsecurity.PortSecurityExt
+	portsbinding.PortsBindingExt
+}
+
 type NetworkClient interface {
 	ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) ([]floatingips.FloatingIP, error)
 	CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error)
@@ -58,11 +65,11 @@ type NetworkClient interface {
 	GetFloatingIP(ctx context.Context, id string) (*floatingips.FloatingIP, error)
 	UpdateFloatingIP(ctx context.Context, id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error)
 
-	ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*ports.Port, error]
-	CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*ports.Port, error)
+	ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*PortExt, error]
+	CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*PortExt, error)
 	DeletePort(ctx context.Context, id string) error
-	GetPort(ctx context.Context, id string) (*ports.Port, error)
-	UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*ports.Port, error)
+	GetPort(ctx context.Context, id string) (*PortExt, error)
+	UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*PortExt, error)
 
 	ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error)
 	CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error)
@@ -173,27 +180,48 @@ func (c networkClient) UpdateFloatingIP(ctx context.Context, id string, opts flo
 	return floatingips.Update(ctx, c.serviceClient, id, opts).Extract()
 }
 
-func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*ports.Port, error] {
+func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*PortExt, error] {
+	extractPortExt := func(p pagination.Page) ([]PortExt, error) {
+		var resources []PortExt
+		err := ports.ExtractPortsInto(p, &resources)
+		if err != nil {
+			return nil, err
+		}
+		return resources, nil
+	}
 	pager := ports.List(c.serviceClient, opts)
-	return func(yield func(*ports.Port, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(ports.ExtractPorts, yield))
+	return func(yield func(*PortExt, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(extractPortExt, yield))
 	}
 }
 
-func (c networkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*ports.Port, error) {
-	return ports.Create(ctx, c.serviceClient, opts).Extract()
+func (c networkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*PortExt, error) {
+	createResult := ports.Create(ctx, c.serviceClient, opts)
+	portExt := PortExt{}
+	if err := createResult.ExtractInto(&portExt); err != nil {
+		return nil, err
+	}
+	return &portExt, nil
 }
 
 func (c networkClient) DeletePort(ctx context.Context, id string) error {
 	return ports.Delete(ctx, c.serviceClient, id).ExtractErr()
 }
 
-func (c networkClient) GetPort(ctx context.Context, id string) (*ports.Port, error) {
-	return ports.Get(ctx, c.serviceClient, id).Extract()
+func (c networkClient) GetPort(ctx context.Context, id string) (*PortExt, error) {
+	portExt := PortExt{}
+	if err := ports.Get(ctx, c.serviceClient, id).ExtractInto(&portExt); err != nil {
+		return nil, err
+	}
+	return &portExt, nil
 }
 
-func (c networkClient) UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*ports.Port, error) {
-	return ports.Update(ctx, c.serviceClient, id, opts).Extract()
+func (c networkClient) UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*PortExt, error) {
+	portExt := PortExt{}
+	if err := ports.Update(ctx, c.serviceClient, id, opts).ExtractInto(&portExt); err != nil {
+		return nil, err
+	}
+	return &portExt, nil
 }
 
 func (c networkClient) CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error) {

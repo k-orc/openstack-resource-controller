@@ -22,6 +22,8 @@ import (
 	"fmt"
 	"iter"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -38,7 +40,7 @@ import (
 )
 
 type (
-	osResourceT = ports.Port
+	osResourceT = osclients.PortExt
 
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
@@ -56,11 +58,11 @@ type portActuator struct {
 var _ createResourceActuator = portActuator{}
 var _ deleteResourceActuator = portActuator{}
 
-func (portActuator) GetResourceID(osResource *ports.Port) string {
+func (portActuator) GetResourceID(osResource *osclients.PortExt) string {
 	return osResource.ID
 }
 
-func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (*ports.Port, error) {
+func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.PortExt, error) {
 	return actuator.osClient.GetPort(ctx, id)
 }
 
@@ -112,7 +114,7 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 	return nil, actuator.osClient.ListPort(ctx, listOpts), nil
 }
 
-func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *ports.Port, error) {
+func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *osclients.PortExt, error) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -154,6 +156,9 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
+		if portSecurityEnabled(resource.PortSecurity, network.Status) {
+			return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurity is disabled")
+		}
 		createOpts.AllowedAddressPairs = make([]ports.AddressPair, len(resource.AllowedAddressPairs))
 		for i := range resource.AllowedAddressPairs {
 			createOpts.AllowedAddressPairs[i].IPAddress = string(resource.AllowedAddressPairs[i].IP)
@@ -184,6 +189,9 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	// We explicitly disable default security groups by passing an empty
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
+	if len(securityGroups) > 0 && portSecurityEnabled(resource.PortSecurity, network.Status) {
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurity is disabled")
+	}
 	for i := range resource.SecurityGroupRefs {
 		secGroupName := string(resource.SecurityGroupRefs[i])
 		secGroup, ok := secGroupMap[secGroupName]
@@ -195,7 +203,17 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 	createOpts.SecurityGroups = &securityGroups
 
-	osResource, err := actuator.osClient.CreatePort(ctx, &createOpts)
+	portsBindingOpts := portsbinding.CreateOptsExt{
+		CreateOptsBuilder: createOpts,
+		VNICType:          resource.VNICType,
+	}
+
+	portSecurityOpts := portsecurity.PortCreateOptsExt{
+		CreateOptsBuilder: portsBindingOpts,
+	}
+	portSecurityOpts.PortSecurityEnabled = ptr.To(portSecurityEnabled(resource.PortSecurity, network.Status))
+
+	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
@@ -207,8 +225,8 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	return nil, osResource, nil
 }
 
-func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *ports.Port) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeletePort(ctx, flavor.ID)
+func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, port *osclients.PortExt) ([]progress.ProgressStatus, error) {
+	return nil, actuator.osClient.DeletePort(ctx, port.ID)
 }
 
 var _ reconcileResourceActuator = portActuator{}
@@ -262,4 +280,24 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
 	}, nil, nil
+}
+
+// portSecurityEnabled checks if port security is enabled based on the given state.
+// TODO: When the state is Inherit, we should check the network level port security state.
+func portSecurityEnabled(portSecurityState orcv1alpha1.PortSecurityState, networkStatus orcv1alpha1.NetworkStatus) bool {
+	switch portSecurityState {
+	case orcv1alpha1.PortSecurityEnabled:
+		return true
+	case orcv1alpha1.PortSecurityInherit:
+		// PortSecurity at the network level is enabled by default
+		// https://docs.openstack.org/api-ref/network/v2/#port-security
+		if networkStatus.Resource == nil || networkStatus.Resource.PortSecurityEnabled == nil {
+			return true
+		}
+		return *networkStatus.Resource.PortSecurityEnabled
+	case orcv1alpha1.PortSecurityDisabled:
+		return false
+	default:
+		return true
+	}
 }

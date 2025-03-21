@@ -826,6 +826,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
+    - name: portSecurity
+      type:
+        scalar: string
     - name: securityGroupRefs
       type:
         list:
@@ -838,6 +841,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: vnicType
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceStatus
   map:
     fields:
@@ -877,6 +883,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: networkID
       type:
         scalar: string
+    - name: portSecurityEnabled
+      type:
+        scalar: boolean
     - name: projectID
       type:
         scalar: string
@@ -904,6 +913,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: updatedAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: vnicType
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortSpec
   map:
     fields:

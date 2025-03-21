@@ -87,7 +87,7 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	routerInterfacePortIterator := networkClient.ListPort(ctx, &listOpts)
 	// We're going to iterate over all interfaces multiple times, so pull them all in to a slice
-	var routerInterfacePorts []ports.Port
+	var routerInterfacePorts []osclients.PortExt
 	for port, err := range routerInterfacePortIterator {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("fetching router interface ports: %w", err)
@@ -143,7 +143,7 @@ func (r *orcRouterInterfaceReconciler) getNetworkClient(ctx context.Context, obj
 	return clientScope.NewNetworkClient()
 }
 
-func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, networkClient osclients.NetworkClient) (_ time.Duration, err error) {
+func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt, networkClient osclients.NetworkClient) (_ time.Duration, err error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(logging.Verbose).Info("Reconciling router interface", "name", routerInterface.Name)
 
@@ -203,21 +203,21 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 	return noRequeue, nil
 }
 
-func findPortBySubnetID(routerInterfacePorts []ports.Port, subnetID string) *ports.Port {
+func findPortBySubnetID(routerInterfacePorts []osclients.PortExt, subnetID string) *ports.Port {
 	for i := range routerInterfacePorts {
 		routerInterfacePort := &routerInterfacePorts[i]
 
 		for j := range routerInterfacePort.FixedIPs {
 			fixedIP := &routerInterfacePort.FixedIPs[j]
 			if fixedIP.SubnetID == subnetID {
-				return routerInterfacePort
+				return &routerInterfacePort.Port
 			}
 		}
 	}
 	return nil
 }
 
-func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, statusOpts *updateStatusOpts) (bool, routers.AddInterfaceOptsBuilder, error) {
+func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt, statusOpts *updateStatusOpts) (bool, routers.AddInterfaceOptsBuilder, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	subnet := &orcv1alpha1.Subnet{}
@@ -270,7 +270,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context
 	return false, &routers.AddInterfaceOpts{SubnetID: subnetID}, nil
 }
 
-func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, networkClient osclients.NetworkClient) (_ time.Duration, err error) {
+func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt, networkClient osclients.NetworkClient) (_ time.Duration, err error) {
 	log := ctrl.LoggerFrom(ctx).WithValues("interface name", routerInterface.Name)
 
 	if !controllerutil.ContainsFinalizer(routerInterface, finalizer) {
@@ -328,7 +328,7 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, rout
 	return noRequeue, r.client.Patch(ctx, routerInterface, finalizers.RemoveFinalizerPatch(routerInterface), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer))
 }
 
-func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, statusOpts *updateStatusOpts) (bool, routers.RemoveInterfaceOptsBuilder, error) {
+func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt, statusOpts *updateStatusOpts) (bool, routers.RemoveInterfaceOptsBuilder, error) {
 	subnet := &orcv1alpha1.Subnet{}
 	subnetKey := client.ObjectKey{
 		Namespace: routerInterface.Namespace,

@@ -87,6 +87,7 @@ type FixedIPStatus struct {
 }
 
 // +kubebuilder:validation:XValidation:rule="self == oldSelf",message="PortResourceSpec is immutable"
+// +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.securityGroupRefs) : true",message="securityGroupRefs must be empty when portSecurity is set to Disabled"
 type PortResourceSpec struct {
 	// name is a human-readable name of the port. If not set, the object's name will be used.
 	// +optional
@@ -124,6 +125,26 @@ type PortResourceSpec struct {
 	// +listType=set
 	// +optional
 	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
+
+	// vnicType specifies the type of vNIC which this port should be
+	// attached to. This is used to determine which mechanism driver(s) to
+	// be used to bind the port. The valid values are normal, macvtap,
+	// direct, baremetal, direct-physical, virtio-forwarder, smart-nic and
+	// remote-managed, although these values will not be validated in this
+	// API to ensure compatibility with future neutron changes or custom
+	// implementations. What type of vNIC is actually available depends on
+	// deployments. If not specified, the Neutron default value is used.
+	// +kubebuilder:validation:MaxLength:=64
+	// +optional
+	VNICType string `json:"vnicType,omitempty"`
+
+	// portSecurity controls port security for this port.
+	// When set to Enabled, port security is enabled.
+	// When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.
+	// When set to Inherit (default), it takes the value from the network level.
+	// +kubebuilder:default=Inherit
+	// +optional
+	PortSecurity PortSecurityState `json:"portSecurity,omitempty"`
 }
 
 type PortResourceStatus struct {
@@ -207,5 +228,27 @@ type PortResourceStatus struct {
 	// +optional
 	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 
+	// vnicType is the type of vNIC which this port is attached to.
+	// +kubebuilder:validation:MaxLength:=64
+	// +optional
+	VNICType string `json:"vnicType,omitempty"`
+
+	// portSecurityEnabled indicates whether port security is enabled or not.
+	// +optional
+	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
+
 	NeutronStatusMetadata `json:",inline"`
 }
+
+// PortSecurityState represents the security state of a port
+// +kubebuilder:validation:Enum=Enabled;Disabled;Inherit
+type PortSecurityState string
+
+const (
+	// PortSecurityEnabled means port security is enabled
+	PortSecurityEnabled PortSecurityState = "Enabled"
+	// PortSecurityDisabled means port security is disabled
+	PortSecurityDisabled PortSecurityState = "Disabled"
+	// PortSecurityInherit means port security settings are inherited from the network
+	PortSecurityInherit PortSecurityState = "Inherit"
+)
