@@ -1492,6 +1492,8 @@ _Appears in:_
 | `allowedAddressPairs` _[AllowedAddressPair](#allowedaddresspair) array_ | allowedAddressPairs are allowed addresses associated with this port. |  | MaxItems: 32 <br /> |
 | `addresses` _[Address](#address) array_ | addresses are the IP addresses for the port. |  | MaxItems: 32 <br /> |
 | `securityGroupRefs` _[OpenStackName](#openstackname) array_ | securityGroupRefs are the names of the security groups associated<br />with this port. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `vnicType` _string_ | vnicType specifies the type of vNIC which this port should be<br />attached to. This is used to determine which mechanism driver(s) to<br />be used to bind the port. The valid values are normal, macvtap,<br />direct, baremetal, direct-physical, virtio-forwarder, smart-nic and<br />remote-managed, although these values will not be validated in this<br />API to ensure compatibility with future neutron changes or custom<br />implementations. What type of vNIC is actually available depends on<br />deployments. If not specified, the Neutron default value is used. |  | MaxLength: 64 <br /> |
+| `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 
 
 #### PortResourceStatus
@@ -1520,9 +1522,30 @@ _Appears in:_
 | `fixedIPs` _[FixedIPStatus](#fixedipstatus) array_ | fixedIPs is a set of zero or more fixed IP objects each where fixed<br />IP object contains an IP address and subnet ID from which the IP<br />address is assigned. |  | MaxItems: 32 <br /> |
 | `securityGroups` _string array_ | securityGroups contains the IDs of security groups applied to the port. |  | MaxItems: 32 <br /> |
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
+| `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
+| `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
+
+
+#### PortSecurityState
+
+_Underlying type:_ _string_
+
+PortSecurityState represents the security state of a port
+
+_Validation:_
+- Enum: [Enabled Disabled Inherit]
+
+_Appears in:_
+- [PortResourceSpec](#portresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `Enabled` | PortSecurityEnabled means port security is enabled<br /> |
+| `Disabled` | PortSecurityDisabled means port security is disabled<br /> |
+| `Inherit` | PortSecurityInherit means port security settings are inherited from the network<br /> |
 
 
 #### PortSpec
