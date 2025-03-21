@@ -1,11 +1,6 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Network
-      name: port-import-dependency
-      ref: network
-assertAll:
-    - celExpr: "network.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/port' in network.metadata.finalizers"
+commands:
+- script: "! kubectl get network port-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

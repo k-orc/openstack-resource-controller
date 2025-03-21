@@ -4,9 +4,3 @@ delete:
   - apiVersion: openstack.k-orc.cloud/v1alpha1
     kind: Port
     name: port-import-dependency
-commands:
-  - script: |
-      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
-      export OS_CLOUD=openstack
-      openstack port delete port-import-dependency-external
-      openstack network delete port-import-dependency-external
