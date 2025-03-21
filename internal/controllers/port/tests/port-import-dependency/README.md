@@ -2,7 +2,8 @@
 
 ## Step 00
 
-Import a port, with a `networkRef`, and verify it is waiting for the external resource to be created.
+Import a port, with a `networkRef`, that we created as an imported resource. The imported network has no matching resource yet.
+Verify the port is waiting for the dependency to be ready.
 
 ## Step 01
 
@@ -10,12 +11,13 @@ Create a port matching the import filter, except for the network it belongs to, 
 
 ## Step 02
 
-Create the network the port depends on.
-Create a port matching the filter and verify that the observed status on the imported port corresponds to the spec of the created port.
+Create a network and a port matching the import filters.
+
+Verify that the observed status on the imported port corresponds to the spec of the created port.
 
 ## Step 03
 
-Delete the network and check that ORC prevents deletion since there is still a resource that depends on it.
+Delete the network and check that ORC does not prevent deletion. The OpenStack network still exists because it was an imported network and we only deleted the ORC representation of it.
 
 ## Step 04
 

@@ -1,11 +1,25 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-commands:
-  # We don't want to create this subnet via ORC, because we want to assert that
-  # the imported subnet added the finalizer
-  - script: |
-      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
-      export OS_CLOUD=openstack
-      openstack network create subnet-import-dependency-external
-      openstack subnet create subnet-import-dependency-external --network subnet-import-dependency-external --subnet-range 192.168.200.0/24
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: subnet-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-import-dependency-external
+    ipVersion: 4
+    cidr: 192.168.200.0/24
