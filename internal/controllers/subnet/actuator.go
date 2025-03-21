@@ -79,20 +79,28 @@ func (actuator subnetActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	var networkID string
+	var progressStatus []progress.ProgressStatus
 
 	if filter.NetworkRef != "" {
-		dep, progressStatus, err := networkDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(network *orcv1alpha1.Network) bool {
-				return orcv1alpha1.IsAvailable(network) && network.Status.ID != nil
-			},
-		)
-		if err != nil {
-			return progressStatus, nil, fmt.Errorf("fetching networks for %s: %w", obj.Name, err)
+		network := &orcv1alpha1.Network{}
+		{
+			networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
+			if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
+				if apierrors.IsNotFound(err) {
+					progressStatus = append(progressStatus, progress.WaitingOnORCExist("Network", networkKey.Name))
+				} else {
+					return nil, nil, fmt.Errorf("fetching network %s: %w", networkKey.Name, err)
+				}
+			} else {
+				if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
+					progressStatus = append(progressStatus, progress.WaitingOnORCReady("Network", networkKey.Name))
+				}
+			}
+			if len(progressStatus) > 0 {
+				return progressStatus, nil, nil
+			}
+			networkID = *network.Status.ID
 		}
-		if len(progressStatus) > 0 {
-			return progressStatus, nil, nil
-		}
-		networkID = *dep.Status.ID
 	}
 
 	listOpts := subnets.ListOpts{
