@@ -57,16 +57,23 @@ var (
 		"spec.resource.networkRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
 			resource := subnet.Spec.Resource
-			if resource != nil {
-				return []string{string(resource.NetworkRef)}
+			if resource == nil {
+				return nil
 			}
-			importStruct := subnet.Spec.Import
-			if importStruct != nil && importStruct.Filter != nil {
-				return []string{string(importStruct.Filter.NetworkRef)}
-			}
-			return nil
+			return []string{string(resource.NetworkRef)}
 		},
 		finalizer, externalObjectFieldOwner,
+	)
+
+	networkImportDependency = dependency.NewDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Network](
+		"spec.import.filter.networkRef",
+		func(subnet *orcv1alpha1.Subnet) []string {
+			resource := subnet.Spec.Import
+			if resource == nil || resource.Filter == nil {
+				return nil
+			}
+			return []string{string(resource.Filter.NetworkRef)}
+		},
 	)
 )
 
@@ -81,10 +88,19 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	networkImportWatchEventHandler, err := networkImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		For(&orcv1alpha1.Subnet{}).
 		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Network{}, networkImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
 		Watches(&orcv1alpha1.RouterInterface{},
@@ -108,6 +124,7 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 
 	if err := errors.Join(
 		networkDependency.AddToManager(ctx, mgr),
+		networkImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

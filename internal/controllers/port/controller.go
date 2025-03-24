@@ -44,16 +44,23 @@ var (
 		"spec.resource.networkRef",
 		func(port *orcv1alpha1.Port) []string {
 			resource := port.Spec.Resource
-			if resource != nil {
-				return []string{string(resource.NetworkRef)}
+			if resource == nil {
+				return nil
 			}
-			importStruct := port.Spec.Import
-			if importStruct != nil && importStruct.Filter != nil {
-				return []string{string(importStruct.Filter.NetworkRef)}
-			}
-			return nil
+			return []string{string(resource.NetworkRef)}
 		},
 		finalizer, externalObjectFieldOwner,
+	)
+
+	networkImportDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Network](
+		"spec.import.filter.networkRef",
+		func(port *orcv1alpha1.Port) []string {
+			resource := port.Spec.Import
+			if resource == nil || resource.Filter == nil {
+				return nil
+			}
+			return []string{string(resource.Filter.NetworkRef)}
+		},
 	)
 
 	subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Subnet](
@@ -109,6 +116,11 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
+	networkImportWatchEventHandler, err := networkImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	subnetWatchEventHandler, err := subnetDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -125,6 +137,10 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		Watches(&orcv1alpha1.Network{}, networkWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Network{}, networkImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
+		).
 		Watches(&orcv1alpha1.Subnet{}, subnetWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
 		).
@@ -134,6 +150,7 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 
 	if err := errors.Join(
 		networkDependency.AddToManager(ctx, mgr),
+		networkImportDependency.AddToManager(ctx, mgr),
 		subnetDependency.AddToManager(ctx, mgr),
 		securityGroupDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
