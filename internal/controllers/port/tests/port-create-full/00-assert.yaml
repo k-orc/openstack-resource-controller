@@ -13,10 +13,10 @@ status:
         mac: 92:42:9c:13:98:82
     deviceID: ""
     deviceOwner: ""
-    portSecurity: Inherit
+    portSecurityEnabled: true
     propagateUplinkStatus: false
     status: DOWN
-    vnicType: normal
+    vnicType: direct
     tags:
       - tag1
 ---
@@ -44,5 +44,3 @@ assertAll:
     - celExpr: "port.status.resource.fixedIPs[0].subnetID == subnet.status.id"
     - celExpr: "port.status.resource.fixedIPs[0].ip == '192.168.155.122'"
     - celExpr: "port.status.resource.securityGroups[0] == sg.status.id"
-    - celExpr: "port.status.resource.portSecurityEnabled == true"
-    - celExpr: "port.status.resource.vnicType == 'normal'"
