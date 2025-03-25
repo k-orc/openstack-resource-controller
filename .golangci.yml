@@ -15,6 +15,7 @@ linters:
     - kal
     - lll
     - misspell
+    - nolintlint
     - nakedret
     - prealloc
     - revive
