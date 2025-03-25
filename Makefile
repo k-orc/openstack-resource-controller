@@ -240,7 +240,7 @@ KUTTL = $(LOCALBIN)/kubectl-kuttl
 KUSTOMIZE_VERSION ?= v5.6.0
 CONTROLLER_TOOLS_VERSION ?= v0.17.1
 ENVTEST_VERSION ?= release-0.19
-GOLANGCI_LINT_VERSION ?= v1.63.4
+GOLANGCI_LINT_VERSION ?= v2.0.1
 KAL_VERSION ?= v0.0.0-20250226170450-3245ed227194
 MOCKGEN_VERSION ?= v0.5.0
 KUTTL_VERSION ?= v0.22.0
@@ -263,7 +263,7 @@ $(ENVTEST): $(LOCALBIN)
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
-	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/v2/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
 
 define custom-gcl
 version:  $(GOLANGCI_LINT_VERSION)
