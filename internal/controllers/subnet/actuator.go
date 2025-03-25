@@ -110,10 +110,10 @@ func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj
 		IPVersion:   int(ptr.Deref(filter.IPVersion, 0)),
 		GatewayIP:   string(ptr.Deref(filter.GatewayIP, "")),
 		CIDR:        string(ptr.Deref(filter.CIDR, "")),
-		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
-		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
-		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
-		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
+		Tags:        neutrontags.Join(filter.Tags),
+		TagsAny:     neutrontags.Join(filter.TagsAny),
+		NotTags:     neutrontags.Join(filter.NotTags),
+		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
 	}
 	if filter.IPv6 != nil {
 		listOpts.IPv6AddressMode = string(ptr.Deref(filter.IPv6.AddressMode, ""))

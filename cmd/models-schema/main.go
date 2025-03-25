@@ -32,7 +32,7 @@ import (
 func main() {
 	err := output()
 	if err != nil {
-		_, _ = os.Stderr.WriteString(fmt.Sprintf("Failed: %v", err))
+		_, _ = fmt.Fprintf(os.Stderr, "Failed: %v", err)
 		os.Exit(1)
 	}
 }

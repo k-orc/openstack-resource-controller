@@ -84,10 +84,10 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
 	listOpts := servers.ListOpts{
-		Tags:       neutrontags.Join(filter.FilterByServerTags.Tags),
-		TagsAny:    neutrontags.Join(filter.FilterByServerTags.TagsAny),
-		NotTags:    neutrontags.Join(filter.FilterByServerTags.NotTags),
-		NotTagsAny: neutrontags.Join(filter.FilterByServerTags.NotTagsAny),
+		Tags:       neutrontags.Join(filter.Tags),
+		TagsAny:    neutrontags.Join(filter.TagsAny),
+		NotTags:    neutrontags.Join(filter.NotTags),
+		NotTagsAny: neutrontags.Join(filter.NotTagsAny),
 	}
 
 	if filter.Name != nil {

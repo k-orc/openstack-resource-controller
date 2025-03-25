@@ -103,10 +103,10 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
 		NetworkID:   networkID,
-		Tags:        neutrontags.Join(filter.FilterByNeutronTags.Tags),
-		TagsAny:     neutrontags.Join(filter.FilterByNeutronTags.TagsAny),
-		NotTags:     neutrontags.Join(filter.FilterByNeutronTags.NotTags),
-		NotTagsAny:  neutrontags.Join(filter.FilterByNeutronTags.NotTagsAny),
+		Tags:        neutrontags.Join(filter.Tags),
+		TagsAny:     neutrontags.Join(filter.TagsAny),
+		NotTags:     neutrontags.Join(filter.NotTags),
+		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
 	}
 
 	return nil, actuator.osClient.ListPort(ctx, listOpts), nil
