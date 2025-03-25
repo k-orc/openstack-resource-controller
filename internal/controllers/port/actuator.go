@@ -156,7 +156,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
-		if portSecurityEnabled(resource.PortSecurity, network.Status) {
+		if !portSecurityEnabled(resource.PortSecurity, network.Status) {
 			return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurity is disabled")
 		}
 		createOpts.AllowedAddressPairs = make([]ports.AddressPair, len(resource.AllowedAddressPairs))
@@ -189,7 +189,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	// We explicitly disable default security groups by passing an empty
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
-	if len(securityGroups) > 0 && portSecurityEnabled(resource.PortSecurity, network.Status) {
+	if len(securityGroups) > 0 && !portSecurityEnabled(resource.PortSecurity, network.Status) {
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurity is disabled")
 	}
 	for i := range resource.SecurityGroupRefs {
@@ -283,7 +283,6 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 }
 
 // portSecurityEnabled checks if port security is enabled based on the given state.
-// TODO: When the state is Inherit, we should check the network level port security state.
 func portSecurityEnabled(portSecurityState orcv1alpha1.PortSecurityState, networkStatus orcv1alpha1.NetworkStatus) bool {
 	switch portSecurityState {
 	case orcv1alpha1.PortSecurityEnabled:

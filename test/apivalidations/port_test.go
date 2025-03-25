@@ -104,11 +104,23 @@ var _ = Describe("ORC Port API validations", func() {
 		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("Invalid value: \"object\": securityGroupRefs must be empty when portSecurity is set to Disabled")))
 	})
 
+	It("should not allow to create a port with allowedAddressPairs when portSecurity is explicitly set to Disabled", func(ctx context.Context) {
+		port := portStub(namespace)
+		patch := basePortPatch(port)
+		var ip orcv1alpha1.IPvAny = "192.168.11.11"
+		pairs := applyconfigv1alpha1.AllowedAddressPairApplyConfiguration{IP: &ip}
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().
+			WithNetworkRef(networkName).
+			WithAllowedAddressPairs(&pairs).
+			WithPortSecurity(orcv1alpha1.PortSecurityDisabled))
+		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("Invalid value: \"object\": allowedAddressPairs must be empty when portSecurity is set to Disabled")))
+	})
+
 	It("should reject to create a port with an invalid vnicType", func(ctx context.Context) {
 		port := portStub(namespace)
 		patch := basePortPatch(port)
 		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().WithVNICType(longString))
-		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("spec.resource.vnicType: Too long: may not be more than 64 bytes")))
+		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("spec.resource.vnicType: Too long: may not be longer than 64")))
 	})
 
 	// Note: we can't create a test for when the portSecurity is set to Inherit and the securityGroupRefs are set, because
