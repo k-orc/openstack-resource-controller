@@ -345,6 +345,10 @@ spec:
                     to Disabled
                   rule: 'has(self.portSecurity) && self.portSecurity == ''Disabled''
                     ? !has(self.securityGroupRefs) : true'
+                - message: allowedAddressPairs must be empty when portSecurity is
+                    set to Disabled
+                  rule: 'has(self.portSecurity) && self.portSecurity == ''Disabled''
+                    ? !has(self.allowedAddressPairs) : true'
             required:
             - cloudCredentialsRef
             type: object

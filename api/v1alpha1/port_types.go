@@ -88,6 +88,7 @@ type FixedIPStatus struct {
 
 // +kubebuilder:validation:XValidation:rule="self == oldSelf",message="PortResourceSpec is immutable"
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.securityGroupRefs) : true",message="securityGroupRefs must be empty when portSecurity is set to Disabled"
+// +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.allowedAddressPairs) : true",message="allowedAddressPairs must be empty when portSecurity is set to Disabled"
 type PortResourceSpec struct {
 	// name is a human-readable name of the port. If not set, the object's name will be used.
 	// +optional
