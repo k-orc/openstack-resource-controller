@@ -10,9 +10,11 @@ status:
     description: ""
     deviceID: ""
     deviceOwner: ""
+    portSecurityEnabled: true
     propagateUplinkStatus: false
     revisionNumber: 1
     status: DOWN
+    vnicType: normal
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
