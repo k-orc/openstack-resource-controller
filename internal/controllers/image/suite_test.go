@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2" //nolint:revive
-	. "github.com/onsi/gomega"    //nolint:revive
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"

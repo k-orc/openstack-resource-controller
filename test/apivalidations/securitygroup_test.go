@@ -24,7 +24,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	applyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
 	"k8s.io/utils/ptr"
@@ -246,17 +245,17 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 			sgRulePatchSpec := applyconfigv1alpha1.SecurityGroupRule().WithEthertype(ethertype).WithProtocol(protocol)
 			patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 				&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-					Min: ptr.To(v1alpha1.PortNumber(256)), Max: ptr.To(v1alpha1.PortNumber(0))})))
+					Min: ptr.To(orcv1alpha1.PortNumber(256)), Max: ptr.To(orcv1alpha1.PortNumber(0))})))
 			Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 
 			patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 				&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-					Min: ptr.To(v1alpha1.PortNumber(0)), Max: ptr.To(v1alpha1.PortNumber(256))})))
+					Min: ptr.To(orcv1alpha1.PortNumber(0)), Max: ptr.To(orcv1alpha1.PortNumber(256))})))
 			Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 
 			patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 				&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-					Min: ptr.To(v1alpha1.PortNumber(255)), Max: ptr.To(v1alpha1.PortNumber(255))})))
+					Min: ptr.To(orcv1alpha1.PortNumber(255)), Max: ptr.To(orcv1alpha1.PortNumber(255))})))
 			Expect(applyObj(ctx, securityGroup, patch)).To(Succeed(), "create security group")
 		},
 		Entry(string(orcv1alpha1.ProtocolICMP), orcv1alpha1.ProtocolICMP, orcv1alpha1.EthertypeIPv4),
@@ -284,11 +283,11 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		sgRulePatchSpec := baseSGRulePatchSpec().WithProtocol(orcv1alpha1.ProtocolTCP)
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(22)), Max: ptr.To(v1alpha1.PortNumber(23))})))
+				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(23))})))
 		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed(), "create security group")
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(22)), Max: ptr.To(v1alpha1.PortNumber(22))})))
+				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(22))})))
 		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed(), "create security group")
 	})
 
@@ -298,22 +297,22 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		sgRulePatchSpec := baseSGRulePatchSpec().WithProtocol(orcv1alpha1.ProtocolTCP)
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(51)), Max: ptr.To(v1alpha1.PortNumber(50))})))
+				Min: ptr.To(orcv1alpha1.PortNumber(51)), Max: ptr.To(orcv1alpha1.PortNumber(50))})))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(-1))})))
+				Min: ptr.To(orcv1alpha1.PortNumber(-1))})))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(50))})))
+				Min: ptr.To(orcv1alpha1.PortNumber(50))})))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Max: ptr.To(v1alpha1.PortNumber(50))})))
+				Max: ptr.To(orcv1alpha1.PortNumber(50))})))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 	})
 
@@ -323,7 +322,7 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		sgRulePatchSpec := baseSGRulePatchSpec().WithProtocol(orcv1alpha1.ProtocolTCP).WithEthertype(orcv1alpha1.EthertypeIPv4)
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(22)), Max: ptr.To(v1alpha1.PortNumber(22))}).WithRemoteIPPrefix("foo")))
+				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(22))}).WithRemoteIPPrefix("foo")))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 	})
 
@@ -334,13 +333,13 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		sgRulePatchSpec = applyconfigv1alpha1.SecurityGroupRule().WithEthertype(orcv1alpha1.EthertypeIPv6)
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(22)), Max: ptr.To(v1alpha1.PortNumber(22))}).WithRemoteIPPrefix("192.168.0.1/24")))
+				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(22))}).WithRemoteIPPrefix("192.168.0.1/24")))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 
 		sgRulePatchSpec = applyconfigv1alpha1.SecurityGroupRule().WithEthertype(orcv1alpha1.EthertypeIPv4)
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
 			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(v1alpha1.PortNumber(22)), Max: ptr.To(v1alpha1.PortNumber(22))}).WithRemoteIPPrefix("2001:db8::/47")))
+				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(22))}).WithRemoteIPPrefix("2001:db8::/47")))
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 	})
 
