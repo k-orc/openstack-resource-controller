@@ -24,7 +24,7 @@ spec:
   managementPolicy: managed
   resource:
     imageRef: server-import-error-external
-    flavorRef: server-flavor
+    flavorRef: server-import-error
     ports:
     - portRef: server-import-error-external-1
     tags:
@@ -55,7 +55,7 @@ spec:
   managementPolicy: managed
   resource:
     imageRef: server-import-error-external
-    flavorRef: server-flavor
+    flavorRef: server-import-error
     ports:
     - portRef: server-import-error-external-2
     tags:

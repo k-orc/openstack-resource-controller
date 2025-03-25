@@ -1,14 +1,11 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
+kind: SecurityGroup
 metadata:
-  name: subnet-dependency
+  name: port-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    networkRef: subnet-dependency
-    ipVersion: 4
-    cidr: 192.168.0.0/24
+  resource: {}

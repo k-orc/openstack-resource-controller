@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-dependency
+# FIXME: https://github.com/k-orc/openstack-resource-controller/issues/314
+# status:
+#   conditions:
+#     - type: Available
+#       message: Waiting for Router/routerinterface-dependency-imported to be created
+#       status: "False"
+#       reason: Progressing
+#     - type: Progressing
+#       message: Waiting for Router/routerinterface-dependency-imported to be created
+#       status: "True"
+#       reason: Progressing

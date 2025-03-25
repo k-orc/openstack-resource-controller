@@ -1,11 +1,13 @@
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Router
 metadata:
-  name: subnet-dependency
+  name: router-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Dependency
+    externalGateways:
+      - networkRef: router-dependency
