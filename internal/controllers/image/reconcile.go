@@ -29,6 +29,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -55,7 +56,7 @@ func (r *orcImageReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orcv1alpha1.Image) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Reconciling image")
+	log.V(logging.Verbose).Info("Reconciling image")
 
 	var statusOpts []updateStatusOpt
 	addStatus := func(opt updateStatusOpt) {
@@ -72,7 +73,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
-			log.Error(err, "not scheduling further reconciles for terminal error")
+			log.V(logging.Info).Info("not scheduling further reconciles for terminal error", "err", err.Error())
 			err = nil
 		}
 	}()
@@ -90,7 +91,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 	}
 
 	if len(waitEvents) > 0 {
-		log.V(3).Info("Waiting on events before creation")
+		log.V(logging.Verbose).Info("Waiting on events before creation")
 		addStatus(withProgressMessage(waitEvents[0].Message()))
 		return ctrl.Result{RequeueAfter: progress.MaxRequeue(waitEvents)}, nil
 	}
@@ -108,7 +109,7 @@ func (r *orcImageReconciler) reconcileNormal(ctx context.Context, orcObject *orc
 	}
 
 	log = log.WithValues("ID", osResource.ID)
-	log.V(4).Info("Got resource")
+	log.V(logging.Debug).Info("Got resource")
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	return r.handleImageUpload(ctx, actuator.osClient, orcObject, osResource, addStatus)
@@ -181,7 +182,7 @@ func (r *orcImageReconciler) handleImageUpload(ctx context.Context, imageClient 
 
 func (r *orcImageReconciler) reconcileDelete(ctx context.Context, orcObject *orcv1alpha1.Image) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Reconciling image delete")
+	log.V(logging.Verbose).Info("Reconciling image delete")
 
 	var statusOpts []updateStatusOpt
 	addStatus := func(opt updateStatusOpt) {

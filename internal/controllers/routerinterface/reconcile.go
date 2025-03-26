@@ -32,6 +32,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
@@ -56,7 +57,7 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	if !orcv1alpha1.IsAvailable(router) || router.Status.ID == nil {
-		log.V(4).Info("Not reconciling interfaces for not-Available router")
+		log.V(logging.Verbose).Info("Not reconciling interfaces for not-Available router")
 		return ctrl.Result{}, nil
 	}
 
@@ -140,7 +141,7 @@ func (r *orcRouterInterfaceReconciler) getNetworkClient(ctx context.Context, obj
 
 func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []ports.Port, networkClient osclients.NetworkClient) (_ time.Duration, err error) {
 	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Reconciling router interface", "name", routerInterface.Name)
+	log.V(logging.Verbose).Info("Reconciling router interface", "name", routerInterface.Name)
 
 	var statusOpts updateStatusOpts
 
@@ -154,7 +155,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
-			log.Error(err, "not scheduling further reconciles for terminal error")
+			log.V(logging.Info).Info("not scheduling further reconciles for terminal error", "err", err.Error())
 			err = nil
 		}
 	}()
@@ -194,7 +195,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, rout
 		return portStatusPollingPeriod, nil
 	}
 
-	log.V(3).Info("Router interface is available")
+	log.V(logging.Status).Info("Router interface is available")
 	return noRequeue, nil
 }
 
@@ -232,7 +233,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormalSubnet(ctx context.Context
 
 	// Don't reconcile for a subnet which has been deleted
 	if !subnet.GetDeletionTimestamp().IsZero() {
-		log.V(4).Info("Not reconciling interface for deleted subnet")
+		log.V(logging.Verbose).Info("Not reconciling interface for deleted subnet")
 		return false, nil, nil
 	}
 
@@ -269,16 +270,16 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, rout
 	log := ctrl.LoggerFrom(ctx).WithValues("interface name", routerInterface.Name)
 
 	if !controllerutil.ContainsFinalizer(routerInterface, finalizer) {
-		log.V(4).Info("Not reconciling delete for router interface without finalizer")
+		log.V(logging.Verbose).Info("Not reconciling delete for router interface without finalizer")
 		return noRequeue, nil
 	}
 
 	if len(routerInterface.GetFinalizers()) > 1 {
-		log.V(4).Info("Not reconciling delete for router interface with external finalizers")
+		log.V(logging.Verbose).Info("Not reconciling delete for router interface with external finalizers")
 		return noRequeue, nil
 	}
 
-	log.V(3).Info("Reconciling router interface delete")
+	log.V(logging.Verbose).Info("Reconciling router interface delete")
 
 	var statusOpts updateStatusOpts
 
@@ -319,7 +320,7 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, rout
 	}
 
 	// Clear the finalizer
-	log.V(3).Info("Router interface deleted")
+	log.V(logging.Info).Info("Router interface deleted")
 	return noRequeue, r.client.Patch(ctx, routerInterface, finalizers.RemoveFinalizerPatch(routerInterface), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer))
 }
 

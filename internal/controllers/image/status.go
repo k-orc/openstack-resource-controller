@@ -33,6 +33,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -234,7 +235,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 		addConditionValues := func(condition *applyconfigv1.ConditionApplyConfiguration) {
 			if condition.Type == nil {
 				bytes, _ := json.Marshal(condition)
-				log.V(0).Info("Attempting to set condition with no type", "condition", string(bytes))
+				log.V(logging.Debug).Info("Attempting to set condition with no type", "condition", string(bytes))
 				return
 			}
 
@@ -251,7 +252,7 @@ func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now me
 		}
 		addConditionValues(availableCondition)
 		addConditionValues(progressingCondition)
-		log.V(4).Info("Setting image status", logValues...)
+		log.V(logging.Verbose).Info("Setting image status", logValues...)
 	}
 
 	return applyConfig

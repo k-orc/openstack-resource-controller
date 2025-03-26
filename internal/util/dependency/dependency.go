@@ -31,6 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 )
 
@@ -297,7 +298,7 @@ func EnsureFinalizer(ctx context.Context, k8sClient client.Client, obj client.Ob
 	}
 
 	log := ctrl.LoggerFrom(ctx)
-	log.V(4).Info("Adding finalizer", "objectName", obj.GetName(), "objectKind", obj.GetObjectKind().GroupVersionKind().Kind)
+	log.V(logging.Verbose).Info("Adding finalizer", "objectName", obj.GetName(), "objectKind", obj.GetObjectKind().GroupVersionKind().Kind)
 	patch := finalizers.SetFinalizerPatch(obj, finalizer)
 	return k8sClient.Patch(ctx, obj, patch, client.ForceOwnership, fieldOwner)
 }

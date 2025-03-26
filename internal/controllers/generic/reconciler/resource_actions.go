@@ -29,6 +29,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
 	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
@@ -72,7 +73,7 @@ func GetOrCreateOSResource[
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "resource has been deleted from OpenStack")
 		}
 		if osResource != nil {
-			log.V(4).Info("Got existing OpenStack resource", "ID", actuator.GetResourceID(osResource))
+			log.V(logging.Verbose).Info("Got existing OpenStack resource", "ID", actuator.GetResourceID(osResource))
 		}
 		return nil, osResource, err
 	}
@@ -85,7 +86,7 @@ func GetOrCreateOSResource[
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "referenced resource does not exist in OpenStack")
 		}
 		if osResource != nil {
-			log.V(4).Info("Imported existing OpenStack resource by ID", "ID", actuator.GetResourceID(osResource))
+			log.V(logging.Verbose).Info("Imported existing OpenStack resource by ID", "ID", actuator.GetResourceID(osResource))
 		}
 		return nil, osResource, err
 	}
@@ -116,11 +117,11 @@ func GetOrCreateOSResource[
 		return nil, nil, err
 	}
 	if osResource != nil {
-		log.V(4).Info("Adopted previously created resource")
+		log.V(logging.Status).Info("Adopted previously created resource")
 		return nil, osResource, nil
 	}
 
-	log.V(3).Info("Creating resource")
+	log.V(logging.Info).Info("Creating resource")
 	return actuator.CreateResource(ctx, objAdapter.GetObject())
 }
 
@@ -172,7 +173,7 @@ func DeleteResource[
 	}
 
 	if len(progressStatus) > 0 {
-		log.V(4).Info("Deferring resource cleanup due to remaining external finalizers")
+		log.V(logging.Verbose).Info("Deferring resource cleanup due to remaining external finalizers")
 		return false, progressStatus, osResource, nil
 	}
 
@@ -191,7 +192,7 @@ func DeleteResource[
 		if managementPolicy == orcv1alpha1.ManagementPolicyManaged {
 			logPolicy = append(logPolicy, "onDelete", managedOptions.GetOnDelete())
 		}
-		log.V(4).Info("Not deleting OpenStack resource due to policy", logPolicy...)
+		log.V(logging.Verbose).Info("Not deleting OpenStack resource due to policy", logPolicy...)
 		return true, progressStatus, osResource, removeFinalizer()
 	}
 
@@ -205,12 +206,12 @@ func DeleteResource[
 	}
 
 	if osResource == nil {
-		log.V(4).Info("Resource is no longer observed")
+		log.V(logging.Info).Info("Resource deletion confirmed")
 
 		return true, progressStatus, osResource, removeFinalizer()
 	}
 
-	log.V(4).Info("Deleting OpenStack resource")
+	log.V(logging.Info).Info("Deleting OpenStack resource")
 	progressStatus, err := actuator.DeleteResource(ctx, objAdapter.GetObject(), osResource)
 
 	// If there are no other wait events, we still need to poll for the deletion

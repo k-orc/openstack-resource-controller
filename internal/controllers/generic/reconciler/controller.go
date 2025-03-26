@@ -31,6 +31,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/status"
+	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/internal/scope"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -164,16 +165,15 @@ func (c *Controller[
 	osResourceT,
 ]) reconcileNormal(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
-
 	// We do this here rather than in a predicate because predicates only cover
 	// a single watch. Doing it here means we cover all sources of
 	// reconciliation, including our dependencies.
 	if !shouldReconcile(objAdapter.GetObject()) {
-		log.V(3).Info("Status is up to date: not reconciling")
+		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		return ctrl.Result{}, nil
 	}
 
-	log.V(3).Info("Reconciling resource")
+	log.V(logging.Verbose).Info("Reconciling resource")
 
 	var osResource *osResourceT
 	var progressStatus []progress.ProgressStatus
@@ -184,7 +184,7 @@ func (c *Controller[
 
 		var terminalError *orcerrors.TerminalError
 		if errors.As(err, &terminalError) {
-			log.V(2).Info("not scheduling further reconciles for terminal error", "err", err.Error())
+			log.V(logging.Info).Info("not scheduling further reconciles for terminal error", "err", err.Error())
 			err = nil
 		}
 	}()
@@ -195,7 +195,7 @@ func (c *Controller[
 	}
 
 	if len(progressStatus) > 0 {
-		log.V(3).Info("Waiting on events before creation")
+		log.V(logging.Verbose).Info("Waiting on events before creation")
 		return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
 	}
 
@@ -205,7 +205,7 @@ func (c *Controller[
 	}
 
 	if len(progressStatus) > 0 {
-		log.V(3).Info("Waiting on events before creation")
+		log.V(logging.Verbose).Info("Waiting on events before creation")
 		return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
 	}
 
@@ -222,7 +222,7 @@ func (c *Controller[
 	}
 
 	log = log.WithValues("ID", actuator.GetResourceID(osResource))
-	log.V(4).Info("Got resource")
+	log.V(logging.Debug).Info("Got resource")
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged {
@@ -246,7 +246,6 @@ func (c *Controller[
 			}
 		}
 	}
-
 	return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
 }
 
@@ -259,7 +258,7 @@ func (c *Controller[
 	osResourceT,
 ]) reconcileDelete(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
 	log := ctrl.LoggerFrom(ctx)
-	log.V(3).Info("Reconciling OpenStack resource delete")
+	log.V(logging.Verbose).Info("Reconciling OpenStack resource delete")
 
 	var osResource *osResourceT
 	var progressStatus []progress.ProgressStatus
@@ -278,7 +277,7 @@ func (c *Controller[
 	}
 
 	if len(progressStatus) > 0 {
-		log.V(3).Info("Waiting on events before deletion")
+		log.V(logging.Info).Info("Waiting on events before deletion")
 		return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
 	}
 
