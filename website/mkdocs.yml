@@ -16,6 +16,7 @@ nav:
     - Resource-specific interfaces: development/interfaces.md
     - Writing tests: development/writing-tests.md
     - General design considerations: development/design-decisions.md
+    - Coding conventions: development/coding-conventions.md
     - Interface reference: development/godoc/generic-interfaces.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
