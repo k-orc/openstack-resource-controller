@@ -18,251 +18,110 @@ package image
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"time"
 
+	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 	"k8s.io/utils/ptr"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 const (
 	glanceOSHashAlgo  = "os_hash_algo"
 	glanceOSHashValue = "os_hash_value"
+
+	SSATransactionDownloadingStatus orcstrings.SSATransactionID = "downloadingstatus"
+
+	conditionDownloading = "Downloading"
 )
 
-// setStatusID sets a finalizer on the object in its own SSA transaction.
-func (r *orcImageReconciler) setStatusID(ctx context.Context, orcImage *orcv1alpha1.Image, id string) error {
-	applyConfig := orcapplyconfigv1alpha1.Image(orcImage.Name, orcImage.Namespace).
-		WithUID(orcImage.GetUID()).
-		WithStatus(orcapplyconfigv1alpha1.ImageStatus().
-			WithID(id))
+type objectApplyPT = *orcapplyconfigv1alpha1.ImageApplyConfiguration
+type statusApplyPT = *orcapplyconfigv1alpha1.ImageStatusApplyConfiguration
 
-	return r.client.Status().Patch(ctx, orcImage, applyconfigs.Patch(types.MergePatchType, applyConfig))
+type imageStatusWriter struct{}
+
+var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = imageStatusWriter{}
+
+func (imageStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+	return orcapplyconfigv1alpha1.Image(name, namespace)
 }
 
-type updateStatusOpts struct {
-	glanceImage               *images.Image
-	progressMessage           *string
-	err                       error
-	incrementDownloadAttempts bool
-	progressStatus            []progress.ProgressStatus
-}
-
-type updateStatusOpt func(*updateStatusOpts)
-
-func withResource(glanceImage *images.Image) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.glanceImage = glanceImage
-	}
-}
-
-func withError(err error) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.err = err
-	}
-}
-
-func withProgressStatus(progressStatus ...progress.ProgressStatus) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.progressStatus = append(opts.progressStatus, progressStatus...)
-	}
-}
-
-// withProgressMessage sets a custom progressing message if and only if the reconcile is progressing.
-func withProgressMessage(message string) updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.progressMessage = &message
-	}
-}
-
-func withIncrementDownloadAttempts() updateStatusOpt {
-	return func(opts *updateStatusOpts) {
-		opts.incrementDownloadAttempts = true
-	}
-}
-
-// createStatusUpdate computes a complete status update based on the given
-// observed state. This is separated from updateStatus to facilitate unit
-// testing, as the version of k8s we currently import does not support patch
-// apply in the fake client.
-// Needs: https://github.com/kubernetes/kubernetes/pull/125560
-func createStatusUpdate(ctx context.Context, orcImage *orcv1alpha1.Image, now metav1.Time, opts ...updateStatusOpt) *orcapplyconfigv1alpha1.ImageApplyConfiguration {
-	log := ctrl.LoggerFrom(ctx)
-
-	statusOpts := updateStatusOpts{}
-	for i := range opts {
-		opts[i](&statusOpts)
-	}
-
-	glanceImage := statusOpts.glanceImage
-	err := statusOpts.err
-
-	applyConfigStatus := orcapplyconfigv1alpha1.ImageStatus()
-	applyConfig := orcapplyconfigv1alpha1.Image(orcImage.Name, orcImage.Namespace).WithStatus(applyConfigStatus)
-
-	downloadAttempts := ptr.Deref(orcImage.Status.DownloadAttempts, 0)
-	if statusOpts.incrementDownloadAttempts {
-		downloadAttempts++
-	}
-	if downloadAttempts > 0 {
-		applyConfigStatus.WithDownloadAttempts(downloadAttempts)
-	}
-
-	var glanceHash *orcv1alpha1.ImageHash
-	if glanceImage != nil {
-		resourceStatus := orcapplyconfigv1alpha1.ImageResourceStatus()
-		applyConfigStatus.WithResource(resourceStatus)
-		resourceStatus.WithStatus(string(glanceImage.Status))
-		resourceStatus.WithName(glanceImage.Name)
-		resourceStatus.WithProtected(glanceImage.Protected)
-		resourceStatus.WithVisibility(string(glanceImage.Visibility))
-		resourceStatus.WithTags(glanceImage.Tags...)
-
-		if glanceImage.SizeBytes > 0 {
-			resourceStatus.WithSizeB(glanceImage.SizeBytes)
-		}
-		if glanceImage.VirtualSize > 0 {
-			resourceStatus.WithVirtualSizeB(glanceImage.VirtualSize)
-		}
-
-		osHashAlgo, _ := glanceImage.Properties[glanceOSHashAlgo].(string)
-		osHashValue, _ := glanceImage.Properties[glanceOSHashValue].(string)
-		if osHashAlgo != "" && osHashValue != "" {
-			glanceHash = &orcv1alpha1.ImageHash{
-				Algorithm: orcv1alpha1.ImageHashAlgorithm(osHashAlgo),
-				Value:     osHashValue,
-			}
-			resourceStatus.WithHash(
-				orcapplyconfigv1alpha1.ImageHash().
-					WithAlgorithm(glanceHash.Algorithm).
-					WithValue(glanceHash.Value))
-		}
-	}
-
-	availableCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.ConditionAvailable).
-		WithObservedGeneration(orcImage.Generation)
-	progressingCondition := applyconfigv1.Condition().
-		WithType(orcv1alpha1.ConditionProgressing).
-		WithObservedGeneration(orcImage.Generation)
-
-	available := false
-	if glanceImage != nil && glanceImage.Status == images.ImageStatusActive {
-		availableCondition.
-			WithStatus(metav1.ConditionTrue).
-			WithReason(orcv1alpha1.ConditionReasonSuccess).
-			WithMessage("Glance image is available")
-		available = true
-	} else {
-		// Image is not available. Reason and message will be copied from Progressing
-		availableCondition.WithStatus(metav1.ConditionFalse)
-	}
-
-	// We are progressing until the image is available or there was an error
-	if err == nil {
-		if available {
-			progressingCondition.
-				WithStatus(metav1.ConditionFalse).
-				WithReason(orcv1alpha1.ConditionReasonSuccess).
-				WithMessage(*availableCondition.Message)
+func (imageStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+	if osResource == nil {
+		if orcObject.Status.ID == nil {
+			return metav1.ConditionFalse
 		} else {
-			progressingCondition.
-				WithStatus(metav1.ConditionTrue).
-				WithReason(orcv1alpha1.ConditionReasonProgressing)
-
-			progressMessage := ""
-			if len(statusOpts.progressStatus) > 0 {
-				progressMessage = statusOpts.progressStatus[0].Message()
-			} else if statusOpts.progressMessage != nil {
-				progressMessage = *statusOpts.progressMessage
-			} else {
-				progressMessage = "Reconciliation is progressing"
-			}
-
-			progressingCondition.WithMessage(progressMessage)
-		}
-	} else {
-		progressingCondition.WithStatus(metav1.ConditionFalse)
-
-		var terminalError *orcerrors.TerminalError
-		if errors.As(err, &terminalError) {
-			progressingCondition.
-				WithReason(terminalError.Reason).
-				WithMessage(terminalError.Message)
-		} else {
-			progressingCondition.
-				WithReason(orcv1alpha1.ConditionReasonTransientError).
-				WithMessage(err.Error())
+			return metav1.ConditionUnknown
 		}
 	}
 
-	// Copy available status from progressing if it's not available yet
-	if !available {
-		availableCondition.
-			WithReason(*progressingCondition.Reason).
-			WithMessage(*progressingCondition.Message)
+	if osResource.Status == images.ImageStatusActive {
+		return metav1.ConditionTrue
 	}
+	return metav1.ConditionFalse
+}
+
+func (imageStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
+	resourceStatus := orcapplyconfigv1alpha1.ImageResourceStatus().
+		WithName(osResource.Name).
+		WithStatus(string(osResource.Status)).
+		WithProtected(osResource.Protected).
+		WithVisibility(string(osResource.Visibility)).
+		WithSizeB(osResource.SizeBytes).
+		WithTags(osResource.Tags...)
+
+	osHashAlgo, _ := osResource.Properties[glanceOSHashAlgo].(string)
+	osHashValue, _ := osResource.Properties[glanceOSHashValue].(string)
+	if osHashAlgo != "" && osHashValue != "" {
+		resourceStatus.WithHash(orcapplyconfigv1alpha1.ImageHash().
+			WithAlgorithm(orcv1alpha1.ImageHashAlgorithm(osHashAlgo)).
+			WithValue(osHashValue))
+	}
+
+	statusApply.WithResource(resourceStatus)
+}
+
+func setDownloadingStatus(ctx context.Context, increment bool, message, reason string, downloadingStatus metav1.ConditionStatus, orcObject orcObjectPT, k8sClient client.Client) error {
+	status := orcapplyconfigv1alpha1.ImageStatus()
+
+	downloadAttempts := ptr.Deref(orcObject.Status.DownloadAttempts, 0)
+	if increment {
+		downloadAttempts += 1
+	}
+	status.WithDownloadAttempts(downloadAttempts)
+
+	downloadingCondition := applyconfigv1.Condition().
+		WithType(conditionDownloading).
+		WithStatus(downloadingStatus).
+		WithMessage(message).
+		WithReason(reason).
+		WithObservedGeneration(orcObject.GetGeneration())
 
 	// Maintain condition timestamps if they haven't changed
 	// This also ensures that we don't generate an update event if nothing has changed
-	for _, condition := range []*applyconfigv1.ConditionApplyConfiguration{availableCondition, progressingCondition} {
-		previous := meta.FindStatusCondition(orcImage.Status.Conditions, *condition.Type)
-		if previous != nil && applyconfigs.ConditionsEqual(previous, condition) {
-			condition.WithLastTransitionTime(previous.LastTransitionTime)
-		} else {
-			condition.WithLastTransitionTime(now)
-		}
+	previous := meta.FindStatusCondition(orcObject.GetConditions(), conditionDownloading)
+	if previous != nil && applyconfigs.ConditionsEqual(previous, downloadingCondition) {
+		downloadingCondition.WithLastTransitionTime(previous.LastTransitionTime)
+	} else {
+		now := metav1.NewTime(time.Now())
+		downloadingCondition.WithLastTransitionTime(now)
 	}
+	status.WithConditions(downloadingCondition)
 
-	applyConfigStatus.WithConditions(availableCondition, progressingCondition)
+	applyConfig := orcapplyconfigv1alpha1.Image(orcObject.GetName(), orcObject.GetNamespace()).
+		WithUID(orcObject.GetUID()).
+		WithStatus(status)
 
-	if log.V(4).Enabled() {
-		logValues := make([]any, 0, 12)
-		addConditionValues := func(condition *applyconfigv1.ConditionApplyConfiguration) {
-			if condition.Type == nil {
-				bytes, _ := json.Marshal(condition)
-				log.V(logging.Debug).Info("Attempting to set condition with no type", "condition", string(bytes))
-				return
-			}
-
-			for _, v := range []struct {
-				name  string
-				value *string
-			}{
-				{"status", (*string)(condition.Status)},
-				{"reason", condition.Reason},
-				{"message", condition.Message},
-			} {
-				logValues = append(logValues, *condition.Type+"."+v.name, ptr.Deref(v.value, ""))
-			}
-		}
-		addConditionValues(availableCondition)
-		addConditionValues(progressingCondition)
-		log.V(logging.Verbose).Info("Setting image status", logValues...)
-	}
-
-	return applyConfig
-}
-
-// updateStatus computes a complete status based on the given observed state and writes it to status.
-func (r *orcImageReconciler) updateStatus(ctx context.Context, orcImage *orcv1alpha1.Image, opts ...updateStatusOpt) error {
-	now := metav1.NewTime(time.Now())
-
-	statusUpdate := createStatusUpdate(ctx, orcImage, now, opts...)
-
-	return r.client.Status().Patch(ctx, orcImage, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, ssaFieldOwner(SSAStatusTxn))
+	ssaFieldOwner := orcstrings.GetSSAFieldOwnerWithTxn(controllerName, SSATransactionDownloadingStatus)
+	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner)
 }

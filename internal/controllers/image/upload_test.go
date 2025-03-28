@@ -28,12 +28,10 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients/mock"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 )
 
 type serveFileHandler string
@@ -122,9 +120,8 @@ var _ = Describe("Upload tests", Ordered, func() {
 		ctx           context.Context
 		namespace     *corev1.Namespace
 		fileServeAddr string
-		reconciler    *orcImageReconciler
+		actuator      *imageActuator
 		mockCtrl      *gomock.Controller
-		scopeFactory  *scope.MockScopeFactory
 	)
 
 	BeforeAll(func() {
@@ -168,13 +165,10 @@ var _ = Describe("Upload tests", Ordered, func() {
 		})
 
 		mockCtrl = gomock.NewController(GinkgoT())
-		scopeFactory = scope.NewMockScopeFactory(mockCtrl)
-		reconciler = &orcImageReconciler{
-			client: k8sClient,
-			// NOTE(mdbooth): I have no idea what 1024 means here, or if it is a sensible value 🤷
-			recorder: record.NewFakeRecorder(1024),
+		actuator = &imageActuator{
+			osClient:  mock.NewMockImageClient(mockCtrl),
+			k8sClient: k8sClient,
 		}
-		reconciler.scopeFactory = scopeFactory
 	})
 
 	uploadTest := func(imageName string, aopts ...uploadTestOpt) error {
@@ -217,8 +211,9 @@ var _ = Describe("Upload tests", Ordered, func() {
 			DiskFormat:      "raw",
 		}
 
-		imageClient := mock.NewMockImageClient(mockCtrl)
-		recorder := imageClient.EXPECT()
+		osClient := mock.NewMockImageClient(mockCtrl)
+		actuator.osClient = osClient
+		recorder := osClient.EXPECT()
 		uploadDataMock := recorder.UploadData(ctx, glanceImage.ID, gomock.Any()).DoAndReturn(func(_ context.Context, _ string, data io.Reader) error {
 			_, err := io.ReadAll(data)
 			return err
@@ -227,7 +222,7 @@ var _ = Describe("Upload tests", Ordered, func() {
 			uploadDataMock.MaxTimes(1)
 		}
 
-		return reconciler.uploadImageContent(ctx, orcImage, imageClient, glanceImage)
+		return actuator.uploadImageContent(ctx, orcImage, glanceImage)
 	}
 
 	DescribeTable("should download a raw image",

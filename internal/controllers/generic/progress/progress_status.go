@@ -163,6 +163,28 @@ func NeedsRefresh() ProgressStatus {
 	return needsRefresh{}
 }
 
+type genericProgressStatus struct {
+	message string
+	requeue time.Duration
+}
+
+var _ ProgressStatus = genericProgressStatus{}
+
+func (e genericProgressStatus) Message() string {
+	return e.message
+}
+
+func (e genericProgressStatus) Requeue() time.Duration {
+	return e.requeue
+}
+
+func GenericProgressStatus(message string, requeue time.Duration) ProgressStatus {
+	return genericProgressStatus{
+		message: message,
+		requeue: requeue,
+	}
+}
+
 func MaxRequeue(evts []ProgressStatus) time.Duration {
 	var ret time.Duration
 	for _, evt := range evts {
