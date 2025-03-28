@@ -49,7 +49,7 @@ ORC heavily uses [CEL validations](https://kubernetes.io/docs/tasks/extend-kuber
 To install a released version of ORC, the simplest is probably to use the provided kustomization file:
 
 ```
-export ORC_RELEASE="https://github.com/k-orc/openstack-resource-controller/dist?ref=v1.0.0"
+export ORC_RELEASE="https://github.com/k-orc/openstack-resource-controller/dist?ref=v2.0.0"
 kubectl apply --server-side -k $ORC_RELEASE
 ```
 

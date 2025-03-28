@@ -4,7 +4,10 @@ Generate the new `install.yaml` manifest, and tag the release:
 ```bash
 export VERSION=vX.Y.Z
 make build-installer IMG=quay.io/orc/openstack-resource-controller:$VERSION
-git add dist
+
+... Update `Installation` in `README.md` to refer to the new release version.
+
+git add dist README.md
 git commit -m "Release $VERSION"
 git tag -s -a $VERSION -m $VERSION
 git push origin
