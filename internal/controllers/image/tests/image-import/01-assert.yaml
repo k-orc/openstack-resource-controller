@@ -6,11 +6,11 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Glance image is available
+      message: OpenStack resource is available
       status: "True"
       reason: Success
     - type: Progressing
-      message: Glance image is available
+      message: OpenStack resource is up to date
       status: "False"
       reason: Success
   resource:
