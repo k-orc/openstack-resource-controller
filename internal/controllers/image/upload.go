@@ -25,10 +25,13 @@ import (
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
+	"k8s.io/utils/ptr"
+
 	// corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/internal/logging"
 	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
 )
@@ -73,30 +76,32 @@ func (actuator imageActuator) downloadProgressReporter(ctx context.Context, orcI
 	}
 }
 
-func (actuator imageActuator) uploadImageContent(ctx context.Context, orcImage *orcv1alpha1.Image, glanceImage *images.Image) (err error) {
+func (actuator imageActuator) uploadImageContent(ctx context.Context, orcImage *orcv1alpha1.Image, glanceImage *images.Image) ([]progress.ProgressStatus, error) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(logging.Info).Info("Uploading image content")
 
+	var waitEvents []progress.ProgressStatus
+
 	content, err := requireResourceContent(orcImage)
 	if err != nil {
-		return err
+		return waitEvents, err
 	}
 
 	download := content.Download
 	if download == nil {
 		// Should have been caught by validation
-		return orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "image source type URL has no url entry")
+		return waitEvents, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "image source type URL has no url entry")
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, download.URL, http.NoBody)
 	if err != nil {
-		return fmt.Errorf("error creating request for %s: %w", download.URL, err)
+		return waitEvents, fmt.Errorf("error creating request for %s: %w", download.URL, err)
 	}
 
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error requesting %s: %w", download.URL, err)
+		return waitEvents, fmt.Errorf("error requesting %s: %w", download.URL, err)
 	}
 	defer func() {
 		err = errors.Join(err, resp.Body.Close())
@@ -111,7 +116,7 @@ func (actuator imageActuator) uploadImageContent(ctx context.Context, orcImage *
 		log.V(logging.Verbose).Info("will verify download hash", "algorithm", download.Hash.Algorithm, "value", download.Hash.Value)
 		reader, err = newReaderWithHash(reader, download.Hash.Algorithm, actuator.hashVerifier(ctx, orcImage, download.Hash.Value))
 		if err != nil {
-			return err
+			return waitEvents, err
 		}
 	}
 
@@ -124,25 +129,23 @@ func (actuator imageActuator) uploadImageContent(ctx context.Context, orcImage *
 		log.V(logging.Verbose).Info("will decompress downloaded content", "algorithm", *download.Decompress)
 		reader, err = newReaderWithDecompression(reader, *download.Decompress)
 		if err != nil {
-			return fmt.Errorf("opening %s: %w", download.URL, err)
+			return waitEvents, fmt.Errorf("opening %s: %w", download.URL, err)
 		}
 	}
 
-	// TODO(mandre)
-	// err = actuator.updateStatus(ctx, orcImage, withResource(glanceImage),
-	// 	withIncrementDownloadAttempts(),
-	// 	withProgressMessage(downloadingMessage("Starting image upload", orcImage)))
-	// if err != nil {
-	// 	return err
-	// }
+	// FIXME(mandre) we don't apply the status
+	downloadAttempts := ptr.Deref(orcImage.Status.DownloadAttempts, 0) + 1
+	orcImage.Status.DownloadAttempts = &downloadAttempts
+	progressStatus := progress.GenericProgressStatus("Starting image upload", externalUpdatePollingPeriod)
+	waitEvents = append(waitEvents, progressStatus)
 
 	err = actuator.osClient.UploadData(ctx, glanceImage.ID, reader)
 	if err != nil {
 		if orcerrors.IsInvalidError(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, err.Error(), err)
 		}
-		return fmt.Errorf("error writing data to glance: %w", err)
+		return waitEvents, fmt.Errorf("error writing data to glance: %w", err)
 	}
 
-	return nil
+	return waitEvents, nil
 }

@@ -220,22 +220,21 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 
 	// Cases where we're not going to take any action until the next resync
 	case images.ImageStatusActive, images.ImageStatusDeactivated:
-		// if orcObject.Status != images.ImageStatusActive || orcObject.Status != images.ImageStatusDeactivated
 		// fall through
 
 	// Content is being saved. Check back in a minute
 	// "importing" is seen during web-download
 	// "saving" is seen while uploading, but might be seen because our upload failed and glance hasn't reset yet.
 	case images.ImageStatusImporting, images.ImageStatusSaving:
-		log.V(logging.Verbose).Info("Glance is downloading image content")
-		waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
+		progressStatus := progress.GenericProgressStatus("Glance is downloading image content", externalUpdatePollingPeriod)
+		waitEvents = append(waitEvents, progressStatus)
 
 	// Newly created image, waiting for upload, or... previous upload was interrupted and has now reset
 	case images.ImageStatusQueued:
 		// Don't attempt image creation if we're not managing the image
 		if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
-			log.V(logging.Verbose).Info("Waiting for glance image content to be uploaded externally")
-			waitEvents = append(waitEvents, progress.WaitingOnOpenStackCreate(externalUpdatePollingPeriod))
+			progressStatus := progress.GenericProgressStatus("Waiting for glance image content to be uploaded externally", externalUpdatePollingPeriod)
+			waitEvents = append(waitEvents, progressStatus)
 		}
 
 		if ptr.Deref(orcObject.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
@@ -263,13 +262,14 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 			}
 
 			// Don't increment DownloadAttempts unless webDownload returned success
-			// addStatus(withIncrementDownloadAttempts())
+			// FIXME(mandre) we don't apply the status
+			downloadAttempts := ptr.Deref(orcObject.Status.DownloadAttempts, 0) + 1
+			orcObject.Status.DownloadAttempts = &downloadAttempts
 
 			waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
 			return waitEvents, nil
 		} else {
-			waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
-			return waitEvents, actuator.uploadImageContent(ctx, orcObject, osResource)
+			return actuator.uploadImageContent(ctx, orcObject, osResource)
 		}
 
 	// Error cases
@@ -277,6 +277,7 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "a glance error occurred while saving image content")
 	case images.ImageStatusDeleted, images.ImageStatusPendingDelete:
 		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "image status is deleting")
+
 	default:
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
