@@ -17,6 +17,7 @@ nav:
     - Writing tests: development/writing-tests.md
     - General design considerations: development/design-decisions.md
     - Interface reference: development/godoc/generic-interfaces.md
+  - Changelog: changelog.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
   analytics:
