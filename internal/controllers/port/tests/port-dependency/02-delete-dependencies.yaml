@@ -1,0 +1,23 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We expect the deletion to hang due to the finalizer, so use --wait=false
+
+  - command: kubectl delete network port-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete network port-dependency-pending-network --wait=false
+    namespaced: true
+  - command: kubectl delete network port-dependency-pending-subnet --wait=false
+    namespaced: true
+  - command: kubectl delete securitygroup port-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete subnet port-dependency --wait=false
+    namespaced: true    
+  - command: kubectl delete subnet port-dependency-pending-network --wait=false
+    namespaced: true
+  - command: kubectl delete subnet port-dependency-pending-subnet --wait=false
+    namespaced: true  
+  - command: kubectl delete securitygroup port-dependency --wait=false
+    namespaced: true        
+  - command: kubectl delete securitygroup port-dependency-pending --wait=false
+    namespaced: true    

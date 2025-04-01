@@ -1,0 +1,61 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: port-dependency-pending
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds-pending
+  managementPolicy: managed
+  resource: {}  
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: port-dependency-pending-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds-pending
+  managementPolicy: managed
+  resource: {}  
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: port-dependency-pending-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds-pending
+  managementPolicy: managed
+  resource: {}  
+---  
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: port-dependency-pending-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds-pending
+  managementPolicy: managed
+  resource:
+    networkRef: port-dependency-pending-network
+    ipVersion: 4
+    cidr: 192.168.156.0/24  
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: port-dependency-pending-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds-pending
+  managementPolicy: managed
+  resource:
+    networkRef: port-dependency-pending-subnet
+    ipVersion: 4
+    cidr: 192.168.157.0/24      
