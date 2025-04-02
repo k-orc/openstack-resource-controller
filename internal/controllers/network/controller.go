@@ -23,12 +23,12 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/reconciler"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
-	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 )
 
 const controllerName = "network"

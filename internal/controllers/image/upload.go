@@ -28,10 +28,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/logging"
-	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
 func (r *orcImageReconciler) hashVerifier(ctx context.Context, orcImage *orcv1alpha1.Image, expectedValue string) hashCompletionHandler {

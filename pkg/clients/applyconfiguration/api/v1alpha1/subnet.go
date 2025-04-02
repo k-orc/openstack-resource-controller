@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	internal "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/internal"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	internal "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
@@ -71,7 +71,7 @@ func ExtractSubnetStatus(subnet *apiv1alpha1.Subnet, fieldManager string) (*Subn
 
 func extractSubnet(subnet *apiv1alpha1.Subnet, fieldManager string, subresource string) (*SubnetApplyConfiguration, error) {
 	b := &SubnetApplyConfiguration{}
-	err := managedfields.ExtractInto(subnet, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.api.v1alpha1.Subnet"), fieldManager, b, subresource)
+	err := managedfields.ExtractInto(subnet, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subnet"), fieldManager, b, subresource)
 	if err != nil {
 		return nil, err
 	}

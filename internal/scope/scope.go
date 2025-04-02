@@ -24,8 +24,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 )
 
 // NewFactory creates the default scope factory. It generates service clients which make OpenStack API calls against a running cloud.

@@ -3,7 +3,7 @@
 # interfaces
 
 ```go
-import "github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
+import "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 ```
 
 ## Index

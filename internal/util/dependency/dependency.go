@@ -30,9 +30,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/internal/logging"
-	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
 )
 
 // NewDependency returns a new Dependency, which can perform tasks necessary to manage a dependency between 2 object types. The 2 object types are:

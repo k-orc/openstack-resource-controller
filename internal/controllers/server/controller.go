@@ -25,13 +25,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/reconciler"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
-	"github.com/k-orc/openstack-resource-controller/internal/util/credentials"
-	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
-	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 )
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=servers,verbs=get;list;watch;create;update;patch;delete

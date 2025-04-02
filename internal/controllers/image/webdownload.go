@@ -25,10 +25,10 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/logging"
-	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
-	orcerrors "github.com/k-orc/openstack-resource-controller/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
 func requireResource(orcImage *orcv1alpha1.Image) (*orcv1alpha1.ImageResourceSpec, error) {

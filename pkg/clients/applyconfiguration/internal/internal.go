@@ -39,7 +39,7 @@ func Parser() *typed.Parser {
 var parserOnce sync.Once
 var parser *typed.Parser
 var schemaYAML = typed.YAMLObject(`types:
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Address
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Address
   map:
     fields:
     - name: ip
@@ -49,7 +49,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPool
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllocationPool
   map:
     fields:
     - name: end
@@ -60,7 +60,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPoolStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllocationPoolStatus
   map:
     fields:
     - name: end
@@ -69,7 +69,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: start
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPair
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllowedAddressPair
   map:
     fields:
     - name: ip
@@ -79,7 +79,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: mac
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPairStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllowedAddressPairStatus
   map:
     fields:
     - name: ip
@@ -88,7 +88,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: mac
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
   map:
     fields:
     - name: cloudName
@@ -99,20 +99,20 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGateway
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGateway
   map:
     fields:
     - name: networkRef
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGatewayStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGatewayStatus
   map:
     fields:
     - name: networkID
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FixedIPStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FixedIPStatus
   map:
     fields:
     - name: ip
@@ -121,7 +121,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: subnetID
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Flavor
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Flavor
   map:
     fields:
     - name: apiVersion
@@ -136,13 +136,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorFilter
   map:
     fields:
     - name: disk
@@ -157,16 +157,16 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: vcpus
       type:
         scalar: numeric
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceSpec
   map:
     fields:
     - name: description
@@ -196,7 +196,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: numeric
       default: 0
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceStatus
   map:
     fields:
     - name: description
@@ -223,26 +223,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: vcpus
       type:
         scalar: numeric
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorStatus
   map:
     fields:
     - name: conditions
@@ -258,8 +258,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FlavorResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRoute
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRoute
   map:
     fields:
     - name: destination
@@ -270,7 +270,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRouteStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRouteStatus
   map:
     fields:
     - name: destination
@@ -279,7 +279,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: nextHop
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.IPv6Options
   map:
     fields:
     - name: addressMode
@@ -288,7 +288,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: raMode
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Image
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Image
   map:
     fields:
     - name: apiVersion
@@ -303,13 +303,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageContent
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageContent
   map:
     fields:
     - name: containerFormat
@@ -321,8 +321,8 @@ var schemaYAML = typed.YAMLObject(`types:
       default: ""
     - name: download
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageContentSourceDownload
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageContentSourceDownload
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageContentSourceDownload
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageContentSourceDownload
   map:
     fields:
     - name: decompress
@@ -330,12 +330,12 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: hash
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageHash
     - name: url
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageFilter
   map:
     fields:
     - name: name
@@ -347,7 +347,7 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageHash
   map:
     fields:
     - name: algorithm
@@ -358,28 +358,28 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageProperties
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageProperties
   map:
     fields:
     - name: hardware
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImagePropertiesHardware
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImagePropertiesHardware
     - name: minDiskGB
       type:
         scalar: numeric
     - name: minMemoryMB
       type:
         scalar: numeric
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImagePropertiesHardware
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImagePropertiesHardware
   map:
     fields:
     - name: cdromBus
@@ -409,18 +409,18 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: vifModel
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceSpec
   map:
     fields:
     - name: content
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageContent
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageContent
     - name: name
       type:
         scalar: string
     - name: properties
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageProperties
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageProperties
     - name: protected
       type:
         scalar: boolean
@@ -433,12 +433,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: visibility
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceStatus
   map:
     fields:
     - name: hash
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageHash
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageHash
     - name: name
       type:
         scalar: string
@@ -463,26 +463,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: visibility
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageStatus
   map:
     fields:
     - name: conditions
@@ -501,14 +501,14 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ImageResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
   map:
     fields:
     - name: onDelete
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Network
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Network
   map:
     fields:
     - name: apiVersion
@@ -523,13 +523,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkFilter
   map:
     fields:
     - name: description
@@ -565,16 +565,16 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceSpec
   map:
     fields:
     - name: adminStateUp
@@ -613,7 +613,7 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceStatus
   map:
     fields:
     - name: adminStateUp
@@ -651,7 +651,7 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: provider
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderPropertiesStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ProviderPropertiesStatus
     - name: revisionNumber
       type:
         scalar: numeric
@@ -676,26 +676,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: updatedAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkStatus
   map:
     fields:
     - name: conditions
@@ -711,8 +711,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.NetworkResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Port
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Port
   map:
     fields:
     - name: apiVersion
@@ -727,13 +727,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortFilter
   map:
     fields:
     - name: description
@@ -770,16 +770,16 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortRangeSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortRangeSpec
   map:
     fields:
     - name: max
@@ -790,7 +790,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: numeric
       default: 0
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortRangeStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortRangeStatus
   map:
     fields:
     - name: max
@@ -801,20 +801,20 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: numeric
       default: 0
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceSpec
   map:
     fields:
     - name: addresses
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Address
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Address
           elementRelationship: atomic
     - name: allowedAddressPairs
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPair
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllowedAddressPair
           elementRelationship: atomic
     - name: description
       type:
@@ -838,7 +838,7 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceStatus
   map:
     fields:
     - name: adminStateUp
@@ -848,7 +848,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllowedAddressPairStatus
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllowedAddressPairStatus
           elementRelationship: atomic
     - name: createdAt
       type:
@@ -866,7 +866,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.FixedIPStatus
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FixedIPStatus
           elementRelationship: atomic
     - name: macAddress
       type:
@@ -904,26 +904,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: updatedAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortStatus
   map:
     fields:
     - name: conditions
@@ -939,8 +939,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ProviderPropertiesStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ProviderPropertiesStatus
   map:
     fields:
     - name: networkType
@@ -952,7 +952,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: segmentationID
       type:
         scalar: numeric
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Router
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Router
   map:
     fields:
     - name: apiVersion
@@ -967,13 +967,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterFilter
   map:
     fields:
     - name: description
@@ -1006,16 +1006,16 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterface
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterface
   map:
     fields:
     - name: apiVersion
@@ -1030,13 +1030,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterfaceSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterfaceStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterfaceSpec
   map:
     fields:
     - name: routerRef
@@ -1050,7 +1050,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterInterfaceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterfaceStatus
   map:
     fields:
     - name: conditions
@@ -1064,7 +1064,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceSpec
   map:
     fields:
     - name: adminStateUp
@@ -1086,7 +1086,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGateway
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGateway
           elementRelationship: atomic
     - name: name
       type:
@@ -1097,7 +1097,7 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceStatus
   map:
     fields:
     - name: adminStateUp
@@ -1116,7 +1116,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ExternalGatewayStatus
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGatewayStatus
           elementRelationship: atomic
     - name: name
       type:
@@ -1133,26 +1133,26 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterStatus
   map:
     fields:
     - name: conditions
@@ -1168,8 +1168,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.RouterResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroup
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroup
   map:
     fields:
     - name: apiVersion
@@ -1184,13 +1184,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupFilter
   map:
     fields:
     - name: description
@@ -1223,16 +1223,16 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupResourceSpec
   map:
     fields:
     - name: description
@@ -1245,7 +1245,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRule
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupRule
           elementRelationship: atomic
     - name: stateful
       type:
@@ -1256,7 +1256,7 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupResourceStatus
   map:
     fields:
     - name: createdAt
@@ -1278,7 +1278,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRuleStatus
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupRuleStatus
           elementRelationship: atomic
     - name: stateful
       type:
@@ -1292,7 +1292,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: updatedAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRule
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupRule
   map:
     fields:
     - name: description
@@ -1307,14 +1307,14 @@ var schemaYAML = typed.YAMLObject(`types:
       default: ""
     - name: portRange
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortRangeSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortRangeSpec
     - name: protocol
       type:
         scalar: string
     - name: remoteIPPrefix
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupRuleStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupRuleStatus
   map:
     fields:
     - name: description
@@ -1331,7 +1331,7 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: portRange
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.PortRangeStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortRangeStatus
     - name: protocol
       type:
         scalar: string
@@ -1341,26 +1341,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: remoteIPPrefix
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupStatus
   map:
     fields:
     - name: conditions
@@ -1376,8 +1376,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroupResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Server
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Server
   map:
     fields:
     - name: apiVersion
@@ -1392,13 +1392,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerFilter
   map:
     fields:
     - name: name
@@ -1428,22 +1428,22 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerPortSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
   map:
     fields:
     - name: portRef
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceSpec
   map:
     fields:
     - name: flavorRef
@@ -1461,7 +1461,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerPortSpec
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
           elementRelationship: atomic
     - name: tags
       type:
@@ -1471,8 +1471,8 @@ var schemaYAML = typed.YAMLObject(`types:
           elementRelationship: associative
     - name: userData
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.UserDataSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserDataSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
   map:
     fields:
     - name: hostID
@@ -1493,26 +1493,26 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerStatus
   map:
     fields:
     - name: conditions
@@ -1528,8 +1528,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ServerResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.Subnet
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subnet
   map:
     fields:
     - name: apiVersion
@@ -1544,13 +1544,13 @@ var schemaYAML = typed.YAMLObject(`types:
       default: {}
     - name: spec
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetSpec
       default: {}
     - name: status
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetStatus
       default: {}
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetFilter
   map:
     fields:
     - name: cidr
@@ -1567,7 +1567,7 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: numeric
     - name: ipv6
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.IPv6Options
     - name: name
       type:
         scalar: string
@@ -1599,7 +1599,7 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetGateway
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetGateway
   map:
     fields:
     - name: ip
@@ -1609,23 +1609,23 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetImport
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetImport
   map:
     fields:
     - name: filter
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetFilter
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetFilter
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceSpec
   map:
     fields:
     - name: allocationPools
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPool
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllocationPool
           elementRelationship: atomic
     - name: cidr
       type:
@@ -1648,12 +1648,12 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: boolean
     - name: gateway
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetGateway
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetGateway
     - name: hostRoutes
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRoute
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRoute
           elementRelationship: atomic
     - name: ipVersion
       type:
@@ -1661,7 +1661,7 @@ var schemaYAML = typed.YAMLObject(`types:
       default: 0
     - name: ipv6
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.IPv6Options
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.IPv6Options
     - name: name
       type:
         scalar: string
@@ -1678,14 +1678,14 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceStatus
   map:
     fields:
     - name: allocationPools
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.AllocationPoolStatus
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllocationPoolStatus
           elementRelationship: atomic
     - name: cidr
       type:
@@ -1715,7 +1715,7 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         list:
           elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.HostRouteStatus
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRouteStatus
           elementRelationship: atomic
     - name: ipVersion
       type:
@@ -1750,26 +1750,26 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: updatedAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetSpec
   map:
     fields:
     - name: cloudCredentialsRef
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.CloudCredentialsReference
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
       default: {}
     - name: import
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetImport
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetImport
     - name: managedOptions
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.ManagedOptions
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
     - name: managementPolicy
       type:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceSpec
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetStatus
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetStatus
   map:
     fields:
     - name: conditions
@@ -1785,8 +1785,8 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: resource
       type:
-        namedType: com.github.k-orc.openstack-resource-controller.api.v1alpha1.SubnetResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.api.v1alpha1.UserDataSpec
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserDataSpec
   map:
     fields:
     - name: secretRef

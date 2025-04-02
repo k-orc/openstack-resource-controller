@@ -30,13 +30,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/pkg/predicates"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
-	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
-	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 )
 
 const (

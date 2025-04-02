@@ -23,7 +23,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
-	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 )
 
 /*

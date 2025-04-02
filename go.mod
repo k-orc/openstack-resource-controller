@@ -1,4 +1,4 @@
-module github.com/k-orc/openstack-resource-controller
+module github.com/k-orc/openstack-resource-controller/v2
 
 go 1.23.0
 

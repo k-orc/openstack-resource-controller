@@ -19,7 +19,7 @@ package interfaces
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 )
 
 type APIObjectAdapter[orcObjectPT any, resourceSpecT any, filterT any] interface {
