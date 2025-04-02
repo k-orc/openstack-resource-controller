@@ -39,7 +39,7 @@ import (
 	networks "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	ports "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	subnets "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
-	osclients "github.com/k-orc/openstack-resource-controller/internal/osclients"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	gomock "go.uber.org/mock/gomock"
 )
 

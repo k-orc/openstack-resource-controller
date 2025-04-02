@@ -19,10 +19,10 @@ limitations under the License.
 package fake
 
 import (
-	applyconfiguration "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration"
-	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
-	openstackv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1"
-	fakeopenstackv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/typed/api/v1alpha1/fake"
+	applyconfiguration "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration"
+	clientset "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset"
+	openstackv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset/typed/api/v1alpha1"
+	fakeopenstackv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset/typed/api/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

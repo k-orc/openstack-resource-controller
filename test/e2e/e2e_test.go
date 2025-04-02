@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/k-orc/openstack-resource-controller/test/utils"
+	"github.com/k-orc/openstack-resource-controller/v2/test/utils"
 )
 
 const namespace = "orc-system"

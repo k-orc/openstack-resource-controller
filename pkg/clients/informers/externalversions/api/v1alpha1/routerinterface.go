@@ -22,10 +22,10 @@ import (
 	context "context"
 	time "time"
 
-	openstackresourcecontrollerapiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	clientset "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset"
-	internalinterfaces "github.com/k-orc/openstack-resource-controller/pkg/clients/informers/externalversions/internalinterfaces"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/listers/api/v1alpha1"
+	v2apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	clientset "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset"
+	internalinterfaces "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/informers/externalversions/internalinterfaces"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -71,7 +71,7 @@ func NewFilteredRouterInterfaceInformer(client clientset.Interface, namespace st
 				return client.OpenstackV1alpha1().RouterInterfaces(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&openstackresourcecontrollerapiv1alpha1.RouterInterface{},
+		&v2apiv1alpha1.RouterInterface{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,7 +82,7 @@ func (f *routerInterfaceInformer) defaultInformer(client clientset.Interface, re
 }
 
 func (f *routerInterfaceInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&openstackresourcecontrollerapiv1alpha1.RouterInterface{}, f.defaultInformer)
+	return f.factory.InformerFor(&v2apiv1alpha1.RouterInterface{}, f.defaultInformer)
 }
 
 func (f *routerInterfaceInformer) Lister() apiv1alpha1.RouterInterfaceLister {

@@ -25,13 +25,13 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/generic/status"
-	"github.com/k-orc/openstack-resource-controller/internal/controllers/port"
-	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
-	orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
-	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 type updateStatusOpts struct {

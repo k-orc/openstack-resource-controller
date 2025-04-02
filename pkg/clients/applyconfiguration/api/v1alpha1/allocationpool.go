@@ -19,7 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 )
 
 // AllocationPoolApplyConfiguration represents a declarative configuration of the AllocationPool type for use

@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/k-orc/openstack-resource-controller/internal/logging"
-	"github.com/k-orc/openstack-resource-controller/internal/util/finalizers"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"

@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	openstackv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	openstackv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

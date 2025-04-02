@@ -30,105 +30,105 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Address":                     schema_k_orc_openstack_resource_controller_api_v1alpha1_Address(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllocationPool":              schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPool(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllocationPoolStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPoolStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllowedAddressPair":          schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPair(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllowedAddressPairStatus":    schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPairStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference":   schema_k_orc_openstack_resource_controller_api_v1alpha1_CloudCredentialsReference(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGateway":             schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGateway(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGatewayStatus":       schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGatewayStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FilterByNeutronTags":         schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FilterByServerTags":          schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByServerTags(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FixedIPStatus":               schema_k_orc_openstack_resource_controller_api_v1alpha1_FixedIPStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Flavor":                      schema_k_orc_openstack_resource_controller_api_v1alpha1_Flavor(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorList":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceSpec":          schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorStatus":                schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.HostRoute":                   schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRoute(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.HostRouteStatus":             schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRouteStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options":                 schema_k_orc_openstack_resource_controller_api_v1alpha1_IPv6Options(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Image":                       schema_k_orc_openstack_resource_controller_api_v1alpha1_Image(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContent":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContentSourceDownload":  schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContentSourceDownload(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageFilter":                 schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash":                   schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageHash(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageImport":                 schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageList":                   schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageProperties":             schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageProperties(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImagePropertiesHardware":     schema_k_orc_openstack_resource_controller_api_v1alpha1_ImagePropertiesHardware(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceSpec":           schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceStatus":         schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageSpec":                   schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageStatus":                 schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageStatusExtra":            schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatusExtra(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions":              schema_k_orc_openstack_resource_controller_api_v1alpha1_ManagedOptions(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Network":                     schema_k_orc_openstack_resource_controller_api_v1alpha1_Network(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkFilter":               schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkImport":               schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkList":                 schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceSpec":         schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceStatus":       schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkSpec":                 schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkStatus":               schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NeutronStatusMetadata":       schema_k_orc_openstack_resource_controller_api_v1alpha1_NeutronStatusMetadata(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Port":                        schema_k_orc_openstack_resource_controller_api_v1alpha1_Port(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortFilter":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortImport":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortList":                    schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec":               schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus":             schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceSpec":            schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus":          schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec":                    schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus":    schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Router":                      schema_k_orc_openstack_resource_controller_api_v1alpha1_Router(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterface":             schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterface(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceList":         schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceSpec":         schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceStatus":       schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterList":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceSpec":          schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterStatus":                schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroup":               schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroup(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupFilter":         schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupImport":         schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupList":           schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceSpec":   schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceStatus": schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupRule":           schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupRuleStatus":     schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupSpec":           schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupStatus":         schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Server":                      schema_k_orc_openstack_resource_controller_api_v1alpha1_Server(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerList":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec":              schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceSpec":          schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerStatus":                schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Subnet":                      schema_k_orc_openstack_resource_controller_api_v1alpha1_Subnet(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetFilter":                schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetGateway":               schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetGateway(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetImport":                schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetImport(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetList":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetList(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceSpec":          schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceStatus":        schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetSpec":                  schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetStatus":                schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec":                schema_k_orc_openstack_resource_controller_api_v1alpha1_UserDataSpec(ref),
-		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource":                                     schema_k8sio_api_core_v1_AWSElasticBlockStoreVolumeSource(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address":                     schema_openstack_resource_controller_v2_api_v1alpha1_Address(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPool":              schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPool(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPoolStatus":        schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPoolStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair":          schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPair(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPairStatus":    schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference":   schema_openstack_resource_controller_v2_api_v1alpha1_CloudCredentialsReference(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGateway":             schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGateway(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGatewayStatus":       schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGatewayStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FilterByNeutronTags":         schema_openstack_resource_controller_v2_api_v1alpha1_FilterByNeutronTags(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FilterByServerTags":          schema_openstack_resource_controller_v2_api_v1alpha1_FilterByServerTags(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus":               schema_openstack_resource_controller_v2_api_v1alpha1_FixedIPStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Flavor":                      schema_openstack_resource_controller_v2_api_v1alpha1_Flavor(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorFilter":                schema_openstack_resource_controller_v2_api_v1alpha1_FlavorFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorImport":                schema_openstack_resource_controller_v2_api_v1alpha1_FlavorImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorList":                  schema_openstack_resource_controller_v2_api_v1alpha1_FlavorList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceSpec":          schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceStatus":        schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorSpec":                  schema_openstack_resource_controller_v2_api_v1alpha1_FlavorSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorStatus":                schema_openstack_resource_controller_v2_api_v1alpha1_FlavorStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRoute":                   schema_openstack_resource_controller_v2_api_v1alpha1_HostRoute(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRouteStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_HostRouteStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options":                 schema_openstack_resource_controller_v2_api_v1alpha1_IPv6Options(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Image":                       schema_openstack_resource_controller_v2_api_v1alpha1_Image(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageContent":                schema_openstack_resource_controller_v2_api_v1alpha1_ImageContent(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageContentSourceDownload":  schema_openstack_resource_controller_v2_api_v1alpha1_ImageContentSourceDownload(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageFilter":                 schema_openstack_resource_controller_v2_api_v1alpha1_ImageFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageHash":                   schema_openstack_resource_controller_v2_api_v1alpha1_ImageHash(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageImport":                 schema_openstack_resource_controller_v2_api_v1alpha1_ImageImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageList":                   schema_openstack_resource_controller_v2_api_v1alpha1_ImageList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageProperties":             schema_openstack_resource_controller_v2_api_v1alpha1_ImageProperties(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImagePropertiesHardware":     schema_openstack_resource_controller_v2_api_v1alpha1_ImagePropertiesHardware(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceSpec":           schema_openstack_resource_controller_v2_api_v1alpha1_ImageResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_ImageResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_ImageSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageStatus":                 schema_openstack_resource_controller_v2_api_v1alpha1_ImageStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageStatusExtra":            schema_openstack_resource_controller_v2_api_v1alpha1_ImageStatusExtra(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions":              schema_openstack_resource_controller_v2_api_v1alpha1_ManagedOptions(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Network":                     schema_openstack_resource_controller_v2_api_v1alpha1_Network(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkFilter":               schema_openstack_resource_controller_v2_api_v1alpha1_NetworkFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkImport":               schema_openstack_resource_controller_v2_api_v1alpha1_NetworkImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkList":                 schema_openstack_resource_controller_v2_api_v1alpha1_NetworkList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceSpec":         schema_openstack_resource_controller_v2_api_v1alpha1_NetworkResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceStatus":       schema_openstack_resource_controller_v2_api_v1alpha1_NetworkResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkSpec":                 schema_openstack_resource_controller_v2_api_v1alpha1_NetworkSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkStatus":               schema_openstack_resource_controller_v2_api_v1alpha1_NetworkStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NeutronStatusMetadata":       schema_openstack_resource_controller_v2_api_v1alpha1_NeutronStatusMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Port":                        schema_openstack_resource_controller_v2_api_v1alpha1_Port(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortFilter":                  schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortImport":                  schema_openstack_resource_controller_v2_api_v1alpha1_PortImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortList":                    schema_openstack_resource_controller_v2_api_v1alpha1_PortList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortRangeSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_PortRangeSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortRangeStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_PortRangeStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceSpec":            schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_PortSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_PortStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProviderPropertiesStatus":    schema_openstack_resource_controller_v2_api_v1alpha1_ProviderPropertiesStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Router":                      schema_openstack_resource_controller_v2_api_v1alpha1_Router(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterFilter":                schema_openstack_resource_controller_v2_api_v1alpha1_RouterFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterImport":                schema_openstack_resource_controller_v2_api_v1alpha1_RouterImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterface":             schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterface(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceList":         schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceSpec":         schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceStatus":       schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterList":                  schema_openstack_resource_controller_v2_api_v1alpha1_RouterList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceSpec":          schema_openstack_resource_controller_v2_api_v1alpha1_RouterResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceStatus":        schema_openstack_resource_controller_v2_api_v1alpha1_RouterResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterSpec":                  schema_openstack_resource_controller_v2_api_v1alpha1_RouterSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterStatus":                schema_openstack_resource_controller_v2_api_v1alpha1_RouterStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroup":               schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroup(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupFilter":         schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupImport":         schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupList":           schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceSpec":   schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceStatus": schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupRule":           schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupRule(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupRuleStatus":     schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupRuleStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupSpec":           schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Server":                      schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerFilter":                schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerImport":                schema_openstack_resource_controller_v2_api_v1alpha1_ServerImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerList":                  schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec":              schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec":          schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus":        schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSpec":                  schema_openstack_resource_controller_v2_api_v1alpha1_ServerSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerStatus":                schema_openstack_resource_controller_v2_api_v1alpha1_ServerStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subnet":                      schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetFilter":                schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway":               schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetImport":                schema_openstack_resource_controller_v2_api_v1alpha1_SubnetImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetList":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceSpec":          schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus":        schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus":                schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
+		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource":                                        schema_k8sio_api_core_v1_AWSElasticBlockStoreVolumeSource(ref),
 		"k8s.io/api/core/v1.Affinity":                                    schema_k8sio_api_core_v1_Affinity(ref),
 		"k8s.io/api/core/v1.AppArmorProfile":                             schema_k8sio_api_core_v1_AppArmorProfile(ref),
 		"k8s.io/api/core/v1.AttachedVolume":                              schema_k8sio_api_core_v1_AttachedVolume(ref),
@@ -413,7 +413,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Address(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Address(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -441,7 +441,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Address(ref common.
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPool(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPool(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -470,7 +470,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPool(ref 
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPoolStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPoolStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -496,7 +496,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllocationPoolStatu
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPair(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPair(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -524,7 +524,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPair(
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPairStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPairStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -550,7 +550,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_AllowedAddressPairS
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_CloudCredentialsReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_CloudCredentialsReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -580,7 +580,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_CloudCredentialsRef
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGateway(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGateway(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -601,7 +601,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGateway(ref
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGatewayStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGatewayStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -620,7 +620,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ExternalGatewayStat
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FilterByNeutronTags(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -712,7 +712,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByNeutronTags
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByServerTags(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FilterByServerTags(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -804,7 +804,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FilterByServerTags(
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FixedIPStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FixedIPStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -830,7 +830,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FixedIPStatus(ref c
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Flavor(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Flavor(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -862,25 +862,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Flavor(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -921,7 +921,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorFilter(ref co
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -938,18 +938,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorImport(ref co
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -985,7 +985,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorList(ref comm
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Flavor"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Flavor"),
 									},
 								},
 							},
@@ -996,11 +996,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorList(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Flavor", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Flavor", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1073,7 +1073,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceSpec(
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1142,7 +1142,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorResourceStatu
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1152,13 +1152,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorSpec(ref comm
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -1171,14 +1171,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorSpec(ref comm
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -1186,11 +1186,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorSpec(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1231,18 +1231,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_FlavorStatus(ref co
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.FlavorResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRoute(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_HostRoute(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1271,7 +1271,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRoute(ref commo
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRouteStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_HostRouteStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1297,7 +1297,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_HostRouteStatus(ref
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_IPv6Options(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_IPv6Options(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1323,7 +1323,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_IPv6Options(ref com
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Image(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Image(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1355,25 +1355,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Image(ref common.Re
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageContent(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1397,7 +1397,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref co
 					"download": {
 						SchemaProps: spec.SchemaProps{
 							Description: "download describes how to obtain image data by downloading it from a URL. Must be set when creating a managed image.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContentSourceDownload"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageContentSourceDownload"),
 						},
 					},
 				},
@@ -1405,11 +1405,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContent(ref co
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContentSourceDownload"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageContentSourceDownload"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContentSourceDownload(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageContentSourceDownload(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1433,7 +1433,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContentSourceD
 					"hash": {
 						SchemaProps: spec.SchemaProps{
 							Description: "hash is a hash which will be used to verify downloaded data, i.e. before any decompression. If not specified, no hash verification will be performed. Specifying a Hash will disable the use of Glance's web-download, as web-download cannot currently deterministically verify the hash of downloaded content.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageHash"),
 						},
 					},
 				},
@@ -1441,11 +1441,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageContentSourceD
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageHash"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1485,7 +1485,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageFilter(ref com
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageHash(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageHash(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1514,7 +1514,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageHash(ref commo
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1531,18 +1531,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageImport(ref com
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1578,7 +1578,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageList(ref commo
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Image"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Image"),
 									},
 								},
 							},
@@ -1589,11 +1589,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageList(ref commo
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Image", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Image", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageProperties(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageProperties(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1616,18 +1616,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageProperties(ref
 					"hardware": {
 						SchemaProps: spec.SchemaProps{
 							Description: "hardware is a set of properties which control the virtual hardware created by Nova.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImagePropertiesHardware"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImagePropertiesHardware"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImagePropertiesHardware"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImagePropertiesHardware"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImagePropertiesHardware(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImagePropertiesHardware(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1702,7 +1702,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImagePropertiesHard
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1753,24 +1753,24 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceSpec(r
 					"properties": {
 						SchemaProps: spec.SchemaProps{
 							Description: "properties is metadata available to consumers of the image",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageProperties"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageProperties"),
 						},
 					},
 					"content": {
 						SchemaProps: spec.SchemaProps{
 							Description: "content specifies how to obtain the image content.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContent"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageContent"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageContent", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageProperties"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageContent", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageProperties"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1808,7 +1808,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus
 					"hash": {
 						SchemaProps: spec.SchemaProps{
 							Description: "hash is the hash of the image data published by Glance. Note that this is a hash of the data stored internally by Glance, which will have been decompressed and potentially format converted depending on server-side configuration which is not visible to clients. It is expected that this hash will usually differ from the download hash.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageHash"),
 						},
 					},
 					"sizeB": {
@@ -1849,11 +1849,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageResourceStatus
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageHash"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageHash"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1863,13 +1863,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageSpec(ref commo
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -1882,14 +1882,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageSpec(ref commo
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -1897,11 +1897,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageSpec(ref commo
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1942,7 +1942,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref com
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceStatus"),
 						},
 					},
 					"downloadAttempts": {
@@ -1956,11 +1956,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatus(ref com
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ImageResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatusExtra(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ImageStatusExtra(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1979,7 +1979,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ImageStatusExtra(re
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ManagedOptions(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ManagedOptions(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1998,7 +1998,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ManagedOptions(ref 
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Network(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Network(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2030,25 +2030,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Network(ref common.
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2162,7 +2162,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkFilter(ref c
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2179,18 +2179,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkImport(ref c
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2226,7 +2226,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkList(ref com
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Network"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Network"),
 									},
 								},
 							},
@@ -2237,11 +2237,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkList(ref com
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Network", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Network", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2350,7 +2350,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceSpec
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2475,7 +2475,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 					"provider": {
 						SchemaProps: spec.SchemaProps{
 							Description: "provider contains provider-network properties.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProviderPropertiesStatus"),
 						},
 					},
 					"external": {
@@ -2516,11 +2516,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkResourceStat
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ProviderPropertiesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProviderPropertiesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2530,13 +2530,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkSpec(ref com
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -2549,14 +2549,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkSpec(ref com
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -2564,11 +2564,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkSpec(ref com
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2609,18 +2609,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NetworkStatus(ref c
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.NetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_NeutronStatusMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_NeutronStatusMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2653,7 +2653,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_NeutronStatusMetada
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Port(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Port(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2685,25 +2685,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Port(ref common.Ref
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2818,7 +2818,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortFilter(ref comm
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2835,18 +2835,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortImport(ref comm
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2882,7 +2882,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref common
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Port"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Port"),
 									},
 								},
 							},
@@ -2893,11 +2893,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortList(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Port", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Port", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortRangeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2926,7 +2926,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeSpec(ref c
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortRangeStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -2954,7 +2954,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortRangeStatus(ref
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3015,7 +3015,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllowedAddressPair"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair"),
 									},
 								},
 							},
@@ -3034,7 +3034,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Address"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address"),
 									},
 								},
 							},
@@ -3065,11 +3065,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceSpec(re
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllowedAddressPair"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3171,7 +3171,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllowedAddressPairStatus"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPairStatus"),
 									},
 								},
 							},
@@ -3190,7 +3190,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.FixedIPStatus"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus"),
 									},
 								},
 							},
@@ -3246,11 +3246,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortResourceStatus(
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllowedAddressPairStatus", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.FixedIPStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPairStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3260,13 +3260,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref common
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -3279,14 +3279,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref common
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -3294,11 +3294,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortSpec(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3339,18 +3339,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_PortStatus(ref comm
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ProviderPropertiesStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3383,7 +3383,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ProviderPropertiesS
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Router(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Router(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3415,25 +3415,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Router(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3540,7 +3540,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterFilter(ref co
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3557,18 +3557,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterImport(ref co
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterface(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterface(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3600,25 +3600,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterface(ref
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterfaceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3654,7 +3654,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceList
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterface"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterface"),
 									},
 								},
 							},
@@ -3665,11 +3665,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceList
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterInterface", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterface", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3705,7 +3705,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceSpec
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3750,7 +3750,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterInterfaceStat
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3786,7 +3786,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterList(ref comm
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Router"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Router"),
 									},
 								},
 							},
@@ -3797,11 +3797,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterList(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Router", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Router", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3861,7 +3861,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGateway"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGateway"),
 									},
 								},
 							},
@@ -3898,11 +3898,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceSpec(
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGateway"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGateway"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -3976,7 +3976,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGatewayStatus"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGatewayStatus"),
 									},
 								},
 							},
@@ -4006,11 +4006,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterResourceStatu
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ExternalGatewayStatus"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGatewayStatus"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4020,13 +4020,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterSpec(ref comm
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -4039,14 +4039,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterSpec(ref comm
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -4054,11 +4054,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterSpec(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_RouterStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4099,18 +4099,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_RouterStatus(ref co
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.RouterResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroup(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroup(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4142,25 +4142,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroup(ref c
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4267,7 +4267,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupFilter
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4284,18 +4284,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupImport
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4331,7 +4331,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupList(r
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroup"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroup"),
 									},
 								},
 							},
@@ -4342,11 +4342,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupList(r
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroup", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroup", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4407,7 +4407,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupRule"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupRule"),
 									},
 								},
 							},
@@ -4417,11 +4417,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupRule"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupRule"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4489,7 +4489,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupRuleStatus"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupRuleStatus"),
 									},
 								},
 							},
@@ -4518,11 +4518,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupResour
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupRuleStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupRuleStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4568,7 +4568,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 					"portRange": {
 						SchemaProps: spec.SchemaProps{
 							Description: "portRange sets the minimum and maximum ports range that the security group rule matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than or equal to the PortRange.Max attribute value. If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max should be an ICMP type",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortRangeSpec"),
 						},
 					},
 				},
@@ -4576,11 +4576,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRule(r
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortRangeSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4638,18 +4638,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupRuleSt
 					"portRange": {
 						SchemaProps: spec.SchemaProps{
 							Description: "portRange sets the minimum and maximum ports range that the security group rule matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than or equal to the PortRange.Max attribute value. If the protocol is ICMP, this PortRamge.Min must be an ICMP code and PortRange.Max should be an ICMP type",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortRangeStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.PortRangeStatus"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortRangeStatus"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4659,13 +4659,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupSpec(r
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -4678,14 +4678,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupSpec(r
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -4693,11 +4693,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupSpec(r
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4738,18 +4738,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SecurityGroupStatus
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SecurityGroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Server(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4781,25 +4781,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Server(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4899,7 +4899,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerFilter(ref co
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4916,18 +4916,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerImport(ref co
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4963,7 +4963,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref comm
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Server"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Server"),
 									},
 								},
 							},
@@ -4974,11 +4974,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerList(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Server", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Server", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -4997,7 +4997,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerPortSpec(ref 
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5030,7 +5030,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 					"userData": {
 						SchemaProps: spec.SchemaProps{
 							Description: "userData specifies data which will be made available to the server at boot time, either via the metadata service or a config drive. It is typically read by a configuration service such as cloud-init or ignition.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"),
 						},
 					},
 					"ports": {
@@ -5046,7 +5046,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec"),
 									},
 								},
 							},
@@ -5077,11 +5077,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceSpec(
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.UserDataSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5142,7 +5142,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerResourceStatu
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5152,13 +5152,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref comm
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -5171,14 +5171,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref comm
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -5186,11 +5186,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerSpec(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5231,18 +5231,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_ServerStatus(ref co
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.ServerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_Subnet(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5274,25 +5274,25 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_Subnet(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "spec specifies the desired state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetSpec", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5337,7 +5337,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 					"ipv6": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ipv6 options of the existing resource",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options"),
 						},
 					},
 					"networkRef": {
@@ -5432,11 +5432,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetFilter(ref co
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetGateway(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5464,7 +5464,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetGateway(ref c
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5481,18 +5481,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetImport(ref co
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetFilter"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetFilter"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetFilter"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetFilter"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5528,7 +5528,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetList(ref comm
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.Subnet"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subnet"),
 									},
 								},
 							},
@@ -5539,11 +5539,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetList(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.Subnet", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subnet", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5620,7 +5620,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllocationPool"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPool"),
 									},
 								},
 							},
@@ -5629,7 +5629,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					"gateway": {
 						SchemaProps: spec.SchemaProps{
 							Description: "gateway specifies the default gateway of the subnet. If not specified, neutron will add one automatically. To disable this behaviour, specify a gateway with a type of None.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetGateway"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway"),
 						},
 					},
 					"enableDHCP": {
@@ -5679,7 +5679,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.HostRoute"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRoute"),
 									},
 								},
 							},
@@ -5688,7 +5688,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 					"ipv6": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ipv6 contains IPv6-specific options. It may only be set if IPVersion is 6.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options"),
 						},
 					},
 					"routerRef": {
@@ -5703,11 +5703,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceSpec(
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllocationPool", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.HostRoute", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.IPv6Options", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetGateway"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPool", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRoute", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5788,7 +5788,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllocationPoolStatus"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPoolStatus"),
 									},
 								},
 							},
@@ -5807,7 +5807,7 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.HostRouteStatus"),
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRouteStatus"),
 									},
 								},
 							},
@@ -5898,11 +5898,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetResourceStatu
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.AllocationPoolStatus", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.HostRouteStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPoolStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRouteStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5912,13 +5912,13 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref comm
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetImport"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetImport"),
 						},
 					},
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceSpec"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceSpec"),
 						},
 					},
 					"managementPolicy": {
@@ -5931,14 +5931,14 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref comm
 					"managedOptions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "managedOptions specifies options which may be applied to managed objects.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
 							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
 						},
 					},
 				},
@@ -5946,11 +5946,11 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetSpec(ref comm
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetImport", "github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceSpec"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -5991,18 +5991,18 @@ func schema_k_orc_openstack_resource_controller_api_v1alpha1_SubnetStatus(ref co
 					"resource": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resource contains the observed state of the OpenStack resource.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceStatus"),
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/api/v1alpha1.SubnetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
-func schema_k_orc_openstack_resource_controller_api_v1alpha1_UserDataSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{

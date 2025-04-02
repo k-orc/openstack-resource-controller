@@ -20,7 +20,7 @@ import (
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/k-orc/openstack-resource-controller/internal/util/applyconfigs"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
 )
 
 type metaApplyConfig struct {

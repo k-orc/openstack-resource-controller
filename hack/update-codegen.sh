@@ -65,7 +65,7 @@ kube::codegen::gen_client \
     --with-watch \
     --applyconfig-openapi-schema "$openapi" \
     --output-dir "${PROJECT_ROOT}/${GENERATED_PKG}" \
-    --output-pkg github.com/k-orc/openstack-resource-controller/${GENERATED_PKG} \
+    --output-pkg github.com/k-orc/openstack-resource-controller/v2/${GENERATED_PKG} \
     --versioned-name clientset \
     --boilerplate "${SCRIPT_ROOT}/boilerplate.go.txt" \
     --one-input-api "api" \

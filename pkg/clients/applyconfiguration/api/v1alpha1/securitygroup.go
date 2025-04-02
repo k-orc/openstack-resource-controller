@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	internal "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/internal"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	internal "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
@@ -71,7 +71,7 @@ func ExtractSecurityGroupStatus(securityGroup *apiv1alpha1.SecurityGroup, fieldM
 
 func extractSecurityGroup(securityGroup *apiv1alpha1.SecurityGroup, fieldManager string, subresource string) (*SecurityGroupApplyConfiguration, error) {
 	b := &SecurityGroupApplyConfiguration{}
-	err := managedfields.ExtractInto(securityGroup, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.api.v1alpha1.SecurityGroup"), fieldManager, b, subresource)
+	err := managedfields.ExtractInto(securityGroup, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroup"), fieldManager, b, subresource)
 	if err != nil {
 		return nil, err
 	}

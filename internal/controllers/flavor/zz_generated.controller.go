@@ -20,8 +20,8 @@ package flavor
 import (
 	corev1 "k8s.io/api/core/v1"
 
-        orcstrings "github.com/k-orc/openstack-resource-controller/internal/util/strings"
-	"github.com/k-orc/openstack-resource-controller/internal/util/dependency"
+        orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 )
 
 var (

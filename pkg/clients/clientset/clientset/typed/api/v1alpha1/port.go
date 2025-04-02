@@ -21,9 +21,9 @@ package v1alpha1
 import (
 	context "context"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
-	scheme "github.com/k-orc/openstack-resource-controller/pkg/clients/clientset/clientset/scheme"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	applyconfigurationapiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
+	scheme "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

@@ -21,7 +21,7 @@ package externalversions
 import (
 	fmt "fmt"
 
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
+	v1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )

@@ -17,7 +17,7 @@ limitations under the License.
 package apivalidations
 
 import (
-	applyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/pkg/clients/applyconfiguration/api/v1alpha1"
+	applyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 func testCredentials() *applyconfigv1alpha1.CloudCredentialsReferenceApplyConfiguration {

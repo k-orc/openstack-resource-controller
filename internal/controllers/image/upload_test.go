@@ -31,9 +31,9 @@ import (
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/internal/osclients/mock"
-	"github.com/k-orc/openstack-resource-controller/internal/scope"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients/mock"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 )
 
 type serveFileHandler string
