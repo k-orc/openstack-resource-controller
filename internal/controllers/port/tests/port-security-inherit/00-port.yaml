@@ -2,69 +2,61 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: port-create-full
+  name: port-security-inherit
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  resource: {}
+  resource:
+    portSecurityEnabled: false
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: port-create-full
+  name: port-security-inherit
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: port-create-full
+    networkRef: port-security-inherit
     ipVersion: 4
     cidr: 192.168.155.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: SecurityGroup
+kind: Port
 metadata:
-  name: port-create-full
+  name: port-security-enabled
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    stateful: true
-    rules:
-    - direction: ingress
-      protocol: tcp
-      portRange:
-        min: 22
-        max: 22
-      ethertype: IPv4
+    name: port-security-enabled
+    description: Port from "port-security-inherit" test
+    networkRef: port-security-inherit
+    addresses:
+    - subnetRef: port-security-inherit
+      ip: 192.168.155.122
+    portSecurity: Enabled
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: port-create-full
+  name: port-security-inherit
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: port-create-full-override
-    description: Port from "create full" test
-    networkRef: port-create-full
-    allowedAddressPairs:
-      - ip: "192.168.122.14"
-        mac: "92:42:9c:13:98:82"
-    tags:
-    - tag1
-    securityGroupRefs:
-    - port-create-full
+    name: port-security-inherit
+    description: Port from "port-security-inherit" test
+    networkRef: port-security-inherit
     addresses:
-    - subnetRef: port-create-full
-      ip: 192.168.155.122
-    portSecurity: Enabled
-    vnicType: direct
+    - subnetRef: port-security-inherit
+      ip: 192.168.155.123
+    portSecurity: Inherit
