@@ -46,16 +46,16 @@ ORC heavily uses [CEL validations](https://kubernetes.io/docs/tasks/extend-kuber
 
 ### Installation
 
-To install a released version of ORC, the simplest is probably to use the provided kustomization file:
+To install a released version of ORC, the simplest is probably to use the provided `install.yaml` file:
 
 ```
-export ORC_RELEASE="https://github.com/k-orc/openstack-resource-controller/dist?ref=v2.0.2"
-kubectl apply --server-side -k $ORC_RELEASE
+export ORC_RELEASE="https://github.com/k-orc/openstack-resource-controller/releases/latest/download/install.yaml"
+kubectl apply --server-side -f $ORC_RELEASE
 ```
 
-You may later uninstall ORC using the same kustomization file:
+You may later uninstall ORC using the same `install.yaml` file:
 ```
-kubectl delete -k $ORC_RELEASE
+kubectl delete -f $ORC_RELEASE
 ```
 
 ### Usage

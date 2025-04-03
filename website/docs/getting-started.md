@@ -8,10 +8,11 @@
 
 ## Deploy ORC to your Kubernetes cluster
 
-From a fresh checkout of the git repository, from the `main` branch, run:
+To install the latest released version of ORC, the simplest is probably to use the provided `install.yaml` file:
 
 ```sh
-make deploy IMG=quay.io/orc/openstack-resource-controller:branch-main
+export ORC_RELEASE="https://github.com/k-orc/openstack-resource-controller/releases/latest/download/install.yaml"
+kubectl apply --server-side -f $ORC_RELEASE
 ```
 
 ## Create a Kubernetes secret containing a `clouds.yaml`
@@ -191,5 +192,5 @@ resources and undeploy ORC:
 kubectl delete subnet subnet-1
 kubectl delete network network-1
 kubectl delete secret openstack-clouds
-make undeploy
+kubectl delete -f $ORC_RELEASE
 ```
