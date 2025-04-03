@@ -1,15 +1,56 @@
 ---
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
-metadata:
-  name: port-dependency
-status:
-  conditions:
-    - type: Available
-      message: Waiting for SecurityGroup/port-dependency to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for SecurityGroup/port-dependency to be created
-      status: "True"
-      reason: Progressing
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: port-dependency
+      ref: network1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: port-dependency-pending-network
+      ref: network2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: port-dependency-pending-subnet
+      ref: network3           
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: port-dependency
+      ref: subnet1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: port-dependency-pending-network
+      ref: subnet2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: port-dependency-pending-subnet
+      ref: subnet3         
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: port-dependency
+      ref: sg1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: port-dependency-pending
+      ref: sg2  
+assertAll:
+    - celExpr: "network1.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in network1.metadata.finalizers"
+    - celExpr: "network2.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in network2.metadata.finalizers"
+    - celExpr: "network3.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in network3.metadata.finalizers"   
+
+    - celExpr: "subnet1.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in subnet1.metadata.finalizers"
+    - celExpr: "subnet2.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in subnet2.metadata.finalizers"
+    - celExpr: "subnet3.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in subnet3 .metadata.finalizers"
+
+
+    - celExpr: "sg1.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in sg1.metadata.finalizers"
+    - celExpr: "sg2.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in sg2.metadata.finalizers"
