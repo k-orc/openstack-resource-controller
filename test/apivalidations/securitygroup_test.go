@@ -326,23 +326,6 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
 	})
 
-	It("should reject CIDR for RemoteIPPrefix that doesn't match the ethertype", func(ctx context.Context) {
-		var sgRulePatchSpec *applyconfigv1alpha1.SecurityGroupRuleApplyConfiguration
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		sgRulePatchSpec = applyconfigv1alpha1.SecurityGroupRule().WithEthertype(orcv1alpha1.EthertypeIPv6)
-		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
-			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(22))}).WithRemoteIPPrefix("192.168.0.1/24")))
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
-
-		sgRulePatchSpec = applyconfigv1alpha1.SecurityGroupRule().WithEthertype(orcv1alpha1.EthertypeIPv4)
-		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec().WithRules(sgRulePatchSpec.WithPortRange(
-			&applyconfigv1alpha1.PortRangeSpecApplyConfiguration{
-				Min: ptr.To(orcv1alpha1.PortNumber(22)), Max: ptr.To(orcv1alpha1.PortNumber(22))}).WithRemoteIPPrefix("2001:db8::/47")))
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed(), "create security group")
-	})
-
 	It("should permit valid CIDR that matches the ethertype", func(ctx context.Context) {
 		securityGroup := securityGroupStub(namespace)
 		patch := baseSecurityGroupPatch(securityGroup)

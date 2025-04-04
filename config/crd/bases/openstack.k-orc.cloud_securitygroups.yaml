@@ -339,12 +339,6 @@ spec:
                         rule: '!(self.protocol == ''icmp'' || self.protocol == ''icmpv6'')
                           || !has(self.portRange)|| (self.portRange.max >= 0 && self.portRange.max
                           <= 255)'
-                      - message: remoteIPPrefix should be a valid CIDR and match the
-                          ethertype
-                        rule: '!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix)
-                          && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype
-                          == ''IPv4'') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family()
-                          == 6 && self.ethertype == ''IPv6'')'
                     maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
