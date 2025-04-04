@@ -133,9 +133,9 @@ func (actuator imageActuator) uploadImageContent(ctx context.Context, orcImage *
 		}
 	}
 
-	// FIXME(mandre) we don't apply the status
 	downloadAttempts := ptr.Deref(orcImage.Status.DownloadAttempts, 0) + 1
-	orcImage.Status.DownloadAttempts = &downloadAttempts
+	setDownloadingStatus(ctx, downloadAttempts, orcImage, actuator.k8sClient)
+
 	progressStatus := progress.GenericProgressStatus("Starting image upload", externalUpdatePollingPeriod)
 	waitEvents = append(waitEvents, progressStatus)
 

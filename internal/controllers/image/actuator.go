@@ -27,6 +27,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
@@ -48,7 +49,8 @@ type (
 )
 
 type imageActuator struct {
-	osClient osclients.ImageClient
+	osClient  osclients.ImageClient
+	k8sClient client.Client
 }
 
 var _ createResourceActuator = imageActuator{}
@@ -237,6 +239,11 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 			waitEvents = append(waitEvents, progressStatus)
 		}
 
+		if orcObject.Status.DownloadAttempts == nil {
+			setDownloadingStatus(ctx, 0, orcObject, actuator.k8sClient)
+			return waitEvents, nil
+		}
+
 		if ptr.Deref(orcObject.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts))
 			return waitEvents, err
@@ -266,9 +273,12 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 			downloadAttempts := ptr.Deref(orcObject.Status.DownloadAttempts, 0) + 1
 			orcObject.Status.DownloadAttempts = &downloadAttempts
 
+			setDownloadingStatus(ctx, downloadAttempts, orcObject, actuator.k8sClient)
+
 			waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
 			return waitEvents, nil
 		} else {
+			// FIXME(mandre) This should be done on a second reconcile
 			return actuator.uploadImageContent(ctx, orcObject, osResource)
 		}
 
@@ -326,6 +336,7 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 	}
 
 	return imageActuator{
-		osClient: osClient,
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
 	}, nil, nil
 }
