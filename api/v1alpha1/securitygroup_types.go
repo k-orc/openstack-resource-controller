@@ -87,12 +87,14 @@ type PortRangeStatus struct {
 	Max int32 `json:"max"`
 }
 
+// NOTE: A validation was removed from SecurityGroupRule until we bump minimum k8s to at least v1.31:
+// - remoteIPPrefix matches the address family defined in ethertype: PR #336
+
 // SecurityGroupRule defines a Security Group rule
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:XValidation:rule="(!has(self.portRange)|| !(self.protocol == 'tcp'|| self.protocol == 'udp' || self.protocol == 'dccp' || self.protocol == 'sctp' || self.protocol == 'udplite') || (self.portRange.min <= self.portRange.max))",message="portRangeMax should be equal or greater than portRange.min"
 // +kubebuilder:validation:XValidation:rule="!(self.protocol == 'icmp' || self.protocol == 'icmpv6') || !has(self.portRange)|| (self.portRange.min >= 0 && self.portRange.min <= 255)",message="When protocol is ICMP or ICMPv6 portRange.min should be between 0 and 255"
 // +kubebuilder:validation:XValidation:rule="!(self.protocol == 'icmp' || self.protocol == 'icmpv6') || !has(self.portRange)|| (self.portRange.max >= 0 && self.portRange.max <= 255)",message="When protocol is ICMP or ICMPv6 portRange.max should be between 0 and 255"
-// +kubebuilder:validation:XValidation:rule="!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype == 'IPv4') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family() == 6 && self.ethertype == 'IPv6')",message="remoteIPPrefix should be a valid CIDR and match the ethertype"
 type SecurityGroupRule struct {
 	// description is a human-readable description for the resource.
 	// +optional
