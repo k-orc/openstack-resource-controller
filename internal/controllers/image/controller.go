@@ -21,30 +21,21 @@ import (
 	"errors"
 	"time"
 
-	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 )
 
-const (
-	FieldOwner = "openstack.k-orc.cloud/imagecontroller"
-	// Field owner of transient status.
-	SSAStatusTxn = "status"
+const controllerName = "image"
 
-	controllerName = "image"
-)
-
-// ssaFieldOwner returns the field owner for a specific named SSA transaction.
-func ssaFieldOwner(txn string) client.FieldOwner {
-	return client.FieldOwner(FieldOwner + "/" + txn)
-}
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=images,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=images/status,verbs=get;update;patch
 
 const (
 	// The time to wait before reconciling again when we are expecting OpenStack to finish some task and update status.
@@ -69,24 +60,6 @@ func (imageReconcilerConstructor) GetName() string {
 	return controllerName
 }
 
-// orcImageReconciler reconciles an ORC Image.
-type orcImageReconciler struct {
-	client   client.Client
-	recorder record.EventRecorder
-
-	imageReconcilerConstructor
-}
-
-var _ interfaces.ResourceController = &orcImageReconciler{}
-
-func (r *orcImageReconciler) GetK8sClient() client.Client {
-	return r.client
-}
-
-func (r *orcImageReconciler) GetScopeFactory() scope.Factory {
-	return r.scopeFactory
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (c imageReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -102,11 +75,6 @@ func (c imageReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		return err
 	}
 
-	reconciler := orcImageReconciler{
-		client:   mgr.GetClient(),
-		recorder: mgr.GetEventRecorderFor("orc-image-controller"),
-
-		imageReconcilerConstructor: c,
-	}
-	return builder.Complete(&reconciler)
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, imageHelperFactory{}, imageStatusWriter{})
+	return builder.Complete(&r)
 }
