@@ -3039,12 +3039,6 @@ spec:
                         rule: '!(self.protocol == ''icmp'' || self.protocol == ''icmpv6'')
                           || !has(self.portRange)|| (self.portRange.max >= 0 && self.portRange.max
                           <= 255)'
-                      - message: remoteIPPrefix should be a valid CIDR and match the
-                          ethertype
-                        rule: '!has(self.remoteIPPrefix) || (isCIDR(self.remoteIPPrefix)
-                          && cidr(self.remoteIPPrefix).ip().family() == 4 && self.ethertype
-                          == ''IPv4'') || (isCIDR(self.remoteIPPrefix) && cidr(self.remoteIPPrefix).ip().family()
-                          == 6 && self.ethertype == ''IPv6'')'
                     maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
@@ -4635,7 +4629,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /manager
-        image: quay.io/orc/openstack-resource-controller:v2.0.2
+        image: quay.io/orc/openstack-resource-controller:v2.0.3
         livenessProbe:
           httpGet:
             path: /healthz
