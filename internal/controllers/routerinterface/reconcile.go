@@ -77,8 +77,7 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	listOpts := ports.ListOpts{
-		DeviceOwner: "network:router_interface",
-		DeviceID:    *router.Status.ID,
+		DeviceID: *router.Status.ID,
 	}
 
 	networkClient, err := r.getNetworkClient(ctx, router)
@@ -88,12 +87,17 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	routerInterfacePortIterator := networkClient.ListPort(ctx, &listOpts)
 	// We're going to iterate over all interfaces multiple times, so pull them all in to a slice
-	var routerInterfacePorts []ports.Port //nolint:prealloc // We don't know how many ports there are
+	var routerInterfacePorts []ports.Port
 	for port, err := range routerInterfacePortIterator {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("fetching router interface ports: %w", err)
 		}
-		routerInterfacePorts = append(routerInterfacePorts, *port)
+		switch port.DeviceOwner {
+		case "network:router_interface", "network:ha_router_replicated_interface", "network:router_interface_distributed":
+			routerInterfacePorts = append(routerInterfacePorts, *port)
+		default:
+			continue
+		}
 	}
 
 	// TODO: refactor this loop so reconcileNormal and reconcileDelete both use and return progressStatus
