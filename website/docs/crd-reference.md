@@ -412,7 +412,7 @@ FlavorResourceStatus represents the observed state of the resource.
 
 
 _Appears in:_
-- [FlavorStatus](#flavorstatus)
+- [FlavorStatus](#flavorresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -873,7 +873,7 @@ ImageResourceStatus represents the observed state of a Glance image
 
 
 _Appears in:_
-- [ImageStatus](#imagestatus)
+- [ImageStatus](#imageresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -917,7 +917,7 @@ _Appears in:_
 
 
 _Appears in:_
-- [ImageStatus](#imagestatus)
+- [ImageStatus](#imageresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1176,7 +1176,7 @@ NetworkResourceStatus represents the observed state of the resource.
 
 
 _Appears in:_
-- [NetworkStatus](#networkstatus)
+- [NetworkStatus](#networkresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1503,7 +1503,7 @@ _Appears in:_
 
 
 _Appears in:_
-- [PortStatus](#portstatus)
+- [PortStatus](#portresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1790,7 +1790,7 @@ _Appears in:_
 
 
 _Appears in:_
-- [RouterStatus](#routerstatus)
+- [RouterStatus](#routerresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1947,7 +1947,7 @@ SecurityGroupResourceStatus represents the observed state of the resource.
 
 
 _Appears in:_
-- [SecurityGroupStatus](#securitygroupstatus)
+- [SecurityGroupStatus](#securitygroupresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2155,7 +2155,7 @@ ServerResourceStatus represents the observed state of the resource.
 
 
 _Appears in:_
-- [ServerStatus](#serverstatus)
+- [ServerStatus](#serverresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2356,7 +2356,7 @@ _Appears in:_
 
 
 _Appears in:_
-- [SubnetStatus](#subnetstatus)
+- [SubnetStatus](#subnetresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |

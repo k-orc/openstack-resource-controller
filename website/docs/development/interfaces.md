@@ -2,11 +2,11 @@
 
 The majority of a resource controller's functionality is implemented in a few interfaces which are passed to the generic controller. Current controllers implement these in `actuator.go` in the controller's package directory, but feel free to split them up as makes most sense for your controller.
 
-The required interfaces are described in detail by the [godoc of the `interfaces` packages](../godoc/generic-interfaces/). Specific interfaces are linked below.
+The required interfaces are described in detail by the [godoc of the `interfaces` packages](godoc/generic-interfaces.md). Specific interfaces are linked below.
 
 ## ResourceHelperFactory
 
-The controller's entry point to these interfaces is [`ResourceHelperFactory`](../godoc/generic-interfaces/#ResourceHelperFactory), which is passed as an argument to `reconciler.NewController` in `SetupWithManager`. This interface is simply a set of constructors returning implementations of the other required interfaces. It is not expected to have any state, so is expected to be implemented as methods on an empty struct.
+The controller's entry point to these interfaces is [`ResourceHelperFactory`](godoc/generic-interfaces.md/#ResourceHelperFactory), which is passed as an argument to `reconciler.NewController` in `SetupWithManager`. This interface is simply a set of constructors returning implementations of the other required interfaces. It is not expected to have any state, so is expected to be implemented as methods on an empty struct.
 
 ## APIObjectAdapter
 
@@ -18,10 +18,10 @@ As the APIObjectAdapter covers only API fields which are automatically generated
 
 The actuator implements the majority of the resource-specific functionality. It is split into several interfaces:
 
-* [`BaseResourceActuator`](../godoc/generic-interfaces/#BaseResourceActuator): methods required for all actuators
-* [`CreateResourceActuator`](../godoc/generic-interfaces/#CreateResourceActuator): methods required for creating or importing a resource
-* [`DeleteResourceActuator`](../godoc/generic-interfaces/#DeleteResourceActuator): methods required for deleting a resource
-* [`ReconcileResourceActuator`](../godoc/generic-interfaces/#ReconcileResourceActuator): methods required for reconciling a resource after creation
+* [`BaseResourceActuator`](godoc/generic-interfaces.md/#BaseResourceActuator): methods required for all actuators
+* [`CreateResourceActuator`](godoc/generic-interfaces.md/#CreateResourceActuator): methods required for creating or importing a resource
+* [`DeleteResourceActuator`](godoc/generic-interfaces.md#DeleteResourceActuator): methods required for deleting a resource
+* [`ReconcileResourceActuator`](godoc/generic-interfaces.md/#ReconcileResourceActuator): methods required for reconciling a resource after creation
 
 CreateResourceActuator and DeleteResourceActuator are separated as they may have different initialisation requirements. It is especially for the delete flow to minimise any initialisation requirements. It is idiomatic in Kubernetes to attempt to resolve problems by deleting and recreating resources. We must consider that a user may have taken manual actions to attempt to work round some problem, and therefore objects may be an inconsistent or illegal state. We don't want to limit a user's options by refusing to run deletion because we are unable to perform actions which are not strictly necessary for deletion. In practise they may both be implemented on the same struct.
 
@@ -35,14 +35,14 @@ For the same reason, it is also important to remember that both `CreateResource`
 
 ### ReconcileResourceActuator
 
-[`ReconcileResourceActuator`](../godoc/generic-interfaces/#ReconcileResourceActuator) is an optional interface which may be implemented by the object returned by `NewCreateActuator`. If implemented its methods will be called every time the object is reconciled, even if it already exists. This enables implementation of:
+[`ReconcileResourceActuator`](godoc/generic-interfaces.md/#ReconcileResourceActuator) is an optional interface which may be implemented by the object returned by `NewCreateActuator`. If implemented its methods will be called every time the object is reconciled, even if it already exists. This enables implementation of:
 
 * Post-creation initialisation (e.g. setting Neutron tags)
 * Object mutability (responding to spec changes after creation)
 
 Because it is an optional interface, `ReconcileResourceActuator` not not have a separate constructor in `ResourceHelperFactory`. If the create actuator implements this interface, its methods will be called.
 
-`GetResourceReconcilers` returns a set of functions implementing [`ResourceReconciler`](../godoc/generic-interfaces/#ResourceReconciler). Without the type descriptors, the signature of a `ResourceReconciler` looks like:
+`GetResourceReconcilers` returns a set of functions implementing [`ResourceReconciler`](godoc/generic-interfaces.md/#ResourceReconciler). Without the type descriptors, the signature of a `ResourceReconciler` looks like:
 
 ```golang
 func resourceReconciler(ctx, orcObject, osResource) ([]progress.ProgressStatus, error)
@@ -58,7 +58,7 @@ Reconcilers execute prior to generating the resource status, but they cannot aff
 
 ## ResourceStatusWriter
 
-The `Available` and `Progressing` conditions are critical components of the ORC API. To ensure they are implemented consistently by all controllers they are substantially generated by code called by the generic controller. The [`ResourceStatusWriter` interface](../godoc/generic-interfaces/#ResourceStatusWriter) provides necessary resource-specific methods to populate:
+The `Available` and `Progressing` conditions are critical components of the ORC API. To ensure they are implemented consistently by all controllers they are substantially generated by code called by the generic controller. The [`ResourceStatusWriter` interface](godoc/generic-interfaces.md/#ResourceStatusWriter) provides necessary resource-specific methods to populate:
 
 * The `Available` condition
 * The `Progressing` condition

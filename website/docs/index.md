@@ -28,8 +28,8 @@ We welcome contributions of all kinds! Whether you’re fixing bugs, adding new 
 
 * Fork the repository.
 * Create a new branch for your changes.
-* Setup a [local development environment](/development/quickstart/).
-* Read the [developers guide](/development/).
+* Setup a [local development environment](development/quickstart.md).
+* Read the [developers guide](development/index.md).
 * Make your changes and test thoroughly.
 * Submit a pull request with a clear description of your changes.
 
