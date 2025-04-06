@@ -3,7 +3,6 @@ processor:
     - "OpenStack(.*)List$"
     - "(OpenStack|Common)(.*)Status$"
   ignoreFields:
-    - "status$"
     - "TypeMeta$"
 render:
   kubernetesVersion: 1.22

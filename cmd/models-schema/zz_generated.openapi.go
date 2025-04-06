@@ -1004,7 +1004,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "NetworkResourceSpec contains the desired state of a network",
+				Description: "FlavorResourceSpec contains the desired state of a flavor",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"name": {
