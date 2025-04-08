@@ -25,12 +25,15 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
@@ -38,36 +41,17 @@ import (
 type (
 	osResourceT = images.Image
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	imageIterator          = iter.Seq2[*osResourceT, error]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	imageIterator             = iter.Seq2[*osResourceT, error]
 )
 
 type imageActuator struct {
-	osClient osclients.ImageClient
-}
-
-func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, []progress.ProgressStatus, error) {
-	log := ctrl.LoggerFrom(ctx)
-
-	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return imageActuator{}, progressStatus, err
-	}
-
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return imageActuator{}, nil, err
-	}
-	osClient, err := clientScope.NewImageClient()
-	if err != nil {
-		return imageActuator{}, nil, err
-	}
-
-	return imageActuator{
-		osClient: osClient,
-	}, nil, nil
+	osClient  osclients.ImageClient
+	k8sClient client.Client
 }
 
 var _ createResourceActuator = imageActuator{}
@@ -219,4 +203,149 @@ func glancePropertiesFromStruct(propStruct interface{}, properties map[string]st
 	}
 
 	return nil
+}
+
+var _ reconcileResourceActuator = imageActuator{}
+
+func (actuator imageActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
+	return []resourceReconciler{
+		actuator.handleUpload,
+	}, nil
+}
+
+func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error) {
+	log := ctrl.LoggerFrom(ctx)
+
+	var waitEvents []progress.ProgressStatus
+	var err error
+
+	switch osResource.Status {
+
+	// Cases where we're not going to take any action until the next resync
+	case images.ImageStatusActive, images.ImageStatusDeactivated:
+		err = setDownloadingStatus(ctx, false, "Data saved", orcv1alpha1.ConditionReasonSuccess, metav1.ConditionFalse, orcObject, actuator.k8sClient)
+
+	// Content is being saved. Check back in a minute
+	// "importing" is seen during web-download
+	// "saving" is seen while uploading, but might be seen because our upload failed and glance hasn't reset yet.
+	case images.ImageStatusImporting, images.ImageStatusSaving:
+		progressStatus := progress.GenericProgressStatus("Glance is downloading image content", externalUpdatePollingPeriod)
+		waitEvents = append(waitEvents, progressStatus)
+
+	// Newly created image, waiting for upload, or... previous upload was interrupted and has now reset
+	case images.ImageStatusQueued:
+		// Don't attempt image creation if we're not managing the image
+		if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
+			progressStatus := progress.GenericProgressStatus("Waiting for glance image content to be uploaded externally", externalUpdatePollingPeriod)
+			waitEvents = append(waitEvents, progressStatus)
+			return waitEvents, nil
+		}
+
+		// Initialize download status
+		if orcObject.Status.DownloadAttempts == nil {
+			err = setDownloadingStatus(ctx, false, "Starting image upload", orcv1alpha1.ConditionReasonProgressing, metav1.ConditionTrue, orcObject, actuator.k8sClient)
+			if err != nil {
+				return nil, err
+			}
+			progressStatus := progress.GenericProgressStatus("Starting image upload", 0)
+			waitEvents = append(waitEvents, progressStatus)
+			return waitEvents, nil
+		}
+
+		if ptr.Deref(orcObject.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts))
+			return waitEvents, err
+		}
+
+		canWebDownload, err := actuator.canWebDownload(ctx, orcObject)
+		if err != nil {
+			return waitEvents, err
+		}
+
+		if canWebDownload {
+			// We frequently hit a race with glance here. There is a
+			// delay after doing an import before glance updates the
+			// status from queued, meaning we frequently attempt to
+			// start a second import. Although the status isn't
+			// updated yet, glance still returns a 409 error when
+			// this happens due to the existing task. This is
+			// harmless.
+
+			err := actuator.webDownload(ctx, orcObject, osResource)
+			if err != nil {
+				return waitEvents, err
+			}
+
+			// Don't increment DownloadAttempts unless webDownload returned success
+			err = setDownloadingStatus(ctx, true, "Web download in progress", orcv1alpha1.ConditionReasonProgressing, metav1.ConditionTrue, orcObject, actuator.k8sClient)
+			if err != nil {
+				return waitEvents, err
+			}
+
+			waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
+			return waitEvents, nil
+		} else {
+			err = actuator.uploadImageContent(ctx, orcObject, osResource)
+			progressStatus := progress.NeedsRefresh()
+			waitEvents = append(waitEvents, progressStatus)
+			return waitEvents, err
+		}
+
+	// Error cases
+	case images.ImageStatusKilled:
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "a glance error occurred while saving image content")
+	case images.ImageStatusDeleted, images.ImageStatusPendingDelete:
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "image status is deleting")
+
+	default:
+		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
+		waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(externalUpdatePollingPeriod))
+	}
+
+	return waitEvents, err
+}
+
+type imageHelperFactory struct{}
+
+var _ helperFactory = imageHelperFactory{}
+
+func (imageHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
+	return imageAdapter{obj}
+}
+
+func (imageHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
+	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
+	return progressStatus, actuator, err
+}
+
+func (imageHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
+	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
+	return progressStatus, actuator, err
+}
+
+func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Image) (imageActuator, []progress.ProgressStatus, error) {
+	if orcObject == nil {
+		return imageActuator{}, nil, fmt.Errorf("orcObject may not be nil")
+	}
+
+	// Ensure credential secrets exist and have our finalizer
+	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if len(progressStatus) > 0 || err != nil {
+		return imageActuator{}, progressStatus, err
+	}
+
+	log := ctrl.LoggerFrom(ctx)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return imageActuator{}, nil, err
+	}
+	osClient, err := clientScope.NewImageClient()
+	if err != nil {
+		return imageActuator{}, nil, err
+	}
+
+	return imageActuator{
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
+	}, nil, nil
 }
