@@ -5,6 +5,10 @@ metadata:
   name: image-import-error-external-1
 status:
   conditions:
+    - type: Downloading
+      message: Data saved
+      status: "False"
+      reason: Success
     - type: Available
       message: OpenStack resource is available
       status: "True"
@@ -20,6 +24,10 @@ metadata:
   name: image-import-error-external-2
 status:
   conditions:
+    - type: Downloading
+      message: Data saved
+      status: "False"
+      reason: Success
     - type: Available
       message: OpenStack resource is available
       status: "True"
