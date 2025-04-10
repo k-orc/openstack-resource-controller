@@ -1,6 +1,6 @@
 # Controller initialisation
 
-Controllers are initialised and added to the controller manager from `cmd/manager/main.go`. Each controller must implement the [`Controller` interface](../godoc/generic-interfaces/#Controller):
+Controllers are initialised and added to the controller manager from `cmd/manager/main.go`. Each controller must implement the [`Controller` interface](godoc/generic-interfaces.md/#Controller):
 
 ```golang
 type Controller interface {
