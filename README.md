@@ -62,18 +62,18 @@ kubectl delete -f $ORC_RELEASE
 
 * [Deploy your first OpenStack resource using ORC](https://k-orc.cloud/getting-started/)
 
-## Supported resources
+## Supported OpenStack resources
 
-| **controller** | **1.x** | **main** |
-|:--------------:|:-------:|:--------:|
-| flavor         |         |     ✔    |
-| image          |    ✔    |     ✔    |
-| network        |         |     ◐    |
-| port           |         |     ◐    |
-| router         |         |     ◐    |
-| security group |         |     ✔    |
-| server         |         |     ◐    |
-| subnet         |         |     ◐    |
+| **controller**              | **1.x** | **2.x** | **main** |
+|:---------------------------:|:-------:|:-------:|:--------:|
+| flavor                      |         |    ✔    |     ✔    |
+| image                       |    ✔    |    ✔    |     ✔    |
+| network                     |         |    ◐    |     ◐    |
+| port                        |         |    ◐    |     ◐    |
+| router                      |         |    ◐    |     ◐    |
+| security group (incl. rule) |         |    ✔    |     ✔    |
+| server                      |         |    ◐    |     ◐    |
+| subnet                      |         |    ◐    |     ◐    |
 
 ✔: mostly implemented
 
