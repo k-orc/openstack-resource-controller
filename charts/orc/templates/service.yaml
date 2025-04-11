@@ -1,0 +1,27 @@
+{{- if or .Values.metrics.enable .Values.probes.enable }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "orc.fullname" . }}-controller-manager
+  labels:
+    {{- include "orc.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  {{- if .Values.metrics.enable }}
+  - name: metrics
+    port: {{ .Values.metrics.port }}
+    protocol: TCP
+    targetPort: {{ .Values.metrics.port }}
+  {{- end }}
+  {{- if .Values.probes.enable }}
+  - name: health
+    port: {{ .Values.probes.port }}
+    protocol: TCP
+    targetPort: {{ .Values.probes.port }}
+  {{- end }}
+  selector:
+    {{- include "orc.selectorLabels" . | nindent 4 }}
+
+{{- end }}

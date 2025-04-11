@@ -1,0 +1,167 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "orc.labels" . | nindent 4 }}
+  name: {{ include "orc.name" . }}-image-editor-role
+rules:
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - images
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - images/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+{{ include "orc.labels" . | indent 4 }}
+  name: {{ include "orc.name" . }}-image-viewer-role
+rules:
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - images
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - images/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+{{ include "orc.labels" . | indent 4 }}
+  name: {{ include "orc.name" . }}-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - flavors
+  - floatingips
+  - images
+  - networks
+  - ports
+  - projects
+  - routerinterfaces
+  - routers
+  - securitygroups
+  - servergroups
+  - servers
+  - subnets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+  - flavors/status
+  - images/status
+  - networks/status
+  - ports/status
+  - routerinterfaces/status
+  - routers/status
+  - securitygroups/status
+  - servers/status
+  - subnets/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+{{ include "orc.labels" . | indent 4 }}
+  name: {{ include "orc.name" . }}-metrics-auth-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "orc.name" . }}-metrics-reader
+  labels:
+{{ include "orc.labels" . | indent 4 }}
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+{{ include "orc.labels" . | indent 4 }}
+  name: {{ include "orc.name" . }}-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "orc.name" . }}-manager-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "orc.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "orc.name" . }}-metrics-auth-rolebinding
+  labels:
+{{ include "orc.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "orc.name" . }}-metrics-auth-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "orc.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}

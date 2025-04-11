@@ -1,0 +1,21 @@
+# Copyright Copyright 2025 The ORC Authors.
+# SPDX-License-Identifier: APACHE-2.0
+
+apiVersion: v2
+name: orc
+type: application
+version: 0.1.8
+appVersion: v2.2.0
+kubeVersion: ">=1.29.0-0"
+description: A Helm chart for https://github.com/k-orc/openstack-resource-controller/
+home: https://k-orc.cloud/
+keywords:
+  - openstack
+  - infrastructure
+sources:
+  - https://github.com/k-orc/openstack-resource-controller/tree/main/charts/orc
+  - https://github.com/k-orc/openstack-resource-controller/
+annotations:
+  category: Infrastructure
+  licenses: Apache-2.0
+  artifacthub.io/license: Apache-2.0

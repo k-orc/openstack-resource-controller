@@ -1,0 +1,21 @@
+# Copyright Copyright 2025 The ORC Authors.
+# SPDX-License-Identifier: APACHE-2.0
+
+apiVersion: v2
+name: orc-crds
+version: 2.2.0
+appVersion: v2.2.0
+kubeVersion: ">=1.29.0-0"
+description: Manage Openstack Resource Controller CRDs
+home: https://k-orc.cloud/
+keywords:
+  - openstack
+  - infrastructure
+  - crds
+sources:
+  - https://github.com/k-orc/openstack-resource-controller/tree/main/charts/orc-crds
+  - https://github.com/k-orc/openstack-resource-controller/
+annotations:
+  category: DeveloperTools
+  licenses: Apache-2.0
+  artifacthub.io/license: Apache-2.0

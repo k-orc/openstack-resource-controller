@@ -1,0 +1,97 @@
+serviceAccount:
+  name: ""
+  annotations: {}
+  automount: true
+
+replicaCount: 1
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+
+terminationGracePeriodSeconds: 10
+
+priorityClassName: system-cluster-critical
+
+# nodeSelector: {}
+# affinity: {}
+# tolerations: []
+
+topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: kubernetes.io/hostname
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: orc
+  #       control-plane: controller-manager
+  # - maxSkew: 1
+  #   topologyKey: topology.kubernetes.io/zone
+  #   whenUnsatisfiable: ScheduleAnyway
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: orc
+  #       control-plane: controller-manager
+
+image:
+  repository: quay.io/orc/openstack-resource-controller
+  pullPolicy: IfNotPresent
+  tag: ""
+
+extraArgs:
+  - --enable-http2
+  - --zap-encoder=json
+  - --zap-log-level=info
+  - --zap-time-encoding=epoch
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  privileged: false
+  runAsGroup: 65532
+  runAsUser: 65532
+
+metrics:
+  enable: true
+  port: 8080
+  secure: false
+  serviceMonitor:
+    enable: false
+    interval: 10s
+    # scrapeTimeout:
+    # relabelings:
+    # metricRelabelings:
+    # honorLabels:
+
+probes:
+  enable: true
+  port: 8081
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8081
+    initialDelaySeconds: 15
+    periodSeconds: 20
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: 8081
+    initialDelaySeconds: 5
+    periodSeconds: 10
