@@ -83,10 +83,6 @@ spec:
     allocationPools:
       - start: 192.168.1.10
         end: 192.168.1.15
-      # NOTE: it works to add more than one allocation pool, but we fail to
-      # reliably validate it with kuttl
-      # - start: 192.168.1.20
-      #   end: 192.168.1.25
     gateway:
       type: IP
       ip: 192.168.1.2
