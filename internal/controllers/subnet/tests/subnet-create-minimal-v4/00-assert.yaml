@@ -12,6 +12,9 @@ resourceRefs:
       ref: network
 assertAll:
     - celExpr: "subnet.status.resource.networkID == network.status.id"
+    - celExpr: "'description' in subnet.status.resource == false"
+    - celExpr: "'ipv6AddressMode' in subnet.status.resource == false"
+    - celExpr: "'ipv6RAMode' in subnet.status.resource == false"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -28,8 +31,3 @@ status:
     enableDHCP: true
     gatewayIP: 192.168.0.1
     ipVersion: 4
-    # FIXME: we shouldn't see empty strings
-    # https://github.com/k-orc/openstack-resource-controller/issues/188
-    description: ""
-    ipv6AddressMode: ""
-    ipv6RAMode: ""

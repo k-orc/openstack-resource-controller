@@ -52,7 +52,6 @@ func (subnetStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResou
 func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	status := orcapplyconfigv1alpha1.SubnetResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithIPVersion(int32(osResource.IPVersion)).
 		WithCIDR(osResource.CIDR).
 		WithGatewayIP(osResource.GatewayIP).
@@ -61,10 +60,18 @@ func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithNetworkID(osResource.NetworkID).
 		WithProjectID(osResource.ProjectID).
 		WithRevisionNumber(int64(osResource.RevisionNumber)).
-		WithIPv6AddressMode(osResource.IPv6AddressMode).
-		WithIPv6RAMode(osResource.IPv6RAMode).
 		WithTags(osResource.Tags...).
 		WithDNSNameservers(osResource.DNSNameservers...)
+
+	if osResource.Description != "" {
+		status.WithDescription(osResource.Description)
+	}
+	if osResource.IPv6AddressMode != "" {
+		status.WithIPv6AddressMode(osResource.IPv6AddressMode)
+	}
+	if osResource.IPv6RAMode != "" {
+		status.WithIPv6RAMode(osResource.IPv6RAMode)
+	}
 
 	for i := range osResource.AllocationPools {
 		status.WithAllocationPools(orcapplyconfigv1alpha1.AllocationPoolStatus().

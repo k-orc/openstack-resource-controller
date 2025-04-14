@@ -21,6 +21,8 @@ assertAll:
     # - celExpr: "subnet.status.resource.revisionNumber > 0"
     - celExpr: "subnet.status.resource.networkID == network.status.id"
     - celExpr: "subnet.status.resource.projectID == project.status.id"
+    - celExpr: "'ipv6AddressMode' in subnet.status.resource == false"
+    - celExpr: "'ipv6RAMode' in subnet.status.resource == false"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -38,16 +40,13 @@ status:
     allocationPools:
       - start: 192.168.1.10
         end: 192.168.1.15
-      # NOTE: kuttl frequently complains about the items order. Is it a bug?
-      # - start: 192.168.1.20
-      #   end: 192.168.1.25
     enableDHCP: false
     gatewayIP: 192.168.1.2
     enableDHCP: false
     dnsNameservers:
       - 1.1.1.1
       - 8.8.8.8
-    # FIXME: dnsPublishFixedIP is not honored
+    # FIXME: environment doesn't allow to test dnsPublishFixedIP
     # https://github.com/k-orc/openstack-resource-controller/issues/189
     dnsPublishFixedIP: false
     hostRoutes:
@@ -55,8 +54,6 @@ status:
         nextHop: 192.168.4.1
       - destination: 192.168.5.0/24
         nextHop: 192.168.6.1
-    ipv6AddressMode: ""
-    ipv6RAMode: ""
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RouterInterface
