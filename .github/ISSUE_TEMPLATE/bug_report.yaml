@@ -1,0 +1,35 @@
+name: Bug Report
+description: Something unexpected happened
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Problem description
+      description: Tell us what you expected, and what happened.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ORC version
+      description: "With what version of ORC are you seeing this bug?"
+      placeholder: "Example: v2.0.3, or commit id if running from main"
+    validations:
+      required: true
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: Anything that can help us understand the issue better. You can provide for example the OpenStack or Kubernetes version.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks. Make sure you redact sensitive information such as your endpoint URL for example.
+      render: shell
