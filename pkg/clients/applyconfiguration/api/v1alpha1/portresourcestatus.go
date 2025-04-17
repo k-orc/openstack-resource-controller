@@ -39,6 +39,8 @@ type PortResourceStatusApplyConfiguration struct {
 	FixedIPs                                []FixedIPStatusApplyConfiguration            `json:"fixedIPs,omitempty"`
 	SecurityGroups                          []string                                     `json:"securityGroups,omitempty"`
 	PropagateUplinkStatus                   *bool                                        `json:"propagateUplinkStatus,omitempty"`
+	VNICType                                *string                                      `json:"vnicType,omitempty"`
+	PortSecurityEnabled                     *bool                                        `json:"portSecurityEnabled,omitempty"`
 	NeutronStatusMetadataApplyConfiguration `json:",inline"`
 }
 
@@ -171,6 +173,22 @@ func (b *PortResourceStatusApplyConfiguration) WithSecurityGroups(values ...stri
 // If called multiple times, the PropagateUplinkStatus field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithPropagateUplinkStatus(value bool) *PortResourceStatusApplyConfiguration {
 	b.PropagateUplinkStatus = &value
+	return b
+}
+
+// WithVNICType sets the VNICType field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the VNICType field is set to the value of the last call.
+func (b *PortResourceStatusApplyConfiguration) WithVNICType(value string) *PortResourceStatusApplyConfiguration {
+	b.VNICType = &value
+	return b
+}
+
+// WithPortSecurityEnabled sets the PortSecurityEnabled field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the PortSecurityEnabled field is set to the value of the last call.
+func (b *PortResourceStatusApplyConfiguration) WithPortSecurityEnabled(value bool) *PortResourceStatusApplyConfiguration {
+	b.PortSecurityEnabled = &value
 	return b
 }
 

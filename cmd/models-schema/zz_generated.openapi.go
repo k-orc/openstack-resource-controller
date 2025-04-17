@@ -3060,6 +3060,20 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							},
 						},
 					},
+					"vnicType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vnicType specifies the type of vNIC which this port should be attached to. This is used to determine which mechanism driver(s) to be used to bind the port. The valid values are normal, macvtap, direct, baremetal, direct-physical, virtio-forwarder, smart-nic and remote-managed, although these values will not be validated in this API to ensure compatibility with future neutron changes or custom implementations. What type of vNIC is actually available depends on deployments. If not specified, the Neutron default value is used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portSecurity": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portSecurity controls port security for this port. When set to Enabled, port security is enabled. When set to Disabled, port security is disabled and SecurityGroupRefs must be empty. When set to Inherit (default), it takes the value from the network level.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"networkRef"},
 			},
@@ -3219,6 +3233,20 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref
 					"propagateUplinkStatus": {
 						SchemaProps: spec.SchemaProps{
 							Description: "propagateUplinkStatus represents the uplink status propagation of the port.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"vnicType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vnicType is the type of vNIC which this port is attached to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portSecurityEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portSecurityEnabled indicates whether port security is enabled or not.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
