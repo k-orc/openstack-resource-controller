@@ -215,7 +215,9 @@ func NewProviderClient(cloud clientconfig.Cloud, caCert []byte, logger logr.Logg
 		}
 	}
 
-	provider.HTTPClient.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment, TLSClientConfig: config}
+	provider.HTTPClient.Transport = &RoundTripper{
+		RoundTripper: &http.Transport{Proxy: http.ProxyFromEnvironment, TLSClientConfig: config},
+	}
 	if klog.V(6).Enabled() {
 		provider.HTTPClient.Transport = &osclient.RoundTripper{
 			Rt:     provider.HTTPClient.Transport,
