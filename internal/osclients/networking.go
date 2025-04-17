@@ -127,26 +127,26 @@ func NewNetworkClient(providerClient *gophercloud.ProviderClient, providerClient
 }
 
 func (c networkClient) AddRouterInterface(ctx context.Context, id string, opts routers.AddInterfaceOptsBuilder) (*routers.InterfaceInfo, error) {
-	return routers.AddInterface(ctx, c.serviceClient, id, opts).Extract()
+	return routers.AddInterface(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) RemoveRouterInterface(ctx context.Context, id string, opts routers.RemoveInterfaceOptsBuilder) (*routers.InterfaceInfo, error) {
-	return routers.RemoveInterface(ctx, c.serviceClient, id, opts).Extract()
+	return routers.RemoveInterface(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error) {
-	return attributestags.ReplaceAll(ctx, c.serviceClient, resourceType, resourceID, opts).Extract()
+	return attributestags.ReplaceAll(ctx, getClient(ctx, c.serviceClient), resourceType, resourceID, opts).Extract()
 }
 
 func (c networkClient) ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error] {
-	pager := routers.List(c.serviceClient, opts)
+	pager := routers.List(getClient(ctx, c.serviceClient), opts)
 	return func(yield func(*routers.Router, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(routers.ExtractRouters, yield))
 	}
 }
 
 func (c networkClient) ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) ([]floatingips.FloatingIP, error) {
-	allPages, err := floatingips.List(c.serviceClient, opts).AllPages(ctx)
+	allPages, err := floatingips.List(getClient(ctx, c.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (c networkClient) ListFloatingIP(ctx context.Context, opts floatingips.List
 }
 
 func (c networkClient) CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error) {
-	fip, err := floatingips.Create(ctx, c.serviceClient, opts).Extract()
+	fip, err := floatingips.Create(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 	if err != nil {
 		return nil, err
 	}
@@ -162,59 +162,59 @@ func (c networkClient) CreateFloatingIP(ctx context.Context, opts floatingips.Cr
 }
 
 func (c networkClient) DeleteFloatingIP(ctx context.Context, id string) error {
-	return floatingips.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return floatingips.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetFloatingIP(ctx context.Context, id string) (*floatingips.FloatingIP, error) {
-	return floatingips.Get(ctx, c.serviceClient, id).Extract()
+	return floatingips.Get(ctx, getClient(ctx, c.serviceClient), id).Extract()
 }
 
 func (c networkClient) UpdateFloatingIP(ctx context.Context, id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error) {
-	return floatingips.Update(ctx, c.serviceClient, id, opts).Extract()
+	return floatingips.Update(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*ports.Port, error] {
-	pager := ports.List(c.serviceClient, opts)
+	pager := ports.List(getClient(ctx, c.serviceClient), opts)
 	return func(yield func(*ports.Port, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(ports.ExtractPorts, yield))
 	}
 }
 
 func (c networkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*ports.Port, error) {
-	return ports.Create(ctx, c.serviceClient, opts).Extract()
+	return ports.Create(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 }
 
 func (c networkClient) DeletePort(ctx context.Context, id string) error {
-	return ports.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return ports.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetPort(ctx context.Context, id string) (*ports.Port, error) {
-	return ports.Get(ctx, c.serviceClient, id).Extract()
+	return ports.Get(ctx, getClient(ctx, c.serviceClient), id).Extract()
 }
 
 func (c networkClient) UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*ports.Port, error) {
-	return ports.Update(ctx, c.serviceClient, id, opts).Extract()
+	return ports.Update(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error) {
-	return trunks.Create(ctx, c.serviceClient, opts).Extract()
+	return trunks.Create(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 }
 
 func (c networkClient) DeleteTrunk(ctx context.Context, id string) error {
-	return trunks.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return trunks.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) ListTrunkSubports(ctx context.Context, trunkID string) ([]trunks.Subport, error) {
-	return trunks.GetSubports(ctx, c.serviceClient, trunkID).Extract()
+	return trunks.GetSubports(ctx, getClient(ctx, c.serviceClient), trunkID).Extract()
 }
 
 func (c networkClient) RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error {
-	_, err := trunks.RemoveSubports(ctx, c.serviceClient, id, opts).Extract()
+	_, err := trunks.RemoveSubports(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 	return err
 }
 
 func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error) {
-	allPages, err := trunks.List(c.serviceClient, opts).AllPages(ctx)
+	allPages, err := trunks.List(getClient(ctx, c.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -222,46 +222,46 @@ func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilde
 }
 
 func (c networkClient) CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error) {
-	return routers.Create(ctx, c.serviceClient, opts).Extract()
+	return routers.Create(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 }
 
 func (c networkClient) DeleteRouter(ctx context.Context, id string) error {
-	return routers.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return routers.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetRouter(ctx context.Context, id string) (*routers.Router, error) {
-	return routers.Get(ctx, c.serviceClient, id).Extract()
+	return routers.Get(ctx, getClient(ctx, c.serviceClient), id).Extract()
 }
 
 func (c networkClient) UpdateRouter(ctx context.Context, id string, opts routers.UpdateOptsBuilder) (*routers.Router, error) {
-	return routers.Update(ctx, c.serviceClient, id, opts).Extract()
+	return routers.Update(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) iter.Seq2[*groups.SecGroup, error] {
-	pager := groups.List(c.serviceClient, opts)
+	pager := groups.List(getClient(ctx, c.serviceClient), opts)
 	return func(yield func(*groups.SecGroup, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(groups.ExtractGroups, yield))
 	}
 }
 
 func (c networkClient) CreateSecGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.SecGroup, error) {
-	return groups.Create(ctx, c.serviceClient, opts).Extract()
+	return groups.Create(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 }
 
 func (c networkClient) DeleteSecGroup(ctx context.Context, id string) error {
-	return groups.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return groups.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetSecGroup(ctx context.Context, id string) (*groups.SecGroup, error) {
-	return groups.Get(ctx, c.serviceClient, id).Extract()
+	return groups.Get(ctx, getClient(ctx, c.serviceClient), id).Extract()
 }
 
 func (c networkClient) UpdateSecGroup(ctx context.Context, id string, opts groups.UpdateOptsBuilder) (*groups.SecGroup, error) {
-	return groups.Update(ctx, c.serviceClient, id, opts).Extract()
+	return groups.Update(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) ListSecGroupRule(ctx context.Context, opts rules.ListOpts) ([]rules.SecGroupRule, error) {
-	allPages, err := rules.List(c.serviceClient, opts).AllPages(ctx)
+	allPages, err := rules.List(getClient(ctx, c.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -269,15 +269,15 @@ func (c networkClient) ListSecGroupRule(ctx context.Context, opts rules.ListOpts
 }
 
 func (c networkClient) CreateSecGroupRules(ctx context.Context, opts []rules.CreateOpts) ([]rules.SecGroupRule, error) {
-	return rules.CreateBulk(ctx, c.serviceClient, opts).Extract()
+	return rules.CreateBulk(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 }
 
 func (c networkClient) DeleteSecGroupRule(ctx context.Context, id string) error {
-	return rules.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return rules.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetSecGroupRule(ctx context.Context, id string) (*rules.SecGroupRule, error) {
-	return rules.Get(ctx, c.serviceClient, id).Extract()
+	return rules.Get(ctx, getClient(ctx, c.serviceClient), id).Extract()
 }
 
 func (c networkClient) ListNetwork(ctx context.Context, opts networks.ListOptsBuilder) iter.Seq2[*NetworkExt, error] {
@@ -289,14 +289,14 @@ func (c networkClient) ListNetwork(ctx context.Context, opts networks.ListOptsBu
 		}
 		return resources, nil
 	}
-	pager := networks.List(c.serviceClient, opts)
+	pager := networks.List(getClient(ctx, c.serviceClient), opts)
 	return func(yield func(*NetworkExt, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(extractNetworkExt, yield))
 	}
 }
 
 func (c networkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) (*NetworkExt, error) {
-	createResult := networks.Create(ctx, c.serviceClient, opts)
+	createResult := networks.Create(ctx, getClient(ctx, c.serviceClient), opts)
 	networkExt := NetworkExt{}
 	if err := createResult.ExtractInto(&networkExt); err != nil {
 		return nil, err
@@ -305,12 +305,12 @@ func (c networkClient) CreateNetwork(ctx context.Context, opts networks.CreateOp
 }
 
 func (c networkClient) DeleteNetwork(ctx context.Context, id string) error {
-	return networks.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return networks.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetNetwork(ctx context.Context, id string) (*NetworkExt, error) {
 	networkExt := NetworkExt{}
-	if err := networks.Get(ctx, c.serviceClient, id).ExtractInto(&networkExt); err != nil {
+	if err := networks.Get(ctx, getClient(ctx, c.serviceClient), id).ExtractInto(&networkExt); err != nil {
 		return nil, err
 	}
 	return &networkExt, nil
@@ -318,37 +318,37 @@ func (c networkClient) GetNetwork(ctx context.Context, id string) (*NetworkExt, 
 
 func (c networkClient) UpdateNetwork(ctx context.Context, id string, opts networks.UpdateOptsBuilder) (*NetworkExt, error) {
 	networkExt := NetworkExt{}
-	if err := networks.Update(ctx, c.serviceClient, id, opts).ExtractInto(&networkExt); err != nil {
+	if err := networks.Update(ctx, getClient(ctx, c.serviceClient), id, opts).ExtractInto(&networkExt); err != nil {
 		return nil, err
 	}
 	return &networkExt, nil
 }
 
 func (c networkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) iter.Seq2[*subnets.Subnet, error] {
-	pager := subnets.List(c.serviceClient, opts)
+	pager := subnets.List(getClient(ctx, c.serviceClient), opts)
 	return func(yield func(*subnets.Subnet, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(subnets.ExtractSubnets, yield))
 	}
 }
 
 func (c networkClient) CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error) {
-	return subnets.Create(ctx, c.serviceClient, opts).Extract()
+	return subnets.Create(ctx, getClient(ctx, c.serviceClient), opts).Extract()
 }
 
 func (c networkClient) DeleteSubnet(ctx context.Context, id string) error {
-	return subnets.Delete(ctx, c.serviceClient, id).ExtractErr()
+	return subnets.Delete(ctx, getClient(ctx, c.serviceClient), id).ExtractErr()
 }
 
 func (c networkClient) GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error) {
-	return subnets.Get(ctx, c.serviceClient, id).Extract()
+	return subnets.Get(ctx, getClient(ctx, c.serviceClient), id).Extract()
 }
 
 func (c networkClient) UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error) {
-	return subnets.Update(ctx, c.serviceClient, id, opts).Extract()
+	return subnets.Update(ctx, getClient(ctx, c.serviceClient), id, opts).Extract()
 }
 
 func (c networkClient) ListExtensions(ctx context.Context) ([]extensions.Extension, error) {
-	allPages, err := extensions.List(c.serviceClient).AllPages(ctx)
+	allPages, err := extensions.List(getClient(ctx, c.serviceClient)).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}

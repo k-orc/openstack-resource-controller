@@ -49,7 +49,7 @@ func NewVolumeClient(providerClient *gophercloud.ProviderClient, providerClientO
 }
 
 func (c volumeClient) ListVolumes(ctx context.Context, opts volumes.ListOptsBuilder) ([]volumes.Volume, error) {
-	pages, err := volumes.List(c.client, opts).AllPages(ctx)
+	pages, err := volumes.List(getClient(ctx, c.client), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -57,15 +57,15 @@ func (c volumeClient) ListVolumes(ctx context.Context, opts volumes.ListOptsBuil
 }
 
 func (c volumeClient) CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error) {
-	return volumes.Create(ctx, c.client, opts, nil).Extract()
+	return volumes.Create(ctx, getClient(ctx, c.client), opts, nil).Extract()
 }
 
 func (c volumeClient) DeleteVolume(ctx context.Context, volumeID string, opts volumes.DeleteOptsBuilder) error {
-	return volumes.Delete(ctx, c.client, volumeID, opts).ExtractErr()
+	return volumes.Delete(ctx, getClient(ctx, c.client), volumeID, opts).ExtractErr()
 }
 
 func (c volumeClient) GetVolume(ctx context.Context, volumeID string) (*volumes.Volume, error) {
-	return volumes.Get(ctx, c.client, volumeID).Extract()
+	return volumes.Get(ctx, getClient(ctx, c.client), volumeID).Extract()
 }
 
 type volumeErrorClient struct{ error }

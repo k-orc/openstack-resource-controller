@@ -75,11 +75,11 @@ func NewLbClient(providerClient *gophercloud.ProviderClient, providerClientOpts 
 }
 
 func (l lbClient) CreateLoadBalancer(ctx context.Context, opts loadbalancers.CreateOptsBuilder) (*loadbalancers.LoadBalancer, error) {
-	return loadbalancers.Create(ctx, l.serviceClient, opts).Extract()
+	return loadbalancers.Create(ctx, getClient(ctx, l.serviceClient), opts).Extract()
 }
 
 func (l lbClient) ListLoadBalancers(ctx context.Context, opts loadbalancers.ListOptsBuilder) ([]loadbalancers.LoadBalancer, error) {
-	allPages, err := loadbalancers.List(l.serviceClient, opts).AllPages(ctx)
+	allPages, err := loadbalancers.List(getClient(ctx, l.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -87,23 +87,23 @@ func (l lbClient) ListLoadBalancers(ctx context.Context, opts loadbalancers.List
 }
 
 func (l lbClient) GetLoadBalancer(ctx context.Context, id string) (*loadbalancers.LoadBalancer, error) {
-	return loadbalancers.Get(ctx, l.serviceClient, id).Extract()
+	return loadbalancers.Get(ctx, getClient(ctx, l.serviceClient), id).Extract()
 }
 
 func (l lbClient) DeleteLoadBalancer(ctx context.Context, id string, opts loadbalancers.DeleteOptsBuilder) error {
-	return loadbalancers.Delete(ctx, l.serviceClient, id, opts).ExtractErr()
+	return loadbalancers.Delete(ctx, getClient(ctx, l.serviceClient), id, opts).ExtractErr()
 }
 
 func (l lbClient) CreateListener(ctx context.Context, opts listeners.CreateOptsBuilder) (*listeners.Listener, error) {
-	return listeners.Create(ctx, l.serviceClient, opts).Extract()
+	return listeners.Create(ctx, getClient(ctx, l.serviceClient), opts).Extract()
 }
 
 func (l lbClient) UpdateListener(ctx context.Context, id string, opts listeners.UpdateOpts) (*listeners.Listener, error) {
-	return listeners.Update(ctx, l.serviceClient, id, opts).Extract()
+	return listeners.Update(ctx, getClient(ctx, l.serviceClient), id, opts).Extract()
 }
 
 func (l lbClient) ListListeners(ctx context.Context, opts listeners.ListOptsBuilder) ([]listeners.Listener, error) {
-	allPages, err := listeners.List(l.serviceClient, opts).AllPages(ctx)
+	allPages, err := listeners.List(getClient(ctx, l.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -111,19 +111,19 @@ func (l lbClient) ListListeners(ctx context.Context, opts listeners.ListOptsBuil
 }
 
 func (l lbClient) GetListener(ctx context.Context, id string) (*listeners.Listener, error) {
-	return listeners.Get(ctx, l.serviceClient, id).Extract()
+	return listeners.Get(ctx, getClient(ctx, l.serviceClient), id).Extract()
 }
 
 func (l lbClient) DeleteListener(ctx context.Context, id string) error {
-	return listeners.Delete(ctx, l.serviceClient, id).ExtractErr()
+	return listeners.Delete(ctx, getClient(ctx, l.serviceClient), id).ExtractErr()
 }
 
 func (l lbClient) CreatePool(ctx context.Context, opts pools.CreateOptsBuilder) (*pools.Pool, error) {
-	return pools.Create(ctx, l.serviceClient, opts).Extract()
+	return pools.Create(ctx, getClient(ctx, l.serviceClient), opts).Extract()
 }
 
 func (l lbClient) ListPools(ctx context.Context, opts pools.ListOptsBuilder) ([]pools.Pool, error) {
-	allPages, err := pools.List(l.serviceClient, opts).AllPages(ctx)
+	allPages, err := pools.List(getClient(ctx, l.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -131,19 +131,19 @@ func (l lbClient) ListPools(ctx context.Context, opts pools.ListOptsBuilder) ([]
 }
 
 func (l lbClient) GetPool(ctx context.Context, id string) (*pools.Pool, error) {
-	return pools.Get(ctx, l.serviceClient, id).Extract()
+	return pools.Get(ctx, getClient(ctx, l.serviceClient), id).Extract()
 }
 
 func (l lbClient) DeletePool(ctx context.Context, id string) error {
-	return pools.Delete(ctx, l.serviceClient, id).ExtractErr()
+	return pools.Delete(ctx, getClient(ctx, l.serviceClient), id).ExtractErr()
 }
 
 func (l lbClient) CreatePoolMember(ctx context.Context, poolID string, lbMemberOpts pools.CreateMemberOptsBuilder) (*pools.Member, error) {
-	return pools.CreateMember(ctx, l.serviceClient, poolID, lbMemberOpts).Extract()
+	return pools.CreateMember(ctx, getClient(ctx, l.serviceClient), poolID, lbMemberOpts).Extract()
 }
 
 func (l lbClient) ListPoolMember(ctx context.Context, poolID string, opts pools.ListMembersOptsBuilder) ([]pools.Member, error) {
-	allPages, err := pools.ListMembers(l.serviceClient, poolID, opts).AllPages(ctx)
+	allPages, err := pools.ListMembers(getClient(ctx, l.serviceClient), poolID, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -151,15 +151,15 @@ func (l lbClient) ListPoolMember(ctx context.Context, poolID string, opts pools.
 }
 
 func (l lbClient) DeletePoolMember(ctx context.Context, poolID string, lbMemberID string) error {
-	return pools.DeleteMember(ctx, l.serviceClient, poolID, lbMemberID).ExtractErr()
+	return pools.DeleteMember(ctx, getClient(ctx, l.serviceClient), poolID, lbMemberID).ExtractErr()
 }
 
 func (l lbClient) CreateMonitor(ctx context.Context, opts monitors.CreateOptsBuilder) (*monitors.Monitor, error) {
-	return monitors.Create(ctx, l.serviceClient, opts).Extract()
+	return monitors.Create(ctx, getClient(ctx, l.serviceClient), opts).Extract()
 }
 
 func (l lbClient) ListMonitors(ctx context.Context, opts monitors.ListOptsBuilder) ([]monitors.Monitor, error) {
-	allPages, err := monitors.List(l.serviceClient, opts).AllPages(ctx)
+	allPages, err := monitors.List(getClient(ctx, l.serviceClient), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -167,11 +167,11 @@ func (l lbClient) ListMonitors(ctx context.Context, opts monitors.ListOptsBuilde
 }
 
 func (l lbClient) DeleteMonitor(ctx context.Context, id string) error {
-	return monitors.Delete(ctx, l.serviceClient, id).ExtractErr()
+	return monitors.Delete(ctx, getClient(ctx, l.serviceClient), id).ExtractErr()
 }
 
 func (l lbClient) ListLoadBalancerProviders(ctx context.Context) ([]providers.Provider, error) {
-	allPages, err := providers.List(l.serviceClient, providers.ListOpts{}).AllPages(ctx)
+	allPages, err := providers.List(getClient(ctx, l.serviceClient), providers.ListOpts{}).AllPages(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("listing providers: %v", err)
 	}
@@ -179,7 +179,7 @@ func (l lbClient) ListLoadBalancerProviders(ctx context.Context) ([]providers.Pr
 }
 
 func (l lbClient) ListOctaviaVersions(ctx context.Context) ([]apiversions.APIVersion, error) {
-	allPages, err := apiversions.List(l.serviceClient).AllPages(ctx)
+	allPages, err := apiversions.List(getClient(ctx, l.serviceClient)).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (l lbClient) ListOctaviaVersions(ctx context.Context) ([]apiversions.APIVer
 }
 
 func (l lbClient) ListLoadBalancerFlavors(ctx context.Context) ([]flavors.Flavor, error) {
-	allPages, err := flavors.List(l.serviceClient, flavors.ListOpts{}).AllPages(ctx)
+	allPages, err := flavors.List(getClient(ctx, l.serviceClient), flavors.ListOpts{}).AllPages(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("listing flavors: %v", err)
 	}
