@@ -28,7 +28,7 @@ metadata:
   name: subnet-create-full-v4-gateway
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
