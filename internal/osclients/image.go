@@ -56,7 +56,7 @@ func NewImageClient(providerClient *gophercloud.ProviderClient, providerClientOp
 }
 
 func (c imageClient) ListImages(ctx context.Context, listOpts images.ListOptsBuilder) iter.Seq2[*images.Image, error] {
-	pager := images.List(c.client, listOpts)
+	pager := images.List(getClient(ctx, c.client), listOpts)
 	return func(yield func(*images.Image, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(images.ExtractImages, yield))
 	}
@@ -64,7 +64,7 @@ func (c imageClient) ListImages(ctx context.Context, listOpts images.ListOptsBui
 
 func (c imageClient) GetImage(ctx context.Context, id string) (*images.Image, error) {
 	image := &images.Image{}
-	err := images.Get(ctx, c.client, id).ExtractInto(image)
+	err := images.Get(ctx, getClient(ctx, c.client), id).ExtractInto(image)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c imageClient) GetImage(ctx context.Context, id string) (*images.Image, er
 }
 
 func (c imageClient) CreateImage(ctx context.Context, createOpts images.CreateOptsBuilder) (*images.Image, error) {
-	image, err := images.Create(ctx, c.client, createOpts).Extract()
+	image, err := images.Create(ctx, getClient(ctx, c.client), createOpts).Extract()
 	if err != nil {
 		return nil, err
 	}
@@ -80,19 +80,19 @@ func (c imageClient) CreateImage(ctx context.Context, createOpts images.CreateOp
 }
 
 func (c imageClient) DeleteImage(ctx context.Context, id string) error {
-	return images.Delete(ctx, c.client, id).ExtractErr()
+	return images.Delete(ctx, getClient(ctx, c.client), id).ExtractErr()
 }
 
 func (c imageClient) UploadData(ctx context.Context, id string, data io.Reader) error {
-	return imagedata.Upload(ctx, c.client, id, data).ExtractErr()
+	return imagedata.Upload(ctx, getClient(ctx, c.client), id, data).ExtractErr()
 }
 
 func (c imageClient) GetImportInfo(ctx context.Context) (*imageimport.ImportInfo, error) {
-	return imageimport.Get(ctx, c.client).Extract()
+	return imageimport.Get(ctx, getClient(ctx, c.client)).Extract()
 }
 
 func (c imageClient) CreateImport(ctx context.Context, id string, createOpts imageimport.CreateOptsBuilder) error {
-	return imageimport.Create(ctx, c.client, id, createOpts).ExtractErr()
+	return imageimport.Create(ctx, getClient(ctx, c.client), id, createOpts).ExtractErr()
 }
 
 type imageErrorClient struct{ error }

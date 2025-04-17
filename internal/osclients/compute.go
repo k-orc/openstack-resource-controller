@@ -44,7 +44,7 @@ CAPO supports multiattach volume types, which were added in microversion 2.60.
 const NovaMinimumMicroversion = "2.60"
 
 type ComputeClient interface {
-	ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error)
+	ListAvailabilityZones(ctx context.Context) ([]availabilityzones.AvailabilityZone, error)
 
 	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
 	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
@@ -56,10 +56,10 @@ type ComputeClient interface {
 	GetServer(ctx context.Context, serverID string) (*servers.Server, error)
 	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error]
 
-	ListAttachedInterfaces(serverID string) ([]attachinterfaces.Interface, error)
-	DeleteAttachedInterface(serverID, portID string) error
+	ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error)
+	DeleteAttachedInterface(ctx context.Context, serverID, portID string) error
 
-	ListServerGroups() ([]servergroups.ServerGroup, error)
+	ListServerGroups(ctx context.Context) ([]servergroups.ServerGroup, error)
 }
 
 type computeClient struct{ client *gophercloud.ServiceClient }
@@ -78,8 +78,8 @@ func NewComputeClient(providerClient *gophercloud.ProviderClient, providerClient
 	return &computeClient{compute}, nil
 }
 
-func (c computeClient) ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error) {
-	allPages, err := availabilityzones.List(c.client).AllPages(context.TODO())
+func (c computeClient) ListAvailabilityZones(ctx context.Context) ([]availabilityzones.AvailabilityZone, error) {
+	allPages, err := availabilityzones.List(getClient(ctx, c.client)).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -87,58 +87,58 @@ func (c computeClient) ListAvailabilityZones() ([]availabilityzones.Availability
 }
 
 func (c computeClient) GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error) {
-	return flavors.Get(ctx, c.client, id).Extract()
+	return flavors.Get(ctx, getClient(ctx, c.client), id).Extract()
 }
 
 func (c computeClient) CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error) {
-	return flavors.Create(ctx, c.client, opts).Extract()
+	return flavors.Create(ctx, getClient(ctx, c.client), opts).Extract()
 }
 
 func (c computeClient) DeleteFlavor(ctx context.Context, id string) error {
-	return flavors.Delete(ctx, c.client, id).ExtractErr()
+	return flavors.Delete(ctx, getClient(ctx, c.client), id).ExtractErr()
 }
 
 func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
-	pager := flavors.ListDetail(c.client, opts)
+	pager := flavors.ListDetail(getClient(ctx, c.client), opts)
 	return func(yield func(*flavors.Flavor, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(flavors.ExtractFlavors, yield))
 	}
 }
 
 func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
-	return servers.Create(ctx, c.client, createOpts, schedulerHints).Extract()
+	return servers.Create(ctx, getClient(ctx, c.client), createOpts, schedulerHints).Extract()
 }
 
 func (c computeClient) DeleteServer(ctx context.Context, serverID string) error {
-	return servers.Delete(ctx, c.client, serverID).ExtractErr()
+	return servers.Delete(ctx, getClient(ctx, c.client), serverID).ExtractErr()
 }
 
 func (c computeClient) GetServer(ctx context.Context, serverID string) (*servers.Server, error) {
-	return servers.Get(ctx, c.client, serverID).Extract()
+	return servers.Get(ctx, getClient(ctx, c.client), serverID).Extract()
 }
 
 func (c computeClient) ListServers(ctx context.Context, opts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error] {
-	pager := servers.List(c.client, opts)
+	pager := servers.List(getClient(ctx, c.client), opts)
 	return func(yield func(*servers.Server, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(servers.ExtractServers, yield))
 	}
 }
 
-func (c computeClient) ListAttachedInterfaces(serverID string) ([]attachinterfaces.Interface, error) {
-	interfaces, err := attachinterfaces.List(c.client, serverID).AllPages(context.TODO())
+func (c computeClient) ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error) {
+	interfaces, err := attachinterfaces.List(getClient(ctx, c.client), serverID).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return attachinterfaces.ExtractInterfaces(interfaces)
 }
 
-func (c computeClient) DeleteAttachedInterface(serverID, portID string) error {
-	return attachinterfaces.Delete(context.TODO(), c.client, serverID, portID).ExtractErr()
+func (c computeClient) DeleteAttachedInterface(ctx context.Context, serverID, portID string) error {
+	return attachinterfaces.Delete(ctx, getClient(ctx, c.client), serverID, portID).ExtractErr()
 }
 
-func (c computeClient) ListServerGroups() ([]servergroups.ServerGroup, error) {
+func (c computeClient) ListServerGroups(ctx context.Context) ([]servergroups.ServerGroup, error) {
 	opts := servergroups.ListOpts{}
-	allPages, err := servergroups.List(c.client, opts).AllPages(context.TODO())
+	allPages, err := servergroups.List(getClient(ctx, c.client), opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (e computeErrorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBui
 	}
 }
 
-func (e computeErrorClient) ListAvailabilityZones() ([]availabilityzones.AvailabilityZone, error) {
+func (e computeErrorClient) ListAvailabilityZones(_ context.Context) ([]availabilityzones.AvailabilityZone, error) {
 	return nil, e.error
 }
 
@@ -188,14 +188,14 @@ func (e computeErrorClient) ListServers(ctx context.Context, listOpts servers.Li
 	}
 }
 
-func (e computeErrorClient) ListAttachedInterfaces(_ string) ([]attachinterfaces.Interface, error) {
+func (e computeErrorClient) ListAttachedInterfaces(_ context.Context, _ string) ([]attachinterfaces.Interface, error) {
 	return nil, e.error
 }
 
-func (e computeErrorClient) DeleteAttachedInterface(_, _ string) error {
+func (e computeErrorClient) DeleteAttachedInterface(_ context.Context, _, _ string) error {
 	return e.error
 }
 
-func (e computeErrorClient) ListServerGroups() ([]servergroups.ServerGroup, error) {
+func (e computeErrorClient) ListServerGroups(_ context.Context) ([]servergroups.ServerGroup, error) {
 	return nil, e.error
 }
