@@ -27,10 +27,10 @@ import (
 )
 
 type VolumeClient interface {
-	ListVolumes(opts volumes.ListOptsBuilder) ([]volumes.Volume, error)
-	CreateVolume(opts volumes.CreateOptsBuilder) (*volumes.Volume, error)
-	DeleteVolume(volumeID string, opts volumes.DeleteOptsBuilder) error
-	GetVolume(volumeID string) (*volumes.Volume, error)
+	ListVolumes(ctx context.Context, opts volumes.ListOptsBuilder) ([]volumes.Volume, error)
+	CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error)
+	DeleteVolume(ctx context.Context, volumeID string, opts volumes.DeleteOptsBuilder) error
+	GetVolume(ctx context.Context, volumeID string) (*volumes.Volume, error)
 }
 
 type volumeClient struct{ client *gophercloud.ServiceClient }
@@ -48,24 +48,24 @@ func NewVolumeClient(providerClient *gophercloud.ProviderClient, providerClientO
 	return &volumeClient{volume}, nil
 }
 
-func (c volumeClient) ListVolumes(opts volumes.ListOptsBuilder) ([]volumes.Volume, error) {
-	pages, err := volumes.List(c.client, opts).AllPages(context.TODO())
+func (c volumeClient) ListVolumes(ctx context.Context, opts volumes.ListOptsBuilder) ([]volumes.Volume, error) {
+	pages, err := volumes.List(c.client, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return volumes.ExtractVolumes(pages)
 }
 
-func (c volumeClient) CreateVolume(opts volumes.CreateOptsBuilder) (*volumes.Volume, error) {
-	return volumes.Create(context.TODO(), c.client, opts, nil).Extract()
+func (c volumeClient) CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error) {
+	return volumes.Create(ctx, c.client, opts, nil).Extract()
 }
 
-func (c volumeClient) DeleteVolume(volumeID string, opts volumes.DeleteOptsBuilder) error {
-	return volumes.Delete(context.TODO(), c.client, volumeID, opts).ExtractErr()
+func (c volumeClient) DeleteVolume(ctx context.Context, volumeID string, opts volumes.DeleteOptsBuilder) error {
+	return volumes.Delete(ctx, c.client, volumeID, opts).ExtractErr()
 }
 
-func (c volumeClient) GetVolume(volumeID string) (*volumes.Volume, error) {
-	return volumes.Get(context.TODO(), c.client, volumeID).Extract()
+func (c volumeClient) GetVolume(ctx context.Context, volumeID string) (*volumes.Volume, error) {
+	return volumes.Get(ctx, c.client, volumeID).Extract()
 }
 
 type volumeErrorClient struct{ error }
@@ -75,18 +75,18 @@ func NewVolumeErrorClient(e error) VolumeClient {
 	return volumeErrorClient{e}
 }
 
-func (e volumeErrorClient) ListVolumes(_ volumes.ListOptsBuilder) ([]volumes.Volume, error) {
+func (e volumeErrorClient) ListVolumes(_ context.Context, _ volumes.ListOptsBuilder) ([]volumes.Volume, error) {
 	return nil, e.error
 }
 
-func (e volumeErrorClient) CreateVolume(_ volumes.CreateOptsBuilder) (*volumes.Volume, error) {
+func (e volumeErrorClient) CreateVolume(_ context.Context, _ volumes.CreateOptsBuilder) (*volumes.Volume, error) {
 	return nil, e.error
 }
 
-func (e volumeErrorClient) DeleteVolume(_ string, _ volumes.DeleteOptsBuilder) error {
+func (e volumeErrorClient) DeleteVolume(_ context.Context, _ string, _ volumes.DeleteOptsBuilder) error {
 	return e.error
 }
 
-func (e volumeErrorClient) GetVolume(_ string) (*volumes.Volume, error) {
+func (e volumeErrorClient) GetVolume(_ context.Context, _ string) (*volumes.Volume, error) {
 	return nil, e.error
 }

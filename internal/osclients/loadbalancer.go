@@ -33,28 +33,28 @@ import (
 )
 
 type LbClient interface {
-	CreateLoadBalancer(opts loadbalancers.CreateOptsBuilder) (*loadbalancers.LoadBalancer, error)
-	ListLoadBalancers(opts loadbalancers.ListOptsBuilder) ([]loadbalancers.LoadBalancer, error)
-	GetLoadBalancer(id string) (*loadbalancers.LoadBalancer, error)
-	DeleteLoadBalancer(id string, opts loadbalancers.DeleteOptsBuilder) error
-	CreateListener(opts listeners.CreateOptsBuilder) (*listeners.Listener, error)
-	ListListeners(opts listeners.ListOptsBuilder) ([]listeners.Listener, error)
-	UpdateListener(id string, opts listeners.UpdateOpts) (*listeners.Listener, error)
-	GetListener(id string) (*listeners.Listener, error)
-	DeleteListener(id string) error
-	CreatePool(opts pools.CreateOptsBuilder) (*pools.Pool, error)
-	ListPools(opts pools.ListOptsBuilder) ([]pools.Pool, error)
-	GetPool(id string) (*pools.Pool, error)
-	DeletePool(id string) error
-	CreatePoolMember(poolID string, opts pools.CreateMemberOptsBuilder) (*pools.Member, error)
-	ListPoolMember(poolID string, opts pools.ListMembersOptsBuilder) ([]pools.Member, error)
-	DeletePoolMember(poolID string, lbMemberID string) error
-	CreateMonitor(opts monitors.CreateOptsBuilder) (*monitors.Monitor, error)
-	ListMonitors(opts monitors.ListOptsBuilder) ([]monitors.Monitor, error)
-	DeleteMonitor(id string) error
-	ListLoadBalancerProviders() ([]providers.Provider, error)
-	ListOctaviaVersions() ([]apiversions.APIVersion, error)
-	ListLoadBalancerFlavors() ([]flavors.Flavor, error)
+	CreateLoadBalancer(ctx context.Context, opts loadbalancers.CreateOptsBuilder) (*loadbalancers.LoadBalancer, error)
+	ListLoadBalancers(ctx context.Context, opts loadbalancers.ListOptsBuilder) ([]loadbalancers.LoadBalancer, error)
+	GetLoadBalancer(ctx context.Context, id string) (*loadbalancers.LoadBalancer, error)
+	DeleteLoadBalancer(ctx context.Context, id string, opts loadbalancers.DeleteOptsBuilder) error
+	CreateListener(ctx context.Context, opts listeners.CreateOptsBuilder) (*listeners.Listener, error)
+	ListListeners(ctx context.Context, opts listeners.ListOptsBuilder) ([]listeners.Listener, error)
+	UpdateListener(ctx context.Context, id string, opts listeners.UpdateOpts) (*listeners.Listener, error)
+	GetListener(ctx context.Context, id string) (*listeners.Listener, error)
+	DeleteListener(ctx context.Context, id string) error
+	CreatePool(ctx context.Context, opts pools.CreateOptsBuilder) (*pools.Pool, error)
+	ListPools(ctx context.Context, opts pools.ListOptsBuilder) ([]pools.Pool, error)
+	GetPool(ctx context.Context, id string) (*pools.Pool, error)
+	DeletePool(ctx context.Context, id string) error
+	CreatePoolMember(ctx context.Context, poolID string, opts pools.CreateMemberOptsBuilder) (*pools.Member, error)
+	ListPoolMember(ctx context.Context, poolID string, opts pools.ListMembersOptsBuilder) ([]pools.Member, error)
+	DeletePoolMember(ctx context.Context, poolID string, lbMemberID string) error
+	CreateMonitor(ctx context.Context, opts monitors.CreateOptsBuilder) (*monitors.Monitor, error)
+	ListMonitors(ctx context.Context, opts monitors.ListOptsBuilder) ([]monitors.Monitor, error)
+	DeleteMonitor(ctx context.Context, id string) error
+	ListLoadBalancerProviders(ctx context.Context) ([]providers.Provider, error)
+	ListOctaviaVersions(ctx context.Context) ([]apiversions.APIVersion, error)
+	ListLoadBalancerFlavors(ctx context.Context) ([]flavors.Flavor, error)
 }
 
 type lbClient struct {
@@ -74,120 +74,120 @@ func NewLbClient(providerClient *gophercloud.ProviderClient, providerClientOpts 
 	return &lbClient{loadbalancerClient}, nil
 }
 
-func (l lbClient) CreateLoadBalancer(opts loadbalancers.CreateOptsBuilder) (*loadbalancers.LoadBalancer, error) {
-	return loadbalancers.Create(context.TODO(), l.serviceClient, opts).Extract()
+func (l lbClient) CreateLoadBalancer(ctx context.Context, opts loadbalancers.CreateOptsBuilder) (*loadbalancers.LoadBalancer, error) {
+	return loadbalancers.Create(ctx, l.serviceClient, opts).Extract()
 }
 
-func (l lbClient) ListLoadBalancers(opts loadbalancers.ListOptsBuilder) ([]loadbalancers.LoadBalancer, error) {
-	allPages, err := loadbalancers.List(l.serviceClient, opts).AllPages(context.TODO())
+func (l lbClient) ListLoadBalancers(ctx context.Context, opts loadbalancers.ListOptsBuilder) ([]loadbalancers.LoadBalancer, error) {
+	allPages, err := loadbalancers.List(l.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return loadbalancers.ExtractLoadBalancers(allPages)
 }
 
-func (l lbClient) GetLoadBalancer(id string) (*loadbalancers.LoadBalancer, error) {
-	return loadbalancers.Get(context.TODO(), l.serviceClient, id).Extract()
+func (l lbClient) GetLoadBalancer(ctx context.Context, id string) (*loadbalancers.LoadBalancer, error) {
+	return loadbalancers.Get(ctx, l.serviceClient, id).Extract()
 }
 
-func (l lbClient) DeleteLoadBalancer(id string, opts loadbalancers.DeleteOptsBuilder) error {
-	return loadbalancers.Delete(context.TODO(), l.serviceClient, id, opts).ExtractErr()
+func (l lbClient) DeleteLoadBalancer(ctx context.Context, id string, opts loadbalancers.DeleteOptsBuilder) error {
+	return loadbalancers.Delete(ctx, l.serviceClient, id, opts).ExtractErr()
 }
 
-func (l lbClient) CreateListener(opts listeners.CreateOptsBuilder) (*listeners.Listener, error) {
-	return listeners.Create(context.TODO(), l.serviceClient, opts).Extract()
+func (l lbClient) CreateListener(ctx context.Context, opts listeners.CreateOptsBuilder) (*listeners.Listener, error) {
+	return listeners.Create(ctx, l.serviceClient, opts).Extract()
 }
 
-func (l lbClient) UpdateListener(id string, opts listeners.UpdateOpts) (*listeners.Listener, error) {
-	return listeners.Update(context.TODO(), l.serviceClient, id, opts).Extract()
+func (l lbClient) UpdateListener(ctx context.Context, id string, opts listeners.UpdateOpts) (*listeners.Listener, error) {
+	return listeners.Update(ctx, l.serviceClient, id, opts).Extract()
 }
 
-func (l lbClient) ListListeners(opts listeners.ListOptsBuilder) ([]listeners.Listener, error) {
-	allPages, err := listeners.List(l.serviceClient, opts).AllPages(context.TODO())
+func (l lbClient) ListListeners(ctx context.Context, opts listeners.ListOptsBuilder) ([]listeners.Listener, error) {
+	allPages, err := listeners.List(l.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return listeners.ExtractListeners(allPages)
 }
 
-func (l lbClient) GetListener(id string) (*listeners.Listener, error) {
-	return listeners.Get(context.TODO(), l.serviceClient, id).Extract()
+func (l lbClient) GetListener(ctx context.Context, id string) (*listeners.Listener, error) {
+	return listeners.Get(ctx, l.serviceClient, id).Extract()
 }
 
-func (l lbClient) DeleteListener(id string) error {
-	return listeners.Delete(context.TODO(), l.serviceClient, id).ExtractErr()
+func (l lbClient) DeleteListener(ctx context.Context, id string) error {
+	return listeners.Delete(ctx, l.serviceClient, id).ExtractErr()
 }
 
-func (l lbClient) CreatePool(opts pools.CreateOptsBuilder) (*pools.Pool, error) {
-	return pools.Create(context.TODO(), l.serviceClient, opts).Extract()
+func (l lbClient) CreatePool(ctx context.Context, opts pools.CreateOptsBuilder) (*pools.Pool, error) {
+	return pools.Create(ctx, l.serviceClient, opts).Extract()
 }
 
-func (l lbClient) ListPools(opts pools.ListOptsBuilder) ([]pools.Pool, error) {
-	allPages, err := pools.List(l.serviceClient, opts).AllPages(context.TODO())
+func (l lbClient) ListPools(ctx context.Context, opts pools.ListOptsBuilder) ([]pools.Pool, error) {
+	allPages, err := pools.List(l.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return pools.ExtractPools(allPages)
 }
 
-func (l lbClient) GetPool(id string) (*pools.Pool, error) {
-	return pools.Get(context.TODO(), l.serviceClient, id).Extract()
+func (l lbClient) GetPool(ctx context.Context, id string) (*pools.Pool, error) {
+	return pools.Get(ctx, l.serviceClient, id).Extract()
 }
 
-func (l lbClient) DeletePool(id string) error {
-	return pools.Delete(context.TODO(), l.serviceClient, id).ExtractErr()
+func (l lbClient) DeletePool(ctx context.Context, id string) error {
+	return pools.Delete(ctx, l.serviceClient, id).ExtractErr()
 }
 
-func (l lbClient) CreatePoolMember(poolID string, lbMemberOpts pools.CreateMemberOptsBuilder) (*pools.Member, error) {
-	return pools.CreateMember(context.TODO(), l.serviceClient, poolID, lbMemberOpts).Extract()
+func (l lbClient) CreatePoolMember(ctx context.Context, poolID string, lbMemberOpts pools.CreateMemberOptsBuilder) (*pools.Member, error) {
+	return pools.CreateMember(ctx, l.serviceClient, poolID, lbMemberOpts).Extract()
 }
 
-func (l lbClient) ListPoolMember(poolID string, opts pools.ListMembersOptsBuilder) ([]pools.Member, error) {
-	allPages, err := pools.ListMembers(l.serviceClient, poolID, opts).AllPages(context.TODO())
+func (l lbClient) ListPoolMember(ctx context.Context, poolID string, opts pools.ListMembersOptsBuilder) ([]pools.Member, error) {
+	allPages, err := pools.ListMembers(l.serviceClient, poolID, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return pools.ExtractMembers(allPages)
 }
 
-func (l lbClient) DeletePoolMember(poolID string, lbMemberID string) error {
-	return pools.DeleteMember(context.TODO(), l.serviceClient, poolID, lbMemberID).ExtractErr()
+func (l lbClient) DeletePoolMember(ctx context.Context, poolID string, lbMemberID string) error {
+	return pools.DeleteMember(ctx, l.serviceClient, poolID, lbMemberID).ExtractErr()
 }
 
-func (l lbClient) CreateMonitor(opts monitors.CreateOptsBuilder) (*monitors.Monitor, error) {
-	return monitors.Create(context.TODO(), l.serviceClient, opts).Extract()
+func (l lbClient) CreateMonitor(ctx context.Context, opts monitors.CreateOptsBuilder) (*monitors.Monitor, error) {
+	return monitors.Create(ctx, l.serviceClient, opts).Extract()
 }
 
-func (l lbClient) ListMonitors(opts monitors.ListOptsBuilder) ([]monitors.Monitor, error) {
-	allPages, err := monitors.List(l.serviceClient, opts).AllPages(context.TODO())
+func (l lbClient) ListMonitors(ctx context.Context, opts monitors.ListOptsBuilder) ([]monitors.Monitor, error) {
+	allPages, err := monitors.List(l.serviceClient, opts).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return monitors.ExtractMonitors(allPages)
 }
 
-func (l lbClient) DeleteMonitor(id string) error {
-	return monitors.Delete(context.TODO(), l.serviceClient, id).ExtractErr()
+func (l lbClient) DeleteMonitor(ctx context.Context, id string) error {
+	return monitors.Delete(ctx, l.serviceClient, id).ExtractErr()
 }
 
-func (l lbClient) ListLoadBalancerProviders() ([]providers.Provider, error) {
-	allPages, err := providers.List(l.serviceClient, providers.ListOpts{}).AllPages(context.TODO())
+func (l lbClient) ListLoadBalancerProviders(ctx context.Context) ([]providers.Provider, error) {
+	allPages, err := providers.List(l.serviceClient, providers.ListOpts{}).AllPages(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("listing providers: %v", err)
 	}
 	return providers.ExtractProviders(allPages)
 }
 
-func (l lbClient) ListOctaviaVersions() ([]apiversions.APIVersion, error) {
-	allPages, err := apiversions.List(l.serviceClient).AllPages(context.TODO())
+func (l lbClient) ListOctaviaVersions(ctx context.Context) ([]apiversions.APIVersion, error) {
+	allPages, err := apiversions.List(l.serviceClient).AllPages(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return apiversions.ExtractAPIVersions(allPages)
 }
 
-func (l lbClient) ListLoadBalancerFlavors() ([]flavors.Flavor, error) {
-	allPages, err := flavors.List(l.serviceClient, flavors.ListOpts{}).AllPages(context.TODO())
+func (l lbClient) ListLoadBalancerFlavors(ctx context.Context) ([]flavors.Flavor, error) {
+	allPages, err := flavors.List(l.serviceClient, flavors.ListOpts{}).AllPages(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("listing flavors: %v", err)
 	}
