@@ -229,21 +229,22 @@ func (d *DeletionGuardDependency[objectTP, _, _, _, _, _]) addDeletionGuard(mgr 
 // - an error
 //
 // Dependencies are filtered by the readyFilter argument. Dependencies which are not ready will be in progressStatus but not in the returned object map.
-func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depsMap map[string]depTP, progressStatus []progress.ProgressStatus, err error) {
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (map[string]depTP, progress.ReconcileStatus) {
 	depKind, err := getObjectKind(depTP(new(depT)), k8sClient.Scheme())
 	if err != nil {
-		return nil, nil, err
+		return nil, progress.WrapError(err)
 	}
 
-	depsMap = make(map[string]depTP)
+	var reconcileStatus progress.ReconcileStatus
+	depsMap := make(map[string]depTP)
 	for _, depRef := range d.getDependencyRefs(obj) {
 		var dep depTP = new(depT)
 
 		if depErr := k8sClient.Get(ctx, types.NamespacedName{Name: depRef, Namespace: obj.GetNamespace()}, dep); depErr != nil {
 			if apierrors.IsNotFound(depErr) {
-				progressStatus = append(progressStatus, progress.WaitingOnORCExist(depKind, depRef))
+				reconcileStatus = reconcileStatus.WaitingOnObject(depKind, depRef, progress.WaitingOnCreation)
 			} else {
-				err = errors.Join(depErr)
+				reconcileStatus = reconcileStatus.WithError(depErr)
 			}
 
 			continue
@@ -254,34 +255,34 @@ func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencie
 			// it easier to delete incorrectly created objects which never
 			// became ready.
 			if depErr := EnsureFinalizer(ctx, k8sClient, dep, d.finalizer, d.fieldOwner); depErr != nil {
-				err = errors.Join(depErr)
+				reconcileStatus = reconcileStatus.WithError(depErr)
 				continue
 			}
 
 			depsMap[depRef] = dep
 		} else {
-			progressStatus = append(progressStatus, progress.WaitingOnORCReady(depKind, depRef))
+			reconcileStatus = reconcileStatus.WaitingOnObject(depKind, depRef, progress.WaitingOnReady)
 		}
 	}
 
-	return depsMap, progressStatus, err
+	return depsMap, reconcileStatus
 }
 
 // GetDependency is a convenience wrapper around GetDependencies when the caller only expects a single result.
-func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, []progress.ProgressStatus, error) {
-	depsMap, progressStatus, err := d.GetDependencies(ctx, k8sClient, obj, readyFilter)
-	if len(progressStatus) > 0 || err != nil {
-		return nil, progressStatus, err
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, progress.ReconcileStatus) {
+	depsMap, reconcileStatus := d.GetDependencies(ctx, k8sClient, obj, readyFilter)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
 	}
 	if len(depsMap) > 1 {
 		// Programming error
-		return nil, nil, fmt.Errorf("GetDependencies returned multiple dependencies, expected one")
+		return nil, progress.WrapError(fmt.Errorf("GetDependencies returned multiple dependencies, expected one"))
 	}
 	for _, dep := range depsMap {
-		return dep, nil, nil
+		return dep, nil
 	}
 	// Programming error
-	return nil, nil, fmt.Errorf("GetDependencies returned empty depsMap, progressStatus, and error")
+	return nil, progress.WrapError(fmt.Errorf("GetDependencies returned empty depsMap, progressStatus, and error"))
 }
 
 func (d *DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]) AddToManager(ctx context.Context, mgr ctrl.Manager) error {

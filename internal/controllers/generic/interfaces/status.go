@@ -23,6 +23,7 @@ import (
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 )
 
 // ORCApplyConfig is an interface implemented by any apply configuration for an
@@ -49,7 +50,7 @@ type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourceP
 	// ResourceAvailableStatus returns what the status of the Available
 	// condition should be set to based on the observed state of the given
 	// orcObject and osResource.
-	ResourceAvailableStatus(orcObject objectPT, osResource osResourcePT) metav1.ConditionStatus
+	ResourceAvailableStatus(orcObject objectPT, osResource osResourcePT) (metav1.ConditionStatus, progress.ReconcileStatus)
 
 	// ApplyResourceStatus writes status.resource to the given status apply
 	// configuration based on the given osResource

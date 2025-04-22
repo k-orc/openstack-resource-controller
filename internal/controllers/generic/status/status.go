@@ -79,8 +79,9 @@ func UpdateStatus[
 	ctx context.Context,
 	controller interfaces.ResourceController,
 	statusWriter interfaces.ResourceStatusWriter[orcObjectPT, osResourcePT, objectApplyPT, statusApplyPT],
-	orcObject orcObjectPT, osResource osResourcePT, progressStatus []progress.ProgressStatus, err error,
-) error {
+	orcObject orcObjectPT, osResource osResourcePT,
+	reconcileStatus progress.ReconcileStatus,
+) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	now := metav1.NewTime(time.Now())
 
@@ -95,11 +96,13 @@ func UpdateStatus[
 	}
 
 	// Set common conditions
-	available := statusWriter.ResourceAvailableStatus(orcObject, osResource)
-	SetCommonConditions(orcObject, applyConfigStatus, available, progressStatus, err, now)
+	available, availableReconcileStatus := statusWriter.ResourceAvailableStatus(orcObject, osResource)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(availableReconcileStatus)
+	SetCommonConditions(orcObject, applyConfigStatus, available, reconcileStatus, now)
 
 	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()
 	ssaFieldOwner := orcstrings.GetSSAFieldOwnerWithTxn(controller.GetName(), orcstrings.SSATransactionStatus)
-	return k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner)
+	return reconcileStatus.
+		WithError(k8sClient.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner))
 }

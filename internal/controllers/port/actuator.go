@@ -18,7 +18,6 @@ package port
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"iter"
 
@@ -62,8 +61,12 @@ func (portActuator) GetResourceID(osResource *osclients.PortExt) string {
 	return osResource.ID
 }
 
-func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.PortExt, error) {
-	return actuator.osClient.GetPort(ctx, id)
+func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.PortExt, progress.ReconcileStatus) {
+	port, err := actuator.osClient.GetPort(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return port, nil
 }
 
 func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Port) (portIterator, bool) {
@@ -75,9 +78,8 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 	return actuator.osClient.ListPort(ctx, listOpts), true
 }
 
-func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var networkID string
-	var progressStatus []progress.ProgressStatus
 
 	if filter.NetworkRef != "" {
 		network := &orcv1alpha1.Network{}
@@ -85,17 +87,14 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 			networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
 			if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
 				if apierrors.IsNotFound(err) {
-					progressStatus = append(progressStatus, progress.WaitingOnORCExist("Network", networkKey.Name))
+					return nil, progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation)
 				} else {
-					return nil, nil, fmt.Errorf("fetching network %s: %w", networkKey.Name, err)
+					return nil, progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err))
 				}
 			} else {
 				if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
-					progressStatus = append(progressStatus, progress.WaitingOnORCReady("Network", networkKey.Name))
+					return nil, progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady)
 				}
-			}
-			if len(progressStatus) > 0 {
-				return progressStatus, nil, nil
 			}
 			networkID = *network.Status.ID
 		}
@@ -111,42 +110,38 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
 	}
 
-	return nil, actuator.osClient.ListPort(ctx, listOpts), nil
+	return actuator.osClient.ListPort(ctx, listOpts), nil
 }
 
-func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) ([]progress.ProgressStatus, *osclients.PortExt, error) {
+func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) (*osclients.PortExt, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
-	var progressStatus []progress.ProgressStatus
-
 	// Fetch all dependencies and ensure they have our finalizer
-	network, networkProgress, networkErr := networkDependency.GetDependency(
+	network, networkDepRS := networkDependency.GetDependency(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
-	subnetMap, subnetProgress, subnetErr := subnetDependency.GetDependencies(
+	subnetMap, subnetDepRS := subnetDependency.GetDependencies(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Subnet) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
-	secGroupMap, secGroupProgress, secGroupErr := securityGroupDependency.GetDependencies(
+	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
 			return dep.Status.ID != nil
 		},
 	)
-
-	progressStatus = append(progressStatus, networkProgress...)
-	progressStatus = append(progressStatus, subnetProgress...)
-	progressStatus = append(progressStatus, secGroupProgress...)
-	err := errors.Join(networkErr, subnetErr, secGroupErr)
-
-	if len(progressStatus) != 0 || err != nil {
-		return progressStatus, nil, err
+	reconcileStatus := progress.NewReconcileStatus().
+		WithReconcileStatus(networkDepRS).
+		WithReconcileStatus(subnetDepRS).
+		WithReconcileStatus(secGroupDepRS)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
 	}
 
 	createOpts := ports.CreateOpts{
@@ -157,7 +152,8 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 
 	if len(resource.AllowedAddressPairs) > 0 {
 		if resource.PortSecurity == orcv1alpha1.PortSecurityDisabled {
-			return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurity is disabled")
+			return nil, progress.WrapError(
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurity is disabled"))
 		}
 		createOpts.AllowedAddressPairs = make([]ports.AddressPair, len(resource.AllowedAddressPairs))
 		for i := range resource.AllowedAddressPairs {
@@ -176,7 +172,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		subnet, ok := subnetMap[subnetName]
 		if !ok {
 			// Programming error
-			return nil, nil, fmt.Errorf("subnet %s was not returned by GetDependencies", subnetName)
+			return nil, progress.WrapError(fmt.Errorf("subnet %s was not returned by GetDependencies", subnetName))
 		}
 		fixedIPs[i].SubnetID = *subnet.Status.ID
 
@@ -190,14 +186,15 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
 	if len(securityGroups) > 0 && resource.PortSecurity == orcv1alpha1.PortSecurityDisabled {
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurity is disabled")
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurity is disabled"))
 	}
 	for i := range resource.SecurityGroupRefs {
 		secGroupName := string(resource.SecurityGroupRefs[i])
 		secGroup, ok := secGroupMap[secGroupName]
 		if !ok {
 			// Programming error
-			return nil, nil, fmt.Errorf("security group %s was not returned by GetDependencies", secGroupName)
+			return nil, progress.WrapError(fmt.Errorf("security group %s was not returned by GetDependencies", secGroupName))
 		}
 		securityGroups[i] = *secGroup.Status.ID
 	}
@@ -219,7 +216,8 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	case orcv1alpha1.PortSecurityInherit:
 		// do nothing
 	default:
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid value %s", resource.PortSecurity))
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid value %s", resource.PortSecurity)))
 	}
 
 	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
@@ -228,19 +226,19 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		if orcerrors.IsConflict(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
-		return nil, nil, err
+		return nil, progress.WrapError(err)
 	}
 
-	return nil, osResource, nil
+	return osResource, nil
 }
 
-func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, port *osclients.PortExt) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeletePort(ctx, port.ID)
+func (actuator portActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Port, flavor *osclients.PortExt) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeletePort(ctx, flavor.ID))
 }
 
 var _ reconcileResourceActuator = portActuator{}
 
-func (actuator portActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
+func (actuator portActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "ports", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
@@ -254,39 +252,37 @@ func (portHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return portAdapter{obj}
 }
 
-func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
-	return progressStatus, actuator, err
+func (portHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, controller, orcObject)
 }
 
-func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
-	return progressStatus, actuator, err
+func (portHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, controller, orcObject)
 }
 
-func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Port) (portActuator, []progress.ProgressStatus, error) {
+func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Port) (portActuator, progress.ReconcileStatus) {
 	if orcObject == nil {
-		return portActuator{}, nil, fmt.Errorf("orcObject may not be nil")
+		return portActuator{}, progress.WrapError(fmt.Errorf("orcObject may not be nil"))
 	}
 
 	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return portActuator{}, progressStatus, err
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return portActuator{}, reconcileStatus
 	}
 
 	log := ctrl.LoggerFrom(ctx)
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return portActuator{}, nil, err
+		return portActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return portActuator{}, nil, err
+		return portActuator{}, progress.WrapError(err)
 	}
 
 	return portActuator{
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
-	}, nil, nil
+	}, nil
 }

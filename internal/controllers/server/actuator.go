@@ -66,8 +66,12 @@ func (serverActuator) GetResourceID(osResource *servers.Server) string {
 	return osResource.ID
 }
 
-func (actuator serverActuator) GetOSResourceByID(ctx context.Context, id string) (*servers.Server, error) {
-	return actuator.osClient.GetServer(ctx, id)
+func (actuator serverActuator) GetOSResourceByID(ctx context.Context, id string) (*servers.Server, progress.ReconcileStatus) {
+	server, err := actuator.osClient.GetServer(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return server, nil
 }
 
 func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Server) (serverIterator, bool) {
@@ -83,7 +87,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.osClient.ListServers(ctx, listOpts), true
 }
 
-func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := servers.ListOpts{
 		Tags:       neutrontags.Join(filter.Tags),
 		TagsAny:    neutrontags.Join(filter.TagsAny),
@@ -95,33 +99,28 @@ func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj
 		listOpts.Name = fmt.Sprintf("^%s$", string(*filter.Name))
 	}
 
-	return nil, actuator.osClient.ListServers(ctx, listOpts), nil
+	return actuator.osClient.ListServers(ctx, listOpts), nil
 }
 
-func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) ([]progress.ProgressStatus, *servers.Server, error) {
+func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) (*servers.Server, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
-	var progressStatus []progress.ProgressStatus
+	reconcileStatus := progress.NewReconcileStatus()
 
-	image := &orcv1alpha1.Image{}
+	var image *orcv1alpha1.Image
 	{
-		dep, imageProgressStatus, err := imageDependency.GetDependency(
+		dep, imageReconcileStatus := imageDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(image *orcv1alpha1.Image) bool {
 				return orcv1alpha1.IsAvailable(image) && image.Status.ID != nil
 			},
 		)
-		if err != nil {
-			return nil, nil, fmt.Errorf("fetching images for %s: %w", obj.Name, err)
-		}
-		if len(imageProgressStatus) > 0 {
-			progressStatus = append(progressStatus, imageProgressStatus...)
-		} else {
-			image = dep
-		}
+		reconcileStatus = reconcileStatus.WithReconcileStatus(imageReconcileStatus)
+		image = dep
 	}
 
 	flavor := &orcv1alpha1.Flavor{}
@@ -129,40 +128,36 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		flavorKey := client.ObjectKey{Name: string(resource.FlavorRef), Namespace: obj.Namespace}
 		if err := actuator.k8sClient.Get(ctx, flavorKey, flavor); err != nil {
 			if apierrors.IsNotFound(err) {
-				progressStatus = append(progressStatus, progress.WaitingOnORCExist("Flavor", flavorKey.Name))
+				reconcileStatus = reconcileStatus.WaitingOnObject("Flavor", flavorKey.Name, progress.WaitingOnCreation)
 			} else {
-				return nil, nil, fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err)
+				return nil, reconcileStatus.WithError(fmt.Errorf("fetching flavor %s: %w", flavorKey.Name, err))
 			}
 		} else if !orcv1alpha1.IsAvailable(flavor) || flavor.Status.ID == nil {
-			progressStatus = append(progressStatus, progress.WaitingOnORCReady("Flavor", flavorKey.Name))
+			reconcileStatus = reconcileStatus.WaitingOnObject("Flavor", flavorKey.Name, progress.WaitingOnReady)
 		}
 	}
 
 	portList := make([]servers.Network, len(resource.Ports))
 	{
-		portsMap, portsProgressStatus, err := portDependency.GetDependencies(
+		portsMap, portsReconcileStatus := portDependency.GetDependencies(
 			ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
 				return port.Status.ID != nil
 			},
 		)
-		if err != nil {
-			return nil, nil, fmt.Errorf("fetching ports: %w", err)
-		}
-		if len(portsProgressStatus) > 0 {
-			progressStatus = append(progressStatus, portsProgressStatus...)
-		} else {
+		reconcileStatus = reconcileStatus.WithReconcileStatus(portsReconcileStatus)
+		if needsReschedule, _ := portsReconcileStatus.NeedsReschedule(); !needsReschedule {
 			for i := range resource.Ports {
 				portSpec := &resource.Ports[i]
 				serverNetwork := &portList[i]
 
 				if portSpec.PortRef == nil {
 					// Should have been caught by API validation
-					return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec")
+					return nil, reconcileStatus.WithError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec"))
 				}
 
 				if port, ok := portsMap[string(*portSpec.PortRef)]; !ok {
 					// Programming error
-					return nil, nil, fmt.Errorf("port %s not present in portsMap", *portSpec.PortRef)
+					return nil, reconcileStatus.WithError(fmt.Errorf("port %s not present in portsMap", *portSpec.PortRef))
 				} else {
 					serverNetwork.Port = *port.Status.ID
 				}
@@ -176,16 +171,21 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		secretKey := client.ObjectKey{Name: string(*resource.UserData.SecretRef), Namespace: obj.Namespace}
 		if err := actuator.k8sClient.Get(ctx, secretKey, secret); err != nil {
 			if !apierrors.IsNotFound(err) {
-				return nil, nil, fmt.Errorf("fetching secret %s: %w", secretKey.Name, err)
+				reconcileStatus = reconcileStatus.WithError(fmt.Errorf("fetching secret %s: %w", secretKey.Name, err))
+			} else {
+				reconcileStatus = reconcileStatus.WaitingOnObject("Secret", secretKey.Name, progress.WaitingOnCreation)
 			}
-			progressStatus = append(progressStatus, progress.WaitingOnORCExist("Secret", secretKey.Name))
 		} else {
 			var ok bool
 			userData, ok = secret.Data["value"]
 			if !ok {
-				progressStatus = append(progressStatus, progress.WaitingOnORCReady("Secret", secret.Name))
+				reconcileStatus.WithProgressMessage("User data secret does not contain \"value\" key")
 			}
 		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
 	}
 
 	tags := make([]string, len(resource.Tags))
@@ -194,10 +194,6 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	}
 	// Sort tags before creation to simplify comparisons
 	slices.Sort(tags)
-
-	if len(progressStatus) > 0 {
-		return progressStatus, nil, nil
-	}
 
 	createOpts := servers.CreateOpts{
 		Name:      string(getResourceName(obj)),
@@ -213,42 +209,43 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	osResource, err := actuator.osClient.CreateServer(ctx, &createOpts, schedulerHints)
 
 	// We should require the spec to be updated before retrying a create which returned a non-retryable error
-	if err != nil && !orcerrors.IsRetryable(err) {
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+		}
+		return nil, progress.WrapError(err)
 	}
 
-	return nil, osResource, err
+	return osResource, nil
 }
 
-func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeleteServer(ctx, osResource.ID)
+func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteServer(ctx, osResource.ID))
 }
 
 var _ reconcileResourceActuator = serverActuator{}
 
-func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
+func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.checkStatus,
 	}, nil
 }
 
-func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error) {
+func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
-
-	var waitEvents []progress.ProgressStatus
-	var err error
 
 	switch osResource.Status {
 	case ServerStatusError:
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Server is in ERROR state")
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Server is in ERROR state"))
+
 	case ServerStatusActive:
-		// fall through
+		return nil
+
 	default:
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
-		waitEvents = append(waitEvents, progress.WaitingOnOpenStackReady(serverActivePollingPeriod))
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 	}
-
-	return waitEvents, err
 }
 
 type serverHelperFactory struct{}
@@ -259,40 +256,38 @@ func (serverHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return serverAdapter{obj}
 }
 
-func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
-	return progressStatus, actuator, err
+func (serverHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, controller, orcObject)
 }
 
-func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, controller, orcObject)
-	return progressStatus, actuator, err
+func (serverHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, controller, orcObject)
 }
 
-func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, []progress.ProgressStatus, error) {
+func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Server) (serverActuator, progress.ReconcileStatus) {
 	if orcObject == nil {
-		return serverActuator{}, nil, fmt.Errorf("orcObject may not be nil")
+		return serverActuator{}, progress.WrapError(fmt.Errorf("orcObject may not be nil"))
 	}
 
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return serverActuator{}, progressStatus, err
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return serverActuator{}, reconcileStatus
 	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return serverActuator{}, nil, err
+		return serverActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewComputeClient()
 	if err != nil {
-		return serverActuator{}, nil, err
+		return serverActuator{}, progress.WrapError(err)
 	}
 
 	return serverActuator{
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
-	}, nil, nil
+	}, nil
 }

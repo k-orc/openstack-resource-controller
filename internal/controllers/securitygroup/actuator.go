@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	"iter"
-	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
@@ -59,8 +58,12 @@ func (actuator securityGroupActuator) GetResourceID(securityGroup *groups.SecGro
 	return securityGroup.ID
 }
 
-func (actuator securityGroupActuator) GetOSResourceByID(ctx context.Context, id string) (*groups.SecGroup, error) {
-	return actuator.osClient.GetSecGroup(ctx, id)
+func (actuator securityGroupActuator) GetOSResourceByID(ctx context.Context, id string) (*groups.SecGroup, progress.ReconcileStatus) {
+	secGroup, err := actuator.osClient.GetSecGroup(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return secGroup, nil
 }
 
 func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.SecurityGroup) (securityGroupIterator, bool) {
@@ -72,7 +75,7 @@ func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Con
 	return actuator.osClient.ListSecGroup(ctx, listOpts), true
 }
 
-func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 
 	listOpts := groups.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
@@ -82,14 +85,15 @@ func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Conte
 		NotTags:     neutrontags.Join(filter.NotTags),
 		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
 	}
-	return nil, actuator.osClient.ListSecGroup(ctx, listOpts), nil
+	return actuator.osClient.ListSecGroup(ctx, listOpts), nil
 }
 
-func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.SecurityGroup) ([]progress.ProgressStatus, *groups.SecGroup, error) {
+func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.SecurityGroup) (*groups.SecGroup, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
 	createOpts := groups.CreateOpts{
@@ -107,19 +111,19 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 		if orcerrors.IsConflict(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
-		return nil, nil, err
+		return nil, progress.WrapError(err)
 	}
 
-	return nil, osResource, nil
+	return osResource, nil
 }
 
-func (actuator securityGroupActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.SecurityGroup, osResource *groups.SecGroup) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeleteSecGroup(ctx, osResource.ID)
+func (actuator securityGroupActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.SecurityGroup, osResource *groups.SecGroup) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteSecGroup(ctx, osResource.ID))
 }
 
 var _ reconcileResourceActuator = securityGroupActuator{}
 
-func (actuator securityGroupActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
+func (actuator securityGroupActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "security-groups", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 		actuator.updateRules,
@@ -165,10 +169,10 @@ func rulesMatch(orcRule *orcv1alpha1.SecurityGroupRule, osRule *rules.SecGroupRu
 	return true
 }
 
-func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) ([]progress.ProgressStatus, error) {
+func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	resource := orcObject.Spec.Resource
 	if resource == nil {
-		return nil, nil
+		return nil
 	}
 
 	matchedRuleIDs := set.New[string]()
@@ -230,14 +234,16 @@ orcRules:
 		}
 	}
 
-	var waitEvents []progress.ProgressStatus
+	if err != nil {
+		return progress.WrapError(err)
+	}
 
 	// If we added or removed any rules above, schedule another reconcile so we can observe the updated security group
 	if len(ruleCreateOpts) > 0 || len(deleteRuleIDs) > 0 {
-		waitEvents = []progress.ProgressStatus{progress.WaitingOnOpenStackUpdate(time.Second)}
+		return progress.NeedsRefresh()
 	}
 
-	return waitEvents, err
+	return nil
 }
 
 type securityGroupHelperFactory struct{}
@@ -248,35 +254,33 @@ func (securityGroupHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI 
 	return securitygroupAdapter{obj}
 }
 
-func (securityGroupHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (securityGroupHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }
 
-func (securityGroupHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (securityGroupHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller interfaces.ResourceController) (securityGroupActuator, []progress.ProgressStatus, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller interfaces.ResourceController) (securityGroupActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return securityGroupActuator{}, progressStatus, err
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return securityGroupActuator{}, reconcileStatus
 	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return securityGroupActuator{}, nil, err
+		return securityGroupActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return securityGroupActuator{}, nil, err
+		return securityGroupActuator{}, progress.WrapError(err)
 	}
 
 	return securityGroupActuator{
 		osClient: osClient,
-	}, nil, nil
+	}, nil
 }
