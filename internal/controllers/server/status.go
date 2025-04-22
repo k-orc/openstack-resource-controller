@@ -56,7 +56,8 @@ func (serverStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResou
 	if osResource.Status == ServerStatusActive {
 		return metav1.ConditionTrue, nil
 	}
-	return metav1.ConditionFalse, nil
+	// We should continue to poll if the status is not ACTIVE
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 }
 
 func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
