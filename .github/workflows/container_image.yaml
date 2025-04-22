@@ -18,12 +18,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
 
-        docker build -t ${{ env.image_tag_branch }} .
+        docker buildx build --platform linux/amd64,linux/arm64 -t ${{ env.image_tag_branch }} .
         docker push ${{ env.image_tag_branch }}
 
-        docker build -t ${{ env.image_tag_commit }} --label quay.expires-after=4w .
+        docker buildx build --platform linux/amd64,linux/arm64 -t ${{ env.image_tag_commit }} --label quay.expires-after=4w .
         docker push ${{ env.image_tag_commit }}
