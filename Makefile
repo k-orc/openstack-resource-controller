@@ -21,6 +21,9 @@ CONTAINER_TOOL ?= docker
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+# Set build time variables including version details
+LDFLAGS := $(shell source ./hack/version.sh; version::ldflags)
+
 .PHONY: all
 all: build
 
@@ -126,7 +129,7 @@ lint-fix: golangci-kal ## Run golangci-lint linter and perform fixes
 
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/manager/main.go
+	go build -ldflags "${LDFLAGS}" -o bin/manager cmd/manager/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
