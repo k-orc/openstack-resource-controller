@@ -128,7 +128,10 @@ lint-fix: golangci-kal ## Run golangci-lint linter and perform fixes
 ##@ Build
 
 .PHONY: build
-build: manifests generate fmt vet ## Build manager binary.
+build: manifests generate fmt vet build-manager
+
+.PHONY: build-manager
+build-manager:
 	go build -ldflags "${LDFLAGS}" -o bin/manager cmd/manager/main.go
 
 .PHONY: run
