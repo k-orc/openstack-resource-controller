@@ -23,5 +23,7 @@ jobs:
 
     - run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
-        make docker-buildx IMG=${{ env.image_tag_branch }}
-        make docker-buildx IMG=${{ env.image_tag_branch }} DOCKER_BUILD_ARGS="--label quay.expires-after=4w"
+        # Ensure we source identical build arguments for both builds
+        source hack/version.sh && version::get_git_vars && version:get_build_date && \
+          make docker-buildx IMG=${{ env.image_tag_branch }} && \
+          make docker-buildx IMG=${{ env.image_tag_commit }} DOCKER_BUILD_ARGS="--label quay.expires-after=4w"

@@ -21,9 +21,6 @@ CONTAINER_TOOL ?= docker
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-# Set build time variables including version details
-LDFLAGS := $(shell source ./hack/version.sh; version::ldflags)
-
 .PHONY: all
 all: build
 
@@ -131,6 +128,8 @@ lint-fix: golangci-kal ## Run golangci-lint linter and perform fixes
 build: manifests generate fmt vet build-manager
 
 .PHONY: build-manager
+# Set build time variables including version details
+build-manager: LDFLAGS ?= $(shell source ./hack/version.sh; version::get_git_vars; version::get_build_date; version::ldflags)
 build-manager:
 	go build -ldflags "${LDFLAGS}" -o bin/manager cmd/manager/main.go
 
@@ -145,7 +144,15 @@ DOCKER_BUILD_ARGS ?=
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${IMG} ${DOCKER_BUILD_ARGS} .
+	source hack/version.sh && version::get_git_vars && version::get_build_date && \
+	$(CONTAINER_TOOL) build \
+		--tag ${IMG} \
+		--build-arg "BUILD_DATE=$${BUILD_DATE}" \
+		--build-arg "GIT_COMMIT=$${GIT_COMMIT}" \
+		--build-arg "GIT_RELEASE_COMMIT=$${GIT_RELEASE_COMMIT}" \
+		--build-arg "GIT_TREE_STATE=$${GIT_TREE_STATE}" \
+		--build-arg "GIT_VERSION=$${GIT_VERSION}" \
+		${DOCKER_BUILD_ARGS} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
@@ -162,7 +169,19 @@ PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
 docker-buildx: ## Build and push docker image for the manager for cross-platform support
 	# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross ${DOCKER_BUILD_ARGS} .
+	# Note that get_git_vars and get_build_date both honour environment
+	# variable which are already set
+	- source hack/version.sh && version::get_git_vars && version::get_build_date && \
+	  $(CONTAINER_TOOL) buildx build \
+		--platform=$(PLATFORMS) \
+		--tag ${IMG} --push \
+		--build-arg "BUILD_DATE=$${BUILD_DATE}" \
+		--build-arg "GIT_COMMIT=$${GIT_COMMIT}" \
+		--build-arg "GIT_RELEASE_COMMIT=$${GIT_RELEASE_COMMIT}" \
+		--build-arg "GIT_TREE_STATE=$${GIT_TREE_STATE}" \
+		--build-arg "GIT_VERSION=$${GIT_VERSION}" \
+		-f Dockerfile.cross \
+		$(DOCKER_BUILD_ARGS) .
 	rm Dockerfile.cross
 
 .PHONY: build-installer
