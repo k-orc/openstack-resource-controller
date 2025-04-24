@@ -18,6 +18,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        # Required for git describe to generate correct output for populating
+        # build variables
+        fetch-depth: 0
+        fetch-tags: true
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
