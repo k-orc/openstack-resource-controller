@@ -156,7 +156,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
-		if !portSecurityEnabled(resource.PortSecurity, network.Status) {
+		if resource.PortSecurity == orcv1alpha1.PortSecurityDisabled {
 			return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurity is disabled")
 		}
 		createOpts.AllowedAddressPairs = make([]ports.AddressPair, len(resource.AllowedAddressPairs))
@@ -189,7 +189,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	// We explicitly disable default security groups by passing an empty
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
-	if len(securityGroups) > 0 && !portSecurityEnabled(resource.PortSecurity, network.Status) {
+	if len(securityGroups) > 0 && resource.PortSecurity == orcv1alpha1.PortSecurityDisabled {
 		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurity is disabled")
 	}
 	for i := range resource.SecurityGroupRefs {
@@ -211,7 +211,16 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	portSecurityOpts := portsecurity.PortCreateOptsExt{
 		CreateOptsBuilder: portsBindingOpts,
 	}
-	portSecurityOpts.PortSecurityEnabled = ptr.To(portSecurityEnabled(resource.PortSecurity, network.Status))
+	switch resource.PortSecurity {
+	case orcv1alpha1.PortSecurityEnabled:
+		portSecurityOpts.PortSecurityEnabled = ptr.To(true)
+	case orcv1alpha1.PortSecurityDisabled:
+		portSecurityOpts.PortSecurityEnabled = ptr.To(false)
+	case orcv1alpha1.PortSecurityInherit:
+		// do nothing
+	default:
+		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid value %s", resource.PortSecurity))
+	}
 
 	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
 	if err != nil {
@@ -280,23 +289,4 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 		osClient:  osClient,
 		k8sClient: controller.GetK8sClient(),
 	}, nil, nil
-}
-
-// portSecurityEnabled checks if port security is enabled based on the given state.
-func portSecurityEnabled(portSecurityState orcv1alpha1.PortSecurityState, networkStatus orcv1alpha1.NetworkStatus) bool {
-	switch portSecurityState {
-	case orcv1alpha1.PortSecurityEnabled:
-		return true
-	case orcv1alpha1.PortSecurityInherit:
-		// PortSecurity at the network level is enabled by default
-		// https://docs.openstack.org/api-ref/network/v2/#port-security
-		if networkStatus.Resource == nil || networkStatus.Resource.PortSecurityEnabled == nil {
-			return true
-		}
-		return *networkStatus.Resource.PortSecurityEnabled
-	case orcv1alpha1.PortSecurityDisabled:
-		return false
-	default:
-		return true
-	}
 }
