@@ -1544,6 +1544,11 @@ func (in *PortResourceStatus) DeepCopyInto(out *PortResourceStatus) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.PortSecurityEnabled != nil {
+		in, out := &in.PortSecurityEnabled, &out.PortSecurityEnabled
+		*out = new(bool)
+		**out = **in
+	}
 	in.NeutronStatusMetadata.DeepCopyInto(&out.NeutronStatusMetadata)
 }
 
