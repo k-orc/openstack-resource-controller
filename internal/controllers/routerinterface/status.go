@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -29,41 +28,23 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
 	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
-type updateStatusOpts struct {
-	subnet *orcv1alpha1.Subnet
-	port   *ports.Port
-	err    error
-}
-
-func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *updateStatusOpts) (_ metav1.ConditionStatus, progressStatus []progress.ProgressStatus) {
-	// Probably a programming error?
-	if routerInterface == nil {
+func getStatusSummary(osResource *osclients.PortExt) (metav1.ConditionStatus, progress.ReconcileStatus) {
+	if osResource == nil {
 		return metav1.ConditionFalse, nil
 	}
 
-	if routerInterface.Spec.Type == orcv1alpha1.RouterInterfaceTypeSubnet {
-		if opts.subnet == nil {
-			progressStatus = append(progressStatus, progress.WaitingOnORCExist("Subnet", string(*routerInterface.Spec.SubnetRef)))
-		} else if opts.subnet.Status.ID == nil {
-			progressStatus = append(progressStatus, progress.WaitingOnORCReady("Subnet", string(*routerInterface.Spec.SubnetRef)))
-		}
+	if osResource.Status == port.PortStatusActive {
+		return metav1.ConditionTrue, nil
 	}
 
-	available := metav1.ConditionFalse
-	if opts.port != nil {
-		if opts.port.Status == port.PortStatusActive {
-			available = metav1.ConditionTrue
-		} else {
-			progressStatus = append(progressStatus, progress.WaitingOnOpenStackReady(portStatusPollingPeriod))
-		}
-	}
-
-	return available, progressStatus
+	// port exists but is not ACTIVE
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, portStatusPollingPeriod)
 }
 
 // createStatusUpdate computes a complete status update based on the given
@@ -71,25 +52,27 @@ func getStatusSummary(routerInterface *orcv1alpha1.RouterInterface, opts *update
 // testing, as the version of k8s we currently import does not support patch
 // apply in the fake client.
 // Needs: https://github.com/kubernetes/kubernetes/pull/125560
-func createStatusUpdate(orcObject *orcv1alpha1.RouterInterface, now metav1.Time, statusOpts *updateStatusOpts) *orcapplyconfigv1alpha1.RouterInterfaceApplyConfiguration {
+func createStatusUpdate(orcObject *orcv1alpha1.RouterInterface, port *osclients.PortExt, reconcileStatus progress.ReconcileStatus, now metav1.Time) (*orcapplyconfigv1alpha1.RouterInterfaceApplyConfiguration, progress.ReconcileStatus) {
 	applyConfigStatus := orcapplyconfigv1alpha1.RouterInterfaceStatus()
 	applyConfig := orcapplyconfigv1alpha1.RouterInterface(orcObject.Name, orcObject.Namespace).WithStatus(applyConfigStatus)
 
 	// Note that unlike other resources we don't rely on this value to be immutable, so it's not in a separate transaction.
-	if statusOpts.port != nil {
-		applyConfigStatus.WithID(statusOpts.port.ID)
+	if port != nil {
+		applyConfigStatus.WithID(port.ID)
 	}
 
-	isAvailable, progressStatus := getStatusSummary(orcObject, statusOpts)
-	status.SetCommonConditions(orcObject, applyConfigStatus, isAvailable, progressStatus, statusOpts.err, now)
+	isAvailable, statusReconcileStatus := getStatusSummary(port)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(statusReconcileStatus)
+	status.SetCommonConditions(orcObject, applyConfigStatus, isAvailable, reconcileStatus, now)
 
-	return applyConfig
+	return applyConfig, reconcileStatus
 }
 
 // updateStatus computes a complete status based on the given observed state and writes it to status.
-func (r *orcRouterInterfaceReconciler) updateStatus(ctx context.Context, orcObject *orcv1alpha1.RouterInterface, opts *updateStatusOpts) error {
+func (r *orcRouterInterfaceReconciler) updateStatus(ctx context.Context, orcObject *orcv1alpha1.RouterInterface, port *osclients.PortExt, reconcileStatus progress.ReconcileStatus) progress.ReconcileStatus {
 	now := metav1.NewTime(time.Now())
 
-	statusUpdate := createStatusUpdate(orcObject, now, opts)
-	return r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer))
+	statusUpdate, reconcileStatus := createStatusUpdate(orcObject, port, reconcileStatus, now)
+	return reconcileStatus.WithError(
+		r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, statusUpdate), client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer)))
 }

@@ -61,8 +61,12 @@ func (routerActuator) GetResourceID(osResource *routers.Router) string {
 	return osResource.ID
 }
 
-func (actuator routerActuator) GetOSResourceByID(ctx context.Context, id string) (*routers.Router, error) {
-	return actuator.osClient.GetRouter(ctx, id)
+func (actuator routerActuator) GetOSResourceByID(ctx context.Context, id string) (*routers.Router, progress.ReconcileStatus) {
+	router, err := actuator.osClient.GetRouter(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return router, nil
 }
 
 func (actuator routerActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Router) (routerIterator, bool) {
@@ -74,7 +78,7 @@ func (actuator routerActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.osClient.ListRouter(ctx, listOpts), true
 }
 
-func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := routers.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -84,29 +88,27 @@ func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Contex
 		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
 	}
 
-	return nil, actuator.osClient.ListRouter(ctx, listOpts), nil
+	return actuator.osClient.ListRouter(ctx, listOpts), nil
 }
 
-func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) ([]progress.ProgressStatus, *routers.Router, error) {
+func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) (*routers.Router, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
 	gatewayInfo := &routers.GatewayInfo{}
-
 	if len(resource.ExternalGateways) > 0 {
-		var progressStatus []progress.ProgressStatus
-
 		// Fetch dependencies and ensure they have our finalizer
-		externalGW, progressStatus, err := externalGWDep.GetDependency(
+		externalGW, reconcileStatus := externalGWDep.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
 		)
-		if len(progressStatus) != 0 || err != nil {
-			return progressStatus, nil, err
+		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+			return nil, reconcileStatus
 		}
 		gatewayInfo.NetworkID = *externalGW.Status.ID
 	}
@@ -133,16 +135,19 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 	}
 
-	return nil, osResource, err
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return osResource, nil
 }
 
-func (actuator routerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, router *routers.Router) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeleteRouter(ctx, router.ID)
+func (actuator routerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, router *routers.Router) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteRouter(ctx, router.ID))
 }
 
 var _ reconcileResourceActuator = routerActuator{}
 
-func (actuator routerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, error) {
+func (actuator routerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "routers", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
@@ -156,47 +161,45 @@ func (routerHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return routerAdapter{obj}
 }
 
-func (routerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newCreateActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (routerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newCreateActuator(ctx, orcObject, controller)
 }
 
-func (routerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (routerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller interfaces.ResourceController) (routerActuator, []progress.ProgressStatus, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller interfaces.ResourceController) (routerActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return routerActuator{}, progressStatus, err
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return routerActuator{}, reconcileStatus
 	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return routerActuator{}, nil, err
+		return routerActuator{}, nil
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return routerActuator{}, nil, err
+		return routerActuator{}, nil
 	}
 
 	return routerActuator{
 		osClient: osClient,
-	}, nil, nil
+	}, nil
 }
 
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller interfaces.ResourceController) (routerCreateActuator, []progress.ProgressStatus, error) {
-	routerActuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	if len(progressStatus) > 0 || err != nil {
-		return routerCreateActuator{}, progressStatus, err
+func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller interfaces.ResourceController) (routerCreateActuator, progress.ReconcileStatus) {
+	routerActuator, reconcileStatus := newActuator(ctx, orcObject, controller)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return routerCreateActuator{}, reconcileStatus
 	}
 
 	return routerCreateActuator{
 		routerActuator: routerActuator,
 		k8sClient:      controller.GetK8sClient(),
-	}, nil, nil
+	}, nil
 }

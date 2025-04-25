@@ -24,6 +24,7 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -35,25 +36,28 @@ const (
 
 type networkStatusWriter struct{}
 
-var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Network, *osclients.NetworkExt, *orcapplyconfigv1alpha1.NetworkApplyConfiguration, *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration] = networkStatusWriter{}
+type objectApplyT = orcapplyconfigv1alpha1.NetworkApplyConfiguration
+type statusApplyT = orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration
 
-func (networkStatusWriter) GetApplyConfig(name, namespace string) *orcapplyconfigv1alpha1.NetworkApplyConfiguration {
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Network, *osclients.NetworkExt, *objectApplyT, *statusApplyT] = networkStatusWriter{}
+
+func (networkStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
 	return orcapplyconfigv1alpha1.Network(name, namespace)
 }
 
-func (networkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) metav1.ConditionStatus {
+func (networkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Network, osResource *osclients.NetworkExt) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
-			return metav1.ConditionFalse
+			return metav1.ConditionFalse, nil
 		} else {
-			return metav1.ConditionUnknown
+			return metav1.ConditionUnknown, nil
 		}
 	}
 
 	if osResource.Status == NetworkStatusActive {
-		return metav1.ConditionTrue
+		return metav1.ConditionTrue, nil
 	}
-	return metav1.ConditionFalse
+	return metav1.ConditionFalse, nil
 }
 
 func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osclients.NetworkExt, statusApply *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration) {

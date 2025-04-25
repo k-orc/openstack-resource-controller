@@ -21,6 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -35,17 +36,17 @@ func (subnetStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
 	return orcapplyconfigv1alpha1.Subnet(name, namespace)
 }
 
-func (subnetStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+func (subnetStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
-			return metav1.ConditionFalse
+			return metav1.ConditionFalse, nil
 		} else {
-			return metav1.ConditionUnknown
+			return metav1.ConditionUnknown, nil
 		}
 	}
 
 	// Subnet is available as soon as it exists
-	return metav1.ConditionTrue
+	return metav1.ConditionTrue, nil
 }
 
 func (subnetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

@@ -18,6 +18,7 @@ nav:
     - General design considerations: development/design-decisions.md
     - Coding conventions: development/coding-conventions.md
     - Interface reference: development/godoc/generic-interfaces.md
+    - ReconcileStatus reference: development/godoc/reconcile-status.md
   - Changelog: changelog.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:

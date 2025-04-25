@@ -19,6 +19,8 @@ crd_ref_docs:
 interfaces: | $(godocdir)
 	go run $(GOMARKDOC) --repository.url "https://github.com/k-orc/openstack-resource-controller" --repository.default-branch main --repository.path / \
 		$(topdir)/internal/controllers/generic/interfaces > $(godocdir)/generic-interfaces.md
+	go run $(GOMARKDOC) --repository.url "https://github.com/k-orc/openstack-resource-controller" --repository.default-branch main --repository.path / \
+		$(topdir)/internal/controllers/generic/progress > $(godocdir)/reconcile-status.md
 
 $(godocdir):
 	mkdir -p $(godocdir)

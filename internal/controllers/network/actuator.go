@@ -59,8 +59,12 @@ func (networkActuator) GetResourceID(osResource *osclients.NetworkExt) string {
 	return osResource.ID
 }
 
-func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.NetworkExt, error) {
-	return actuator.osClient.GetNetwork(ctx, id)
+func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.NetworkExt, progress.ReconcileStatus) {
+	network, err := actuator.osClient.GetNetwork(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return network, nil
 }
 
 func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osclients.NetworkExt, error], bool) {
@@ -72,7 +76,7 @@ func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, 
 	return actuator.osClient.ListNetwork(ctx, listOpts), true
 }
 
-func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := networks.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
@@ -82,14 +86,14 @@ func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, ob
 		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
 	}
 
-	return nil, actuator.osClient.ListNetwork(ctx, listOpts), nil
+	return actuator.osClient.ListNetwork(ctx, listOpts), nil
 }
 
-func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *osclients.NetworkExt, error) {
+func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osclients.NetworkExt, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
 	var createOpts networks.CreateOptsBuilder
@@ -144,17 +148,17 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 		if orcerrors.IsConflict(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
-		return nil, nil, err
+		return nil, progress.WrapError(err)
 	}
 
-	return nil, osResource, nil
+	return osResource, nil
 }
 
-func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, network *osclients.NetworkExt) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeleteNetwork(ctx, network.ID)
+func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, network *osclients.NetworkExt) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteNetwork(ctx, network.ID))
 }
 
-func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller interfaces.ResourceController) ([]resourceReconciler, error) {
+func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "networks", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 	}, nil
@@ -164,39 +168,37 @@ type networkHelperFactory struct{}
 
 var _ helperFactory = networkHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller interfaces.ResourceController) (networkActuator, []progress.ProgressStatus, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller interfaces.ResourceController) (networkActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return networkActuator{}, progressStatus, err
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return networkActuator{}, reconcileStatus
 	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return networkActuator{}, nil, err
+		return networkActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return networkActuator{}, nil, err
+		return networkActuator{}, progress.WrapError(err)
 	}
 
 	return networkActuator{
 		osClient: osClient,
-	}, nil, nil
+	}, nil
 }
 
 func (networkHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return networkAdapter{obj}
 }
 
-func (networkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (networkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }
 
-func (networkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (networkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }

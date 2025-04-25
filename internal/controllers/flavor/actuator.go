@@ -59,8 +59,12 @@ func (flavorActuator) GetResourceID(osResource *flavors.Flavor) string {
 	return osResource.ID
 }
 
-func (actuator flavorActuator) GetOSResourceByID(ctx context.Context, id string) (*flavors.Flavor, error) {
-	return actuator.osClient.GetFlavor(ctx, id)
+func (actuator flavorActuator) GetOSResourceByID(ctx context.Context, id string) (*flavors.Flavor, progress.ReconcileStatus) {
+	flavor, err := actuator.osClient.GetFlavor(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return flavor, nil
 }
 
 func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*flavors.Flavor, error], bool) {
@@ -103,7 +107,7 @@ func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	return actuator.listOSResources(ctx, filters, &listOpts), true
 }
 
-func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) ([]progress.ProgressStatus, iter.Seq2[*osResourceT, error], error) {
+func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var filters []osclients.ResourceFilter[osResourceT]
 
 	if filter.Name != nil {
@@ -122,7 +126,7 @@ func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, obj
 		filters = append(filters, func(f *flavors.Flavor) bool { return f.Disk == int(*filter.Disk) })
 	}
 
-	return nil, actuator.listOSResources(ctx, filters, &flavors.ListOpts{}), nil
+	return actuator.listOSResources(ctx, filters, &flavors.ListOpts{}), nil
 }
 
 func (actuator flavorActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
@@ -130,12 +134,13 @@ func (actuator flavorActuator) listOSResources(ctx context.Context, filters []os
 	return osclients.Filter(flavors, filters...)
 }
 
-func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) ([]progress.ProgressStatus, *flavors.Flavor, error) {
+func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*flavors.Flavor, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, nil, orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set")
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
 	createOpts := flavors.CreateOpts{
@@ -152,56 +157,54 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 	osResource, err := actuator.osClient.CreateFlavor(ctx, createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
-		if orcerrors.IsConflict(err) {
+		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
-		return nil, nil, err
+		return nil, progress.WrapError(err)
 	}
 
-	return nil, osResource, nil
+	return osResource, nil
 }
 
-func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) ([]progress.ProgressStatus, error) {
-	return nil, actuator.osClient.DeleteFlavor(ctx, flavor.ID)
+func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteFlavor(ctx, flavor.ID))
 }
 
 type flavorHelperFactory struct{}
 
 var _ helperFactory = flavorHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, []progress.ProgressStatus, error) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, progressStatus, err := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if len(progressStatus) > 0 || err != nil {
-		return flavorActuator{}, progressStatus, err
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return flavorActuator{}, reconcileStatus
 	}
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return flavorActuator{}, nil, err
+		return flavorActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewComputeClient()
 	if err != nil {
-		return flavorActuator{}, nil, err
+		return flavorActuator{}, progress.WrapError(err)
 	}
 
 	return flavorActuator{
 		osClient: osClient,
-	}, nil, nil
+	}, nil
 }
 
 func (flavorHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return flavorAdapter{obj}
 }
 
-func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]progress.ProgressStatus, createResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (flavorHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }
 
-func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) ([]progress.ProgressStatus, deleteResourceActuator, error) {
-	actuator, progressStatus, err := newActuator(ctx, orcObject, controller)
-	return progressStatus, actuator, err
+func (flavorHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
 }

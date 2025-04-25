@@ -19,14 +19,12 @@ package securitygroup
 import (
 	"context"
 	"errors"
-	"reflect"
 	"testing"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients/mock"
 	"go.uber.org/mock/gomock"
 	"k8s.io/utils/ptr"
@@ -71,12 +69,12 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		orcObject  orcObjectPT
-		osResource *osResourceT
-		expect     func(*mock.MockNetworkClientMockRecorder)
-		wantEvents []progress.ProgressStatus
-		wantErrs   []error
+		name           string
+		orcObject      orcObjectPT
+		osResource     *osResourceT
+		expect         func(*mock.MockNetworkClientMockRecorder)
+		wantReschedule bool
+		wantErrs       []error
 	}{
 		{
 			name:       "ignore nil resource spec",
@@ -115,9 +113,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				}
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
+			wantReschedule: true,
 		},
 		{
 			name: "1 rule is up to date",
@@ -164,9 +160,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 			expect: func(recorder *mock.MockNetworkClientMockRecorder) {
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(nil)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
+			wantReschedule: true,
 		},
 		{
 			name: "have 1 rule, want different rule",
@@ -207,9 +201,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(nil)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
+			wantReschedule: true,
 		},
 		{
 			name: "have 1 rule, want 2 rules",
@@ -259,9 +251,7 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				}
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
+			wantReschedule: true,
 		},
 		{
 			name: "delete should still be called if create fails",
@@ -302,10 +292,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, createError)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(nil)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
-			wantErrs: []error{createError},
+			wantReschedule: true,
+			wantErrs:       []error{createError},
 		},
 		{
 			name: "all deletes should be called if one fails",
@@ -357,10 +345,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(deleteError)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID2).Return(nil)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
-			wantErrs: []error{deleteError},
+			wantReschedule: true,
+			wantErrs:       []error{deleteError},
 		},
 		{
 			name: "create and delete errors both reported",
@@ -401,10 +387,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, createError)
 				recorder.DeleteSecGroupRule(gomock.Any(), ruleID).Return(deleteError)
 			},
-			wantEvents: []progress.ProgressStatus{
-				progress.WaitingOnOpenStackUpdate(time.Second),
-			},
-			wantErrs: []error{createError, deleteError},
+			wantReschedule: true,
+			wantErrs:       []error{createError, deleteError},
 		},
 	}
 
@@ -422,7 +406,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				tt.expect(recorder)
 			}
 
-			gotWaitEvents, err := actuator.updateRules(context.TODO(), tt.orcObject, tt.osResource)
+			reconcileStatus := actuator.updateRules(context.TODO(), tt.orcObject, tt.osResource)
+			needsReschedule, err := reconcileStatus.NeedsReschedule()
 			if len(tt.wantErrs) == 0 && err != nil {
 				t.Errorf("securityGroupActuator.updateRules() error = %v, want 0 errors", err)
 			}
@@ -433,8 +418,8 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 			}
 			// How to assert that err doesn't contain any errors that we didn't want?
 
-			if !reflect.DeepEqual(gotWaitEvents, tt.wantEvents) {
-				t.Errorf("securityGroupActuator.updateRules() waitEvents = %v, want %v", gotWaitEvents, tt.wantEvents)
+			if needsReschedule != tt.wantReschedule {
+				t.Errorf("securityGroupActuator.updateRules() needsReschedule = %v, want %v", needsReschedule, tt.wantReschedule)
 			}
 		})
 	}

@@ -24,6 +24,7 @@ import (
 	"k8s.io/utils/ptr"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -43,19 +44,20 @@ func (serverStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
 	return orcapplyconfigv1alpha1.Server(name, namespace)
 }
 
-func (serverStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) metav1.ConditionStatus {
+func (serverStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
-			return metav1.ConditionFalse
+			return metav1.ConditionFalse, nil
 		} else {
-			return metav1.ConditionUnknown
+			return metav1.ConditionUnknown, nil
 		}
 	}
 
 	if osResource.Status == ServerStatusActive {
-		return metav1.ConditionTrue
+		return metav1.ConditionTrue, nil
 	}
-	return metav1.ConditionFalse
+	// We should continue to poll if the status is not ACTIVE
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 }
 
 func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {

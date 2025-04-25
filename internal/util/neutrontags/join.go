@@ -51,22 +51,21 @@ func ReconcileTags[orcObjectPT, osResourceT any](
 	specTags []orcv1alpha1.NeutronTag,
 	observedTags []string,
 ) interfaces.ResourceReconciler[orcObjectPT, osResourceT] {
-	return func(ctx context.Context, _ orcObjectPT, _ *osResourceT) ([]progress.ProgressStatus, error) {
+	return func(ctx context.Context, _ orcObjectPT, _ *osResourceT) progress.ReconcileStatus {
 		observedTagSet := set.New(observedTags...)
 		specTagSet := set.New[string]()
 		for i := range specTags {
 			specTagSet.Insert(string(specTags[i]))
 		}
-		var progressStatus []progress.ProgressStatus
-		var err error
 		if !specTagSet.Equal(observedTagSet) {
 			opts := attributestags.ReplaceAllOpts{Tags: specTagSet.SortedList()}
-			_, err = networkClient.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
-			if err == nil {
-				// If we updated the tags we need another reconcile to refresh the resource status
-				progressStatus = []progress.ProgressStatus{progress.NeedsRefresh()}
+			_, err := networkClient.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
+			if err != nil {
+				return progress.WrapError(err)
 			}
+			// If we updated the tags we need another reconcile to refresh the resource status
+			return progress.NeedsRefresh()
 		}
-		return progressStatus, err
+		return nil
 	}
 }

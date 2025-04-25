@@ -209,7 +209,7 @@ func TestGetFlavorByImportFilter(t *testing.T) {
 			ctx := context.Background()
 
 			actuator := flavorActuator{tc.client}
-			_, flavorIter, _ := actuator.ListOSResourcesForImport(ctx, &orcv1alpha1.Flavor{
+			flavorIter, _ := actuator.ListOSResourcesForImport(ctx, &orcv1alpha1.Flavor{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "flavor",
 				},

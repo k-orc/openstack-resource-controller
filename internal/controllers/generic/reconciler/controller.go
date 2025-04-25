@@ -18,7 +18,6 @@ package reconciler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,7 +32,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
 type ResourceController interface {
@@ -125,11 +123,12 @@ func (c *Controller[
 
 	adapter := c.helperFactory.NewAPIObjectAdapter(orcObject)
 
+	log := ctrl.LoggerFrom(ctx)
 	if !orcObject.GetDeletionTimestamp().IsZero() {
-		return c.reconcileDelete(ctx, adapter)
+		return c.reconcileDelete(ctx, adapter).Return(log)
 	}
 
-	return c.reconcileNormal(ctx, adapter)
+	return c.reconcileNormal(ctx, adapter).Return(log)
 }
 
 // shouldReconcile filters events when the object status is up to date, and its
@@ -163,61 +162,52 @@ func (c *Controller[
 	objectApplyPT,
 	statusApplyPT, statusApplyT,
 	osResourceT,
-]) reconcileNormal(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
+]) reconcileNormal(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (reconcileStatus progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
+
 	// We do this here rather than in a predicate because predicates only cover
 	// a single watch. Doing it here means we cover all sources of
 	// reconciliation, including our dependencies.
 	if !shouldReconcile(objAdapter.GetObject()) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
-		return ctrl.Result{}, nil
+		return reconcileStatus
 	}
 
 	log.V(logging.Verbose).Info("Reconciling resource")
 
 	var osResource *osResourceT
-	var progressStatus []progress.ProgressStatus
 
 	// Ensure we always update status
 	defer func() {
-		err = errors.Join(err, status.UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, progressStatus, err))
-
-		var terminalError *orcerrors.TerminalError
-		if errors.As(err, &terminalError) {
-			log.V(logging.Info).Info("not scheduling further reconciles for terminal error", "err", err.Error())
-			err = nil
-		}
+		reconcileStatus = reconcileStatus.WithReconcileStatus(
+			status.UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, reconcileStatus))
 	}()
 
-	progressStatus, actuator, err := c.helperFactory.NewCreateActuator(ctx, objAdapter.GetObject(), c)
-	if err != nil {
-		return ctrl.Result{}, err
+	actuator, actuatorRS := c.helperFactory.NewCreateActuator(ctx, objAdapter.GetObject(), c)
+	if needsReschedule, err := actuatorRS.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Waiting on events before creation")
+		}
+		return actuatorRS.WithReconcileStatus(reconcileStatus)
 	}
 
-	if len(progressStatus) > 0 {
-		log.V(logging.Verbose).Info("Waiting on events before creation")
-		return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
-	}
-
-	progressStatus, osResource, err = GetOrCreateOSResource(ctx, log, c, objAdapter, actuator)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	if len(progressStatus) > 0 {
-		log.V(logging.Verbose).Info("Waiting on events before creation")
-		return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
+	osResource, getOSResourceRS := GetOrCreateOSResource(ctx, log, c, objAdapter, actuator)
+	if needsReschedule, err := getOSResourceRS.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Waiting on events before creation")
+		}
+		return getOSResourceRS.WithReconcileStatus(reconcileStatus)
 	}
 
 	if osResource == nil {
 		// Programming error: if we don't have a resource we should either have an error or be waiting on something
-		return ctrl.Result{}, fmt.Errorf("oResource is not set, but no wait events or error")
+		return reconcileStatus.WithError(fmt.Errorf("oResource is not set, but no wait events or error"))
 	}
 
 	if objAdapter.GetStatusID() == nil {
 		resourceID := actuator.GetResourceID(osResource)
 		if err := status.SetStatusID(ctx, c, objAdapter.GetObject(), resourceID, c.statusWriter); err != nil {
-			return ctrl.Result{}, err
+			return reconcileStatus.WithError(err)
 		}
 	}
 
@@ -228,25 +218,18 @@ func (c *Controller[
 	if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged {
 		if reconciler, ok := actuator.(interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]); ok {
 			// We deliberately execute all reconcilers returned by GetResourceUpdates, even if it returns an error.
-			var reconcilers []interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-			reconcilers, err = reconciler.GetResourceReconcilers(ctx, objAdapter.GetObject(), osResource, c)
+			reconcilers, getReconcilersRS := reconciler.GetResourceReconcilers(ctx, objAdapter.GetObject(), osResource, c)
+			reconcileStatus = getReconcilersRS.WithReconcileStatus(reconcileStatus)
 
 			// We execute all returned updaters, even if some return errors
 			for _, updater := range reconcilers {
-				var updaterErr error
-				var updaterProgressStatus []progress.ProgressStatus
-
-				updaterProgressStatus, updaterErr = updater(ctx, objAdapter.GetObject(), osResource)
-				err = errors.Join(err, updaterErr)
-				progressStatus = append(progressStatus, updaterProgressStatus...)
-			}
-
-			if err != nil {
-				return ctrl.Result{}, err
+				updaterRS := updater(ctx, objAdapter.GetObject(), osResource)
+				reconcileStatus = updaterRS.WithReconcileStatus(reconcileStatus)
 			}
 		}
 	}
-	return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
+
+	return reconcileStatus
 }
 
 func (c *Controller[
@@ -256,34 +239,32 @@ func (c *Controller[
 	objectApplyPT,
 	statusApplyPT, statusApplyT,
 	osResourceT,
-]) reconcileDelete(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (_ ctrl.Result, err error) {
+]) reconcileDelete(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (reconcileStatus progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 	log.V(logging.Verbose).Info("Reconciling OpenStack resource delete")
 
 	var osResource *osResourceT
-	var progressStatus []progress.ProgressStatus
 
 	deleted := false
 	defer func() {
 		// No point updating status after removing the finalizer
 		if !deleted {
-			err = errors.Join(err, status.UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, progressStatus, err))
+			reconcileStatus = reconcileStatus.WithReconcileStatus(
+				status.UpdateStatus(ctx, c, c.statusWriter, objAdapter.GetObject(), osResource, reconcileStatus))
 		}
 	}()
 
-	progressStatus, actuator, err := c.helperFactory.NewDeleteActuator(ctx, objAdapter.GetObject(), c)
-	if err != nil {
-		return ctrl.Result{}, err
+	actuator, reconcileStatus := c.helperFactory.NewDeleteActuator(ctx, objAdapter.GetObject(), c)
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Waiting on events before deletion")
+		}
+		return reconcileStatus
 	}
 
-	if len(progressStatus) > 0 {
-		log.V(logging.Info).Info("Waiting on events before deletion")
-		return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
+	deleted, osResource, reconcileStatus = DeleteResource(ctx, log, c, objAdapter, actuator)
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule && err == nil {
+		log.V(logging.Verbose).Info("Waiting on events before deletion")
 	}
-
-	deleted, progressStatus, osResource, err = DeleteResource(ctx, log, c, objAdapter, actuator)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-	return ctrl.Result{RequeueAfter: progress.MaxRequeue(progressStatus)}, nil
+	return reconcileStatus
 }
