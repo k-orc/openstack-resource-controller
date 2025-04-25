@@ -20,27 +20,35 @@ Strict adherence to this definition enables some important use cases:
 
 In particular, the generic controller's reconcile loop filters objects with an up-to-date Progressing status of False. This means that if your controller exits a reconcile without correctly setting the Progressing condition it may result in the object never successfully reconciling.
 
-### Setting the Progressing condition
+### `ReconcileStatus`
 
-The Progressing condition is set by common code invoked from the generic controller based on 2 values:
+When a reconcile completes, we should have enough context to know:
 
-* A slice of `ProgressStatus` objects
-* An error
+* If we need to be reconciled again
+* If so, whether we expect it to be:
+  * Event triggered: on creation/update of another kubernetes object
+  * Polling: we schedule another reconcile after a particular amount of time, for example because we're waiting on OpenStack
+  * Immediate: we schedule another reconcile immediately after this one finishes, for example to force a refresh of status
+  * With exponential backoff due to an error
+* If we should never reconcile this spec again because it is invalid
 
-Several functions in the actuator interface your controller implements will return these 2 values. If the operation did not complete fully, these MUST return either:
+This is handled internally by `ReconcileStatus`. Most methods in the actuator interface return a `ReconcileStatus` in place of an error.
 
-* at least one `ProgressStatus`
-* an error
+As noted above, failure to return a correct `ReconcileStatus` from an actuator method will likely result in the reconciliation of your object hanging.
 
-As noted above, failure to do this will likely result in the reconciliation of your object hanging.
+!!! note
 
-#### ProgressStatus
+    `nil` is a valid `ReconcileStatus`, and is the preferred representation of an empty `ReconcileStatus`. It is permitted to call methods on a `nil` `ReconcileStatus`.
 
-There are currently 3 types of ProgressStatus:
+!!! warning
 
-* Waiting for an OpenStack operation to complete: this will involve polling OpenStack, so these will also require a polling interval to be specified.
-* Waiting for a dependent ORC object to be available: this requires that an appropriate dependency has been configured on the dependent object. If it has not, the reconciliation will hang.
-* The operation completed, but we modified the resource and its reported status is now out of date: another reconcile will be scheduled immediately.
+    `ReconcileStatus` methods which modify the `ReconcileStatus` do so by returning a `ReconcileStatus` containing the modification. Similar to how `append()` works, this modification may or may not be in-place. Consequently, the return value of `ReconcileStatus` **MUST ALWAYS** be used. e.g.:
+
+    ```golang
+    reconcileStatus = reconcileStatus.WithError(err)
+    ```
+
+Refer to [the `ReconcileStatus documentation`](../godoc/reconcile-status/) for details of available methods.
 
 #### Transient and Terminal errors
 
