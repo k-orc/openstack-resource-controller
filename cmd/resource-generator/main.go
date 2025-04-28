@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultYear       = "2024"
+	defaultYear       = "2025"
 	defaultAPIVersion = "v1alpha1"
 )
 
