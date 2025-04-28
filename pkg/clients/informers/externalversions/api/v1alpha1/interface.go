@@ -32,6 +32,8 @@ type Interface interface {
 	Networks() NetworkInformer
 	// Ports returns a PortInformer.
 	Ports() PortInformer
+	// Projects returns a ProjectInformer.
+	Projects() ProjectInformer
 	// Routers returns a RouterInformer.
 	Routers() RouterInformer
 	// RouterInterfaces returns a RouterInterfaceInformer.
@@ -73,6 +75,11 @@ func (v *version) Networks() NetworkInformer {
 // Ports returns a PortInformer.
 func (v *version) Ports() PortInformer {
 	return &portInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Projects returns a ProjectInformer.
+func (v *version) Projects() ProjectInformer {
+	return &projectInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Routers returns a RouterInformer.

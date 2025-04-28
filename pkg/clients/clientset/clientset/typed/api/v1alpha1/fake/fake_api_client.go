@@ -44,6 +44,10 @@ func (c *FakeOpenstackV1alpha1) Ports(namespace string) v1alpha1.PortInterface {
 	return newFakePorts(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Projects(namespace string) v1alpha1.ProjectInterface {
+	return newFakeProjects(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Routers(namespace string) v1alpha1.RouterInterface {
 	return newFakeRouters(c, namespace)
 }

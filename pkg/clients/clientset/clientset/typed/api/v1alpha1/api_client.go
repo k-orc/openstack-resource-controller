@@ -32,6 +32,7 @@ type OpenstackV1alpha1Interface interface {
 	ImagesGetter
 	NetworksGetter
 	PortsGetter
+	ProjectsGetter
 	RoutersGetter
 	RouterInterfacesGetter
 	SecurityGroupsGetter
@@ -58,6 +59,10 @@ func (c *OpenstackV1alpha1Client) Networks(namespace string) NetworkInterface {
 
 func (c *OpenstackV1alpha1Client) Ports(namespace string) PortInterface {
 	return newPorts(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Projects(namespace string) ProjectInterface {
+	return newProjects(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Routers(namespace string) RouterInterface {

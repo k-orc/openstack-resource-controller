@@ -136,6 +136,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.PortSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortStatus"):
 		return &apiv1alpha1.PortStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Project"):
+		return &apiv1alpha1.ProjectApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProjectFilter"):
+		return &apiv1alpha1.ProjectFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProjectImport"):
+		return &apiv1alpha1.ProjectImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProjectResourceSpec"):
+		return &apiv1alpha1.ProjectResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProjectResourceStatus"):
+		return &apiv1alpha1.ProjectResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProjectSpec"):
+		return &apiv1alpha1.ProjectSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProjectStatus"):
+		return &apiv1alpha1.ProjectStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Router"):

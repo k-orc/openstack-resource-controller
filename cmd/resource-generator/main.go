@@ -88,6 +88,9 @@ var allResources []templateFields = []templateFields{
 	{
 		Name: "Server",
 	},
+	{
+		Name: "Project",
+	},
 }
 
 func main() {
