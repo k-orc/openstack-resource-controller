@@ -114,12 +114,20 @@ func main() {
 			panic(err)
 		}
 
-		adapterPath := filepath.Join("internal", "controllers", resourceLower, "zz_generated.adapter.go")
+		controllerDirPath := filepath.Join("internal", "controllers", resourceLower)
+		if _, err := os.Stat(controllerDirPath); os.IsNotExist(err) {
+			err = os.Mkdir(controllerDirPath, 0755)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		adapterPath := filepath.Join(controllerDirPath, "zz_generated.adapter.go")
 		if err := writeTemplate(adapterPath, adapterTemplate, resource); err != nil {
 			panic(err)
 		}
 
-		controllerPath := filepath.Join("internal", "controllers", resourceLower, "zz_generated.controller.go")
+		controllerPath := filepath.Join(controllerDirPath, "zz_generated.controller.go")
 		if err := writeTemplate(controllerPath, controllerTemplate, resource); err != nil {
 			panic(err)
 		}
