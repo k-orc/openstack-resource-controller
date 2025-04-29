@@ -18,6 +18,8 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [NetworkList](#networklist)
 - [Port](#port)
 - [PortList](#portlist)
+- [Project](#project)
+- [ProjectList](#projectlist)
 - [Router](#router)
 - [RouterInterface](#routerinterface)
 - [RouterInterfaceList](#routerinterfacelist)
@@ -166,6 +168,7 @@ _Appears in:_
 - [ImageSpec](#imagespec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
+- [ProjectSpec](#projectspec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
 - [ServerSpec](#serverspec)
@@ -241,6 +244,25 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `networkID` _string_ | networkID is the ID of the network the gateway is on. |  | MaxLength: 1024 <br /> |
+
+
+#### FilterByKeystoneTags
+
+
+
+
+
+
+
+_Appears in:_
+- [ProjectFilter](#projectfilter)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `tags` _[KeystoneTag](#keystonetag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[KeystoneTag](#keystonetag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[KeystoneTag](#keystonetag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[KeystoneTag](#keystonetag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### FilterByNeutronTags
@@ -997,6 +1019,39 @@ _Appears in:_
 | `community` |  |
 
 
+#### KeystoneName
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 64
+- MinLength: 1
+
+_Appears in:_
+- [ProjectFilter](#projectfilter)
+- [ProjectResourceSpec](#projectresourcespec)
+
+
+
+#### KeystoneTag
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [FilterByKeystoneTags](#filterbykeystonetags)
+- [ProjectFilter](#projectfilter)
+- [ProjectResourceSpec](#projectresourcespec)
+
+
+
 #### KubernetesNameRef
 
 _Underlying type:_ _string_
@@ -1064,6 +1119,7 @@ _Appears in:_
 - [ImageSpec](#imagespec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
+- [ProjectSpec](#projectspec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
 - [ServerSpec](#serverspec)
@@ -1088,6 +1144,7 @@ _Appears in:_
 - [ImageSpec](#imagespec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
+- [ProjectSpec](#projectspec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
 - [ServerSpec](#serverspec)
@@ -1641,6 +1698,161 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[PortResourceStatus](#portresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
+#### Project
+
+
+
+Project is the Schema for an ORC resource.
+
+
+
+_Appears in:_
+- [ProjectList](#projectlist)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Project` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[ProjectSpec](#projectspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ProjectStatus](#projectstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### ProjectFilter
+
+
+
+ProjectFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ProjectImport](#projectimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[KeystoneName](#keystonename)_ | name of the existing resource |  | MaxLength: 64 <br />MinLength: 1 <br /> |
+| `tags` _[KeystoneTag](#keystonetag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[KeystoneTag](#keystonetag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[KeystoneTag](#keystonetag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[KeystoneTag](#keystonetag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ProjectImport
+
+
+
+ProjectImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ProjectSpec](#projectspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
+| `filter` _[ProjectFilter](#projectfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### ProjectList
+
+
+
+ProjectList contains a list of Project.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ProjectList` | | |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `items` _[Project](#project) array_ | items contains a list of Project. |  |  |
+
+
+#### ProjectResourceSpec
+
+
+
+ProjectResourceSpec contains the desired state of a project
+
+
+
+_Appears in:_
+- [ProjectSpec](#projectspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[KeystoneName](#keystonename)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 64 <br />MinLength: 1 <br /> |
+| `description` _string_ | description contains a free form description of the project. |  | MaxLength: 65535 <br />MinLength: 1 <br /> |
+| `enabled` _boolean_ | enabled defines whether a project is enabled or not. Default is true. |  |  |
+| `tags` _[KeystoneTag](#keystonetag) array_ | tags is list of simple strings assigned to a project.<br />Tags can be used to classify projects into groups. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ProjectResourceStatus
+
+
+
+ProjectResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ProjectStatus](#projectstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the project. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 65535 <br /> |
+| `enabled` _boolean_ | enabled represents whether a project is enabled or not. |  |  |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 80 <br /> |
+
+
+#### ProjectSpec
+
+
+
+ProjectSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Project](#project)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ProjectImport](#projectimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[ProjectResourceSpec](#projectresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### ProjectStatus
+
+
+
+ProjectStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Project](#project)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[ProjectResourceStatus](#projectresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Protocol

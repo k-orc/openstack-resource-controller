@@ -21,6 +21,7 @@ rules:
   - images
   - networks
   - ports
+  - projects
   - routerinterfaces
   - routers
   - securitygroups
@@ -41,6 +42,7 @@ rules:
   - images/status
   - networks/status
   - ports/status
+  - projects/status
   - routerinterfaces/status
   - routers/status
   - securitygroups/status

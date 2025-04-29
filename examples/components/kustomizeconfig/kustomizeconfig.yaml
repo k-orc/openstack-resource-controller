@@ -19,6 +19,8 @@ nameReference:
     kind: Server
   - path: spec/resource/userData/secretRef
     kind: Server
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Project
 
 - kind: Network
   fieldSpecs:

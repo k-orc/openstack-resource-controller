@@ -34,9 +34,10 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
-	ComputeClient *mock.MockComputeClient
-	NetworkClient *mock.MockNetworkClient
-	ImageClient   *mock.MockImageClient
+	ComputeClient  *mock.MockComputeClient
+	NetworkClient  *mock.MockNetworkClient
+	ImageClient    *mock.MockImageClient
+	IdentityClient *mock.MockIdentityClient
 
 	clientScopeCreateError error
 }
@@ -45,11 +46,13 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	computeClient := mock.NewMockComputeClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
+	identityClient := mock.NewMockIdentityClient(mockCtrl)
 
 	return &MockScopeFactory{
-		ComputeClient: computeClient,
-		ImageClient:   imageClient,
-		NetworkClient: networkClient,
+		ComputeClient:  computeClient,
+		ImageClient:    imageClient,
+		NetworkClient:  networkClient,
+		IdentityClient: identityClient,
 	}
 }
 
@@ -74,6 +77,10 @@ func (f *MockScopeFactory) NewImageClient() (osclients.ImageClient, error) {
 
 func (f *MockScopeFactory) NewNetworkClient() (osclients.NetworkClient, error) {
 	return f.NetworkClient, nil
+}
+
+func (f *MockScopeFactory) NewIdentityClient() (osclients.IdentityClient, error) {
+	return f.IdentityClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

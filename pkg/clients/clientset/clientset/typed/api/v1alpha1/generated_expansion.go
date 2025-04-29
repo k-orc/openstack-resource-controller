@@ -26,6 +26,8 @@ type NetworkExpansion interface{}
 
 type PortExpansion interface{}
 
+type ProjectExpansion interface{}
+
 type RouterExpansion interface{}
 
 type RouterInterfaceExpansion interface{}

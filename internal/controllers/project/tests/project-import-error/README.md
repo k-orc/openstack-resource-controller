@@ -1,0 +1,9 @@
+# Import Project with more than one matching resources
+
+## Step 00
+
+Create two projects with identical specs.
+
+## Step 01
+
+Ensure that an imported project with a filter matching the resources returns an error.
