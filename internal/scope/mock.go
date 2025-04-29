@@ -36,26 +36,20 @@ import (
 type MockScopeFactory struct {
 	ComputeClient *mock.MockComputeClient
 	NetworkClient *mock.MockNetworkClient
-	VolumeClient  *mock.MockVolumeClient
 	ImageClient   *mock.MockImageClient
-	LbClient      *mock.MockLbClient
 
 	clientScopeCreateError error
 }
 
 func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	computeClient := mock.NewMockComputeClient(mockCtrl)
-	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
-	lbClient := mock.NewMockLbClient(mockCtrl)
 
 	return &MockScopeFactory{
 		ComputeClient: computeClient,
-		VolumeClient:  volumeClient,
 		ImageClient:   imageClient,
 		NetworkClient: networkClient,
-		LbClient:      lbClient,
 	}
 }
 
@@ -74,20 +68,12 @@ func (f *MockScopeFactory) NewComputeClient() (osclients.ComputeClient, error) {
 	return f.ComputeClient, nil
 }
 
-func (f *MockScopeFactory) NewVolumeClient() (osclients.VolumeClient, error) {
-	return f.VolumeClient, nil
-}
-
 func (f *MockScopeFactory) NewImageClient() (osclients.ImageClient, error) {
 	return f.ImageClient, nil
 }
 
 func (f *MockScopeFactory) NewNetworkClient() (osclients.NetworkClient, error) {
 	return f.NetworkClient, nil
-}
-
-func (f *MockScopeFactory) NewLbClient() (osclients.LbClient, error) {
-	return f.LbClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

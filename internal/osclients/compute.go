@@ -44,8 +44,6 @@ CAPO supports multiattach volume types, which were added in microversion 2.60.
 const NovaMinimumMicroversion = "2.60"
 
 type ComputeClient interface {
-	ListAvailabilityZones(ctx context.Context) ([]availabilityzones.AvailabilityZone, error)
-
 	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
 	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
 	DeleteFlavor(ctx context.Context, id string) error
@@ -55,11 +53,6 @@ type ComputeClient interface {
 	DeleteServer(ctx context.Context, serverID string) error
 	GetServer(ctx context.Context, serverID string) (*servers.Server, error)
 	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error]
-
-	ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error)
-	DeleteAttachedInterface(ctx context.Context, serverID, portID string) error
-
-	ListServerGroups(ctx context.Context) ([]servergroups.ServerGroup, error)
 }
 
 type computeClient struct{ client *gophercloud.ServiceClient }

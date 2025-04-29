@@ -49,10 +49,8 @@ type Factory interface {
 // Scope contains arguments common to most operations.
 type Scope interface {
 	NewComputeClient() (osclients.ComputeClient, error)
-	NewVolumeClient() (osclients.VolumeClient, error)
 	NewImageClient() (osclients.ImageClient, error)
 	NewNetworkClient() (osclients.NetworkClient, error)
-	NewLbClient() (osclients.LbClient, error)
 	ExtractToken() (*tokens.Token, error)
 }
 

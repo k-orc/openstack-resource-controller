@@ -59,24 +59,11 @@ type PortExt struct {
 }
 
 type NetworkClient interface {
-	ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) ([]floatingips.FloatingIP, error)
-	CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error)
-	DeleteFloatingIP(ctx context.Context, id string) error
-	GetFloatingIP(ctx context.Context, id string) (*floatingips.FloatingIP, error)
-	UpdateFloatingIP(ctx context.Context, id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error)
-
 	ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*PortExt, error]
 	CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*PortExt, error)
 	DeletePort(ctx context.Context, id string) error
 	GetPort(ctx context.Context, id string) (*PortExt, error)
 	UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*PortExt, error)
-
-	ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error)
-	CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error)
-	DeleteTrunk(ctx context.Context, id string) error
-
-	ListTrunkSubports(ctx context.Context, trunkID string) ([]trunks.Subport, error)
-	RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error
 
 	ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error]
 	CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error)
@@ -108,8 +95,6 @@ type NetworkClient interface {
 	DeleteSubnet(ctx context.Context, id string) error
 	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
 	UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
-
-	ListExtensions(ctx context.Context) ([]extensions.Extension, error)
 
 	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
 }

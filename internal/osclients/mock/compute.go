@@ -29,10 +29,7 @@ import (
 	iter "iter"
 	reflect "reflect"
 
-	attachinterfaces "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
-	availabilityzones "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/availabilityzones"
 	flavors "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
-	servergroups "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -89,20 +86,6 @@ func (m *MockComputeClient) CreateServer(ctx context.Context, createOpts servers
 func (mr *MockComputeClientMockRecorder) CreateServer(ctx, createOpts, schedulerHints any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateServer", reflect.TypeOf((*MockComputeClient)(nil).CreateServer), ctx, createOpts, schedulerHints)
-}
-
-// DeleteAttachedInterface mocks base method.
-func (m *MockComputeClient) DeleteAttachedInterface(ctx context.Context, serverID, portID string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAttachedInterface", ctx, serverID, portID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteAttachedInterface indicates an expected call of DeleteAttachedInterface.
-func (mr *MockComputeClientMockRecorder) DeleteAttachedInterface(ctx, serverID, portID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAttachedInterface", reflect.TypeOf((*MockComputeClient)(nil).DeleteAttachedInterface), ctx, serverID, portID)
 }
 
 // DeleteFlavor mocks base method.
@@ -163,36 +146,6 @@ func (mr *MockComputeClientMockRecorder) GetServer(ctx, serverID any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServer", reflect.TypeOf((*MockComputeClient)(nil).GetServer), ctx, serverID)
 }
 
-// ListAttachedInterfaces mocks base method.
-func (m *MockComputeClient) ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAttachedInterfaces", ctx, serverID)
-	ret0, _ := ret[0].([]attachinterfaces.Interface)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListAttachedInterfaces indicates an expected call of ListAttachedInterfaces.
-func (mr *MockComputeClientMockRecorder) ListAttachedInterfaces(ctx, serverID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAttachedInterfaces", reflect.TypeOf((*MockComputeClient)(nil).ListAttachedInterfaces), ctx, serverID)
-}
-
-// ListAvailabilityZones mocks base method.
-func (m *MockComputeClient) ListAvailabilityZones(ctx context.Context) ([]availabilityzones.AvailabilityZone, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAvailabilityZones", ctx)
-	ret0, _ := ret[0].([]availabilityzones.AvailabilityZone)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListAvailabilityZones indicates an expected call of ListAvailabilityZones.
-func (mr *MockComputeClientMockRecorder) ListAvailabilityZones(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAvailabilityZones", reflect.TypeOf((*MockComputeClient)(nil).ListAvailabilityZones), ctx)
-}
-
 // ListFlavors mocks base method.
 func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
 	m.ctrl.T.Helper()
@@ -205,21 +158,6 @@ func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.Li
 func (mr *MockComputeClientMockRecorder) ListFlavors(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFlavors", reflect.TypeOf((*MockComputeClient)(nil).ListFlavors), ctx, listOpts)
-}
-
-// ListServerGroups mocks base method.
-func (m *MockComputeClient) ListServerGroups(ctx context.Context) ([]servergroups.ServerGroup, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListServerGroups", ctx)
-	ret0, _ := ret[0].([]servergroups.ServerGroup)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListServerGroups indicates an expected call of ListServerGroups.
-func (mr *MockComputeClientMockRecorder) ListServerGroups(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServerGroups", reflect.TypeOf((*MockComputeClient)(nil).ListServerGroups), ctx)
 }
 
 // ListServers mocks base method.
