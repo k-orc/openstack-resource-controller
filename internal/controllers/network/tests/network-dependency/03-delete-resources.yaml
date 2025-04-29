@@ -4,3 +4,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Network
   name: network-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Network
+  name: network-dependency-no-project

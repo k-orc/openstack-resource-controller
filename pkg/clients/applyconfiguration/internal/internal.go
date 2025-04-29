@@ -577,6 +577,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -628,6 +632,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portSecurityEnabled
       type:
         scalar: boolean
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: shared
       type:
         scalar: boolean

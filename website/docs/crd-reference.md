@@ -1085,6 +1085,8 @@ _Validation:_
 _Appears in:_
 - [Address](#address)
 - [ExternalGateway](#externalgateway)
+- [NetworkFilter](#networkfilter)
+- [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
 - [RouterInterfaceSpec](#routerinterfacespec)
@@ -1213,6 +1215,7 @@ _Appears in:_
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `external` _boolean_ | external indicates whether the network has an external routing<br />facility that’s not managed by the networking service. |  |  |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -1280,6 +1283,7 @@ _Appears in:_
 | `external` _boolean_ | external indicates whether the network has an external routing<br />facility that’s not managed by the networking service. |  |  |
 | `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects. By default, only administrative users can change this<br />value. |  |  |
 | `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the network. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
 #### NetworkResourceStatus

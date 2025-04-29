@@ -18,6 +18,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
@@ -26,8 +27,10 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
@@ -48,7 +51,8 @@ type (
 )
 
 type networkActuator struct {
-	osClient osclients.NetworkClient
+	osClient  osclients.NetworkClient
+	k8sClient client.Client
 }
 
 var _ createResourceActuator = networkActuator{}
@@ -77,9 +81,35 @@ func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, 
 }
 
 func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+	var reconcileStatus progress.ReconcileStatus
+
+	project := &orcv1alpha1.Project{}
+	if filter.ProjectRef != "" {
+		projectKey := client.ObjectKey{Name: string(filter.ProjectRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
+			} else {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
+			}
+		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
 	listOpts := networks.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
+		ProjectID:   ptr.Deref(project.Status.ID, ""),
 		Tags:        neutrontags.Join(filter.Tags),
 		TagsAny:     neutrontags.Join(filter.TagsAny),
 		NotTags:     neutrontags.Join(filter.NotTags),
@@ -96,6 +126,19 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
+	var projectID string
+	if resource.ProjectRef != "" {
+		project, reconcileStatus := projectDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+			return nil, reconcileStatus
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
 	var createOpts networks.CreateOptsBuilder
 	{
 		createOptsBase := networks.CreateOpts{
@@ -103,6 +146,7 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 			Description:  string(ptr.Deref(resource.Description, "")),
 			AdminStateUp: resource.AdminStateUp,
 			Shared:       resource.Shared,
+			ProjectID:    projectID,
 		}
 
 		if len(resource.AvailabilityZoneHints) > 0 {
@@ -187,7 +231,8 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller
 	}
 
 	return networkActuator{
-		osClient: osClient,
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
 	}, nil
 }
 

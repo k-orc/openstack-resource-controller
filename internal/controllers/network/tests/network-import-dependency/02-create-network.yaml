@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: network-create-full
+  name: network-import-dependency-external
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
@@ -13,22 +13,12 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: network-create-full
+  name: network-import-dependency-external
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: network-create-full-override
-    adminStateUp: false
-    description: Network from "create full" test
-    dnsDomain: "foo.com."
-    external: true
-    mtu: 1400
-    portSecurityEnabled: false
-    shared: true
-    tags:
-      - tag1
-      - tag2
-    projectRef: network-create-full
+    projectRef: network-import-dependency-external
+    description: network from network-import-dependency test
