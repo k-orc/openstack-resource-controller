@@ -22,33 +22,27 @@ import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 )
 
-// ProjectFilterApplyConfiguration represents a declarative configuration of the ProjectFilter type for use
+// FilterByKeystoneTagsApplyConfiguration represents a declarative configuration of the FilterByKeystoneTags type for use
 // with apply.
-type ProjectFilterApplyConfiguration struct {
-	Name                                   *apiv1alpha1.KeystoneName `json:"name,omitempty"`
-	FilterByKeystoneTagsApplyConfiguration `json:",inline"`
+type FilterByKeystoneTagsApplyConfiguration struct {
+	Tags       []apiv1alpha1.KeystoneTag `json:"tags,omitempty"`
+	TagsAny    []apiv1alpha1.KeystoneTag `json:"tagsAny,omitempty"`
+	NotTags    []apiv1alpha1.KeystoneTag `json:"notTags,omitempty"`
+	NotTagsAny []apiv1alpha1.KeystoneTag `json:"notTagsAny,omitempty"`
 }
 
-// ProjectFilterApplyConfiguration constructs a declarative configuration of the ProjectFilter type for use with
+// FilterByKeystoneTagsApplyConfiguration constructs a declarative configuration of the FilterByKeystoneTags type for use with
 // apply.
-func ProjectFilter() *ProjectFilterApplyConfiguration {
-	return &ProjectFilterApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *ProjectFilterApplyConfiguration) WithName(value apiv1alpha1.KeystoneName) *ProjectFilterApplyConfiguration {
-	b.Name = &value
-	return b
+func FilterByKeystoneTags() *FilterByKeystoneTagsApplyConfiguration {
+	return &FilterByKeystoneTagsApplyConfiguration{}
 }
 
 // WithTags adds the given value to the Tags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *ProjectFilterApplyConfiguration) WithTags(values ...apiv1alpha1.KeystoneTag) *ProjectFilterApplyConfiguration {
+func (b *FilterByKeystoneTagsApplyConfiguration) WithTags(values ...apiv1alpha1.KeystoneTag) *FilterByKeystoneTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByKeystoneTagsApplyConfiguration.Tags = append(b.FilterByKeystoneTagsApplyConfiguration.Tags, values[i])
+		b.Tags = append(b.Tags, values[i])
 	}
 	return b
 }
@@ -56,9 +50,9 @@ func (b *ProjectFilterApplyConfiguration) WithTags(values ...apiv1alpha1.Keyston
 // WithTagsAny adds the given value to the TagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the TagsAny field.
-func (b *ProjectFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.KeystoneTag) *ProjectFilterApplyConfiguration {
+func (b *FilterByKeystoneTagsApplyConfiguration) WithTagsAny(values ...apiv1alpha1.KeystoneTag) *FilterByKeystoneTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByKeystoneTagsApplyConfiguration.TagsAny = append(b.FilterByKeystoneTagsApplyConfiguration.TagsAny, values[i])
+		b.TagsAny = append(b.TagsAny, values[i])
 	}
 	return b
 }
@@ -66,9 +60,9 @@ func (b *ProjectFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.Keys
 // WithNotTags adds the given value to the NotTags field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTags field.
-func (b *ProjectFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.KeystoneTag) *ProjectFilterApplyConfiguration {
+func (b *FilterByKeystoneTagsApplyConfiguration) WithNotTags(values ...apiv1alpha1.KeystoneTag) *FilterByKeystoneTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByKeystoneTagsApplyConfiguration.NotTags = append(b.FilterByKeystoneTagsApplyConfiguration.NotTags, values[i])
+		b.NotTags = append(b.NotTags, values[i])
 	}
 	return b
 }
@@ -76,9 +70,9 @@ func (b *ProjectFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.Keys
 // WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the NotTagsAny field.
-func (b *ProjectFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.KeystoneTag) *ProjectFilterApplyConfiguration {
+func (b *FilterByKeystoneTagsApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.KeystoneTag) *FilterByKeystoneTagsApplyConfiguration {
 	for i := range values {
-		b.FilterByKeystoneTagsApplyConfiguration.NotTagsAny = append(b.FilterByKeystoneTagsApplyConfiguration.NotTagsAny, values[i])
+		b.NotTagsAny = append(b.NotTagsAny, values[i])
 	}
 	return b
 }

@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-create-minimal
+status:
+  resource:
+    name: project-create-minimal
+    description: ""
+    enabled: true

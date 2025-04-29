@@ -30,7 +30,7 @@ import (
 )
 
 type StringTag interface {
-	orcv1alpha1.NeutronTag | orcv1alpha1.ServerTag | orcv1alpha1.ImageTag
+	orcv1alpha1.NeutronTag | orcv1alpha1.ServerTag | orcv1alpha1.ImageTag | orcv1alpha1.KeystoneTag
 }
 
 // Join joins a slice of tags into a comma separated list of tags.

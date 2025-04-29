@@ -246,6 +246,25 @@ _Appears in:_
 | `networkID` _string_ | networkID is the ID of the network the gateway is on. |  | MaxLength: 1024 <br /> |
 
 
+#### FilterByKeystoneTags
+
+
+
+
+
+
+
+_Appears in:_
+- [ProjectFilter](#projectfilter)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `tags` _[KeystoneTag](#keystonetag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[KeystoneTag](#keystonetag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[KeystoneTag](#keystonetag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[KeystoneTag](#keystonetag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
 #### FilterByNeutronTags
 
 
@@ -1025,6 +1044,8 @@ _Validation:_
 - MinLength: 1
 
 _Appears in:_
+- [FilterByKeystoneTags](#filterbykeystonetags)
+- [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
 
 
@@ -1712,6 +1733,10 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[KeystoneName](#keystonename)_ | name of the existing resource |  | MaxLength: 64 <br />MinLength: 1 <br /> |
+| `tags` _[KeystoneTag](#keystonetag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[KeystoneTag](#keystonetag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[KeystoneTag](#keystonetag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[KeystoneTag](#keystonetag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### ProjectImport

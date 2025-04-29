@@ -70,6 +70,7 @@ kubectl delete -f $ORC_RELEASE
 | image                       |    ✔    |    ✔    |     ✔    |
 | network                     |         |    ◐    |     ◐    |
 | port                        |         |    ◐    |     ◐    |
+| project                     |         |    ◐    |     ◐    |
 | router                      |         |    ◐    |     ◐    |
 | security group (incl. rule) |         |    ✔    |     ✔    |
 | server                      |         |    ◐    |     ◐    |

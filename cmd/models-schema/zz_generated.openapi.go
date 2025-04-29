@@ -38,6 +38,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference":   schema_openstack_resource_controller_v2_api_v1alpha1_CloudCredentialsReference(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGateway":             schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGateway(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ExternalGatewayStatus":       schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGatewayStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FilterByKeystoneTags":        schema_openstack_resource_controller_v2_api_v1alpha1_FilterByKeystoneTags(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FilterByNeutronTags":         schema_openstack_resource_controller_v2_api_v1alpha1_FilterByNeutronTags(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FilterByServerTags":          schema_openstack_resource_controller_v2_api_v1alpha1_FilterByServerTags(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus":               schema_openstack_resource_controller_v2_api_v1alpha1_FixedIPStatus(ref),
@@ -620,6 +621,98 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGatewayStatus(
 							Description: "networkID is the ID of the network the gateway is on.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_FilterByKeystoneTags(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -3448,6 +3541,86 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectFilter(ref comm
 							Description: "name of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},

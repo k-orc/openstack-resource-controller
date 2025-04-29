@@ -979,6 +979,30 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ProjectImport
   map:
     fields:

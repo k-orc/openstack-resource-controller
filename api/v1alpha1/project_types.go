@@ -20,6 +20,37 @@ package v1alpha1
 // +kubebuilder:validation:MaxLength:=255
 type KeystoneTag string
 
+type FilterByKeystoneTags struct {
+	// tags is a list of tags to filter by. If specified, the resource must
+	// have all of the tags specified to be included in the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=80
+	Tags []KeystoneTag `json:"tags,omitempty"`
+
+	// tagsAny is a list of tags to filter by. If specified, the resource
+	// must have at least one of the tags specified to be included in the
+	// result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=80
+	TagsAny []KeystoneTag `json:"tagsAny,omitempty"`
+
+	// notTags is a list of tags to filter by. If specified, resources which
+	// contain all of the given tags will be excluded from the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=80
+	NotTags []KeystoneTag `json:"notTags,omitempty"`
+
+	// notTagsAny is a list of tags to filter by. If specified, resources
+	// which contain any of the given tags will be excluded from the result.
+	// +listType=set
+	// +optional
+	// +kubebuilder:validation:MaxItems:=80
+	NotTagsAny []KeystoneTag `json:"notTagsAny,omitempty"`
+}
+
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=64
 type KeystoneName string
@@ -56,6 +87,8 @@ type ProjectFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *KeystoneName `json:"name,omitempty"`
+
+	FilterByKeystoneTags `json:",inline"`
 }
 
 // ProjectResourceStatus represents the observed state of the resource.

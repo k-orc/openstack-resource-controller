@@ -96,6 +96,51 @@ spec:
                         maxLength: 64
                         minLength: 1
                         type: string
+                      notTags:
+                        description: |-
+                          notTags is a list of tags to filter by. If specified, resources which
+                          contain all of the given tags will be excluded from the result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 80
+                        type: array
+                        x-kubernetes-list-type: set
+                      notTagsAny:
+                        description: |-
+                          notTagsAny is a list of tags to filter by. If specified, resources
+                          which contain any of the given tags will be excluded from the result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 80
+                        type: array
+                        x-kubernetes-list-type: set
+                      tags:
+                        description: |-
+                          tags is a list of tags to filter by. If specified, the resource must
+                          have all of the tags specified to be included in the result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 80
+                        type: array
+                        x-kubernetes-list-type: set
+                      tagsAny:
+                        description: |-
+                          tagsAny is a list of tags to filter by. If specified, the resource
+                          must have at least one of the tags specified to be included in the
+                          result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 80
+                        type: array
+                        x-kubernetes-list-type: set
                     type: object
                   id:
                     description: |-
