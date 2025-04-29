@@ -129,7 +129,7 @@ func (i *Port) GetConditions() []metav1.Condition {
 
 // Port is the Schema for an ORC resource.
 type Port struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -137,7 +137,7 @@ type Port struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   PortSpec   `json:"spec,omitempty"`
+	Spec PortSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -156,7 +156,7 @@ type PortList struct {
 
 	// items contains a list of Port.
 	// +required
-	Items           []Port `json:"items"`
+	Items []Port `json:"items"`
 }
 
 func (l *PortList) GetItems() []Port {

@@ -128,7 +128,7 @@ func (i *Subnet) GetConditions() []metav1.Condition {
 
 // Subnet is the Schema for an ORC resource.
 type Subnet struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type Subnet struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   SubnetSpec   `json:"spec,omitempty"`
+	Spec SubnetSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type SubnetList struct {
 
 	// items contains a list of Subnet.
 	// +required
-	Items           []Subnet `json:"items"`
+	Items []Subnet `json:"items"`
 }
 
 func (l *SubnetList) GetItems() []Subnet {

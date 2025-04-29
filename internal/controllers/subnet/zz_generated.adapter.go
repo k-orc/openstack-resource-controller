@@ -32,9 +32,9 @@ type (
 
 // Derived types
 type (
-	orcObjectPT    = *orcObjectT
-	adapterI       = interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
-	adapterT       = subnetAdapter
+	orcObjectPT = *orcObjectT
+	adapterI    = interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
+	adapterT    = subnetAdapter
 )
 
 type subnetAdapter struct {

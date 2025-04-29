@@ -128,7 +128,7 @@ func (i *Server) GetConditions() []metav1.Condition {
 
 // Server is the Schema for an ORC resource.
 type Server struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type Server struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   ServerSpec   `json:"spec,omitempty"`
+	Spec ServerSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type ServerList struct {
 
 	// items contains a list of Server.
 	// +required
-	Items           []Server `json:"items"`
+	Items []Server `json:"items"`
 }
 
 func (l *ServerList) GetItems() []Server {

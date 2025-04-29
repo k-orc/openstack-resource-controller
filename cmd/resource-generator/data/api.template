@@ -140,7 +140,7 @@ func (i *{{ .Name }}) GetConditions() []metav1.Condition {
 
 // {{ .Name }} is the Schema for an ORC resource.
 type {{ .Name }} struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -148,7 +148,7 @@ type {{ .Name }} struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   {{ .Name }}Spec   `json:"spec,omitempty"`
+	Spec {{ .Name }}Spec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -167,7 +167,7 @@ type {{ .Name }}List struct {
 
 	// items contains a list of {{ .Name }}.
 	// +required
-	Items           []{{ .Name }} `json:"items"`
+	Items []{{ .Name }} `json:"items"`
 }
 
 func (l *{{ .Name }}List) GetItems() []{{ .Name }} {
