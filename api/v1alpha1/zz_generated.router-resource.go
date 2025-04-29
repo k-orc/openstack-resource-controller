@@ -128,7 +128,7 @@ func (i *Router) GetConditions() []metav1.Condition {
 
 // Router is the Schema for an ORC resource.
 type Router struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type Router struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   RouterSpec   `json:"spec,omitempty"`
+	Spec RouterSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type RouterList struct {
 
 	// items contains a list of Router.
 	// +required
-	Items           []Router `json:"items"`
+	Items []Router `json:"items"`
 }
 
 func (l *RouterList) GetItems() []Router {

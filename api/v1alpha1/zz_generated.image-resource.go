@@ -131,7 +131,7 @@ func (i *Image) GetConditions() []metav1.Condition {
 
 // Image is the Schema for an ORC resource.
 type Image struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -139,7 +139,7 @@ type Image struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   ImageSpec   `json:"spec,omitempty"`
+	Spec ImageSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -158,7 +158,7 @@ type ImageList struct {
 
 	// items contains a list of Image.
 	// +required
-	Items           []Image `json:"items"`
+	Items []Image `json:"items"`
 }
 
 func (l *ImageList) GetItems() []Image {

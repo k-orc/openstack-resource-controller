@@ -32,9 +32,9 @@ type (
 
 // Derived types
 type (
-	orcObjectPT    = *orcObjectT
-	adapterI       = interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
-	adapterT       = imageAdapter
+	orcObjectPT = *orcObjectT
+	adapterI    = interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]
+	adapterT    = imageAdapter
 )
 
 type imageAdapter struct {

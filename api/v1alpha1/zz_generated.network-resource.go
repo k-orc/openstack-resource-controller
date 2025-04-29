@@ -128,7 +128,7 @@ func (i *Network) GetConditions() []metav1.Condition {
 
 // Network is the Schema for an ORC resource.
 type Network struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type Network struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   NetworkSpec   `json:"spec,omitempty"`
+	Spec NetworkSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type NetworkList struct {
 
 	// items contains a list of Network.
 	// +required
-	Items           []Network `json:"items"`
+	Items []Network `json:"items"`
 }
 
 func (l *NetworkList) GetItems() []Network {

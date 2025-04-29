@@ -128,7 +128,7 @@ func (i *Flavor) GetConditions() []metav1.Condition {
 
 // Flavor is the Schema for an ORC resource.
 type Flavor struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type Flavor struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   FlavorSpec   `json:"spec,omitempty"`
+	Spec FlavorSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type FlavorList struct {
 
 	// items contains a list of Flavor.
 	// +required
-	Items           []Flavor `json:"items"`
+	Items []Flavor `json:"items"`
 }
 
 func (l *FlavorList) GetItems() []Flavor {

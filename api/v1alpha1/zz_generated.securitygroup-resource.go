@@ -128,7 +128,7 @@ func (i *SecurityGroup) GetConditions() []metav1.Condition {
 
 // SecurityGroup is the Schema for an ORC resource.
 type SecurityGroup struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type SecurityGroup struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   SecurityGroupSpec   `json:"spec,omitempty"`
+	Spec SecurityGroupSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type SecurityGroupList struct {
 
 	// items contains a list of SecurityGroup.
 	// +required
-	Items           []SecurityGroup `json:"items"`
+	Items []SecurityGroup `json:"items"`
 }
 
 func (l *SecurityGroupList) GetItems() []SecurityGroup {

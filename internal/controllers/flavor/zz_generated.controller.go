@@ -20,15 +20,15 @@ package flavor
 import (
 	corev1 "k8s.io/api/core/v1"
 
-        orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 )
 
 var (
 	// NOTE: controllerName must be defined in any controller using this template
 
 	// finalizer is the string this controller adds to an object's Finalizers
-	finalizer  = orcstrings.GetFinalizerName(controllerName)
+	finalizer = orcstrings.GetFinalizerName(controllerName)
 
 	// externalObjectFieldOwner is the field owner we use when using
 	// server-side-apply on objects we don't control

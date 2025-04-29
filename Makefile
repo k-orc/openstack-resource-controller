@@ -86,6 +86,16 @@ verify-generated: generate
 fmt: ## Run go fmt against code.
 	go fmt ./...
 
+.PHONY: verify-fmt
+verify-fmt: SRC := $(shell find . -path './.git' -prune -o -type f -name '*.go' -print)
+verify-fmt: ## Errors if the code is not go-fmt'd.
+	@UNFORMATTED="$$(gofmt -s -l $(SRC))"; \
+	if [ -n "$$UNFORMATTED" ]; then \
+		echo "Run go fmt ./... to fix these files:"; \
+		echo "$$UNFORMATTED"; \
+		exit 1; \
+	fi
+
 .PHONY: vet
 vet: ## Run go vet against code.
 	go vet ./...
