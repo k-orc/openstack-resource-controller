@@ -30,6 +30,8 @@ spec:
         diskBus: virtio
         scsiModel: virtio-scsi
         vifModel: e1000
+        rngModel: "virtio"
+        qemuGuestAgent: True
     content:
       containerFormat: docker
       diskFormat: qcow2

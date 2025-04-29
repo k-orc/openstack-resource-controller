@@ -11,6 +11,12 @@ spec:
   resource:
     tags:
     - orc-test
+    properties:
+      hardware:
+        diskBus: "scsi"
+        scsiModel: "virtio-scsi"
+        rngModel: "virtio"
+        qemuGuestAgent: True
     content:
       diskFormat: qcow2
       download:

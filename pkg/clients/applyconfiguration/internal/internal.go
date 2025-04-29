@@ -403,6 +403,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: diskBus
       type:
         scalar: string
+    - name: qemuGuestAgent
+      type:
+        scalar: boolean
+    - name: rngModel
+      type:
+        scalar: string
     - name: scsiModel
       type:
         scalar: string

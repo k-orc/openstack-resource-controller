@@ -858,6 +858,8 @@ _Appears in:_
 | `diskBus` _[ImageHWBus](#imagehwbus)_ | diskBus specifies the type of disk controller to attach disk devices to. |  | Enum: [scsi virtio uml xen ide usb lxc] <br /> |
 | `scsiModel` _string_ | scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide<br />block device access for compute instances; by default, instances use<br />VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI<br />controller device that provides improved scalability and performance,<br />and supports advanced SCSI hardware.<br /><br />The only permitted value is virtio-scsi. |  | Enum: [virtio-scsi] <br /> |
 | `vifModel` _string_ | vifModel specifies the model of virtual network interface device to use.<br /><br />Permitted values are e1000, e1000e, ne2k_pci, pcnet, rtl8139, virtio,<br />and vmxnet3. |  | Enum: [e1000 e1000e ne2k_pci pcnet rtl8139 virtio vmxnet3] <br /> |
+| `rngModel` _string_ | rngModel adds a random-number generator device to the image’s instances.<br />This image property by itself does not guarantee that a hardware RNG will be used;<br />it expresses a preference that may or may not be satisfied depending upon Nova configuration. |  | MaxLength: 255 <br /> |
+| `qemuGuestAgent` _boolean_ | qemuGuestAgent enables QEMU guest agent |  |  |
 
 
 #### ImageResourceSpec
