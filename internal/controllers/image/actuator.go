@@ -75,7 +75,7 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 	}
 
 	listOpts := images.ListOpts{
-		Name: string(getResourceName(obj)),
+		Name: getResourceName(obj),
 	}
 
 	if len(obj.Spec.Resource.Tags) > 0 {
@@ -145,7 +145,7 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	}
 
 	image, err := actuator.osClient.CreateImage(ctx, &images.CreateOpts{
-		Name:            string(getResourceName(obj)),
+		Name:            getResourceName(obj),
 		Visibility:      visibility,
 		Tags:            tags,
 		ContainerFormat: string(resource.Content.ContainerFormat),

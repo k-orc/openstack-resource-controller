@@ -80,9 +80,9 @@ func (f adapterT) GetImportFilter() *filterT {
 // getResourceName returns the name of the OpenStack resource we should use.
 // This method is not implemented as part of APIObjectAdapter as it is intended
 // to be used by resource actuators, which don't use the adapter.
-func getResourceName(orcObject orcObjectPT) orcv1alpha1.OpenStackName {
+func getResourceName(orcObject orcObjectPT) string {
 	if orcObject.Spec.Resource.Name != nil {
-		return *orcObject.Spec.Resource.Name
+		return string(*orcObject.Spec.Resource.Name)
 	}
-	return orcv1alpha1.OpenStackName(orcObject.Name)
+	return orcObject.Name
 }

@@ -71,7 +71,7 @@ func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Con
 		return nil, false
 	}
 
-	listOpts := groups.ListOpts{Name: string(getResourceName(obj))}
+	listOpts := groups.ListOpts{Name: getResourceName(obj)}
 	return actuator.osClient.ListSecGroup(ctx, listOpts), true
 }
 
@@ -97,7 +97,7 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 	}
 
 	createOpts := groups.CreateOpts{
-		Name:        string(getResourceName(obj)),
+		Name:        getResourceName(obj),
 		Description: string(ptr.Deref(resource.Description, "")),
 		Stateful:    resource.Stateful,
 	}

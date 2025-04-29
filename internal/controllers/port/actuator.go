@@ -74,7 +74,7 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 		return nil, false
 	}
 
-	listOpts := ports.ListOpts{Name: string(getResourceName(obj))}
+	listOpts := ports.ListOpts{Name: getResourceName(obj)}
 	return actuator.osClient.ListPort(ctx, listOpts), true
 }
 
@@ -146,7 +146,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 
 	createOpts := ports.CreateOpts{
 		NetworkID:   *network.Status.ID,
-		Name:        string(getResourceName(obj)),
+		Name:        getResourceName(obj),
 		Description: string(ptr.Deref(resource.Description, "")),
 	}
 
