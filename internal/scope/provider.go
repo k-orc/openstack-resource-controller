@@ -150,16 +150,8 @@ func (s *providerScope) NewNetworkClient() (clients.NetworkClient, error) {
 	return clients.NewNetworkClient(s.providerClient, s.providerClientOpts)
 }
 
-func (s *providerScope) NewVolumeClient() (clients.VolumeClient, error) {
-	return clients.NewVolumeClient(s.providerClient, s.providerClientOpts)
-}
-
 func (s *providerScope) NewImageClient() (clients.ImageClient, error) {
 	return clients.NewImageClient(s.providerClient, s.providerClientOpts)
-}
-
-func (s *providerScope) NewLbClient() (clients.LbClient, error) {
-	return clients.NewLbClient(s.providerClient, s.providerClientOpts)
 }
 
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
