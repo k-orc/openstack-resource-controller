@@ -371,6 +371,16 @@ spec:
                             - usb
                             - lxc
                             type: string
+                          qemuGuestAgent:
+                            description: qemuGuestAgent enables QEMU guest agent
+                            type: boolean
+                          rngModel:
+                            description: |-
+                              rngModel adds a random-number generator device to the image’s instances.
+                              This image property by itself does not guarantee that a hardware RNG will be used;
+                              it expresses a preference that may or may not be satisfied depending upon Nova configuration.
+                            maxLength: 255
+                            type: string
                           scsiModel:
                             description: |-
                               scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide

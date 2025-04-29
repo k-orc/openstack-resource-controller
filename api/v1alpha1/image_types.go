@@ -186,6 +186,17 @@ type ImagePropertiesHardware struct {
 	// +kubebuilder:validation:Enum:=e1000;e1000e;ne2k_pci;pcnet;rtl8139;virtio;vmxnet3
 	// +optional
 	VIFModel *string `json:"vifModel,omitempty" glance:"hw_vif_model"`
+
+	// rngModel adds a random-number generator device to the image’s instances.
+	// This image property by itself does not guarantee that a hardware RNG will be used;
+	// it expresses a preference that may or may not be satisfied depending upon Nova configuration.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	RngModel *string `json:"rngModel,omitempty" glance:"hw_rng_model"`
+
+	// qemuGuestAgent enables QEMU guest agent
+	// +optional
+	QemuGuestAgent *bool `json:"qemuGuestAgent,omitempty" glance:"hw_qemu_guest_agent"`
 }
 
 type ImageProperties struct {

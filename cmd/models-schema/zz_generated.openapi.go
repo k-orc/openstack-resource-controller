@@ -1696,6 +1696,20 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImagePropertiesHardwar
 							Format:      "",
 						},
 					},
+					"rngModel": {
+						SchemaProps: spec.SchemaProps{
+							Description: "rngModel adds a random-number generator device to the image’s instances. This image property by itself does not guarantee that a hardware RNG will be used; it expresses a preference that may or may not be satisfied depending upon Nova configuration.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"qemuGuestAgent": {
+						SchemaProps: spec.SchemaProps{
+							Description: "qemuGuestAgent enables QEMU guest agent",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},

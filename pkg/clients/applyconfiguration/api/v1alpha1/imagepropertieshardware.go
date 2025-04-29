@@ -34,6 +34,8 @@ type ImagePropertiesHardwareApplyConfiguration struct {
 	DiskBus         *apiv1alpha1.ImageHWBus `json:"diskBus,omitempty"`
 	SCSIModel       *string                 `json:"scsiModel,omitempty"`
 	VIFModel        *string                 `json:"vifModel,omitempty"`
+	RngModel        *string                 `json:"rngModel,omitempty"`
+	QemuGuestAgent  *bool                   `json:"qemuGuestAgent,omitempty"`
 }
 
 // ImagePropertiesHardwareApplyConfiguration constructs a declarative configuration of the ImagePropertiesHardware type for use with
@@ -111,5 +113,21 @@ func (b *ImagePropertiesHardwareApplyConfiguration) WithSCSIModel(value string) 
 // If called multiple times, the VIFModel field is set to the value of the last call.
 func (b *ImagePropertiesHardwareApplyConfiguration) WithVIFModel(value string) *ImagePropertiesHardwareApplyConfiguration {
 	b.VIFModel = &value
+	return b
+}
+
+// WithRngModel sets the RngModel field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RngModel field is set to the value of the last call.
+func (b *ImagePropertiesHardwareApplyConfiguration) WithRngModel(value string) *ImagePropertiesHardwareApplyConfiguration {
+	b.RngModel = &value
+	return b
+}
+
+// WithQemuGuestAgent sets the QemuGuestAgent field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the QemuGuestAgent field is set to the value of the last call.
+func (b *ImagePropertiesHardwareApplyConfiguration) WithQemuGuestAgent(value bool) *ImagePropertiesHardwareApplyConfiguration {
+	b.QemuGuestAgent = &value
 	return b
 }
