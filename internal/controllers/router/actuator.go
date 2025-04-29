@@ -74,7 +74,7 @@ func (actuator routerActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		return nil, false
 	}
 
-	listOpts := routers.ListOpts{Name: string(getResourceName(obj))}
+	listOpts := routers.ListOpts{Name: getResourceName(obj)}
 	return actuator.osClient.ListRouter(ctx, listOpts), true
 }
 
@@ -114,7 +114,7 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 	}
 
 	createOpts := routers.CreateOpts{
-		Name:         string(getResourceName(obj)),
+		Name:         getResourceName(obj),
 		Description:  string(ptr.Deref(resource.Description, "")),
 		AdminStateUp: resource.AdminStateUp,
 		Distributed:  resource.Distributed,

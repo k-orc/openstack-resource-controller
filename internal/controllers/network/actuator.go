@@ -72,7 +72,7 @@ func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, 
 		return nil, false
 	}
 
-	listOpts := networks.ListOpts{Name: string(getResourceName(obj))}
+	listOpts := networks.ListOpts{Name: getResourceName(obj)}
 	return actuator.osClient.ListNetwork(ctx, listOpts), true
 }
 
@@ -99,7 +99,7 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 	var createOpts networks.CreateOptsBuilder
 	{
 		createOptsBase := networks.CreateOpts{
-			Name:         string(getResourceName(obj)),
+			Name:         getResourceName(obj),
 			Description:  string(ptr.Deref(resource.Description, "")),
 			AdminStateUp: resource.AdminStateUp,
 			Shared:       resource.Shared,

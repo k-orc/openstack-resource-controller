@@ -77,7 +77,7 @@ func (actuator subnetActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	if obj.Spec.Resource == nil {
 		return nil, false
 	}
-	listOpts := subnets.ListOpts{Name: string(getResourceName(obj))}
+	listOpts := subnets.ListOpts{Name: getResourceName(obj)}
 	return actuator.osClient.ListSubnet(ctx, listOpts), true
 }
 
@@ -143,7 +143,7 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 	createOpts := subnets.CreateOpts{
 		NetworkID:         *network.Status.ID,
 		CIDR:              string(resource.CIDR),
-		Name:              string(getResourceName(obj)),
+		Name:              getResourceName(obj),
 		Description:       string(ptr.Deref(resource.Description, "")),
 		IPVersion:         gophercloud.IPVersion(resource.IPVersion),
 		EnableDHCP:        resource.EnableDHCP,

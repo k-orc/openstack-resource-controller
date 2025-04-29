@@ -80,7 +80,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	}
 
 	listOpts := servers.ListOpts{
-		Name: fmt.Sprintf("^%s$", string(getResourceName(obj))),
+		Name: fmt.Sprintf("^%s$", getResourceName(obj)),
 		Tags: neutrontags.Join(obj.Spec.Resource.Tags),
 	}
 
@@ -196,7 +196,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	slices.Sort(tags)
 
 	createOpts := servers.CreateOpts{
-		Name:      string(getResourceName(obj)),
+		Name:      getResourceName(obj),
 		ImageRef:  *image.Status.ID,
 		FlavorRef: *flavor.Status.ID,
 		Networks:  portList,

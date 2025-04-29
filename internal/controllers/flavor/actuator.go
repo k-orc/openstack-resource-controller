@@ -80,7 +80,7 @@ func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		func(f *flavors.Flavor) bool {
 			name := getResourceName(orcObject)
 			// Compare non-pointer values
-			return f.Name == string(name) &&
+			return f.Name == name &&
 				f.RAM == int(resourceSpec.RAM) &&
 				f.VCPUs == int(resourceSpec.Vcpus) &&
 				f.Disk == int(resourceSpec.Disk) &&
@@ -144,7 +144,7 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 	}
 
 	createOpts := flavors.CreateOpts{
-		Name:        string(getResourceName(obj)),
+		Name:        getResourceName(obj),
 		RAM:         int(resource.RAM),
 		VCPUs:       int(resource.Vcpus),
 		Disk:        ptr.To(int(resource.Disk)),
