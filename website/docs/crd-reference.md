@@ -8,7 +8,6 @@
 
 Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API group
 
-Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API group
 
 ### Resource Types
 - [Flavor](#flavor)
@@ -320,6 +319,7 @@ _Appears in:_
 | `kind` _string_ | `Flavor` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[FlavorSpec](#flavorspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[FlavorStatus](#flavorstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### FlavorFilter
@@ -384,7 +384,7 @@ FlavorList contains a list of Flavor.
 
 
 
-NetworkResourceSpec contains the desired state of a network
+FlavorResourceSpec contains the desired state of a flavor
 
 
 
@@ -446,6 +446,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### FlavorStatus
+
+
+
+FlavorStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Flavor](#flavor)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[FlavorResourceStatus](#flavorresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### HostRoute
@@ -582,6 +598,7 @@ _Appears in:_
 | `kind` _string_ | `Image` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[ImageSpec](#imagespec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ImageStatus](#imagestatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### ImageCompression
@@ -878,6 +895,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the image. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status is the image status as reported by Glance |  | MaxLength: 1024 <br /> |
 | `protected` _boolean_ | protected specifies that the image is protected from deletion. |  |  |
 | `visibility` _string_ | visibility of the image |  | MaxLength: 1024 <br /> |
 | `hash` _[ImageHash](#imagehash)_ | hash is the hash of the image data published by Glance. Note that this is<br />a hash of the data stored internally by Glance, which will have been<br />decompressed and potentially format converted depending on server-side<br />configuration which is not visible to clients. It is expected that this<br />hash will usually differ from the download hash. |  |  |
@@ -906,6 +924,23 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### ImageStatus
+
+
+
+ImageStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Image](#image)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[ImageResourceStatus](#imageresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+| `downloadAttempts` _integer_ | downloadAttempts is the number of times the controller has attempted to download the image contents |  |  |
 
 
 #### ImageStatusExtra
@@ -1079,6 +1114,7 @@ _Appears in:_
 | `kind` _string_ | `Network` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[NetworkSpec](#networkspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[NetworkStatus](#networkstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### NetworkFilter
@@ -1183,6 +1219,7 @@ _Appears in:_
 | `name` _string_ | name is a Human-readable name for the network. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the network. |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status indicates whether network is currently operational. Possible values<br />include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define<br />additional values. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
@@ -1218,6 +1255,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### NetworkStatus
+
+
+
+NetworkStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Network](#network)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[NetworkResourceStatus](#networkresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### NeutronDescription
@@ -1360,6 +1413,7 @@ _Appears in:_
 | `kind` _string_ | `Port` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[PortSpec](#portspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[PortStatus](#portstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### PortFilter
@@ -1513,6 +1567,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `networkID` _string_ | networkID is the ID of the attached network. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the port,<br />which is up (true) or down (false). |  |  |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 1024 <br /> |
@@ -1568,6 +1623,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### PortStatus
+
+
+
+PortStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Port](#port)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[PortResourceStatus](#portresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Protocol
@@ -1644,6 +1715,7 @@ _Appears in:_
 | `kind` _string_ | `Router` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[RouterSpec](#routerspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[RouterStatus](#routerstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### RouterFilter
@@ -1705,6 +1777,7 @@ _Appears in:_
 | `kind` _string_ | `RouterInterface` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[RouterInterfaceSpec](#routerinterfacespec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[RouterInterfaceStatus](#routerinterfacestatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### RouterInterfaceList
@@ -1743,6 +1816,21 @@ _Appears in:_
 | `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef references the subnet the router interface is created on. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
+#### RouterInterfaceStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [RouterInterface](#routerinterface)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the port created for the router interface |  | MaxLength: 1024 <br /> |
 
 
 #### RouterInterfaceType
@@ -1820,6 +1908,7 @@ _Appears in:_
 | `name` _string_ | name is the human-readable name of the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the router,<br />which is up (true) or down (false). |  |  |
 | `externalGateways` _[ExternalGatewayStatus](#externalgatewaystatus) array_ | externalGateways is a list of external gateways for the router. |  | MaxItems: 32 <br /> |
@@ -1846,6 +1935,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### RouterStatus
+
+
+
+RouterStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Router](#router)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[RouterResourceStatus](#routerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### RuleDirection
@@ -1879,6 +1984,7 @@ _Appears in:_
 | `kind` _string_ | `SecurityGroup` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[SecurityGroupSpec](#securitygroupspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[SecurityGroupStatus](#securitygroupstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### SecurityGroupFilter
@@ -2050,6 +2156,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### SecurityGroupStatus
+
+
+
+SecurityGroupStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [SecurityGroup](#securitygroup)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[SecurityGroupResourceStatus](#securitygroupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Server
@@ -2069,6 +2191,7 @@ _Appears in:_
 | `kind` _string_ | `Server` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[ServerSpec](#serverspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ServerStatus](#serverstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### ServerFilter
@@ -2184,6 +2307,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _string_ | name is the human-readable name of the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `hostID` _string_ | hostID is the host where the server is located in the cloud. |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
 
@@ -2208,6 +2332,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### ServerStatus
+
+
+
+ServerStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Server](#server)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[ServerResourceStatus](#serverresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### ServerTag
@@ -2244,6 +2384,7 @@ _Appears in:_
 | `kind` _string_ | `Subnet` | | |
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[SubnetSpec](#subnetspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[SubnetStatus](#subnetstatus)_ | status defines the observed state of the resource. |  |  |
 
 
 #### SubnetFilter
@@ -2424,6 +2565,22 @@ _Appears in:_
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
 
+#### SubnetStatus
+
+
+
+SubnetStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Subnet](#subnet)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[SubnetResourceStatus](#subnetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 
