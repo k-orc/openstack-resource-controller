@@ -2,7 +2,22 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: router-dependency
+  name: router-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-dependency-no-network
 status:
   conditions:
     - type: Available

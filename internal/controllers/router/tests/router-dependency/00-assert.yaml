@@ -2,14 +2,29 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: router-dependency
+  name: router-dependency-no-secret
 status:
   conditions:
     - type: Available
-      message: Waiting for Network/router-dependency to be created
+      message: Waiting for Secret/router-dependency to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for Network/router-dependency to be created
+      message: Waiting for Secret/router-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-dependency-no-network
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Network/router-dependency-pending to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Network/router-dependency-pending to be created
       status: "True"
       reason: Progressing
