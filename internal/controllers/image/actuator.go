@@ -137,6 +137,15 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 		if err := glancePropertiesFromStruct(properties.Hardware, additionalProperties); err != nil {
 			return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "programming error", err))
 		}
+		if err := glancePropertiesFromStruct(properties.OperatingSystem, additionalProperties); err != nil {
+			return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "programming error", err))
+		}
+		if properties.Architecture != nil {
+			additionalProperties["architecture"] = *properties.Architecture
+		}
+		if properties.HypervisorType != nil {
+			additionalProperties["hypervisor_type"] = *properties.HypervisorType
+		}
 	}
 
 	var visibility *images.ImageVisibility

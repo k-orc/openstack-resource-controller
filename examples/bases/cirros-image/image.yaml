@@ -12,6 +12,11 @@ spec:
     tags:
     - orc-test
     properties:
+      architecture: "x86_64"
+      hypervisorType: "qemu"
+      operatingSystem:
+        distro: ubuntu
+        version: "0.6.3"
       hardware:
         diskBus: "scsi"
         scsiModel: "virtio-scsi"

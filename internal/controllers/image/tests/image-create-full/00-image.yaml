@@ -20,6 +20,11 @@ spec:
     properties:
       minDiskGB: 1
       minMemoryMB: 1
+      architecture: x86_64
+      hypervisorType: qemu
+      operatingSystem:
+        distro: ubuntu
+        version: "24.04.1"
       hardware:
         cpuSockets: 1
         cpuCores: 1
@@ -30,7 +35,7 @@ spec:
         diskBus: virtio
         scsiModel: virtio-scsi
         vifModel: e1000
-        rngModel: "virtio"
+        rngModel: virtio
         qemuGuestAgent: True
     content:
       containerFormat: docker
