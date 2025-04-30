@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: image-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/image-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/image-dependency to be created
+      status: "True"
+      reason: Progressing
