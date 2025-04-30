@@ -128,7 +128,7 @@ func (i *Project) GetConditions() []metav1.Condition {
 
 // Project is the Schema for an ORC resource.
 type Project struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 
 	// metadata contains the object metadata
 	// +optional
@@ -136,7 +136,7 @@ type Project struct {
 
 	// spec specifies the desired state of the resource.
 	// +optional
-	Spec   ProjectSpec   `json:"spec,omitempty"`
+	Spec ProjectSpec `json:"spec,omitempty"`
 
 	// status defines the observed state of the resource.
 	// +optional
@@ -155,7 +155,7 @@ type ProjectList struct {
 
 	// items contains a list of Project.
 	// +required
-	Items           []Project `json:"items"`
+	Items []Project `json:"items"`
 }
 
 func (l *ProjectList) GetItems() []Project {
