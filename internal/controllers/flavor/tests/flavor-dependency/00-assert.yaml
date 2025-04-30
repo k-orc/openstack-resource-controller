@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/flavor-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/flavor-dependency to be created
+      status: "True"
+      reason: Progressing
