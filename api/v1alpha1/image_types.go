@@ -74,7 +74,6 @@ const (
 	ImageHashAlgorithmSHA512 ImageHashAlgorithm = "sha512"
 )
 
-
 // See https://docs.openstack.org/glance/latest/admin/useful-image-properties.html
 // for a list of 'well known' image properties we might consider supporting explicitly.
 //
@@ -203,9 +202,11 @@ type ImagePropertiesHardware struct {
 type ImagePropertiesOperatingSystem struct {
 	// distro is the common name of the operating system distribution in lowercase.
 	// +kubebuilder:validation:Enum:=arch;centos;debian;fedora;freebsd;gentoo;mandrake;mandriva;mes;msdos;netbsd;netware;openbsd;opensolaris;opensuse;rocky;rhel;sled;ubuntu;windows
+	// +optional
 	Distro *string `json:"distro,omitempty" glance:"os_distro"`
 	// version is the operating system version as specified by the distributor.
 	// +kubebuilder:validation:MaxLength:=255
+	// +optional
 	Version *string `json:"version,omitempty" glance:"os_version"`
 }
 
