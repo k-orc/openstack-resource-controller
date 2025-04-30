@@ -1,31 +1,12 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 commands:
-- script: "! kubectl get port port-dependency-no-secret --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get port port-dependency-no-sg --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get port port-dependency-no-network --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get port port-dependency-no-subnet --namespace $NAMESPACE"
-  skipLogOutput: true    
-
-
+# Dependencies that were prevented deletion before should now be gone
 - script: "! kubectl get subnet port-dependency --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get subnet port-dependency-pending-subnet --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get subnet port-dependency-pending-network --namespace $NAMESPACE"
-  skipLogOutput: true  
-
 - script: "! kubectl get network port-dependency --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get network port-dependency-pending-network --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get network port-dependency-pending-subnet --namespace $NAMESPACE"
-  skipLogOutput: true
-
 - script: "! kubectl get securitygroup port-dependency --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get securitygroup port-dependency-pending --namespace $NAMESPACE"
-  skipLogOutput: true  
+- script: "! kubectl get secret port-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

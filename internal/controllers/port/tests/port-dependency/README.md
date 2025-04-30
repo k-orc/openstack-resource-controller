@@ -6,11 +6,12 @@ Create ports referencing non-existing resources. Each port is dependent on other
 
 ## Step 01
 
-Create the missing dependencies and make and verify all the ports are avaiable.
+Create the missing dependencies and make and verify all the ports are available.
 
 ## Step 02
 
 Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
 
 ## Step 03
+
 Delete the ports and validate that all resources are gone.

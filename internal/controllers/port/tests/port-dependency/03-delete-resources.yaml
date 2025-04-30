@@ -12,5 +12,4 @@ delete:
   name: port-dependency-no-subnet
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Port
-  name: port-dependency-no-sg      
-
+  name: port-dependency-no-sg

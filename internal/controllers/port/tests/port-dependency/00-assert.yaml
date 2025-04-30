@@ -6,11 +6,11 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for Secret/openstack-clouds-pending to be created
+      message: Waiting for Secret/port-dependency to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for Secret/openstack-clouds-pending to be created
+      message: Waiting for Secret/port-dependency to be created
       status: "True"
       reason: Progressing
 ---
@@ -27,7 +27,7 @@ status:
     - type: Progressing
       message: Waiting for SecurityGroup/port-dependency-pending to be created
       status: "True"
-      reason: Progressing    
+      reason: Progressing
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -36,14 +36,18 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for Network/port-dependency-pending-network to be created; Waiting for Subnet/port-dependency-pending-network to be created
+      message: |-
+        Waiting for Network/port-dependency-pending-network to be created
+        Waiting for Subnet/port-dependency-pending-network to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for Network/port-dependency-pending-network to be created; Waiting for Subnet/port-dependency-pending-network to be created
+      message: |-
+        Waiting for Network/port-dependency-pending-network to be created
+        Waiting for Subnet/port-dependency-pending-network to be created
       status: "True"
       reason: Progressing
----                
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:

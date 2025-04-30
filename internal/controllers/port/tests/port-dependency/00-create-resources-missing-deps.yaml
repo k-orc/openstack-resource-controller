@@ -53,7 +53,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     cloudName: openstack
-    secretName: openstack-clouds-pending
+    secretName: port-dependency
   managementPolicy: managed
   resource:
     networkRef: port-dependency
@@ -61,8 +61,7 @@ spec:
     - port-dependency
     addresses:
     - subnetRef: port-dependency
-
----    
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
@@ -77,8 +76,8 @@ spec:
     securityGroupRefs:
     - port-dependency-pending
     addresses:
-    - subnetRef: port-dependency   
----   
+    - subnetRef: port-dependency
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
@@ -94,7 +93,7 @@ spec:
     - port-dependency
     addresses:
     - subnetRef: port-dependency-pending-network
----    
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
