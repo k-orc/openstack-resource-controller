@@ -370,15 +370,24 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageProperties
   map:
     fields:
+    - name: architecture
+      type:
+        scalar: string
     - name: hardware
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImagePropertiesHardware
+    - name: hypervisorType
+      type:
+        scalar: string
     - name: minDiskGB
       type:
         scalar: numeric
     - name: minMemoryMB
       type:
         scalar: numeric
+    - name: operatingSystem
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImagePropertiesOperatingSystem
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImagePropertiesHardware
   map:
     fields:
@@ -413,6 +422,15 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: vifModel
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImagePropertiesOperatingSystem
+  map:
+    fields:
+    - name: distro
+      type:
+        scalar: string
+    - name: version
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceSpec

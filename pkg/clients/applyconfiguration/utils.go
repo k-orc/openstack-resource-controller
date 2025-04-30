@@ -90,6 +90,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ImagePropertiesApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImagePropertiesHardware"):
 		return &apiv1alpha1.ImagePropertiesHardwareApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ImagePropertiesOperatingSystem"):
+		return &apiv1alpha1.ImagePropertiesOperatingSystemApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImageResourceSpec"):
 		return &apiv1alpha1.ImageResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ImageResourceStatus"):

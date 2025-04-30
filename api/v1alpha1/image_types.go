@@ -194,12 +194,33 @@ type ImagePropertiesHardware struct {
 	// +optional
 	RngModel *string `json:"rngModel,omitempty" glance:"hw_rng_model"`
 
-	// qemuGuestAgent enables QEMU guest agent
+	// qemuGuestAgent enables QEMU guest agent.
 	// +optional
 	QemuGuestAgent *bool `json:"qemuGuestAgent,omitempty" glance:"hw_qemu_guest_agent"`
 }
 
+type ImagePropertiesOperatingSystem struct {
+	// distro is the common name of the operating system distribution in lowercase.
+	// +kubebuilder:validation:Enum:=arch;centos;debian;fedora;freebsd;gentoo;mandrake;mandriva;mes;msdos;netbsd;netware;openbsd;opensolaris;opensuse;rocky;rhel;sled;ubuntu;windows
+	// +optional
+	Distro *string `json:"distro,omitempty" glance:"os_distro"`
+	// version is the operating system version as specified by the distributor.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Version *string `json:"version,omitempty" glance:"os_version"`
+}
+
 type ImageProperties struct {
+	// architecture is the CPU architecture that must be supported by the hypervisor.
+	// +kubebuilder:validation:Enum:=aarch64;alpha;armv7l;cris;i686;ia64;lm32;m68k;microblaze;microblazeel;mips;mipsel;mips64;mips64el;openrisc;parisc;parisc64;ppc;ppc64;ppcemb;s390;s390x;sh4;sh4eb;sparc;sparc64;unicore32;x86_64;xtensa;xtensaeb
+	// +optional
+	Architecture *string `json:"architecture,omitempty" glance:"architecture"`
+
+	// hypervisorType is the hypervisor type
+	// +kubebuilder:validation:Enum:=hyperv;ironic;lxc;qemu;uml;vmware;xen
+	// +optional
+	HypervisorType *string `json:"hypervisorType,omitempty" glance:"hypervisor_type"`
+
 	// minDiskGB is the minimum amount of disk space in GB that is required to boot the image
 	// +kubebuilder:validation:Minimum:=1
 	// +optional
@@ -214,6 +235,11 @@ type ImageProperties struct {
 	// created by Nova.
 	// +optional
 	Hardware *ImagePropertiesHardware `json:"hardware,omitempty"`
+
+	// operatingSystem is a set of properties that specify and influence the behavior
+	// of the operating system within the virtual machine.
+	// +optional
+	OperatingSystem *ImagePropertiesOperatingSystem `json:"operatingSystem,omitempty"`
 }
 
 // +kubebuilder:validation:Enum:=xz;gz;bz2

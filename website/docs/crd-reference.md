@@ -853,9 +853,12 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `architecture` _string_ | architecture is the CPU architecture that must be supported by the hypervisor. |  | Enum: [aarch64 alpha armv7l cris i686 ia64 lm32 m68k microblaze microblazeel mips mipsel mips64 mips64el openrisc parisc parisc64 ppc ppc64 ppcemb s390 s390x sh4 sh4eb sparc sparc64 unicore32 x86_64 xtensa xtensaeb] <br /> |
+| `hypervisorType` _string_ | hypervisorType is the hypervisor type |  | Enum: [hyperv ironic lxc qemu uml vmware xen] <br /> |
 | `minDiskGB` _integer_ | minDiskGB is the minimum amount of disk space in GB that is required to boot the image |  | Minimum: 1 <br /> |
 | `minMemoryMB` _integer_ | minMemoryMB is the minimum amount of RAM in MB that is required to boot the image. |  | Minimum: 1 <br /> |
 | `hardware` _[ImagePropertiesHardware](#imagepropertieshardware)_ | hardware is a set of properties which control the virtual hardware<br />created by Nova. |  |  |
+| `operatingSystem` _[ImagePropertiesOperatingSystem](#imagepropertiesoperatingsystem)_ | operatingSystem is a set of properties that specify and influence the behavior<br />of the operating system within the virtual machine. |  |  |
 
 
 #### ImagePropertiesHardware
@@ -881,7 +884,24 @@ _Appears in:_
 | `scsiModel` _string_ | scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide<br />block device access for compute instances; by default, instances use<br />VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI<br />controller device that provides improved scalability and performance,<br />and supports advanced SCSI hardware.<br /><br />The only permitted value is virtio-scsi. |  | Enum: [virtio-scsi] <br /> |
 | `vifModel` _string_ | vifModel specifies the model of virtual network interface device to use.<br /><br />Permitted values are e1000, e1000e, ne2k_pci, pcnet, rtl8139, virtio,<br />and vmxnet3. |  | Enum: [e1000 e1000e ne2k_pci pcnet rtl8139 virtio vmxnet3] <br /> |
 | `rngModel` _string_ | rngModel adds a random-number generator device to the image’s instances.<br />This image property by itself does not guarantee that a hardware RNG will be used;<br />it expresses a preference that may or may not be satisfied depending upon Nova configuration. |  | MaxLength: 255 <br /> |
-| `qemuGuestAgent` _boolean_ | qemuGuestAgent enables QEMU guest agent |  |  |
+| `qemuGuestAgent` _boolean_ | qemuGuestAgent enables QEMU guest agent. |  |  |
+
+
+#### ImagePropertiesOperatingSystem
+
+
+
+
+
+
+
+_Appears in:_
+- [ImageProperties](#imageproperties)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `distro` _string_ | distro is the common name of the operating system distribution in lowercase. |  | Enum: [arch centos debian fedora freebsd gentoo mandrake mandriva mes msdos netbsd netware openbsd opensolaris opensuse rocky rhel sled ubuntu windows] <br /> |
+| `version` _string_ | version is the operating system version as specified by the distributor. |  | MaxLength: 255 <br /> |
 
 
 #### ImageResourceSpec

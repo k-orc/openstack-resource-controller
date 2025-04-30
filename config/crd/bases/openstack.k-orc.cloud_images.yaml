@@ -264,6 +264,41 @@ spec:
                     description: properties is metadata available to consumers of
                       the image
                     properties:
+                      architecture:
+                        description: architecture is the CPU architecture that must
+                          be supported by the hypervisor.
+                        enum:
+                        - aarch64
+                        - alpha
+                        - armv7l
+                        - cris
+                        - i686
+                        - ia64
+                        - lm32
+                        - m68k
+                        - microblaze
+                        - microblazeel
+                        - mips
+                        - mipsel
+                        - mips64
+                        - mips64el
+                        - openrisc
+                        - parisc
+                        - parisc64
+                        - ppc
+                        - ppc64
+                        - ppcemb
+                        - s390
+                        - s390x
+                        - sh4
+                        - sh4eb
+                        - sparc
+                        - sparc64
+                        - unicore32
+                        - x86_64
+                        - xtensa
+                        - xtensaeb
+                        type: string
                       hardware:
                         description: |-
                           hardware is a set of properties which control the virtual hardware
@@ -372,7 +407,7 @@ spec:
                             - lxc
                             type: string
                           qemuGuestAgent:
-                            description: qemuGuestAgent enables QEMU guest agent
+                            description: qemuGuestAgent enables QEMU guest agent.
                             type: boolean
                           rngModel:
                             description: |-
@@ -409,6 +444,17 @@ spec:
                             - vmxnet3
                             type: string
                         type: object
+                      hypervisorType:
+                        description: hypervisorType is the hypervisor type
+                        enum:
+                        - hyperv
+                        - ironic
+                        - lxc
+                        - qemu
+                        - uml
+                        - vmware
+                        - xen
+                        type: string
                       minDiskGB:
                         description: minDiskGB is the minimum amount of disk space
                           in GB that is required to boot the image
@@ -421,6 +467,42 @@ spec:
                         format: int32
                         minimum: 1
                         type: integer
+                      operatingSystem:
+                        description: |-
+                          operatingSystem is a set of properties that specify and influence the behavior
+                          of the operating system within the virtual machine.
+                        properties:
+                          distro:
+                            description: distro is the common name of the operating
+                              system distribution in lowercase.
+                            enum:
+                            - arch
+                            - centos
+                            - debian
+                            - fedora
+                            - freebsd
+                            - gentoo
+                            - mandrake
+                            - mandriva
+                            - mes
+                            - msdos
+                            - netbsd
+                            - netware
+                            - openbsd
+                            - opensolaris
+                            - opensuse
+                            - rocky
+                            - rhel
+                            - sled
+                            - ubuntu
+                            - windows
+                            type: string
+                          version:
+                            description: version is the operating system version as
+                              specified by the distributor.
+                            maxLength: 255
+                            type: string
+                        type: object
                     type: object
                   protected:
                     description: |-
