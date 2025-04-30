@@ -93,7 +93,7 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		case "network:router_interface", "network:ha_router_replicated_interface", "network:router_interface_distributed":
 			routerInterfacePorts = append(routerInterfacePorts, *port)
 		default:
-			log.V(logging.Debug).Info("ignoring port with unexpected device ownder",
+			log.V(logging.Debug).Info("ignoring port with unexpected device owner",
 				"deviceID", *router.Status.ID,
 				"deviceOwner", port.DeviceOwner,
 				"portID", port.ID)
