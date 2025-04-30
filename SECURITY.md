@@ -2,12 +2,12 @@
 
 ## Supported Versions
 
-No supported versions before `v1.0`. Please report security issues as Github issues until v1.0 is released.
-
 | Version | Supported          |
 | ------- | ------------------ |
-| < 1.0   | :x:<!-- :white_check_mark: -->|
+| < 1.0   | :x:                |
+| 1.x     | :white_check_mark: |
+| 2.x     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-Please report security issues as Github issues until v1.0 is released.
+To report a security issue, please use the GitHub Security Advisory ["Report a Vulnerability"](https://github.com/k-orc/openstack-resource-controller/security/advisories/new) tab.
