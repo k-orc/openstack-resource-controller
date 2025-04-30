@@ -40,6 +40,7 @@ type templateFields struct {
 	Year                   string
 	Name                   string
 	NameLower              string
+	IsNotNamed             bool
 	SpecExtraType          string
 	StatusExtraType        string
 	SpecExtraValidations   []specExtraValidation
@@ -60,6 +61,18 @@ var allResources []templateFields = []templateFields{
 	{
 		Name:       "Flavor",
 		APIVersion: "v1alpha1",
+	},
+	{
+		Name: "FloatingIP",
+		AdditionalPrintColumns: []additionalPrintColumn{
+			{
+				Name:        "Address",
+				Type:        "string",
+				JSONPath:    ".status.resource.floatingIP",
+				Description: "Allocated IP address",
+			},
+		},
+		IsNotNamed: true, // FloatingIP is not named in OpenStack
 	},
 	{
 		Name:       "Network",

@@ -29,6 +29,7 @@ import (
 type OpenstackV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	FlavorsGetter
+	FloatingIPsGetter
 	ImagesGetter
 	NetworksGetter
 	PortsGetter
@@ -47,6 +48,10 @@ type OpenstackV1alpha1Client struct {
 
 func (c *OpenstackV1alpha1Client) Flavors(namespace string) FlavorInterface {
 	return newFlavors(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) FloatingIPs(namespace string) FloatingIPInterface {
+	return newFloatingIPs(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {

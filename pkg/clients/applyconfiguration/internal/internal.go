@@ -259,6 +259,186 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIP
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: floatingIP
+      type:
+        scalar: string
+    - name: floatingNetworkRef
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: portRef
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: fixedIP
+      type:
+        scalar: string
+    - name: floatingIP
+      type:
+        scalar: string
+    - name: floatingNetworkRef
+      type:
+        scalar: string
+    - name: floatingSubnetRef
+      type:
+        scalar: string
+    - name: portRef
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPResourceStatus
+  map:
+    fields:
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: fixedIP
+      type:
+        scalar: string
+    - name: floatingIP
+      type:
+        scalar: string
+    - name: floatingNetworkID
+      type:
+        scalar: string
+    - name: portID
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: routerID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: tenantID
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRoute
   map:
     fields:

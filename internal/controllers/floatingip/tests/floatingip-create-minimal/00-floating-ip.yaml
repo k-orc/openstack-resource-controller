@@ -1,0 +1,50 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: floatingip-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: floatingip-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: floatingip-create-minimal
+    external: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: floatingip-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: floatingip-create-minimal
+    ipVersion: 4
+    cidr: 192.168.155.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    floatingNetworkRef: floatingip-create-minimal

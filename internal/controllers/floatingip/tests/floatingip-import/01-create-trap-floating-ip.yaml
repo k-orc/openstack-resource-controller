@@ -1,0 +1,16 @@
+---
+# This `floatingip-import-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource which IP is different of it (i.e. it's not being adopted)
+# - ensure that importing a resource with a close IP will not pick this one.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    floatingNetworkRef: floatingip-import
+    floatingIP: 192.168.155.6

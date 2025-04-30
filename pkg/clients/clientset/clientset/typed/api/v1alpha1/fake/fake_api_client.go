@@ -32,6 +32,10 @@ func (c *FakeOpenstackV1alpha1) Flavors(namespace string) v1alpha1.FlavorInterfa
 	return newFakeFlavors(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) FloatingIPs(namespace string) v1alpha1.FloatingIPInterface {
+	return newFakeFloatingIPs(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Images(namespace string) v1alpha1.ImageInterface {
 	return newFakeImages(c, namespace)
 }

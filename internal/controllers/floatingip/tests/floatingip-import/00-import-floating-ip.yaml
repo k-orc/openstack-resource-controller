@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      floatingNetworkRef: floatingip-import
+      floatingIP: 192.168.155.5

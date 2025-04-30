@@ -28,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/flavor"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/floatingip"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
@@ -104,6 +105,7 @@ func main() {
 		router.New(scopeFactory),
 		routerinterface.New(scopeFactory),
 		port.New(scopeFactory),
+		floatingip.New(scopeFactory),
 		flavor.New(scopeFactory),
 		securitygroup.New(scopeFactory),
 		server.New(scopeFactory),
