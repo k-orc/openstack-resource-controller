@@ -25,6 +25,19 @@ spec:
     cidr: 192.168.155.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: routerinterface-dependency-imported
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: routerinterface-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
   name: routerinterface-dependency
@@ -51,8 +64,17 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RouterInterface
 metadata:
-  name: routerinterface-dependency
+  name: routerinterface-dependency-no-subnet
 spec:
   type: Subnet
   routerRef: routerinterface-dependency-imported
+  subnetRef: routerinterface-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-dependency-no-router
+spec:
+  type: Subnet
+  routerRef: routerinterface-dependency-pending
   subnetRef: routerinterface-dependency-imported
