@@ -127,21 +127,22 @@ a dependency guard on the resource to prevent its deletion while we depend on
 it.
 
 To know if your controller needs to implement this test, check the API and see
-if it accepts any `<Resource>Ref` field in its resource spec. This is for
-example the case for a subnet, which has a dependency on
+if it accepts any `<Resource>Ref` field in its resource spec. This should
+almost always be the case, because unless exceptional cases, every resource has
+a dependency on the secret.
+For additional dependencies, subnet for example has a dependency on
 a [network][subnet-network-dep], and possibly a [router][subnet-router-dep].
 
 The testing pattern goes like this:
 
-1. Create the resource with all dependencies satisfied except for one
+1. Create the resources with all dependencies satisfied except for one
     1. Check that ORC is waiting on the missing dependency to exist
-1. Repeat with another dependency until you've checked all possible dependencies
-1. Create the missing dependency
-    1. Check that the resource is finally created
+1. Create the missing dependencies
+    1. Check that the resources are finally created
 1. Delete all dependencies
     1. Validate that ORC prevented the deletion due to a finalizer. There might
        be exceptions (for example flavor for a server)
-1. Delete the resource
+1. Delete the resources
     1. Verify that all dependencies are now deleted
 
 See how the [`subnet-dependency`][subnet-dependency] test implements it.
