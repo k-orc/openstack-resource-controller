@@ -1,0 +1,11 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: v1
+      kind: Secret
+      name: flavor-dependency
+      ref: secret
+assertAll:
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/flavor' in secret.metadata.finalizers"

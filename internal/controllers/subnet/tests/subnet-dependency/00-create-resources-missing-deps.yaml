@@ -1,0 +1,95 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: subnet-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: subnet-dependency-gateway
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    external: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-gateway
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency-gateway
+    ipVersion: 4
+    cidr: 192.168.200.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: subnet-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    externalGateways:
+    - networkRef: subnet-dependency-gateway
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: subnet-dependency
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency-pending
+    ipVersion: 4
+    cidr: 192.168.10.0/24
+    routerRef: subnet-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency-pending
+    ipVersion: 4
+    cidr: 192.168.20.0/24
+    routerRef: subnet-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-router
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency
+    ipVersion: 4
+    cidr: 192.168.30.0/24
+    routerRef: subnet-dependency-pending

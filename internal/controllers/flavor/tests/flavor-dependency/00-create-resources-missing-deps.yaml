@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: flavor-dependency
+  managementPolicy: managed
+  resource:
+    ram: 1
+    vcpus: 2
+    disk: 0

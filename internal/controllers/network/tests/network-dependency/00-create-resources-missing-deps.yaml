@@ -1,0 +1,11 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: network-dependency
+  managementPolicy: managed
+  resource: {}

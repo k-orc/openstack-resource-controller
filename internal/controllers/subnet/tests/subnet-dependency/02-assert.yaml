@@ -1,15 +1,25 @@
 ---
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
-metadata:
-  name: subnet-dependency
-status:
-  conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: subnet-dependency
+      ref: network
+    # FIXME We're missing a dependency on router
+    # https://github.com/k-orc/openstack-resource-controller/issues/316
+    # - apiVersion: openstack.k-orc.cloud/v1alpha1
+    #   kind: Router
+    #   name: subnet-dependency
+    #   ref: router
+    - apiVersion: v1
+      kind: Secret
+      name: subnet-dependency
+      ref: secret
+assertAll:
+    - celExpr: "network.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/subnet' in network.metadata.finalizers"
+    # - celExpr: "router.metadata.deletionTimestamp != 0"
+    # - celExpr: "'openstack.k-orc.cloud/subnet' in router.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/subnet' in secret.metadata.finalizers"

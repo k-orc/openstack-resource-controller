@@ -1,0 +1,56 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic port-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: port-dependency-pending
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: port-dependency-pending-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: port-dependency-pending-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: port-dependency-pending-network
+    ipVersion: 4
+    cidr: 192.168.156.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: port-dependency-pending-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: port-dependency-pending-subnet
+    ipVersion: 4
+    cidr: 192.168.157.0/24
