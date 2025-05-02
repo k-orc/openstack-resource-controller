@@ -1,5 +1,32 @@
 # Changelog
 
+## v2.1 - May 02, 2025
+
+Release 2.1 marks the continuation of our efforts to stabilize and consolidate ORC.
+
+We are now building multi-platform container images, supporting `amd64`, `arm64`, `ppc64le` and `s390x` platforms.
+
+This release also brings initial support for Keystone resources in the form of
+the Project controller.
+
+### New controllers
+
+- Project
+
+### New features
+
+- ORC now passes the Kubernetes ReconcileID as the Request ID for all OpenStack API calls allowing to correlate the ORC and OpenStack logs, making troubleshooting much easier.
+- The image controller is now more consistent with other controllers.
+- Support setting new properties in the image controller: the `hw_rng_model` and `hw_qemu_guest_agent` hardware properties, and the `os_distro`, `os_version`, `architecture` and `hypervisor_type` properties.
+- The port controller now has the ability to set port security and vnic type.
+
+### Bug fixes
+
+- The user-agent header now includes the ORC versions, helping identify specific versions in logs for better support and debugging.
+- Add ability to create router interfaces for HA or DVR routers (Fixes [#330](https://github.com/k-orc/openstack-resource-controller/issues/330)).
+- The status of servers is now reflected more accurately (Fixes [#280](https://github.com/k-orc/openstack-resource-controller/issues/280)).
+
+
 ## v2.0 - Mar 28, 2025
 
 This release introduces several new controllers, expanding ORC's capabilities
