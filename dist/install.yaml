@@ -850,7 +850,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /manager
-        image: quay.io/orc/openstack-resource-controller:v1.0.1
+        image: quay.io/orc/openstack-resource-controller:v1.0.2
         livenessProbe:
           httpGet:
             path: /healthz
