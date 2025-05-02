@@ -28,3 +28,10 @@ Verify that flavor and user-data secrets are deleted.
 ## Step 06
 
 Delete the server and validate that all resources are gone.
+
+
+## Note
+
+The server-dependency test has a different pattern to the other resources
+dependency tests to limit the risks of getting an instance in ERROR state on
+smaller devstacks. We create the instances serially rather than in parallel.
