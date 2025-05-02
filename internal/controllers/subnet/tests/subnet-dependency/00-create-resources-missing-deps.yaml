@@ -1,3 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: subnet-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
@@ -40,7 +52,37 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: subnet-dependency
+  name: subnet-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: subnet-dependency
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency-pending
+    ipVersion: 4
+    cidr: 192.168.10.0/24
+    routerRef: subnet-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency-pending
+    ipVersion: 4
+    cidr: 192.168.20.0/24
+    routerRef: subnet-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-router
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -49,5 +91,5 @@ spec:
   resource:
     networkRef: subnet-dependency
     ipVersion: 4
-    cidr: 192.168.0.0/24
-    routerRef: subnet-dependency
+    cidr: 192.168.30.0/24
+    routerRef: subnet-dependency-pending

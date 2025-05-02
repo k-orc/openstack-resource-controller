@@ -1,9 +1,0 @@
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-commands:
-- script: "! kubectl get subnet subnet-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get network subnet-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get router subnet-dependency --namespace $NAMESPACE"
-  skipLogOutput: true

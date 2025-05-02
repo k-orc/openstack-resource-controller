@@ -1,18 +1,14 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
-delete:
-- apiVersion: openstack.k-orc.cloud/v1alpha1
-  kind: Subnet
-  name: subnet-dependency
-- apiVersion: openstack.k-orc.cloud/v1alpha1
-  kind: Router
-  name: subnet-dependency
+commands:
+  - command: kubectl create secret generic subnet-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: subnet-dependency
+  name: subnet-dependency-pending
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -21,16 +17,14 @@ spec:
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
+kind: Router
 metadata:
-  name: subnet-dependency
+  name: subnet-dependency-pending
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: subnet-dependency
-    ipVersion: 4
-    cidr: 192.168.0.0/24
-    routerRef: subnet-dependency
+    externalGateways:
+    - networkRef: subnet-dependency-gateway
