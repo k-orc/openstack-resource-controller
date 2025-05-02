@@ -1,23 +1,24 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: SecurityGroup
+kind: Project
 metadata:
-  name: securitygroup-dependency-no-secret
+  name: securitygroup-import-dependency-external
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
-    secretName: securitygroup-dependency
+    cloudName: openstack-admin
+    secretName: openstack-clouds
   managementPolicy: managed
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
-  name: securitygroup-dependency-no-project
+  name: securitygroup-import-dependency-external
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    projectRef: securitygroup-dependency
+    projectRef: securitygroup-import-dependency-external
+    description: securitygroup from securitygroup-import-dependency test

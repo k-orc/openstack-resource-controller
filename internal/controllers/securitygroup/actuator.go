@@ -31,9 +31,11 @@ import (
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	"k8s.io/utils/set"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type (
@@ -48,7 +50,8 @@ type (
 )
 
 type securityGroupActuator struct {
-	osClient osclients.NetworkClient
+	osClient  osclients.NetworkClient
+	k8sClient client.Client
 }
 
 var _ createResourceActuator = securityGroupActuator{}
@@ -76,10 +79,35 @@ func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Con
 }
 
 func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+	var reconcileStatus progress.ReconcileStatus
+
+	project := &orcv1alpha1.Project{}
+	if filter.ProjectRef != "" {
+		projectKey := client.ObjectKey{Name: string(filter.ProjectRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
+			} else {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
+			}
+		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
 
 	listOpts := groups.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
+		ProjectID:   ptr.Deref(project.Status.ID, ""),
 		Tags:        neutrontags.Join(filter.Tags),
 		TagsAny:     neutrontags.Join(filter.TagsAny),
 		NotTags:     neutrontags.Join(filter.NotTags),
@@ -96,10 +124,24 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
+	var projectID string
+	if resource.ProjectRef != "" {
+		project, reconcileStatus := projectDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+			return nil, reconcileStatus
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
 	createOpts := groups.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: string(ptr.Deref(resource.Description, "")),
 		Stateful:    resource.Stateful,
+		ProjectID:   projectID,
 	}
 
 	// FIXME(mandre) The security group inherits the default security group
@@ -175,6 +217,19 @@ func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject
 		return nil
 	}
 
+	var projectID string
+	if resource.ProjectRef != "" {
+		project, reconcileStatus := projectDependency.GetDependency(
+			ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+			return reconcileStatus
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
 	matchedRuleIDs := set.New[string]()
 	allRuleIDS := set.New[string]()
 	var createRules []*orcv1alpha1.SecurityGroupRule
@@ -207,6 +262,7 @@ orcRules:
 			RemoteIPPrefix: string(ptr.Deref(createRules[i].RemoteIPPrefix, "")),
 			Protocol:       rules.RuleProtocol(ptr.Deref(createRules[i].Protocol, "")),
 			EtherType:      rules.RuleEtherType(createRules[i].Ethertype),
+			ProjectID:      projectID,
 		}
 		if createRules[i].PortRange != nil {
 			ruleCreateOpts[i].PortRangeMin = int(resource.Rules[i].PortRange.Min)
@@ -264,14 +320,15 @@ func (securityGroupHelperFactory) NewDeleteActuator(ctx context.Context, orcObje
 
 func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, controller interfaces.ResourceController) (securityGroupActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
+	k8sClient := controller.GetK8sClient()
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, k8sClient, orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return securityGroupActuator{}, reconcileStatus
 	}
 
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, k8sClient, log, orcObject)
 	if err != nil {
 		return securityGroupActuator{}, progress.WrapError(err)
 	}
@@ -281,6 +338,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, cont
 	}
 
 	return securityGroupActuator{
-		osClient: osClient,
+		osClient:  osClient,
+		k8sClient: k8sClient,
 	}, nil
 }

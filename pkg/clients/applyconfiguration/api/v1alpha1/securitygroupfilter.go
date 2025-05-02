@@ -27,6 +27,7 @@ import (
 type SecurityGroupFilterApplyConfiguration struct {
 	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
 	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
+	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -49,6 +50,14 @@ func (b *SecurityGroupFilterApplyConfiguration) WithName(value apiv1alpha1.OpenS
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *SecurityGroupFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SecurityGroupFilterApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithProjectRef sets the ProjectRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectRef field is set to the value of the last call.
+func (b *SecurityGroupFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *SecurityGroupFilterApplyConfiguration {
+	b.ProjectRef = &value
 	return b
 }
 
