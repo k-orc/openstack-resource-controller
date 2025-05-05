@@ -11,7 +11,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.23.4
 	github.com/onsi/gomega v1.37.0
 	github.com/ulikunitz/xz v0.5.12
-	go.uber.org/mock v0.5.1
+	go.uber.org/mock v0.5.2
 	k8s.io/api v0.31.8
 	k8s.io/apimachinery v0.31.8
 	k8s.io/client-go v0.31.8
