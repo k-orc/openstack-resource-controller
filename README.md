@@ -22,6 +22,10 @@ encounter bugs, unfinished features, or breaking changes. We encourage you to
 contribute, file issues, and help improve the project as we continue to work on
 it!
 
+### Known limitations
+
+ORC does not handle mutability yet. This means that in order to change a resource in OpenStack, you must delete it and recreate it.
+
 ## How You Can Contribute
 
 We welcome contributions of all kinds! Whether you’re fixing bugs, adding new features, or improving documentation, your help is greatly appreciated. To get started:
