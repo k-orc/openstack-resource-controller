@@ -267,7 +267,7 @@ type ImageContent struct {
 	// download describes how to obtain image data by downloading it from a URL.
 	// Must be set when creating a managed image.
 	// +required
-	//nolint:kal
+	//nolint:kubeapilinter
 	Download *ImageContentSourceDownload `json:"download"`
 }
 

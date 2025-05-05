@@ -266,7 +266,7 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
-GOLANGCI_KAL = $(LOCALBIN)/golangci-kal
+GOLANGCI_KAL = $(LOCALBIN)/golangci-kube-api-linter
 MOCKGEN = $(LOCALBIN)/mockgen
 KUTTL = $(LOCALBIN)/kubectl-kuttl
 
@@ -275,7 +275,7 @@ KUSTOMIZE_VERSION ?= v5.6.0
 CONTROLLER_TOOLS_VERSION ?= v0.17.1
 ENVTEST_VERSION ?= release-0.19
 GOLANGCI_LINT_VERSION ?= v2.0.1
-KAL_VERSION ?= v0.0.0-20250226170450-3245ed227194
+KAL_VERSION ?= v0.0.0-20250501211755-2c83ed303cde
 MOCKGEN_VERSION ?= v0.5.0
 KUTTL_VERSION ?= v0.22.0
 
@@ -301,10 +301,10 @@ $(GOLANGCI_LINT): $(LOCALBIN)
 
 define custom-gcl
 version:  $(GOLANGCI_LINT_VERSION)
-name: golangci-kal
+name: golangci-kube-api-linter
 destination: $(LOCALBIN)
 plugins:
-- module: 'github.com/JoelSpeed/kal'
+- module: 'sigs.k8s.io/kube-api-linter'
   version: $(KAL_VERSION)
 endef
 export custom-gcl
