@@ -41,8 +41,9 @@ linters:
               - maxlength
               # NOTE: we have a number of boolean fields. Should we convert them to
               # string?
-              # - "nobools"
+              # - nobools
               - nofloats
+              - nomaps
               - nophase
               - optionalorrequired
               - requiredfields
