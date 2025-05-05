@@ -10,8 +10,17 @@ resourceRefs:
       kind: Network
       name: subnet-create-full-v6
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: project
+      name: subnet-create-full-v6
+      ref: project
 assertAll:
+    - celExpr: "subnet.status.id != ''"
+    # - celExpr: "subnet.status.resource.createdAt != ''"
+    # - celExpr: "subnet.status.resource.updatedAt != ''"
+    # - celExpr: "subnet.status.resource.revisionNumber > 0"
     - celExpr: "subnet.status.resource.networkID == network.status.id"
+    - celExpr: "subnet.status.resource.projectID == project.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet

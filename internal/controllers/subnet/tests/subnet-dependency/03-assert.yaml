@@ -6,5 +6,7 @@ commands:
   skipLogOutput: true
 - script: "! kubectl get network subnet-dependency --namespace $NAMESPACE"
   skipLogOutput: true
+- script: "! kubectl get project subnet-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
 - script: "! kubectl get secret subnet-dependency --namespace $NAMESPACE"
   skipLogOutput: true

@@ -12,6 +12,10 @@ resourceRefs:
     #   kind: Router
     #   name: subnet-dependency
     #   ref: router
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: subnet-dependency
+      ref: project
     - apiVersion: v1
       kind: Secret
       name: subnet-dependency
@@ -21,5 +25,7 @@ assertAll:
     - celExpr: "'openstack.k-orc.cloud/subnet' in network.metadata.finalizers"
     # - celExpr: "router.metadata.deletionTimestamp != 0"
     # - celExpr: "'openstack.k-orc.cloud/subnet' in router.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/subnet' in project.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/subnet' in secret.metadata.finalizers"

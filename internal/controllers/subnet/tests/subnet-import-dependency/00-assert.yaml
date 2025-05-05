@@ -6,10 +6,14 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for Network/subnet-import-dependency to be ready
+      message: |-
+        Waiting for Network/subnet-import-dependency to be ready
+        Waiting for Project/subnet-import-dependency to be ready
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for Network/subnet-import-dependency to be ready
+      message: |-
+        Waiting for Network/subnet-import-dependency to be ready
+        Waiting for Project/subnet-import-dependency to be ready
       status: "True"
       reason: Progressing

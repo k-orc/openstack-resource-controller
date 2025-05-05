@@ -1,14 +1,27 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: subnet-create-full-v6
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
   name: subnet-create-full-v6
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: subnet-create-full-v6
+    projectRef: subnet-create-full-v6
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
@@ -42,7 +55,7 @@ metadata:
   name: subnet-create-full-v6
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -55,7 +68,7 @@ metadata:
   name: subnet-create-full-v6
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -93,3 +106,4 @@ spec:
       addressMode: slaac
       raMode: slaac
     routerRef: subnet-create-full-v6
+    projectRef: subnet-create-full-v6
