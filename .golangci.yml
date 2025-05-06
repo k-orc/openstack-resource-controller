@@ -12,7 +12,7 @@ linters:
     - gocyclo
     - govet
     - ineffassign
-    - kal
+    - kubeapilinter
     - lll
     - misspell
     - nolintlint
@@ -28,9 +28,9 @@ linters:
       rules:
         - name: comment-spacings
     custom:
-      kal:
+      kubeapilinter:
         type: module
-        description: KAL is the Kube-API-Linter and lints Kube like APIs based on API conventions and best practices.
+        description: Kube API Linter lints Kube like APIs based on API conventions and best practices.
         settings:
           linters:
             enable:
@@ -41,8 +41,9 @@ linters:
               - maxlength
               # NOTE: we have a number of boolean fields. Should we convert them to
               # string?
-              # - "nobools"
+              # - nobools
               - nofloats
+              - nomaps
               - nophase
               - optionalorrequired
               - requiredfields
@@ -63,7 +64,7 @@ linters:
           - lll
         path: internal/*
       - linters:
-          - kal
+          - kubeapilinter
         path-except: api/*
     paths:
       - third_party$

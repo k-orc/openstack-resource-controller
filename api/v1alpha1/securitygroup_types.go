@@ -49,7 +49,6 @@ const (
 )
 
 // +kubebuilder:validation:Enum:=IPv4;IPv6
-// +required
 type Ethertype string
 
 const (
