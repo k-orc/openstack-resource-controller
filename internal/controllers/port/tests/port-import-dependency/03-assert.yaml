@@ -4,3 +4,5 @@ kind: TestAssert
 commands:
 - script: "! kubectl get network port-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true
+- script: "! kubectl get project port-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

@@ -1,11 +1,11 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Project
 metadata:
   name: port-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
@@ -13,15 +13,30 @@ spec:
       name: port-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: port-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: port-import-dependency-external
+      projectRef: port-import-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
   name: port-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
       description: port from port-import-dependency test
       networkRef: port-import-dependency
+      projectRef: port-import-dependency

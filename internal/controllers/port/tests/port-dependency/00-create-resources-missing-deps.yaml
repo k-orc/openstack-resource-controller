@@ -109,3 +109,20 @@ spec:
     - port-dependency
     addresses:
     - subnetRef: port-dependency-pending-subnet
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: port-dependency
+    securityGroupRefs:
+    - port-dependency
+    addresses:
+    - subnetRef: port-dependency
+    projectRef: port-dependency

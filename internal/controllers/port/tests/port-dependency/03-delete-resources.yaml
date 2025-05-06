@@ -13,3 +13,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Port
   name: port-dependency-no-sg
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Port
+  name: port-dependency-no-project

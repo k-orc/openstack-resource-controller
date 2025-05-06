@@ -8,5 +8,7 @@ commands:
     namespaced: true
   - command: kubectl delete securitygroup port-dependency --wait=false
     namespaced: true
+  - command: kubectl delete project port-dependency --wait=false
+    namespaced: true
   - command: kubectl delete secret port-dependency --wait=false
     namespaced: true

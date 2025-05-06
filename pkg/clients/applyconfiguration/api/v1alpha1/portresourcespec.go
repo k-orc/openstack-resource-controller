@@ -34,6 +34,7 @@ type PortResourceSpecApplyConfiguration struct {
 	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
 	VNICType            *string                                `json:"vnicType,omitempty"`
 	PortSecurity        *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
+	ProjectRef          *apiv1alpha1.KubernetesNameRef         `json:"projectRef,omitempty"`
 }
 
 // PortResourceSpecApplyConfiguration constructs a declarative configuration of the PortResourceSpec type for use with
@@ -125,5 +126,13 @@ func (b *PortResourceSpecApplyConfiguration) WithVNICType(value string) *PortRes
 // If called multiple times, the PortSecurity field is set to the value of the last call.
 func (b *PortResourceSpecApplyConfiguration) WithPortSecurity(value apiv1alpha1.PortSecurityState) *PortResourceSpecApplyConfiguration {
 	b.PortSecurity = &value
+	return b
+}
+
+// WithProjectRef sets the ProjectRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectRef field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *PortResourceSpecApplyConfiguration {
+	b.ProjectRef = &value
 	return b
 }

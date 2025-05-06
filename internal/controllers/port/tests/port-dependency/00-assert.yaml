@@ -62,3 +62,18 @@ status:
       message: Waiting for Subnet/port-dependency-pending-subnet to be created
       status: "True"
       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/port-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/port-dependency to be created
+      status: "True"
+      reason: Progressing

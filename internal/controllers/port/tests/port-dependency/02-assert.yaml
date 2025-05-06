@@ -14,6 +14,10 @@ resourceRefs:
       kind: SecurityGroup
       name: port-dependency
       ref: sg
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: port-dependency
+      ref: project
     - apiVersion: v1
       kind: Secret
       name: port-dependency
@@ -25,5 +29,7 @@ assertAll:
     - celExpr: "'openstack.k-orc.cloud/port' in subnet.metadata.finalizers"
     - celExpr: "sg.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/port' in sg.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/port' in project.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/port' in secret.metadata.finalizers"

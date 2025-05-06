@@ -28,6 +28,7 @@ type PortFilterApplyConfiguration struct {
 	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
 	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
 	NetworkRef                            *apiv1alpha1.KubernetesNameRef  `json:"networkRef,omitempty"`
+	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -58,6 +59,14 @@ func (b *PortFilterApplyConfiguration) WithDescription(value apiv1alpha1.Neutron
 // If called multiple times, the NetworkRef field is set to the value of the last call.
 func (b *PortFilterApplyConfiguration) WithNetworkRef(value apiv1alpha1.KubernetesNameRef) *PortFilterApplyConfiguration {
 	b.NetworkRef = &value
+	return b
+}
+
+// WithProjectRef sets the ProjectRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectRef field is set to the value of the last call.
+func (b *PortFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *PortFilterApplyConfiguration {
+	b.ProjectRef = &value
 	return b
 }
 

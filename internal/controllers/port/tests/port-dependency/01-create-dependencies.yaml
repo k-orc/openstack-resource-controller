@@ -54,3 +54,14 @@ spec:
     networkRef: port-dependency-pending-subnet
     ipVersion: 4
     cidr: 192.168.157.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: port-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}

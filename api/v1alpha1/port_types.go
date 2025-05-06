@@ -31,6 +31,11 @@ type PortFilter struct {
 	// +optional
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
+
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -146,6 +151,11 @@ type PortResourceSpec struct {
 	// +kubebuilder:default=Inherit
 	// +optional
 	PortSecurity PortSecurityState `json:"portSecurity,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 }
 
 type PortResourceStatus struct {

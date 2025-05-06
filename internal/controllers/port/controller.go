@@ -92,6 +92,29 @@ var (
 		},
 		finalizer, externalObjectFieldOwner,
 	)
+
+	projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.PortList, *orcv1alpha1.Project](
+		"spec.resource.projectRef",
+		func(port *orcv1alpha1.Port) []string {
+			resource := port.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+			return []string{string(resource.ProjectRef)}
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+
+	projectImportDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Project](
+		"spec.import.filter.projectRef",
+		func(port *orcv1alpha1.Port) []string {
+			resource := port.Spec.Import
+			if resource == nil || resource.Filter == nil {
+				return nil
+			}
+			return []string{string(resource.Filter.ProjectRef)}
+		},
+	)
 )
 
 type portReconcilerConstructor struct {
@@ -131,6 +154,16 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
+	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	projectImportWatchEventHandler, err := projectImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		For(&orcv1alpha1.Port{}).
@@ -146,6 +179,13 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		).
 		Watches(&orcv1alpha1.SecurityGroup{}, securityGroupWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.SecurityGroup{})),
+		).
+		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		)
 
 	if err := errors.Join(
@@ -153,6 +193,8 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		networkImportDependency.AddToManager(ctx, mgr),
 		subnetDependency.AddToManager(ctx, mgr),
 		securityGroupDependency.AddToManager(ctx, mgr),
+		projectDependency.AddToManager(ctx, mgr),
+		projectImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

@@ -79,31 +79,59 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 }
 
 func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	var networkID string
+	var reconcileStatus progress.ReconcileStatus
 
+	network := &orcv1alpha1.Network{}
 	if filter.NetworkRef != "" {
-		network := &orcv1alpha1.Network{}
 		{
 			networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
 			if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
 				if apierrors.IsNotFound(err) {
-					return nil, progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation)
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation))
 				} else {
-					return nil, progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err))
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err)))
 				}
 			} else {
 				if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
-					return nil, progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady)
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady))
 				}
 			}
-			networkID = *network.Status.ID
 		}
+	}
+
+	project := &orcv1alpha1.Project{}
+	if filter.ProjectRef != "" {
+		{
+			projectKey := client.ObjectKey{Name: string(filter.ProjectRef), Namespace: obj.Namespace}
+			if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
+				if apierrors.IsNotFound(err) {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
+				} else {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
+				}
+			} else {
+				if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
+				}
+			}
+		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
 	}
 
 	listOpts := ports.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		NetworkID:   networkID,
+		NetworkID:   ptr.Deref(network.Status.ID, ""),
+		ProjectID:   ptr.Deref(project.Status.ID, ""),
 		Tags:        neutrontags.Join(filter.Tags),
 		TagsAny:     neutrontags.Join(filter.TagsAny),
 		NotTags:     neutrontags.Join(filter.NotTags),
@@ -140,6 +168,20 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		WithReconcileStatus(networkDepRS).
 		WithReconcileStatus(subnetDepRS).
 		WithReconcileStatus(secGroupDepRS)
+
+	var projectID string
+	if resource.ProjectRef != "" {
+		project, projectDepRS := projectDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
+		if project != nil {
+			projectID = ptr.Deref(project.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -148,6 +190,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		NetworkID:   *network.Status.ID,
 		Name:        getResourceName(obj),
 		Description: string(ptr.Deref(resource.Description, "")),
+		ProjectID:   projectID,
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
