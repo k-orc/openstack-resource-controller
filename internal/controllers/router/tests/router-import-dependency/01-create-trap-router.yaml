@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: router-create-full
+  name: router-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
@@ -10,22 +10,15 @@ spec:
   managementPolicy: managed
   resource: {}
 ---
+# This `router-import-dependency-external-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: router-create-full
+  name: router-import-dependency-external-not-this-one
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: router-create-full-override
-    description: Router from "create full" test
-    tags:
-      - tag1
-      - tag2
-    adminStateUp: false
-    externalGateways:
-      - networkRef: router-external-network
-    projectRef: router-create-full
+    projectRef: router-import-dependency-not-this-one

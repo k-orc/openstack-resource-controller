@@ -4097,6 +4097,14 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterFilter(ref commo
 							Format:      "",
 						},
 					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -4535,6 +4543,14 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterResourceSpec(ref
 									},
 								},
 							},
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},

@@ -1170,6 +1170,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -1267,6 +1271,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
