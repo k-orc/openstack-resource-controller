@@ -64,3 +64,16 @@ nameReference:
   fieldSpecs:
   - path: spec/resource/ports[]/portRef
     kind: Server
+
+- kind: Project
+  fieldSpecs:
+  - path: spec/resource/projectRef
+    kind: Network
+  - path: spec/resource/projectRef
+    kind: Subnet
+  - path: spec/resource/projectRef
+    kind: Router
+  - path: spec/resource/projectRef
+    kind: Port
+  - path: spec/resource/projectRef
+    kind: SecurityGroup
