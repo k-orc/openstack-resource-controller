@@ -13,7 +13,7 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: routerinterface-create-minimal
+  name: routerinterface-create-minimal-external
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -27,7 +27,7 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: routerinterface-router-create-minimal
+  name: routerinterface-create-minimal-external
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -35,13 +35,11 @@ spec:
   managementPolicy: managed
   resource:
     description: Router from "routerinterface-create-minimal" test
-    tags:
-      - tag1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
-  name: routerinterface-router-import
+  name: routerinterface-create-minimal
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -49,13 +47,12 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: routerinterface-router-create-minimal
-      description: Router from "routerinterface-create-minimal" test
+      name: routerinterface-create-minimal-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: routerinterface-subnet-import
+  name: routerinterface-create-minimal
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -63,8 +60,7 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      networkRef: routerinterface-create-minimal
-      name: routerinterface-create-minimal
+      name: routerinterface-create-minimal-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RouterInterface
@@ -72,5 +68,5 @@ metadata:
   name: routerinterface-create-minimal
 spec:
   type: Subnet
-  routerRef: routerinterface-router-import
-  subnetRef: routerinterface-subnet-import
+  routerRef: routerinterface-create-minimal
+  subnetRef: routerinterface-create-minimal
