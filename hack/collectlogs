@@ -34,7 +34,7 @@ kubectl get -n orc-system all -o yaml > "$LOG_DIR/orc-resources.yaml"
 mkdir "$LOG_DIR/orc-managed-resources"
 for crd in config/crd/bases/openstack.k-orc.cloud_*; do
     resource=${crd:39:-5}
-    kubectl get "${resource}" -o yaml > "$LOG_DIR/orc-managed-resources/${resource}.yaml"
+    kubectl get "${resource}" -A -o yaml > "$LOG_DIR/orc-managed-resources/${resource}.yaml"
 done
 
 sudo find "$LOG_DIR" -type d -exec chmod 0755 {} \;
