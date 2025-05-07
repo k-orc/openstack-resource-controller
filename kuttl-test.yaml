@@ -5,6 +5,7 @@ testDirs:
 - ./internal/controllers/image/tests/
 - ./internal/controllers/network/tests/
 - ./internal/controllers/port/tests/
+- ./internal/controllers/project/tests/
 - ./internal/controllers/router/tests/
 - ./internal/controllers/routerinterface/tests/
 - ./internal/controllers/securitygroup/tests/
