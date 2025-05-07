@@ -4,5 +4,7 @@ commands:
   # We expect the deletion to hang due to the finalizer, so use --wait=false
   - command: kubectl delete network router-dependency --wait=false
     namespaced: true
+  - command: kubectl delete project router-dependency --wait=false
+    namespaced: true
   - command: kubectl delete secret router-dependency --wait=false
     namespaced: true

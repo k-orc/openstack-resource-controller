@@ -135,6 +135,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -266,6 +273,13 @@ spec:
                       used as the default value of port_security_enabled field of a newly
                       created port.
                     type: boolean
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
                   shared:
                     description: |-
                       shared indicates whether this resource is shared across all

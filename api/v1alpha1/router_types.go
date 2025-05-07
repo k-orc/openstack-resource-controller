@@ -27,6 +27,11 @@ type RouterFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
+
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -82,6 +87,11 @@ type RouterResourceSpec struct {
 	// +listType=set
 	// +optional
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 }
 
 type RouterResourceStatus struct {

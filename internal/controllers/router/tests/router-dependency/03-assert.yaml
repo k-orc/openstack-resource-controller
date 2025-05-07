@@ -4,5 +4,7 @@ commands:
 # Dependencies that were prevented deletion before should now be gone
 - script: "! kubectl get network router-dependency --namespace $NAMESPACE"
   skipLogOutput: true
+- script: "! kubectl get project router-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
 - script: "! kubectl get secret router-dependency --namespace $NAMESPACE"
   skipLogOutput: true

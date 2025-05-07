@@ -177,6 +177,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -403,6 +410,13 @@ spec:
                   networkRef:
                     description: networkRef is a reference to the ORC Network which
                       this subnet is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
                     maxLength: 253
                     minLength: 1
                     type: string

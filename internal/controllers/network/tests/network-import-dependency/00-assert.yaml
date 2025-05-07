@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/network-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/network-import-dependency to be ready
+      status: "True"
+      reason: Progressing

@@ -6,6 +6,10 @@ resourceRefs:
       kind: Network
       name: router-dependency
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: router-dependency
+      ref: project
     - apiVersion: v1
       kind: Secret
       name: router-dependency
@@ -13,5 +17,7 @@ resourceRefs:
 assertAll:
     - celExpr: "network.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/router' in network.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/router' in project.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/router' in secret.metadata.finalizers"

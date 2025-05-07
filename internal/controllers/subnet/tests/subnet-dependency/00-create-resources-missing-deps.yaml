@@ -93,3 +93,18 @@ spec:
     ipVersion: 4
     cidr: 192.168.30.0/24
     routerRef: subnet-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-dependency
+    ipVersion: 4
+    cidr: 192.168.40.0/24
+    projectRef: subnet-dependency

@@ -75,6 +75,29 @@ var (
 			return []string{string(resource.Filter.NetworkRef)}
 		},
 	)
+
+	projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Project](
+		"spec.resource.projectRef",
+		func(subnet *orcv1alpha1.Subnet) []string {
+			resource := subnet.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+			return []string{string(resource.ProjectRef)}
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+
+	projectImportDependency = dependency.NewDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Project](
+		"spec.import.filter.projectRef",
+		func(subnet *orcv1alpha1.Subnet) []string {
+			resource := subnet.Spec.Import
+			if resource == nil || resource.Filter == nil {
+				return nil
+			}
+			return []string{string(resource.Filter.ProjectRef)}
+		},
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -93,6 +116,16 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	projectImportWatchEventHandler, err := projectImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		For(&orcv1alpha1.Subnet{}).
@@ -102,6 +135,13 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Network{}, networkImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
+		).
+		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
 		Watches(&orcv1alpha1.RouterInterface{},
 			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
@@ -125,6 +165,8 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err := errors.Join(
 		networkDependency.AddToManager(ctx, mgr),
 		networkImportDependency.AddToManager(ctx, mgr),
+		projectDependency.AddToManager(ctx, mgr),
+		projectImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

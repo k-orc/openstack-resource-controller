@@ -577,6 +577,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -628,6 +632,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portSecurityEnabled
       type:
         scalar: boolean
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: shared
       type:
         scalar: boolean
@@ -782,6 +790,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -853,6 +865,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portSecurity
       type:
         scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: securityGroupRefs
       type:
         list:
@@ -1162,6 +1178,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -1259,6 +1279,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -1379,6 +1403,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -1409,6 +1437,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: rules
       type:
         list:
@@ -1755,6 +1787,10 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+      default: ""
     - name: tags
       type:
         list:
@@ -1834,6 +1870,10 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: networkRef
+      type:
+        scalar: string
+      default: ""
+    - name: projectRef
       type:
         scalar: string
       default: ""

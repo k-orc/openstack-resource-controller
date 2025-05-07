@@ -1,14 +1,26 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: port-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
   name: port-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  resource: {}
+  resource:
+    projectRef: port-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -16,13 +28,14 @@ metadata:
   name: port-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: port-create-full
     ipVersion: 4
     cidr: 192.168.155.0/24
+    projectRef: port-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
@@ -30,7 +43,7 @@ metadata:
   name: port-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -42,6 +55,7 @@ spec:
         min: 22
         max: 22
       ethertype: IPv4
+    projectRef: port-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -49,7 +63,7 @@ metadata:
   name: port-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -68,3 +82,4 @@ spec:
       ip: 192.168.155.122
     portSecurity: Enabled
     vnicType: direct
+    projectRef: port-create-full

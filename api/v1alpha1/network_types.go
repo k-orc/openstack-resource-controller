@@ -108,6 +108,11 @@ type NetworkResourceSpec struct {
 	// +listType=set
 	// +optional
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 }
 
 // NetworkFilter defines an existing resource by its properties
@@ -125,6 +130,11 @@ type NetworkFilter struct {
 	// facility that’s not managed by the networking service.
 	// +optional
 	External *bool `json:"external,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 
 	FilterByNeutronTags `json:",inline"`
 }

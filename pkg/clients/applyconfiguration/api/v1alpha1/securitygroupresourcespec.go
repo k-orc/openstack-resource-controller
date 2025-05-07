@@ -30,6 +30,7 @@ type SecurityGroupResourceSpecApplyConfiguration struct {
 	Tags        []apiv1alpha1.NeutronTag              `json:"tags,omitempty"`
 	Stateful    *bool                                 `json:"stateful,omitempty"`
 	Rules       []SecurityGroupRuleApplyConfiguration `json:"rules,omitempty"`
+	ProjectRef  *apiv1alpha1.KubernetesNameRef        `json:"projectRef,omitempty"`
 }
 
 // SecurityGroupResourceSpecApplyConfiguration constructs a declarative configuration of the SecurityGroupResourceSpec type for use with
@@ -82,5 +83,13 @@ func (b *SecurityGroupResourceSpecApplyConfiguration) WithRules(values ...*Secur
 		}
 		b.Rules = append(b.Rules, *values[i])
 	}
+	return b
+}
+
+// WithProjectRef sets the ProjectRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectRef field is set to the value of the last call.
+func (b *SecurityGroupResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *SecurityGroupResourceSpecApplyConfiguration {
+	b.ProjectRef = &value
 	return b
 }

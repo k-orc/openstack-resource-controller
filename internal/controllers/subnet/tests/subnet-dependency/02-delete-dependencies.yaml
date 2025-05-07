@@ -6,5 +6,7 @@ commands:
     namespaced: true
   - command: kubectl delete network subnet-dependency --wait=false
     namespaced: true
+  - command: kubectl delete project subnet-dependency --wait=false
+    namespaced: true
   - command: kubectl delete secret subnet-dependency --wait=false
     namespaced: true

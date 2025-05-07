@@ -1,14 +1,26 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: subnet-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
   name: subnet-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  resource: {}
+  resource:
+    projectRef: subnet-import-dependency-not-this-one
 ---
 # This `subnet-import-dependency-external-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -17,10 +29,11 @@ metadata:
   name: subnet-import-dependency-external-not-this-one
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: subnet-import-dependency-not-this-one
+    projectRef: subnet-import-dependency-not-this-one
     ipVersion: 4
     cidr: 192.168.200.0/24

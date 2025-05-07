@@ -54,6 +54,11 @@ type SubnetFilter struct {
 	// +optional
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
+
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -126,6 +131,11 @@ type SubnetResourceSpec struct {
 	// routerRef specifies a router to attach the subnet to
 	// +optional
 	RouterRef *KubernetesNameRef `json:"routerRef,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 
 	// TODO: Support service types
 	// TODO: Support subnet pools

@@ -9,3 +9,15 @@ spec:
     secretName: securitygroup-dependency
   managementPolicy: managed
   resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: securitygroup-dependency

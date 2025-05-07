@@ -13,3 +13,18 @@ status:
       message: Waiting for Secret/securitygroup-dependency to be created
       status: "True"
       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/securitygroup-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/securitygroup-dependency to be created
+      status: "True"
+      reason: Progressing

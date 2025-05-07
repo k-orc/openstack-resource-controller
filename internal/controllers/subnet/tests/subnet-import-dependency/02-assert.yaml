@@ -14,9 +14,14 @@ resourceRefs:
       kind: Network
       name: subnet-import-dependency
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: subnet-import-dependency
+      ref: project
 assertAll:
     - celExpr: "subnet1.status.id != subnet2.status.id"
     - celExpr: "subnet1.status.resource.networkID == network.status.id"
+    - celExpr: "subnet1.status.resource.projectID == project.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet

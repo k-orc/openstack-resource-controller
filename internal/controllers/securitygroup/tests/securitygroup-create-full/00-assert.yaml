@@ -20,3 +20,21 @@ status:
     tags:
     - tag1
     - tag2
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: securitygroup
+      name: securitygroup-create-full
+      ref: sg
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: project
+      name: securitygroup-create-full
+      ref: project
+assertAll:
+    - celExpr: "sg.status.id != ''"
+    - celExpr: "sg.status.resource.createdAt != ''"
+    - celExpr: "sg.status.resource.updatedAt != ''"
+    # - celExpr: "sg.status.resource.revisionNumber > 0"
+    - celExpr: "sg.status.resource.projectID == project.status.id"

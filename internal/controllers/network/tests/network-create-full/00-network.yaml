@@ -1,3 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: network-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
@@ -19,3 +31,4 @@ spec:
     tags:
       - tag1
       - tag2
+    projectRef: network-create-full

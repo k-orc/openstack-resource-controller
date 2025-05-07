@@ -32,6 +32,7 @@ type RouterResourceSpecApplyConfiguration struct {
 	ExternalGateways      []ExternalGatewayApplyConfiguration `json:"externalGateways,omitempty"`
 	Distributed           *bool                               `json:"distributed,omitempty"`
 	AvailabilityZoneHints []apiv1alpha1.AvailabilityZoneHint  `json:"availabilityZoneHints,omitempty"`
+	ProjectRef            *apiv1alpha1.KubernetesNameRef      `json:"projectRef,omitempty"`
 }
 
 // RouterResourceSpecApplyConfiguration constructs a declarative configuration of the RouterResourceSpec type for use with
@@ -102,5 +103,13 @@ func (b *RouterResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values 
 	for i := range values {
 		b.AvailabilityZoneHints = append(b.AvailabilityZoneHints, values[i])
 	}
+	return b
+}
+
+// WithProjectRef sets the ProjectRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectRef field is set to the value of the last call.
+func (b *RouterResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *RouterResourceSpecApplyConfiguration {
+	b.ProjectRef = &value
 	return b
 }

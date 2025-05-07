@@ -214,6 +214,12 @@ type SecurityGroupResourceSpec struct {
 	// +listType=atomic
 	// +optional
 	Rules []SecurityGroupRule `json:"rules,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Property is immutable"
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 }
 
 // SecurityGroupFilter defines an existing resource by its properties
@@ -226,6 +232,11 @@ type SecurityGroupFilter struct {
 	// description of the existing resource
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef KubernetesNameRef `json:"projectRef"`
 
 	FilterByNeutronTags `json:",inline"`
 }

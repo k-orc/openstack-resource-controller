@@ -13,3 +13,18 @@ status:
       message: Waiting for Secret/network-dependency to be created
       status: "True"
       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/network-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/network-dependency to be created
+      status: "True"
+      reason: Progressing

@@ -18,3 +18,21 @@ status:
     tags:
      - tag1
      - tag2
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: network
+      name: network-create-full
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: project
+      name: network-create-full
+      ref: project
+assertAll:
+    - celExpr: "network.status.id != ''"
+    - celExpr: "network.status.resource.createdAt != ''"
+    - celExpr: "network.status.resource.updatedAt != ''"
+    - celExpr: "network.status.resource.revisionNumber > 0"
+    - celExpr: "network.status.resource.projectID == project.status.id"

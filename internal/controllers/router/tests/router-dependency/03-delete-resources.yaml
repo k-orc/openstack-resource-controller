@@ -7,3 +7,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Router
   name: router-dependency-no-network
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Router
+  name: router-dependency-no-project

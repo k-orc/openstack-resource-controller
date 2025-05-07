@@ -1,11 +1,22 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: router-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
 metadata:
   name: router-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -17,3 +28,4 @@ spec:
     adminStateUp: false
     externalGateways:
       - networkRef: router-external-network
+    projectRef: router-create-full

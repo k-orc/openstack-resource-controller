@@ -28,3 +28,14 @@ spec:
   resource:
     externalGateways:
     - networkRef: subnet-dependency-gateway
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: subnet-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}

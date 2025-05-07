@@ -45,3 +45,18 @@ metadata:
 #       message: Waiting for Router/subnet-dependency-pending to be created
 #       status: "True"
 #       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/subnet-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/subnet-dependency to be created
+      status: "True"
+      reason: Progressing

@@ -14,9 +14,14 @@ resourceRefs:
       kind: Network
       name: port-import-dependency
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: port-import-dependency
+      ref: project
 assertAll:
     - celExpr: "port1.status.id != port2.status.id"
     - celExpr: "port1.status.resource.networkID == network.status.id"
+    - celExpr: "port1.status.resource.projectID == project.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port

@@ -130,6 +130,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -222,6 +229,16 @@ spec:
                     maxLength: 255
                     minLength: 1
                     pattern: ^[^,]+$
+                    type: string
+                    x-kubernetes-validations:
+                    - message: Property is immutable
+                      rule: self == oldSelf
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
                     type: string
                     x-kubernetes-validations:
                     - message: Property is immutable

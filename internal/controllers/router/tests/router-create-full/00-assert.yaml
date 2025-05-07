@@ -25,5 +25,14 @@ resourceRefs:
       kind: network
       name: router-external-network
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: project
+      name: router-create-full
+      ref: project
 assertAll:
+    - celExpr: "router.status.id != ''"
+    # - celExpr: "router.status.resource.createdAt != ''"
+    # - celExpr: "router.status.resource.updatedAt != ''"
+    # - celExpr: "router.status.resource.revisionNumber > 0"
     - celExpr: "router.status.resource.externalGateways[0].networkID == network.status.id"
+    - celExpr: "router.status.resource.projectID == project.status.id"

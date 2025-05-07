@@ -36,3 +36,17 @@ spec:
   resource:
     externalGateways:
       - networkRef: router-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    externalGateways:
+      - networkRef: router-dependency-pending
+    projectRef: router-dependency
