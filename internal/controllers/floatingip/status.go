@@ -62,9 +62,7 @@ func (floatingipStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *o
 	status := orcapplyconfigv1alpha1.FloatingIPResourceStatus().
 		WithDescription(osResource.Description).
 		WithFloatingNetworkID(osResource.FloatingNetworkID).
-		WithFloatingIP(v1alpha1.IPvAny(osResource.FloatingIP)).
 		WithPortID(osResource.PortID).
-		WithFixedIP(v1alpha1.IPvAny(osResource.FixedIP)).
 		WithTenantID(osResource.TenantID).
 		WithProjectID(osResource.ProjectID).
 		WithStatus(osResource.Status).
@@ -74,5 +72,11 @@ func (floatingipStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *o
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt)).
 		WithRevisionNumber(int64(osResource.RevisionNumber))
 
+	if osResource.FloatingIP != "" {
+		status.WithFloatingIP(v1alpha1.IPvAny(osResource.FloatingIP))
+	}
+	if osResource.FixedIP != "" {
+		status.WithFixedIP(v1alpha1.IPvAny(osResource.FixedIP))
+	}
 	statusApply.WithResource(status)
 }
