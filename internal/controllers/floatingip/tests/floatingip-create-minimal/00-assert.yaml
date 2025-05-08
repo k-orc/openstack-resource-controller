@@ -12,4 +12,4 @@ resourceRefs:
       ref: network
 assertAll:
     - celExpr: "floatingIP.status.resource.floatingNetworkID == network.status.id"
-    - celExpr: "length(floatingIP.status.resource.floatingIP) > 0"
+    - celExpr: "floatingIP.status.resource.floatingIP != ''"
