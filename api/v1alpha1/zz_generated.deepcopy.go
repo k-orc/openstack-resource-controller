@@ -577,11 +577,6 @@ func (in *FloatingIPFilter) DeepCopyInto(out *FloatingIPFilter) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
-	if in.Status != nil {
-		in, out := &in.Status, &out.Status
-		*out = new(string)
-		**out = **in
-	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 

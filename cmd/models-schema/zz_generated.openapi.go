@@ -1669,7 +1669,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPResourceSpec
 					},
 					"portRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "portID is the ID of the port to which the floatingip is associated.",
+							Description: "portRef is a reference to the ORC Port which this resource is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

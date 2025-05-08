@@ -147,6 +147,7 @@ spec:
                         type: string
                       status:
                         description: status is the status of the floatingip.
+                        maxLength: 1024
                         type: string
                       tags:
                         description: |-
@@ -252,8 +253,8 @@ spec:
                     minLength: 1
                     type: string
                   portRef:
-                    description: portID is the ID of the port to which the floatingip
-                      is associated.
+                    description: portRef is a reference to the ORC Port which this
+                      resource is associated with.
                     maxLength: 253
                     minLength: 1
                     type: string

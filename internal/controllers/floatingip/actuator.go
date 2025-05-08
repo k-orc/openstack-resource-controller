@@ -116,6 +116,10 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 		}
 	}
 
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
 	listOpts := floatingips.ListOpts{
 		FloatingIP:        string(ptr.Deref(filter.FloatingIP, "")),
 		PortID:            portID,
@@ -125,7 +129,7 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 		TagsAny:           neutrontags.Join(filter.TagsAny),
 		NotTags:           neutrontags.Join(filter.NotTags),
 		NotTagsAny:        neutrontags.Join(filter.NotTagsAny),
-		Status:            string(ptr.Deref(filter.Status, "")),
+		Status:            filter.Status,
 	}
 
 	return actuator.osClient.ListFloatingIP(ctx, listOpts), nil

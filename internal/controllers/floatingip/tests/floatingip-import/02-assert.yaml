@@ -13,10 +13,10 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: FloatingIP
       name: floatingip-import-external
-      ref: fip-external
+      ref: fipExternal
 assertAll:
     - celExpr: "fip1.status.id != fip2.status.id"
-    - celExpr: "fip1.status.resource.floatingIP == fip-external.status.resource.floatingIP"
+    - celExpr: "fip1.status.resource.floatingIP == fipExternal.status.resource.floatingIP"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: FloatingIP

@@ -528,7 +528,7 @@ _Appears in:_
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this resource is associated with.l |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `status` _string_ | status is the status of the floatingip. |  |  |
+| `status` _string_ | status is the status of the floatingip. |  | MaxLength: 1024 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -591,7 +591,7 @@ _Appears in:_
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef references the network to which the floatingip is associated. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef references the subnet to which the floatingip is associated. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `floatingIP` _[IPvAny](#ipvany)_ | floatingIP is the IP that will be assigned to the floatingip. If not set, it will<br />be assigned automatically. |  | MaxLength: 45 <br />MinLength: 1 <br /> |
-| `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portID is the ID of the port to which the floatingip is associated. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `fixedIP` _[IPvAny](#ipvany)_ | fixedIP is the IP address of the port to which the floatingip is associated. |  | MaxLength: 45 <br />MinLength: 1 <br /> |
 
 
