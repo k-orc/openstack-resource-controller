@@ -13,6 +13,19 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
+  name: floatingip-create-full-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: floatingip-create-full-external
+    external: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
   name: floatingip-create-full
 spec:
   cloudCredentialsRef:
@@ -21,7 +34,6 @@ spec:
   managementPolicy: managed
   resource:
     name: floatingip-create-full
-    external: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -65,7 +77,7 @@ spec:
     name: floatingip-create-full
     adminStateUp: false
     externalGateways:
-      - networkRef: floatingip-create-full
+      - networkRef: floatingip-create-full-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RouterInterface
@@ -86,7 +98,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: floatingip-create-full
+    networkRef: floatingip-create-full-external
     subnetRef: floatingip-create-full
     portRef: floatingip-create-full
     description: Floating IP from "create full" test

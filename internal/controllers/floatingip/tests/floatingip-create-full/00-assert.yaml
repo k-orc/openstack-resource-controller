@@ -8,7 +8,7 @@ resourceRefs:
       ref: floatingIP
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Network
-      name: floatingip-create-full
+      name: floatingip-create-full-external
       ref: network
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Subnet
