@@ -48,6 +48,9 @@ spec:
   managementPolicy: managed
   resource:
     networkRef: floatingip-create-full
+    addresses:
+    - subnetRef: floatingip-create-full
+      ip: 192.168.155.122
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: FloatingIP
@@ -63,7 +66,7 @@ spec:
     subnetRef: floatingip-create-full
     portRef: floatingip-create-full
     description: Floating IP from "create full" test
-    fixedIP: 10.0.0.1
+    fixedIP: 192.168.155.122
     floatingIP: 192.168.155.5
     tags:
     - tag1

@@ -136,7 +136,22 @@ func (c floatingipReconcilerConstructor) SetupWithManager(ctx context.Context, m
 		return err
 	}
 
+	networkImportWatchEventHandler, err := networkImportDep.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	subnetHandler, err := subnetDep.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	portHandler, err := portDep.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	portImportWatchEventHandler, err := portImportDep.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
@@ -147,13 +162,27 @@ func (c floatingipReconcilerConstructor) SetupWithManager(ctx context.Context, m
 		Watches(&orcv1alpha1.Network{}, networkHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Network{}, networkImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
+		).
 		Watches(&orcv1alpha1.Subnet{}, subnetHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
+		).
+		Watches(&orcv1alpha1.Port{}, portHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Port{}, portImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		)
 
 	if err := errors.Join(
 		networkDep.AddToManager(ctx, mgr),
+		networkImportDep.AddToManager(ctx, mgr),
 		subnetDep.AddToManager(ctx, mgr),
+		portDep.AddToManager(ctx, mgr),
+		portImportDep.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {
