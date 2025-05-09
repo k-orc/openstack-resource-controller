@@ -38,6 +38,19 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
+  name: floatingip-create-full-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: floatingip-create-full-external
+    ipVersion: 4
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
   name: floatingip-create-full
 spec:
   cloudCredentialsRef:
