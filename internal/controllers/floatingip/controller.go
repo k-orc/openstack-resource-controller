@@ -20,7 +20,6 @@ import (
 	"context"
 	"errors"
 
-	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -68,7 +67,7 @@ var (
 		finalizer, fieldOwner,
 	)
 
-	networkImportDep = dependency.NewDeletionGuardDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Network](
+	networkImportDep = dependency.NewDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Network](
 		"spec.import.networkRef",
 		func(floatingip *orcv1alpha1.FloatingIP) []string {
 			resource := floatingip.Spec.Import
@@ -77,7 +76,6 @@ var (
 			}
 			return []string{string(resource.Filter.NetworkRef)}
 		},
-		finalizer, fieldOwner,
 	)
 
 	subnetDep = dependency.NewDeletionGuardDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Subnet](
@@ -110,19 +108,18 @@ var (
 		finalizer, fieldOwner,
 	)
 
-	portImportDep = dependency.NewDeletionGuardDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Port](
+	portImportDep = dependency.NewDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Port](
 		"spec.import.portRef",
 		func(floatingip *orcv1alpha1.FloatingIP) []string {
 			resource := floatingip.Spec.Import
 			if resource == nil {
 				return nil
 			}
-			if resource == nil || resource.Filter == nil || resource.Filter.PortRef == nil {
+			if resource == nil || resource.Filter == nil {
 				return nil
 			}
-			return []string{string(ptr.Deref(resource.Filter.PortRef, ""))}
+			return []string{string(resource.Filter.PortRef)}
 		},
-		finalizer, fieldOwner,
 	)
 )
 

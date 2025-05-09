@@ -1526,7 +1526,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPFilter(ref c
 						},
 					},
 				},
-				Required: []string{"networkRef"},
 			},
 		},
 	}

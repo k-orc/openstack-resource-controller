@@ -18,20 +18,21 @@ package floatingip
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/ptr"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/utils/ptr"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type (
@@ -88,31 +89,45 @@ func (actuator floatingipActuator) ListOSResourcesForAdoption(ctx context.Contex
 func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	var networkID string
-	{
-		// Fetch dependencies and ensure they have our finalizer
-		network, networkDepRS := networkImportDep.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
-		)
-		reconcileStatus = reconcileStatus.WithReconcileStatus(networkDepRS)
-		if network != nil {
-			networkID = ptr.Deref(network.Status.ID, "")
+	network := &orcv1alpha1.Network{}
+	if filter.NetworkRef != "" {
+		{
+			networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
+			if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
+				if apierrors.IsNotFound(err) {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation))
+				} else {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err)))
+				}
+			} else {
+				if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady))
+				}
+			}
 		}
 	}
 
-	var portID string
-	if filter.PortRef != nil {
-		// Fetch dependencies and ensure they have our finalizer
-		port, portDepRS := portImportDep.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
-		)
-		reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
-		if port != nil {
-			portID = ptr.Deref(port.Status.ID, "")
+	port := &orcv1alpha1.Port{}
+	if filter.PortRef != "" {
+		{
+			portKey := client.ObjectKey{Name: string(filter.PortRef), Namespace: obj.Namespace}
+			if err := actuator.k8sClient.Get(ctx, portKey, port); err != nil {
+				if apierrors.IsNotFound(err) {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnCreation))
+				} else {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WrapError(fmt.Errorf("fetching port %s: %w", portKey.Name, err)))
+				}
+			} else {
+				if !orcv1alpha1.IsAvailable(port) || port.Status.ID == nil {
+					reconcileStatus = reconcileStatus.WithReconcileStatus(
+						progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnReady))
+				}
+			}
 		}
 	}
 
@@ -122,8 +137,8 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 
 	listOpts := floatingips.ListOpts{
 		FloatingIP:        string(ptr.Deref(filter.FloatingIP, "")),
-		PortID:            portID,
-		FloatingNetworkID: networkID,
+		PortID:            ptr.Deref(port.Status.ID, ""),
+		FloatingNetworkID: ptr.Deref(network.Status.ID, ""),
 		Description:       string(ptr.Deref(filter.Description, "")),
 		Tags:              neutrontags.Join(filter.Tags),
 		TagsAny:           neutrontags.Join(filter.TagsAny),

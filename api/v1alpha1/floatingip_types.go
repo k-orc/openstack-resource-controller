@@ -28,12 +28,12 @@ type FloatingIPFilter struct {
 	Description *NeutronDescription `json:"description,omitempty"`
 
 	// networkRef is a reference to the ORC Network which this resource is associated with.l
-	// +required
+	// +optional
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +optional
-	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
+	PortRef KubernetesNameRef `json:"portRef,omitempty"`
 
 	// status is the status of the floatingip.
 	// +kubebuilder:validation:MaxLength=1024

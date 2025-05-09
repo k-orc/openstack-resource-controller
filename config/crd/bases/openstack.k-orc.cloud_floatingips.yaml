@@ -178,8 +178,6 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
-                    required:
-                    - networkRef
                     type: object
                   id:
                     description: |-
