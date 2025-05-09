@@ -47,7 +47,7 @@ spec:
   resource:
     networkRef: floatingip-create-full-external
     ipVersion: 4
-    cidr: 10.0.0.0/24
+    cidr: 192.168.155.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -61,22 +61,22 @@ spec:
   resource:
     networkRef: floatingip-create-full
     ipVersion: 4
-    cidr: 192.168.155.0/24
+    cidr: 10.0.0.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: floatingip-create-full
+  name: floatingip-create-full-external
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: floatingip-create-full
+    networkRef: floatingip-create-full-external
     addresses:
-    - subnetRef: floatingip-create-full
-      ip: 192.168.155.122
+    - subnetRef: floatingip-create-full-external
+      ip: 192.168.155.5
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
@@ -113,7 +113,7 @@ spec:
   managementPolicy: managed
   resource:
     networkRef: floatingip-create-full-external
-    subnetRef: floatingip-create-full
+    subnetRef: floatingip-create-full-external
     portRef: floatingip-create-full
     description: Floating IP from "create full" test
     fixedIP: 10.0.0.10
