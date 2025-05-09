@@ -2,6 +2,8 @@
 IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
+TRIVY_VERSION = 0.49.1
+GO_VERSION ?= 1.23.9
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -20,6 +22,9 @@ CONTAINER_TOOL ?= docker
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
+
+# Enables shell script tracing. Enable by running: TRACE=1 make <target>
+TRACE ?= 0
 
 .PHONY: all
 all: build
@@ -157,6 +162,7 @@ docker-build: ## Build docker image with the manager.
 	source hack/version.sh && version::get_git_vars && version::get_build_date && \
 	$(CONTAINER_TOOL) build \
 		--tag ${IMG} \
+		--build-arg "GO_VERSION=$(GO_VERSION)" \
 		--build-arg "BUILD_DATE=$${BUILD_DATE}" \
 		--build-arg "GIT_COMMIT=$${GIT_COMMIT}" \
 		--build-arg "GIT_RELEASE_COMMIT=$${GIT_RELEASE_COMMIT}" \
@@ -185,6 +191,7 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 	  $(CONTAINER_TOOL) buildx build \
 		--platform=$(PLATFORMS) \
 		--tag ${IMG} --push \
+		--build-arg "GO_VERSION=$(GO_VERSION)" \
 		--build-arg "BUILD_DATE=$${BUILD_DATE}" \
 		--build-arg "GIT_COMMIT=$${GIT_COMMIT}" \
 		--build-arg "GIT_RELEASE_COMMIT=$${GIT_RELEASE_COMMIT}" \
@@ -251,6 +258,28 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
+##@ Security
+
+.PHONY: verify-container-images
+verify-container-images: ## Verify container images
+	TRACE=$(TRACE) ./hack/verify-container-images.sh $(TRIVY_VERSION)
+
+.PHONY: verify-govulncheck
+verify-govulncheck: $(GOVULNCHECK) ## Verify code for vulnerabilities
+	$(GOVULNCHECK) ./... && R1=$$? || R1=$$?; \
+	if [ "$$R1" -ne "0" ]; then \
+		exit 1; \
+	fi
+
+.PHONY: verify-security
+verify-security: ## Verify code and images for vulnerabilities
+	$(MAKE) verify-container-images && R1=$$? || R1=$$?; \
+	$(MAKE) verify-govulncheck && R2=$$? || R2=$$?; \
+	if [ "$$R1" -ne "0" ] || [ "$$R2" -ne "0" ]; then \
+	  echo "Check for vulnerabilities failed! There are vulnerabilities to be fixed"; \
+		exit 1; \
+	fi
+
 ##@ Dependencies
 
 ## Location to install dependencies to
@@ -269,6 +298,7 @@ GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
 GOLANGCI_KAL = $(LOCALBIN)/golangci-kube-api-linter
 MOCKGEN = $(LOCALBIN)/mockgen
 KUTTL = $(LOCALBIN)/kubectl-kuttl
+GOVULNCHECK = $(LOCALBIN)/govulncheck
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.6.0
@@ -278,6 +308,7 @@ GOLANGCI_LINT_VERSION ?= v2.0.1
 KAL_VERSION ?= v0.0.0-20250501211755-2c83ed303cde
 MOCKGEN_VERSION ?= v0.5.0
 KUTTL_VERSION ?= v0.22.0
+GOVULNCHECK_VERSION ?= v1.1.4
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
@@ -327,6 +358,11 @@ kuttl: $(KUTTL) ## Download kuttl locally if necessary.
 $(KUTTL): $(LOCALBIN)
 	$(call go-install-tool,$(KUTTL),github.com/kudobuilder/kuttl/cmd/kubectl-kuttl,$(KUTTL_VERSION))
 
+.PHONY: govulncheck
+govulncheck: $(GOVULNCHECK) ## Download govulncheck locally if necessary.
+$(GOVULNCHECK): $(LOCALBIN)
+	$(call go-install-tool,$(GOVULNCHECK),golang.org/x/vuln/cmd/govulncheck,$(GOVULNCHECK_VERSION))
+
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary
 # $2 - package url which can be installed
@@ -342,3 +378,8 @@ mv $(1) $(1)-$(3) ;\
 } ;\
 ln -sf $(1)-$(3) $(1)
 endef
+
+##@ helpers:
+
+go-version: ## Print the go version we use to compile our binaries and images
+	@echo $(GO_VERSION)
