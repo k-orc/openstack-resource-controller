@@ -22,6 +22,7 @@ Dockerfile.cross
 *.swp
 *.swo
 *~
+.devcontainer
 
 # website dynamic assets
 /venv

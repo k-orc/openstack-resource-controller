@@ -40,7 +40,7 @@ jobs:
 
     - name: Build and push a container image to Kind
       run: |
-        docker build -t ${{ env.image_tag }} .
+        make docker-build IMG=${{ env.image_tag }}
         kind load docker-image ${{ env.image_tag }} ${{ env.image_tag }} --name orc
 
     - name: Deploy orc
