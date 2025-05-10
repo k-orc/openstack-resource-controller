@@ -65,6 +65,12 @@ type NetworkClient interface {
 	GetPort(ctx context.Context, id string) (*PortExt, error)
 	UpdatePort(ctx context.Context, id string, opts ports.UpdateOptsBuilder) (*PortExt, error)
 
+	ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) iter.Seq2[*floatingips.FloatingIP, error]
+	CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error)
+	DeleteFloatingIP(ctx context.Context, id string) error
+	GetFloatingIP(ctx context.Context, id string) (*floatingips.FloatingIP, error)
+	UpdateFloatingIP(ctx context.Context, id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error)
+
 	ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error]
 	CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error)
 	DeleteRouter(ctx context.Context, id string) error
@@ -137,12 +143,11 @@ func (c networkClient) ListRouter(ctx context.Context, opts routers.ListOpts) it
 	}
 }
 
-func (c networkClient) ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) ([]floatingips.FloatingIP, error) {
-	allPages, err := floatingips.List(c.serviceClient, opts).AllPages(ctx)
-	if err != nil {
-		return nil, err
+func (c networkClient) ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) iter.Seq2[*floatingips.FloatingIP, error] {
+	pager := floatingips.List(c.serviceClient, opts)
+	return func(yield func(*floatingips.FloatingIP, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(floatingips.ExtractFloatingIPs, yield))
 	}
-	return floatingips.ExtractFloatingIPs(allPages)
 }
 
 func (c networkClient) CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error) {
