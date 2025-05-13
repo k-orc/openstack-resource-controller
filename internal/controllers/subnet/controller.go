@@ -76,6 +76,18 @@ var (
 		},
 	)
 
+	routerDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Router](
+		"spec.resource.routerRef",
+		func(subnet *orcv1alpha1.Subnet) []string {
+			resource := subnet.Spec.Resource
+			if resource == nil || resource.RouterRef == nil {
+				return nil
+			}
+			return []string{string(*resource.RouterRef)}
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+
 	projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetList, *orcv1alpha1.Project](
 		"spec.resource.projectRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
@@ -116,6 +128,11 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	routerWatchEventHandler, err := routerDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -135,6 +152,9 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Network{}, networkImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
+		).
+		Watches(&orcv1alpha1.Router{}, routerWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Router{})),
 		).
 		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
@@ -165,6 +185,7 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err := errors.Join(
 		networkDependency.AddToManager(ctx, mgr),
 		networkImportDependency.AddToManager(ctx, mgr),
+		routerDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),

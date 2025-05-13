@@ -161,6 +161,15 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 		},
 	)
 
+	if resource.RouterRef != nil {
+		_, routerDepRS := routerDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Router) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(routerDepRS)
+	}
+
 	var projectID string
 	if resource.ProjectRef != "" {
 		project, projectDepRS := projectDependency.GetDependency(

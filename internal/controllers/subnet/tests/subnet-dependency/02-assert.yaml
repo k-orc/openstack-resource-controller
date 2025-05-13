@@ -6,12 +6,10 @@ resourceRefs:
       kind: Network
       name: subnet-dependency
       ref: network
-    # FIXME We're missing a dependency on router
-    # https://github.com/k-orc/openstack-resource-controller/issues/316
-    # - apiVersion: openstack.k-orc.cloud/v1alpha1
-    #   kind: Router
-    #   name: subnet-dependency
-    #   ref: router
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Router
+      name: subnet-dependency
+      ref: router
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Project
       name: subnet-dependency
@@ -23,8 +21,8 @@ resourceRefs:
 assertAll:
     - celExpr: "network.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/subnet' in network.metadata.finalizers"
-    # - celExpr: "router.metadata.deletionTimestamp != 0"
-    # - celExpr: "'openstack.k-orc.cloud/subnet' in router.metadata.finalizers"
+    - celExpr: "router.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/subnet' in router.metadata.finalizers"
     - celExpr: "project.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/subnet' in project.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"

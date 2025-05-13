@@ -33,18 +33,16 @@ apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
   name: subnet-dependency-no-router
-# FIXME We're missing a dependency on router
-# https://github.com/k-orc/openstack-resource-controller/issues/316
-# status:
-#   conditions:
-#     - type: Available
-#       message: Waiting for Router/subnet-dependency-pending to be created
-#       status: "False"
-#       reason: Progressing
-#     - type: Progressing
-#       message: Waiting for Router/subnet-dependency-pending to be created
-#       status: "True"
-#       reason: Progressing
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Router/subnet-dependency-pending to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Router/subnet-dependency-pending to be created
+      status: "True"
+      reason: Progressing
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
