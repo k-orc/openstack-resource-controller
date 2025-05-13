@@ -44,10 +44,10 @@ var (
 		"spec.resource.projectRef",
 		func(network *orcv1alpha1.Network) []string {
 			resource := network.Spec.Resource
-			if resource == nil {
+			if resource == nil || resource.ProjectRef == nil {
 				return nil
 			}
-			return []string{string(resource.ProjectRef)}
+			return []string{string(*resource.ProjectRef)}
 		},
 		finalizer, externalObjectFieldOwner,
 	)
@@ -56,10 +56,10 @@ var (
 		"spec.import.filter.projectRef",
 		func(network *orcv1alpha1.Network) []string {
 			resource := network.Spec.Import
-			if resource == nil || resource.Filter == nil {
+			if resource == nil || resource.Filter == nil || resource.Filter.ProjectRef == nil {
 				return nil
 			}
-			return []string{string(resource.Filter.ProjectRef)}
+			return []string{string(*resource.Filter.ProjectRef)}
 		},
 	)
 )

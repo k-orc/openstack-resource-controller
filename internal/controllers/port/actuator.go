@@ -83,42 +83,38 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 
 	network := &orcv1alpha1.Network{}
 	if filter.NetworkRef != "" {
-		{
-			networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
-			if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
-				if apierrors.IsNotFound(err) {
-					reconcileStatus = reconcileStatus.WithReconcileStatus(
-						progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation))
-				} else {
-					reconcileStatus = reconcileStatus.WithReconcileStatus(
-						progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err)))
-				}
+		networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation))
 			} else {
-				if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
-					reconcileStatus = reconcileStatus.WithReconcileStatus(
-						progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady))
-				}
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady))
 			}
 		}
 	}
 
 	project := &orcv1alpha1.Project{}
-	if filter.ProjectRef != "" {
-		{
-			projectKey := client.ObjectKey{Name: string(filter.ProjectRef), Namespace: obj.Namespace}
-			if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
-				if apierrors.IsNotFound(err) {
-					reconcileStatus = reconcileStatus.WithReconcileStatus(
-						progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
-				} else {
-					reconcileStatus = reconcileStatus.WithReconcileStatus(
-						progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
-				}
+	if filter.ProjectRef != nil {
+		projectKey := client.ObjectKey{Name: string(*filter.ProjectRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
 			} else {
-				if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
-					reconcileStatus = reconcileStatus.WithReconcileStatus(
-						progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
-				}
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
 			}
 		}
 	}
@@ -170,7 +166,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		WithReconcileStatus(secGroupDepRS)
 
 	var projectID string
-	if resource.ProjectRef != "" {
+	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil

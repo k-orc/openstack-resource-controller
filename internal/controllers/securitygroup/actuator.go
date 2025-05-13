@@ -82,8 +82,8 @@ func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Conte
 	var reconcileStatus progress.ReconcileStatus
 
 	project := &orcv1alpha1.Project{}
-	if filter.ProjectRef != "" {
-		projectKey := client.ObjectKey{Name: string(filter.ProjectRef), Namespace: obj.Namespace}
+	if filter.ProjectRef != nil {
+		projectKey := client.ObjectKey{Name: string(*filter.ProjectRef), Namespace: obj.Namespace}
 		if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
 			if apierrors.IsNotFound(err) {
 				reconcileStatus = reconcileStatus.WithReconcileStatus(
@@ -125,7 +125,7 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 	}
 
 	var projectID string
-	if resource.ProjectRef != "" {
+	if resource.ProjectRef != nil {
 		project, reconcileStatus := projectDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -218,7 +218,7 @@ func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject
 	}
 
 	var projectID string
-	if resource.ProjectRef != "" {
+	if resource.ProjectRef != nil {
 		project, reconcileStatus := projectDependency.GetDependency(
 			ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.Project) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
