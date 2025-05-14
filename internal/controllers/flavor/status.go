@@ -52,13 +52,21 @@ func (flavorStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Flavor,
 }
 
 func (flavorStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *flavors.Flavor, statusApply *statusApplyT) {
-	statusApply.WithResource(orcapplyconfigv1alpha1.FlavorResourceStatus().
+	resourceStatus := orcapplyconfigv1alpha1.FlavorResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithRAM(int32(osResource.RAM)).
 		WithDisk(int32(osResource.Disk)).
 		WithVcpus(int32(osResource.VCPUs)).
-		WithSwap(int32(osResource.Swap)).
-		WithIsPublic(osResource.IsPublic).
-		WithEphemeral(int32(osResource.Ephemeral)))
+		WithIsPublic(osResource.IsPublic)
+
+	if osResource.Swap > 0 {
+		resourceStatus.WithSwap(int32(osResource.Swap))
+	}
+	if osResource.Ephemeral > 0 {
+		resourceStatus.WithEphemeral(int32(osResource.Ephemeral))
+	}
+	if osResource.Description != "" {
+		resourceStatus.WithDescription(osResource.Description)
+	}
+	statusApply.WithResource(resourceStatus)
 }
