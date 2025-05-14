@@ -8,8 +8,6 @@ status:
     name: port-create-sriov
     description: Port from "create sriov" test
     adminStateUp: true
-    deviceID: ""
-    deviceOwner: ""
     portSecurityEnabled: false
     propagateUplinkStatus: false
     status: DOWN
