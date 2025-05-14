@@ -2241,7 +2241,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkFilter(ref comm
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2517,7 +2516,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkResourceSpec(re
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2913,7 +2911,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref common.
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3263,7 +3260,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4116,7 +4112,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterFilter(ref commo
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4564,7 +4559,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterResourceSpec(ref
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4859,7 +4853,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupFilter(re
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5099,7 +5092,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupResourceS
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6042,7 +6034,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref commo
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6400,7 +6391,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},

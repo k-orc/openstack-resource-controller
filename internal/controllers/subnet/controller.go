@@ -92,10 +92,10 @@ var (
 		"spec.resource.projectRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
 			resource := subnet.Spec.Resource
-			if resource == nil {
+			if resource == nil || resource.ProjectRef == nil {
 				return nil
 			}
-			return []string{string(resource.ProjectRef)}
+			return []string{string(*resource.ProjectRef)}
 		},
 		finalizer, externalObjectFieldOwner,
 	)
@@ -104,10 +104,10 @@ var (
 		"spec.import.filter.projectRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
 			resource := subnet.Spec.Import
-			if resource == nil || resource.Filter == nil {
+			if resource == nil || resource.Filter == nil || resource.Filter.ProjectRef == nil {
 				return nil
 			}
-			return []string{string(resource.Filter.ProjectRef)}
+			return []string{string(*resource.Filter.ProjectRef)}
 		},
 	)
 )

@@ -580,7 +580,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: tags
       type:
         list:
@@ -635,7 +634,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: shared
       type:
         scalar: boolean
@@ -793,7 +791,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: tags
       type:
         list:
@@ -868,7 +865,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: securityGroupRefs
       type:
         list:
@@ -1181,7 +1177,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: tags
       type:
         list:
@@ -1282,7 +1277,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: tags
       type:
         list:
@@ -1406,7 +1400,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: tags
       type:
         list:
@@ -1440,7 +1433,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: rules
       type:
         list:
@@ -1790,7 +1782,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: tags
       type:
         list:
@@ -1876,7 +1867,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
-      default: ""
     - name: routerRef
       type:
         scalar: string
