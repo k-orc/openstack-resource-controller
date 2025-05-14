@@ -1,0 +1,34 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: subnet-update
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: subnet-update
+      ref: network
+assertAll:
+    - celExpr: "subnet.status.resource.networkID == network.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-update
+status:
+  resource:
+    name: subnet-update-updated
+    description: subnet-update-updated
+    allocationPools:
+      - start: 192.168.0.5
+        end: 192.168.0.200
+    cidr: 192.168.0.0/24
+    dnsPublishFixedIP: false
+    enableDHCP: true
+    gatewayIP: 192.168.0.1
+    ipVersion: 4
+    tags:
+      - tag1
+      - tag2

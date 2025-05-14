@@ -1,0 +1,13 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-update
+    ipVersion: 4
+    cidr: 192.168.0.0/24
