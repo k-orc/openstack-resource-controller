@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"reflect"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
@@ -34,6 +35,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
@@ -61,11 +63,11 @@ type subnetActuator struct {
 var _ createResourceActuator = subnetActuator{}
 var _ deleteResourceActuator = subnetActuator{}
 
-func (subnetActuator) GetResourceID(osResource *subnets.Subnet) string {
+func (subnetActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator subnetActuator) GetOSResourceByID(ctx context.Context, id string) (*subnets.Subnet, progress.ReconcileStatus) {
+func (actuator subnetActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	subnet, err := actuator.osClient.GetSubnet(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -147,7 +149,7 @@ func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj
 	return actuator.osClient.ListSubnet(ctx, listOpts), nil
 }
 
-func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*subnets.Subnet, progress.ReconcileStatus) {
+func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -252,7 +254,7 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 	return osResource, nil
 }
 
-func (actuator subnetActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *subnets.Subnet) progress.ReconcileStatus {
+func (actuator subnetActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	// Delete any RouterInterface first, as this would prevent deletion of the subnet
 	routerInterface, err := getRouterInterface(ctx, actuator.k8sClient, obj)
 	if err != nil {
@@ -272,12 +274,168 @@ func (actuator subnetActuator) DeleteResource(ctx context.Context, obj orcObject
 	return progress.WrapError(actuator.osClient.DeleteSubnet(ctx, osResource.ID))
 }
 
+func (actuator subnetActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := subnets.UpdateOpts{}
+
+	handleNameUpdate(&updateOpts, obj, osResource)
+	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	handleAllocationPoolsUpdate(&updateOpts, resource, osResource)
+	handleHostRoutesUpdate(&updateOpts, resource, osResource)
+	handleDNSNameserversUpdate(&updateOpts, resource, osResource)
+	handleEnableDHCPUpdate(&updateOpts, resource, osResource)
+	handleGatewayUpdate(&updateOpts, resource, osResource)
+
+	// Note that we didn't make dnsPublishFixedIP mutable as it could constantly try to reconcile in some environments
+	// as seen in https://github.com/k-orc/openstack-resource-controller/issues/189
+
+	if reflect.ValueOf(updateOpts).IsZero() {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	updateOpts.RevisionNumber = &osResource.RevisionNumber
+
+	_, err := actuator.osClient.UpdateSubnet(ctx, osResource.ID, updateOpts)
+
+	// We should require the spec to be updated before retrying an update which returned a conflict
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func handleNameUpdate(updateOpts *subnets.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = &name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func handleAllocationPoolsUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	missingAllocationPool := false
+	allocationPools := make([]subnets.AllocationPool, len(resource.AllocationPools))
+	for i := range resource.AllocationPools {
+		allocationPools[i].Start = string(resource.AllocationPools[i].Start)
+		allocationPools[i].End = string(resource.AllocationPools[i].End)
+
+		found := false
+		for _, pool := range osResource.AllocationPools {
+			if pool.Start == allocationPools[i].Start &&
+				pool.End == allocationPools[i].End {
+				found = true
+				break
+			}
+		}
+		if !found {
+			missingAllocationPool = true
+		}
+	}
+	// If the spec doesn't set allocation pools, we'll get a default one and should not try to update it.
+	if len(resource.AllocationPools) > 0 &&
+		(missingAllocationPool || len(resource.AllocationPools) != len(osResource.AllocationPools)) {
+		updateOpts.AllocationPools = allocationPools
+	}
+}
+
+func handleHostRoutesUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	missingHostRoute := false
+	hostRoutes := make([]subnets.HostRoute, len(resource.HostRoutes))
+	for i := range resource.HostRoutes {
+		hostRoutes[i].DestinationCIDR = string(resource.HostRoutes[i].Destination)
+		hostRoutes[i].NextHop = string(resource.HostRoutes[i].NextHop)
+
+		found := false
+		for _, route := range osResource.HostRoutes {
+			if route.DestinationCIDR == hostRoutes[i].DestinationCIDR &&
+				route.NextHop == hostRoutes[i].NextHop {
+				found = true
+				break
+			}
+		}
+		if !found {
+			missingHostRoute = true
+		}
+	}
+	if missingHostRoute || len(resource.HostRoutes) != len(osResource.HostRoutes) {
+		updateOpts.HostRoutes = &hostRoutes
+	}
+}
+
+func handleDNSNameserversUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	missingNameserver := false
+	nameservers := make([]string, len(resource.DNSNameservers))
+	for i := range resource.DNSNameservers {
+		nameservers[i] = string(resource.DNSNameservers[i])
+		found := false
+		for _, nameserver := range osResource.DNSNameservers {
+			if nameserver == nameservers[i] {
+				found = true
+				break
+			}
+		}
+		if !found {
+			missingNameserver = true
+		}
+	}
+	if missingNameserver || len(resource.DNSNameservers) != len(osResource.DNSNameservers) {
+		updateOpts.DNSNameservers = &nameservers
+	}
+}
+
+func handleEnableDHCPUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	enableDHCP := ptr.Deref(resource.EnableDHCP, true)
+	if osResource.EnableDHCP != enableDHCP {
+		updateOpts.EnableDHCP = &enableDHCP
+	}
+}
+
+func handleGatewayUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if resource.Gateway != nil {
+		switch resource.Gateway.Type {
+		case orcv1alpha1.SubnetGatewayTypeAutomatic:
+			// Nothing to do
+		case orcv1alpha1.SubnetGatewayTypeNone:
+			if osResource.GatewayIP != "" {
+				updateOpts.GatewayIP = ptr.To("")
+			}
+		case orcv1alpha1.SubnetGatewayTypeIP:
+			fallthrough
+		default:
+			if osResource.GatewayIP != string(ptr.Deref(resource.Gateway.IP, "")) {
+				updateOpts.GatewayIP = (*string)(resource.Gateway.IP)
+			}
+		}
+	}
+}
+
 var _ reconcileResourceActuator = subnetActuator{}
 
 func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "subnets", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 		actuator.ensureRouterInterface,
+		actuator.updateResource,
 	}, nil
 }
 
