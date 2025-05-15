@@ -20,6 +20,8 @@ package v1alpha1
 
 type FlavorExpansion interface{}
 
+type FloatingIPExpansion interface{}
+
 type ImageExpansion interface{}
 
 type NetworkExpansion interface{}

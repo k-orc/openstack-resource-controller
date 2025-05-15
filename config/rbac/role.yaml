@@ -18,6 +18,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - flavors
+  - floatingips
   - images
   - networks
   - ports
@@ -39,6 +40,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - flavors/status
+  - floatingips/status
   - images/status
   - networks/status
   - ports/status

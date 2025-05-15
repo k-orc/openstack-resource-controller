@@ -26,6 +26,14 @@ type FlavorListerExpansion interface{}
 // FlavorNamespaceLister.
 type FlavorNamespaceListerExpansion interface{}
 
+// FloatingIPListerExpansion allows custom methods to be added to
+// FloatingIPLister.
+type FloatingIPListerExpansion interface{}
+
+// FloatingIPNamespaceListerExpansion allows custom methods to be added to
+// FloatingIPNamespaceLister.
+type FloatingIPNamespaceListerExpansion interface{}
+
 // ImageListerExpansion allows custom methods to be added to
 // ImageLister.
 type ImageListerExpansion interface{}

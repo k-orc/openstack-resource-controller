@@ -26,6 +26,8 @@ import (
 type Interface interface {
 	// Flavors returns a FlavorInformer.
 	Flavors() FlavorInformer
+	// FloatingIPs returns a FloatingIPInformer.
+	FloatingIPs() FloatingIPInformer
 	// Images returns a ImageInformer.
 	Images() ImageInformer
 	// Networks returns a NetworkInformer.
@@ -60,6 +62,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // Flavors returns a FlavorInformer.
 func (v *version) Flavors() FlavorInformer {
 	return &flavorInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// FloatingIPs returns a FloatingIPInformer.
+func (v *version) FloatingIPs() FloatingIPInformer {
+	return &floatingIPInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Images returns a ImageInformer.

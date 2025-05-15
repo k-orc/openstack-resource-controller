@@ -30,6 +30,7 @@ import (
 	reflect "reflect"
 
 	attributestags "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
+	floatingips "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
 	routers "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	groups "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	rules "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
@@ -77,6 +78,21 @@ func (m *MockNetworkClient) AddRouterInterface(ctx context.Context, id string, o
 func (mr *MockNetworkClientMockRecorder) AddRouterInterface(ctx, id, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRouterInterface", reflect.TypeOf((*MockNetworkClient)(nil).AddRouterInterface), ctx, id, opts)
+}
+
+// CreateFloatingIP mocks base method.
+func (m *MockNetworkClient) CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFloatingIP", ctx, opts)
+	ret0, _ := ret[0].(*floatingips.FloatingIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateFloatingIP indicates an expected call of CreateFloatingIP.
+func (mr *MockNetworkClientMockRecorder) CreateFloatingIP(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFloatingIP", reflect.TypeOf((*MockNetworkClient)(nil).CreateFloatingIP), ctx, opts)
 }
 
 // CreateNetwork mocks base method.
@@ -169,6 +185,20 @@ func (mr *MockNetworkClientMockRecorder) CreateSubnet(ctx, opts any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubnet", reflect.TypeOf((*MockNetworkClient)(nil).CreateSubnet), ctx, opts)
 }
 
+// DeleteFloatingIP mocks base method.
+func (m *MockNetworkClient) DeleteFloatingIP(ctx context.Context, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFloatingIP", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteFloatingIP indicates an expected call of DeleteFloatingIP.
+func (mr *MockNetworkClientMockRecorder) DeleteFloatingIP(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFloatingIP", reflect.TypeOf((*MockNetworkClient)(nil).DeleteFloatingIP), ctx, id)
+}
+
 // DeleteNetwork mocks base method.
 func (m *MockNetworkClient) DeleteNetwork(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -251,6 +281,21 @@ func (m *MockNetworkClient) DeleteSubnet(ctx context.Context, id string) error {
 func (mr *MockNetworkClientMockRecorder) DeleteSubnet(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubnet", reflect.TypeOf((*MockNetworkClient)(nil).DeleteSubnet), ctx, id)
+}
+
+// GetFloatingIP mocks base method.
+func (m *MockNetworkClient) GetFloatingIP(ctx context.Context, id string) (*floatingips.FloatingIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFloatingIP", ctx, id)
+	ret0, _ := ret[0].(*floatingips.FloatingIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFloatingIP indicates an expected call of GetFloatingIP.
+func (mr *MockNetworkClientMockRecorder) GetFloatingIP(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFloatingIP", reflect.TypeOf((*MockNetworkClient)(nil).GetFloatingIP), ctx, id)
 }
 
 // GetNetwork mocks base method.
@@ -341,6 +386,20 @@ func (m *MockNetworkClient) GetSubnet(ctx context.Context, id string) (*subnets.
 func (mr *MockNetworkClientMockRecorder) GetSubnet(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubnet", reflect.TypeOf((*MockNetworkClient)(nil).GetSubnet), ctx, id)
+}
+
+// ListFloatingIP mocks base method.
+func (m *MockNetworkClient) ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) iter.Seq2[*floatingips.FloatingIP, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListFloatingIP", ctx, opts)
+	ret0, _ := ret[0].(iter.Seq2[*floatingips.FloatingIP, error])
+	return ret0
+}
+
+// ListFloatingIP indicates an expected call of ListFloatingIP.
+func (mr *MockNetworkClientMockRecorder) ListFloatingIP(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFloatingIP", reflect.TypeOf((*MockNetworkClient)(nil).ListFloatingIP), ctx, opts)
 }
 
 // ListNetwork mocks base method.
@@ -456,6 +515,21 @@ func (m *MockNetworkClient) ReplaceAllAttributesTags(ctx context.Context, resour
 func (mr *MockNetworkClientMockRecorder) ReplaceAllAttributesTags(ctx, resourceType, resourceID, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceAllAttributesTags", reflect.TypeOf((*MockNetworkClient)(nil).ReplaceAllAttributesTags), ctx, resourceType, resourceID, opts)
+}
+
+// UpdateFloatingIP mocks base method.
+func (m *MockNetworkClient) UpdateFloatingIP(ctx context.Context, id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateFloatingIP", ctx, id, opts)
+	ret0, _ := ret[0].(*floatingips.FloatingIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateFloatingIP indicates an expected call of UpdateFloatingIP.
+func (mr *MockNetworkClientMockRecorder) UpdateFloatingIP(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFloatingIP", reflect.TypeOf((*MockNetworkClient)(nil).UpdateFloatingIP), ctx, id, opts)
 }
 
 // UpdateNetwork mocks base method.

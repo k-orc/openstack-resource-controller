@@ -194,7 +194,7 @@ func (d *Dependency[objectTP, _, depTP, _, _, depT]) WatchEventHandler(log logr.
 
 		objects, err := d.GetObjectsForDependency(ctx, k8sClient, dependency)
 		if err != nil {
-			log.Error(err, "listing Routers")
+			log.Error(err, fmt.Sprintf("listing %s", depKind))
 			return nil
 		}
 		requests := make([]reconcile.Request, len(objects))
