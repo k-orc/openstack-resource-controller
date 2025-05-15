@@ -6,6 +6,5 @@ metadata:
 status:
   resource:
     adminStateUp: true
-    description: ""
     name: router-create-minimal
     status: ACTIVE
