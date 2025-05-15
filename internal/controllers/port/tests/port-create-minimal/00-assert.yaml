@@ -7,9 +7,6 @@ status:
   resource:
     name: port-create-minimal
     adminStateUp: true
-    description: ""
-    deviceID: ""
-    deviceOwner: ""
     portSecurityEnabled: true
     propagateUplinkStatus: false
     revisionNumber: 1

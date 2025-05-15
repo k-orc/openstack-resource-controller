@@ -63,13 +63,11 @@ func (networkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Networ
 func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osclients.NetworkExt, statusApply *orcapplyconfigv1alpha1.NetworkStatusApplyConfiguration) {
 	networkResourceStatus := orcapplyconfigv1alpha1.NetworkResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithAdminStateUp(osResource.AdminStateUp).
 		WithAvailabilityZoneHints(osResource.AvailabilityZoneHints...).
 		WithStatus(osResource.Status).
 		WithProjectID(osResource.ProjectID).
 		WithTags(osResource.Tags...).
-		WithDNSDomain(osResource.DNSDomain).
 		WithRevisionNumber(int64(osResource.RevisionNumber)).
 		WithExternal(osResource.External).
 		WithSubnets(osResource.Subnets...).
@@ -79,6 +77,12 @@ func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *oscl
 		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
+	if osResource.Description != "" {
+		networkResourceStatus.WithDescription(osResource.Description)
+	}
+	if osResource.DNSDomain != "" {
+		networkResourceStatus.WithDNSDomain(osResource.DNSDomain)
+	}
 	if osResource.NetworkType != "" {
 		providerProperties := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
 			WithNetworkType(osResource.NetworkType).

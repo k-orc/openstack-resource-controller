@@ -6,5 +6,4 @@ metadata:
 status:
   resource:
     name: project-create-minimal
-    description: ""
     enabled: true
