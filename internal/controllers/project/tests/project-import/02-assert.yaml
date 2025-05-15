@@ -29,4 +29,3 @@ status:
       reason: Success
   resource:
     name: project-import-external
-    description: ""
