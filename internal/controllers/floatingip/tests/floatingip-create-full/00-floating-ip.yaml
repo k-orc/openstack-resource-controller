@@ -20,7 +20,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: floatingip-create-full-external
     external: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -38,7 +37,7 @@ spec:
     cidr: 192.168.155.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
+kind: Router
 metadata:
   name: floatingip-create-full
 spec:
@@ -47,7 +46,19 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: floatingip-create-full
+    externalGateways:
+      - networkRef: floatingip-create-full-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: floatingip-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -60,6 +71,7 @@ spec:
   managementPolicy: managed
   resource:
     networkRef: floatingip-create-full
+    routerRef: floatingip-create-full
     ipVersion: 4
     cidr: 10.0.0.0/24
 ---
@@ -77,30 +89,6 @@ spec:
     addresses:
       - subnetRef: floatingip-create-full
         ip: 10.0.0.10
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Router
-metadata:
-  name: floatingip-create-full
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack-admin
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    name: floatingip-create-full
-    adminStateUp: false
-    externalGateways:
-      - networkRef: floatingip-create-full-external
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: RouterInterface
-metadata:
-  name: floatingip-create-full
-spec:
-  type: Subnet
-  routerRef: floatingip-create-full
-  subnetRef: floatingip-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: FloatingIP

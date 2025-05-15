@@ -20,7 +20,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: floatingip-import
     external: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
