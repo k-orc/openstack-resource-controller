@@ -68,7 +68,7 @@ type FloatingIPResourceSpec struct {
 	// floatingIP is the IP that will be assigned to the floatingip. If not set, it will
 	// be assigned automatically.
 	// +optional
-	FloatingIP *IPvAny `json:"floatingIP"`
+	FloatingIP *IPvAny `json:"floatingIP,omitempty"`
 
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +optional
