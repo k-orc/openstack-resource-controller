@@ -68,6 +68,10 @@ func (c *FakeOpenstackV1alpha1) Servers(namespace string) v1alpha1.ServerInterfa
 	return newFakeServers(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) ServerGroups(namespace string) v1alpha1.ServerGroupInterface {
+	return newFakeServerGroups(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterface {
 	return newFakeSubnets(c, namespace)
 }

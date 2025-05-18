@@ -32,16 +32,18 @@ import (
 )
 
 /*
-NovaMinimumMicroversion is the minimum Nova microversion supported by CAPO
-2.60 corresponds to OpenStack Queens
+NovaMinimumMicroversion is the minimum Nova microversion supported by CAPO and ORC.
+2.71 corresponds to OpenStack Stein
 
 For the canonical description of Nova microversions, see
 https://docs.openstack.org/nova/latest/reference/api-microversion-history.html
 
 CAPO uses server tags, which were added in microversion 2.52.
 CAPO supports multiattach volume types, which were added in microversion 2.60.
+ORC supports server groups by specifying Policy/Rules instead of Policies, which were added in microversion 2.64.
+ORC requires the use of microversion 2.71 to support ServerGroups field in Server response.
 */
-const NovaMinimumMicroversion = "2.60"
+const NovaMinimumMicroversion = "2.71"
 
 type ComputeClient interface {
 	CreateFlavor(ctx context.Context, opts flavors.CreateOptsBuilder) (*flavors.Flavor, error)
@@ -53,6 +55,11 @@ type ComputeClient interface {
 	DeleteServer(ctx context.Context, serverID string) error
 	GetServer(ctx context.Context, serverID string) (*servers.Server, error)
 	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error]
+
+	CreateServerGroup(ctx context.Context, createOpts servergroups.CreateOptsBuilder) (*servergroups.ServerGroup, error)
+	DeleteServerGroup(ctx context.Context, serverGroupID string) error
+	GetServerGroup(ctx context.Context, serverGroupID string) (*servergroups.ServerGroup, error)
+	ListServerGroups(ctx context.Context, listOpts servergroups.ListOptsBuilder) iter.Seq2[*servergroups.ServerGroup, error]
 }
 
 type computeClient struct{ client *gophercloud.ServiceClient }
@@ -129,13 +136,23 @@ func (c computeClient) DeleteAttachedInterface(ctx context.Context, serverID, po
 	return attachinterfaces.Delete(ctx, c.client, serverID, portID).ExtractErr()
 }
 
-func (c computeClient) ListServerGroups(ctx context.Context) ([]servergroups.ServerGroup, error) {
-	opts := servergroups.ListOpts{}
-	allPages, err := servergroups.List(c.client, opts).AllPages(ctx)
-	if err != nil {
-		return nil, err
+func (c computeClient) CreateServerGroup(ctx context.Context, createOpts servergroups.CreateOptsBuilder) (*servergroups.ServerGroup, error) {
+	return servergroups.Create(ctx, c.client, createOpts).Extract()
+}
+
+func (c computeClient) DeleteServerGroup(ctx context.Context, serverGroupID string) error {
+	return servergroups.Delete(ctx, c.client, serverGroupID).ExtractErr()
+}
+
+func (c computeClient) GetServerGroup(ctx context.Context, serverGroupID string) (*servergroups.ServerGroup, error) {
+	return servergroups.Get(ctx, c.client, serverGroupID).Extract()
+}
+
+func (c computeClient) ListServerGroups(ctx context.Context, opts servergroups.ListOptsBuilder) iter.Seq2[*servergroups.ServerGroup, error] {
+	pager := servergroups.List(c.client, opts)
+	return func(yield func(*servergroups.ServerGroup, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(servergroups.ExtractServerGroups, yield))
 	}
-	return servergroups.ExtractServerGroups(allPages)
 }
 
 type computeErrorClient struct{ error }
@@ -181,14 +198,28 @@ func (e computeErrorClient) ListServers(ctx context.Context, listOpts servers.Li
 	}
 }
 
+func (e computeErrorClient) CreateServerGroup(_ context.Context, _ servergroups.CreateOptsBuilder) (*servergroups.ServerGroup, error) {
+	return nil, e.error
+}
+
+func (e computeErrorClient) DeleteServerGroup(_ context.Context, _ string) error {
+	return e.error
+}
+
+func (e computeErrorClient) GetServerGroup(_ context.Context, _ string) (*servergroups.ServerGroup, error) {
+	return nil, e.error
+}
+
+func (e computeErrorClient) ListServerGroups(ctx context.Context, listOpts servergroups.ListOptsBuilder) iter.Seq2[*servergroups.ServerGroup, error] {
+	return func(yield func(*servergroups.ServerGroup, error) bool) {
+		yield(nil, e.error)
+	}
+}
+
 func (e computeErrorClient) ListAttachedInterfaces(_ context.Context, _ string) ([]attachinterfaces.Interface, error) {
 	return nil, e.error
 }
 
 func (e computeErrorClient) DeleteAttachedInterface(_ context.Context, _, _ string) error {
 	return e.error
-}
-
-func (e computeErrorClient) ListServerGroups(_ context.Context) ([]servergroups.ServerGroup, error) {
-	return nil, e.error
 }

@@ -30,6 +30,7 @@ import (
 	reflect "reflect"
 
 	flavors "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
+	servergroups "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -88,6 +89,21 @@ func (mr *MockComputeClientMockRecorder) CreateServer(ctx, createOpts, scheduler
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateServer", reflect.TypeOf((*MockComputeClient)(nil).CreateServer), ctx, createOpts, schedulerHints)
 }
 
+// CreateServerGroup mocks base method.
+func (m *MockComputeClient) CreateServerGroup(ctx context.Context, createOpts servergroups.CreateOptsBuilder) (*servergroups.ServerGroup, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateServerGroup", ctx, createOpts)
+	ret0, _ := ret[0].(*servergroups.ServerGroup)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateServerGroup indicates an expected call of CreateServerGroup.
+func (mr *MockComputeClientMockRecorder) CreateServerGroup(ctx, createOpts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateServerGroup", reflect.TypeOf((*MockComputeClient)(nil).CreateServerGroup), ctx, createOpts)
+}
+
 // DeleteFlavor mocks base method.
 func (m *MockComputeClient) DeleteFlavor(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -114,6 +130,20 @@ func (m *MockComputeClient) DeleteServer(ctx context.Context, serverID string) e
 func (mr *MockComputeClientMockRecorder) DeleteServer(ctx, serverID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServer", reflect.TypeOf((*MockComputeClient)(nil).DeleteServer), ctx, serverID)
+}
+
+// DeleteServerGroup mocks base method.
+func (m *MockComputeClient) DeleteServerGroup(ctx context.Context, serverGroupID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteServerGroup", ctx, serverGroupID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteServerGroup indicates an expected call of DeleteServerGroup.
+func (mr *MockComputeClientMockRecorder) DeleteServerGroup(ctx, serverGroupID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServerGroup", reflect.TypeOf((*MockComputeClient)(nil).DeleteServerGroup), ctx, serverGroupID)
 }
 
 // GetFlavor mocks base method.
@@ -146,6 +176,21 @@ func (mr *MockComputeClientMockRecorder) GetServer(ctx, serverID any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServer", reflect.TypeOf((*MockComputeClient)(nil).GetServer), ctx, serverID)
 }
 
+// GetServerGroup mocks base method.
+func (m *MockComputeClient) GetServerGroup(ctx context.Context, serverGroupID string) (*servergroups.ServerGroup, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetServerGroup", ctx, serverGroupID)
+	ret0, _ := ret[0].(*servergroups.ServerGroup)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetServerGroup indicates an expected call of GetServerGroup.
+func (mr *MockComputeClientMockRecorder) GetServerGroup(ctx, serverGroupID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServerGroup", reflect.TypeOf((*MockComputeClient)(nil).GetServerGroup), ctx, serverGroupID)
+}
+
 // ListFlavors mocks base method.
 func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
 	m.ctrl.T.Helper()
@@ -158,6 +203,20 @@ func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.Li
 func (mr *MockComputeClientMockRecorder) ListFlavors(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFlavors", reflect.TypeOf((*MockComputeClient)(nil).ListFlavors), ctx, listOpts)
+}
+
+// ListServerGroups mocks base method.
+func (m *MockComputeClient) ListServerGroups(ctx context.Context, listOpts servergroups.ListOptsBuilder) iter.Seq2[*servergroups.ServerGroup, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListServerGroups", ctx, listOpts)
+	ret0, _ := ret[0].(iter.Seq2[*servergroups.ServerGroup, error])
+	return ret0
+}
+
+// ListServerGroups indicates an expected call of ListServerGroups.
+func (mr *MockComputeClientMockRecorder) ListServerGroups(ctx, listOpts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServerGroups", reflect.TypeOf((*MockComputeClient)(nil).ListServerGroups), ctx, listOpts)
 }
 
 // ListServers mocks base method.

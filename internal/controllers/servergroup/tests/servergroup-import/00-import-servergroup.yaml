@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ServerGroup
+metadata:
+  name: servergroup-import
+spec:
+  cloudCredentialsRef:
+    # Import does not require admin creds
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: servergroup-import-external

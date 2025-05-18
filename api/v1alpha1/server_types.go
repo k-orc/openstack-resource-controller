@@ -89,6 +89,11 @@ type ServerResourceSpec struct {
 	// +required
 	Ports []ServerPortSpec `json:"ports"`
 
+	// serverGroupRef is a reference to a ServerGroup object. The server
+	// will be created in the server group.
+	// +optional
+	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
+
 	// tags is a list of tags which will be applied to the server.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
@@ -136,6 +141,15 @@ type ServerResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
+
+	// serverGroups is a slice of strings containing the UUIDs of the
+	// server groups to which the server belongs. Currently this can
+	// contain at most one entry.
+	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
+	// +listType=atomic
+	// +optional
+	ServerGroups []string `json:"serverGroups,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32
