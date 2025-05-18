@@ -62,6 +62,18 @@ data:
   value: I2Nsb3VkLWNvbmZpZwoKdXNlcnM6CiAgLSBkZWZhdWx0Cg==
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ServerGroup
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    policy: soft-anti-affinity
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
   name: server-dependency
@@ -75,5 +87,6 @@ spec:
     flavorRef: server-dependency
     ports:
       - portRef: server-dependency
+    serverGroupRef: server-dependency
     userData:
       secretRef: server-dependency

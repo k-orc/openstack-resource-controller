@@ -25,12 +25,13 @@ import (
 // ServerResourceSpecApplyConfiguration represents a declarative configuration of the ServerResourceSpec type for use
 // with apply.
 type ServerResourceSpecApplyConfiguration struct {
-	Name      *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
-	ImageRef  *apiv1alpha1.KubernetesNameRef     `json:"imageRef,omitempty"`
-	FlavorRef *apiv1alpha1.KubernetesNameRef     `json:"flavorRef,omitempty"`
-	UserData  *UserDataSpecApplyConfiguration    `json:"userData,omitempty"`
-	Ports     []ServerPortSpecApplyConfiguration `json:"ports,omitempty"`
-	Tags      []apiv1alpha1.ServerTag            `json:"tags,omitempty"`
+	Name           *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
+	ImageRef       *apiv1alpha1.KubernetesNameRef     `json:"imageRef,omitempty"`
+	FlavorRef      *apiv1alpha1.KubernetesNameRef     `json:"flavorRef,omitempty"`
+	UserData       *UserDataSpecApplyConfiguration    `json:"userData,omitempty"`
+	Ports          []ServerPortSpecApplyConfiguration `json:"ports,omitempty"`
+	ServerGroupRef *apiv1alpha1.KubernetesNameRef     `json:"serverGroupRef,omitempty"`
+	Tags           []apiv1alpha1.ServerTag            `json:"tags,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -81,6 +82,14 @@ func (b *ServerResourceSpecApplyConfiguration) WithPorts(values ...*ServerPortSp
 		}
 		b.Ports = append(b.Ports, *values[i])
 	}
+	return b
+}
+
+// WithServerGroupRef sets the ServerGroupRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ServerGroupRef field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithServerGroupRef(value apiv1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
+	b.ServerGroupRef = &value
 	return b
 }
 

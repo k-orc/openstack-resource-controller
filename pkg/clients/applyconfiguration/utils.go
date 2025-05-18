@@ -212,6 +212,24 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerFilter"):
 		return &apiv1alpha1.ServerFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroup"):
+		return &apiv1alpha1.ServerGroupApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupFilter"):
+		return &apiv1alpha1.ServerGroupFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupImport"):
+		return &apiv1alpha1.ServerGroupImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupResourceSpec"):
+		return &apiv1alpha1.ServerGroupResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupResourceStatus"):
+		return &apiv1alpha1.ServerGroupResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupRules"):
+		return &apiv1alpha1.ServerGroupRulesApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupRulesStatus"):
+		return &apiv1alpha1.ServerGroupRulesStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupSpec"):
+		return &apiv1alpha1.ServerGroupSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroupStatus"):
+		return &apiv1alpha1.ServerGroupStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerImport"):
 		return &apiv1alpha1.ServerImportApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerPortSpec"):

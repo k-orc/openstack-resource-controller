@@ -1,0 +1,11 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ServerGroup
+metadata:
+  name: servergroup-create-full
+status:
+  resource:
+    name: servergroup-create-full-override
+    policy: anti-affinity
+    rules:
+      maxServerPerHost: 2

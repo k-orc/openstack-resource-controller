@@ -38,5 +38,6 @@ spec:
     flavorRef: server-dependency
     ports:
       - portRef: server-dependency
+    serverGroupRef: server-dependency
     userData:
       secretRef: server-dependency

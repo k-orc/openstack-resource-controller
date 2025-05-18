@@ -1,8 +1,10 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
-  # We should be able to delete the flavor and userdata secret
+  # We should be able to delete the flavor, the server group and userdata secret
   - command: kubectl delete flavor server-dependency
+    namespaced: true
+  - command: kubectl delete servergroup server-dependency
     namespaced: true
   - command: kubectl delete secret server-dependency
     namespaced: true

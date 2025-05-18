@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ServerGroup
+metadata:
+  name: servergroup-create-minimal
+status:
+  resource:
+    name: servergroup-create-minimal
+    policy: soft-affinity

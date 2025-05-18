@@ -6,10 +6,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for Secret/server-dependency to be created
+      message: Waiting for ServerGroup/server-dependency to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for Secret/server-dependency to be created
+      message: Waiting for ServerGroup/server-dependency to be created
       status: "True"
       reason: Progressing

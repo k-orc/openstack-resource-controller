@@ -98,6 +98,14 @@ type ServerListerExpansion interface{}
 // ServerNamespaceLister.
 type ServerNamespaceListerExpansion interface{}
 
+// ServerGroupListerExpansion allows custom methods to be added to
+// ServerGroupLister.
+type ServerGroupListerExpansion interface{}
+
+// ServerGroupNamespaceListerExpansion allows custom methods to be added to
+// ServerGroupNamespaceLister.
+type ServerGroupNamespaceListerExpansion interface{}
+
 // SubnetListerExpansion allows custom methods to be added to
 // SubnetLister.
 type SubnetListerExpansion interface{}

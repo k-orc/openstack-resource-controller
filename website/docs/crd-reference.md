@@ -29,6 +29,8 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [SecurityGroup](#securitygroup)
 - [SecurityGroupList](#securitygrouplist)
 - [Server](#server)
+- [ServerGroup](#servergroup)
+- [ServerGroupList](#servergrouplist)
 - [ServerList](#serverlist)
 - [Subnet](#subnet)
 - [SubnetList](#subnetlist)
@@ -174,6 +176,7 @@ _Appears in:_
 - [ProjectSpec](#projectspec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
+- [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [SubnetSpec](#subnetspec)
 
@@ -1330,6 +1333,7 @@ _Appears in:_
 - [ProjectSpec](#projectspec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
+- [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [SubnetSpec](#subnetspec)
 
@@ -1356,6 +1360,7 @@ _Appears in:_
 - [ProjectSpec](#projectspec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
+- [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [SubnetSpec](#subnetspec)
 
@@ -1665,6 +1670,8 @@ _Appears in:_
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [ServerFilter](#serverfilter)
+- [ServerGroupFilter](#servergroupfilter)
+- [ServerGroupResourceSpec](#servergroupresourcespec)
 - [ServerResourceSpec](#serverresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
@@ -2651,6 +2658,209 @@ _Appears in:_
 | `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
+#### ServerGroup
+
+
+
+ServerGroup is the Schema for an ORC resource.
+
+
+
+_Appears in:_
+- [ServerGroupList](#servergrouplist)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ServerGroup` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[ServerGroupSpec](#servergroupspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ServerGroupStatus](#servergroupstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### ServerGroupFilter
+
+
+
+ServerGroupFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ServerGroupImport](#servergroupimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+
+
+#### ServerGroupImport
+
+
+
+ServerGroupImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ServerGroupSpec](#servergroupspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
+| `filter` _[ServerGroupFilter](#servergroupfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### ServerGroupList
+
+
+
+ServerGroupList contains a list of ServerGroup.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ServerGroupList` | | |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `items` _[ServerGroup](#servergroup) array_ | items contains a list of ServerGroup. |  |  |
+
+
+#### ServerGroupPolicy
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [affinity anti-affinity soft-affinity soft-anti-affinity]
+
+_Appears in:_
+- [ServerGroupResourceSpec](#servergroupresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `affinity` | ServerGroupPolicyAffinity is a server group policy that restricts instances belonging to the server group to the same host.<br /> |
+| `anti-affinity` | ServerGroupPolicyAntiAffinity is a server group policy that restricts instances belonging to the server group to separate hosts.<br /> |
+| `soft-affinity` | ServerGroupPolicySoftAffinity is a server group policy that attempts to restrict instances belonging to the server group to the same host.<br />Where it is not possible to schedule all instances on one host, they will be scheduled together on as few hosts as possible.<br /> |
+| `soft-anti-affinity` | ServerGroupPolicySoftAntiAffinity is a server group policy that attempts to restrict instances belonging to the server group to separate hosts.<br /> Where it is not possible to schedule all instances to separate hosts, they will be scheduled on as many separate hosts as possible.<br /> |
+
+
+#### ServerGroupResourceSpec
+
+
+
+ServerGroupResourceSpec contains the desired state of a servergroup
+
+
+
+_Appears in:_
+- [ServerGroupSpec](#servergroupspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `policy` _[ServerGroupPolicy](#servergrouppolicy)_ | policy is the policy to use for the server group. |  | Enum: [affinity anti-affinity soft-affinity soft-anti-affinity] <br /> |
+| `rules` _[ServerGroupRules](#servergrouprules)_ | rules is the rules to use for the server group. |  |  |
+
+
+#### ServerGroupResourceStatus
+
+
+
+ServerGroupResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ServerGroupStatus](#servergroupstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the servergroup. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `policy` _string_ | policy is the policy of the servergroup. |  | MaxLength: 1024 <br /> |
+| `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
+| `userID` _string_ | userID of the server group. |  | MaxLength: 1024 <br /> |
+| `rules` _[ServerGroupRulesStatus](#servergrouprulesstatus)_ | rules is the rules of the server group. |  |  |
+
+
+#### ServerGroupRules
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerGroupResourceSpec](#servergroupresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `maxServerPerHost` _integer_ | maxServerPerHost specifies how many servers can reside on a single compute host.<br />It can be used only with the "anti-affinity" policy. |  |  |
+
+
+#### ServerGroupRulesStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerGroupResourceStatus](#servergroupresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `maxServerPerHost` _integer_ | maxServerPerHost specifies how many servers can reside on a single compute host.<br />It can be used only with the "anti-affinity" policy. |  |  |
+
+
+#### ServerGroupSpec
+
+
+
+ServerGroupSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [ServerGroup](#servergroup)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ServerGroupImport](#servergroupimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[ServerGroupResourceSpec](#servergroupresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### ServerGroupStatus
+
+
+
+ServerGroupStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [ServerGroup](#servergroup)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[ServerGroupResourceStatus](#servergroupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
 #### ServerImport
 
 
@@ -2725,6 +2935,7 @@ _Appears in:_
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 32 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
@@ -2745,6 +2956,7 @@ _Appears in:_
 | `hostID` _string_ | hostID is the host where the server is located in the cloud. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
+| `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
 
 
