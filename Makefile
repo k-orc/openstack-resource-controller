@@ -265,7 +265,7 @@ verify-container-images: ## Verify container images
 	TRACE=$(TRACE) ./hack/verify-container-images.sh $(TRIVY_VERSION)
 
 .PHONY: verify-govulncheck
-verify-govulncheck: $(GOVULNCHECK) ## Verify code for vulnerabilities
+verify-govulncheck: govulncheck ## Verify code for vulnerabilities
 	$(GOVULNCHECK) ./... && R1=$$? || R1=$$?; \
 	if [ "$$R1" -ne "0" ]; then \
 		exit 1; \
