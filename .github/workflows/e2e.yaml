@@ -28,7 +28,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Deploy devstack
-      uses: gophercloud/devstack-action@f4c936d2edcc7b7c657493b0073c38093c3c5ebd
+      uses: gophercloud/devstack-action@60f6d26dd09eee2fa35469ef4c3a34111ce96ad9
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
