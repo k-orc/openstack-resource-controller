@@ -69,7 +69,7 @@ func (imageStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResour
 	if osResource.Status == images.ImageStatusActive {
 		return metav1.ConditionTrue, nil
 	}
-	return metav1.ConditionFalse, nil
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, externalUpdatePollingPeriod)
 }
 
 func (imageStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
