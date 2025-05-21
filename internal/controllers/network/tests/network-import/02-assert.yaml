@@ -31,7 +31,6 @@ status:
     name: network-import-external
     description: Network network-import-external from "network-import" test
     adminStateUp: true
-    dnsDomain: ""
     external: true
     mtu: 1442
     portSecurityEnabled: true

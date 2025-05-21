@@ -17,6 +17,8 @@ limitations under the License.
 package securitygroup
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -50,15 +52,20 @@ func (securityGroupStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, 
 }
 
 func (securityGroupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
+	fmt.Println("--------------------------------------------------")
+	fmt.Println(osResource)
+	fmt.Println("--------------------------------------------------")
 	securitygroupResourceStatus := orcapplyconfigv1alpha1.SecurityGroupResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithProjectID(osResource.ProjectID).
 		WithTags(osResource.Tags...).
 		WithStateful(osResource.Stateful).
 		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
+	if osResource.Description != "" {
+		securitygroupResourceStatus.WithDescription(osResource.Description)
+	}
 	for i := range osResource.Rules {
 		rule := &osResource.Rules[i]
 

@@ -29,10 +29,7 @@ status:
       reason: Success
   resource:
     name: flavor-import-external
-    description: ""
     ram: 12
     vcpus: 13
     disk: 14
-    swap: 0
     isPublic: true
-    ephemeral: 0

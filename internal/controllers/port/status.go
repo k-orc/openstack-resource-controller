@@ -60,11 +60,8 @@ func (portStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResourc
 func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	resourceStatus := orcapplyconfigv1alpha1.PortResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithAdminStateUp(osResource.AdminStateUp).
 		WithMACAddress(osResource.MACAddress).
-		WithDeviceID(osResource.DeviceID).
-		WithDeviceOwner(osResource.DeviceOwner).
 		WithStatus(osResource.Status).
 		WithProjectID(osResource.ProjectID).
 		WithNetworkID(osResource.NetworkID).
@@ -77,6 +74,15 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
+	if osResource.Description != "" {
+		resourceStatus.WithDescription(osResource.Description)
+	}
+	if osResource.DeviceID != "" {
+		resourceStatus.WithDeviceID(osResource.DeviceID)
+	}
+	if osResource.DeviceOwner != "" {
+		resourceStatus.WithDeviceOwner(osResource.DeviceOwner)
+	}
 	if len(osResource.AllowedAddressPairs) > 0 {
 		allowedAddressPairs := make([]*orcapplyconfigv1alpha1.AllowedAddressPairStatusApplyConfiguration, len(osResource.AllowedAddressPairs))
 		for i := range osResource.AllowedAddressPairs {
