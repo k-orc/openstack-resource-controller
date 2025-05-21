@@ -1,0 +1,26 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  # We need to delete the router if we want the floatingip-dependency-external subnet gone
+  # Also, need to delete the private subnet on which the router has an interface
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Subnet
+  name: floatingip-dependency
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Router
+  name: floatingip-dependency
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: FloatingIP
+  name: floatingip-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: FloatingIP
+  name: floatingip-dependency-no-network
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: FloatingIP
+  name: floatingip-dependency-no-subnet
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: FloatingIP
+  name: floatingip-dependency-no-port
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: FloatingIP
+  name: floatingip-dependency-no-project

@@ -145,6 +145,13 @@ spec:
                         maxLength: 253
                         minLength: 1
                         type: string
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       status:
                         description: status is the status of the floatingip.
                         maxLength: 1024
@@ -259,6 +266,13 @@ spec:
                   portRef:
                     description: portRef is a reference to the ORC Port which this
                       resource is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
                     maxLength: 253
                     minLength: 1
                     type: string

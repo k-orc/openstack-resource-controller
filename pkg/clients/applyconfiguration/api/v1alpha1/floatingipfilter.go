@@ -29,6 +29,7 @@ type FloatingIPFilterApplyConfiguration struct {
 	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
 	FloatingNetworkRef                    *apiv1alpha1.KubernetesNameRef  `json:"floatingNetworkRef,omitempty"`
 	PortRef                               *apiv1alpha1.KubernetesNameRef  `json:"portRef,omitempty"`
+	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
 	Status                                *string                         `json:"status,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
@@ -68,6 +69,14 @@ func (b *FloatingIPFilterApplyConfiguration) WithFloatingNetworkRef(value apiv1a
 // If called multiple times, the PortRef field is set to the value of the last call.
 func (b *FloatingIPFilterApplyConfiguration) WithPortRef(value apiv1alpha1.KubernetesNameRef) *FloatingIPFilterApplyConfiguration {
 	b.PortRef = &value
+	return b
+}
+
+// WithProjectRef sets the ProjectRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectRef field is set to the value of the last call.
+func (b *FloatingIPFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *FloatingIPFilterApplyConfiguration {
+	b.ProjectRef = &value
 	return b
 }
 

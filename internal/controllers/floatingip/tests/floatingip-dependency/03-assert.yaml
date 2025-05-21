@@ -1,0 +1,14 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Dependencies that were prevented deletion before should now be gone
+- script: "! kubectl get port floatingip-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get subnet floatingip-dependency-external --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get network floatingip-dependency-external --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get project floatingip-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get secret floatingip-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

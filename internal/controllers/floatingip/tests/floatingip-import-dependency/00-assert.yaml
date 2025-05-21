@@ -1,0 +1,21 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Network/floatingip-import-dependency to be ready
+        Waiting for Port/floatingip-import-dependency to be ready
+        Waiting for Project/floatingip-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Network/floatingip-import-dependency to be ready
+        Waiting for Port/floatingip-import-dependency to be ready
+        Waiting for Project/floatingip-import-dependency to be ready
+      status: "True"
+      reason: Progressing

@@ -35,6 +35,11 @@ type FloatingIPFilter struct {
 	// +optional
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
 	// status is the status of the floatingip.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
@@ -77,6 +82,11 @@ type FloatingIPResourceSpec struct {
 	// fixedIP is the IP address of the port to which the floatingip is associated.
 	// +optional
 	FixedIP *IPvAny `json:"fixedIP,omitempty"`
+
+	// projectRef is a reference to the ORC Project this resource is associated with.
+	// Typically, only used by admin.
+	// +optional
+	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 
 type FloatingIPResourceStatus struct {

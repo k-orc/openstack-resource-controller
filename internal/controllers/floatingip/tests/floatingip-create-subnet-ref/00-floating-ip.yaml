@@ -20,7 +20,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: floatingip-create-subnet-ref
     external: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
