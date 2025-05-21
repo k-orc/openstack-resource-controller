@@ -1,0 +1,14 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We expect the deletion to hang due to the finalizer, so use --wait=false
+  - command: kubectl delete port floatingip-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete subnet floatingip-dependency-external --wait=false
+    namespaced: true
+  - command: kubectl delete network floatingip-dependency-external --wait=false
+    namespaced: true
+  - command: kubectl delete project floatingip-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete secret floatingip-dependency --wait=false
+    namespaced: true

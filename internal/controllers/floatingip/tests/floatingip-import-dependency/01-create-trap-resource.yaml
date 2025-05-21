@@ -1,0 +1,112 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: floatingip-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: floatingip-import-dependency-floating-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: floatingip-import-dependency-not-this-one
+    external: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: floatingip-import-dependency-floating-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: floatingip-import-dependency-floating-not-this-one
+    projectRef: floatingip-import-dependency-not-this-one
+    ipVersion: 4
+    cidr: 192.168.120.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: floatingip-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    externalGateways:
+      - networkRef: floatingip-import-dependency-floating-not-this-one
+    projectRef: floatingip-import-dependency-not-this-one
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: floatingip-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: floatingip-import-dependency-not-this-one
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: floatingip-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: floatingip-import-dependency-not-this-one
+    routerRef: floatingip-import-dependency-not-this-one
+    projectRef: floatingip-import-dependency-not-this-one
+    ipVersion: 4
+    cidr: 10.0.0.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: floatingip-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: floatingip-import-dependency-not-this-one
+    addresses:
+      - subnetRef: floatingip-import-dependency-not-this-one
+        ip: 10.0.0.10
+    projectRef: floatingip-import-dependency-not-this-one
+---
+# This `floatingip-import-dependency-not-this-one` should not be picked by the import filter
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    floatingNetworkRef: floatingip-import-dependency-floating-not-this-one
+    portRef: floatingip-import-dependency-not-this-one
+    projectRef: floatingip-import-dependency-not-this-one
