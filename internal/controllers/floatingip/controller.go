@@ -110,6 +110,29 @@ var (
 			return []string{string(ptr.Deref(resource.Filter.PortRef, ""))}
 		},
 	)
+
+	projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Project](
+		"spec.resource.projectRef",
+		func(floatingip *orcv1alpha1.FloatingIP) []string {
+			resource := floatingip.Spec.Resource
+			if resource == nil || resource.ProjectRef == nil {
+				return nil
+			}
+			return []string{string(*resource.ProjectRef)}
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+
+	projectImportDependency = dependency.NewDependency[*orcv1alpha1.FloatingIPList, *orcv1alpha1.Project](
+		"spec.import.filter.projectRef",
+		func(floatingip *orcv1alpha1.FloatingIP) []string {
+			resource := floatingip.Spec.Import
+			if resource == nil || resource.Filter == nil || resource.Filter.ProjectRef == nil {
+				return nil
+			}
+			return []string{string(*resource.Filter.ProjectRef)}
+		},
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -142,6 +165,16 @@ func (c floatingipReconcilerConstructor) SetupWithManager(ctx context.Context, m
 		return err
 	}
 
+	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	projectImportWatchEventHandler, err := projectImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		For(&orcv1alpha1.FloatingIP{}).
@@ -161,6 +194,13 @@ func (c floatingipReconcilerConstructor) SetupWithManager(ctx context.Context, m
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Port{}, portImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
+		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		)
 
 	if err := errors.Join(
@@ -169,6 +209,8 @@ func (c floatingipReconcilerConstructor) SetupWithManager(ctx context.Context, m
 		subnetDep.AddToManager(ctx, mgr),
 		portDep.AddToManager(ctx, mgr),
 		portImportDep.AddToManager(ctx, mgr),
+		projectDependency.AddToManager(ctx, mgr),
+		projectImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

@@ -1437,6 +1437,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPFilter(ref c
 							Format:      "",
 						},
 					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status is the status of the floatingip.",
@@ -1674,6 +1681,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPResourceSpec
 					"fixedIP": {
 						SchemaProps: spec.SchemaProps{
 							Description: "fixedIP is the IP address of the port to which the floatingip is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

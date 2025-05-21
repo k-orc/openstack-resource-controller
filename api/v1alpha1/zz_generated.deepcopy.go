@@ -582,6 +582,11 @@ func (in *FloatingIPFilter) DeepCopyInto(out *FloatingIPFilter) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
+	if in.ProjectRef != nil {
+		in, out := &in.ProjectRef, &out.ProjectRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 
@@ -688,6 +693,11 @@ func (in *FloatingIPResourceSpec) DeepCopyInto(out *FloatingIPResourceSpec) {
 	if in.FixedIP != nil {
 		in, out := &in.FixedIP, &out.FixedIP
 		*out = new(IPvAny)
+		**out = **in
+	}
+	if in.ProjectRef != nil {
+		in, out := &in.ProjectRef, &out.ProjectRef
+		*out = new(KubernetesNameRef)
 		**out = **in
 	}
 }

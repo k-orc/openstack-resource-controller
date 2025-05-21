@@ -18,10 +18,15 @@ resourceRefs:
       kind: Port
       name: floatingip-create-full
       ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: project
+      name: floatingip-create-full
+      ref: project
 assertAll:
     - celExpr: "floatingIP.status.resource.floatingNetworkID == network.status.id"
     - celExpr: "floatingIP.status.resource.portID == port.status.id"
     - celExpr: "floatingIP.status.resource.routerID == router.status.id"
+    - celExpr: "floatingIP.status.resource.projectID == project.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: FloatingIP

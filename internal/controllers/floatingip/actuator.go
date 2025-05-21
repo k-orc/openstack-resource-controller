@@ -127,6 +127,25 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 		}
 	}
 
+	project := &orcv1alpha1.Project{}
+	if filter.ProjectRef != nil {
+		projectKey := client.ObjectKey{Name: string(*filter.ProjectRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
+			} else {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
+			}
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -135,6 +154,7 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 		FloatingIP:        string(ptr.Deref(filter.FloatingIP, "")),
 		PortID:            ptr.Deref(port.Status.ID, ""),
 		FloatingNetworkID: ptr.Deref(network.Status.ID, ""),
+		ProjectID:         ptr.Deref(project.Status.ID, ""),
 		Description:       string(ptr.Deref(filter.Description, "")),
 		Tags:              neutrontags.Join(filter.Tags),
 		TagsAny:           neutrontags.Join(filter.TagsAny),
@@ -199,6 +219,19 @@ func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj
 		}
 	}
 
+	var projectID string
+	if resource.ProjectRef != nil {
+		project, projectDepRS := projectDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
+		if project != nil {
+			projectID = ptr.Deref(project.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -210,6 +243,7 @@ func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj
 		PortID:            portID,
 		FloatingIP:        string(ptr.Deref(resource.FloatingIP, "")),
 		FixedIP:           string(ptr.Deref(resource.FixedIP, "")),
+		ProjectID:         projectID,
 	}
 
 	osResource, err := actuator.osClient.CreateFloatingIP(ctx, &createOpts)
