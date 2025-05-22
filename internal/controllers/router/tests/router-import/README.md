@@ -12,3 +12,7 @@ Create a router which name is a superstring of the one specified in the import f
 
 Create a router matching the filter and verify that the observed status on the imported router corresponds to the spec of the created router.
 Also verify that the created router didn't adopt the one which name is a superstring of it.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#import

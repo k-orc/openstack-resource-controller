@@ -9,3 +9,7 @@ Also validate that the OpenStack resource uses the name of the ORC object when i
 ## Step 01
 
 Try deleting the secret and ensure that it is not deleted thanks to the finalizer.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#create-minimal

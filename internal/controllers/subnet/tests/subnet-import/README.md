@@ -16,3 +16,7 @@ Also verify that the created subnet didn't adopt the one which name is a superst
 ## TODO
 
 Possibly check that adding a new subnet matching the import filter does not cause issues after it successfully imported the first one.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#import

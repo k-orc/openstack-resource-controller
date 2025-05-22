@@ -15,3 +15,7 @@ Delete all the dependencies and check that ORC prevents deletion since there is 
 ## Step 03
 
 Delete the images and validate that all resources are gone.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#dependency

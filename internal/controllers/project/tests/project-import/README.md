@@ -16,3 +16,7 @@ Also verify that the created project didn't adopt the one which name is a supers
 ## TODO
 
 Possibly check that adding a new project matching the import filter does not cause issues after it successfully imported the first one.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#import
