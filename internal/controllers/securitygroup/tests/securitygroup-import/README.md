@@ -16,3 +16,7 @@ Also verify that the created security group didn't adopt the one which name is a
 ## TODO
 
 Possibly check that adding a new security group matching the import filter does not cause issues after it successfully imported the first one.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#import

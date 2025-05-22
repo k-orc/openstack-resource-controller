@@ -16,3 +16,7 @@ Also verify that the created port didn't adopt the one which name is a superstri
 ## TODO
 
 Possibly check that adding a new port matching the import filter does not cause issues after it successfully imported the first one.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#import

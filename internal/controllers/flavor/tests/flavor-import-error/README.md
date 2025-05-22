@@ -7,3 +7,7 @@ Create two flavors with identical specs.
 ## Step 01
 
 Ensure that an imported flavor with a filter matching the resources returns an error.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#import-error

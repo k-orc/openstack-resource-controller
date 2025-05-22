@@ -9,3 +9,7 @@ Also validate that the OpenStack resource uses the name from the spec when it is
 ## Step 01
 
 Update the security group by changing a rule, and verify that the observed state corresponds to the spec.
+
+## Reference
+
+https://k-orc.cloud/development/writing-tests/#update
