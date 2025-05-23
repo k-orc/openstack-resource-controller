@@ -228,6 +228,13 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                  serverGroupRef:
+                    description: |-
+                      serverGroupRef is a reference to a ServerGroup object. The server
+                      will be created in the server group.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
                   tags:
                     description: tags is a list of tags which will be applied to the
                       server.
@@ -378,6 +385,17 @@ spec:
                       Might not be unique.
                     maxLength: 1024
                     type: string
+                  serverGroups:
+                    description: |-
+                      serverGroups is a slice of strings containing the UUIDs of the
+                      server groups to which the server belongs. Currently this can
+                      contain at most one entry.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                   status:
                     description: |-
                       status contains the current operational status of the server,

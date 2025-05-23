@@ -102,6 +102,9 @@ var allResources []templateFields = []templateFields{
 		Name: "Server",
 	},
 	{
+		Name: "ServerGroup",
+	},
+	{
 		Name: "Project",
 	},
 }

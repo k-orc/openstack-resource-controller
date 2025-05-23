@@ -26,6 +26,7 @@ rules:
   - routerinterfaces
   - routers
   - securitygroups
+  - servergroups
   - servers
   - subnets
   verbs:
@@ -48,6 +49,7 @@ rules:
   - routerinterfaces/status
   - routers/status
   - securitygroups/status
+  - servergroups/status
   - servers/status
   - subnets/status
   verbs:

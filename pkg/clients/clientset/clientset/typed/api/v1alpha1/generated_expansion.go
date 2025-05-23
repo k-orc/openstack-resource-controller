@@ -38,4 +38,6 @@ type SecurityGroupExpansion interface{}
 
 type ServerExpansion interface{}
 
+type ServerGroupExpansion interface{}
+
 type SubnetExpansion interface{}
