@@ -16,6 +16,13 @@ limitations under the License.
 
 package v1alpha1
 
+const (
+	// CloudCredentialsConfigSecretKey is the key for the clouds configuration in the cloud credentials secret.
+	CloudCredentialsConfigSecretKey = "clouds.yaml"
+	// CloudCredencialsCASecretKey is the key for the CA certificate in the cloud credentials secret.
+	CloudCredencialsCASecretKey = "cacert"
+)
+
 // CloudCredentialsReference is a reference to a secret containing OpenStack credentials.
 type CloudCredentialsReference struct {
 	// secretName is the name of a secret in the same namespace as the resource being provisioned.
