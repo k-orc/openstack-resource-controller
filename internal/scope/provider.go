@@ -42,11 +42,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/version"
 )
 
-const (
-	CloudsSecretKey = "clouds.yaml"
-	CASecretKey     = "cacert"
-)
-
 type providerScopeFactory struct {
 	clientCache   *cache.LRUExpireCache
 	defaultCACert []byte
@@ -258,10 +253,10 @@ func getCloudFromSecret(ctx context.Context, ctrlClient client.Client, secretNam
 		return emptyCloud, nil, err
 	}
 
-	content, ok := secret.Data[CloudsSecretKey]
+	content, ok := secret.Data[orcv1alpha1.CloudCredentialsConfigSecretKey]
 	if !ok {
 		return emptyCloud, nil, fmt.Errorf("OpenStack credentials secret %v did not contain key %v",
-			secretName, CloudsSecretKey)
+			secretName, orcv1alpha1.CloudCredentialsConfigSecretKey)
 	}
 	var clouds clientconfig.Clouds
 	if err = yaml.Unmarshal(content, &clouds); err != nil {
@@ -269,7 +264,7 @@ func getCloudFromSecret(ctx context.Context, ctrlClient client.Client, secretNam
 	}
 
 	// get caCert
-	caCert, ok := secret.Data[CASecretKey]
+	caCert, ok := secret.Data[orcv1alpha1.CloudCredencialsCASecretKey]
 	if !ok {
 		return clouds.Clouds[cloudName], nil, nil
 	}
