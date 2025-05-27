@@ -110,7 +110,7 @@ func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Conte
 	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Router{}, builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Router{}))).
-		Named("router_interface").
+		Named(controllerName).
 		Watches(&orcv1alpha1.RouterInterface{},
 			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
 				log := ctrl.LoggerFrom(ctx).WithValues("watch", "RouterInterface", "name", obj.GetName(), "namespace", obj.GetNamespace())
