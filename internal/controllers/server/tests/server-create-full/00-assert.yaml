@@ -14,9 +14,14 @@ resourceRefs:
       kind: Port
       name: server-create-full
       ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ServerGroup
+      name: server-create-full
+      ref: sg
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
     - celExpr: "server.status.resource.imageID == image.status.id"
+    - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     # Commented out because of https://github.com/k-orc/openstack-resource-controller/issues/282
     # - celExpr: "port.status.resource.deviceID == server.status.id"
 ---

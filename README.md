@@ -75,6 +75,7 @@ kubectl delete -f $ORC_RELEASE
 | router                      |         |    ◐    |     ◐    |
 | security group (incl. rule) |         |    ✔    |     ✔    |
 | server                      |         |    ◐    |     ◐    |
+| server group                |         |    ✔    |     ✔    |
 | subnet                      |         |    ◐    |     ◐    |
 
 ✔: mostly implemented

@@ -48,3 +48,15 @@ spec:
     networkRef: server-create-full
     ipVersion: 4
     cidr: 192.168.200.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ServerGroup
+metadata:
+  name: server-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    policy: soft-anti-affinity

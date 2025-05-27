@@ -26,6 +26,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -164,6 +165,19 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 			}
 		}
 	}
+	serverGroup := &orcv1alpha1.ServerGroup{}
+	if resource.ServerGroupRef != nil {
+		serverGroupKey := client.ObjectKey{Name: string(*resource.ServerGroupRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, serverGroupKey, serverGroup); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WaitingOnObject("ServerGroup", serverGroupKey.Name, progress.WaitingOnCreation)
+			} else {
+				return nil, reconcileStatus.WithError(fmt.Errorf("fetching server group %s: %w", serverGroupKey.Name, err))
+			}
+		} else if !orcv1alpha1.IsAvailable(serverGroup) || serverGroup.Status.ID == nil {
+			reconcileStatus = reconcileStatus.WaitingOnObject("ServerGroup", serverGroupKey.Name, progress.WaitingOnReady)
+		}
+	}
 
 	var userData []byte
 	if resource.UserData != nil && resource.UserData.SecretRef != nil {
@@ -204,7 +218,9 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		Tags:      tags,
 	}
 
-	schedulerHints := servers.SchedulerHintOpts{}
+	schedulerHints := servers.SchedulerHintOpts{
+		Group: ptr.Deref(serverGroup.Status.ID, ""),
+	}
 
 	osResource, err := actuator.osClient.CreateServer(ctx, &createOpts, schedulerHints)
 

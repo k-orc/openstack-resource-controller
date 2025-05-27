@@ -11,6 +11,7 @@ resources:
 - bases/openstack.k-orc.cloud_securitygroups.yaml
 - bases/openstack.k-orc.cloud_subnets.yaml
 - bases/openstack.k-orc.cloud_servers.yaml
+- bases/openstack.k-orc.cloud_servergroups.yaml
 - bases/openstack.k-orc.cloud_routers.yaml
 - bases/openstack.k-orc.cloud_routerinterfaces.yaml
 # +kubebuilder:scaffold:crdkustomizeresource

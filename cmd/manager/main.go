@@ -38,6 +38,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/routerinterface"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/securitygroup"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/server"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/servergroup"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
 	internalmanager "github.com/k-orc/openstack-resource-controller/v2/internal/manager"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scheme"
@@ -109,6 +110,7 @@ func main() {
 		flavor.New(scopeFactory),
 		securitygroup.New(scopeFactory),
 		server.New(scopeFactory),
+		servergroup.New(scopeFactory),
 		project.New(scopeFactory),
 	}
 

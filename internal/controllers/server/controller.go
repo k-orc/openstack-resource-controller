@@ -102,6 +102,20 @@ var (
 		finalizer, externalObjectFieldOwner,
 	)
 
+	// No deletion guard for server group, because server group can be safely deleted while
+	// referenced by a server
+	serverGroupDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.ServerGroup](
+		"spec.resource.serverGroupRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil || resource.ServerGroupRef == nil {
+				return nil
+			}
+
+			return []string{string(*resource.ServerGroupRef)}
+		},
+	)
+
 	// We don't need a deletion guard on the user-data secret because it's only
 	// used on creation.
 	userDataDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *corev1.Secret](
@@ -138,6 +152,10 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	serverGroupWatchEventHandler, err := serverGroupDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
@@ -150,6 +168,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		).
 		Watches(&orcv1alpha1.Port{}, portWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
+		Watches(&orcv1alpha1.ServerGroup{}, serverGroupWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.ServerGroup{})),
 		).
 		// XXX: This is a general watch on secrets. A general watch on secrets
 		// is undesirable because:
@@ -164,6 +185,7 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		flavorDependency.AddToManager(ctx, mgr),
 		imageDependency.AddToManager(ctx, mgr),
 		portDependency.AddToManager(ctx, mgr),
+		serverGroupDependency.AddToManager(ctx, mgr),
 		userDataDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),

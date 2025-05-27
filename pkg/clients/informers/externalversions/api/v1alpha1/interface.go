@@ -44,6 +44,8 @@ type Interface interface {
 	SecurityGroups() SecurityGroupInformer
 	// Servers returns a ServerInformer.
 	Servers() ServerInformer
+	// ServerGroups returns a ServerGroupInformer.
+	ServerGroups() ServerGroupInformer
 	// Subnets returns a SubnetInformer.
 	Subnets() SubnetInformer
 }
@@ -107,6 +109,11 @@ func (v *version) SecurityGroups() SecurityGroupInformer {
 // Servers returns a ServerInformer.
 func (v *version) Servers() ServerInformer {
 	return &serverInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ServerGroups returns a ServerGroupInformer.
+func (v *version) ServerGroups() ServerGroupInformer {
+	return &serverGroupInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Subnets returns a SubnetInformer.

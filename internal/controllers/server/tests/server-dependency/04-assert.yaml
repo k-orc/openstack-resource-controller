@@ -6,10 +6,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
+      message: Waiting for Secret/server-dependency to be created
       status: "False"
-      reason: Success
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/server-dependency to be created
+      status: "True"
+      reason: Progressing

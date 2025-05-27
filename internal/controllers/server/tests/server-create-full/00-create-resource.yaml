@@ -27,6 +27,7 @@ spec:
     flavorRef: server-create-full
     ports:
       - portRef: server-create-full
+    serverGroupRef: server-create-full
     tags:
       - tag1
       - tag2

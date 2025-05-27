@@ -1806,6 +1806,121 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroup
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupFilter
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupResourceSpec
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: policy
+      type:
+        scalar: string
+      default: ""
+    - name: rules
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupRules
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupResourceStatus
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: policy
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: rules
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupRulesStatus
+    - name: userID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupRules
+  map:
+    fields:
+    - name: maxServerPerHost
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupRulesStatus
+  map:
+    fields:
+    - name: maxServerPerHost
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerImport
   map:
     fields:
@@ -1841,6 +1956,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
           elementRelationship: atomic
+    - name: serverGroupRef
+      type:
+        scalar: string
     - name: tags
       type:
         list:
@@ -1862,6 +1980,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: serverGroups
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
     - name: status
       type:
         scalar: string

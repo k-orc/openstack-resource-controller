@@ -1,0 +1,12 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ServerGroup
+metadata:
+  name: servergroup-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: servergroup-dependency
+  managementPolicy: managed
+  resource:
+    policy: soft-affinity
