@@ -72,7 +72,8 @@ type RouterResourceSpec struct {
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// externalGateways is a list of external gateways for the router.
-	// +kubebuilder:validation:MaxItems:=32
+	// Multiple gateways are not currently supported by ORC.
+	// +kubebuilder:validation:MaxItems:=1
 	// +listType=atomic
 	// +optional
 	ExternalGateways []ExternalGateway `json:"externalGateways,omitempty"`

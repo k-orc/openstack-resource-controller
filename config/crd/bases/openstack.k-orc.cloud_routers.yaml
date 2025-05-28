@@ -240,8 +240,9 @@ spec:
                       is available when dvr extension is enabled.
                     type: boolean
                   externalGateways:
-                    description: externalGateways is a list of external gateways for
-                      the router.
+                    description: |-
+                      externalGateways is a list of external gateways for the router.
+                      Multiple gateways are not currently supported by ORC.
                     items:
                       properties:
                         networkRef:
@@ -254,7 +255,7 @@ spec:
                       required:
                       - networkRef
                       type: object
-                    maxItems: 32
+                    maxItems: 1
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
