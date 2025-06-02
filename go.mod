@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
-	github.com/go-logr/logr v1.4.2
+	github.com/go-logr/logr v1.4.3
 	github.com/gophercloud/gophercloud/v2 v2.7.0
 	github.com/gophercloud/utils/v2 v2.0.0-20241220104409-2e0af06694a1
 	github.com/onsi/ginkgo/v2 v2.23.4
