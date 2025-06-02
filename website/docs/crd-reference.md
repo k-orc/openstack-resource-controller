@@ -2327,7 +2327,7 @@ _Appears in:_
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the router. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp represents the administrative state of the resource,<br />which is up (true) or down (false). Default is true. |  |  |
-| `externalGateways` _[ExternalGateway](#externalgateway) array_ | externalGateways is a list of external gateways for the router. |  | MaxItems: 32 <br /> |
+| `externalGateways` _[ExternalGateway](#externalgateway) array_ | externalGateways is a list of external gateways for the router.<br />Multiple gateways are not currently supported by ORC. |  | MaxItems: 1 <br /> |
 | `distributed` _boolean_ | distributed indicates whether the router is distributed or not. It<br />is available when dvr extension is enabled. |  |  |
 | `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the router. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
