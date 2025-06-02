@@ -53,7 +53,9 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	if !orcv1alpha1.IsAvailable(router) || router.Status.ID == nil {
+	// We still want to reconcile router interface for routers that are scheduled for deletion
+	// so that we can clear the finalizer
+	if router.Status.ID == nil || (!orcv1alpha1.IsAvailable(router) && router.GetDeletionTimestamp().IsZero()) {
 		log.V(logging.Verbose).Info("Not reconciling interfaces for not-Available router")
 		return ctrl.Result{}, nil
 	}
