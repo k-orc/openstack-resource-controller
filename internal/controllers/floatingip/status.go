@@ -59,7 +59,6 @@ func (floatingipStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osR
 
 func (floatingipStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	status := orcapplyconfigv1alpha1.FloatingIPResourceStatus().
-		WithDescription(osResource.Description).
 		WithFloatingNetworkID(osResource.FloatingNetworkID).
 		WithPortID(osResource.PortID).
 		WithTenantID(osResource.TenantID).
@@ -72,6 +71,10 @@ func (floatingipStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *o
 		WithFixedIP(osResource.FixedIP).
 		WithFloatingIP(osResource.FloatingIP).
 		WithRevisionNumber(int64(osResource.RevisionNumber))
+
+	if osResource.Description != "" {
+		status.WithDescription(osResource.Description)
+	}
 
 	statusApply.WithResource(status)
 }
