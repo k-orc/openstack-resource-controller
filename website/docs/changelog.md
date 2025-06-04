@@ -1,5 +1,29 @@
 # Changelog
 
+## v2.2 - June 11, 2025
+
+### New controllers
+
+- Floating IP
+- Server Group
+
+### New features
+
+- The subnet controller gained support for updating subnets. The rest of the controllers will follow in the next releases.
+- Added ability to specify which project to create resources in, for all networking controllers.
+
+### Bug fixes
+
+- Add an optional dependency of subnet on router: a subnet will now wait for the referenced router to be available before proceeding with creation. Likewise, the router won't be deleted until all subnets that depend on it are themselves deleted (Fixes [#316](https://github.com/k-orc/openstack-resource-controller/issues/316)).
+- Fix the import of images, where the status may not reflect the real status of the resource.
+- Make the deletion of router interface more robust (Fixes [#378](https://github.com/k-orc/openstack-resource-controller/issues/378)).
+- Add API validation to limit ExternalGateways to one until multiple gateways is effectively implemented in ORC (Fixes [#416](https://github.com/k-orc/openstack-resource-controller/issues/416)).
+- Selectively stop populating status fields with zero values (Fixes [#188](https://github.com/k-orc/openstack-resource-controller/issues/188)).
+
+### Update considerations
+
+Although we don't guarantee that ORC runs fine on OpenStack versions that are no longer maintained by the OpenStack community, we've merged a change in this release that requires Nova from Stein. To the best of our knowledge, OpenStack Stein now becomes the minimum required version of OpenStack.
+
 ## v2.1 - May 02, 2025
 
 Release 2.1 marks the continuation of our efforts to stabilize and consolidate ORC.
