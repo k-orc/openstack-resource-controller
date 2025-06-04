@@ -83,10 +83,6 @@ spec:
     allocationPools:
       - start: "fc00:2:0:0:1::"
         end: "fc00:2:0:0:1:ffff:ffff:ffff"
-      # NOTE: it works to add more than one allocation pool, but we fail to
-      # reliably validate it with kuttl
-      # - start: "fc00:2:0:0:2::"
-      #   end: "fc00:2:0:0:2:ffff:ffff:ffff"
     gateway:
       type: IP
       ip: "fc00:2::2"

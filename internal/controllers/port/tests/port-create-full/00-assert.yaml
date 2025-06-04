@@ -11,8 +11,6 @@ status:
     allowedAddressPairs:
       - ip: 192.168.122.14
         mac: 92:42:9c:13:98:82
-    deviceID: ""
-    deviceOwner: ""
     portSecurityEnabled: true
     propagateUplinkStatus: false
     status: DOWN

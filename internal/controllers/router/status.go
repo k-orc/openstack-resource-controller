@@ -58,13 +58,14 @@ func (routerStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResou
 func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	status := orcapplyconfigv1alpha1.RouterResourceStatus().
 		WithName(osResource.Name).
-		WithDescription(osResource.Description).
 		WithProjectID(osResource.ProjectID).
 		WithStatus(osResource.Status).
 		WithTags(osResource.Tags...).
 		WithAdminStateUp(osResource.AdminStateUp).
 		WithAvailabilityZoneHints(osResource.AvailabilityZoneHints...)
-
+	if osResource.Description != "" {
+		status.WithDescription(osResource.Description)
+	}
 	if osResource.GatewayInfo.NetworkID != "" {
 		status.WithExternalGateways(orcapplyconfigv1alpha1.ExternalGatewayStatus().
 			WithNetworkID(osResource.GatewayInfo.NetworkID))

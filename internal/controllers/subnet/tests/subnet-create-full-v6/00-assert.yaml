@@ -38,15 +38,12 @@ status:
     allocationPools:
       - start: "fc00:2:0:0:1::"
         end: "fc00:2::1:ffff:ffff:ffff"
-      # NOTE: kuttl frequently complains about the items order. Is it a bug?
-      # - start: "fc00:2:0:0:2::"
-      #   end: "fc00:2::2:ffff:ffff:ffff"
     enableDHCP: false
     gatewayIP: "fc00:2::2"
     dnsNameservers:
       - 2606:4700:4700::1111
       - 2001:4860:4860::8888
-    # FIXME: dnsPublishFixedIP is not honored
+    # FIXME: environment doesn't allow to test dnsPublishFixedIP
     # https://github.com/k-orc/openstack-resource-controller/issues/189
     dnsPublishFixedIP: false
     hostRoutes:
