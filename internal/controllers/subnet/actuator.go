@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"iter"
 	"reflect"
+	"slices"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
@@ -350,9 +351,24 @@ func handleAllocationPoolsUpdate(updateOpts *subnets.UpdateOpts, resource *resou
 			missingAllocationPool = true
 		}
 	}
+
+	extraAllocationPool := false
+	for i := range osResource.AllocationPools {
+		found := false
+		for _, pool := range allocationPools {
+			if pool.Start == osResource.AllocationPools[i].Start &&
+				pool.End == osResource.AllocationPools[i].End {
+				found = true
+				break
+			}
+		}
+		if !found {
+			extraAllocationPool = true
+		}
+	}
+
 	// If the spec doesn't set allocation pools, we'll get a default one and should not try to update it.
-	if len(resource.AllocationPools) > 0 &&
-		(missingAllocationPool || len(resource.AllocationPools) != len(osResource.AllocationPools)) {
+	if len(resource.AllocationPools) > 0 && (missingAllocationPool || extraAllocationPool) {
 		updateOpts.AllocationPools = allocationPools
 	}
 }
@@ -376,28 +392,35 @@ func handleHostRoutesUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSp
 			missingHostRoute = true
 		}
 	}
-	if missingHostRoute || len(resource.HostRoutes) != len(osResource.HostRoutes) {
-		updateOpts.HostRoutes = &hostRoutes
-	}
-}
 
-func handleDNSNameserversUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	missingNameserver := false
-	nameservers := make([]string, len(resource.DNSNameservers))
-	for i := range resource.DNSNameservers {
-		nameservers[i] = string(resource.DNSNameservers[i])
+	extraHostRoute := false
+	for i := range osResource.HostRoutes {
 		found := false
-		for _, nameserver := range osResource.DNSNameservers {
-			if nameserver == nameservers[i] {
+		for _, route := range hostRoutes {
+			if route.DestinationCIDR == osResource.HostRoutes[i].DestinationCIDR &&
+				route.NextHop == osResource.HostRoutes[i].NextHop {
 				found = true
 				break
 			}
 		}
 		if !found {
-			missingNameserver = true
+			extraHostRoute = true
 		}
 	}
-	if missingNameserver || len(resource.DNSNameservers) != len(osResource.DNSNameservers) {
+
+	if missingHostRoute || extraHostRoute {
+		updateOpts.HostRoutes = &hostRoutes
+	}
+}
+
+func handleDNSNameserversUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	nameservers := make([]string, len(resource.DNSNameservers))
+	for i := range resource.DNSNameservers {
+		nameservers[i] = string(resource.DNSNameservers[i])
+	}
+
+	// Let's not bother about potential duplicate entries: they will be rejected by neutron API
+	if !slices.Equal(osResource.DNSNameservers, nameservers) {
 		updateOpts.DNSNameservers = &nameservers
 	}
 }
@@ -419,8 +442,6 @@ func handleGatewayUpdate(updateOpts *subnets.UpdateOpts, resource *resourceSpecT
 			if osResource.GatewayIP != "" {
 				updateOpts.GatewayIP = ptr.To("")
 			}
-		case orcv1alpha1.SubnetGatewayTypeIP:
-			fallthrough
 		default:
 			if osResource.GatewayIP != string(ptr.Deref(resource.Gateway.IP, "")) {
 				updateOpts.GatewayIP = (*string)(resource.Gateway.IP)
