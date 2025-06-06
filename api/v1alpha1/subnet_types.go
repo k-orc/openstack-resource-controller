@@ -62,7 +62,6 @@ type SubnetFilter struct {
 	FilterByNeutronTags `json:",inline"`
 }
 
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="SubnetResourceSpec is immutable"
 type SubnetResourceSpec struct {
 	// name is a human-readable name of the subnet. If not set, the object's name will be used.
 	// +optional
@@ -74,6 +73,7 @@ type SubnetResourceSpec struct {
 
 	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	// tags is a list of tags which will be applied to the subnet.
@@ -84,10 +84,12 @@ type SubnetResourceSpec struct {
 
 	// ipVersion is the IP version for the subnet.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ipVersion is immutable"
 	IPVersion IPVersion `json:"ipVersion"`
 
 	// cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="cidr is immutable"
 	CIDR CIDR `json:"cidr"`
 
 	// allocationPools are IP Address pools that will be available for DHCP. IP
@@ -116,6 +118,7 @@ type SubnetResourceSpec struct {
 	// dnsPublishFixedIP will either enable or disable the publication of
 	// fixed IPs to the DNS. Defaults to false.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dnsPublishFixedIP is immutable"
 	DNSPublishFixedIP *bool `json:"dnsPublishFixedIP,omitempty"`
 
 	// hostRoutes are any static host routes to be set via DHCP.
@@ -126,15 +129,18 @@ type SubnetResourceSpec struct {
 
 	// ipv6 contains IPv6-specific options. It may only be set if IPVersion is 6.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ipv6 is immutable"
 	IPv6 *IPv6Options `json:"ipv6,omitempty"`
 
 	// routerRef specifies a router to attach the subnet to
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="routerRef is immutable"
 	RouterRef *KubernetesNameRef `json:"routerRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// TODO: Support service types

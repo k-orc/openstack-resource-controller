@@ -292,6 +292,9 @@ spec:
                     maxLength: 49
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: cidr is immutable
+                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -313,6 +316,9 @@ spec:
                       dnsPublishFixedIP will either enable or disable the publication of
                       fixed IPs to the DNS. Defaults to false.
                     type: boolean
+                    x-kubernetes-validations:
+                    - message: dnsPublishFixedIP is immutable
+                      rule: self == oldSelf
                   enableDHCP:
                     description: enableDHCP will either enable to disable the DHCP
                       service.
@@ -377,6 +383,9 @@ spec:
                     - 6
                     format: int32
                     type: integer
+                    x-kubernetes-validations:
+                    - message: ipVersion is immutable
+                      rule: self == oldSelf
                   ipv6:
                     description: ipv6 contains IPv6-specific options. It may only
                       be set if IPVersion is 6.
@@ -400,6 +409,9 @@ spec:
                         - dhcpv6-stateless
                         type: string
                     type: object
+                    x-kubernetes-validations:
+                    - message: ipv6 is immutable
+                      rule: self == oldSelf
                   name:
                     description: name is a human-readable name of the subnet. If not
                       set, the object's name will be used.
@@ -413,6 +425,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: networkRef is immutable
+                      rule: self == oldSelf
                   projectRef:
                     description: |-
                       projectRef is a reference to the ORC Project this resource is associated with.
@@ -420,12 +435,18 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: projectRef is immutable
+                      rule: self == oldSelf
                   routerRef:
                     description: routerRef specifies a router to attach the subnet
                       to
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: routerRef is immutable
+                      rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
                       subnet.
@@ -444,9 +465,6 @@ spec:
                 - ipVersion
                 - networkRef
                 type: object
-                x-kubernetes-validations:
-                - message: SubnetResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

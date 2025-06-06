@@ -40,7 +40,6 @@ status:
     allocationPools:
       - start: 192.168.1.10
         end: 192.168.1.15
-    enableDHCP: false
     gatewayIP: 192.168.1.2
     enableDHCP: false
     dnsNameservers:

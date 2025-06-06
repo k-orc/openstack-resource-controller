@@ -217,7 +217,7 @@ func (c *Controller[
 
 	if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged {
 		if reconciler, ok := actuator.(interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]); ok {
-			// We deliberately execute all reconcilers returned by GetResourceUpdates, even if it returns an error.
+			// We deliberately execute all reconcilers returned by GetResourceReconcilers, even if it returns an error.
 			reconcilers, getReconcilersRS := reconciler.GetResourceReconcilers(ctx, objAdapter.GetObject(), osResource, c)
 			reconcileStatus = getReconcilersRS.WithReconcileStatus(reconcileStatus)
 

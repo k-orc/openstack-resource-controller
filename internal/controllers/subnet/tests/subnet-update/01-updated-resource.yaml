@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # kuttl does a merge patch, we only need to change the things we want changed
+    name: subnet-update-updated
+    description: subnet-update-updated
+    tags:
+      - tag1
+      - tag2
+    allocationPools:
+      - start: 192.168.0.5
+        end: 192.168.0.200
+    enableDHCP: false
+    hostRoutes:
+      - destination: 192.168.3.0/24
+        nextHop: 192.168.4.1
+      - destination: 192.168.5.0/24
+        nextHop: 192.168.6.1
+    dnsNameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+    gateway:
+      type: IP
+      ip: 192.168.0.2

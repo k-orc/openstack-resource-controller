@@ -1,0 +1,38 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: subnet-update
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: subnet-update
+      ref: network
+assertAll:
+    - celExpr: "subnet.status.resource.networkID == network.status.id"
+    - celExpr: "!has(subnet.status.resource.description)"
+    - celExpr: "!has(subnet.status.resource.tags)"
+    - celExpr: "!has(subnet.status.resource.hostRoutes)"
+    - celExpr: "!has(subnet.status.resource.dnsNameservers)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-update
+status:
+  resource:
+    name: subnet-update
+    allocationPools:
+      - start: 192.168.0.2
+        end: 192.168.0.254
+    cidr: 192.168.0.0/24
+    dnsPublishFixedIP: false
+    enableDHCP: true
+    ipVersion: 4
+    # The following values aren't reset because the original spec had no value
+    allocationPools:
+      - start: 192.168.0.5
+        end: 192.168.0.200
+    gatewayIP: 192.168.0.2
