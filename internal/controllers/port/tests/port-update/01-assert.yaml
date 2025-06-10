@@ -1,0 +1,38 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: port-update
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: port-update
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: port-update
+      ref: network
+assertAll:
+    - celExpr: "port.status.resource.networkID == network.status.id"
+    - celExpr: "subnet.status.resource.networkID == network.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-update
+status:
+  resource:
+    name: port-update-updated
+    description: port-update-updated
+    adminStateUp: true
+    portSecurityEnabled: true
+    propagateUplinkStatus: false
+    status: DOWN
+    vnicType: normal
+    allowedAddressPairs:
+      - ip: "192.168.122.14"
+        mac: "92:42:9c:13:98:82"
+    tags:
+    - tag1
