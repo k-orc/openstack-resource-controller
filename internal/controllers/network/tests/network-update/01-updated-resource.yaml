@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-update
+spec:
+  resource:
+    name: network-update-updated
+    description: network-update-updated
+    adminStateUp: false
+    shared: true
+    tags:
+      - tag1
+      - tag2

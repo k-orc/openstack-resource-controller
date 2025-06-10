@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"reflect"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
@@ -35,6 +36,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
@@ -59,11 +61,11 @@ var _ createResourceActuator = networkActuator{}
 var _ deleteResourceActuator = networkActuator{}
 var _ reconcileResourceActuator = networkActuator{}
 
-func (networkActuator) GetResourceID(osResource *osclients.NetworkExt) string {
+func (networkActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.NetworkExt, progress.ReconcileStatus) {
+func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	network, err := actuator.osClient.GetNetwork(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -71,7 +73,7 @@ func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string
 	return network, nil
 }
 
-func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osclients.NetworkExt, error], bool) {
+func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
 	if obj.Spec.Resource == nil {
 		return nil, false
 	}
@@ -119,7 +121,7 @@ func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, ob
 	return actuator.osClient.ListNetwork(ctx, listOpts), nil
 }
 
-func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osclients.NetworkExt, progress.ReconcileStatus) {
+func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -198,14 +200,82 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 	return osResource, nil
 }
 
-func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, network *osclients.NetworkExt) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteNetwork(ctx, network.ID))
+func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteNetwork(ctx, osResource.ID))
 }
 
-func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "networks", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
+		actuator.updateResource,
 	}, nil
+}
+
+func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := networks.UpdateOpts{}
+
+	handleAdminStateUpUpdate(&updateOpts, resource, osResource)
+	handleNameUpdate(&updateOpts, obj, osResource)
+	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	handleSharedUpdate(&updateOpts, resource, osResource)
+
+	if reflect.ValueOf(updateOpts).IsZero() {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	updateOpts.RevisionNumber = &osResource.RevisionNumber
+
+	_, err := actuator.osClient.UpdateNetwork(ctx, osResource.ID, updateOpts)
+
+	// We should require the spec to be updated before retrying an update which returned a conflict
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func handleAdminStateUpUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	AdminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != AdminStateUp {
+		updateOpts.AdminStateUp = &AdminStateUp
+	}
+}
+
+func handleNameUpdate(updateOpts *networks.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = &name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func handleSharedUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is false
+	Shared := ptr.Deref(resource.Shared, false)
+	if osResource.Shared != Shared {
+		updateOpts.Shared = &Shared
+	}
 }
 
 type networkHelperFactory struct{}

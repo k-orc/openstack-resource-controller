@@ -1,0 +1,12 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-update
+spec:
+  cloudCredentialsRef:
+    # Using admin credentials because during the 02-revert-resource step,
+    # admin access is required to revert changes to the 'shared' resource.
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
