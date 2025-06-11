@@ -125,12 +125,12 @@ type PortResourceSpec struct {
 	// +optional
 	Addresses []Address `json:"addresses,omitempty"`
 
-	// securityGroupRefs are the names of the security groups associated
+	// securityGroupRefs are references to the security groups associated
 	// with this port.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
-	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
+	SecurityGroupRefs []KubernetesNameRef `json:"securityGroupRefs,omitempty"`
 
 	// vnicType specifies the type of vNIC which this port should be
 	// attached to. This is used to determine which mechanism driver(s) to
