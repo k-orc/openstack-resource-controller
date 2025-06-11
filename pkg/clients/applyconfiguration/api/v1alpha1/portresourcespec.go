@@ -32,7 +32,7 @@ type PortResourceSpecApplyConfiguration struct {
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
 	AdminStateUp        *bool                                  `json:"adminStateUp,omitempty"`
-	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
+	SecurityGroupRefs   []apiv1alpha1.KubernetesNameRef        `json:"securityGroupRefs,omitempty"`
 	VNICType            *string                                `json:"vnicType,omitempty"`
 	PortSecurity        *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
 	ProjectRef          *apiv1alpha1.KubernetesNameRef         `json:"projectRef,omitempty"`
@@ -117,7 +117,7 @@ func (b *PortResourceSpecApplyConfiguration) WithAdminStateUp(value bool) *PortR
 // WithSecurityGroupRefs adds the given value to the SecurityGroupRefs field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the SecurityGroupRefs field.
-func (b *PortResourceSpecApplyConfiguration) WithSecurityGroupRefs(values ...apiv1alpha1.OpenStackName) *PortResourceSpecApplyConfiguration {
+func (b *PortResourceSpecApplyConfiguration) WithSecurityGroupRefs(values ...apiv1alpha1.KubernetesNameRef) *PortResourceSpecApplyConfiguration {
 	for i := range values {
 		b.SecurityGroupRefs = append(b.SecurityGroupRefs, values[i])
 	}

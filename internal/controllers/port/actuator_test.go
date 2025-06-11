@@ -234,8 +234,8 @@ func makeSecGroupWithID(id string) *orcv1alpha1.SecurityGroup {
 }
 
 func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
-	sgWebName := orcv1alpha1.OpenStackName("sg-web")
-	sgDbName := orcv1alpha1.OpenStackName("sg-db")
+	sgWebName := orcv1alpha1.KubernetesNameRef("sg-web")
+	sgDbName := orcv1alpha1.KubernetesNameRef("sg-db")
 
 	idWeb := "d564a44b-346c-4f71-92b1-5899b8979374"
 	idDb := "1d23d83b-2a78-4c12-9e55-0a6e026dd201"
@@ -243,14 +243,14 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 
 	testCases := []struct {
 		name          string
-		newValue      []orcv1alpha1.OpenStackName
+		newValue      []orcv1alpha1.KubernetesNameRef
 		existingValue []string
 		secGroupMap   map[string]*orcv1alpha1.SecurityGroup
 		expectChange  bool
 	}{
 		{
 			name:          "Identical",
-			newValue:      []orcv1alpha1.OpenStackName{sgWebName, sgDbName},
+			newValue:      []orcv1alpha1.KubernetesNameRef{sgWebName, sgDbName},
 			existingValue: []string{idWeb, idDb},
 			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
 				string(sgWebName): makeSecGroupWithID(idWeb),
@@ -260,7 +260,7 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 		},
 		{
 			name:          "Identical but different order",
-			newValue:      []orcv1alpha1.OpenStackName{sgDbName, sgWebName},
+			newValue:      []orcv1alpha1.KubernetesNameRef{sgDbName, sgWebName},
 			existingValue: []string{idWeb, idDb},
 			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
 				string(sgWebName): makeSecGroupWithID(idWeb),
@@ -270,7 +270,7 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 		},
 		{
 			name:          "Add a security group",
-			newValue:      []orcv1alpha1.OpenStackName{sgWebName, sgDbName},
+			newValue:      []orcv1alpha1.KubernetesNameRef{sgWebName, sgDbName},
 			existingValue: []string{idWeb},
 			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
 				string(sgWebName): makeSecGroupWithID(idWeb),
@@ -280,7 +280,7 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 		},
 		{
 			name:          "Remove a security group",
-			newValue:      []orcv1alpha1.OpenStackName{sgWebName},
+			newValue:      []orcv1alpha1.KubernetesNameRef{sgWebName},
 			existingValue: []string{idWeb, idDb},
 			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
 				string(sgWebName): makeSecGroupWithID(idWeb),
@@ -290,7 +290,7 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 		},
 		{
 			name:          "Replace a security group",
-			newValue:      []orcv1alpha1.OpenStackName{sgWebName, sgDbName},
+			newValue:      []orcv1alpha1.KubernetesNameRef{sgWebName, sgDbName},
 			existingValue: []string{idWeb, idOther},
 			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
 				string(sgWebName): makeSecGroupWithID(idWeb),
@@ -300,14 +300,14 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 		},
 		{
 			name:          "Remove all security groups",
-			newValue:      []orcv1alpha1.OpenStackName{},
+			newValue:      []orcv1alpha1.KubernetesNameRef{},
 			existingValue: []string{idWeb, idDb},
 			secGroupMap:   map[string]*orcv1alpha1.SecurityGroup{},
 			expectChange:  true,
 		},
 		{
 			name:          "Add to empty list",
-			newValue:      []orcv1alpha1.OpenStackName{sgWebName},
+			newValue:      []orcv1alpha1.KubernetesNameRef{sgWebName},
 			existingValue: []string{},
 			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
 				string(sgWebName): makeSecGroupWithID(idWeb),

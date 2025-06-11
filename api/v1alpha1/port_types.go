@@ -162,12 +162,12 @@ type PortResourceSpec struct {
 	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
-	// securityGroupRefs are the names of the security groups associated
+	// securityGroupRefs are references to the security groups associated
 	// with this port.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
-	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"` //nolint:kubeapilinter // https://github.com/k-orc/openstack-resource-controller/issues/438
+	SecurityGroupRefs []KubernetesNameRef `json:"securityGroupRefs,omitempty"`
 
 	// vnicType specifies the type of vNIC which this port should be
 	// attached to. This is used to determine which mechanism driver(s) to
