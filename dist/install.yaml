@@ -385,6 +385,476 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.1
+  name: floatingips.openstack.k-orc.cloud
+spec:
+  group: openstack.k-orc.cloud
+  names:
+    categories:
+    - openstack
+    kind: FloatingIP
+    listKind: FloatingIPList
+    plural: floatingips
+    singular: floatingip
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Resource ID
+      jsonPath: .status.id
+      name: ID
+      type: string
+    - description: Availability status of resource
+      jsonPath: .status.conditions[?(@.type=='Available')].status
+      name: Available
+      type: string
+    - description: Allocated IP address
+      jsonPath: .status.resource.floatingIP
+      name: Address
+      type: string
+    - description: Message describing current progress status
+      jsonPath: .status.conditions[?(@.type=='Progressing')].message
+      name: Message
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: FloatingIP is the Schema for an ORC resource.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: spec specifies the desired state of the resource.
+            properties:
+              cloudCredentialsRef:
+                description: cloudCredentialsRef points to a secret containing OpenStack
+                  credentials
+                properties:
+                  cloudName:
+                    description: cloudName specifies the name of the entry in the
+                      clouds.yaml file to use.
+                    maxLength: 256
+                    minLength: 1
+                    type: string
+                  secretName:
+                    description: |-
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
+                      The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
+                      The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                required:
+                - cloudName
+                - secretName
+                type: object
+              import:
+                description: |-
+                  import refers to an existing OpenStack resource which will be imported instead of
+                  creating a new one.
+                maxProperties: 1
+                minProperties: 1
+                properties:
+                  filter:
+                    description: |-
+                      filter contains a resource query which is expected to return a single
+                      result. The controller will continue to retry if filter returns no
+                      results. If filter returns multiple results the controller will set an
+                      error state and will not continue to retry.
+                    minProperties: 1
+                    properties:
+                      description:
+                        description: description of the existing resource
+                        maxLength: 255
+                        minLength: 1
+                        type: string
+                      floatingIP:
+                        description: floatingIP is the floatingip address.
+                        maxLength: 45
+                        minLength: 1
+                        type: string
+                      floatingNetworkRef:
+                        description: floatingNetworkRef is a reference to the ORC
+                          Network which this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                      notTags:
+                        description: |-
+                          notTags is a list of tags to filter by. If specified, resources which
+                          contain all of the given tags will be excluded from the result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                      notTagsAny:
+                        description: |-
+                          notTagsAny is a list of tags to filter by. If specified, resources
+                          which contain any of the given tags will be excluded from the result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                      portRef:
+                        description: portRef is a reference to the ORC Port which
+                          this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                      status:
+                        description: status is the status of the floatingip.
+                        maxLength: 1024
+                        type: string
+                      tags:
+                        description: |-
+                          tags is a list of tags to filter by. If specified, the resource must
+                          have all of the tags specified to be included in the result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                      tagsAny:
+                        description: |-
+                          tagsAny is a list of tags to filter by. If specified, the resource
+                          must have at least one of the tags specified to be included in the
+                          result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 32
+                        type: array
+                        x-kubernetes-list-type: set
+                    type: object
+                  id:
+                    description: |-
+                      id contains the unique identifier of an existing OpenStack resource. Note
+                      that when specifying an import by ID, the resource MUST already exist.
+                      The ORC object will enter an error state if the resource does not exist.
+                    format: uuid
+                    type: string
+                type: object
+              managedOptions:
+                description: managedOptions specifies options which may be applied
+                  to managed objects.
+                properties:
+                  onDelete:
+                    default: delete
+                    description: |-
+                      onDelete specifies the behaviour of the controller when the ORC
+                      object is deleted. Options are `delete` - delete the OpenStack resource;
+                      `detach` - do not delete the OpenStack resource. If not specified, the
+                      default is `delete`.
+                    enum:
+                    - delete
+                    - detach
+                    type: string
+                type: object
+              managementPolicy:
+                default: managed
+                description: |-
+                  managementPolicy defines how ORC will treat the object. Valid values are
+                  `managed`: ORC will create, update, and delete the resource; `unmanaged`:
+                  ORC will import an existing resource, and will not apply updates to it or
+                  delete it.
+                enum:
+                - managed
+                - unmanaged
+                type: string
+                x-kubernetes-validations:
+                - message: managementPolicy is immutable
+                  rule: self == oldSelf
+              resource:
+                description: |-
+                  resource specifies the desired state of the resource.
+
+                  resource may not be specified if the management policy is `unmanaged`.
+
+                  resource must be specified if the management policy is `managed`.
+                properties:
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
+                  fixedIP:
+                    description: fixedIP is the IP address of the port to which the
+                      floatingip is associated.
+                    maxLength: 45
+                    minLength: 1
+                    type: string
+                  floatingIP:
+                    description: |-
+                      floatingIP is the IP that will be assigned to the floatingip. If not set, it will
+                      be assigned automatically.
+                    maxLength: 45
+                    minLength: 1
+                    type: string
+                  floatingNetworkRef:
+                    description: floatingNetworkRef references the network to which
+                      the floatingip is associated.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                  floatingSubnetRef:
+                    description: floatingSubnetRef references the subnet to which
+                      the floatingip is associated.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                  portRef:
+                    description: portRef is a reference to the ORC Port which this
+                      resource is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                  tags:
+                    description: tags is a list of tags which will be applied to the
+                      floatingip.
+                    items:
+                      description: |-
+                        NeutronTag represents a tag on a Neutron resource.
+                        It may not be empty and may not contain commas.
+                      maxLength: 255
+                      minLength: 1
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: set
+                type: object
+                x-kubernetes-validations:
+                - message: FloatingIPResourceSpec is immutable
+                  rule: self == oldSelf
+                - message: Exactly one of 'floatingNetworkRef' or 'floatingSubnetRef'
+                    must be set
+                  rule: has(self.floatingNetworkRef) != has(self.floatingSubnetRef)
+            required:
+            - cloudCredentialsRef
+            type: object
+            x-kubernetes-validations:
+            - message: resource must be specified when policy is managed
+              rule: 'self.managementPolicy == ''managed'' ? has(self.resource) : true'
+            - message: import may not be specified when policy is managed
+              rule: 'self.managementPolicy == ''managed'' ? !has(self.__import__)
+                : true'
+            - message: resource may not be specified when policy is unmanaged
+              rule: 'self.managementPolicy == ''unmanaged'' ? !has(self.resource)
+                : true'
+            - message: import must be specified when policy is unmanaged
+              rule: 'self.managementPolicy == ''unmanaged'' ? has(self.__import__)
+                : true'
+            - message: managedOptions may only be provided when policy is managed
+              rule: 'has(self.managedOptions) ? self.managementPolicy == ''managed''
+                : true'
+          status:
+            description: status defines the observed state of the resource.
+            properties:
+              conditions:
+                description: |-
+                  conditions represents the observed status of the object.
+                  Known .status.conditions.type are: "Available", "Progressing"
+
+                  Available represents the availability of the OpenStack resource. If it is
+                  true then the resource is ready for use.
+
+                  Progressing indicates whether the controller is still attempting to
+                  reconcile the current state of the OpenStack resource to the desired
+                  state. Progressing will be False either because the desired state has
+                  been achieved, or because some terminal error prevents it from ever being
+                  achieved and the controller is no longer attempting to reconcile. If
+                  Progressing is True, an observer waiting on the resource should continue
+                  to wait.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                maxItems: 32
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              id:
+                description: id is the unique identifier of the OpenStack resource.
+                type: string
+              resource:
+                description: resource contains the observed state of the OpenStack
+                  resource.
+                properties:
+                  createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 1024
+                    type: string
+                  fixedIP:
+                    description: fixedIP is the IP address of the port to which the
+                      floatingip is associated.
+                    maxLength: 1024
+                    type: string
+                  floatingIP:
+                    description: floatingIP is the IP address of the floatingip.
+                    maxLength: 1024
+                    type: string
+                  floatingNetworkID:
+                    description: floatingNetworkID is the ID of the network to which
+                      the floatingip is associated.
+                    maxLength: 1024
+                    type: string
+                  portID:
+                    description: portID is the ID of the port to which the floatingip
+                      is associated.
+                    maxLength: 1024
+                    type: string
+                  projectID:
+                    description: projectID is the project owner of the resource.
+                    maxLength: 1024
+                    type: string
+                  revisionNumber:
+                    description: revisionNumber optionally set via extensions/standard-attr-revisions
+                    format: int64
+                    type: integer
+                  routerID:
+                    description: routerID is the ID of the router to which the floatingip
+                      is associated.
+                    maxLength: 1024
+                    type: string
+                  status:
+                    description: status indicates the current status of the resource.
+                    maxLength: 1024
+                    type: string
+                  tags:
+                    description: tags is the list of tags on the resource.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  tenantID:
+                    description: tenantID is the project owner of the resource.
+                    maxLength: 1024
+                    type: string
+                  updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
   name: images.openstack.k-orc.cloud
 spec:
   group: openstack.k-orc.cloud
@@ -1243,6 +1713,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -1374,6 +1851,13 @@ spec:
                       used as the default value of port_security_enabled field of a newly
                       created port.
                     type: boolean
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
                   shared:
                     description: |-
                       shared indicates whether this resource is shared across all
@@ -1775,6 +2259,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -1932,6 +2423,13 @@ spec:
                     - Enabled
                     - Disabled
                     - Inherit
+                    type: string
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
                     type: string
                   securityGroupRefs:
                     description: |-
@@ -2875,6 +3373,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -2978,8 +3483,9 @@ spec:
                       is available when dvr extension is enabled.
                     type: boolean
                   externalGateways:
-                    description: externalGateways is a list of external gateways for
-                      the router.
+                    description: |-
+                      externalGateways is a list of external gateways for the router.
+                      Multiple gateways are not currently supported by ORC.
                     items:
                       properties:
                         networkRef:
@@ -2992,7 +3498,7 @@ spec:
                       required:
                       - networkRef
                       type: object
-                    maxItems: 32
+                    maxItems: 1
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
@@ -3002,6 +3508,13 @@ spec:
                     maxLength: 255
                     minLength: 1
                     pattern: ^[^,]+$
+                    type: string
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
                     type: string
                   tags:
                     description: tags is a list of tags which will be applied to the
@@ -3316,6 +3829,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -3408,6 +3928,16 @@ spec:
                     maxLength: 255
                     minLength: 1
                     pattern: ^[^,]+$
+                    type: string
+                    x-kubernetes-validations:
+                    - message: Property is immutable
+                      rule: self == oldSelf
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
                     type: string
                     x-kubernetes-validations:
                     - message: Property is immutable
@@ -3777,6 +4307,324 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.1
+  name: servergroups.openstack.k-orc.cloud
+spec:
+  group: openstack.k-orc.cloud
+  names:
+    categories:
+    - openstack
+    kind: ServerGroup
+    listKind: ServerGroupList
+    plural: servergroups
+    singular: servergroup
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Resource ID
+      jsonPath: .status.id
+      name: ID
+      type: string
+    - description: Availability status of resource
+      jsonPath: .status.conditions[?(@.type=='Available')].status
+      name: Available
+      type: string
+    - description: Message describing current progress status
+      jsonPath: .status.conditions[?(@.type=='Progressing')].message
+      name: Message
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ServerGroup is the Schema for an ORC resource.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: spec specifies the desired state of the resource.
+            properties:
+              cloudCredentialsRef:
+                description: cloudCredentialsRef points to a secret containing OpenStack
+                  credentials
+                properties:
+                  cloudName:
+                    description: cloudName specifies the name of the entry in the
+                      clouds.yaml file to use.
+                    maxLength: 256
+                    minLength: 1
+                    type: string
+                  secretName:
+                    description: |-
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
+                      The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
+                      The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                required:
+                - cloudName
+                - secretName
+                type: object
+              import:
+                description: |-
+                  import refers to an existing OpenStack resource which will be imported instead of
+                  creating a new one.
+                maxProperties: 1
+                minProperties: 1
+                properties:
+                  filter:
+                    description: |-
+                      filter contains a resource query which is expected to return a single
+                      result. The controller will continue to retry if filter returns no
+                      results. If filter returns multiple results the controller will set an
+                      error state and will not continue to retry.
+                    minProperties: 1
+                    properties:
+                      name:
+                        description: name of the existing resource
+                        maxLength: 255
+                        minLength: 1
+                        pattern: ^[^,]+$
+                        type: string
+                    type: object
+                  id:
+                    description: |-
+                      id contains the unique identifier of an existing OpenStack resource. Note
+                      that when specifying an import by ID, the resource MUST already exist.
+                      The ORC object will enter an error state if the resource does not exist.
+                    format: uuid
+                    type: string
+                type: object
+              managedOptions:
+                description: managedOptions specifies options which may be applied
+                  to managed objects.
+                properties:
+                  onDelete:
+                    default: delete
+                    description: |-
+                      onDelete specifies the behaviour of the controller when the ORC
+                      object is deleted. Options are `delete` - delete the OpenStack resource;
+                      `detach` - do not delete the OpenStack resource. If not specified, the
+                      default is `delete`.
+                    enum:
+                    - delete
+                    - detach
+                    type: string
+                type: object
+              managementPolicy:
+                default: managed
+                description: |-
+                  managementPolicy defines how ORC will treat the object. Valid values are
+                  `managed`: ORC will create, update, and delete the resource; `unmanaged`:
+                  ORC will import an existing resource, and will not apply updates to it or
+                  delete it.
+                enum:
+                - managed
+                - unmanaged
+                type: string
+                x-kubernetes-validations:
+                - message: managementPolicy is immutable
+                  rule: self == oldSelf
+              resource:
+                description: |-
+                  resource specifies the desired state of the resource.
+
+                  resource may not be specified if the management policy is `unmanaged`.
+
+                  resource must be specified if the management policy is `managed`.
+                properties:
+                  name:
+                    description: |-
+                      name will be the name of the created resource. If not specified, the
+                      name of the ORC object will be used.
+                    maxLength: 255
+                    minLength: 1
+                    pattern: ^[^,]+$
+                    type: string
+                  policy:
+                    description: policy is the policy to use for the server group.
+                    enum:
+                    - affinity
+                    - anti-affinity
+                    - soft-affinity
+                    - soft-anti-affinity
+                    type: string
+                  rules:
+                    description: rules is the rules to use for the server group.
+                    properties:
+                      maxServerPerHost:
+                        description: |-
+                          maxServerPerHost specifies how many servers can reside on a single compute host.
+                          It can be used only with the "anti-affinity" policy.
+                        format: int32
+                        type: integer
+                    type: object
+                required:
+                - policy
+                type: object
+                x-kubernetes-validations:
+                - message: ServerGroupResourceSpec is immutable
+                  rule: self == oldSelf
+                - message: maxServerPerHost can only be used with the anti-affinity
+                    policy
+                  rule: 'has(self.rules) && self.rules.maxServerPerHost > 0 ? self.policy
+                    == ''anti-affinity'' : true'
+            required:
+            - cloudCredentialsRef
+            type: object
+            x-kubernetes-validations:
+            - message: resource must be specified when policy is managed
+              rule: 'self.managementPolicy == ''managed'' ? has(self.resource) : true'
+            - message: import may not be specified when policy is managed
+              rule: 'self.managementPolicy == ''managed'' ? !has(self.__import__)
+                : true'
+            - message: resource may not be specified when policy is unmanaged
+              rule: 'self.managementPolicy == ''unmanaged'' ? !has(self.resource)
+                : true'
+            - message: import must be specified when policy is unmanaged
+              rule: 'self.managementPolicy == ''unmanaged'' ? has(self.__import__)
+                : true'
+            - message: managedOptions may only be provided when policy is managed
+              rule: 'has(self.managedOptions) ? self.managementPolicy == ''managed''
+                : true'
+          status:
+            description: status defines the observed state of the resource.
+            properties:
+              conditions:
+                description: |-
+                  conditions represents the observed status of the object.
+                  Known .status.conditions.type are: "Available", "Progressing"
+
+                  Available represents the availability of the OpenStack resource. If it is
+                  true then the resource is ready for use.
+
+                  Progressing indicates whether the controller is still attempting to
+                  reconcile the current state of the OpenStack resource to the desired
+                  state. Progressing will be False either because the desired state has
+                  been achieved, or because some terminal error prevents it from ever being
+                  achieved and the controller is no longer attempting to reconcile. If
+                  Progressing is True, an observer waiting on the resource should continue
+                  to wait.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                maxItems: 32
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              id:
+                description: id is the unique identifier of the OpenStack resource.
+                type: string
+              resource:
+                description: resource contains the observed state of the OpenStack
+                  resource.
+                properties:
+                  name:
+                    description: name is a Human-readable name for the servergroup.
+                      Might not be unique.
+                    maxLength: 1024
+                    type: string
+                  policy:
+                    description: policy is the policy of the servergroup.
+                    maxLength: 1024
+                    type: string
+                  projectID:
+                    description: projectID is the project owner of the resource.
+                    maxLength: 1024
+                    type: string
+                  rules:
+                    description: rules is the rules of the server group.
+                    properties:
+                      maxServerPerHost:
+                        description: |-
+                          maxServerPerHost specifies how many servers can reside on a single compute host.
+                          It can be used only with the "anti-affinity" policy.
+                        format: int32
+                        type: integer
+                    type: object
+                  userID:
+                    description: userID of the server group.
+                    maxLength: 1024
+                    type: string
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
   name: servers.openstack.k-orc.cloud
 spec:
   group: openstack.k-orc.cloud
@@ -4001,6 +4849,13 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                  serverGroupRef:
+                    description: |-
+                      serverGroupRef is a reference to a ServerGroup object. The server
+                      will be created in the server group.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
                   tags:
                     description: tags is a list of tags which will be applied to the
                       server.
@@ -4151,6 +5006,17 @@ spec:
                       Might not be unique.
                     maxLength: 1024
                     type: string
+                  serverGroups:
+                    description: |-
+                      serverGroups is a slice of strings containing the UUIDs of the
+                      server groups to which the server belongs. Currently this can
+                      contain at most one entry.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                   status:
                     description: |-
                       status contains the current operational status of the server,
@@ -4351,6 +5217,13 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      projectRef:
+                        description: |-
+                          projectRef is a reference to the ORC Project this resource is associated with.
+                          Typically, only used by admin.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
@@ -4459,6 +5332,9 @@ spec:
                     maxLength: 49
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: cidr is immutable
+                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -4480,6 +5356,9 @@ spec:
                       dnsPublishFixedIP will either enable or disable the publication of
                       fixed IPs to the DNS. Defaults to false.
                     type: boolean
+                    x-kubernetes-validations:
+                    - message: dnsPublishFixedIP is immutable
+                      rule: self == oldSelf
                   enableDHCP:
                     description: enableDHCP will either enable to disable the DHCP
                       service.
@@ -4544,6 +5423,9 @@ spec:
                     - 6
                     format: int32
                     type: integer
+                    x-kubernetes-validations:
+                    - message: ipVersion is immutable
+                      rule: self == oldSelf
                   ipv6:
                     description: ipv6 contains IPv6-specific options. It may only
                       be set if IPVersion is 6.
@@ -4567,6 +5449,9 @@ spec:
                         - dhcpv6-stateless
                         type: string
                     type: object
+                    x-kubernetes-validations:
+                    - message: ipv6 is immutable
+                      rule: self == oldSelf
                   name:
                     description: name is a human-readable name of the subnet. If not
                       set, the object's name will be used.
@@ -4580,12 +5465,28 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: networkRef is immutable
+                      rule: self == oldSelf
+                  projectRef:
+                    description: |-
+                      projectRef is a reference to the ORC Project this resource is associated with.
+                      Typically, only used by admin.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: projectRef is immutable
+                      rule: self == oldSelf
                   routerRef:
                     description: routerRef specifies a router to attach the subnet
                       to
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: routerRef is immutable
+                      rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
                       subnet.
@@ -4604,9 +5505,6 @@ spec:
                 - ipVersion
                 - networkRef
                 type: object
-                x-kubernetes-validations:
-                - message: SubnetResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object
@@ -4962,6 +5860,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - flavors
+  - floatingips
   - images
   - networks
   - ports
@@ -4969,6 +5868,7 @@ rules:
   - routerinterfaces
   - routers
   - securitygroups
+  - servergroups
   - servers
   - subnets
   verbs:
@@ -4983,6 +5883,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - flavors/status
+  - floatingips/status
   - images/status
   - networks/status
   - ports/status
@@ -4990,6 +5891,7 @@ rules:
   - routerinterfaces/status
   - routers/status
   - securitygroups/status
+  - servergroups/status
   - servers/status
   - subnets/status
   verbs:
@@ -5117,7 +6019,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /manager
-        image: quay.io/orc/openstack-resource-controller:v2.1.0
+        image: quay.io/orc/openstack-resource-controller:v2.2.0
         livenessProbe:
           httpGet:
             path: /healthz
