@@ -70,7 +70,7 @@ var _ = Describe("ORC Port API validations", func() {
 			WithSecurityGroupRefs("sg-foo").
 			WithPortSecurity(orcv1alpha1.PortSecurityEnabled))
 		Expect(applyObj(ctx, port, patch)).To(Succeed())
-		Expect(port.Spec.Resource.SecurityGroupRefs).To(Equal([]orcv1alpha1.OpenStackName{"sg-foo"}))
+		Expect(port.Spec.Resource.SecurityGroupRefs).To(Equal([]orcv1alpha1.KubernetesNameRef{"sg-foo"}))
 		Expect(port.Spec.Resource.PortSecurity).To(Equal(orcv1alpha1.PortSecurityEnabled))
 	})
 
