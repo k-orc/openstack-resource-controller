@@ -248,6 +248,9 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                    x-kubernetes-validations:
+                    - message: addresses is immutable
+                      rule: self == oldSelf
                   allowedAddressPairs:
                     description: allowedAddressPairs are allowed addresses associated
                       with this port.
@@ -293,6 +296,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: networkRef is immutable
+                      rule: self == oldSelf
                   portSecurity:
                     default: Inherit
                     description: |-
@@ -312,6 +318,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: projectRef is immutable
+                      rule: self == oldSelf
                   securityGroupRefs:
                     description: |-
                       securityGroupRefs are the names of the security groups associated
@@ -349,12 +358,13 @@ spec:
                       deployments. If not specified, the Neutron default value is used.
                     maxLength: 64
                     type: string
+                    x-kubernetes-validations:
+                    - message: vnicType is immutable
+                      rule: self == oldSelf
                 required:
                 - networkRef
                 type: object
                 x-kubernetes-validations:
-                - message: PortResourceSpec is immutable
-                  rule: self == oldSelf
                 - message: securityGroupRefs must be empty when portSecurity is set
                     to Disabled
                   rule: 'has(self.portSecurity) && self.portSecurity == ''Disabled''
