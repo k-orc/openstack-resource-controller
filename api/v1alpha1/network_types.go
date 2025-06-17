@@ -76,14 +76,12 @@ type NetworkResourceSpec struct {
 
 	// dnsDomain is the DNS domain of the network
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dnsdomain is immutable"
 	DNSDomain *DNSDomain `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
 	// Defaults to 1500.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="mtu is immutable"
 	MTU *MTU `json:"mtu,omitempty"`
 
 	// portSecurityEnabled is the port security status of the network.
@@ -91,13 +89,11 @@ type NetworkResourceSpec struct {
 	// used as the default value of port_security_enabled field of a newly
 	// created port.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="portSecurityEnabled is immutable"
 	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 
 	// external indicates whether the network has an external routing
 	// facility that’s not managed by the networking service.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="external is immutable"
 	External *bool `json:"external,omitempty"`
 
 	// shared indicates whether this resource is shared across all

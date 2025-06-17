@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"iter"
-	"reflect"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
@@ -215,32 +214,37 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
 	if resource == nil {
-		// Should have been caught by API validation
 		return progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	updateOpts := networks.UpdateOpts{}
+	var needsUpdate bool
+	baseUpdateOpts := &networks.UpdateOpts{}
 
-	handleAdminStateUpUpdate(&updateOpts, resource, osResource)
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-	handleSharedUpdate(&updateOpts, resource, osResource)
+	handleAdminStateUpUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
+	handleNameUpdate(baseUpdateOpts, obj, osResource, &needsUpdate)
+	handleDescriptionUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
+	handleSharedUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
 
-	if reflect.ValueOf(updateOpts).IsZero() {
+	var updateOpts networks.UpdateOptsBuilder = baseUpdateOpts
+
+	updateOpts = handlePortSecurityEnabledUpdate(updateOpts, resource, osResource, &needsUpdate)
+	updateOpts = handleMTUUpdate(updateOpts, resource, osResource, &needsUpdate)
+	updateOpts = handleExternalUpdate(updateOpts, resource, osResource, &needsUpdate)
+	updateOpts = handleDNSDomainUpdate(updateOpts, resource, osResource, &needsUpdate)
+
+	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	updateOpts.RevisionNumber = &osResource.RevisionNumber
+	baseUpdateOpts.RevisionNumber = &osResource.RevisionNumber
 
 	_, err := actuator.osClient.UpdateNetwork(ctx, osResource.ID, updateOpts)
 
-	// We should require the spec to be updated before retrying an update which returned a conflict
 	if orcerrors.IsConflict(err) {
 		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
 	}
-
 	if err != nil {
 		return progress.WrapError(err)
 	}
@@ -248,34 +252,85 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 	return progress.NeedsRefresh()
 }
 
-func handleAdminStateUpUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+func handleAdminStateUpUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
 	// Default is true
 	AdminStateUp := ptr.Deref(resource.AdminStateUp, true)
 	if osResource.AdminStateUp != AdminStateUp {
 		updateOpts.AdminStateUp = &AdminStateUp
+		*needsUpdate = true
 	}
 }
 
-func handleNameUpdate(updateOpts *networks.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+func handleNameUpdate(updateOpts *networks.UpdateOpts, obj orcObjectPT, osResource *osResourceT, needsUpdate *bool) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
 		updateOpts.Name = &name
+		*needsUpdate = true
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+func handleDescriptionUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
 	description := string(ptr.Deref(resource.Description, ""))
 	if osResource.Description != description {
 		updateOpts.Description = &description
+		*needsUpdate = true
 	}
 }
 
-func handleSharedUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+func handleSharedUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
 	// Default is false
 	Shared := ptr.Deref(resource.Shared, false)
 	if osResource.Shared != Shared {
 		updateOpts.Shared = &Shared
+		*needsUpdate = true
 	}
+}
+
+func handlePortSecurityEnabledUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+	if resource.PortSecurityEnabled != nil {
+		if *resource.PortSecurityEnabled != osResource.PortSecurityEnabled {
+			updateOpts = &portsecurity.NetworkUpdateOptsExt{
+				UpdateOptsBuilder:   updateOpts,
+				PortSecurityEnabled: resource.PortSecurityEnabled,
+			}
+			*needsUpdate = true
+		}
+	}
+	return updateOpts
+}
+
+func handleMTUUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+	if resource.MTU != nil && int(*resource.MTU) != osResource.MTU {
+		updateOpts = &mtu.UpdateOptsExt{
+			UpdateOptsBuilder: updateOpts,
+			MTU:               int(*resource.MTU),
+		}
+		*needsUpdate = true
+	}
+	return updateOpts
+}
+
+func handleExternalUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+	if resource.External != nil && *resource.External != osResource.External {
+		updateOpts = &external.UpdateOptsExt{
+			UpdateOptsBuilder: updateOpts,
+			External:          resource.External,
+		}
+		*needsUpdate = true
+	}
+	return updateOpts
+}
+
+func handleDNSDomainUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+	if resource.DNSDomain != nil && string(*resource.DNSDomain) != osResource.DNSDomain {
+		dnsDomain := string(*resource.DNSDomain)
+		updateOpts = &dns.NetworkUpdateOptsExt{
+			UpdateOptsBuilder: updateOpts,
+			DNSDomain:         &dnsDomain,
+		}
+		*needsUpdate = true
+	}
+	return updateOpts
 }
 
 type networkHelperFactory struct{}

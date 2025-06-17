@@ -9,4 +9,9 @@ spec:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  resource: {}
+  resource:
+    # Need to set the default values to revert them correctly in the 02-revert-resource step.
+    adminStateUp: true
+    shared: false
+    portSecurityEnabled: true
+    external: false

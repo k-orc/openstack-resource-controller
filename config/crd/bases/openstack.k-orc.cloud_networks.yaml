@@ -247,17 +247,11 @@ spec:
                     minLength: 1
                     pattern: ^[A-Za-z0-9]{1,63}(.[A-Za-z0-9-]{1,63})*(.[A-Za-z]{2,63})*.?$
                     type: string
-                    x-kubernetes-validations:
-                    - message: dnsdomain is immutable
-                      rule: self == oldSelf
                   external:
                     description: |-
                       external indicates whether the network has an external routing
                       facility that’s not managed by the networking service.
                     type: boolean
-                    x-kubernetes-validations:
-                    - message: external is immutable
-                      rule: self == oldSelf
                   mtu:
                     description: |-
                       mtu is the the maximum transmission unit value to address
@@ -267,9 +261,6 @@ spec:
                     maximum: 9216
                     minimum: 68
                     type: integer
-                    x-kubernetes-validations:
-                    - message: mtu is immutable
-                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -285,9 +276,6 @@ spec:
                       used as the default value of port_security_enabled field of a newly
                       created port.
                     type: boolean
-                    x-kubernetes-validations:
-                    - message: portSecurityEnabled is immutable
-                      rule: self == oldSelf
                   projectRef:
                     description: |-
                       projectRef is a reference to the ORC Project this resource is associated with.

@@ -22,6 +22,10 @@ status:
     portSecurityEnabled: true
     shared: false
     status: ACTIVE
+    # The following values aren't reset because the original spec had no value
+    mtu: 1405
+    # Skipped until https://github.com/k-orc/openstack-resource-controller/issues/189 is fixed
+    #dnsDomain: "foo.com"
   conditions:
   - type: Available
     status: "True"
