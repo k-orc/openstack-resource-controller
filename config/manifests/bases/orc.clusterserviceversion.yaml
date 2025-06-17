@@ -1,0 +1,56 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+    features.operators.openshift.io/disconnected: "true"
+    features.operators.openshift.io/fips-compliant: "true"
+    features.operators.openshift.io/proxy-aware: "false"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
+    operatorframework.io/suggested-namespace: openstack
+    operators.operatorframework.io/operator-type: non-standalone
+  name: orc.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Image is the Schema for an ORC resource.
+      displayName: Image
+      kind: Image
+      name: images.openstack.k-orc.cloud
+      version: v1alpha1
+  description: OpenStack Resource Controller
+  displayName: ORC operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - OpenStack
+  - Kubernetes
+  - OpenShift
+  links:
+  - name: Orc
+    url: https://orc.domain
+  maturity: beta
+  provider:
+    name: Red Hat Inc.
+    url: https://github.com/k-orc/openstack-resource-controller
+  version: 0.0.1
