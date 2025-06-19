@@ -143,7 +143,6 @@ type PortResourceSpec struct {
 	// deployments. If not specified, the Neutron default value is used.
 	// +kubebuilder:validation:MaxLength:=64
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="vnicType is immutable"
 	VNICType string `json:"vnicType,omitempty"`
 
 	// portSecurity controls port security for this port.

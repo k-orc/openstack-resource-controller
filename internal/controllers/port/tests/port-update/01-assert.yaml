@@ -30,9 +30,16 @@ status:
     portSecurityEnabled: true
     propagateUplinkStatus: false
     status: DOWN
-    vnicType: normal
+    vnicType: direct
     allowedAddressPairs:
       - ip: "192.168.122.14"
         mac: "92:42:9c:13:98:82"
     tags:
     - tag1
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success 

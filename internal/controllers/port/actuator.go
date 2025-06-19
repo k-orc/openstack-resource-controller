@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"iter"
-	"reflect"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
@@ -295,18 +294,24 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	updateOpts := ports.UpdateOpts{}
+	var needsUpdate bool
+	baseUpdateOpts := &ports.UpdateOpts{
+		RevisionNumber: &osResource.RevisionNumber,
+	}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-	handleAllowedAddressPairsUpdate(&updateOpts, resource, osResource)
+	handleNameUpdate(baseUpdateOpts, obj, osResource, &needsUpdate)
+	handleDescriptionUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
+	handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
 
-	if reflect.ValueOf(updateOpts).IsZero() {
+	var updateOpts ports.UpdateOptsBuilder = baseUpdateOpts
+
+	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource, &needsUpdate)
+	updateOpts = handlePortSecurityUpdate(updateOpts, resource, osResource, &needsUpdate)
+
+	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
-
-	updateOpts.RevisionNumber = &osResource.RevisionNumber
 
 	_, err := actuator.osClient.UpdatePort(ctx, osResource.ID, updateOpts)
 
@@ -322,21 +327,23 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 	return progress.NeedsRefresh()
 }
 
-func handleNameUpdate(updateOpts *ports.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+func handleNameUpdate(updateOpts *ports.UpdateOpts, obj orcObjectPT, osResource *osResourceT, needsUpdate *bool) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
 		updateOpts.Name = &name
+		*needsUpdate = true
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+func handleDescriptionUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
 	description := string(ptr.Deref(resource.Description, ""))
 	if osResource.Description != description {
 		updateOpts.Description = &description
+		*needsUpdate = true
 	}
 }
 
-func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orcv1alpha1.PortResourceSpec, osResource *osclients.PortExt) {
+func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orcv1alpha1.PortResourceSpec, osResource *osclients.PortExt, needsUpdate *bool) {
 	desiredPairs := make([]ports.AddressPair, len(resource.AllowedAddressPairs))
 	for i, pair := range resource.AllowedAddressPairs {
 		desiredPairs[i].IPAddress = string(pair.IP)
@@ -380,7 +387,47 @@ func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orc
 
 	if missingPair || extraPair {
 		updateOpts.AllowedAddressPairs = &desiredPairs
+		*needsUpdate = true
 	}
+}
+
+func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) ports.UpdateOptsBuilder {
+	if resource.VNICType != "" {
+		if resource.VNICType != osResource.VNICType {
+			updateOpts = &portsbinding.UpdateOptsExt{
+				UpdateOptsBuilder: updateOpts,
+				VNICType:          resource.VNICType,
+			}
+			*needsUpdate = true
+		}
+	}
+	return updateOpts
+}
+
+func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) ports.UpdateOptsBuilder {
+
+	var desiredState *bool
+
+	switch resource.PortSecurity {
+	case orcv1alpha1.PortSecurityEnabled:
+		desiredState = ptr.To(true)
+	case orcv1alpha1.PortSecurityDisabled:
+		desiredState = ptr.To(false)
+	case orcv1alpha1.PortSecurityInherit:
+		return updateOpts
+	default:
+		return updateOpts
+	}
+
+	if *desiredState != osResource.PortSecurityEnabled {
+		updateOpts = &portsecurity.PortUpdateOptsExt{
+			UpdateOptsBuilder:   updateOpts,
+			PortSecurityEnabled: desiredState,
+		}
+		*needsUpdate = true
+	}
+
+	return updateOpts
 }
 
 type portHelperFactory struct{}

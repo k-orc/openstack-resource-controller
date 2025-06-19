@@ -358,9 +358,6 @@ spec:
                       deployments. If not specified, the Neutron default value is used.
                     maxLength: 64
                     type: string
-                    x-kubernetes-validations:
-                    - message: vnicType is immutable
-                      rule: self == oldSelf
                 required:
                 - networkRef
                 type: object

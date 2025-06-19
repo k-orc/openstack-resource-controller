@@ -1,9 +1,10 @@
 package port
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
@@ -35,11 +36,12 @@ func TestHandleNameUpdate(t *testing.T) {
 			osResource := &osclients.PortExt{Port: *port}
 
 			updateOpts := ports.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
+			var needsUpdate bool
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+			handleNameUpdate(&updateOpts, resource, osResource, &needsUpdate)
+
+			if needsUpdate != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
 			}
 		})
 
@@ -67,11 +69,12 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			osResource := &osclients.PortExt{Port: *port}
 
 			updateOpts := ports.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			var needsUpdate bool
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+			handleDescriptionUpdate(&updateOpts, resource, osResource, &needsUpdate)
+
+			if needsUpdate != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
 			}
 		})
 
@@ -165,13 +168,99 @@ func TestHandleAllowedAddressPairsUpdate(t *testing.T) {
 			osResource := &osclients.PortExt{Port: *port}
 
 			updateOpts := ports.UpdateOpts{}
-			handleAllowedAddressPairsUpdate(&updateOpts, resource, osResource)
+			var needsUpdate bool
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+			handleAllowedAddressPairsUpdate(&updateOpts, resource, osResource, &needsUpdate)
+
+			if needsUpdate != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
 			}
 		})
 
+	}
+}
+
+func TestHandlePortBindingUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      string
+		existingValue string
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: "normal", existingValue: "normal", expectChange: false},
+		{name: "Different", newValue: "direct", existingValue: "normal", expectChange: true},
+		{name: "Updating to empty string", newValue: "", existingValue: "normal", expectChange: false},
+		{name: "Updating from empty string", newValue: "normal", existingValue: "", expectChange: true},
+		{name: "Both are empty strings", newValue: "", existingValue: "", expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.PortResourceSpec{VNICType: tt.newValue}
+			osResource := &osclients.PortExt{
+				PortsBindingExt: portsbinding.PortsBindingExt{
+					VNICType: tt.existingValue,
+				},
+			}
+
+			updateOpts := &ports.UpdateOpts{}
+			needsUpdate := false
+
+			finalOpts := handlePortBindingUpdate(updateOpts, resource, osResource, &needsUpdate)
+
+			if needsUpdate != tt.expectChange {
+				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			}
+
+			_ = finalOpts
+		})
+	}
+}
+
+func TestHandlePortSecurityUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      orcv1alpha1.PortSecurityState
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Enabled when already enabled", newValue: orcv1alpha1.PortSecurityEnabled, existingValue: true, expectChange: false},
+		{name: "Enabled when was disabled", newValue: orcv1alpha1.PortSecurityEnabled, existingValue: false, expectChange: true},
+
+		{name: "Disabled when already disabled", newValue: orcv1alpha1.PortSecurityDisabled, existingValue: false, expectChange: false},
+		{name: "Disabled when was enabled", newValue: orcv1alpha1.PortSecurityDisabled, existingValue: true, expectChange: true},
+
+		{name: "Inherit when was enabled", newValue: orcv1alpha1.PortSecurityInherit, existingValue: true, expectChange: false},
+		{name: "Inherit when was disabled", newValue: orcv1alpha1.PortSecurityInherit, existingValue: false, expectChange: false},
+
+		{name: "Default (empty string) when was enabled", newValue: "", existingValue: true, expectChange: false},
+		{name: "Invalid string when was enabled", newValue: "foo", existingValue: true, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			// Setup the Kubernetes resource spec and the OpenStack resource state
+			resource := &orcv1alpha1.PortResourceSpec{PortSecurity: tt.newValue}
+			osResource := &osclients.PortExt{
+				PortSecurityExt: portsecurity.PortSecurityExt{
+					PortSecurityEnabled: tt.existingValue,
+				},
+			}
+
+			// Initialize test variables
+			updateOpts := &ports.UpdateOpts{}
+			needsUpdate := false
+
+			// Call the handler
+			finalOpts := handlePortSecurityUpdate(updateOpts, resource, osResource, &needsUpdate)
+
+			// Assert the outcome
+			if needsUpdate != tt.expectChange {
+				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			}
+
+			// Ensure the builder is used to prevent compiler errors
+			_ = finalOpts
+		})
 	}
 }

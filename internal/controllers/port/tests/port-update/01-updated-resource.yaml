@@ -16,3 +16,5 @@ spec:
         mac: "92:42:9c:13:98:82"
     tags:
     - tag1
+    vnicType: direct
+    portSecurity: Enabled

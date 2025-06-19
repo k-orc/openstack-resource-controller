@@ -22,7 +22,7 @@ status:
   resource:
     name: port-update
     adminStateUp: true
-    portSecurityEnabled: true
+    portSecurityEnabled: false
     propagateUplinkStatus: false
     status: DOWN
     vnicType: normal
