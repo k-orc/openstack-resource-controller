@@ -219,7 +219,9 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 	}
 
 	var needsUpdate bool
-	baseUpdateOpts := &networks.UpdateOpts{}
+	baseUpdateOpts := &networks.UpdateOpts{
+		RevisionNumber: &osResource.RevisionNumber,
+	}
 
 	handleAdminStateUpUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
 	handleNameUpdate(baseUpdateOpts, obj, osResource, &needsUpdate)
@@ -237,8 +239,6 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
-
-	baseUpdateOpts.RevisionNumber = &osResource.RevisionNumber
 
 	_, err := actuator.osClient.UpdateNetwork(ctx, osResource.ID, updateOpts)
 
