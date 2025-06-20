@@ -232,6 +232,9 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
+                    x-kubernetes-validations:
+                    - message: availabilityZoneHints is immutable
+                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -280,6 +283,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: projectRef is immutable
+                      rule: self == oldSelf
                   shared:
                     description: |-
                       shared indicates whether this resource is shared across all
@@ -300,9 +306,6 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                 type: object
-                x-kubernetes-validations:
-                - message: NetworkResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object
