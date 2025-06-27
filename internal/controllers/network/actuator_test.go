@@ -13,6 +13,54 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func TestNeedsUpdate(t *testing.T) {
+	testCases := []struct {
+		name         string
+		updateOpts   networks.UpdateOptsBuilder
+		expectChange bool
+	}{
+		{
+			name:         "Empty base opts",
+			updateOpts:   networks.UpdateOpts{},
+			expectChange: false,
+		},
+		{
+			name:         "Empty base opts with revision number",
+			updateOpts:   networks.UpdateOpts{RevisionNumber: ptr.To(4)},
+			expectChange: false,
+		},
+		{
+			name:         "Updated opts",
+			updateOpts:   networks.UpdateOpts{Name: ptr.To("updated")},
+			expectChange: true,
+		},
+		{
+			name: "Empty extended opts",
+			updateOpts: portsecurity.NetworkUpdateOptsExt{
+				UpdateOptsBuilder: networks.UpdateOpts{},
+			},
+			expectChange: false,
+		},
+		{
+			name: "Updated extended opts",
+			updateOpts: portsecurity.NetworkUpdateOptsExt{
+				UpdateOptsBuilder:   networks.UpdateOpts{},
+				PortSecurityEnabled: ptr.To(true),
+			},
+			expectChange: true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := needsUpdate(tt.updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
 func TestHandleAdminStateUpUpdate(t *testing.T) {
 	ptrToBool := ptr.To[bool]
 	testCases := []struct {
@@ -34,12 +82,11 @@ func TestHandleAdminStateUpUpdate(t *testing.T) {
 			osResource := &osclients.NetworkExt{Network: *net}
 
 			updateOpts := networks.UpdateOpts{}
-			var needsUpdate bool
+			handleAdminStateUpUpdate(&updateOpts, resource, osResource)
 
-			handleAdminStateUpUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 	}
@@ -70,12 +117,11 @@ func TestHandleNameUpdate(t *testing.T) {
 			osResource := &osclients.NetworkExt{Network: *net}
 
 			updateOpts := networks.UpdateOpts{}
-			var needsUpdate bool
+			handleNameUpdate(&updateOpts, resource, osResource)
 
-			handleNameUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -103,12 +149,11 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			osResource := &osclients.NetworkExt{Network: *net}
 
 			updateOpts := networks.UpdateOpts{}
-			var needsUpdate bool
+			handleDescriptionUpdate(&updateOpts, resource, osResource)
 
-			handleDescriptionUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -136,12 +181,11 @@ func TestHandleSharedUpdate(t *testing.T) {
 			osResource := &osclients.NetworkExt{Network: *net}
 
 			updateOpts := networks.UpdateOpts{}
-			var needsUpdate bool
+			handleSharedUpdate(&updateOpts, resource, osResource)
 
-			handleSharedUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -170,15 +214,12 @@ func TestHandlePortSecurityEnabledUpdate(t *testing.T) {
 				},
 			}
 
-			updateOpts := networks.UpdateOpts{}
-			needsUpdate := false
-			finalOpts := handlePortSecurityEnabledUpdate(&updateOpts, resource, osResource, &needsUpdate)
+			updateOpts := handlePortSecurityEnabledUpdate(&networks.UpdateOpts{}, resource, osResource)
 
-			if needsUpdate != tt.expectChange {
-				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
-
-			_ = finalOpts
 		})
 	}
 }
@@ -204,15 +245,12 @@ func TestHandleMTUUpdate(t *testing.T) {
 				},
 			}
 
-			updateOpts := networks.UpdateOpts{}
-			needsUpdate := false
-			finalOpts := handleMTUUpdate(&updateOpts, resource, osResource, &needsUpdate)
+			updateOpts := handleMTUUpdate(&networks.UpdateOpts{}, resource, osResource)
 
-			if needsUpdate != tt.expectChange {
-				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
-
-			_ = finalOpts
 		})
 	}
 }
@@ -239,15 +277,12 @@ func TestHandleExternalUpdate(t *testing.T) {
 				},
 			}
 
-			updateOpts := networks.UpdateOpts{}
-			needsUpdate := false
-			finalOpts := handleExternalUpdate(&updateOpts, resource, osResource, &needsUpdate)
+			updateOpts := handleExternalUpdate(&networks.UpdateOpts{}, resource, osResource)
 
-			if needsUpdate != tt.expectChange {
-				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
-
-			_ = finalOpts
 		})
 	}
 }
@@ -274,15 +309,12 @@ func TestHandleDNSDomainUpdate(t *testing.T) {
 				},
 			}
 
-			updateOpts := networks.UpdateOpts{}
-			needsUpdate := false
-			finalOpts := handleDNSDomainUpdate(&updateOpts, resource, osResource, &needsUpdate)
+			updateOpts := handleDNSDomainUpdate(&networks.UpdateOpts{}, resource, osResource)
 
-			if needsUpdate != tt.expectChange {
-				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v, updateOpts: %v", tt.expectChange, got, updateOpts)
 			}
-
-			_ = finalOpts
 		})
 	}
 }

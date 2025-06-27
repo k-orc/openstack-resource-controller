@@ -218,29 +218,34 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	var needsUpdate bool
-	baseUpdateOpts := &networks.UpdateOpts{
-		RevisionNumber: &osResource.RevisionNumber,
+	var updateOpts networks.UpdateOptsBuilder
+	{
+		updateOptsBase := networks.UpdateOpts{
+			RevisionNumber: &osResource.RevisionNumber,
+		}
+		handleAdminStateUpUpdate(&updateOptsBase, resource, osResource)
+		handleNameUpdate(&updateOptsBase, obj, osResource)
+		handleDescriptionUpdate(&updateOptsBase, resource, osResource)
+		handleSharedUpdate(&updateOptsBase, resource, osResource)
+		updateOpts = updateOptsBase
 	}
 
-	handleAdminStateUpUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
-	handleNameUpdate(baseUpdateOpts, obj, osResource, &needsUpdate)
-	handleDescriptionUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
-	handleSharedUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
+	updateOpts = handlePortSecurityEnabledUpdate(updateOpts, resource, osResource)
+	updateOpts = handleMTUUpdate(updateOpts, resource, osResource)
+	updateOpts = handleExternalUpdate(updateOpts, resource, osResource)
+	updateOpts = handleDNSDomainUpdate(updateOpts, resource, osResource)
 
-	var updateOpts networks.UpdateOptsBuilder = baseUpdateOpts
-
-	updateOpts = handlePortSecurityEnabledUpdate(updateOpts, resource, osResource, &needsUpdate)
-	updateOpts = handleMTUUpdate(updateOpts, resource, osResource, &needsUpdate)
-	updateOpts = handleExternalUpdate(updateOpts, resource, osResource, &needsUpdate)
-	updateOpts = handleDNSDomainUpdate(updateOpts, resource, osResource, &needsUpdate)
-
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
 	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	_, err := actuator.osClient.UpdateNetwork(ctx, osResource.ID, updateOpts)
+	_, err = actuator.osClient.UpdateNetwork(ctx, osResource.ID, updateOpts)
 
 	if orcerrors.IsConflict(err) {
 		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
@@ -252,83 +257,92 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 	return progress.NeedsRefresh()
 }
 
-func handleAdminStateUpUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
+func needsUpdate(updateOpts networks.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToNetworkUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	networkUpdateMap, ok := updateOptsMap["network"].(map[string]any)
+	if !ok {
+		networkUpdateMap = make(map[string]any)
+	}
+
+	// Revision number is not returned in the output of updateOpts.ToNetworkUpdateMap()
+	// so nothing to drop here
+
+	return len(networkUpdateMap) > 0, nil
+}
+
+func handleAdminStateUpUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	// Default is true
 	AdminStateUp := ptr.Deref(resource.AdminStateUp, true)
 	if osResource.AdminStateUp != AdminStateUp {
 		updateOpts.AdminStateUp = &AdminStateUp
-		*needsUpdate = true
 	}
 }
 
-func handleNameUpdate(updateOpts *networks.UpdateOpts, obj orcObjectPT, osResource *osResourceT, needsUpdate *bool) {
+func handleNameUpdate(updateOpts *networks.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
 		updateOpts.Name = &name
-		*needsUpdate = true
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
+func handleDescriptionUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	description := string(ptr.Deref(resource.Description, ""))
 	if osResource.Description != description {
 		updateOpts.Description = &description
-		*needsUpdate = true
 	}
 }
 
-func handleSharedUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
+func handleSharedUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	// Default is false
 	Shared := ptr.Deref(resource.Shared, false)
 	if osResource.Shared != Shared {
 		updateOpts.Shared = &Shared
-		*needsUpdate = true
 	}
 }
 
-func handlePortSecurityEnabledUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+func handlePortSecurityEnabledUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
 	if resource.PortSecurityEnabled != nil {
 		if *resource.PortSecurityEnabled != osResource.PortSecurityEnabled {
 			updateOpts = &portsecurity.NetworkUpdateOptsExt{
 				UpdateOptsBuilder:   updateOpts,
 				PortSecurityEnabled: resource.PortSecurityEnabled,
 			}
-			*needsUpdate = true
 		}
 	}
 	return updateOpts
 }
 
-func handleMTUUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+func handleMTUUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
 	if resource.MTU != nil && int(*resource.MTU) != osResource.MTU {
 		updateOpts = &mtu.UpdateOptsExt{
 			UpdateOptsBuilder: updateOpts,
 			MTU:               int(*resource.MTU),
 		}
-		*needsUpdate = true
 	}
 	return updateOpts
 }
 
-func handleExternalUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+func handleExternalUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
 	if resource.External != nil && *resource.External != osResource.External {
 		updateOpts = &external.UpdateOptsExt{
 			UpdateOptsBuilder: updateOpts,
 			External:          resource.External,
 		}
-		*needsUpdate = true
 	}
 	return updateOpts
 }
 
-func handleDNSDomainUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) networks.UpdateOptsBuilder {
+func handleDNSDomainUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
 	if resource.DNSDomain != nil && string(*resource.DNSDomain) != osResource.DNSDomain {
 		dnsDomain := string(*resource.DNSDomain)
 		updateOpts = &dns.NetworkUpdateOptsExt{
 			UpdateOptsBuilder: updateOpts,
 			DNSDomain:         &dnsDomain,
 		}
-		*needsUpdate = true
 	}
 	return updateOpts
 }
