@@ -1,0 +1,12 @@
+# network.yaml
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: test-net
+spec:
+  cloudCredentialsRef:
+    cloudName: devstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: test-net

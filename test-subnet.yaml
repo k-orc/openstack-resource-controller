@@ -1,0 +1,16 @@
+# test-subnet.yaml
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: test-with-id
+spec:
+  cloudCredentialsRef:
+    cloudName: devstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    ipVersion: 4
+    networkRef: test-net
+    subnetPool:
+      name: "68294a5d-ae09-4961-b738-7f2c3b9fc305"  # ← Use actual ID
+      prefixLength: 24
