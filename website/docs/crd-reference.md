@@ -3131,6 +3131,23 @@ SubnetList contains a list of Subnet.
 | `items` _[Subnet](#subnet) array_ | items contains a list of Subnet. |  |  |
 
 
+#### SubnetPoolRef
+
+
+
+SubnetPoolRef specifies a SubnetPool to allocate the subnet from.
+
+
+
+_Appears in:_
+- [SubnetResourceSpec](#subnetresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name or ID of the SubnetPool (required) |  |  |
+| `prefixLength` _integer_ | prefixLength to allocate from the pool (optional, defaults: 64 for IPv6, 26 for IPv4) |  |  |
+
+
 #### SubnetResourceSpec
 
 
@@ -3149,7 +3166,7 @@ _Appears in:_
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the subnet. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP version for the subnet. |  | Enum: [4 6] <br /> |
-| `cidr` _[CIDR](#cidr)_ | cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
+| `cidr` _[CIDR](#cidr)_ | cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.<br />Optional if subnetPool is specified. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
 | `allocationPools` _[AllocationPool](#allocationpool) array_ | allocationPools are IP Address pools that will be available for DHCP. IP<br />addresses must be in CIDR. |  | MaxItems: 32 <br /> |
 | `gateway` _[SubnetGateway](#subnetgateway)_ | gateway specifies the default gateway of the subnet. If not specified,<br />neutron will add one automatically. To disable this behaviour, specify a<br />gateway with a type of None. |  |  |
 | `enableDHCP` _boolean_ | enableDHCP will either enable to disable the DHCP service. |  |  |
@@ -3159,6 +3176,7 @@ _Appears in:_
 | `ipv6` _[IPv6Options](#ipv6options)_ | ipv6 contains IPv6-specific options. It may only be set if IPVersion is 6. |  | MinProperties: 1 <br /> |
 | `routerRef` _[KubernetesNameRef](#kubernetesnameref)_ | routerRef specifies a router to attach the subnet to |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `subnetPool` _[SubnetPoolRef](#subnetpoolref)_ | subnetPool specifies the pool to allocate the subnet from. If set, cidr is optional. |  |  |
 
 
 #### SubnetResourceStatus

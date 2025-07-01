@@ -151,6 +151,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetImport":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetList":                     schema_openstack_resource_controller_v2_api_v1alpha1_SubnetList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetPoolRef":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetPoolRef(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref),
@@ -7213,6 +7214,35 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetList(ref common.
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetPoolRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SubnetPoolRef specifies a SubnetPool to allocate the subnet from.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name or ID of the SubnetPool (required)",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"prefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "prefixLength to allocate from the pool (optional, defaults: 64 for IPv6, 26 for IPv4)",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+				Required: []string{"name"},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -7271,8 +7301,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref
 					},
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
-							Description: "cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.",
-							Default:     "",
+							Description: "cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion. Optional if subnetPool is specified.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7375,12 +7404,18 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"subnetPool": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetPool specifies the pool to allocate the subnet from. If set, cidr is optional.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetPoolRef"),
+						},
+					},
 				},
-				Required: []string{"networkRef", "ipVersion", "cidr"},
+				Required: []string{"networkRef", "ipVersion"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPool", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRoute", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPool", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRoute", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetPoolRef"},
 	}
 }
 

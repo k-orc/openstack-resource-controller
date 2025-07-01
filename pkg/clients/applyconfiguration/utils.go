@@ -250,6 +250,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SubnetGatewayApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetImport"):
 		return &apiv1alpha1.SubnetImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolRef"):
+		return &apiv1alpha1.SubnetPoolRefApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetResourceSpec"):
 		return &apiv1alpha1.SubnetResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetResourceStatus"):

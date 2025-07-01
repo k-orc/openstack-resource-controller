@@ -71,6 +71,7 @@ type NetworkClient interface {
 	GetFloatingIP(ctx context.Context, id string) (*floatingips.FloatingIP, error)
 	UpdateFloatingIP(ctx context.Context, id string, opts floatingips.UpdateOptsBuilder) (*floatingips.FloatingIP, error)
 
+	
 	ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error]
 	CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error)
 	DeleteRouter(ctx context.Context, id string) error

@@ -19,9 +19,11 @@ package scope
 import (
 	"context"
 	"time"
+	"iter"
 
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/subnetpools"
 	"go.uber.org/mock/gomock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -77,6 +79,14 @@ func (f *MockScopeFactory) NewImageClient() (osclients.ImageClient, error) {
 
 func (f *MockScopeFactory) NewNetworkClient() (osclients.NetworkClient, error) {
 	return f.NetworkClient, nil
+}
+
+// Add this after the existing MockScopeFactory methods
+func (f *MockScopeFactory) ListSubnetPools(ctx context.Context, opts subnetpools.ListOpts) (iter.Seq2[*subnetpools.SubnetPool, error], error) {
+    // Mock implementation - return empty iterator
+    return func(yield func(*subnetpools.SubnetPool, error) bool) {
+        // Empty iterator for testing
+    }, nil
 }
 
 func (f *MockScopeFactory) NewIdentityClient() (osclients.IdentityClient, error) {

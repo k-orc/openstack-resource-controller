@@ -24,6 +24,7 @@ import (
 	"slices"
 
 	"github.com/gophercloud/gophercloud/v2"
+	// "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/subnetpools"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/subnets"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -191,8 +192,8 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 	}
 
 	createOpts := subnets.CreateOpts{
-		NetworkID:         *network.Status.ID,
-		CIDR:              string(resource.CIDR),
+		NetworkID: *network.Status.ID,
+		// CIDR:              string(resource.CIDR),
 		Name:              getResourceName(obj),
 		Description:       string(ptr.Deref(resource.Description, "")),
 		IPVersion:         gophercloud.IPVersion(resource.IPVersion),
@@ -201,58 +202,35 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 		ProjectID:         projectID,
 	}
 
-	if len(resource.AllocationPools) > 0 {
-		createOpts.AllocationPools = make([]subnets.AllocationPool, len(resource.AllocationPools))
-		for i := range resource.AllocationPools {
-			createOpts.AllocationPools[i].Start = string(resource.AllocationPools[i].Start)
-			createOpts.AllocationPools[i].End = string(resource.AllocationPools[i].End)
+	if resource.CIDR != nil {
+		// Traditional way - use manual CIDR
+		createOpts.CIDR = string(*resource.CIDR)
+		osResource, err := actuator.osClient.CreateSubnet(ctx, &createOpts)
+		if orcerrors.IsConflict(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
-	}
-
-	if resource.Gateway != nil {
-		switch resource.Gateway.Type {
-		case orcv1alpha1.SubnetGatewayTypeAutomatic:
-			// Nothing to do
-		case orcv1alpha1.SubnetGatewayTypeNone:
-			createOpts.GatewayIP = ptr.To("")
-		case orcv1alpha1.SubnetGatewayTypeIP:
-			fallthrough
-		default:
-			createOpts.GatewayIP = (*string)(resource.Gateway.IP)
+		if err != nil {
+			return nil, progress.WrapError(err)
 		}
-	}
-
-	if len(resource.DNSNameservers) > 0 {
-		createOpts.DNSNameservers = make([]string, len(resource.DNSNameservers))
-		for i := range resource.DNSNameservers {
-			createOpts.DNSNameservers[i] = string(resource.DNSNameservers[i])
+		return osResource, nil
+	} else if resource.SubnetPool != nil {
+		// New way - use subnet pool
+		createOpts.SubnetPoolID = resource.SubnetPool.Name
+		// var opts subnets.CreateOptsBuilder = &createOpts
+		osResource, err := actuator.osClient.CreateSubnet(ctx, &createOpts)
+		if orcerrors.IsConflict(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
-	}
-
-	if len(resource.HostRoutes) > 0 {
-		createOpts.HostRoutes = make([]subnets.HostRoute, len(resource.HostRoutes))
-		for i := range resource.HostRoutes {
-			createOpts.HostRoutes[i].DestinationCIDR = string(resource.HostRoutes[i].Destination)
-			createOpts.HostRoutes[i].NextHop = string(resource.HostRoutes[i].NextHop)
+		if err != nil {
+			return nil, progress.WrapError(err)
 		}
+		return osResource, nil
+	} else {
+		// Neither CIDR nor SubnetPool specified - this should be caught by validation
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"Either 'cidr' or 'subnetPool' must be specified"))
 	}
-
-	if resource.IPv6 != nil {
-		createOpts.IPv6AddressMode = string(ptr.Deref(resource.IPv6.AddressMode, ""))
-		createOpts.IPv6RAMode = string(ptr.Deref(resource.IPv6.RAMode, ""))
-	}
-
-	osResource, err := actuator.osClient.CreateSubnet(ctx, &createOpts)
-
-	// We should require the spec to be updated before retrying a create which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-	}
-
-	if err != nil {
-		return nil, progress.WrapError(err)
-	}
-	return osResource, nil
 }
 
 func (actuator subnetActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
