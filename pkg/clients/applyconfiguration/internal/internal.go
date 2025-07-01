@@ -2123,6 +2123,16 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolRef
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: prefixLength
+      type:
+        scalar: numeric
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceSpec
   map:
     fields:
@@ -2135,7 +2145,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: cidr
       type:
         scalar: string
-      default: ""
     - name: description
       type:
         scalar: string
@@ -2180,6 +2189,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: routerRef
       type:
         scalar: string
+    - name: subnetPool
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolRef
     - name: tags
       type:
         list:

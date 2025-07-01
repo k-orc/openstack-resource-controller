@@ -286,8 +286,9 @@ spec:
                     type: array
                     x-kubernetes-list-type: atomic
                   cidr:
-                    description: cidr is the address CIDR of the subnet. It must match
-                      the IP version specified in IPVersion.
+                    description: |-
+                      cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
+                      Optional if subnetPool is specified.
                     format: cidr
                     maxLength: 49
                     minLength: 1
@@ -447,6 +448,20 @@ spec:
                     x-kubernetes-validations:
                     - message: routerRef is immutable
                       rule: self == oldSelf
+                  subnetPool:
+                    description: subnetPool specifies the pool to allocate the subnet
+                      from. If set, cidr is optional.
+                    properties:
+                      name:
+                        description: name or ID of the SubnetPool (required)
+                        type: string
+                      prefixLength:
+                        description: 'prefixLength to allocate from the pool (optional,
+                          defaults: 64 for IPv6, 26 for IPv4)'
+                        type: integer
+                    required:
+                    - name
+                    type: object
                   tags:
                     description: tags is a list of tags which will be applied to the
                       subnet.
@@ -461,7 +476,6 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                 required:
-                - cidr
                 - ipVersion
                 - networkRef
                 type: object
