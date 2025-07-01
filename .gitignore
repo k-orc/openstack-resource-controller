@@ -39,3 +39,7 @@ __pycache__/
 
 # We don't want a vendor directory, but developers might have one locally
 /vendor
+
+# Avoid accidental commits of local secrets
+clouds.yaml
+secure.yaml
