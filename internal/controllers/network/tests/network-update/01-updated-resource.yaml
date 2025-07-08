@@ -9,7 +9,6 @@ spec:
     description: network-update-updated
     adminStateUp: false
     shared: true
-    dnsDomain: "bar.com."
     external: true
     mtu: 1405
     portSecurityEnabled: false

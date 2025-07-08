@@ -76,6 +76,7 @@ type NetworkResourceSpec struct {
 
 	// dnsDomain is the DNS domain of the network
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dnsDomain is immutable"
 	DNSDomain *DNSDomain `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address

@@ -16,8 +16,6 @@ status:
     name: network-update-updated
     description: network-update-updated
     adminStateUp: false
-    # Skipped until https://github.com/k-orc/openstack-resource-controller/issues/189 is fixed
-    #dnsDomain: "foo.com"
     external: true
     mtu: 1405
     portSecurityEnabled: false
@@ -31,5 +29,5 @@ status:
     status: "True"
     reason: Success
   - type: Progressing
-    status: "True"
-    reason: Progressing  
+    status: "False"
+    reason: Success

@@ -247,6 +247,9 @@ spec:
                     minLength: 1
                     pattern: ^[A-Za-z0-9]{1,63}(.[A-Za-z0-9-]{1,63})*(.[A-Za-z]{2,63})*.?$
                     type: string
+                    x-kubernetes-validations:
+                    - message: dnsDomain is immutable
+                      rule: self == oldSelf
                   external:
                     description: |-
                       external indicates whether the network has an external routing

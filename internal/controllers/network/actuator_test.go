@@ -3,7 +3,6 @@ package network
 import (
 	"testing"
 
-	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/dns"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
@@ -282,38 +281,6 @@ func TestHandleExternalUpdate(t *testing.T) {
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-	}
-}
-
-func TestHandleDNSDomainUpdate(t *testing.T) {
-	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.DNSDomain
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptr.To(orcv1alpha1.DNSDomain("foo.com")), existingValue: "foo.com", expectChange: false},
-		{name: "Different", newValue: ptr.To(orcv1alpha1.DNSDomain("bar.com")), existingValue: "foo.com", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "foo.com", expectChange: false},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.NetworkResourceSpec{DNSDomain: tt.newValue}
-			osResource := &osclients.NetworkExt{
-				NetworkDNSExt: dns.NetworkDNSExt{
-					DNSDomain: tt.existingValue,
-				},
-			}
-
-			updateOpts := handleDNSDomainUpdate(&networks.UpdateOpts{}, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v, updateOpts: %v", tt.expectChange, got, updateOpts)
 			}
 		})
 	}

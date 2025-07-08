@@ -233,7 +233,6 @@ func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjec
 	updateOpts = handlePortSecurityEnabledUpdate(updateOpts, resource, osResource)
 	updateOpts = handleMTUUpdate(updateOpts, resource, osResource)
 	updateOpts = handleExternalUpdate(updateOpts, resource, osResource)
-	updateOpts = handleDNSDomainUpdate(updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -331,17 +330,6 @@ func handleExternalUpdate(updateOpts networks.UpdateOptsBuilder, resource *resou
 		updateOpts = &external.UpdateOptsExt{
 			UpdateOptsBuilder: updateOpts,
 			External:          resource.External,
-		}
-	}
-	return updateOpts
-}
-
-func handleDNSDomainUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
-	if resource.DNSDomain != nil && string(*resource.DNSDomain) != osResource.DNSDomain {
-		dnsDomain := string(*resource.DNSDomain)
-		updateOpts = &dns.NetworkUpdateOptsExt{
-			UpdateOptsBuilder: updateOpts,
-			DNSDomain:         &dnsDomain,
 		}
 	}
 	return updateOpts
