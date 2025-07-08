@@ -294,26 +294,31 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	var needsUpdate bool
-	baseUpdateOpts := &ports.UpdateOpts{
-		RevisionNumber: &osResource.RevisionNumber,
+	var updateOpts ports.UpdateOptsBuilder
+	{
+		baseUpdateOpts := &ports.UpdateOpts{
+			RevisionNumber: &osResource.RevisionNumber,
+		}
+		handleNameUpdate(baseUpdateOpts, obj, osResource)
+		handleDescriptionUpdate(baseUpdateOpts, resource, osResource)
+		handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource)
+		updateOpts = baseUpdateOpts
 	}
 
-	handleNameUpdate(baseUpdateOpts, obj, osResource, &needsUpdate)
-	handleDescriptionUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
-	handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource, &needsUpdate)
+	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource)
+	updateOpts = handlePortSecurityUpdate(updateOpts, resource, osResource)
 
-	var updateOpts ports.UpdateOptsBuilder = baseUpdateOpts
-
-	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource, &needsUpdate)
-	updateOpts = handlePortSecurityUpdate(updateOpts, resource, osResource, &needsUpdate)
-
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
 	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	_, err := actuator.osClient.UpdatePort(ctx, osResource.ID, updateOpts)
+	_, err = actuator.osClient.UpdatePort(ctx, osResource.ID, updateOpts)
 
 	// We should require the spec to be updated before retrying an update which returned a conflict
 	if orcerrors.IsConflict(err) {
@@ -327,23 +332,38 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 	return progress.NeedsRefresh()
 }
 
-func handleNameUpdate(updateOpts *ports.UpdateOpts, obj orcObjectPT, osResource *osResourceT, needsUpdate *bool) {
+func needsUpdate(updateOpts ports.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToPortUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	portUpdateMap, ok := updateOptsMap["port"].(map[string]any)
+	if !ok {
+		portUpdateMap = make(map[string]any)
+	}
+
+	// Revision number is not returned in the output of updateOpts.ToPortUpdateMap()
+	// so nothing to drop here
+
+	return len(portUpdateMap) > 0, nil
+}
+
+func handleNameUpdate(updateOpts *ports.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
 		updateOpts.Name = &name
-		*needsUpdate = true
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) {
+func handleDescriptionUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	description := string(ptr.Deref(resource.Description, ""))
 	if osResource.Description != description {
 		updateOpts.Description = &description
-		*needsUpdate = true
 	}
 }
 
-func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orcv1alpha1.PortResourceSpec, osResource *osclients.PortExt, needsUpdate *bool) {
+func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orcv1alpha1.PortResourceSpec, osResource *osclients.PortExt) {
 	desiredPairs := make([]ports.AddressPair, len(resource.AllowedAddressPairs))
 	for i, pair := range resource.AllowedAddressPairs {
 		desiredPairs[i].IPAddress = string(pair.IP)
@@ -387,24 +407,22 @@ func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orc
 
 	if missingPair || extraPair {
 		updateOpts.AllowedAddressPairs = &desiredPairs
-		*needsUpdate = true
 	}
 }
 
-func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) ports.UpdateOptsBuilder {
+func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
 	if resource.VNICType != "" {
 		if resource.VNICType != osResource.VNICType {
 			updateOpts = &portsbinding.UpdateOptsExt{
 				UpdateOptsBuilder: updateOpts,
 				VNICType:          resource.VNICType,
 			}
-			*needsUpdate = true
 		}
 	}
 	return updateOpts
 }
 
-func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, needsUpdate *bool) ports.UpdateOptsBuilder {
+func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
 
 	var desiredState *bool
 
@@ -424,7 +442,6 @@ func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *reso
 			UpdateOptsBuilder:   updateOpts,
 			PortSecurityEnabled: desiredState,
 		}
-		*needsUpdate = true
 	}
 
 	return updateOpts

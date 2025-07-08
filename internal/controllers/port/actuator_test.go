@@ -11,6 +11,54 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func TestNeedsUpdate(t *testing.T) {
+	testCases := []struct {
+		name         string
+		updateOpts   ports.UpdateOptsBuilder
+		expectChange bool
+	}{
+		{
+			name:         "Empty base opts",
+			updateOpts:   ports.UpdateOpts{},
+			expectChange: false,
+		},
+		{
+			name:         "Empty base opts with revision number",
+			updateOpts:   ports.UpdateOpts{RevisionNumber: ptr.To(4)},
+			expectChange: false,
+		},
+		{
+			name:         "Updated opts",
+			updateOpts:   ports.UpdateOpts{Name: ptr.To("updated")},
+			expectChange: true,
+		},
+		{
+			name: "Empty extended opts",
+			updateOpts: portsecurity.PortUpdateOptsExt{
+				UpdateOptsBuilder: ports.UpdateOpts{},
+			},
+			expectChange: false,
+		},
+		{
+			name: "Updated extended opts",
+			updateOpts: portsecurity.PortUpdateOptsExt{
+				UpdateOptsBuilder:   ports.UpdateOpts{},
+				PortSecurityEnabled: ptr.To(true),
+			},
+			expectChange: true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := needsUpdate(tt.updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
 func TestHandleNameUpdate(t *testing.T) {
 	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
 	testCases := []struct {
@@ -36,12 +84,11 @@ func TestHandleNameUpdate(t *testing.T) {
 			osResource := &osclients.PortExt{Port: *port}
 
 			updateOpts := ports.UpdateOpts{}
-			var needsUpdate bool
+			handleNameUpdate(&updateOpts, resource, osResource)
 
-			handleNameUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -69,12 +116,11 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			osResource := &osclients.PortExt{Port: *port}
 
 			updateOpts := ports.UpdateOpts{}
-			var needsUpdate bool
+			handleDescriptionUpdate(&updateOpts, resource, osResource)
 
-			handleDescriptionUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -168,12 +214,11 @@ func TestHandleAllowedAddressPairsUpdate(t *testing.T) {
 			osResource := &osclients.PortExt{Port: *port}
 
 			updateOpts := ports.UpdateOpts{}
-			var needsUpdate bool
+			handleAllowedAddressPairsUpdate(&updateOpts, resource, osResource)
 
-			handleAllowedAddressPairsUpdate(&updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -203,16 +248,12 @@ func TestHandlePortBindingUpdate(t *testing.T) {
 				},
 			}
 
-			updateOpts := &ports.UpdateOpts{}
-			needsUpdate := false
+			updateOpts := handlePortBindingUpdate(&ports.UpdateOpts{}, resource, osResource)
 
-			finalOpts := handlePortBindingUpdate(updateOpts, resource, osResource, &needsUpdate)
-
-			if needsUpdate != tt.expectChange {
-				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, got)
 			}
-
-			_ = finalOpts
 		})
 	}
 }
@@ -239,7 +280,6 @@ func TestHandlePortSecurityUpdate(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			// Setup the Kubernetes resource spec and the OpenStack resource state
 			resource := &orcv1alpha1.PortResourceSpec{PortSecurity: tt.newValue}
 			osResource := &osclients.PortExt{
 				PortSecurityExt: portsecurity.PortSecurityExt{
@@ -247,20 +287,12 @@ func TestHandlePortSecurityUpdate(t *testing.T) {
 				},
 			}
 
-			// Initialize test variables
-			updateOpts := &ports.UpdateOpts{}
-			needsUpdate := false
+			updateOpts := handlePortSecurityUpdate(&ports.UpdateOpts{}, resource, osResource)
 
-			// Call the handler
-			finalOpts := handlePortSecurityUpdate(updateOpts, resource, osResource, &needsUpdate)
-
-			// Assert the outcome
-			if needsUpdate != tt.expectChange {
-				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, needsUpdate)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, got)
 			}
-
-			// Ensure the builder is used to prevent compiler errors
-			_ = finalOpts
 		})
 	}
 }
