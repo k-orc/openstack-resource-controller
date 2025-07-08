@@ -1,0 +1,33 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: network-update
+      ref: network
+assertAll:
+    - celExpr: "!has(network.status.resource.description)"
+    - celExpr: "!has(network.status.resource.tags)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-update
+status:
+  resource:
+    name: network-update
+    adminStateUp: true
+    external: false
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE
+    # The following values aren't reset because the original spec had no value
+    mtu: 1405
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

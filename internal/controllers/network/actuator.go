@@ -35,6 +35,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
@@ -59,11 +60,11 @@ var _ createResourceActuator = networkActuator{}
 var _ deleteResourceActuator = networkActuator{}
 var _ reconcileResourceActuator = networkActuator{}
 
-func (networkActuator) GetResourceID(osResource *osclients.NetworkExt) string {
+func (networkActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string) (*osclients.NetworkExt, progress.ReconcileStatus) {
+func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	network, err := actuator.osClient.GetNetwork(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -71,7 +72,7 @@ func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string
 	return network, nil
 }
 
-func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osclients.NetworkExt, error], bool) {
+func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
 	if obj.Spec.Resource == nil {
 		return nil, false
 	}
@@ -119,7 +120,7 @@ func (actuator networkActuator) ListOSResourcesForImport(ctx context.Context, ob
 	return actuator.osClient.ListNetwork(ctx, listOpts), nil
 }
 
-func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osclients.NetworkExt, progress.ReconcileStatus) {
+func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -198,14 +199,140 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 	return osResource, nil
 }
 
-func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, network *osclients.NetworkExt) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteNetwork(ctx, network.ID))
+func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteNetwork(ctx, osResource.ID))
 }
 
-func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osclients.NetworkExt, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "networks", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
+		actuator.updateResource,
 	}, nil
+}
+
+func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	var updateOpts networks.UpdateOptsBuilder
+	{
+		updateOptsBase := networks.UpdateOpts{
+			RevisionNumber: &osResource.RevisionNumber,
+		}
+		handleAdminStateUpUpdate(&updateOptsBase, resource, osResource)
+		handleNameUpdate(&updateOptsBase, obj, osResource)
+		handleDescriptionUpdate(&updateOptsBase, resource, osResource)
+		handleSharedUpdate(&updateOptsBase, resource, osResource)
+		updateOpts = updateOptsBase
+	}
+
+	updateOpts = handlePortSecurityEnabledUpdate(updateOpts, resource, osResource)
+	updateOpts = handleMTUUpdate(updateOpts, resource, osResource)
+	updateOpts = handleExternalUpdate(updateOpts, resource, osResource)
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err = actuator.osClient.UpdateNetwork(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts networks.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToNetworkUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	networkUpdateMap, ok := updateOptsMap["network"].(map[string]any)
+	if !ok {
+		networkUpdateMap = make(map[string]any)
+	}
+
+	// Revision number is not returned in the output of updateOpts.ToNetworkUpdateMap()
+	// so nothing to drop here
+
+	return len(networkUpdateMap) > 0, nil
+}
+
+func handleAdminStateUpUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	AdminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != AdminStateUp {
+		updateOpts.AdminStateUp = &AdminStateUp
+	}
+}
+
+func handleNameUpdate(updateOpts *networks.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = &name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func handleSharedUpdate(updateOpts *networks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is false
+	Shared := ptr.Deref(resource.Shared, false)
+	if osResource.Shared != Shared {
+		updateOpts.Shared = &Shared
+	}
+}
+
+func handlePortSecurityEnabledUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
+	if resource.PortSecurityEnabled != nil {
+		if *resource.PortSecurityEnabled != osResource.PortSecurityEnabled {
+			updateOpts = &portsecurity.NetworkUpdateOptsExt{
+				UpdateOptsBuilder:   updateOpts,
+				PortSecurityEnabled: resource.PortSecurityEnabled,
+			}
+		}
+	}
+	return updateOpts
+}
+
+func handleMTUUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
+	if resource.MTU != nil && int(*resource.MTU) != osResource.MTU {
+		updateOpts = &mtu.UpdateOptsExt{
+			UpdateOptsBuilder: updateOpts,
+			MTU:               int(*resource.MTU),
+		}
+	}
+	return updateOpts
+}
+
+func handleExternalUpdate(updateOpts networks.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) networks.UpdateOptsBuilder {
+	if resource.External != nil && *resource.External != osResource.External {
+		updateOpts = &external.UpdateOptsExt{
+			UpdateOptsBuilder: updateOpts,
+			External:          resource.External,
+		}
+	}
+	return updateOpts
 }
 
 type networkHelperFactory struct{}

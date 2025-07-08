@@ -54,7 +54,6 @@ type DNSDomain string
 type MTU int32
 
 // NetworkResourceSpec contains the desired state of a network
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="NetworkResourceSpec is immutable"
 type NetworkResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -77,6 +76,7 @@ type NetworkResourceSpec struct {
 
 	// dnsDomain is the DNS domain of the network
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dnsDomain is immutable"
 	DNSDomain *DNSDomain `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address
@@ -107,11 +107,13 @@ type NetworkResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZoneHints is immutable"
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 
