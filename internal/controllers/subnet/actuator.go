@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"iter"
-	"reflect"
 	"slices"
 
 	"github.com/gophercloud/gophercloud/v2"
@@ -284,7 +283,7 @@ func (actuator subnetActuator) updateResource(ctx context.Context, obj orcObject
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	updateOpts := subnets.UpdateOpts{}
+	updateOpts := subnets.UpdateOpts{RevisionNumber: &osResource.RevisionNumber}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
@@ -297,14 +296,17 @@ func (actuator subnetActuator) updateResource(ctx context.Context, obj orcObject
 	// Note that we didn't make dnsPublishFixedIP mutable as it could constantly try to reconcile in some environments
 	// as seen in https://github.com/k-orc/openstack-resource-controller/issues/189
 
-	if reflect.ValueOf(updateOpts).IsZero() {
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	updateOpts.RevisionNumber = &osResource.RevisionNumber
-
-	_, err := actuator.osClient.UpdateSubnet(ctx, osResource.ID, updateOpts)
+	_, err = actuator.osClient.UpdateSubnet(ctx, osResource.ID, updateOpts)
 
 	// We should require the spec to be updated before retrying an update which returned a conflict
 	if orcerrors.IsConflict(err) {
@@ -316,6 +318,23 @@ func (actuator subnetActuator) updateResource(ctx context.Context, obj orcObject
 	}
 
 	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts subnets.UpdateOpts) (bool, error) {
+	updateOptsMap, err := updateOpts.ToSubnetUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	subnetUpdateMap, ok := updateOptsMap["subnet"].(map[string]any)
+	if !ok {
+		subnetUpdateMap = make(map[string]any)
+	}
+
+	// Revision number is not returned in the output of updateOpts.ToSubnetUpdateMap()
+	// so nothing to drop here
+
+	return len(subnetUpdateMap) > 0, nil
 }
 
 func handleNameUpdate(updateOpts *subnets.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {

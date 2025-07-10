@@ -9,6 +9,39 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func TestNeedsUpdate(t *testing.T) {
+	testCases := []struct {
+		name         string
+		updateOpts   subnets.UpdateOpts
+		expectChange bool
+	}{
+		{
+			name:         "Empty base opts",
+			updateOpts:   subnets.UpdateOpts{},
+			expectChange: false,
+		},
+		{
+			name:         "Empty base opts with revision number",
+			updateOpts:   subnets.UpdateOpts{RevisionNumber: ptr.To(4)},
+			expectChange: false,
+		},
+		{
+			name:         "Updated opts",
+			updateOpts:   subnets.UpdateOpts{Name: ptr.To("updated")},
+			expectChange: true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := needsUpdate(tt.updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
 func TestHandleNameUpdate(t *testing.T) {
 	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
 	testCases := []struct {
@@ -66,9 +99,9 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			updateOpts := subnets.UpdateOpts{}
 			handleDescriptionUpdate(&updateOpts, resource, osResource)
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
+			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -171,9 +204,9 @@ func TestHandleAllocationPoolsUpdate(t *testing.T) {
 			updateOpts := subnets.UpdateOpts{}
 			handleAllocationPoolsUpdate(&updateOpts, resource, osResource)
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
+			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -268,9 +301,9 @@ func TestHandleHostRoutesUpdate(t *testing.T) {
 			updateOpts := subnets.UpdateOpts{}
 			handleHostRoutesUpdate(&updateOpts, resource, osResource)
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
+			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -312,9 +345,9 @@ func TestHandleDNSNameserversUpdate(t *testing.T) {
 			updateOpts := subnets.UpdateOpts{}
 			handleDNSNameserversUpdate(&updateOpts, resource, osResource)
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
+			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -343,9 +376,9 @@ func TestHandleEnableDHCPUpdate(t *testing.T) {
 			updateOpts := subnets.UpdateOpts{}
 			handleEnableDHCPUpdate(&updateOpts, resource, osResource)
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
+			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
@@ -419,9 +452,9 @@ func TestHandleGatewayUpdate(t *testing.T) {
 			updateOpts := subnets.UpdateOpts{}
 			handleGatewayUpdate(&updateOpts, resource, osResource)
 
-			got := !reflect.ValueOf(updateOpts).IsZero()
+			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got %v", tt.expectChange, got)
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
 
