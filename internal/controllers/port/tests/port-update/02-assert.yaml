@@ -13,6 +13,7 @@ assertAll:
     - celExpr: "port.status.resource.macAddress != ''"
     - celExpr: "!has(port.status.resource.fixedIPs)"
     - celExpr: "!has(port.status.resource.description)"
+    - celExpr: "!has(port.status.resource.securityGroups)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port

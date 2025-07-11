@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"slices"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
@@ -294,6 +295,20 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
+	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
+			return dep.Status.ID != nil
+		},
+	)
+
+	reconcileStatus := progress.NewReconcileStatus().
+		WithReconcileStatus(secGroupDepRS)
+
+	needsReschedule, _ := reconcileStatus.NeedsReschedule()
+	if needsReschedule {
+		return reconcileStatus
+	}
+
 	var updateOpts ports.UpdateOptsBuilder
 	{
 		baseUpdateOpts := &ports.UpdateOpts{
@@ -302,6 +317,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 		handleNameUpdate(baseUpdateOpts, obj, osResource)
 		handleDescriptionUpdate(baseUpdateOpts, resource, osResource)
 		handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource)
+		handleSecurityGroupRefsUpdate(baseUpdateOpts, resource, osResource, secGroupMap)
 		updateOpts = baseUpdateOpts
 	}
 
@@ -410,6 +426,27 @@ func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orc
 	}
 }
 
+func handleSecurityGroupRefsUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT, secGroupMap map[string]*orcv1alpha1.SecurityGroup) {
+	// Translate desired names → IDs
+	desiredIDs := make([]string, len(resource.SecurityGroupRefs))
+	for i, refName := range resource.SecurityGroupRefs {
+		sg, ok := secGroupMap[string(refName)]
+		if !ok || sg.Status.ID == nil {
+			continue
+		}
+		desiredIDs[i] = *sg.Status.ID
+	}
+	currentIDs := make([]string, len(osResource.SecurityGroups))
+	copy(currentIDs, osResource.SecurityGroups)
+
+	slices.Sort(desiredIDs)
+	slices.Sort(currentIDs)
+
+	if !slices.Equal(desiredIDs, currentIDs) {
+		updateOpts.SecurityGroups = &desiredIDs
+	}
+}
+
 func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
 	if resource.VNICType != "" {
 		if resource.VNICType != osResource.VNICType {
@@ -427,6 +464,8 @@ func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *reso
 	var desiredState *bool
 
 	switch resource.PortSecurity {
+	case orcv1alpha1.PortSecurityInherit:
+		return updateOpts
 	case orcv1alpha1.PortSecurityEnabled:
 		desiredState = ptr.To(true)
 	case orcv1alpha1.PortSecurityDisabled:

@@ -225,6 +225,117 @@ func TestHandleAllowedAddressPairsUpdate(t *testing.T) {
 	}
 }
 
+func makeSecGroupWithID(id string) *orcv1alpha1.SecurityGroup {
+	return &orcv1alpha1.SecurityGroup{
+		Status: orcv1alpha1.SecurityGroupStatus{
+			ID: &id,
+		},
+	}
+}
+
+func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
+	sgWebName := orcv1alpha1.OpenStackName("sg-web")
+	sgDbName := orcv1alpha1.OpenStackName("sg-db")
+
+	idWeb := "d564a44b-346c-4f71-92b1-5899b8979374"
+	idDb := "1d23d83b-2a78-4c12-9e55-0a6e026dd201"
+	idOther := "7e8a3b8d-6c17-4581-80a5-a4b8b64f9b0c"
+
+	testCases := []struct {
+		name          string
+		newValue      []orcv1alpha1.OpenStackName
+		existingValue []string
+		secGroupMap   map[string]*orcv1alpha1.SecurityGroup
+		expectChange  bool
+	}{
+		{
+			name:          "Identical",
+			newValue:      []orcv1alpha1.OpenStackName{sgWebName, sgDbName},
+			existingValue: []string{idWeb, idDb},
+			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
+				string(sgWebName): makeSecGroupWithID(idWeb),
+				string(sgDbName):  makeSecGroupWithID(idDb),
+			},
+			expectChange: false,
+		},
+		{
+			name:          "Identical but different order",
+			newValue:      []orcv1alpha1.OpenStackName{sgDbName, sgWebName},
+			existingValue: []string{idWeb, idDb},
+			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
+				string(sgWebName): makeSecGroupWithID(idWeb),
+				string(sgDbName):  makeSecGroupWithID(idDb),
+			},
+			expectChange: false,
+		},
+		{
+			name:          "Add a security group",
+			newValue:      []orcv1alpha1.OpenStackName{sgWebName, sgDbName},
+			existingValue: []string{idWeb},
+			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
+				string(sgWebName): makeSecGroupWithID(idWeb),
+				string(sgDbName):  makeSecGroupWithID(idDb),
+			},
+			expectChange: true,
+		},
+		{
+			name:          "Remove a security group",
+			newValue:      []orcv1alpha1.OpenStackName{sgWebName},
+			existingValue: []string{idWeb, idDb},
+			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
+				string(sgWebName): makeSecGroupWithID(idWeb),
+				string(sgDbName):  makeSecGroupWithID(idDb),
+			},
+			expectChange: true,
+		},
+		{
+			name:          "Replace a security group",
+			newValue:      []orcv1alpha1.OpenStackName{sgWebName, sgDbName},
+			existingValue: []string{idWeb, idOther},
+			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
+				string(sgWebName): makeSecGroupWithID(idWeb),
+				string(sgDbName):  makeSecGroupWithID(idDb),
+			},
+			expectChange: true,
+		},
+		{
+			name:          "Remove all security groups",
+			newValue:      []orcv1alpha1.OpenStackName{},
+			existingValue: []string{idWeb, idDb},
+			secGroupMap:   map[string]*orcv1alpha1.SecurityGroup{},
+			expectChange:  true,
+		},
+		{
+			name:          "Add to empty list",
+			newValue:      []orcv1alpha1.OpenStackName{sgWebName},
+			existingValue: []string{},
+			secGroupMap: map[string]*orcv1alpha1.SecurityGroup{
+				string(sgWebName): makeSecGroupWithID(idWeb),
+			},
+			expectChange: true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.PortResourceSpec{
+				SecurityGroupRefs: tt.newValue,
+			}
+
+			port := &ports.Port{SecurityGroups: tt.existingValue}
+			osResource := &osclients.PortExt{Port: *port}
+
+			updateOpts := ports.UpdateOpts{}
+			handleSecurityGroupRefsUpdate(&updateOpts, resource, osResource, tt.secGroupMap)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
 func TestHandlePortBindingUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
