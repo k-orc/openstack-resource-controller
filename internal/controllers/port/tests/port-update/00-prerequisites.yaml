@@ -29,3 +29,15 @@ spec:
     networkRef: port-update
     ipVersion: 4
     cidr: 192.168.155.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: port-update
+spec:
+  managementPolicy: managed
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  resource:
+    name: port-update

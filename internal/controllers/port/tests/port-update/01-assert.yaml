@@ -14,9 +14,15 @@ resourceRefs:
       kind: Network
       name: port-update
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: port-update
+      ref: securitygroup
 assertAll:
     - celExpr: "port.status.resource.networkID == network.status.id"
     - celExpr: "subnet.status.resource.networkID == network.status.id"
+    - celExpr: "port.status.resource.securityGroups[0] == securitygroup.status.id"
+
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
