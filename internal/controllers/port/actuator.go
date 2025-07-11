@@ -431,8 +431,6 @@ func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *reso
 		desiredState = ptr.To(true)
 	case orcv1alpha1.PortSecurityDisabled:
 		desiredState = ptr.To(false)
-	case orcv1alpha1.PortSecurityInherit:
-		return updateOpts
 	default:
 		return updateOpts
 	}

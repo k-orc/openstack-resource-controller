@@ -151,6 +151,7 @@ type PortResourceSpec struct {
 	// When set to Inherit (default), it takes the value from the network level.
 	// +kubebuilder:default=Inherit
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="!(oldSelf != 'Inherit' && self == 'Inherit')",message="portSecurity cannot be changed to Inherit"
 	PortSecurity PortSecurityState `json:"portSecurity,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.

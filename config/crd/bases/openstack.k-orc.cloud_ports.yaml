@@ -311,6 +311,9 @@ spec:
                     - Disabled
                     - Inherit
                     type: string
+                    x-kubernetes-validations:
+                    - message: portSecurity cannot be changed to Inherit
+                      rule: '!(oldSelf != ''Inherit'' && self == ''Inherit'')'
                   projectRef:
                     description: |-
                       projectRef is a reference to the ORC Project this resource is associated with.
