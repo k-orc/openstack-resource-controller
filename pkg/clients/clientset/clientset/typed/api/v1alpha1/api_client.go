@@ -40,6 +40,7 @@ type OpenstackV1alpha1Interface interface {
 	ServersGetter
 	ServerGroupsGetter
 	SubnetsGetter
+	VolumesGetter
 }
 
 // OpenstackV1alpha1Client is used to interact with features provided by the openstack.k-orc.cloud group.
@@ -93,6 +94,10 @@ func (c *OpenstackV1alpha1Client) ServerGroups(namespace string) ServerGroupInte
 
 func (c *OpenstackV1alpha1Client) Subnets(namespace string) SubnetInterface {
 	return newSubnets(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Volumes(namespace string) VolumeInterface {
+	return newVolumes(c, namespace)
 }
 
 // NewForConfig creates a new OpenstackV1alpha1Client for the given config.

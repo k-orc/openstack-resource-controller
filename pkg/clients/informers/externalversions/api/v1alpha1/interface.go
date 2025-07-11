@@ -48,6 +48,8 @@ type Interface interface {
 	ServerGroups() ServerGroupInformer
 	// Subnets returns a SubnetInformer.
 	Subnets() SubnetInformer
+	// Volumes returns a VolumeInformer.
+	Volumes() VolumeInformer
 }
 
 type version struct {
@@ -119,4 +121,9 @@ func (v *version) ServerGroups() ServerGroupInformer {
 // Subnets returns a SubnetInformer.
 func (v *version) Subnets() SubnetInformer {
 	return &subnetInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Volumes returns a VolumeInformer.
+func (v *version) Volumes() VolumeInformer {
+	return &volumeInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
