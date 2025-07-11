@@ -2303,6 +2303,106 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: secretRef
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Volume
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeFilter
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+      default: 0
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
 - name: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
   map:
     fields:

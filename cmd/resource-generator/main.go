@@ -107,6 +107,9 @@ var allResources []templateFields = []templateFields{
 	{
 		Name: "Project",
 	},
+	{
+		Name: "Volume",
+	},
 }
 
 func main() {

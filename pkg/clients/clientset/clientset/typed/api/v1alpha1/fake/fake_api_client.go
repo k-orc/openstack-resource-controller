@@ -76,6 +76,10 @@ func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterfa
 	return newFakeSubnets(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Volumes(namespace string) v1alpha1.VolumeInterface {
+	return newFakeVolumes(c, namespace)
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeOpenstackV1alpha1) RESTClient() rest.Interface {
