@@ -14,6 +14,7 @@ resources:
 - bases/openstack.k-orc.cloud_servergroups.yaml
 - bases/openstack.k-orc.cloud_routers.yaml
 - bases/openstack.k-orc.cloud_routerinterfaces.yaml
+- bases/openstack.k-orc.cloud_volumes.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:
