@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-create-minimal
+status:
+  resource:
+    name: volume-create-minimal
+    size: 1
