@@ -26,7 +26,7 @@ type VolumeResourceSpec struct {
 
 	// description contains a free form description of the volume.
 	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=65535
+	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Description *string `json:"description,omitempty"`
 
@@ -43,6 +43,12 @@ type VolumeFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// description contains a free form description of the volume.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Description *string `json:"description,omitempty"`
+
 	// size is the size of the volume in GiB.
 	// +kubebuilder:validation:Minimum=1
 	// +optional
@@ -57,7 +63,7 @@ type VolumeResourceStatus struct {
 	Name string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength:=65535
+	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Description string `json:"description,omitempty"`
 

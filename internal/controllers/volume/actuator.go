@@ -94,6 +94,10 @@ func (actuator volumeActuator) ListOSResourcesForImport(ctx context.Context, obj
 		filters = append(filters, func(f *volumes.Volume) bool { return f.Name == string(*filter.Name) })
 	}
 
+	if filter.Description != nil {
+		filters = append(filters, func(f *volumes.Volume) bool { return f.Description == *filter.Description })
+	}
+
 	if filter.Size != nil {
 		filters = append(filters, func(f *volumes.Volume) bool { return f.Size == int(*filter.Size) })
 	}
