@@ -25,8 +25,9 @@ import (
 // VolumeFilterApplyConfiguration represents a declarative configuration of the VolumeFilter type for use
 // with apply.
 type VolumeFilterApplyConfiguration struct {
-	Name *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Size *int32                     `json:"size,omitempty"`
+	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Description *string                    `json:"description,omitempty"`
+	Size        *int32                     `json:"size,omitempty"`
 }
 
 // VolumeFilterApplyConfiguration constructs a declarative configuration of the VolumeFilter type for use with
@@ -40,6 +41,14 @@ func VolumeFilter() *VolumeFilterApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *VolumeFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *VolumeFilterApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithDescription sets the Description field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Description field is set to the value of the last call.
+func (b *VolumeFilterApplyConfiguration) WithDescription(value string) *VolumeFilterApplyConfiguration {
+	b.Description = &value
 	return b
 }
 

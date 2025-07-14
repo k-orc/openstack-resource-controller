@@ -3297,6 +3297,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description contains a free form description of the volume. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `size` _integer_ | size is the size of the volume in GiB. |  | Minimum: 1 <br /> |
 
 
@@ -3352,7 +3353,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `description` _string_ | description contains a free form description of the volume. |  | MaxLength: 65535 <br />MinLength: 1 <br /> |
+| `description` _string_ | description contains a free form description of the volume. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `size` _integer_ | size is the size of the volume, in gibibytes (GiB). |  | Minimum: 1 <br /> |
 
 
@@ -3370,7 +3371,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the volume. Might not be unique. |  | MaxLength: 1024 <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 65535 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br /> |
 | `size` _integer_ | size is the size of the volume in GiB. |  |  |
 
 

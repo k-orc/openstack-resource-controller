@@ -3835,6 +3835,11 @@ func (in *VolumeFilter) DeepCopyInto(out *VolumeFilter) {
 		*out = new(OpenStackName)
 		**out = **in
 	}
+	if in.Description != nil {
+		in, out := &in.Description, &out.Description
+		*out = new(string)
+		**out = **in
+	}
 	if in.Size != nil {
 		in, out := &in.Size, &out.Size
 		*out = new(int32)

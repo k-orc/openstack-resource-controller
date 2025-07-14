@@ -7777,6 +7777,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref commo
 							Format:      "",
 						},
 					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description contains a free form description of the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"size": {
 						SchemaProps: spec.SchemaProps{
 							Description: "size is the size of the volume in GiB.",

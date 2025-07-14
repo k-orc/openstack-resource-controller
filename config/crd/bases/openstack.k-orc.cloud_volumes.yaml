@@ -91,6 +91,12 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      description:
+                        description: description contains a free form description
+                          of the volume.
+                        maxLength: 255
+                        minLength: 1
+                        type: string
                       name:
                         description: name of the existing resource
                         maxLength: 255
@@ -152,7 +158,7 @@ spec:
                   description:
                     description: description contains a free form description of the
                       volume.
-                    maxLength: 65535
+                    maxLength: 255
                     minLength: 1
                     type: string
                   name:
@@ -279,7 +285,7 @@ spec:
                   description:
                     description: description is a human-readable description for the
                       resource.
-                    maxLength: 65535
+                    maxLength: 255
                     type: string
                   name:
                     description: name is a Human-readable name for the volume. Might
