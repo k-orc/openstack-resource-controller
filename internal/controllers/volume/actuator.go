@@ -19,6 +19,7 @@ package volume
 import (
 	"context"
 	"iter"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	corev1 "k8s.io/api/core/v1"
@@ -39,6 +40,13 @@ type (
 	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+)
+
+const (
+	// The frequency to poll when waiting for a volume to become available
+	volumeAvailablePollingPeriod = 15 * time.Second
+	// The frequency to poll when waiting for a volume to be deleted
+	volumeDeletingPollingPeriod = 15 * time.Second
 )
 
 type volumeActuator struct {
@@ -138,6 +146,10 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 }
 
 func (actuator volumeActuator) DeleteResource(ctx context.Context, _ orcObjectPT, volume *volumes.Volume) progress.ReconcileStatus {
+	if volume.Status == VolumeStatusDeleting {
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, volumeDeletingPollingPeriod)
+	}
+
 	// FIXME(mandre) Make this optional
 	deleteOpts := volumes.DeleteOpts{
 		Cascade: false,

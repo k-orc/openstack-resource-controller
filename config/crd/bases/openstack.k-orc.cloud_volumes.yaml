@@ -282,20 +282,89 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  availabilityZone:
+                    description: availabilityZone is which availability zone the volume
+                      is in.
+                    maxLength: 1024
+                    type: string
+                  backupID:
+                    description: backupID is the ID of the backup from which the volume
+                      was restored
+                    maxLength: 1024
+                    type: string
+                  bootable:
+                    description: bootable indicates whether this is a bootable volume.
+                    type: boolean
+                  consistencyGroupID:
+                    description: consistencyGroupID is the consistency group ID.
+                    maxLength: 1024
+                    type: string
+                  createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 255
                     type: string
+                  encrypted:
+                    description: encrypted denotes if the volume is encrypted.
+                    type: boolean
+                  host:
+                    description: host is the identifier of the host holding the volume.
+                    maxLength: 1024
+                    type: string
+                  multiattach:
+                    description: multiattach denotes if the volume is multi-attach
+                      capable.
+                    type: boolean
                   name:
                     description: name is a Human-readable name for the volume. Might
                       not be unique.
+                    maxLength: 1024
+                    type: string
+                  replicationStatus:
+                    description: replicationStatus is the status of replication.
                     maxLength: 1024
                     type: string
                   size:
                     description: size is the size of the volume in GiB.
                     format: int32
                     type: integer
+                  snapshotID:
+                    description: snapshotID is the ID of the snapshot from which the
+                      volume was created
+                    maxLength: 1024
+                    type: string
+                  sourceVolID:
+                    description: sourceVolID is the ID of another block storage volume
+                      from which the current volume was created
+                    maxLength: 1024
+                    type: string
+                  status:
+                    description: status represents the current status of the volume.
+                    maxLength: 1024
+                    type: string
+                  tenantID:
+                    description: tenantID is the ID of the project that owns the volume.
+                    maxLength: 1024
+                    type: string
+                  updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
+                  userID:
+                    description: userID is the ID of the user who created the volume.
+                    maxLength: 1024
+                    type: string
+                  volumeType:
+                    description: volumeType is the type of volume to create, either
+                      SATA or SSD.
+                    maxLength: 1024
+                    type: string
                 type: object
             type: object
         type: object
