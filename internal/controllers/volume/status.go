@@ -17,6 +17,8 @@ limitations under the License.
 package volume
 
 import (
+	"strconv"
+
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -25,6 +27,12 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
+)
+
+const (
+	VolumeStatusAvailable = "available"
+	VolumeStatusInUse     = "in-use"
+	VolumeStatusDeleting  = "deleting"
 )
 
 type volumeStatusWriter struct{}
@@ -47,18 +55,64 @@ func (volumeStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Volume,
 		}
 	}
 
-	// Volume is available as soon as it exists
-	// FIXME(mandre) not exactly :)
-	return metav1.ConditionTrue, nil
+	if osResource.Status == VolumeStatusAvailable || osResource.Status == VolumeStatusInUse {
+		return metav1.ConditionTrue, nil
+	}
+
+	// Otherwise we should continue to poll
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, volumeAvailablePollingPeriod)
 }
 
-func (volumeStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *volumes.Volume, statusApply *statusApplyT) {
+func (volumeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *volumes.Volume, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.VolumeResourceStatus().
 		WithName(osResource.Name).
-		WithSize(int32(osResource.Size))
+		WithSize(int32(osResource.Size)).
+		WithStatus(osResource.Status).
+		WithVolumeType(osResource.VolumeType).
+		WithUserID(osResource.UserID).
+		WithEncrypted(osResource.Encrypted).
+		WithMultiattach(osResource.Multiattach).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}
+	if osResource.Bootable != "" {
+		boolValue, err := strconv.ParseBool(osResource.Bootable)
+		if err != nil {
+			log.Info("Failed to parse boolean value", err)
+		} else {
+			resourceStatus.WithBootable(boolValue)
+		}
+	}
+	if osResource.AvailabilityZone != "" {
+		resourceStatus.WithAvailabilityZone(osResource.AvailabilityZone)
+	}
+	if osResource.SnapshotID != "" {
+		resourceStatus.WithSnapshotID(osResource.SnapshotID)
+	}
+	if osResource.SourceVolID != "" {
+		resourceStatus.WithSourceVolID(osResource.SourceVolID)
+	}
+	if osResource.BackupID != nil {
+		resourceStatus.WithBackupID(*osResource.BackupID)
+	}
+	if osResource.ReplicationStatus != "" {
+		resourceStatus.WithReplicationStatus(osResource.ReplicationStatus)
+	}
+	if osResource.ConsistencyGroupID != "" {
+		resourceStatus.WithConsistencyGroupID(osResource.ConsistencyGroupID)
+	}
+	if osResource.Host != "" {
+		resourceStatus.WithHost(osResource.Host)
+	}
+	if osResource.TenantID != "" {
+		resourceStatus.WithTenantID(osResource.TenantID)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

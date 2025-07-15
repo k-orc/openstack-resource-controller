@@ -18,12 +18,32 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // VolumeResourceStatusApplyConfiguration represents a declarative configuration of the VolumeResourceStatus type for use
 // with apply.
 type VolumeResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Size        *int32  `json:"size,omitempty"`
+	Name               *string  `json:"name,omitempty"`
+	Description        *string  `json:"description,omitempty"`
+	Size               *int32   `json:"size,omitempty"`
+	Status             *string  `json:"status,omitempty"`
+	AvailabilityZone   *string  `json:"availabilityZone,omitempty"`
+	VolumeType         *string  `json:"volumeType,omitempty"`
+	SnapshotID         *string  `json:"snapshotID,omitempty"`
+	SourceVolID        *string  `json:"sourceVolID,omitempty"`
+	BackupID           *string  `json:"backupID,omitempty"`
+	UserID             *string  `json:"userID,omitempty"`
+	Bootable           *bool    `json:"bootable,omitempty"`
+	Encrypted          *bool    `json:"encrypted,omitempty"`
+	ReplicationStatus  *string  `json:"replicationStatus,omitempty"`
+	ConsistencyGroupID *string  `json:"consistencyGroupID,omitempty"`
+	Multiattach        *bool    `json:"multiattach,omitempty"`
+	Host               *string  `json:"host,omitempty"`
+	TenantID           *string  `json:"tenantID,omitempty"`
+	CreatedAt          *v1.Time `json:"createdAt,omitempty"`
+	UpdatedAt          *v1.Time `json:"updatedAt,omitempty"`
 }
 
 // VolumeResourceStatusApplyConfiguration constructs a declarative configuration of the VolumeResourceStatus type for use with
@@ -53,5 +73,133 @@ func (b *VolumeResourceStatusApplyConfiguration) WithDescription(value string) *
 // If called multiple times, the Size field is set to the value of the last call.
 func (b *VolumeResourceStatusApplyConfiguration) WithSize(value int32) *VolumeResourceStatusApplyConfiguration {
 	b.Size = &value
+	return b
+}
+
+// WithStatus sets the Status field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Status field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithStatus(value string) *VolumeResourceStatusApplyConfiguration {
+	b.Status = &value
+	return b
+}
+
+// WithAvailabilityZone sets the AvailabilityZone field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AvailabilityZone field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithAvailabilityZone(value string) *VolumeResourceStatusApplyConfiguration {
+	b.AvailabilityZone = &value
+	return b
+}
+
+// WithVolumeType sets the VolumeType field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the VolumeType field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithVolumeType(value string) *VolumeResourceStatusApplyConfiguration {
+	b.VolumeType = &value
+	return b
+}
+
+// WithSnapshotID sets the SnapshotID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the SnapshotID field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithSnapshotID(value string) *VolumeResourceStatusApplyConfiguration {
+	b.SnapshotID = &value
+	return b
+}
+
+// WithSourceVolID sets the SourceVolID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the SourceVolID field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithSourceVolID(value string) *VolumeResourceStatusApplyConfiguration {
+	b.SourceVolID = &value
+	return b
+}
+
+// WithBackupID sets the BackupID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the BackupID field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithBackupID(value string) *VolumeResourceStatusApplyConfiguration {
+	b.BackupID = &value
+	return b
+}
+
+// WithUserID sets the UserID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UserID field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithUserID(value string) *VolumeResourceStatusApplyConfiguration {
+	b.UserID = &value
+	return b
+}
+
+// WithBootable sets the Bootable field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Bootable field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithBootable(value bool) *VolumeResourceStatusApplyConfiguration {
+	b.Bootable = &value
+	return b
+}
+
+// WithEncrypted sets the Encrypted field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Encrypted field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithEncrypted(value bool) *VolumeResourceStatusApplyConfiguration {
+	b.Encrypted = &value
+	return b
+}
+
+// WithReplicationStatus sets the ReplicationStatus field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ReplicationStatus field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithReplicationStatus(value string) *VolumeResourceStatusApplyConfiguration {
+	b.ReplicationStatus = &value
+	return b
+}
+
+// WithConsistencyGroupID sets the ConsistencyGroupID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ConsistencyGroupID field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithConsistencyGroupID(value string) *VolumeResourceStatusApplyConfiguration {
+	b.ConsistencyGroupID = &value
+	return b
+}
+
+// WithMultiattach sets the Multiattach field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Multiattach field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithMultiattach(value bool) *VolumeResourceStatusApplyConfiguration {
+	b.Multiattach = &value
+	return b
+}
+
+// WithHost sets the Host field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Host field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithHost(value string) *VolumeResourceStatusApplyConfiguration {
+	b.Host = &value
+	return b
+}
+
+// WithTenantID sets the TenantID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TenantID field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithTenantID(value string) *VolumeResourceStatusApplyConfiguration {
+	b.TenantID = &value
+	return b
+}
+
+// WithCreatedAt sets the CreatedAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the CreatedAt field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *VolumeResourceStatusApplyConfiguration {
+	b.CreatedAt = &value
+	return b
+}
+
+// WithUpdatedAt sets the UpdatedAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UpdatedAt field is set to the value of the last call.
+func (b *VolumeResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *VolumeResourceStatusApplyConfiguration {
+	b.UpdatedAt = &value
 	return b
 }

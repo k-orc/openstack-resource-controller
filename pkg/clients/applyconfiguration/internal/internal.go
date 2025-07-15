@@ -2361,15 +2361,63 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: backupID
+      type:
+        scalar: string
+    - name: bootable
+      type:
+        scalar: boolean
+    - name: consistencyGroupID
+      type:
+        scalar: string
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: description
       type:
         scalar: string
+    - name: encrypted
+      type:
+        scalar: boolean
+    - name: host
+      type:
+        scalar: string
+    - name: multiattach
+      type:
+        scalar: boolean
     - name: name
+      type:
+        scalar: string
+    - name: replicationStatus
       type:
         scalar: string
     - name: size
       type:
         scalar: numeric
+    - name: snapshotID
+      type:
+        scalar: string
+    - name: sourceVolID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: tenantID
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: userID
+      type:
+        scalar: string
+    - name: volumeType
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
   map:
     fields:

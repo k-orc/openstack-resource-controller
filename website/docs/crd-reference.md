@@ -3373,6 +3373,22 @@ _Appears in:_
 | `name` _string_ | name is a Human-readable name for the volume. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br /> |
 | `size` _integer_ | size is the size of the volume in GiB. |  |  |
+| `status` _string_ | status represents the current status of the volume. |  | MaxLength: 1024 <br /> |
+| `availabilityZone` _string_ | availabilityZone is which availability zone the volume is in. |  | MaxLength: 1024 <br /> |
+| `volumeType` _string_ | volumeType is the type of volume to create, either SATA or SSD. |  | MaxLength: 1024 <br /> |
+| `snapshotID` _string_ | snapshotID is the ID of the snapshot from which the volume was created |  | MaxLength: 1024 <br /> |
+| `sourceVolID` _string_ | sourceVolID is the ID of another block storage volume from which the current volume was created |  | MaxLength: 1024 <br /> |
+| `backupID` _string_ | backupID is the ID of the backup from which the volume was restored |  | MaxLength: 1024 <br /> |
+| `userID` _string_ | userID is the ID of the user who created the volume. |  | MaxLength: 1024 <br /> |
+| `bootable` _boolean_ | bootable indicates whether this is a bootable volume. |  |  |
+| `encrypted` _boolean_ | encrypted denotes if the volume is encrypted. |  |  |
+| `replicationStatus` _string_ | replicationStatus is the status of replication. |  | MaxLength: 1024 <br /> |
+| `consistencyGroupID` _string_ | consistencyGroupID is the consistency group ID. |  | MaxLength: 1024 <br /> |
+| `multiattach` _boolean_ | multiattach denotes if the volume is multi-attach capable. |  |  |
+| `host` _string_ | host is the identifier of the host holding the volume. |  | MaxLength: 1024 <br /> |
+| `tenantID` _string_ | tenantID is the ID of the project that owns the volume. |  | MaxLength: 1024 <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 
 
 #### VolumeSpec

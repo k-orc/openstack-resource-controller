@@ -7940,9 +7940,121 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(r
 							Format:      "int32",
 						},
 					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status represents the current status of the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is which availability zone the volume is in.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"volumeType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeType is the type of volume to create, either SATA or SSD.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"snapshotID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "snapshotID is the ID of the snapshot from which the volume was created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sourceVolID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sourceVolID is the ID of another block storage volume from which the current volume was created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"backupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backupID is the ID of the backup from which the volume was restored",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"userID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "userID is the ID of the user who created the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"bootable": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bootable indicates whether this is a bootable volume.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"encrypted": {
+						SchemaProps: spec.SchemaProps{
+							Description: "encrypted denotes if the volume is encrypted.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"replicationStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "replicationStatus is the status of replication.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"consistencyGroupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "consistencyGroupID is the consistency group ID.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"multiattach": {
+						SchemaProps: spec.SchemaProps{
+							Description: "multiattach denotes if the volume is multi-attach capable.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"host": {
+						SchemaProps: spec.SchemaProps{
+							Description: "host is the identifier of the host holding the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tenantID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tenantID is the ID of the project that owns the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
