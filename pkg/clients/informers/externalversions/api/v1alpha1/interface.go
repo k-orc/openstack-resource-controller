@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright 2025 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ type Interface interface {
 	ServerGroups() ServerGroupInformer
 	// Subnets returns a SubnetInformer.
 	Subnets() SubnetInformer
+	// Volumes returns a VolumeInformer.
+	Volumes() VolumeInformer
 }
 
 type version struct {
@@ -119,4 +121,9 @@ func (v *version) ServerGroups() ServerGroupInformer {
 // Subnets returns a SubnetInformer.
 func (v *version) Subnets() SubnetInformer {
 	return &subnetInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Volumes returns a VolumeInformer.
+func (v *version) Volumes() VolumeInformer {
+	return &volumeInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

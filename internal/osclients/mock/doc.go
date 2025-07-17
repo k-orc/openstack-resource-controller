@@ -33,3 +33,6 @@ import (
 
 //go:generate mockgen -package mock -destination=identity.go -source=../identity.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock NetworkClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt identity.go > _identity.go && mv _identity.go identity.go"
+
+//go:generate mockgen -package mock -destination=volume.go -source=../volume.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock VolumeClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt volume.go > _volume.go && mv _volume.go volume.go"

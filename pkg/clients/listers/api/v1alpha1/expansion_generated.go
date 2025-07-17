@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright 2025 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -113,3 +113,11 @@ type SubnetListerExpansion interface{}
 // SubnetNamespaceListerExpansion allows custom methods to be added to
 // SubnetNamespaceLister.
 type SubnetNamespaceListerExpansion interface{}
+
+// VolumeListerExpansion allows custom methods to be added to
+// VolumeLister.
+type VolumeListerExpansion interface{}
+
+// VolumeNamespaceListerExpansion allows custom methods to be added to
+// VolumeNamespaceLister.
+type VolumeNamespaceListerExpansion interface{}
