@@ -931,6 +931,11 @@ func (in *ImageFilter) DeepCopyInto(out *ImageFilter) {
 		*out = new(OpenStackName)
 		**out = **in
 	}
+	if in.Visibility != nil {
+		in, out := &in.Visibility, &out.Visibility
+		*out = new(ImageVisibility)
+		**out = **in
+	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]ImageTag, len(*in))

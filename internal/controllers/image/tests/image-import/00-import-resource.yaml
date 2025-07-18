@@ -11,5 +11,6 @@ spec:
   import:
     filter:
       name: image-import-external
+      visibility: private
       tags:
         - image-import

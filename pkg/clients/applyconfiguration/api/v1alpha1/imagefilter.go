@@ -25,8 +25,9 @@ import (
 // ImageFilterApplyConfiguration represents a declarative configuration of the ImageFilter type for use
 // with apply.
 type ImageFilterApplyConfiguration struct {
-	Name *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Tags []apiv1alpha1.ImageTag     `json:"tags,omitempty"`
+	Name       *apiv1alpha1.OpenStackName   `json:"name,omitempty"`
+	Visibility *apiv1alpha1.ImageVisibility `json:"visibility,omitempty"`
+	Tags       []apiv1alpha1.ImageTag       `json:"tags,omitempty"`
 }
 
 // ImageFilterApplyConfiguration constructs a declarative configuration of the ImageFilter type for use with
@@ -40,6 +41,14 @@ func ImageFilter() *ImageFilterApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *ImageFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ImageFilterApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithVisibility sets the Visibility field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Visibility field is set to the value of the last call.
+func (b *ImageFilterApplyConfiguration) WithVisibility(value apiv1alpha1.ImageVisibility) *ImageFilterApplyConfiguration {
+	b.Visibility = &value
 	return b
 }
 

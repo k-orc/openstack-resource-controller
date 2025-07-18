@@ -926,6 +926,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name specifies the name of a Glance image |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `visibility` _[ImageVisibility](#imagevisibility)_ | visibility specifies the visibility of a Glance image. |  | Enum: [public private shared community] <br /> |
 | `tags` _[ImageTag](#imagetag) array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
@@ -1211,6 +1212,7 @@ _Validation:_
 - Enum: [public private shared community]
 
 _Appears in:_
+- [ImageFilter](#imagefilter)
 - [ImageResourceSpec](#imageresourcespec)
 
 | Field | Description |

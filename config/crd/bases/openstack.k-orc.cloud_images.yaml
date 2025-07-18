@@ -106,6 +106,15 @@ spec:
                         maxItems: 32
                         type: array
                         x-kubernetes-list-type: set
+                      visibility:
+                        description: visibility specifies the visibility of a Glance
+                          image.
+                        enum:
+                        - public
+                        - private
+                        - shared
+                        - community
+                        type: string
                     type: object
                   id:
                     description: |-
