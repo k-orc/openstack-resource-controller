@@ -354,6 +354,10 @@ type ImageFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// visibility specifies the visibility of a Glance image.
+	// +optional
+	Visibility *ImageVisibility `json:"visibility,omitempty"`
+
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set

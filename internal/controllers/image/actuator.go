@@ -77,6 +77,9 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 	listOpts := images.ListOpts{
 		Name: getResourceName(obj),
 	}
+	if obj.Spec.Resource.Visibility != nil {
+		listOpts.Visibility = images.ImageVisibility(*obj.Spec.Resource.Visibility)
+	}
 
 	if len(obj.Spec.Resource.Tags) > 0 {
 		listOpts.Tags = make([]string, len(obj.Spec.Resource.Tags))
@@ -92,6 +95,9 @@ func (actuator imageActuator) ListOSResourcesForAdoption(ctx context.Context, ob
 func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (imageIterator, progress.ReconcileStatus) {
 	listOpts := images.ListOpts{
 		Name: string(ptr.Deref(filter.Name, "")),
+	}
+	if filter.Visibility != nil {
+		listOpts.Visibility = images.ImageVisibility(*filter.Visibility)
 	}
 
 	if len(filter.Tags) > 0 {

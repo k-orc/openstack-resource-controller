@@ -2141,6 +2141,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageFilter(ref common
 							Format:      "",
 						},
 					},
+					"visibility": {
+						SchemaProps: spec.SchemaProps{
+							Description: "visibility specifies the visibility of a Glance image.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
