@@ -91,7 +91,6 @@ type FixedIPStatus struct {
 	SubnetID string `json:"subnetID,omitempty"`
 }
 
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="PortResourceSpec is immutable"
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.securityGroupRefs) : true",message="securityGroupRefs must be empty when portSecurity is set to Disabled"
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.allowedAddressPairs) : true",message="allowedAddressPairs must be empty when portSecurity is set to Disabled"
 type PortResourceSpec struct {
@@ -105,6 +104,7 @@ type PortResourceSpec struct {
 
 	// networkRef is a reference to the ORC Network which this port is associated with.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	// tags is a list of tags which will be applied to the port.
@@ -123,6 +123,7 @@ type PortResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="addresses is immutable"
 	Addresses []Address `json:"addresses,omitempty"`
 
 	// securityGroupRefs are the names of the security groups associated
@@ -150,11 +151,13 @@ type PortResourceSpec struct {
 	// When set to Inherit (default), it takes the value from the network level.
 	// +kubebuilder:default=Inherit
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="!(oldSelf != 'Inherit' && self == 'Inherit')",message="portSecurity cannot be changed to Inherit"
 	PortSecurity PortSecurityState `json:"portSecurity,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 
