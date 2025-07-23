@@ -195,6 +195,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: flavorRef is immutable
+                      rule: self == oldSelf
                   imageRef:
                     description: |-
                       imageRef references the image to use for the server instance.
@@ -202,6 +205,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: imageRef is immutable
+                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -228,6 +234,9 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
+                    x-kubernetes-validations:
+                    - message: ports is immutable
+                      rule: self == oldSelf
                   serverGroupRef:
                     description: |-
                       serverGroupRef is a reference to a ServerGroup object. The server
@@ -235,6 +244,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: serverGroupRef is immutable
+                      rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
                       server.
@@ -260,14 +272,14 @@ spec:
                         minLength: 1
                         type: string
                     type: object
+                    x-kubernetes-validations:
+                    - message: userData is immutable
+                      rule: self == oldSelf
                 required:
                 - flavorRef
                 - imageRef
                 - ports
                 type: object
-                x-kubernetes-validations:
-                - message: ServerResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object
