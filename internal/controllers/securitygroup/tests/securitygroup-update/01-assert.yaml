@@ -1,12 +1,20 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: securitygroup-update
+      ref: secGroup
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:
   name: securitygroup-update
 status:
   resource:
-    name: securitygroup-update-override
-    description: SecurityGroup from "securitygroup-update" test
+    name: securitygroup-update-updated
+    description: securitygroup-update-updated
     stateful: false
     rules:
     - direction: ingress
@@ -20,3 +28,10 @@ status:
     tags:
     - tag1
     - tag2
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
