@@ -10,7 +10,6 @@ spec:
   managementPolicy: managed
   resource:
     name: server-update-updated
-    #FIXME(dkokkino): Issue https://github.com/k-orc/openstack-resource-controller/issues/483
-    # tags:
-    #   - tag1
-    #   - tag2
+    tags:
+      - tag1
+      - tag2
