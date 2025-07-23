@@ -34,7 +34,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
 type (
@@ -111,10 +111,10 @@ func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Contex
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
 		ProjectID:   ptr.Deref(project.Status.ID, ""),
-		Tags:        neutrontags.Join(filter.Tags),
-		TagsAny:     neutrontags.Join(filter.TagsAny),
-		NotTags:     neutrontags.Join(filter.NotTags),
-		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
+		Tags:        tags.Join(filter.Tags),
+		TagsAny:     tags.Join(filter.TagsAny),
+		NotTags:     tags.Join(filter.NotTags),
+		NotTagsAny:  tags.Join(filter.NotTagsAny),
 	}
 
 	return actuator.osClient.ListRouter(ctx, listOpts), nil
@@ -272,7 +272,7 @@ var _ reconcileResourceActuator = routerActuator{}
 
 func (actuator routerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "routers", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "routers", osResource.ID)),
 		actuator.updateResource,
 	}, nil
 }

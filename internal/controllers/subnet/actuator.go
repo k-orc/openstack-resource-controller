@@ -38,7 +38,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=subnets,verbs=get;list;watch;create;update;patch;delete
@@ -136,10 +136,10 @@ func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj
 		IPVersion:   int(ptr.Deref(filter.IPVersion, 0)),
 		GatewayIP:   string(ptr.Deref(filter.GatewayIP, "")),
 		CIDR:        string(ptr.Deref(filter.CIDR, "")),
-		Tags:        neutrontags.Join(filter.Tags),
-		TagsAny:     neutrontags.Join(filter.TagsAny),
-		NotTags:     neutrontags.Join(filter.NotTags),
-		NotTagsAny:  neutrontags.Join(filter.NotTagsAny),
+		Tags:        tags.Join(filter.Tags),
+		TagsAny:     tags.Join(filter.TagsAny),
+		NotTags:     tags.Join(filter.NotTags),
+		NotTagsAny:  tags.Join(filter.NotTagsAny),
 	}
 	if filter.IPv6 != nil {
 		listOpts.IPv6AddressMode = string(ptr.Deref(filter.IPv6.AddressMode, ""))
@@ -473,7 +473,7 @@ var _ reconcileResourceActuator = subnetActuator{}
 
 func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "subnets", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "subnets", osResource.ID)),
 		actuator.ensureRouterInterface,
 		actuator.updateResource,
 	}, nil
