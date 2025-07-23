@@ -55,6 +55,7 @@ type ComputeClient interface {
 	DeleteServer(ctx context.Context, serverID string) error
 	GetServer(ctx context.Context, serverID string) (*servers.Server, error)
 	ListServers(ctx context.Context, listOpts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error]
+	UpdateServer(ctx context.Context, id string, opts servers.UpdateOptsBuilder) (*servers.Server, error)
 
 	CreateServerGroup(ctx context.Context, createOpts servergroups.CreateOptsBuilder) (*servergroups.ServerGroup, error)
 	DeleteServerGroup(ctx context.Context, serverGroupID string) error
@@ -122,6 +123,10 @@ func (c computeClient) ListServers(ctx context.Context, opts servers.ListOptsBui
 	return func(yield func(*servers.Server, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(servers.ExtractServers, yield))
 	}
+}
+
+func (c computeClient) UpdateServer(ctx context.Context, id string, opts servers.UpdateOptsBuilder) (*servers.Server, error) {
+	return servers.Update(ctx, c.client, id, opts).Extract()
 }
 
 func (c computeClient) ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error) {
@@ -196,6 +201,10 @@ func (e computeErrorClient) ListServers(ctx context.Context, listOpts servers.Li
 	return func(yield func(*servers.Server, error) bool) {
 		yield(nil, e.error)
 	}
+}
+
+func (e computeErrorClient) UpdateServer(_ context.Context, _ string, _ servers.UpdateOptsBuilder) (*servers.Server, error) {
+	return nil, e.error
 }
 
 func (e computeErrorClient) CreateServerGroup(_ context.Context, _ servergroups.CreateOptsBuilder) (*servergroups.ServerGroup, error) {

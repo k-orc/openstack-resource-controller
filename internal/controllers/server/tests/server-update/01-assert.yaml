@@ -1,0 +1,43 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: server-update
+      ref: server
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: server-update
+      ref: image
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-update
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ServerGroup
+      name: server-update
+      ref: sg
+assertAll:
+    - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.imageID == image.status.id"
+    - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-update
+status:
+  resource:
+    name: server-update-updated
+    status: ACTIVE
+    # tags:
+    #   - tag1
+    #   - tag2
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

@@ -61,7 +61,6 @@ type ServerPortSpec struct {
 }
 
 // ServerResourceSpec contains the desired state of a server
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ServerResourceSpec is immutable"
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -71,27 +70,32 @@ type ServerResourceSpec struct {
 	// imageRef references the image to use for the server instance.
 	// NOTE: This is not required in case of boot from volume.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
 	ImageRef KubernetesNameRef `json:"imageRef"`
 
 	// flavorRef references the flavor to use for the server instance.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="flavorRef is immutable"
 	FlavorRef KubernetesNameRef `json:"flavorRef"`
 
 	// userData specifies data which will be made available to the server at
 	// boot time, either via the metadata service or a config drive. It is
 	// typically read by a configuration service such as cloud-init or ignition.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="userData is immutable"
 	UserData *UserDataSpec `json:"userData,omitempty"`
 
 	// ports defines a list of ports which will be attached to the server.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ports is immutable"
 	Ports []ServerPortSpec `json:"ports"`
 
 	// serverGroupRef is a reference to a ServerGroup object. The server
 	// will be created in the server group.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serverGroupRef is immutable"
 	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the server.

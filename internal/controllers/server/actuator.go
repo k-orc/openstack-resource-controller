@@ -244,7 +244,63 @@ var _ reconcileResourceActuator = serverActuator{}
 func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.checkStatus,
+		actuator.updateResource,
 	}, nil
+}
+
+func (actuator serverActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := &servers.UpdateOpts{}
+
+	handleNameUpdate(updateOpts, obj, osResource)
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err = actuator.osClient.UpdateServer(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts servers.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToServerUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	serverUpdateMap, ok := updateOptsMap["server"].(map[string]any)
+	if !ok {
+		serverUpdateMap = make(map[string]any)
+	}
+
+	return len(serverUpdateMap) > 0, nil
+}
+
+func handleNameUpdate(updateOpts *servers.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = name
+	}
 }
 
 func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
