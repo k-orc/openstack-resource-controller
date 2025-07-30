@@ -40,6 +40,7 @@ type SubnetResourceSpecApplyConfiguration struct {
 	IPv6              *IPv6OptionsApplyConfiguration     `json:"ipv6,omitempty"`
 	RouterRef         *apiv1alpha1.KubernetesNameRef     `json:"routerRef,omitempty"`
 	ProjectRef        *apiv1alpha1.KubernetesNameRef     `json:"projectRef,omitempty"`
+	SubnetPool        *SubnetPoolRefApplyConfiguration   `json:"subnetPool,omitempty"`
 }
 
 // SubnetResourceSpecApplyConfiguration constructs a declarative configuration of the SubnetResourceSpec type for use with
@@ -179,5 +180,13 @@ func (b *SubnetResourceSpecApplyConfiguration) WithRouterRef(value apiv1alpha1.K
 // If called multiple times, the ProjectRef field is set to the value of the last call.
 func (b *SubnetResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *SubnetResourceSpecApplyConfiguration {
 	b.ProjectRef = &value
+	return b
+}
+
+// WithSubnetPool sets the SubnetPool field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the SubnetPool field is set to the value of the last call.
+func (b *SubnetResourceSpecApplyConfiguration) WithSubnetPool(value *SubnetPoolRefApplyConfiguration) *SubnetResourceSpecApplyConfiguration {
+	b.SubnetPool = value
 	return b
 }

@@ -88,9 +88,10 @@ type SubnetResourceSpec struct {
 	IPVersion IPVersion `json:"ipVersion"`
 
 	// cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
-	// +required
+	// Optional if subnetPool is specified.
+	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="cidr is immutable"
-	CIDR CIDR `json:"cidr"`
+	CIDR *CIDR `json:"cidr,omitempty"`
 
 	// allocationPools are IP Address pools that will be available for DHCP. IP
 	// addresses must be in CIDR.
@@ -143,8 +144,22 @@ type SubnetResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
+	// subnetPool specifies the pool to allocate the subnet from. If set, cidr is optional.
+	// +optional
+	SubnetPool *SubnetPoolRef `json:"subnetPool,omitempty"`
+
 	// TODO: Support service types
 	// TODO: Support subnet pools
+}
+
+// SubnetPoolRef specifies a SubnetPool to allocate the subnet from.
+type SubnetPoolRef struct {
+	// name or ID of the SubnetPool (required)
+	Name string `json:"name"`
+
+	// prefixLength to allocate from the pool (optional, defaults: 64 for IPv6, 26 for IPv4)
+	// +optional
+	PrefixLength *int `json:"prefixLength,omitempty"`
 }
 
 type SubnetResourceStatus struct {
