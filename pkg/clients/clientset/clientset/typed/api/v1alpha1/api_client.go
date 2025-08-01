@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright 2025 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ type OpenstackV1alpha1Interface interface {
 	ServersGetter
 	ServerGroupsGetter
 	SubnetsGetter
+	VolumesGetter
 }
 
 // OpenstackV1alpha1Client is used to interact with features provided by the openstack.k-orc.cloud group.
@@ -93,6 +94,10 @@ func (c *OpenstackV1alpha1Client) ServerGroups(namespace string) ServerGroupInte
 
 func (c *OpenstackV1alpha1Client) Subnets(namespace string) SubnetInterface {
 	return newSubnets(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Volumes(namespace string) VolumeInterface {
+	return newVolumes(c, namespace)
 }
 
 // NewForConfig creates a new OpenstackV1alpha1Client for the given config.
