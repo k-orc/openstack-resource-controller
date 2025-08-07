@@ -1,0 +1,22 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: port-update-updated
+    description: port-update-updated
+    allowedAddressPairs:
+      - ip: "192.168.122.14"
+        mac: "92:42:9c:13:98:82"
+    securityGroupRefs:
+      - port-update
+    tags:
+    - tag1
+    vnicType: direct
+    portSecurity: Enabled
