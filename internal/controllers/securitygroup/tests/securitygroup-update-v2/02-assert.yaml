@@ -1,0 +1,28 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SecurityGroup
+      name: securitygroup-update-v2
+      ref: secGroup
+assertAll:
+    - celExpr: "!has(secGroup.status.resource.description)"
+    - celExpr: "!has(secGroup.status.resource.rules)"
+    - celExpr: "!has(secGroup.status.resource.tags)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-update-v2
+status:
+  resource:
+    name: securitygroup-update-v2
+    stateful: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
