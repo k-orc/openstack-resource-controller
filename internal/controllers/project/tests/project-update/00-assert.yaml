@@ -1,0 +1,27 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: project-update
+      ref: project
+assertAll:
+    - celExpr: "!has(project.status.resource.description)"
+    - celExpr: "!has(project.status.resource.tags)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-update
+status:
+  resource:
+    name: project-update
+    enabled: true
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
