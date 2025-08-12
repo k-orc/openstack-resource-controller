@@ -1,0 +1,25 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-update-v2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: securitygroup-update-v2-updated
+    description: securitygroup-update-v2-updated
+    stateful: false
+    rules:
+    - direction: ingress
+      description: Ingress rule from "securitygroup-update-v2" test for https
+      ethertype: IPv4
+      protocol: tcp
+      portRange:
+        min: 443
+        max: 443
+      remoteIPPrefix: 1.2.3.4/32
+    tags:
+    - tag1
+    - tag2

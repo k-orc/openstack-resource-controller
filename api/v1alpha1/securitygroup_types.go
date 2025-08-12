@@ -189,24 +189,21 @@ type SecurityGroupResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Property is immutable"
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Property is immutable"
 	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the security group.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Property is immutable"
 	Tags []NeutronTag `json:"tags,omitempty"`
 
 	// stateful indicates if the security group is stateful or stateless.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Property is immutable"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="stateful is immutable"
 	Stateful *bool `json:"stateful,omitempty"`
 
 	// rules is a list of security group rules belonging to this SG.
@@ -218,7 +215,7 @@ type SecurityGroupResourceSpec struct {
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Property is immutable"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 
