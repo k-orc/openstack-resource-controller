@@ -114,3 +114,18 @@ func (mr *MockIdentityClientMockRecorder) ListProjects(ctx, opts any) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProjects", reflect.TypeOf((*MockIdentityClient)(nil).ListProjects), ctx, opts)
 }
+
+// UpdateProject mocks base method.
+func (m *MockIdentityClient) UpdateProject(ctx context.Context, id string, opts projects.UpdateOptsBuilder) (*projects.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateProject", ctx, id, opts)
+	ret0, _ := ret[0].(*projects.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateProject indicates an expected call of UpdateProject.
+func (mr *MockIdentityClientMockRecorder) UpdateProject(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProject", reflect.TypeOf((*MockIdentityClient)(nil).UpdateProject), ctx, id, opts)
+}
