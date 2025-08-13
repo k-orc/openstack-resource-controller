@@ -1,9 +1,8 @@
 #!/bin/bash
-#http://quay.io/orc/openstack-resource-controller:v2.2.0
 
 REGISTRY=${REGISTRY:-quay.io/orc}
 IMAGE=${BASE_IMAGE:-openstack-resource-controller}
-TAG=${BASE_IMAGE:-v2.2.0}
+TAG=${BASE_IMAGE:-$(git describe --abbrev=0)}
 IMG=${REGISTRY}/${IMAGE}:${TAG}
 
 operator-sdk generate kustomize manifests -q --plugins=go.kubebuilder.io/v4
