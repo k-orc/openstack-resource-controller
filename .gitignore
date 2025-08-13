@@ -39,3 +39,6 @@ __pycache__/
 
 # We don't want a vendor directory, but developers might have one locally
 /vendor
+
+/bundle/
+bundle.Dockerfile

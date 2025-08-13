@@ -1,0 +1,117 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+    features.operators.openshift.io/disconnected: "true"
+    features.operators.openshift.io/fips-compliant: "true"
+    features.operators.openshift.io/proxy-aware: "false"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
+    operatorframework.io/suggested-namespace: openstack
+    operators.operatorframework.io/operator-type: non-standalone
+  name: orc.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Flavor is the Schema for an ORC resource.
+      displayName: Flavor
+      kind: Flavor
+      name: flavors.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: FloatingIP is the Schema for an ORC resource.
+      displayName: Floating IP
+      kind: FloatingIP
+      name: floatingips.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Image is the Schema for an ORC resource.
+      displayName: Image
+      kind: Image
+      name: images.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Network is the Schema for an ORC resource.
+      displayName: Network
+      kind: Network
+      name: networks.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Port is the Schema for an ORC resource.
+      displayName: Port
+      kind: Port
+      name: ports.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Project is the Schema for an ORC resource.
+      displayName: Project
+      kind: Project
+      name: projects.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: RouterInterface is the Schema for an ORC resource.
+      displayName: Router Interface
+      kind: RouterInterface
+      name: routerinterfaces.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Router is the Schema for an ORC resource.
+      displayName: Router
+      kind: Router
+      name: routers.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: SecurityGroup is the Schema for an ORC resource.
+      displayName: Security Group
+      kind: SecurityGroup
+      name: securitygroups.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: ServerGroup is the Schema for an ORC resource.
+      displayName: Server Group
+      kind: ServerGroup
+      name: servergroups.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Server is the Schema for an ORC resource.
+      displayName: Server
+      kind: Server
+      name: servers.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Subnet is the Schema for an ORC resource.
+      displayName: Subnet
+      kind: Subnet
+      name: subnets.openstack.k-orc.cloud
+      version: v1alpha1
+  description: Openstack Resource Controller, or ORC, is a Kubernetes API for declarative
+    management of OpenStack resources. By fully controlling the order of OpenStack
+    operations, it allows consumers to easily create, manage, and reproduce complex
+    deployments. ORC aims to be easily consumed both directly by users, and by higher
+    level controllers.
+  displayName: ORC operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - OpenStack
+  - Infrastructure
+  links:
+  - name: Homepage
+    url: https://k-orc.cloud
+  - name: Source code
+    url: https://github.com/k-orc/openstack-resource-controller
+  maturity: alpha
+  minKubeVersion: 1.29.0
+  provider:
+    name: The ORC Authors
+    url: https://k-orc.cloud
+  version: 0.0.1

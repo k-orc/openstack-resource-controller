@@ -1,0 +1,18 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: server-sample
+    flavorRef: server-sample
+    ports:
+      - portRef: server-sample
+    serverGroupRef: server-sample
+    tags:
+      - tag1
+      - tag2

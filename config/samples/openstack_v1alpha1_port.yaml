@@ -1,0 +1,25 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Sample Port
+    networkRef: port-sample
+    allowedAddressPairs:
+      - ip: "192.168.122.14"
+        mac: "92:42:9c:13:98:82"
+    tags:
+    - tag1
+    securityGroupRefs:
+    - port-sample
+    addresses:
+    - subnetRef: port-sample
+      ip: 192.168.155.122
+    portSecurity: Enabled
+    vnicType: direct
+    projectRef: port-sample

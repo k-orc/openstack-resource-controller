@@ -1,0 +1,18 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Sample Router
+    tags:
+      - tag1
+      - tag2
+    adminStateUp: true
+    externalGateways:
+      - networkRef: router-external-network
+    projectRef: router-sample

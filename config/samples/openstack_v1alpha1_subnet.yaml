@@ -1,0 +1,35 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: subnet-sample
+    description: Sample IPv4 Subnet
+    tags:
+      - tag1
+      - tag2
+    ipVersion: 4
+    cidr: 192.168.1.0/24
+    allocationPools:
+      - start: 192.168.1.10
+        end: 192.168.1.15
+    gateway:
+      type: IP
+      ip: 192.168.1.2
+    enableDHCP: false
+    dnsNameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+    dnsPublishFixedIP: true
+    hostRoutes:
+      - destination: 192.168.3.0/24
+        nextHop: 192.168.4.1
+      - destination: 192.168.5.0/24
+        nextHop: 192.168.6.1
+    routerRef: subnet-sample
+    projectRef: subnet-sample

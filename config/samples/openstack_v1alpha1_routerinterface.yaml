@@ -1,0 +1,8 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-sample
+spec:
+  type: Subnet
+  routerRef: routerinterface-sample
+  subnetRef: routerinterface-sample
