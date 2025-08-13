@@ -13,7 +13,95 @@ resources:
     namespaced: true
   domain: k-orc.cloud
   group: openstack
+  kind: Flavor
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: FloatingIP
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
   kind: Image
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Network
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Port
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Project
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Router
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: RouterInterface
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: SecurityGroup
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Server
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: ServerGroup
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Subnet
   path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 version: "3"
