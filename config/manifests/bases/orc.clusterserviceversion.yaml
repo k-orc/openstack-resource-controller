@@ -24,7 +24,11 @@ spec:
       kind: Image
       name: images.openstack.k-orc.cloud
       version: v1alpha1
-  description: OpenStack Resource Controller
+  description: Openstack Resource Controller, or ORC, is a Kubernetes API for declarative
+    management of OpenStack resources. By fully controlling the order of OpenStack
+    operations, it allows consumers to easily create, manage, and reproduce complex
+    deployments. ORC aims to be easily consumed both directly by users, and by higher
+    level controllers.
   displayName: ORC operator
   icon:
   - base64data: ""
@@ -44,13 +48,15 @@ spec:
     type: AllNamespaces
   keywords:
   - OpenStack
-  - Kubernetes
-  - OpenShift
+  - Infrastructure
   links:
-  - name: Orc
-    url: https://orc.domain
-  maturity: beta
-  provider:
-    name: Red Hat Inc.
+  - name: Homepage
+    url: https://k-orc.cloud
+  - name: Source code
     url: https://github.com/k-orc/openstack-resource-controller
+  maturity: alpha
+  minKubeVersion: 1.29.0
+  provider:
+    name: The ORC Authors
+    url: https://k-orc.cloud
   version: 0.0.1
