@@ -5,6 +5,18 @@ IMAGE=${BASE_IMAGE:-openstack-resource-controller}
 TAG=${BASE_IMAGE:-$(git describe --abbrev=0)}
 IMG=${REGISTRY}/${IMAGE}:${TAG}
 
+# Update config/manifests/bases/orc.clusterserviceversion.yaml if needed
 operator-sdk generate kustomize manifests -q --plugins=go.kubebuilder.io/v4
-cd config/manager && kustomize edit set image controller=${IMG} && cd ../..
-kustomize build config/manifests | operator-sdk generate bundle --plugins=go.kubebuilder.io/v4 --use-image-digests
+
+# Create an overlay for customizing the controller image
+TMP_OVERLAY=config/manifests_overlay
+mkdir "${TMP_OVERLAY}"
+pushd "${TMP_OVERLAY}" || exit
+kustomize create --resources ../manifests
+kustomize edit set image controller="${IMG}"
+popd || exit
+
+# Generate bundle and bundle.Dockerfile
+kustomize build "${TMP_OVERLAY}" | operator-sdk generate bundle --plugins=go.kubebuilder.io/v4 --use-image-digests
+
+rm -rf "${TMP_OVERLAY}"

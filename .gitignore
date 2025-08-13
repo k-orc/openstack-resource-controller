@@ -42,4 +42,3 @@ __pycache__/
 
 /bundle/
 bundle.Dockerfile
-config/manager/kustomization.yaml
