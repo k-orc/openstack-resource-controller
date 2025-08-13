@@ -1,0 +1,17 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Sample Flavor
+    ram: 8
+    vcpus: 4
+    disk: 20
+    swap: 2
+    isPublic: false
+    ephemeral: 1

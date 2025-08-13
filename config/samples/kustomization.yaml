@@ -1,4 +1,15 @@
 ## Append samples of your project ##
 resources:
+- openstack_v1alpha1_flavor.yaml
+- openstack_v1alpha1_floatingip.yaml
 - openstack_v1alpha1_image.yaml
+- openstack_v1alpha1_network.yaml
+- openstack_v1alpha1_port.yaml
+- openstack_v1alpha1_project.yaml
+- openstack_v1alpha1_routerinterface.yaml
+- openstack_v1alpha1_router.yaml
+- openstack_v1alpha1_securitygroup.yaml
+- openstack_v1alpha1_servergroup.yaml
+- openstack_v1alpha1_server.yaml
+- openstack_v1alpha1_subnet.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

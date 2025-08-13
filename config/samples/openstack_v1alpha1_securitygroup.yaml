@@ -1,0 +1,25 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: securitygroup-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Sample Security Group
+    stateful: false
+    rules:
+    - direction: ingress
+      description: HTTP
+      ethertype: IPv4
+      protocol: tcp
+      portRange:
+        min: 80
+        max: 80
+      remoteIPPrefix: 1.2.3.4/32
+    tags:
+    - tag1
+    - tag2
+    projectRef: securitygroup-sample

@@ -3,3 +3,4 @@
 resources:
 - bases/orc.clusterserviceversion.yaml
 - ../default
+- ../samples
