@@ -1,0 +1,90 @@
+clouds:
+  devstack:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: demo
+      user_domain_id: default
+      username: demo
+    region_name: RegionOne
+  devstack-admin:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: admin
+      user_domain_id: default
+      username: admin
+    region_name: RegionOne
+  devstack-admin-demo:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: demo
+      user_domain_id: default
+      username: admin
+    region_name: RegionOne
+  devstack-alt:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: alt_demo
+      user_domain_id: default
+      username: alt_demo
+    region_name: RegionOne
+  devstack-alt-member:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: alt_demo
+      user_domain_id: default
+      username: alt_demo_member
+    region_name: RegionOne
+  devstack-alt-reader:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: alt_demo
+      user_domain_id: default
+      username: alt_demo_reader
+    region_name: RegionOne
+  devstack-reader:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      project_domain_id: default
+      project_name: demo
+      user_domain_id: default
+      username: demo_reader
+    region_name: RegionOne
+  devstack-system-admin:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      system_scope: all
+      user_domain_id: default
+      username: admin
+    region_name: RegionOne
+  devstack-system-member:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      system_scope: all
+      user_domain_id: default
+      username: system_member
+    region_name: RegionOne
+  devstack-system-reader:
+    auth:
+      auth_url: http://128.2.221.56/identity
+      password: desoul208
+      system_scope: all
+      user_domain_id: default
+      username: system_reader
+    region_name: RegionOne
+functional:
+  image_name: cirros-0.6.3-x86_64-disk
