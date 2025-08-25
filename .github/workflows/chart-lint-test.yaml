@@ -1,0 +1,102 @@
+name: Lint and test charts
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  prepare:
+    name: "Prepare requirements"
+    runs-on: ubuntu-latest
+    outputs:
+      charts: ${{ steps.list-changed.outputs.charts }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.3
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2
+
+      - name: List changed charts
+        id: list-changed
+        run: |
+          changed=$(ct --config ct.yaml list-changed)
+          json_charts="[]"
+          if [[ -n "$changed" ]]; then
+            json_charts="[\"$(echo $changed | sed 's/ /", "/g')\"]"
+          fi
+          echo "charts=${json_charts}" >> "$GITHUB_OUTPUT"
+
+  lint:
+    name: "Lint"
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        chart: ${{ fromJson(needs.prepare.outputs.charts) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.3
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2
+
+      - name: Run chart-testing (lint)
+        run: ct lint --config ct.yaml
+
+  # TODO later
+  #test:
+  #  name: "Test"
+  #  needs: prepare
+  #  runs-on: ubuntu-latest
+  #  strategy:
+  #    fail-fast: false
+  #    matrix:
+  #      os:
+  #        - ubuntu-latest
+  #      chart: ${{ fromJson(needs.prepare.outputs.charts) }}
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v4
+  #      with:
+  #        fetch-depth: 0
+
+  #    - name: Set up helm
+  #      uses: azure/setup-helm@v4
+  #      with:
+  #        version: v3.17.3
+
+  #    - name: Set up chart-testing
+  #      uses: helm/chart-testing-action@v2
+
+  #    - name: Create kind cluster
+  #      uses: helm/kind-action@v1.12.0
+
+  #    - name: Install CRDs
+  #      env:
+  #        CHART_NAME: ${{ matrix.chart }}
+  #      run: |
+  #        # Prometheus
+  #        helm repo add k-orc https://? --force-update
+  #        helm install orc-crds k-orc/orc-crds
+
+  #    - name: Run chart-testing (install)
+  #      run: ct install --config ct.yaml --helm-extra-args "--timeout 300s"
