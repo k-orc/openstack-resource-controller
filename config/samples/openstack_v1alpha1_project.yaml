@@ -1,14 +1,15 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Image
+kind: Project
 metadata:
-  name: image-sample
+  name: project-sample
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    content:
-      diskFormat: qcow2
-      download:
-        url: https://example.com/image.img
+    description: Sample Project
+    enabled: true
+    tags:
+      - tag1
+      - tag2

@@ -1,14 +1,13 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Image
+kind: ServerGroup
 metadata:
-  name: image-sample
+  name: servergroup-sample
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    content:
-      diskFormat: qcow2
-      download:
-        url: https://example.com/image.img
+    policy: anti-affinity
+    rules:
+      maxServerPerHost: 2

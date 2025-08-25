@@ -1,0 +1,21 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    adminStateUp: true
+    description: Sample Network
+    dnsDomain: "foo.com."
+    external: true
+    mtu: 1400
+    portSecurityEnabled: true
+    shared: true
+    tags:
+      - tag1
+      - tag2
+    projectRef: network-sample

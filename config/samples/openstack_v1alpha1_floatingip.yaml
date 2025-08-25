@@ -1,0 +1,18 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    floatingNetworkRef: floatingip-sample
+    portRef: floatingip-sample
+    description: Sample Floating IP
+    fixedIP: 10.0.0.10
+    floatingIP: 192.168.155.5
+    tags:
+      - tag1
+    projectRef: floatingip-sample
