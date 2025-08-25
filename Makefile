@@ -1,5 +1,6 @@
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
+BUNDLE_IMG ?= bundle:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
 TRIVY_VERSION = 0.49.1
@@ -207,6 +208,11 @@ build-installer: manifests generate kustomize ## Generate a consolidated YAML wi
 	$(MAKE) custom-deploy IMG=${IMG}
 	$(KUSTOMIZE) build $(CUSTOMDEPLOY) > dist/install.yaml
 
+.PHONY: build-bundle-image
+build-bundle-image: kustomize operator-sdk
+	bash hack/bundle.sh
+	$(CONTAINER_TOOL) build -f bundle.Dockerfile -t ${BUNDLE_IMG} .
+
 ##@ Deployment
 
 ifndef ignore-not-found
@@ -299,6 +305,7 @@ GOLANGCI_KAL = $(LOCALBIN)/golangci-kube-api-linter
 MOCKGEN = $(LOCALBIN)/mockgen
 KUTTL = $(LOCALBIN)/kubectl-kuttl
 GOVULNCHECK = $(LOCALBIN)/govulncheck
+OPERATOR_SDK = $(LOCALBIN)/operator-sdk
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.6.0
@@ -309,6 +316,7 @@ KAL_VERSION ?= v0.0.0-20250531094218-f86bf7bd4b19
 MOCKGEN_VERSION ?= v0.5.0
 KUTTL_VERSION ?= v0.22.0
 GOVULNCHECK_VERSION ?= v1.1.4
+OPERATOR_SDK_VERSION ?= v1.41.1
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
@@ -362,6 +370,11 @@ $(KUTTL): $(LOCALBIN)
 govulncheck: $(GOVULNCHECK) ## Download govulncheck locally if necessary.
 $(GOVULNCHECK): $(LOCALBIN)
 	$(call go-install-tool,$(GOVULNCHECK),golang.org/x/vuln/cmd/govulncheck,$(GOVULNCHECK_VERSION))
+
+.PHONY: operator-sdk
+operator-sdk: $(OPERATOR_SDK) ## Download operator-sdk locally if necessary.
+$(OPERATOR_SDK): $(LOCALBIN)
+	$(call go-install-tool,$(OPERATOR_SDK),github.com/operator-framework/operator-sdk/cmd/operator-sdk,$(OPERATOR_SDK_VERSION))
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary
