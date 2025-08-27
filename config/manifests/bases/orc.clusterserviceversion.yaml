@@ -79,6 +79,11 @@ spec:
       kind: Subnet
       name: subnets.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Volume is the Schema for an ORC resource.
+      displayName: Volume
+      kind: Volume
+      name: volumes.openstack.k-orc.cloud
+      version: v1alpha1
   description: Openstack Resource Controller, or ORC, is a Kubernetes API for declarative
     management of OpenStack resources. By fully controlling the order of OpenStack
     operations, it allows consumers to easily create, manage, and reproduce complex
