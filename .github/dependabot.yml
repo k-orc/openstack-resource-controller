@@ -38,6 +38,8 @@ updates:
   # Ignore k8s major and minor bumps and its transitives modules
   - dependency-name: "k8s.io/*"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  # Bump from 1.38.0 to 1.38.1 requires go 1.24
+  - dependency-name: "github.com/onsi/gomega"
 ## main branch config ends here
 ## release-1.0 branch config starts here
 # github-actions
@@ -75,4 +77,6 @@ updates:
   # Ignore k8s major and minor bumps and its transitives modules
   - dependency-name: "k8s.io/*"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  # Bump from 1.38.0 to 1.38.1 requires go 1.24
+  - dependency-name: "github.com/onsi/gomega"
 ## release-1.0 branch config ends here
