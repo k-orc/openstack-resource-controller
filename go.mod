@@ -8,9 +8,9 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/gophercloud/gophercloud/v2 v2.3.0
 	github.com/gophercloud/utils/v2 v2.0.0-20241209100706-e3a3b7c07d26
-	github.com/onsi/ginkgo/v2 v2.24.0
+	github.com/onsi/ginkgo/v2 v2.25.1
 	github.com/onsi/gomega v1.38.0
-	github.com/ulikunitz/xz v0.5.12
+	github.com/ulikunitz/xz v0.5.13
 	go.uber.org/mock v0.6.0
 	k8s.io/api v0.31.12
 	k8s.io/apimachinery v0.31.12
