@@ -13,4 +13,5 @@ testDirs:
 - ./internal/controllers/server/tests/
 - ./internal/controllers/servergroup/tests/
 - ./internal/controllers/subnet/tests/
+- ./internal/controllers/volume/tests/
 timeout: 120
