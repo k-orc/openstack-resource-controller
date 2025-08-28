@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright 2025 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -74,6 +74,10 @@ func (c *FakeOpenstackV1alpha1) ServerGroups(namespace string) v1alpha1.ServerGr
 
 func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterface {
 	return newFakeSubnets(c, namespace)
+}
+
+func (c *FakeOpenstackV1alpha1) Volumes(namespace string) v1alpha1.VolumeInterface {
+	return newFakeVolumes(c, namespace)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
