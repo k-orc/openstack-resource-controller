@@ -219,9 +219,6 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
-                    x-kubernetes-validations:
-                    - message: Property is immutable
-                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -230,9 +227,6 @@ spec:
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
-                    x-kubernetes-validations:
-                    - message: Property is immutable
-                      rule: self == oldSelf
                   projectRef:
                     description: |-
                       projectRef is a reference to the ORC Project this resource is associated with.
@@ -241,7 +235,7 @@ spec:
                     minLength: 1
                     type: string
                     x-kubernetes-validations:
-                    - message: Property is immutable
+                    - message: projectRef is immutable
                       rule: self == oldSelf
                   rules:
                     description: rules is a list of security group rules belonging
@@ -364,7 +358,7 @@ spec:
                       or stateless.
                     type: boolean
                     x-kubernetes-validations:
-                    - message: Property is immutable
+                    - message: stateful is immutable
                       rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
@@ -379,9 +373,6 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
-                    x-kubernetes-validations:
-                    - message: Property is immutable
-                      rule: self == oldSelf
                 type: object
             required:
             - cloudCredentialsRef

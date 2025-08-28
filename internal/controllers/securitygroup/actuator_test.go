@@ -30,6 +30,39 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func TestNeedsUpdate(t *testing.T) {
+	testCases := []struct {
+		name         string
+		updateOpts   groups.UpdateOpts
+		expectChange bool
+	}{
+		{
+			name:         "Empty base opts",
+			updateOpts:   groups.UpdateOpts{},
+			expectChange: false,
+		},
+		{
+			name:         "Empty base opts with revision number",
+			updateOpts:   groups.UpdateOpts{RevisionNumber: ptr.To(4)},
+			expectChange: false,
+		},
+		{
+			name:         "Updated opts",
+			updateOpts:   groups.UpdateOpts{Name: "updated"},
+			expectChange: true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := needsUpdate(tt.updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
 func Test_securityGroupActuator_updateRules(t *testing.T) {
 	const (
 		groupID = "939da9ca-27c2-4fa6-881f-17f9038f8107"
@@ -422,5 +455,71 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 				t.Errorf("securityGroupActuator.updateRules() needsReschedule = %v, want %v", needsReschedule, tt.wantReschedule)
 			}
 		})
+	}
+}
+
+func TestHandleNameUpdate(t *testing.T) {
+	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+	testCases := []struct {
+		name          string
+		newValue      *orcv1alpha1.OpenStackName
+		existingValue string
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
+		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
+		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
+		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.SecurityGroup{}
+			resource.Name = "object-name"
+			resource.Spec = orcv1alpha1.SecurityGroupSpec{
+				Resource: &orcv1alpha1.SecurityGroupResourceSpec{Name: tt.newValue},
+			}
+			osResource := &groups.SecGroup{Name: tt.existingValue}
+
+			updateOpts := groups.UpdateOpts{}
+			handleNameUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+
+	}
+}
+
+func TestHandleDescriptionUpdate(t *testing.T) {
+	ptrToDescription := ptr.To[orcv1alpha1.NeutronDescription]
+	testCases := []struct {
+		name          string
+		newValue      *orcv1alpha1.NeutronDescription
+		existingValue string
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
+		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
+		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.SecurityGroupResourceSpec{Description: tt.newValue}
+			osResource := &groups.SecGroup{Description: tt.existingValue}
+
+			updateOpts := groups.UpdateOpts{}
+			handleDescriptionUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+
 	}
 }
