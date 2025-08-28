@@ -2,10 +2,11 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Volume
 metadata:
-  name: volume-create-minimal
+  name: volume-create-full
 status:
   resource:
-    name: volume-create-minimal
+    name: volume-create-full-override
+    description: Volume from "create full" test
     size: 1
     status: available
     bootable: false
@@ -24,7 +25,7 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Volume
-      name: volume-create-minimal
+      name: volume-create-full
       ref: volume
 assertAll:
     - celExpr: "volume.status.id != ''"
