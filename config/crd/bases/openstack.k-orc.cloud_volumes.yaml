@@ -174,12 +174,12 @@ spec:
                     format: int32
                     minimum: 1
                     type: integer
+                    x-kubernetes-validations:
+                    - message: size is immutable
+                      rule: self == oldSelf
                 required:
                 - size
                 type: object
-                x-kubernetes-validations:
-                - message: VolumeResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

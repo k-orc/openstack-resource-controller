@@ -32,6 +32,7 @@ type VolumeClient interface {
 	CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error)
 	DeleteVolume(ctx context.Context, volumeID string, opts volumes.DeleteOptsBuilder) error
 	GetVolume(ctx context.Context, volumeID string) (*volumes.Volume, error)
+	UpdateVolume(ctx context.Context, id string, opts volumes.UpdateOptsBuilder) (*volumes.Volume, error)
 }
 
 type volumeClient struct{ client *gophercloud.ServiceClient }
@@ -68,6 +69,10 @@ func (c volumeClient) GetVolume(ctx context.Context, volumeID string) (*volumes.
 	return volumes.Get(ctx, c.client, volumeID).Extract()
 }
 
+func (c volumeClient) UpdateVolume(ctx context.Context, id string, opts volumes.UpdateOptsBuilder) (*volumes.Volume, error) {
+	return volumes.Update(ctx, c.client, id, opts).Extract()
+}
+
 type volumeErrorClient struct{ error }
 
 // NewVolumeErrorClient returns a VolumeClient in which every method returns the given error.
@@ -90,5 +95,9 @@ func (e volumeErrorClient) DeleteVolume(_ context.Context, _ string, _ volumes.D
 }
 
 func (e volumeErrorClient) GetVolume(_ context.Context, _ string) (*volumes.Volume, error) {
+	return nil, e.error
+}
+
+func (e volumeErrorClient) UpdateVolume(_ context.Context, _ string, _ volumes.UpdateOptsBuilder) (*volumes.Volume, error) {
 	return nil, e.error
 }

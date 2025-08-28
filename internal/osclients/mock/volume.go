@@ -114,3 +114,18 @@ func (mr *MockVolumeClientMockRecorder) ListVolumes(ctx, listOpts any) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListVolumes", reflect.TypeOf((*MockVolumeClient)(nil).ListVolumes), ctx, listOpts)
 }
+
+// UpdateVolume mocks base method.
+func (m *MockVolumeClient) UpdateVolume(ctx context.Context, id string, opts volumes.UpdateOptsBuilder) (*volumes.Volume, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateVolume", ctx, id, opts)
+	ret0, _ := ret[0].(*volumes.Volume)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateVolume indicates an expected call of UpdateVolume.
+func (mr *MockVolumeClientMockRecorder) UpdateVolume(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateVolume", reflect.TypeOf((*MockVolumeClient)(nil).UpdateVolume), ctx, id, opts)
+}

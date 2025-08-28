@@ -19,7 +19,6 @@ package v1alpha1
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // VolumeResourceSpec contains the desired state of a volume
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="VolumeResourceSpec is immutable"
 type VolumeResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -35,6 +34,7 @@ type VolumeResourceSpec struct {
 	// size is the size of the volume, in gibibytes (GiB).
 	// +kubebuilder:validation:Minimum=1
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="size is immutable"
 	Size int32 `json:"size"`
 }
 
