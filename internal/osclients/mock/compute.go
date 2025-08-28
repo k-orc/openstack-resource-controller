@@ -232,3 +232,18 @@ func (mr *MockComputeClientMockRecorder) ListServers(ctx, listOpts any) *gomock.
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServers", reflect.TypeOf((*MockComputeClient)(nil).ListServers), ctx, listOpts)
 }
+
+// UpdateServer mocks base method.
+func (m *MockComputeClient) UpdateServer(ctx context.Context, id string, opts servers.UpdateOptsBuilder) (*servers.Server, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateServer", ctx, id, opts)
+	ret0, _ := ret[0].(*servers.Server)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateServer indicates an expected call of UpdateServer.
+func (mr *MockComputeClientMockRecorder) UpdateServer(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateServer", reflect.TypeOf((*MockComputeClient)(nil).UpdateServer), ctx, id, opts)
+}
