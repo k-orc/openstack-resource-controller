@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-update
+spec:
+  resource:
+    name: project-update-updated
+    description: project-update-updated
+    enabled: false
+    tags:
+      - tag1
+      - tag2
