@@ -22,6 +22,8 @@ encounter bugs, unfinished features, or breaking changes. We encourage you to
 contribute, file issues, and help improve the project as we continue to work on
 it!
 
+ORC versioning follows [semver](https://semver.org/spec/v2.0.0.html): there will be no breaking changes within a major release.
+
 ## How You Can Contribute
 
 We welcome contributions of all kinds! Whether you’re fixing bugs, adding new features, or improving documentation, your help is greatly appreciated. To get started:
