@@ -24,6 +24,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
+	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -33,6 +34,12 @@ type VolumeClient interface {
 	DeleteVolume(ctx context.Context, volumeID string, opts volumes.DeleteOptsBuilder) error
 	GetVolume(ctx context.Context, volumeID string) (*volumes.Volume, error)
 	UpdateVolume(ctx context.Context, id string, opts volumes.UpdateOptsBuilder) (*volumes.Volume, error)
+
+	ListVolumeTypes(ctx context.Context, listOpts volumetypes.ListOptsBuilder) iter.Seq2[*volumetypes.VolumeType, error]
+	CreateVolumeType(ctx context.Context, opts volumetypes.CreateOptsBuilder) (*volumetypes.VolumeType, error)
+	DeleteVolumeType(ctx context.Context, volumeTypeID string) error
+	GetVolumeType(ctx context.Context, volumeTypeID string) (*volumetypes.VolumeType, error)
+	UpdateVolumeType(ctx context.Context, id string, opts volumetypes.UpdateOptsBuilder) (*volumetypes.VolumeType, error)
 }
 
 type volumeClient struct{ client *gophercloud.ServiceClient }
@@ -73,6 +80,29 @@ func (c volumeClient) UpdateVolume(ctx context.Context, id string, opts volumes.
 	return volumes.Update(ctx, c.client, id, opts).Extract()
 }
 
+func (c volumeClient) ListVolumeTypes(ctx context.Context, listOpts volumetypes.ListOptsBuilder) iter.Seq2[*volumetypes.VolumeType, error] {
+	pager := volumetypes.List(c.client, listOpts)
+	return func(yield func(*volumetypes.VolumeType, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(volumetypes.ExtractVolumeTypes, yield))
+	}
+}
+
+func (c volumeClient) CreateVolumeType(ctx context.Context, opts volumetypes.CreateOptsBuilder) (*volumetypes.VolumeType, error) {
+	return volumetypes.Create(ctx, c.client, opts).Extract()
+}
+
+func (c volumeClient) DeleteVolumeType(ctx context.Context, volumeTypeID string) error {
+	return volumetypes.Delete(ctx, c.client, volumeTypeID).ExtractErr()
+}
+
+func (c volumeClient) GetVolumeType(ctx context.Context, volumeTypeID string) (*volumetypes.VolumeType, error) {
+	return volumetypes.Get(ctx, c.client, volumeTypeID).Extract()
+}
+
+func (c volumeClient) UpdateVolumeType(ctx context.Context, id string, opts volumetypes.UpdateOptsBuilder) (*volumetypes.VolumeType, error) {
+	return volumetypes.Update(ctx, c.client, id, opts).Extract()
+}
+
 type volumeErrorClient struct{ error }
 
 // NewVolumeErrorClient returns a VolumeClient in which every method returns the given error.
@@ -99,5 +129,27 @@ func (e volumeErrorClient) GetVolume(_ context.Context, _ string) (*volumes.Volu
 }
 
 func (e volumeErrorClient) UpdateVolume(_ context.Context, _ string, _ volumes.UpdateOptsBuilder) (*volumes.Volume, error) {
+	return nil, e.error
+}
+
+func (e volumeErrorClient) ListVolumeTypes(_ context.Context, _ volumetypes.ListOptsBuilder) iter.Seq2[*volumetypes.VolumeType, error] {
+	return func(yield func(*volumetypes.VolumeType, error) bool) {
+		yield(nil, e.error)
+	}
+}
+
+func (e volumeErrorClient) CreateVolumeType(_ context.Context, _ volumetypes.CreateOptsBuilder) (*volumetypes.VolumeType, error) {
+	return nil, e.error
+}
+
+func (e volumeErrorClient) DeleteVolumeType(_ context.Context, _ string) error {
+	return e.error
+}
+
+func (e volumeErrorClient) GetVolumeType(_ context.Context, _ string) (*volumetypes.VolumeType, error) {
+	return nil, e.error
+}
+
+func (e volumeErrorClient) UpdateVolumeType(_ context.Context, _ string, _ volumetypes.UpdateOptsBuilder) (*volumetypes.VolumeType, error) {
 	return nil, e.error
 }
