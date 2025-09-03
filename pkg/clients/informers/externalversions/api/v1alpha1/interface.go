@@ -50,6 +50,8 @@ type Interface interface {
 	Subnets() SubnetInformer
 	// Volumes returns a VolumeInformer.
 	Volumes() VolumeInformer
+	// VolumeTypes returns a VolumeTypeInformer.
+	VolumeTypes() VolumeTypeInformer
 }
 
 type version struct {
@@ -126,4 +128,9 @@ func (v *version) Subnets() SubnetInformer {
 // Volumes returns a VolumeInformer.
 func (v *version) Volumes() VolumeInformer {
 	return &volumeInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// VolumeTypes returns a VolumeTypeInformer.
+func (v *version) VolumeTypes() VolumeTypeInformer {
+	return &volumeTypeInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

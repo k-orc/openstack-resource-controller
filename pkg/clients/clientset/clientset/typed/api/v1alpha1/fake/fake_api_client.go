@@ -80,6 +80,10 @@ func (c *FakeOpenstackV1alpha1) Volumes(namespace string) v1alpha1.VolumeInterfa
 	return newFakeVolumes(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) VolumeTypes(namespace string) v1alpha1.VolumeTypeInterface {
+	return newFakeVolumeTypes(c, namespace)
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeOpenstackV1alpha1) RESTClient() rest.Interface {

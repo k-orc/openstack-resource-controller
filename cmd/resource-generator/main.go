@@ -110,6 +110,9 @@ var allResources []templateFields = []templateFields{
 	{
 		Name: "Volume",
 	},
+	{
+		Name: "VolumeType",
+	},
 }
 
 func main() {
