@@ -7,9 +7,9 @@ require (
 	github.com/go-logr/logr v1.4.3
 	github.com/gophercloud/gophercloud/v2 v2.8.0
 	github.com/gophercloud/utils/v2 v2.0.0-20241220104409-2e0af06694a1
-	github.com/onsi/ginkgo/v2 v2.25.1
-	github.com/onsi/gomega v1.38.0
-	github.com/ulikunitz/xz v0.5.14
+	github.com/onsi/ginkgo/v2 v2.25.2
+	github.com/onsi/gomega v1.38.2
+	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
 	k8s.io/api v0.32.8
 	k8s.io/apimachinery v0.32.8
@@ -25,7 +25,7 @@ require (
 
 require (
 	cel.dev/expr v0.18.0 // indirect
-	github.com/Masterminds/semver/v3 v3.3.1 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -83,6 +83,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
@@ -98,7 +99,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240826202546-f6391c0de4c7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240826202546-f6391c0de4c7 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
+	google.golang.org/protobuf v1.36.7 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
