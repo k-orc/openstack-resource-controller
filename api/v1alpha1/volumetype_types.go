@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 // VolumeTypeResourceSpec contains the desired state of the resource.
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="VolumeTypeResourceSpec is immutable"
 type VolumeTypeResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -32,6 +31,7 @@ type VolumeTypeResourceSpec struct {
 
 	// extraSpecs is a map of key-value pairs that define extra specifications for the volume type.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="extraSpecs is immutable"
 	ExtraSpecs map[string]string `json:"extraSpecs,omitempty"`
 
 	// isPublic indicates whether the volume type is public.

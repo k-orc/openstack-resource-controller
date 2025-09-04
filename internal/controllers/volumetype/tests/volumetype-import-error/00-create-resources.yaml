@@ -1,0 +1,26 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Volume type from "import error" test
+    isPublic: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Volume type from "import error" test
+    isPublic: true

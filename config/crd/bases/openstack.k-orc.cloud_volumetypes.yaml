@@ -165,6 +165,9 @@ spec:
                     description: extraSpecs is a map of key-value pairs that define
                       extra specifications for the volume type.
                     type: object
+                    x-kubernetes-validations:
+                    - message: extraSpecs is immutable
+                      rule: self == oldSelf
                   isPublic:
                     description: isPublic indicates whether the volume type is public.
                     type: boolean
@@ -177,9 +180,6 @@ spec:
                     pattern: ^[^,]+$
                     type: string
                 type: object
-                x-kubernetes-validations:
-                - message: VolumeTypeResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

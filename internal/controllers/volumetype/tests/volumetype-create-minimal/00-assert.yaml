@@ -1,0 +1,26 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-create-minimal
+status:
+  resource:
+    name: volumetype-create-minimal
+    isPublic: true
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: VolumeType
+      name: volumetype-create-minimal
+      ref: volumetype
+assertAll:
+    - celExpr: "volumetype.status.id != ''"

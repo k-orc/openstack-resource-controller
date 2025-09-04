@@ -30,6 +30,7 @@ rules:
   - servers
   - subnets
   - volumes
+  - volumetypes
   verbs:
   - create
   - delete
@@ -54,6 +55,7 @@ rules:
   - servers/status
   - subnets/status
   - volumes/status
+  - volumetypes/status
   verbs:
   - get
   - patch
