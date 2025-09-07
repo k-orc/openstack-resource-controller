@@ -1,0 +1,37 @@
+{{ $packageName := .PackageName -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-create-minimal
+status:
+  resource:
+    name: {{ .PackageName }}-create-minimal
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: {{ .Kind }}
+      name: {{ .PackageName }}-create-minimal
+      ref: {{ .PackageName }}
+{{- range .RequiredCreateDependencies }}
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: {{ . }}
+      name: {{ $packageName }}-create-minimal
+      ref: {{ . | camelCase }}
+{{- end }}
+assertAll:
+    - celExpr: "{{ .PackageName }}.status.id != ''"
+{{- range .RequiredCreateDependencies }}
+    - celExpr: "{{ $packageName }}.status.resource.{{ . | camelCase }}ID == {{ . | camelCase }}.status.id"
+{{- end }}
+    # TODO(scaffolding): Add more checks

@@ -1,0 +1,51 @@
+{{ $kind := .Kind -}}
+{{ $packageName := .PackageName -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/{{ .PackageName }}-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/{{ .PackageName }}-dependency to be created
+      status: "True"
+      reason: Progressing
+{{- range .RequiredCreateDependencies }}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ $kind }}
+metadata:
+  name: {{ $packageName }}-dependency-no-{{ . | lower }}
+status:
+  conditions:
+    - type: Available
+      message: Waiting for {{ . }}/{{ $packageName }}-dependency-pending to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for {{ . }}/{{ $packageName }}-dependency-pending to be created
+      status: "True"
+      reason: Progressing
+{{- end }}
+{{- range .OptionalCreateDependencies }}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ $kind }}
+metadata:
+  name: {{ $packageName }}-dependency-no-{{ . | lower }}
+status:
+  conditions:
+    - type: Available
+      message: Waiting for {{ . }}/{{ $packageName }}-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for {{ . }}/{{ $packageName }}-dependency to be created
+      status: "True"
+      reason: Progressing
+{{- end }}

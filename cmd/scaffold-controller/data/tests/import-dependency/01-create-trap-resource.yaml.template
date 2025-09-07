@@ -1,0 +1,51 @@
+{{ $packageName := .PackageName -}}
+{{ range .ImportDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
+{{ range .RequiredCreateDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
+---
+# This `{{ $packageName }}-import-dependency-not-this-one` should not be picked by the import filter
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ $packageName }}-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+{{- range .RequiredCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-import-dependency-not-this-one
+{{- end }}
+{{- range .ImportDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-import-dependency-not-this-one
+{{- end }}
+    # TODO(scaffolding): Add the necessary fields to create the resource

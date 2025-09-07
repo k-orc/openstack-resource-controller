@@ -1,0 +1,34 @@
+{{ $packageName := .PackageName -}}
+{{ range .AllCreateDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-create-full
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-create-full
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: {{ .PackageName }}-create-full-override
+    description: {{ .Kind }} from "create full" test
+{{- range .AllCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-create-full
+{{- end }}
+    # TODO(scaffolding): Add all fields the resource supports

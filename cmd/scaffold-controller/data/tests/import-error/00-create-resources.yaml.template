@@ -1,0 +1,50 @@
+{{ $packageName := .PackageName -}}
+{{ range .RequiredCreateDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-import-error
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: {{ .Kind }} from "import error" test
+{{- range .RequiredCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-import-error
+{{- end }}
+    # TODO(scaffolding): add any required field
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: {{ .Kind }} from "import error" test
+{{- range .RequiredCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-import-error
+{{- end }}
+    # TODO(scaffolding): add any required field

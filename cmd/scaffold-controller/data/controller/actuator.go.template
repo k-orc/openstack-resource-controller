@@ -1,0 +1,335 @@
+/*
+Copyright {{ .Year }} The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package {{ .PackageName }}
+
+import (
+	"context"
+	"iter"
+{{- if or (ne .AvailablePollingPeriod 0) (ne .DeletingPollingPeriod 0) }}
+	"time"
+{{- end }}
+
+	"{{ .GophercloudModule }}"
+	corev1 "k8s.io/api/core/v1"
+{{- if len .ImportDependencies }}
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+{{- end }}
+	"k8s.io/utils/ptr"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+)
+
+// OpenStack resource types
+type (
+	osResourceT = {{ .GophercloudPackage }}.{{ .GophercloudType }}
+
+	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+)
+
+
+{{- if ne .AvailablePollingPeriod 0}}
+// The frequency to poll when waiting for the resource to become available
+const {{ .PackageName }}AvailablePollingPeriod = {{ .AvailablePollingPeriod }} * time.Second
+{{- end }}
+{{- if ne .DeletingPollingPeriod 0}}
+// The frequency to poll when waiting for the resource to be deleted
+const {{ .PackageName }}DeletingPollingPeriod = {{ .DeletingPollingPeriod }} * time.Second
+{{- end }}
+
+type {{ .PackageName }}Actuator struct {
+	osClient  osclients.{{ .Kind }}Client
+	k8sClient client.Client
+}
+
+var _ createResourceActuator = {{ .PackageName }}Actuator{}
+var _ deleteResourceActuator = {{ .PackageName }}Actuator{}
+
+func ({{ .PackageName }}Actuator) GetResourceID(osResource *osResourceT) string {
+	return osResource.ID
+}
+
+func (actuator {{ .PackageName }}Actuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
+	resource, err := actuator.osClient.Get{{ .Kind }}(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return resource, nil
+}
+
+func (actuator {{ .PackageName }}Actuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
+	resourceSpec := orcObject.Spec.Resource
+	if resourceSpec == nil {
+		return nil, false
+	}
+
+	// TODO(scaffolding) If you need to filter resources on fields that the List() function
+	// of gophercloud does not support, it's possible to perform client-side filtering.
+	// Check osclients.ResourceFilter
+
+	listOpts := {{ .GophercloudPackage }}.ListOpts{
+		Name:        getResourceName(orcObject),
+		Description: ptr.Deref(resourceSpec.Description, ""),
+	}
+
+	return actuator.osClient.List{{ .Kind }}s(ctx, listOpts), true
+}
+
+func (actuator {{ .PackageName }}Actuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+	// TODO(scaffolding) If you need to filter resources on fields that the List() function
+	// of gophercloud does not support, it's possible to perform client-side filtering.
+	// Check osclients.ResourceFilter
+{{- if len .ImportDependencies }}
+	var reconcileStatus progress.ReconcileStatus
+{{- range .ImportDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	{{ $depNameCamelCase }} := &orcv1alpha1.{{ . }}{}
+	if filter.{{ . }}Ref != nil {
+		{{ $depNameCamelCase }}Key := client.ObjectKey{Name: string(*filter.{{ . }}Ref), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, {{ $depNameCamelCase }}Key, {{ $depNameCamelCase }}); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("{{ . }}", {{ $depNameCamelCase }}Key.Name, progress.WaitingOnCreation))
+			} else {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching {{ $depNameCamelCase }} %s: %w", {{ $depNameCamelCase }}Key.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable({{ $depNameCamelCase }}) || {{ $depNameCamelCase }}.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("{{ . }}", {{ $depNameCamelCase }}Key.Name, progress.WaitingOnReady))
+			}
+		}
+	}
+{{- end }}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+{{- end }}
+
+	listOpts := {{ .GophercloudPackage }}.ListOpts{
+		Name:        string(ptr.Deref(filter.Name, "")),
+		Description: string(ptr.Deref(filter.Description, "")),
+{{- range .ImportDependencies }}
+		{{ . }}:  ptr.Deref({{ . | camelCase }}.Status.ID, ""),
+{{- end }}
+		// TODO(scaffolding): Add more import filters
+	}
+
+	return actuator.osClient.List{{ .Kind }}s(ctx, listOpts), nil
+}
+
+func (actuator {{ .PackageName }}Actuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
+	resource := obj.Spec.Resource
+
+	if resource == nil {
+		// Should have been caught by API validation
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
+	}
+
+{{- if len .AllCreateDependencies }}
+	var reconcileStatus progress.ReconcileStatus
+{{- range .RequiredCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	var {{ $depNameCamelCase }}ID string
+        {{ $depNameCamelCase }}, {{ $depNameCamelCase }}DepRS := {{ $depNameCamelCase }}Dependency.GetDependency(
+                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.{{ . }}) bool {
+                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+                },
+        )
+        reconcileStatus = reconcileStatus.WithReconcileStatus({{ $depNameCamelCase }}DepRS)
+        if {{ $depNameCamelCase }} != nil {
+                {{ $depNameCamelCase }}ID = ptr.Deref({{ $depNameCamelCase }}.Status.ID, "")
+        }
+
+{{- end }}
+{{- range .OptionalCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	var {{ $depNameCamelCase }}ID string
+	if resource.{{ . }}Ref != nil {
+		{{ $depNameCamelCase }}, {{ $depNameCamelCase }}DepRS := {{ $depNameCamelCase }}Dependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.{{ . }}) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus({{ $depNameCamelCase }}DepRS)
+		if {{ $depNameCamelCase }} != nil {
+			{{ $depNameCamelCase }}ID = ptr.Deref({{ $depNameCamelCase }}.Status.ID, "")
+		}
+	}
+
+{{- end }}
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
+{{- end }}
+	createOpts := {{ .GophercloudPackage }}.CreateOpts{
+		Name:        getResourceName(obj),
+		Description: ptr.Deref(resource.Description, ""),
+{{- range .AllCreateDependencies }}
+		{{ . }}ID:  {{ . | camelCase }}ID,
+{{- end }}
+		// TODO(scaffolding): Add more fields
+	}
+
+	osResource, err := actuator.osClient.Create{{ .Kind }}(ctx, createOpts)
+	if err != nil {
+		// We should require the spec to be updated before retrying a create which returned a conflict
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+		}
+		return nil, progress.WrapError(err)
+	}
+
+	return osResource, nil
+}
+
+func (actuator {{ .PackageName }}Actuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
+{{- if ne .DeletingPollingPeriod 0}}
+	if resource.Status == {{ .GophercloudType }}StatusDeleting {
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, {{ .PackageName }}DeletingPollingPeriod)
+	}
+
+{{- end }}
+	return progress.WrapError(actuator.osClient.Delete{{ .Kind }}(ctx, resource.ID))
+}
+
+func (actuator {{ .PackageName }}Actuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := {{ .GophercloudPackage }}.UpdateOpts{}
+
+	handleNameUpdate(&updateOpts, obj, osResource)
+	handleDescriptionUpdate(&updateOpts, resource, osResource)
+
+	// TODO(scaffolding): add handler for all fields supporting mutability
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err = actuator.osClient.Update{{ .Kind }}(ctx, osResource.ID, updateOpts)
+
+	// We should require the spec to be updated before retrying an update which returned a conflict
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts {{ .GophercloudPackage }}.UpdateOpts) (bool, error) {
+	updateOptsMap, err := updateOpts.To{{ .GophercloudType }}UpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	updateMap, ok := updateOptsMap["{{ .OpenStackJSONObject }}"].(map[string]any)
+	if !ok {
+		updateMap = make(map[string]any)
+	}
+
+	return len(updateMap) > 0, nil
+}
+
+func handleNameUpdate(updateOpts *{{ .GophercloudPackage }}.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = &name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *{{ .GophercloudPackage }}.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := ptr.Deref(resource.Description, "")
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func (actuator {{ .PackageName }}Actuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+	return []resourceReconciler{
+		actuator.updateResource,
+	}, nil
+}
+
+type {{ .PackageName }}HelperFactory struct{}
+
+var _ helperFactory = {{ .PackageName }}HelperFactory{}
+
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.{{ .Kind }}, controller interfaces.ResourceController) ({{ .PackageName }}Actuator, progress.ReconcileStatus) {
+	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return {{ .PackageName }}Actuator{}, reconcileStatus
+	}
+
+	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
+	if err != nil {
+		return {{ .PackageName }}Actuator{}, progress.WrapError(err)
+	}
+	osClient, err := clientScope.New{{ .Kind }}Client()
+	if err != nil {
+		return {{ .PackageName }}Actuator{}, progress.WrapError(err)
+	}
+
+	return {{ .PackageName }}Actuator{
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
+	}, nil
+}
+
+func ({{ .PackageName }}HelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
+	return {{ .PackageName }}Adapter{obj}
+}
+
+func ({{ .PackageName }}HelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
+}
+
+func ({{ .PackageName }}HelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
+}
