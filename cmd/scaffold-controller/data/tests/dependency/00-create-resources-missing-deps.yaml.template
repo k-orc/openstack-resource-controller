@@ -1,0 +1,80 @@
+{{ $kind := .Kind -}}
+{{ $packageName := .PackageName -}}
+{{ $requiredCreateDependencies := .RequiredCreateDependencies -}}
+{{ range .RequiredCreateDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-dependency
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
+{{ range .RequiredCreateDependencies -}}
+{{ $currentDep := . -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ $kind }}
+metadata:
+  name: {{ $packageName }}-dependency-no-{{ . | lower }}
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+{{- range $requiredCreateDependencies }}
+{{- if eq . $currentDep }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-dependency-pending
+{{- else }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-dependency
+{{- end }}
+    # TODO(scaffolding): Add the necessary fields to create the resource
+{{- end }}
+{{- end }}
+{{- range .OptionalCreateDependencies }}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ $kind }}
+metadata:
+  name: {{ $packageName }}-dependency-no-{{ . | lower }}
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+{{- range $requiredCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-dependency
+{{- end }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-dependency
+    # TODO(scaffolding): Add the necessary fields to create the resource
+{{- end }}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: {{ .PackageName }}-dependency
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+{{- if len .RequiredCreateDependencies }}
+  resource:
+{{- range .RequiredCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-dependency
+{{- end }}
+{{- else }}
+  resource: {}
+{{- end }}
