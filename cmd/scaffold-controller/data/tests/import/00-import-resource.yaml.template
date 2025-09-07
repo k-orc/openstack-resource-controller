@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: {{ .PackageName }}-import-external
+      description: {{ .Kind }} {{ .PackageName }}-import-external from "{{ .PackageName }}-import" test
+      # TODO(scaffolding): Add all fields supported by the filter
