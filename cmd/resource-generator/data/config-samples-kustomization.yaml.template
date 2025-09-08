@@ -1,0 +1,6 @@
+## Append samples of your project ##
+resources:
+{{- range . }}
+- openstack_{{ .APIVersion }}_{{ .NameLower }}.yaml
+{{- end}}
+# +kubebuilder:scaffold:manifestskustomizesamples
