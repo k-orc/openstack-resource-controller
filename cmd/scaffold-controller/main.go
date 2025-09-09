@@ -19,18 +19,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-// TODO:
-// - generate bundle manifest with make (it requires installing openshift-sdk, wich would need to be installed on every CI run. Perhaps not worth it.)
-// - Documentation
-
-// Then, one needs to:
-// Add to `cmd/resource-generator/main.go` and run `make generate`
-// Add the new client to `internal/scope/scope.go`
-// Add to `cmd/manager/main.go`
-// Implement TODOs
-// Run the tests
-// Update README
-
 //go:embed data
 var data embed.FS
 
