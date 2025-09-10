@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: server-update-updated
+    #FIXME(dkokkino): Issue https://github.com/k-orc/openstack-resource-controller/issues/483
+    # tags:
+    #   - tag1
+    #   - tag2
