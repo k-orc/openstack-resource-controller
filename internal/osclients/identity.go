@@ -32,6 +32,7 @@ type IdentityClient interface {
 	GetProject(ctx context.Context, id string) (*projects.Project, error)
 	DeleteProject(ctx context.Context, id string) error
 	ListProjects(ctx context.Context, opts projects.ListOptsBuilder) iter.Seq2[*projects.Project, error]
+	UpdateProject(ctx context.Context, id string, opts projects.UpdateOptsBuilder) (*projects.Project, error)
 }
 
 type identityClient struct{ client *gophercloud.ServiceClient }
@@ -68,6 +69,10 @@ func (c identityClient) GetProject(ctx context.Context, id string) (*projects.Pr
 	return projects.Get(ctx, c.client, id).Extract()
 }
 
+func (c identityClient) UpdateProject(ctx context.Context, id string, opts projects.UpdateOptsBuilder) (*projects.Project, error) {
+	return projects.Update(ctx, c.client, id, opts).Extract()
+}
+
 type identityErrorClient struct{ error }
 
 // NewProjectErrorClient returns a IdentityClient in which every method returns the given error.
@@ -90,5 +95,9 @@ func (e identityErrorClient) DeleteProject(_ context.Context, _ string) error {
 }
 
 func (e identityErrorClient) GetProject(_ context.Context, _ string) (*projects.Project, error) {
+	return nil, e.error
+}
+
+func (e identityErrorClient) UpdateProject(_ context.Context, _ string, _ projects.UpdateOptsBuilder) (*projects.Project, error) {
 	return nil, e.error
 }

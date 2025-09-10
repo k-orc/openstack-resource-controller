@@ -56,7 +56,6 @@ type FilterByKeystoneTags struct {
 type KeystoneName string
 
 // ProjectResourceSpec contains the desired state of a project
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ProjectResourceSpec is immutable"
 type ProjectResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
