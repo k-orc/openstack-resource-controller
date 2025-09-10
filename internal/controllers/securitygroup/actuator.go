@@ -27,6 +27,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
@@ -57,11 +58,11 @@ type securityGroupActuator struct {
 var _ createResourceActuator = securityGroupActuator{}
 var _ deleteResourceActuator = securityGroupActuator{}
 
-func (actuator securityGroupActuator) GetResourceID(securityGroup *groups.SecGroup) string {
-	return securityGroup.ID
+func (actuator securityGroupActuator) GetResourceID(osResource *osResourceT) string {
+	return osResource.ID
 }
 
-func (actuator securityGroupActuator) GetOSResourceByID(ctx context.Context, id string) (*groups.SecGroup, progress.ReconcileStatus) {
+func (actuator securityGroupActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	secGroup, err := actuator.osClient.GetSecGroup(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -116,7 +117,7 @@ func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Conte
 	return actuator.osClient.ListSecGroup(ctx, listOpts), nil
 }
 
-func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.SecurityGroup) (*groups.SecGroup, progress.ReconcileStatus) {
+func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.SecurityGroup) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -159,7 +160,7 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 	return osResource, nil
 }
 
-func (actuator securityGroupActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.SecurityGroup, osResource *groups.SecGroup) progress.ReconcileStatus {
+func (actuator securityGroupActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.SecurityGroup, osResource *osResourceT) progress.ReconcileStatus {
 	return progress.WrapError(actuator.osClient.DeleteSecGroup(ctx, osResource.ID))
 }
 
@@ -169,7 +170,74 @@ func (actuator securityGroupActuator) GetResourceReconcilers(ctx context.Context
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "security-groups", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
 		actuator.updateRules,
+		actuator.updateResource,
 	}, nil
+}
+
+func (actuator securityGroupActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := groups.UpdateOpts{RevisionNumber: &osResource.RevisionNumber}
+
+	handleNameUpdate(&updateOpts, obj, osResource)
+	handleDescriptionUpdate(&updateOpts, resource, osResource)
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err = actuator.osClient.UpdateSecGroup(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts groups.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToSecGroupUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	secGroupUpdateMap, ok := updateOptsMap["security_group"].(map[string]any)
+	if !ok {
+		secGroupUpdateMap = make(map[string]any)
+	}
+
+	// Revision number is not returned in the output of updateOpts.ToSecGroupUpdateMap()
+	// so nothing to drop here
+
+	return len(secGroupUpdateMap) > 0, nil
+}
+
+func handleNameUpdate(updateOpts *groups.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *groups.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
 }
 
 func rulesMatch(orcRule *orcv1alpha1.SecurityGroupRule, osRule *rules.SecGroupRule) bool {

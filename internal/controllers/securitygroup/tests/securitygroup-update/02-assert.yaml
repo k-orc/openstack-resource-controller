@@ -9,6 +9,7 @@ resourceRefs:
 assertAll:
     - celExpr: "!has(secGroup.status.resource.description)"
     - celExpr: "!has(secGroup.status.resource.rules)"
+    - celExpr: "!has(secGroup.status.resource.tags)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
