@@ -113,3 +113,11 @@ type SubnetListerExpansion interface{}
 // SubnetNamespaceListerExpansion allows custom methods to be added to
 // SubnetNamespaceLister.
 type SubnetNamespaceListerExpansion interface{}
+
+// VolumeTypeListerExpansion allows custom methods to be added to
+// VolumeTypeLister.
+type VolumeTypeListerExpansion interface{}
+
+// VolumeTypeNamespaceListerExpansion allows custom methods to be added to
+// VolumeTypeNamespaceLister.
+type VolumeTypeNamespaceListerExpansion interface{}
