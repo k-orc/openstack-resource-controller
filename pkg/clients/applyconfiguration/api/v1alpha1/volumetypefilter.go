@@ -27,6 +27,7 @@ import (
 type VolumeTypeFilterApplyConfiguration struct {
 	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
 	Description *string                    `json:"description,omitempty"`
+	IsPublic    *bool                      `json:"isPublic,omitempty"`
 }
 
 // VolumeTypeFilterApplyConfiguration constructs a declarative configuration of the VolumeTypeFilter type for use with
@@ -48,5 +49,13 @@ func (b *VolumeTypeFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStac
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *VolumeTypeFilterApplyConfiguration) WithDescription(value string) *VolumeTypeFilterApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithIsPublic sets the IsPublic field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IsPublic field is set to the value of the last call.
+func (b *VolumeTypeFilterApplyConfiguration) WithIsPublic(value bool) *VolumeTypeFilterApplyConfiguration {
+	b.IsPublic = &value
 	return b
 }

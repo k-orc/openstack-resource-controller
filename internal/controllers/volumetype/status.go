@@ -50,10 +50,9 @@ func (volumetypeStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Vol
 
 func (volumetypeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.VolumeTypeResourceStatus().
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the VolumeTypeResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithIsPublic(osResource.IsPublic).
+		WithExtraSpecs(osResource.ExtraSpecs)
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)

@@ -12,4 +12,4 @@ spec:
     filter:
       name: volumetype-import-external
       description: VolumeType volumetype-import-external from "volumetype-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      isPublic: true

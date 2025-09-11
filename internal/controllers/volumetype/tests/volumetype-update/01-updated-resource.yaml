@@ -7,4 +7,4 @@ spec:
   resource:
     name: volumetype-update-updated
     description: volumetype-update-updated
-    # TODO(scaffolding): update all mutable fields
+    isPublic: false

@@ -27,6 +27,8 @@ import (
 type VolumeTypeResourceSpecApplyConfiguration struct {
 	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
 	Description *string                    `json:"description,omitempty"`
+	ExtraSpecs  map[string]string          `json:"extraSpecs,omitempty"`
+	IsPublic    *bool                      `json:"isPublic,omitempty"`
 }
 
 // VolumeTypeResourceSpecApplyConfiguration constructs a declarative configuration of the VolumeTypeResourceSpec type for use with
@@ -48,5 +50,27 @@ func (b *VolumeTypeResourceSpecApplyConfiguration) WithName(value apiv1alpha1.Op
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *VolumeTypeResourceSpecApplyConfiguration) WithDescription(value string) *VolumeTypeResourceSpecApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithExtraSpecs puts the entries into the ExtraSpecs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, the entries provided by each call will be put on the ExtraSpecs field,
+// overwriting an existing map entries in ExtraSpecs field with the same key.
+func (b *VolumeTypeResourceSpecApplyConfiguration) WithExtraSpecs(entries map[string]string) *VolumeTypeResourceSpecApplyConfiguration {
+	if b.ExtraSpecs == nil && len(entries) > 0 {
+		b.ExtraSpecs = make(map[string]string, len(entries))
+	}
+	for k, v := range entries {
+		b.ExtraSpecs[k] = v
+	}
+	return b
+}
+
+// WithIsPublic sets the IsPublic field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IsPublic field is set to the value of the last call.
+func (b *VolumeTypeResourceSpecApplyConfiguration) WithIsPublic(value bool) *VolumeTypeResourceSpecApplyConfiguration {
+	b.IsPublic = &value
 	return b
 }
