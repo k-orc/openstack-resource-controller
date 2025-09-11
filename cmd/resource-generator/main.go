@@ -136,6 +136,9 @@ var resources []templateFields = []templateFields{
 		Name:             "Subnet",
 		ExistingOSClient: true,
 	},
+	{
+		Name: "VolumeType",
+	},
 }
 
 // These resources won't be generated
