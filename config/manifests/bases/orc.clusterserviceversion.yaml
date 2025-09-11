@@ -79,6 +79,11 @@ spec:
       kind: Subnet
       name: subnets.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Volume is the Schema for an ORC resource.
+      displayName: Volume
+      kind: Volume
+      name: volumes.openstack.k-orc.cloud
+      version: v1alpha1
     - description: VolumeType is the Schema for an ORC resource.
       displayName: Volume Type
       kind: VolumeType

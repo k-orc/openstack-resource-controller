@@ -29,6 +29,7 @@ rules:
   - servergroups
   - servers
   - subnets
+  - volumes
   - volumetypes
   verbs:
   - create
@@ -53,6 +54,7 @@ rules:
   - servergroups/status
   - servers/status
   - subnets/status
+  - volumes/status
   - volumetypes/status
   verbs:
   - get

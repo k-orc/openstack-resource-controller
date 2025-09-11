@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-update
+spec:
+  resource:
+    name: volume-update-updated
+    description: volume-update-updated
+    # TODO(scaffolding): update all mutable fields

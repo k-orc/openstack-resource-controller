@@ -40,6 +40,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/server"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/servergroup"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volumetype"
 	internalmanager "github.com/k-orc/openstack-resource-controller/v2/internal/manager"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scheme"
@@ -113,6 +114,7 @@ func main() {
 		server.New(scopeFactory),
 		servergroup.New(scopeFactory),
 		project.New(scopeFactory),
+		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
 	}
 
