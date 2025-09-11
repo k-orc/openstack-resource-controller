@@ -76,6 +76,10 @@ func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterfa
 	return newFakeSubnets(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Volumes(namespace string) v1alpha1.VolumeInterface {
+	return newFakeVolumes(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) VolumeTypes(namespace string) v1alpha1.VolumeTypeInterface {
 	return newFakeVolumeTypes(c, namespace)
 }
