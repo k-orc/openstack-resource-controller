@@ -42,4 +42,6 @@ type ServerGroupExpansion interface{}
 
 type SubnetExpansion interface{}
 
+type VolumeExpansion interface{}
+
 type VolumeTypeExpansion interface{}

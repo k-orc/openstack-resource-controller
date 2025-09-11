@@ -52,6 +52,7 @@ type Scope interface {
 	NewImageClient() (osclients.ImageClient, error)
 	NewNetworkClient() (osclients.NetworkClient, error)
 	NewIdentityClient() (osclients.IdentityClient, error)
+	NewVolumeClient() (osclients.VolumeClient, error)
 	NewVolumeTypeClient() (osclients.VolumeTypeClient, error)
 	ExtractToken() (*tokens.Token, error)
 }
