@@ -1,0 +1,7 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+testDirs:
+{{- range . }}
+- ./internal/controllers/{{ .NameLower }}/tests/
+{{- end}}
+timeout: 120

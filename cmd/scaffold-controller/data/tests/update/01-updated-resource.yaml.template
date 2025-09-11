@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-update
+spec:
+  resource:
+    name: {{ .PackageName }}-update-updated
+    description: {{ .PackageName }}-update-updated
+    # TODO(scaffolding): update all mutable fields

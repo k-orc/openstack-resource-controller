@@ -1,0 +1,10 @@
+{{- $packageName := .PackageName }}
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We should be able to delete the import dependencies
+{{- range .FilterDependencies }}
+  - command: kubectl delete {{ . }} {{ $packageName }}-import-dependency
+    namespaced: true
+{{- end }}
