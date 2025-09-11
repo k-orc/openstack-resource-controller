@@ -76,6 +76,10 @@ generate-codegen: generate-controller-gen ## codegen requires DeepCopy etc
 generate-go: mockgen
 	go generate ./...
 
+.PHONY: generate-bundle
+generate-bundle: kustomize operator-sdk
+	./hack/bundle.sh
+
 .PHONY: generate-docs
 generate-docs:
 	$(MAKE) -C website generated
@@ -209,8 +213,7 @@ build-installer: manifests generate kustomize ## Generate a consolidated YAML wi
 	$(KUSTOMIZE) build $(CUSTOMDEPLOY) > dist/install.yaml
 
 .PHONY: build-bundle-image
-build-bundle-image: kustomize operator-sdk
-	bash hack/bundle.sh
+build-bundle-image: generate-bundle
 	$(CONTAINER_TOOL) build -f bundle.Dockerfile -t ${BUNDLE_IMG} .
 
 ##@ Deployment

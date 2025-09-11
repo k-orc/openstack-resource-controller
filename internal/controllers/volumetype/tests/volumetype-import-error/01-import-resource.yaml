@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-import-error
+spec:
+  cloudCredentialsRef:
+    # We don't need admin credentials to import a volume type
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      description: VolumeType from "import error" test
+      isPublic: true
