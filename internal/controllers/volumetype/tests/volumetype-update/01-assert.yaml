@@ -7,7 +7,7 @@ status:
   resource:
     name: volumetype-update-updated
     description: volumetype-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    isPublic: false
   conditions:
   - type: Available
     status: "True"

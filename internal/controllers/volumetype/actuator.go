@@ -70,30 +70,72 @@ func (actuator volumetypeActuator) ListOSResourcesForAdoption(ctx context.Contex
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := volumetypes.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
+	filters = append(filters,
+		func(f *volumetypes.VolumeType) bool {
+			name := getResourceName(orcObject)
+			// Compare non-pointer values
+			return f.Name == name
+		},
+	)
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(f *volumetypes.VolumeType) bool {
+			return f.Description == *resourceSpec.Description
+		})
 	}
 
-	return actuator.osClient.ListVolumeTypes(ctx, listOpts), true
+	isPublic := volumetypes.VisibilityDefault
+	if resourceSpec.IsPublic != nil {
+		if *resourceSpec.IsPublic {
+			isPublic = volumetypes.VisibilityPublic
+		} else {
+			isPublic = volumetypes.VisibilityPrivate
+		}
+	}
+
+	listOpts := volumetypes.ListOpts{
+		IsPublic: isPublic,
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator volumetypeActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := volumetypes.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
+	if filter.Name != nil {
+		filters = append(filters, func(f *volumetypes.VolumeType) bool {
+			return f.Name == string(*filter.Name)
+		})
+	}
+	if filter.Description != nil {
+		filters = append(filters, func(f *volumetypes.VolumeType) bool {
+			return f.Description == *filter.Description
+		})
 	}
 
-	return actuator.osClient.ListVolumeTypes(ctx, listOpts), nil
+	isPublic := volumetypes.VisibilityDefault
+	if filter.IsPublic != nil {
+		if *filter.IsPublic {
+			isPublic = volumetypes.VisibilityPublic
+		} else {
+			isPublic = volumetypes.VisibilityPrivate
+		}
+	}
+
+	listOpts := volumetypes.ListOpts{
+		IsPublic: isPublic,
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator volumetypeActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts volumetypes.ListOptsBuilder) iter.Seq2[*volumetypes.VolumeType, error] {
+	volumetypes := actuator.osClient.ListVolumeTypes(ctx, listOpts)
+	return osclients.Filter(volumetypes, filters...)
 }
 
 func (actuator volumetypeActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -104,10 +146,17 @@ func (actuator volumetypeActuator) CreateResource(ctx context.Context, obj orcOb
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
+	extraSpecs := make(map[string]string)
+	for _, spec := range resource.ExtraSpecs {
+		extraSpecs[spec.Name] = spec.Value
+	}
+
 	createOpts := volumetypes.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		IsPublic:    resource.IsPublic,
+		ExtraSpecs:  extraSpecs,
 	}
 
 	osResource, err := actuator.osClient.CreateVolumeType(ctx, createOpts)
@@ -139,6 +188,7 @@ func (actuator volumetypeActuator) updateResource(ctx context.Context, obj orcOb
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	handleIsPublicUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -189,6 +239,14 @@ func handleDescriptionUpdate(updateOpts *volumetypes.UpdateOpts, resource *resou
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleIsPublicUpdate(updateOpts *volumetypes.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	isPublic := ptr.Deref(resource.IsPublic, true)
+	if osResource.IsPublic != isPublic {
+		updateOpts.IsPublic = &isPublic
 	}
 }
 

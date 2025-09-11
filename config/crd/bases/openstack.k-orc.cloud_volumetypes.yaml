@@ -96,6 +96,10 @@ spec:
                         maxLength: 255
                         minLength: 1
                         type: string
+                      isPublic:
+                        description: isPublic indicates whether the VolumeType is
+                          public.
+                        type: boolean
                       name:
                         description: name of the existing resource
                         maxLength: 255
@@ -155,6 +159,29 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
+                  extraSpecs:
+                    description: extraSpecs is a map of key-value pairs that define
+                      extra specifications for the volume type.
+                    items:
+                      properties:
+                        name:
+                          description: name is the name of the extraspec
+                          maxLength: 255
+                          type: string
+                        value:
+                          description: value is the value of the extraspec
+                          maxLength: 255
+                          type: string
+                      required:
+                      - name
+                      - value
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  isPublic:
+                    description: isPublic indicates whether the volume type is public.
+                    type: boolean
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -271,6 +298,26 @@ spec:
                       resource.
                     maxLength: 1024
                     type: string
+                  extraSpecs:
+                    description: extraSpecs is a map of key-value pairs that define
+                      extra specifications for the volume type.
+                    items:
+                      properties:
+                        name:
+                          description: name is the name of the extraspec
+                          maxLength: 255
+                          type: string
+                        value:
+                          description: value is the value of the extraspec
+                          maxLength: 255
+                          type: string
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  isPublic:
+                    description: isPublic indicates whether the VolumeType is public.
+                    type: boolean
                   name:
                     description: name is a Human-readable name for the resource. Might
                       not be unique.

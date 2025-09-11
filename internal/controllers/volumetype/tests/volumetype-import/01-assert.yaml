@@ -16,7 +16,7 @@ status:
   resource:
     name: volumetype-import-external-not-this-one
     description: VolumeType volumetype-import-external from "volumetype-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    isPublic: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: VolumeType

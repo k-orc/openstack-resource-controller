@@ -2324,12 +2324,35 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeExtraSpec
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: value
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeExtraSpecStatus
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeFilter
   map:
     fields:
     - name: description
       type:
         scalar: string
+    - name: isPublic
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string
@@ -2348,6 +2371,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: extraSpecs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeExtraSpec
+          elementRelationship: atomic
+    - name: isPublic
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string
@@ -2357,6 +2389,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: extraSpecs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeExtraSpecStatus
+          elementRelationship: atomic
+    - name: isPublic
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string

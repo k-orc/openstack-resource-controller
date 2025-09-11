@@ -21,8 +21,10 @@ package v1alpha1
 // VolumeTypeResourceStatusApplyConfiguration represents a declarative configuration of the VolumeTypeResourceStatus type for use
 // with apply.
 type VolumeTypeResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Name        *string                                       `json:"name,omitempty"`
+	Description *string                                       `json:"description,omitempty"`
+	ExtraSpecs  []VolumeTypeExtraSpecStatusApplyConfiguration `json:"extraSpecs,omitempty"`
+	IsPublic    *bool                                         `json:"isPublic,omitempty"`
 }
 
 // VolumeTypeResourceStatusApplyConfiguration constructs a declarative configuration of the VolumeTypeResourceStatus type for use with
@@ -44,5 +46,26 @@ func (b *VolumeTypeResourceStatusApplyConfiguration) WithName(value string) *Vol
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *VolumeTypeResourceStatusApplyConfiguration) WithDescription(value string) *VolumeTypeResourceStatusApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithExtraSpecs adds the given value to the ExtraSpecs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ExtraSpecs field.
+func (b *VolumeTypeResourceStatusApplyConfiguration) WithExtraSpecs(values ...*VolumeTypeExtraSpecStatusApplyConfiguration) *VolumeTypeResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithExtraSpecs")
+		}
+		b.ExtraSpecs = append(b.ExtraSpecs, *values[i])
+	}
+	return b
+}
+
+// WithIsPublic sets the IsPublic field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IsPublic field is set to the value of the last call.
+func (b *VolumeTypeResourceStatusApplyConfiguration) WithIsPublic(value bool) *VolumeTypeResourceStatusApplyConfiguration {
+	b.IsPublic = &value
 	return b
 }

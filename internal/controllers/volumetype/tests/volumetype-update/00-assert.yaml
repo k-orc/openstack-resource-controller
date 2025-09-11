@@ -16,7 +16,7 @@ metadata:
 status:
   resource:
     name: volumetype-update
-    # TODO(scaffolding): Add matches for more fields
+    isPublic: true
   conditions:
   - type: Available
     status: "True"

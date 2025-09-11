@@ -3039,6 +3039,40 @@ VolumeType is the Schema for an ORC resource.
 | `status` _[VolumeTypeStatus](#volumetypestatus)_ | status defines the observed state of the resource. |  |  |
 
 
+#### VolumeTypeExtraSpec
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeTypeResourceSpec](#volumetyperesourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the extraspec |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the value of the extraspec |  | MaxLength: 255 <br /> |
+
+
+#### VolumeTypeExtraSpecStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeTypeResourceStatus](#volumetyperesourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the extraspec |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the value of the extraspec |  | MaxLength: 255 <br /> |
+
+
 #### VolumeTypeFilter
 
 
@@ -3055,6 +3089,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `isPublic` _boolean_ | isPublic indicates whether the VolumeType is public. |  |  |
 
 
 #### VolumeTypeImport
@@ -3092,6 +3127,8 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `extraSpecs` _[VolumeTypeExtraSpec](#volumetypeextraspec) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 32 <br /> |
+| `isPublic` _boolean_ | isPublic indicates whether the volume type is public. |  |  |
 
 
 #### VolumeTypeResourceStatus
@@ -3109,6 +3146,8 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `extraSpecs` _[VolumeTypeExtraSpecStatus](#volumetypeextraspecstatus) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 32 <br /> |
+| `isPublic` _boolean_ | isPublic indicates whether the VolumeType is public. |  |  |
 
 
 #### VolumeTypeSpec

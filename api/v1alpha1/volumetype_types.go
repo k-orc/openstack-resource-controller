@@ -29,13 +29,15 @@ type VolumeTypeResourceSpec struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// extraSpecs is a map of key-value pairs that define extra specifications for the volume type.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	ExtraSpecs []VolumeTypeExtraSpec `json:"extraSpecs,omitempty"`
+
+	// isPublic indicates whether the volume type is public.
+	// +optional
+	IsPublic *bool `json:"isPublic,omitempty"`
 }
 
 // VolumeTypeFilter defines an existing resource by its properties
@@ -51,9 +53,9 @@ type VolumeTypeFilter struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes
+	// isPublic indicates whether the VolumeType is public.
+	// +optional
+	IsPublic *bool `json:"isPublic,omitempty"`
 }
 
 // VolumeTypeResourceStatus represents the observed state of the resource.
@@ -68,7 +70,37 @@ type VolumeTypeResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the VolumeType stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes
+	// extraSpecs is a map of key-value pairs that define extra specifications for the volume type.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	ExtraSpecs []VolumeTypeExtraSpecStatus `json:"extraSpecs"`
+
+	// isPublic indicates whether the VolumeType is public.
+	// +optional
+	IsPublic *bool `json:"isPublic"`
+}
+
+type VolumeTypeExtraSpec struct {
+	// name is the name of the extraspec
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Name string `json:"name"`
+
+	// value is the value of the extraspec
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Value string `json:"value"`
+}
+
+type VolumeTypeExtraSpecStatus struct {
+	// name is the name of the extraspec
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Name string `json:"name,omitempty"`
+
+	// value is the value of the extraspec
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Value string `json:"value,omitempty"`
 }

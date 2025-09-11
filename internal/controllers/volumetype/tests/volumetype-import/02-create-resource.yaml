@@ -6,10 +6,9 @@ metadata:
   name: volumetype-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: VolumeType volumetype-import-external from "volumetype-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    isPublic: true

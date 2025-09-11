@@ -157,6 +157,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeType":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeType(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpec":            schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeExtraSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpecStatus":      schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeExtraSpecStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeFilter":               schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeImport":               schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeList":                 schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeList(ref),
@@ -7763,6 +7765,61 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeType(ref common.
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeExtraSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the extraspec",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the extraspec",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeExtraSpecStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the extraspec",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the extraspec",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -7781,6 +7838,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeFilter(ref c
 						SchemaProps: spec.SchemaProps{
 							Description: "description of the existing resource",
 							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"isPublic": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isPublic indicates whether the VolumeType is public.",
+							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
@@ -7890,9 +7954,37 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeResourceSpec
 							Format:      "",
 						},
 					},
+					"extraSpecs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "extraSpecs is a map of key-value pairs that define extra specifications for the volume type.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpec"),
+									},
+								},
+							},
+						},
+					},
+					"isPublic": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isPublic indicates whether the volume type is public.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpec"},
 	}
 }
 
@@ -7917,9 +8009,37 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeResourceStat
 							Format:      "",
 						},
 					},
+					"extraSpecs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "extraSpecs is a map of key-value pairs that define extra specifications for the volume type.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpecStatus"),
+									},
+								},
+							},
+						},
+					},
+					"isPublic": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isPublic indicates whether the VolumeType is public.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpecStatus"},
 	}
 }
 

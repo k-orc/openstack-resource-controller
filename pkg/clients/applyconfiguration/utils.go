@@ -262,6 +262,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.UserDataSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeType"):
 		return &apiv1alpha1.VolumeTypeApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeTypeExtraSpec"):
+		return &apiv1alpha1.VolumeTypeExtraSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeTypeExtraSpecStatus"):
+		return &apiv1alpha1.VolumeTypeExtraSpecStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeTypeFilter"):
 		return &apiv1alpha1.VolumeTypeFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeTypeImport"):

@@ -8,7 +8,10 @@ status:
   resource:
     name: volumetype-create-full-override
     description: VolumeType from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    isPublic: false
+    extraSpecs:
+    - name: spec
+      value: specValue
   conditions:
   - type: Available
     status: "True"
@@ -26,4 +29,3 @@ resourceRefs:
       ref: volumetype
 assertAll:
     - celExpr: "volumetype.status.id != ''"
-    # TODO(scaffolding): Add more checks
