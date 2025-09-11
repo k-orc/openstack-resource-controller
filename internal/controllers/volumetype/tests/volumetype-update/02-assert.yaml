@@ -16,7 +16,7 @@ metadata:
 status:
   resource:
     name: volumetype-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    isPublic: true
   conditions:
   - type: Available
     status: "True"

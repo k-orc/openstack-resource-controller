@@ -117,3 +117,30 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 
 	}
 }
+
+func TestHandleIsPublicUpdate(t *testing.T) {
+	ptrToBool := ptr.To[bool]
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToBool(true), existingValue: true, expectChange: false},
+		{name: "Different", newValue: ptrToBool(true), existingValue: false, expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: false, expectChange: true},
+		{name: "No value provided, existing is default", newValue: nil, existingValue: true, expectChange: false},
+	}
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.VolumeTypeResourceSpec{IsPublic: tt.newValue}
+			osResource := &volumetypes.VolumeType{IsPublic: tt.existingValue}
+			updateOpts := volumetypes.UpdateOpts{}
+			handleIsPublicUpdate(&updateOpts, resource, osResource)
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}

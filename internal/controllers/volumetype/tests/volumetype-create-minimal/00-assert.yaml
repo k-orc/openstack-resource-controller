@@ -7,7 +7,7 @@ metadata:
 status:
   resource:
     name: volumetype-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    isPublic: true
   conditions:
   - type: Available
     status: "True"
@@ -25,4 +25,3 @@ resourceRefs:
       ref: volumetype
 assertAll:
     - celExpr: "volumetype.status.id != ''"
-    # TODO(scaffolding): Add more checks

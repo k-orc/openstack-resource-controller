@@ -2330,6 +2330,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: isPublic
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string
@@ -2348,6 +2351,14 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: extraSpecs
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: isPublic
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string
@@ -2357,6 +2368,14 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: extraSpecs
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: isPublic
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string

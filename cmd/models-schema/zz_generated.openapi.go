@@ -7784,6 +7784,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeFilter(ref c
 							Format:      "",
 						},
 					},
+					"isPublic": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isPublic indicates whether the VolumeType is public.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -7890,6 +7897,29 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeResourceSpec
 							Format:      "",
 						},
 					},
+					"extraSpecs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "extraSpecs is a map of key-value pairs that define extra specifications for the volume type.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"isPublic": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isPublic indicates whether the volume type is public.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -7914,6 +7944,29 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeResourceStat
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"extraSpecs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "extraSpecs is a map of key-value pairs that define extra specifications for the volume type.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"isPublic": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isPublic indicates whether the VolumeType is public.",
+							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},

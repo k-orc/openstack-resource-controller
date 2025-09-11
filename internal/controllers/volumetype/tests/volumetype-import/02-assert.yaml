@@ -30,4 +30,4 @@ status:
   resource:
     name: volumetype-import-external
     description: VolumeType volumetype-import-external from "volumetype-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    isPublic: true
