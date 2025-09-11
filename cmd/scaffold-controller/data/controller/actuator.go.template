@@ -25,7 +25,7 @@ import (
 
 	"{{ .GophercloudModule }}"
 	corev1 "k8s.io/api/core/v1"
-{{- if or (len .AllCreateDependencies) (len .FilterDependencies) }}
+{{- if len .FilterDependencies }}
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 {{- end }}
 	"k8s.io/utils/ptr"

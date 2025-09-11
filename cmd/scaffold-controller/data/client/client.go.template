@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"iter"
 
-        "github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"{{ .GophercloudModule }}"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
