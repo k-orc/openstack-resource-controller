@@ -27,7 +27,9 @@ import (
 type VolumeResourceSpecApplyConfiguration struct {
 	Name          *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
 	Description   *string                        `json:"description,omitempty"`
+	Size          *int32                         `json:"size,omitempty"`
 	VolumeTypeRef *apiv1alpha1.KubernetesNameRef `json:"volumeTypeRef,omitempty"`
+	Metadata      map[string]string              `json:"metadata,omitempty"`
 }
 
 // VolumeResourceSpecApplyConfiguration constructs a declarative configuration of the VolumeResourceSpec type for use with
@@ -52,10 +54,32 @@ func (b *VolumeResourceSpecApplyConfiguration) WithDescription(value string) *Vo
 	return b
 }
 
+// WithSize sets the Size field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Size field is set to the value of the last call.
+func (b *VolumeResourceSpecApplyConfiguration) WithSize(value int32) *VolumeResourceSpecApplyConfiguration {
+	b.Size = &value
+	return b
+}
+
 // WithVolumeTypeRef sets the VolumeTypeRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the VolumeTypeRef field is set to the value of the last call.
 func (b *VolumeResourceSpecApplyConfiguration) WithVolumeTypeRef(value apiv1alpha1.KubernetesNameRef) *VolumeResourceSpecApplyConfiguration {
 	b.VolumeTypeRef = &value
+	return b
+}
+
+// WithMetadata puts the entries into the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, the entries provided by each call will be put on the Metadata field,
+// overwriting an existing map entries in Metadata field with the same key.
+func (b *VolumeResourceSpecApplyConfiguration) WithMetadata(entries map[string]string) *VolumeResourceSpecApplyConfiguration {
+	if b.Metadata == nil && len(entries) > 0 {
+		b.Metadata = make(map[string]string, len(entries))
+	}
+	for k, v := range entries {
+		b.Metadata[k] = v
+	}
 	return b
 }
