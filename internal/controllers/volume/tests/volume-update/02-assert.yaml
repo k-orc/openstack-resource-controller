@@ -1,0 +1,30 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volume-update
+      ref: volume
+assertAll:
+    - celExpr: "!has(volume.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-update
+status:
+  resource:
+    name: volume-update
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

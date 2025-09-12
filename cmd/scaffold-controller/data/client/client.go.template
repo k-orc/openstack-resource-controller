@@ -1,0 +1,104 @@
+/*
+Copyright {{ .Year }} The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package osclients
+
+import (
+	"context"
+	"fmt"
+	"iter"
+
+	"github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2/openstack"
+	"{{ .GophercloudModule }}"
+	"github.com/gophercloud/utils/v2/openstack/clientconfig"
+)
+
+type {{ .Kind }}Client interface {
+	List{{ .Kind }}s(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error]
+	Create{{ .Kind }}(ctx context.Context, opts {{ .GophercloudPackage }}.CreateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error)
+	Delete{{ .Kind }}(ctx context.Context, resourceID string) error
+	Get{{ .Kind }}(ctx context.Context, resourceID string) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error)
+	Update{{ .Kind }}(ctx context.Context, id string, opts {{ .GophercloudPackage }}.UpdateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error)
+}
+
+type {{ .PackageName }}Client struct{ client *gophercloud.ServiceClient }
+
+// New{{ .Kind }}Client returns a new OpenStack client.
+func New{{ .Kind }}Client(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) ({{ .Kind }}Client, error) {
+	client, err := openstack.{{ .GophercloudClient }}(providerClient, gophercloud.EndpointOpts{
+		Region:       providerClientOpts.RegionName,
+		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create {{ .PackageName }} service client: %v", err)
+	}
+
+	return &{{ .PackageName }}Client{client}, nil
+}
+
+func (c {{ .PackageName }}Client) List{{ .Kind }}s(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
+	pager := {{ .GophercloudPackage }}.List(c.client, listOpts)
+	return func(yield func(*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage({{ .GophercloudPackage }}.Extract{{ .GophercloudType }}s, yield))
+	}
+}
+
+func (c {{ .PackageName }}Client) Create{{ .Kind }}(ctx context.Context, opts {{ .GophercloudPackage }}.CreateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {
+	return {{ .GophercloudPackage }}.Create(ctx, c.client, opts).Extract()
+}
+
+func (c {{ .PackageName }}Client) Delete{{ .Kind }}(ctx context.Context, resourceID string) error {
+	return {{ .GophercloudPackage }}.Delete(ctx, c.client, resourceID).ExtractErr()
+}
+
+func (c {{ .PackageName }}Client) Get{{ .Kind }}(ctx context.Context, resourceID string) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {
+	return {{ .GophercloudPackage }}.Get(ctx, c.client, resourceID).Extract()
+}
+
+func (c {{ .PackageName }}Client) Update{{ .Kind }}(ctx context.Context, id string, opts {{ .GophercloudPackage }}.UpdateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {
+	return {{ .GophercloudPackage }}.Update(ctx, c.client, id, opts).Extract()
+}
+
+type {{ .PackageName }}ErrorClient struct{ error }
+
+// New{{ .Kind }}ErrorClient returns a {{ .Kind }}Client in which every method returns the given error.
+func New{{ .Kind }}ErrorClient(e error) {{ .Kind }}Client {
+	return {{ .PackageName }}ErrorClient{e}
+}
+
+func (e {{ .PackageName }}ErrorClient) List{{ .Kind }}s(_ context.Context, _ {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
+	return func(yield func(*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) bool) {
+		yield(nil, e.error)
+	}
+}
+
+func (e {{ .PackageName }}ErrorClient) Create{{ .Kind }}(_ context.Context, _ {{ .GophercloudPackage }}.CreateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {
+	return nil, e.error
+}
+
+func (e {{ .PackageName }}ErrorClient) Delete{{ .Kind }}(_ context.Context, _ string) error {
+	return e.error
+}
+
+func (e {{ .PackageName }}ErrorClient) Get{{ .Kind }}(_ context.Context, _ string) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {
+	return nil, e.error
+}
+
+func (e {{ .PackageName }}ErrorClient) Update{{ .Kind }}(_ context.Context, _ string, _ {{ .GophercloudPackage }}.UpdateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {
+	return nil, e.error
+}
