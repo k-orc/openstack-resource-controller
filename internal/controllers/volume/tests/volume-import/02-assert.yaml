@@ -30,4 +30,4 @@ status:
   resource:
     name: volume-import-external
     description: Volume volume-import-external from "volume-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    size: 1
