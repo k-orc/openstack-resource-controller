@@ -16,7 +16,7 @@ status:
   resource:
     name: volume-import-external-not-this-one
     description: Volume volume-import-external from "volume-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    size: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Volume

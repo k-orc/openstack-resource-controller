@@ -22,10 +22,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for VolumeType/volume-dependency-external-pending to be created
+      message: Waiting for VolumeType/volume-dependency to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for VolumeType/volume-dependency-external-pending to be created
+      message: Waiting for VolumeType/volume-dependency to be created
       status: "True"
       reason: Progressing

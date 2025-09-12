@@ -16,7 +16,11 @@ metadata:
 status:
   resource:
     name: volume-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
   conditions:
   - type: Available
     status: "True"

@@ -25,9 +25,11 @@ import (
 // VolumeResourceSpecApplyConfiguration represents a declarative configuration of the VolumeResourceSpec type for use
 // with apply.
 type VolumeResourceSpecApplyConfiguration struct {
-	Name          *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description   *string                        `json:"description,omitempty"`
-	VolumeTypeRef *apiv1alpha1.KubernetesNameRef `json:"volumeTypeRef,omitempty"`
+	Name          *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
+	Description   *string                            `json:"description,omitempty"`
+	Size          *int32                             `json:"size,omitempty"`
+	VolumeTypeRef *apiv1alpha1.KubernetesNameRef     `json:"volumeTypeRef,omitempty"`
+	Metadata      []VolumeMetadataApplyConfiguration `json:"metadata,omitempty"`
 }
 
 // VolumeResourceSpecApplyConfiguration constructs a declarative configuration of the VolumeResourceSpec type for use with
@@ -52,10 +54,31 @@ func (b *VolumeResourceSpecApplyConfiguration) WithDescription(value string) *Vo
 	return b
 }
 
+// WithSize sets the Size field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Size field is set to the value of the last call.
+func (b *VolumeResourceSpecApplyConfiguration) WithSize(value int32) *VolumeResourceSpecApplyConfiguration {
+	b.Size = &value
+	return b
+}
+
 // WithVolumeTypeRef sets the VolumeTypeRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the VolumeTypeRef field is set to the value of the last call.
 func (b *VolumeResourceSpecApplyConfiguration) WithVolumeTypeRef(value apiv1alpha1.KubernetesNameRef) *VolumeResourceSpecApplyConfiguration {
 	b.VolumeTypeRef = &value
+	return b
+}
+
+// WithMetadata adds the given value to the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Metadata field.
+func (b *VolumeResourceSpecApplyConfiguration) WithMetadata(values ...*VolumeMetadataApplyConfiguration) *VolumeResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMetadata")
+		}
+		b.Metadata = append(b.Metadata, *values[i])
+	}
 	return b
 }

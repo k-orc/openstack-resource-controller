@@ -16,7 +16,11 @@ metadata:
 status:
   resource:
     name: volume-update
-    # TODO(scaffolding): Add matches for more fields
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
   conditions:
   - type: Available
     status: "True"

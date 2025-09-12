@@ -5,10 +5,13 @@ metadata:
   name: volume-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Sample Volume
-    # TODO(scaffolding): Add all fields the resource supports
+    size: 100
+    volumeTypeRef: my-volume-type
+    metadata:
+      key1: value1
+      key2: value2

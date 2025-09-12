@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"iter"
 
-        "github.com/gophercloud/gophercloud/v2"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
@@ -30,7 +30,7 @@ import (
 type VolumeClient interface {
 	ListVolumes(ctx context.Context, listOpts volumes.ListOptsBuilder) iter.Seq2[*volumes.Volume, error]
 	CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error)
-	DeleteVolume(ctx context.Context, resourceID string) error
+	DeleteVolume(ctx context.Context, resourceID string, opts volumes.DeleteOptsBuilder) error
 	GetVolume(ctx context.Context, resourceID string) (*volumes.Volume, error)
 	UpdateVolume(ctx context.Context, id string, opts volumes.UpdateOptsBuilder) (*volumes.Volume, error)
 }
@@ -59,11 +59,11 @@ func (c volumeClient) ListVolumes(ctx context.Context, listOpts volumes.ListOpts
 }
 
 func (c volumeClient) CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error) {
-	return volumes.Create(ctx, c.client, opts).Extract()
+	return volumes.Create(ctx, c.client, opts, nil).Extract()
 }
 
-func (c volumeClient) DeleteVolume(ctx context.Context, resourceID string) error {
-	return volumes.Delete(ctx, c.client, resourceID).ExtractErr()
+func (c volumeClient) DeleteVolume(ctx context.Context, resourceID string, opts volumes.DeleteOptsBuilder) error {
+	return volumes.Delete(ctx, c.client, resourceID, opts).ExtractErr()
 }
 
 func (c volumeClient) GetVolume(ctx context.Context, resourceID string) (*volumes.Volume, error) {
@@ -91,7 +91,7 @@ func (e volumeErrorClient) CreateVolume(_ context.Context, _ volumes.CreateOptsB
 	return nil, e.error
 }
 
-func (e volumeErrorClient) DeleteVolume(_ context.Context, _ string) error {
+func (e volumeErrorClient) DeleteVolume(_ context.Context, _ string, _ volumes.DeleteOptsBuilder) error {
 	return e.error
 }
 

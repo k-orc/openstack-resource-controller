@@ -8,7 +8,15 @@ status:
   resource:
     name: volume-create-full-override
     description: Volume from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
+    volumeType: volume-create-full
+    metadata:
+    - name: metadata
+      value: value
   conditions:
   - type: Available
     status: "True"
@@ -25,10 +33,13 @@ resourceRefs:
       name: volume-create-full
       ref: volume
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: volumetype
+      kind: VolumeType
       name: volume-create-full
       ref: volumetype
 assertAll:
     - celExpr: "volume.status.id != ''"
-    - celExpr: "volume.status.resource.volumetypeID == volumetype.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "volume.status.resource.volumeType == volumetype.status.resource.name"
+    - celExpr: "volume.status.resource.tenantID != ''"
+    - celExpr: "volume.status.resource.userID != ''"
+    - celExpr: "volume.status.resource.createdAt != ''"
+    - celExpr: "volume.status.resource.updatedAt != ''"

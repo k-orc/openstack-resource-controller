@@ -17,6 +17,8 @@ limitations under the License.
 package volume
 
 import (
+	"strconv"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -25,11 +27,13 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
+
 // Ideally, these constants are defined in gophercloud.
-const VolumeStatusAvailable = "available"
-const VolumeStatusInUse     = "in-use"
-const VolumeStatusDeleting  = "deleting"
+const (
+	VolumeStatusAvailable = "available"
+	VolumeStatusInUse     = "in-use"
+	VolumeStatusDeleting  = "deleting"
+)
 
 type volumeStatusWriter struct{}
 
@@ -50,7 +54,6 @@ func (volumeStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Volume,
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
 
 	if osResource.Status == VolumeStatusAvailable || osResource.Status == VolumeStatusInUse {
 		return metav1.ConditionTrue, nil
@@ -62,14 +65,68 @@ func (volumeStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Volume,
 
 func (volumeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.VolumeResourceStatus().
-		WithVolumeTypeID(osResource.VolumeTypeID).
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithVolumeType(osResource.VolumeType).
+		WithSize(int32(osResource.Size)).
+		WithStatus(osResource.Status).
+		WithUserID(osResource.UserID).
+		WithEncrypted(osResource.Encrypted).
+		WithMultiattach(osResource.Multiattach).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
 
-	// TODO(scaffolding): add all of the fields supported in the VolumeResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.Bootable != "" {
+		boolValue, err := strconv.ParseBool(osResource.Bootable)
+		if err != nil {
+			log.Info("Failed to parse boolean value", err)
+		} else {
+			resourceStatus.WithBootable(boolValue)
+		}
+	}
+
+	for k, v := range osResource.Metadata {
+		resourceStatus.WithMetadata(orcapplyconfigv1alpha1.VolumeMetadataStatus().
+			WithName(k).
+			WithValue(v))
+	}
+
+	if osResource.AvailabilityZone != "" {
+		resourceStatus.WithAvailabilityZone(osResource.AvailabilityZone)
+	}
+
+	if osResource.SnapshotID != "" {
+		resourceStatus.WithSnapshotID(osResource.SnapshotID)
+	}
+
+	if osResource.SourceVolID != "" {
+		resourceStatus.WithSourceVolID(osResource.SourceVolID)
+	}
+
+	if osResource.BackupID != nil {
+		resourceStatus.WithBackupID(*osResource.BackupID)
+	}
+
+	if osResource.ReplicationStatus != "" {
+		resourceStatus.WithReplicationStatus(osResource.ReplicationStatus)
+	}
+
+	if osResource.ConsistencyGroupID != "" {
+		resourceStatus.WithConsistencyGroupID(osResource.ConsistencyGroupID)
+	}
+
+	if osResource.Host != "" {
+		resourceStatus.WithHost(osResource.Host)
+	}
+
+	if osResource.TenantID != "" {
+		resourceStatus.WithTenantID(osResource.TenantID)
 	}
 
 	statusApply.WithResource(resourceStatus)

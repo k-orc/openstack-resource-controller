@@ -6,11 +6,9 @@ metadata:
   name: volume-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -19,12 +17,14 @@ metadata:
   name: volume-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: volume-create-full-override
     description: Volume from "create full" test
-    volumetypeRef: volume-create-full
-    # TODO(scaffolding): Add all fields the resource supports
+    size: 1
+    volumeTypeRef: volume-create-full
+    metadata:
+    - name: metadata
+      value: value
