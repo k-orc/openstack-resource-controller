@@ -7,7 +7,11 @@ status:
   resource:
     name: volume-update-updated
     description: volume-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
   conditions:
   - type: Available
     status: "True"

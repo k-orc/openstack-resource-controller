@@ -160,6 +160,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeList":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadata":                 schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadataStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadataStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSpec(ref),
@@ -7794,6 +7796,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref commo
 							Format:      "",
 						},
 					},
+					"size": {
+						SchemaProps: spec.SchemaProps{
+							Description: "size is the size of the volume in GiB.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 				},
 			},
 		},
@@ -7879,6 +7888,61 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeList(ref common.
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the metadata",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the metadata",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadataStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the metadata",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the metadata",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -7900,6 +7964,14 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"size": {
+						SchemaProps: spec.SchemaProps{
+							Description: "size is the size of the volume, in gibibytes (GiB).",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 					"volumeTypeRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with.",
@@ -7907,9 +7979,31 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata key and value pairs to be associated with the volume. NOTE(mandre): gophercloud can't clear all metadata at the moment, we thus can't allow mutability for metadata as we might end up in a state that is not reconciliable",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadata"),
+									},
+								},
+							},
+						},
+					},
 				},
+				Required: []string{"size"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadata"},
 	}
 }
 
@@ -7934,16 +8028,147 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(r
 							Format:      "",
 						},
 					},
-					"volumeTypeID": {
+					"size": {
 						SchemaProps: spec.SchemaProps{
-							Description: "volumeTypeID is the ID of the volumetype to which the resource is associated.",
+							Description: "size is the size of the volume in GiB.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status represents the current status of the volume.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is which availability zone the volume is in.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"volumeType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeType is the name of associated the volume type.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"snapshotID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "snapshotID is the ID of the snapshot from which the volume was created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sourceVolID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sourceVolID is the ID of another block storage volume from which the current volume was created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"backupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backupID is the ID of the backup from which the volume was restored",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata key and value pairs to be associated with the volume.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadataStatus"),
+									},
+								},
+							},
+						},
+					},
+					"userID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "userID is the ID of the user who created the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"bootable": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bootable indicates whether this is a bootable volume.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"encrypted": {
+						SchemaProps: spec.SchemaProps{
+							Description: "encrypted denotes if the volume is encrypted.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"replicationStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "replicationStatus is the status of replication.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"consistencyGroupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "consistencyGroupID is the consistency group ID.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"multiattach": {
+						SchemaProps: spec.SchemaProps{
+							Description: "multiattach denotes if the volume is multi-attach capable.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"host": {
+						SchemaProps: spec.SchemaProps{
+							Description: "host is the identifier of the host holding the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tenantID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tenantID is the ID of the project that owns the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
 						},
 					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadataStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

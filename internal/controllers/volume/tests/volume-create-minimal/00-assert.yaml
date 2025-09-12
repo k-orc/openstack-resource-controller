@@ -7,7 +7,11 @@ metadata:
 status:
   resource:
     name: volume-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
   conditions:
   - type: Available
     status: "True"
@@ -25,4 +29,10 @@ resourceRefs:
       ref: volume
 assertAll:
     - celExpr: "volume.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "volume.status.resource.tenantID != ''"
+    - celExpr: "volume.status.resource.userID != ''"
+    - celExpr: "volume.status.resource.volumeType != ''"
+    - celExpr: "volume.status.resource.createdAt != ''"
+    - celExpr: "volume.status.resource.updatedAt != ''"
+    - celExpr: "!has(volume.status.resource.description)"
+    - celExpr: "!has(volume.status.resource.metadata)"

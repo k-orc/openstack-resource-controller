@@ -23,7 +23,6 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumes"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -45,10 +44,13 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
-// The frequency to poll when waiting for the resource to become available
-const volumeAvailablePollingPeriod = 15 * time.Second
-// The frequency to poll when waiting for the resource to be deleted
-const volumeDeletingPollingPeriod = 15 * time.Second
+
+const (
+	// The frequency to poll when waiting for the resource to become available
+	volumeAvailablePollingPeriod = 15 * time.Second
+	// The frequency to poll when waiting for the resource to be deleted
+	volumeDeletingPollingPeriod = 15 * time.Second
+)
 
 type volumeActuator struct {
 	osClient  osclients.VolumeClient
@@ -76,30 +78,58 @@ func (actuator volumeActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := volumes.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	// NOTE: The API doesn't allow filtering by description or size
+	// we'll have to do it client-side.
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(f *volumes.Volume) bool {
+			return f.Description == *resourceSpec.Description
+		})
+	}
+	filters = append(filters, func(f *volumes.Volume) bool {
+		return f.Size == int(resourceSpec.Size)
+	})
+
+	metadata := make(map[string]string)
+	for _, m := range resourceSpec.Metadata {
+		metadata[m.Name] = m.Value
 	}
 
-	return actuator.osClient.ListVolumes(ctx, listOpts), true
+	listOpts := volumes.ListOpts{
+		Name:     getResourceName(orcObject),
+		Metadata: metadata,
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator volumeActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := volumes.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	// NOTE: The API doesn't allow filtering by description or size
+	// we'll have to do it client-side.
+	if filter.Description != nil {
+		filters = append(filters, func(f *volumes.Volume) bool {
+			return f.Description == *filter.Description
+		})
+	}
+	if filter.Size != nil {
+		filters = append(filters, func(f *volumes.Volume) bool {
+			return f.Size == int(*filter.Size)
+		})
 	}
 
-	return actuator.osClient.ListVolumes(ctx, listOpts), nil
+	listOpts := volumes.ListOpts{
+		Name: string(ptr.Deref(filter.Name, "")),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator volumeActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts volumes.ListOptsBuilder) iter.Seq2[*volumes.Volume, error] {
+	volumes := actuator.osClient.ListVolumes(ctx, listOpts)
+	return osclients.Filter(volumes, filters...)
 }
 
 func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -128,11 +158,18 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
+	metadata := make(map[string]string)
+	for _, m := range resource.Metadata {
+		metadata[m.Name] = m.Value
+	}
+
 	createOpts := volumes.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		VolumeTypeID:  volumetypeID,
-		// TODO(scaffolding): Add more fields
+		Size:        int(resource.Size),
+		Metadata:    metadata,
+		VolumeType:  volumetypeID,
 	}
 
 	osResource, err := actuator.osClient.CreateVolume(ctx, createOpts)
@@ -151,7 +188,13 @@ func (actuator volumeActuator) DeleteResource(ctx context.Context, _ orcObjectPT
 	if resource.Status == VolumeStatusDeleting {
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, volumeDeletingPollingPeriod)
 	}
-	return progress.WrapError(actuator.osClient.DeleteVolume(ctx, resource.ID))
+
+	// FIXME(mandre) Make this optional
+	deleteOpts := volumes.DeleteOpts{
+		Cascade: false,
+	}
+
+	return progress.WrapError(actuator.osClient.DeleteVolume(ctx, resource.ID, deleteOpts))
 }
 
 func (actuator volumeActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
@@ -167,8 +210,6 @@ func (actuator volumeActuator) updateResource(ctx context.Context, obj orcObject
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
