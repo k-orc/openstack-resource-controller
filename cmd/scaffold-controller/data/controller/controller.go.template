@@ -1,0 +1,153 @@
+/*
+Copyright {{ .Year }} The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package {{ .PackageName }}
+
+import (
+	"context"
+	"errors"
+
+	ctrl "sigs.k8s.io/controller-runtime"
+{{- if or (len .AllCreateDependencies) (len .ImportDependencies) }}
+	"sigs.k8s.io/controller-runtime/pkg/builder"
+{{- end }}
+	"sigs.k8s.io/controller-runtime/pkg/controller"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
+{{- if or (len .AllCreateDependencies) (len .ImportDependencies) }}
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
+{{- end }}
+)
+
+const controllerName = "{{ .PackageName }}"
+
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName }}s,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName }}s/status,verbs=get;update;patch
+
+type {{ .PackageName }}ReconcilerConstructor struct {
+	scopeFactory scope.Factory
+}
+
+func New(scopeFactory scope.Factory) interfaces.Controller {
+	return {{ .PackageName }}ReconcilerConstructor{scopeFactory: scopeFactory}
+}
+
+func ({{ .PackageName }}ReconcilerConstructor) GetName() string {
+	return controllerName
+}
+
+{{- $kind := .Kind }}
+{{- $packageName := .PackageName }}
+{{- range .RequiredCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+var {{ $depNameCamelCase }}Dependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.{{ $kind }}List, *orcv1alpha1.{{ . }}](
+	"spec.resource.{{ $depNameCamelCase }}Ref",
+	func({{ $packageName }} *orcv1alpha1.{{ $kind }}) []string {
+		resource := {{ $packageName }}.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+		return []string{string(resource.{{ . }}Ref)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+{{- end }}
+{{- range .OptionalCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+var {{ $depNameCamelCase }}Dependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.{{ $kind }}List, *orcv1alpha1.{{ . }}](
+	"spec.resource.{{ $depNameCamelCase }}Ref",
+	func({{ $packageName }} *orcv1alpha1.{{ $kind }}) []string {
+		resource := {{ $packageName }}.Spec.Resource
+		if resource == nil || resource.{{ . }}Ref == nil {
+			return nil
+		}
+		return []string{string(*resource.{{ . }}Ref)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+{{- end }}
+{{- range .ImportDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+var {{ $depNameCamelCase }}ImportDependency = dependency.NewDependency[*orcv1alpha1.{{ $kind }}List, *orcv1alpha1.{{ . }}](
+	"spec.import.filter.{{ $depNameCamelCase }}Ref",
+	func({{ $packageName }} *orcv1alpha1.{{ $kind }}) []string {
+		resource := {{ $packageName }}.Spec.Import
+		if resource == nil || resource.Filter == nil || resource.Filter.{{ . }}Ref == nil {
+			return nil
+		}
+		return []string{string(*resource.Filter.{{ . }}Ref)}
+	},
+)
+{{- end }}
+
+// SetupWithManager sets up the controller with the Manager.
+func (c {{ .PackageName }}ReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	log := ctrl.LoggerFrom(ctx)
+{{- if or (len .AllCreateDependencies) (len .ImportDependencies) }}
+	k8sClient := mgr.GetClient()
+{{- end }}
+{{- range .AllCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	{{ $depNameCamelCase }}WatchEventHandler, err := {{ $depNameCamelCase }}Dependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+{{- end }}
+{{- range .ImportDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	{{ $depNameCamelCase }}ImportWatchEventHandler, err := {{ $depNameCamelCase }}ImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+{{- end }}
+
+	builder := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(options).
+{{- range .AllCreateDependencies }}
+		Watches(&orcv1alpha1.{{ . }}{}, {{ . | camelCase }}WatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.{{ . }}{})),
+		).
+{{- end }}
+{{- range .ImportDependencies }}
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.{{ . }}{}, {{ . | camelCase }}ImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.{{ . }}{})),
+		).
+{{- end }}
+		For(&orcv1alpha1.{{ .Kind }}{})
+
+	if err := errors.Join(
+{{- range .AllCreateDependencies }}
+		{{ . | camelCase }}Dependency.AddToManager(ctx, mgr),
+{{- end }}
+{{- range .ImportDependencies }}
+		{{ . | camelCase }}ImportDependency.AddToManager(ctx, mgr),
+{{- end }}
+		credentialsDependency.AddToManager(ctx, mgr),
+		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
+	); err != nil {
+		return err
+	}
+
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, {{ .PackageName }}HelperFactory{}, {{ .PackageName }}StatusWriter{})
+	return builder.Complete(&r)
+}
