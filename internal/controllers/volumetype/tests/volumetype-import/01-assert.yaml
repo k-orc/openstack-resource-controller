@@ -1,0 +1,34 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-import-external-not-this-one
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: volumetype-import-external-not-this-one
+    description: VolumeType volumetype-import-external from "volumetype-import" test
+    isPublic: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-import
+status:
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be created externally
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing

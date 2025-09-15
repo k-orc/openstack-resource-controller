@@ -1,0 +1,22 @@
+{{ $packageName := .PackageName -}}
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+{{- range .AllCreateDependencies }}
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: {{ . }}
+      name: {{ $packageName }}-dependency
+      ref: {{ . | camelCase }}
+{{- end }}
+    - apiVersion: v1
+      kind: Secret
+      name: {{ $packageName }}-dependency
+      ref: secret
+assertAll:
+{{- range .AllCreateDependencies }}
+    - celExpr: "{{ . | camelCase }}.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/{{ $packageName }}' in {{ . | camelCase }}.metadata.finalizers"
+{{- end }}
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/{{ $packageName }}' in secret.metadata.finalizers"

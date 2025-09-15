@@ -1,0 +1,37 @@
+{{ $packageName := .PackageName -}}
+{{ range .RequiredCreateDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-update
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+{{ end -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-update
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created or updated
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
+  # doesn't have mandatory fields, in that case, leave it empty.
+{{- if len .RequiredCreateDependencies }}
+  resource:
+{{- range .RequiredCreateDependencies }}
+    {{ . | camelCase }}Ref: {{ $packageName }}-update
+{{- end }}
+{{- else }}
+  resource: {}
+{{- end }}

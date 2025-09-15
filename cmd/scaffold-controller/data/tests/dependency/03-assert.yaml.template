@@ -1,0 +1,12 @@
+{{ $packageName := .PackageName -}}
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Dependencies that were prevented deletion before should now be gone
+{{- range .AllCreateDependencies }}
+- script: "! kubectl get {{ . | lower }} {{ $packageName }}-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+{{- end }}
+- script: "! kubectl get secret {{ $packageName }}-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
