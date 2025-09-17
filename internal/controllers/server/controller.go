@@ -129,6 +129,24 @@ var (
 			return []string{string(*resource.UserData.SecretRef)}
 		},
 	)
+
+	volumeDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Volume](
+		"spec.resource.volumes",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			refs := make([]string, 0, len(resource.Volumes))
+			for i := range resource.Volumes {
+				volume := &resource.Volumes[i]
+				refs = append(refs, string(volume.VolumeRef))
+			}
+			return refs
+		},
+		finalizer, externalObjectFieldOwner,
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -156,6 +174,10 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	volumeWatchEventHandler, err := volumeDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
@@ -172,6 +194,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.ServerGroup{}, serverGroupWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.ServerGroup{})),
 		).
+		Watches(&orcv1alpha1.Volume{}, volumeWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Volume{})),
+		).
 		// XXX: This is a general watch on secrets. A general watch on secrets
 		// is undesirable because:
 		// - It requires problematic RBAC
@@ -187,6 +212,7 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		portDependency.AddToManager(ctx, mgr),
 		serverGroupDependency.AddToManager(ctx, mgr),
 		userDataDependency.AddToManager(ctx, mgr),
+		volumeDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {
