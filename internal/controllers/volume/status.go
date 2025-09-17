@@ -129,5 +129,13 @@ func (volumeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		resourceStatus.WithTenantID(osResource.TenantID)
 	}
 
+	for i := range osResource.Attachments {
+		resourceStatus.WithAttachments(orcapplyconfigv1alpha1.VolumeAttachmentStatus().
+			WithAttachmentID(osResource.Attachments[i].AttachmentID).
+			WithServerID(osResource.Attachments[i].ServerID).
+			WithDevice(osResource.Attachments[i].Device).
+			WithAttachedAt(metav1.NewTime(osResource.Attachments[i].AttachedAt)))
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

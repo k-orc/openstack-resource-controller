@@ -1216,6 +1216,7 @@ _Appears in:_
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
+- [ServerVolumeSpec](#servervolumespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [UserDataSpec](#userdataspec)
@@ -2728,6 +2729,7 @@ _Appears in:_
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 32 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 32 <br />MinProperties: 1 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
@@ -2750,6 +2752,7 @@ _Appears in:_
 | `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
 | `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 32 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
@@ -2806,6 +2809,40 @@ _Appears in:_
 - [ServerFilter](#serverfilter)
 - [ServerResourceSpec](#serverresourcespec)
 
+
+
+#### ServerVolumeSpec
+
+
+
+
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `volumeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeRef is a reference to a Volume object. Server creation will wait for<br />this volume to be created and available. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `device` _string_ | device is the name of the device, such as `/dev/vdb`.<br />Omit for auto-assignment |  | MaxLength: 255 <br /> |
+
+
+#### ServerVolumeStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerResourceStatus](#serverresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of a volume attached to the server. |  | MaxLength: 1024 <br /> |
 
 
 #### Subnet
@@ -3046,6 +3083,25 @@ Volume is the Schema for an ORC resource.
 | `status` _[VolumeStatus](#volumestatus)_ | status defines the observed state of the resource. |  |  |
 
 
+#### VolumeAttachmentStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeResourceStatus](#volumeresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `attachmentID` _string_ | attachmentID represents the attachment UUID. |  | MaxLength: 1024 <br /> |
+| `serverID` _string_ | serverID is the UUID of the server to which the volume is attached. |  | MaxLength: 1024 <br /> |
+| `device` _string_ | device is the name of the device in the instance. |  | MaxLength: 1024 <br /> |
+| `attachedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | attachedAt shows the date and time when the resource was attached. The date and time stamp format is ISO 8601. |  |  |
+
+
 #### VolumeFilter
 
 
@@ -3157,6 +3213,7 @@ _Appears in:_
 | `size` _integer_ | size is the size of the volume in GiB. |  |  |
 | `status` _string_ | status represents the current status of the volume. |  | MaxLength: 1024 <br /> |
 | `availabilityZone` _string_ | availabilityZone is which availability zone the volume is in. |  | MaxLength: 1024 <br /> |
+| `attachments` _[VolumeAttachmentStatus](#volumeattachmentstatus) array_ | attachments is a list of attachments for the volume. |  | MaxItems: 32 <br /> |
 | `volumeType` _string_ | volumeType is the name of associated the volume type. |  | MaxLength: 1024 <br /> |
 | `snapshotID` _string_ | snapshotID is the ID of the snapshot from which the volume was created |  | MaxLength: 1024 <br /> |
 | `sourceVolID` _string_ | sourceVolID is the ID of another block storage volume from which the current volume was created |  | MaxLength: 1024 <br /> |

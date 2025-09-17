@@ -71,6 +71,27 @@ type VolumeFilter struct {
 	Size *int32 `json:"size,omitempty"`
 }
 
+type VolumeAttachmentStatus struct {
+	// attachmentID represents the attachment UUID.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	AttachmentID string `json:"attachmentID"`
+
+	// serverID is the UUID of the server to which the volume is attached.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ServerID string `json:"serverID"`
+
+	// device is the name of the device in the instance.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Device string `json:"device"`
+
+	// attachedAt shows the date and time when the resource was attached. The date and time stamp format is ISO 8601.
+	// +optional
+	AttachedAt *metav1.Time `json:"attachedAt"`
+}
+
 // VolumeResourceStatus represents the observed state of the resource.
 type VolumeResourceStatus struct {
 	// name is a Human-readable name for the resource. Might not be unique.
@@ -97,8 +118,11 @@ type VolumeResourceStatus struct {
 	// +optional
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
-	// Instances onto which the volume is attached.
-	// Attachments []Attachment `json:"attachments"`
+	// attachments is a list of attachments for the volume.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	Attachments []VolumeAttachmentStatus `json:"attachments"`
 
 	// volumeType is the name of associated the volume type.
 	// +kubebuilder:validation:MaxLength=1024

@@ -32,6 +32,7 @@ import (
 	flavors "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	servergroups "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	volumeattach "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -104,6 +105,21 @@ func (mr *MockComputeClientMockRecorder) CreateServerGroup(ctx, createOpts any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateServerGroup", reflect.TypeOf((*MockComputeClient)(nil).CreateServerGroup), ctx, createOpts)
 }
 
+// CreateVolumeAttachment mocks base method.
+func (m *MockComputeClient) CreateVolumeAttachment(ctx context.Context, serverID string, createOpts volumeattach.CreateOptsBuilder) (*volumeattach.VolumeAttachment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateVolumeAttachment", ctx, serverID, createOpts)
+	ret0, _ := ret[0].(*volumeattach.VolumeAttachment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateVolumeAttachment indicates an expected call of CreateVolumeAttachment.
+func (mr *MockComputeClientMockRecorder) CreateVolumeAttachment(ctx, serverID, createOpts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVolumeAttachment", reflect.TypeOf((*MockComputeClient)(nil).CreateVolumeAttachment), ctx, serverID, createOpts)
+}
+
 // DeleteFlavor mocks base method.
 func (m *MockComputeClient) DeleteFlavor(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -144,6 +160,20 @@ func (m *MockComputeClient) DeleteServerGroup(ctx context.Context, serverGroupID
 func (mr *MockComputeClientMockRecorder) DeleteServerGroup(ctx, serverGroupID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServerGroup", reflect.TypeOf((*MockComputeClient)(nil).DeleteServerGroup), ctx, serverGroupID)
+}
+
+// DeleteVolumeAttachment mocks base method.
+func (m *MockComputeClient) DeleteVolumeAttachment(ctx context.Context, serverID, volumeID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteVolumeAttachment", ctx, serverID, volumeID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteVolumeAttachment indicates an expected call of DeleteVolumeAttachment.
+func (mr *MockComputeClientMockRecorder) DeleteVolumeAttachment(ctx, serverID, volumeID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteVolumeAttachment", reflect.TypeOf((*MockComputeClient)(nil).DeleteVolumeAttachment), ctx, serverID, volumeID)
 }
 
 // GetFlavor mocks base method.

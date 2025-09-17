@@ -1971,6 +1971,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: userData
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserDataSpec
+    - name: volumes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeSpec
+          elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
   map:
     fields:
@@ -1997,6 +2003,12 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             scalar: string
+          elementRelationship: atomic
+    - name: volumes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
           elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSpec
   map:
@@ -2034,6 +2046,22 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeSpec
+  map:
+    fields:
+    - name: device
+      type:
+        scalar: string
+    - name: volumeRef
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subnet
   map:
     fields:
@@ -2324,6 +2352,24 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeAttachmentStatus
+  map:
+    fields:
+    - name: attachedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: attachmentID
+      type:
+        scalar: string
+      default: ""
+    - name: device
+      type:
+        scalar: string
+      default: ""
+    - name: serverID
+      type:
+        scalar: string
+      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeFilter
   map:
     fields:
@@ -2390,6 +2436,12 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
   map:
     fields:
+    - name: attachments
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeAttachmentStatus
+          elementRelationship: atomic
     - name: availabilityZone
       type:
         scalar: string
