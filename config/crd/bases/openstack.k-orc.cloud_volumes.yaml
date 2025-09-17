@@ -315,6 +315,33 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  attachments:
+                    description: attachments is a list of attachments for the volume.
+                    items:
+                      properties:
+                        attachedAt:
+                          description: attachedAt shows the date and time when the
+                            resource was attached. The date and time stamp format
+                            is ISO 8601.
+                          format: date-time
+                          type: string
+                        attachmentID:
+                          description: attachmentID represents the attachment UUID.
+                          maxLength: 1024
+                          type: string
+                        device:
+                          description: device is the name of the device in the instance.
+                          maxLength: 1024
+                          type: string
+                        serverID:
+                          description: serverID is the UUID of the server to which
+                            the volume is attached.
+                          maxLength: 1024
+                          type: string
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                   availabilityZone:
                     description: availabilityZone is which availability zone the volume
                       is in.

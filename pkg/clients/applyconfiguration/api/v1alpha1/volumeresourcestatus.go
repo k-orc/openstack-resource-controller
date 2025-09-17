@@ -25,26 +25,27 @@ import (
 // VolumeResourceStatusApplyConfiguration represents a declarative configuration of the VolumeResourceStatus type for use
 // with apply.
 type VolumeResourceStatusApplyConfiguration struct {
-	Name               *string                                  `json:"name,omitempty"`
-	Description        *string                                  `json:"description,omitempty"`
-	Size               *int32                                   `json:"size,omitempty"`
-	Status             *string                                  `json:"status,omitempty"`
-	AvailabilityZone   *string                                  `json:"availabilityZone,omitempty"`
-	VolumeType         *string                                  `json:"volumeType,omitempty"`
-	SnapshotID         *string                                  `json:"snapshotID,omitempty"`
-	SourceVolID        *string                                  `json:"sourceVolID,omitempty"`
-	BackupID           *string                                  `json:"backupID,omitempty"`
-	Metadata           []VolumeMetadataStatusApplyConfiguration `json:"metadata,omitempty"`
-	UserID             *string                                  `json:"userID,omitempty"`
-	Bootable           *bool                                    `json:"bootable,omitempty"`
-	Encrypted          *bool                                    `json:"encrypted,omitempty"`
-	ReplicationStatus  *string                                  `json:"replicationStatus,omitempty"`
-	ConsistencyGroupID *string                                  `json:"consistencyGroupID,omitempty"`
-	Multiattach        *bool                                    `json:"multiattach,omitempty"`
-	Host               *string                                  `json:"host,omitempty"`
-	TenantID           *string                                  `json:"tenantID,omitempty"`
-	CreatedAt          *v1.Time                                 `json:"createdAt,omitempty"`
-	UpdatedAt          *v1.Time                                 `json:"updatedAt,omitempty"`
+	Name               *string                                    `json:"name,omitempty"`
+	Description        *string                                    `json:"description,omitempty"`
+	Size               *int32                                     `json:"size,omitempty"`
+	Status             *string                                    `json:"status,omitempty"`
+	AvailabilityZone   *string                                    `json:"availabilityZone,omitempty"`
+	Attachments        []VolumeAttachmentStatusApplyConfiguration `json:"attachments,omitempty"`
+	VolumeType         *string                                    `json:"volumeType,omitempty"`
+	SnapshotID         *string                                    `json:"snapshotID,omitempty"`
+	SourceVolID        *string                                    `json:"sourceVolID,omitempty"`
+	BackupID           *string                                    `json:"backupID,omitempty"`
+	Metadata           []VolumeMetadataStatusApplyConfiguration   `json:"metadata,omitempty"`
+	UserID             *string                                    `json:"userID,omitempty"`
+	Bootable           *bool                                      `json:"bootable,omitempty"`
+	Encrypted          *bool                                      `json:"encrypted,omitempty"`
+	ReplicationStatus  *string                                    `json:"replicationStatus,omitempty"`
+	ConsistencyGroupID *string                                    `json:"consistencyGroupID,omitempty"`
+	Multiattach        *bool                                      `json:"multiattach,omitempty"`
+	Host               *string                                    `json:"host,omitempty"`
+	TenantID           *string                                    `json:"tenantID,omitempty"`
+	CreatedAt          *v1.Time                                   `json:"createdAt,omitempty"`
+	UpdatedAt          *v1.Time                                   `json:"updatedAt,omitempty"`
 }
 
 // VolumeResourceStatusApplyConfiguration constructs a declarative configuration of the VolumeResourceStatus type for use with
@@ -90,6 +91,19 @@ func (b *VolumeResourceStatusApplyConfiguration) WithStatus(value string) *Volum
 // If called multiple times, the AvailabilityZone field is set to the value of the last call.
 func (b *VolumeResourceStatusApplyConfiguration) WithAvailabilityZone(value string) *VolumeResourceStatusApplyConfiguration {
 	b.AvailabilityZone = &value
+	return b
+}
+
+// WithAttachments adds the given value to the Attachments field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Attachments field.
+func (b *VolumeResourceStatusApplyConfiguration) WithAttachments(values ...*VolumeAttachmentStatusApplyConfiguration) *VolumeResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithAttachments")
+		}
+		b.Attachments = append(b.Attachments, *values[i])
+	}
 	return b
 }
 

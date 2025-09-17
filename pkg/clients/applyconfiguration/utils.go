@@ -242,6 +242,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerStatus"):
 		return &apiv1alpha1.ServerStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerVolumeSpec"):
+		return &apiv1alpha1.ServerVolumeSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerVolumeStatus"):
+		return &apiv1alpha1.ServerVolumeStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Subnet"):
 		return &apiv1alpha1.SubnetApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetFilter"):
@@ -262,6 +266,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.UserDataSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Volume"):
 		return &apiv1alpha1.VolumeApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeAttachmentStatus"):
+		return &apiv1alpha1.VolumeAttachmentStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeFilter"):
 		return &apiv1alpha1.VolumeFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeImport"):
