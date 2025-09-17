@@ -1,0 +1,20 @@
+# This file is used to track the info used to scaffold your project
+# and allow the plugins properly work.
+# More info: https://book.kubebuilder.io/reference/project-config.html
+domain: k-orc.cloud
+layout:
+- go.kubebuilder.io/v4
+projectName: orc
+repo: github.com/k-orc/openstack-resource-controller
+resources:
+{{- range . }}
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: {{ .Name }}
+  path: github.com/k-orc/openstack-resource-controller/api/{{ .APIVersion }}
+  version: {{ .APIVersion }}
+{{- end}}
+version: "3"

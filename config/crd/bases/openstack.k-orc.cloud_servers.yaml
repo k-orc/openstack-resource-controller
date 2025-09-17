@@ -275,6 +275,30 @@ spec:
                     x-kubernetes-validations:
                     - message: userData is immutable
                       rule: self == oldSelf
+                  volumes:
+                    description: volumes is a list of volumes attached to the server.
+                    items:
+                      minProperties: 1
+                      properties:
+                        device:
+                          description: |-
+                            device is the name of the device, such as `/dev/vdb`.
+                            Omit for auto-assignment
+                          maxLength: 255
+                          type: string
+                        volumeRef:
+                          description: |-
+                            volumeRef is a reference to a Volume object. Server creation will wait for
+                            this volume to be created and available.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                      required:
+                      - volumeRef
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                 required:
                 - flavorRef
                 - imageRef
@@ -419,6 +443,18 @@ spec:
                     items:
                       maxLength: 1024
                       type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  volumes:
+                    description: volumes contains the volumes attached to the server.
+                    items:
+                      properties:
+                        id:
+                          description: id is the ID of a volume attached to the server.
+                          maxLength: 1024
+                          type: string
+                      type: object
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic

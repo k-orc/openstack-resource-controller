@@ -1,0 +1,31 @@
+{{ $packageName := .PackageName -}}
+{{ range .ImportDependencies -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ . }}
+metadata:
+  name: {{ $packageName }}-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: {{ $packageName }}-import-dependency-external
+{{ end -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ $packageName }}-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+{{- range .ImportDependencies }}
+      {{ . | camelCase }}Ref: {{ $packageName }}-import-dependency
+{{- end }}

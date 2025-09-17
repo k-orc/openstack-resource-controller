@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
@@ -245,6 +246,7 @@ func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcOb
 	return []resourceReconciler{
 		actuator.checkStatus,
 		actuator.updateResource,
+		actuator.reconcileVolumeAttachments,
 	}, nil
 }
 
@@ -318,6 +320,80 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 	}
+}
+
+func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	var needsRefresh bool
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	volumesMap, reconcileStatus := volumeDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(volume *orcv1alpha1.Volume) bool {
+			return orcv1alpha1.IsAvailable(volume) && volume.Status.ID != nil
+		},
+	)
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
+	}
+
+	// Only operate on servers in available status
+	if osResource.Status != ServerStatusActive {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	// Create missing attachments
+	for i := range resource.Volumes {
+		volumeRef := resource.Volumes[i].VolumeRef
+		if volume, ok := volumesMap[string(volumeRef)]; !ok {
+			// Programming error
+			return reconcileStatus.WithError(fmt.Errorf("volume %s not present in volumesMap", volumeRef))
+		} else {
+			found := false
+			for _, attachment := range osResource.AttachedVolumes {
+				if attachment.ID == *volume.Status.ID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				needsRefresh = true
+				createOpts := volumeattach.CreateOpts{
+					VolumeID: *volume.Status.ID,
+				}
+				log.V(logging.Verbose).Info("Attaching volume to server", "volume", *volume.Status.ID, "server", *obj.Status.ID)
+				_, err := actuator.osClient.CreateVolumeAttachment(ctx, *obj.Status.ID, createOpts)
+				reconcileStatus = reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+			}
+		}
+	}
+
+	// Delete extra attachments
+	for _, attachment := range osResource.AttachedVolumes {
+		found := false
+		for _, volume := range volumesMap {
+			if attachment.ID == *volume.Status.ID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			needsRefresh = true
+			log.V(logging.Verbose).Info("Detaching volume from server", "volume", attachment.ID, "server", *obj.Status.ID)
+			err := actuator.osClient.DeleteVolumeAttachment(ctx, *obj.Status.ID, attachment.ID)
+			reconcileStatus = reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+		}
+	}
+
+	if needsRefresh {
+		reconcileStatus = reconcileStatus.WithReconcileStatus(progress.NeedsRefresh())
+	}
+	return reconcileStatus
 }
 
 type serverHelperFactory struct{}

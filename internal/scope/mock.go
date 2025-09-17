@@ -34,10 +34,12 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
-	ComputeClient  *mock.MockComputeClient
-	NetworkClient  *mock.MockNetworkClient
-	ImageClient    *mock.MockImageClient
-	IdentityClient *mock.MockIdentityClient
+	ComputeClient    *mock.MockComputeClient
+	NetworkClient    *mock.MockNetworkClient
+	ImageClient      *mock.MockImageClient
+	IdentityClient   *mock.MockIdentityClient
+	VolumeClient     *mock.MockVolumeClient
+	VolumeTypeClient *mock.MockVolumeTypeClient
 
 	clientScopeCreateError error
 }
@@ -47,12 +49,16 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
+	volumeClient := mock.NewMockVolumeClient(mockCtrl)
+	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 
 	return &MockScopeFactory{
-		ComputeClient:  computeClient,
-		ImageClient:    imageClient,
-		NetworkClient:  networkClient,
-		IdentityClient: identityClient,
+		ComputeClient:    computeClient,
+		ImageClient:      imageClient,
+		NetworkClient:    networkClient,
+		IdentityClient:   identityClient,
+		VolumeClient:     volumeClient,
+		VolumeTypeClient: volumetypeClient,
 	}
 }
 
@@ -81,6 +87,14 @@ func (f *MockScopeFactory) NewNetworkClient() (osclients.NetworkClient, error) {
 
 func (f *MockScopeFactory) NewIdentityClient() (osclients.IdentityClient, error) {
 	return f.IdentityClient, nil
+}
+
+func (f *MockScopeFactory) NewVolumeClient() (osclients.VolumeClient, error) {
+	return f.VolumeClient, nil
+}
+
+func (f *MockScopeFactory) NewVolumeTypeClient() (osclients.VolumeTypeClient, error) {
+	return f.VolumeTypeClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {
