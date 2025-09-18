@@ -469,7 +469,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[FlavorImport](#flavorimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[FlavorResourceSpec](#flavorresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[FlavorResourceSpec](#flavorresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -488,7 +488,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[FlavorResourceStatus](#flavorresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -622,7 +622,7 @@ _Appears in:_
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
 | `routerID` _string_ | routerID is the ID of the router to which the floatingip is associated. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
@@ -642,7 +642,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[FloatingIPImport](#floatingipimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[FloatingIPResourceSpec](#floatingipresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[FloatingIPResourceSpec](#floatingipresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -661,7 +661,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[FloatingIPResourceStatus](#floatingipresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -936,7 +936,6 @@ _Underlying type:_ _string_
 
 ImageHWBus is a type of hardware bus.
 
-
 Permitted values are scsi, virtio, uml, xen, ide, usb, and lxc.
 
 _Validation:_
@@ -1060,12 +1059,12 @@ _Appears in:_
 | `cpuSockets` _integer_ | cpuSockets is the preferred number of sockets to expose to the guest |  | Minimum: 1 <br /> |
 | `cpuCores` _integer_ | cpuCores is the preferred number of cores to expose to the guest |  | Minimum: 1 <br /> |
 | `cpuThreads` _integer_ | cpuThreads is the preferred number of threads to expose to the guest |  | Minimum: 1 <br /> |
-| `cpuPolicy` _string_ | cpuPolicy is used to pin the virtual CPUs (vCPUs) of instances to the<br />host's physical CPU cores (pCPUs). Host aggregates should be used to<br />separate these pinned instances from unpinned instances as the latter<br />will not respect the resourcing requirements of the former.<br /><br />Permitted values are shared (the default), and dedicated.<br /><br />shared: The guest vCPUs will be allowed to freely float across host<br />pCPUs, albeit potentially constrained by NUMA policy.<br /><br />dedicated: The guest vCPUs will be strictly pinned to a set of host<br />pCPUs. In the absence of an explicit vCPU topology request, the<br />drivers typically expose all vCPUs as sockets with one core and one<br />thread. When strict CPU pinning is in effect the guest CPU topology<br />will be setup to match the topology of the CPUs to which it is<br />pinned. This option implies an overcommit ratio of 1.0. For example,<br />if a two vCPU guest is pinned to a single host core with two threads,<br />then the guest will get a topology of one socket, one core, two<br />threads. |  | Enum: [shared dedicated] <br /> |
-| `cpuThreadPolicy` _string_ | cpuThreadPolicy further refines a CPUPolicy of 'dedicated' by stating<br />how hardware CPU threads in a simultaneous multithreading-based (SMT)<br />architecture be used. SMT-based architectures include Intel<br />processors with Hyper-Threading technology. In these architectures,<br />processor cores share a number of components with one or more other<br />cores. Cores in such architectures are commonly referred to as<br />hardware threads, while the cores that a given core share components<br />with are known as thread siblings.<br /><br />Permitted values are prefer (the default), isolate, and require.<br /><br />prefer: The host may or may not have an SMT architecture. Where an<br />SMT architecture is present, thread siblings are preferred.<br /><br />isolate: The host must not have an SMT architecture or must emulate a<br />non-SMT architecture. If the host does not have an SMT architecture,<br />each vCPU is placed on a different core as expected. If the host does<br />have an SMT architecture - that is, one or more cores have thread<br />siblings - then each vCPU is placed on a different physical core. No<br />vCPUs from other guests are placed on the same core. All but one<br />thread sibling on each utilized core is therefore guaranteed to be<br />unusable.<br /><br />require: The host must have an SMT architecture. Each vCPU is<br />allocated on thread siblings. If the host does not have an SMT<br />architecture, then it is not used. If the host has an SMT<br />architecture, but not enough cores with free thread siblings are<br />available, then scheduling fails. |  | Enum: [prefer isolate require] <br /> |
+| `cpuPolicy` _string_ | cpuPolicy is used to pin the virtual CPUs (vCPUs) of instances to the<br />host's physical CPU cores (pCPUs). Host aggregates should be used to<br />separate these pinned instances from unpinned instances as the latter<br />will not respect the resourcing requirements of the former.<br />Permitted values are shared (the default), and dedicated.<br />shared: The guest vCPUs will be allowed to freely float across host<br />pCPUs, albeit potentially constrained by NUMA policy.<br />dedicated: The guest vCPUs will be strictly pinned to a set of host<br />pCPUs. In the absence of an explicit vCPU topology request, the<br />drivers typically expose all vCPUs as sockets with one core and one<br />thread. When strict CPU pinning is in effect the guest CPU topology<br />will be setup to match the topology of the CPUs to which it is<br />pinned. This option implies an overcommit ratio of 1.0. For example,<br />if a two vCPU guest is pinned to a single host core with two threads,<br />then the guest will get a topology of one socket, one core, two<br />threads. |  | Enum: [shared dedicated] <br /> |
+| `cpuThreadPolicy` _string_ | cpuThreadPolicy further refines a CPUPolicy of 'dedicated' by stating<br />how hardware CPU threads in a simultaneous multithreading-based (SMT)<br />architecture be used. SMT-based architectures include Intel<br />processors with Hyper-Threading technology. In these architectures,<br />processor cores share a number of components with one or more other<br />cores. Cores in such architectures are commonly referred to as<br />hardware threads, while the cores that a given core share components<br />with are known as thread siblings.<br />Permitted values are prefer (the default), isolate, and require.<br />prefer: The host may or may not have an SMT architecture. Where an<br />SMT architecture is present, thread siblings are preferred.<br />isolate: The host must not have an SMT architecture or must emulate a<br />non-SMT architecture. If the host does not have an SMT architecture,<br />each vCPU is placed on a different core as expected. If the host does<br />have an SMT architecture - that is, one or more cores have thread<br />siblings - then each vCPU is placed on a different physical core. No<br />vCPUs from other guests are placed on the same core. All but one<br />thread sibling on each utilized core is therefore guaranteed to be<br />unusable.<br />require: The host must have an SMT architecture. Each vCPU is<br />allocated on thread siblings. If the host does not have an SMT<br />architecture, then it is not used. If the host has an SMT<br />architecture, but not enough cores with free thread siblings are<br />available, then scheduling fails. |  | Enum: [prefer isolate require] <br /> |
 | `cdromBus` _[ImageHWBus](#imagehwbus)_ | cdromBus specifies the type of disk controller to attach CD-ROM devices to. |  | Enum: [scsi virtio uml xen ide usb lxc] <br /> |
 | `diskBus` _[ImageHWBus](#imagehwbus)_ | diskBus specifies the type of disk controller to attach disk devices to. |  | Enum: [scsi virtio uml xen ide usb lxc] <br /> |
-| `scsiModel` _string_ | scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide<br />block device access for compute instances; by default, instances use<br />VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI<br />controller device that provides improved scalability and performance,<br />and supports advanced SCSI hardware.<br /><br />The only permitted value is virtio-scsi. |  | Enum: [virtio-scsi] <br /> |
-| `vifModel` _string_ | vifModel specifies the model of virtual network interface device to use.<br /><br />Permitted values are e1000, e1000e, ne2k_pci, pcnet, rtl8139, virtio,<br />and vmxnet3. |  | Enum: [e1000 e1000e ne2k_pci pcnet rtl8139 virtio vmxnet3] <br /> |
+| `scsiModel` _string_ | scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide<br />block device access for compute instances; by default, instances use<br />VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI<br />controller device that provides improved scalability and performance,<br />and supports advanced SCSI hardware.<br />The only permitted value is virtio-scsi. |  | Enum: [virtio-scsi] <br /> |
+| `vifModel` _string_ | vifModel specifies the model of virtual network interface device to use.<br />Permitted values are e1000, e1000e, ne2k_pci, pcnet, rtl8139, virtio,<br />and vmxnet3. |  | Enum: [e1000 e1000e ne2k_pci pcnet rtl8139 virtio vmxnet3] <br /> |
 | `rngModel` _string_ | rngModel adds a random-number generator device to the image’s instances.<br />This image property by itself does not guarantee that a hardware RNG will be used;<br />it expresses a preference that may or may not be satisfied depending upon Nova configuration. |  | MaxLength: 255 <br /> |
 | `qemuGuestAgent` _boolean_ | qemuGuestAgent enables QEMU guest agent. |  |  |
 
@@ -1128,7 +1127,7 @@ _Appears in:_
 | `hash` _[ImageHash](#imagehash)_ | hash is the hash of the image data published by Glance. Note that this is<br />a hash of the data stored internally by Glance, which will have been<br />decompressed and potentially format converted depending on server-side<br />configuration which is not visible to clients. It is expected that this<br />hash will usually differ from the download hash. |  |  |
 | `sizeB` _integer_ | sizeB is the size of the image data, in bytes |  |  |
 | `virtualSizeB` _integer_ | virtualSizeB is the size of the disk the image data represents, in bytes |  |  |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
 #### ImageSpec
@@ -1145,7 +1144,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[ImageImport](#imageimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[ImageResourceSpec](#imageresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[ImageResourceSpec](#imageresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -1164,7 +1163,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ImageResourceStatus](#imageresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 | `downloadAttempts` _integer_ | downloadAttempts is the number of times the controller has attempted to download the image contents |  |  |
@@ -1497,19 +1496,19 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the network. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates whether network is currently operational. Possible values<br />include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define<br />additional values. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the network,<br />which is up (true) or down (false). |  |  |
-| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />network. |  | MaxItems: 32 <br /> |
+| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />network. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `dnsDomain` _string_ | dnsDomain is the DNS domain of the network |  | MaxLength: 1024 <br /> |
 | `mtu` _integer_ | mtu is the the maximum transmission unit value to address<br />fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6. |  |  |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled is the port security status of the network.<br />Valid values are enabled (true) and disabled (false). This value is<br />used as the default value of port_security_enabled field of a newly<br />created port. |  |  |
 | `provider` _[ProviderPropertiesStatus](#providerpropertiesstatus)_ | provider contains provider-network properties. |  |  |
 | `external` _boolean_ | external defines whether the network may be used for creation of<br />floating IPs. Only networks with this flag may be an external<br />gateway for routers. The network must have an external routing<br />facility that is not managed by the networking service. If the<br />network is updated from external to internal the unused floating IPs<br />of this network are automatically deleted when extension<br />floatingip-autodelete-internal is present. |  |  |
 | `shared` _boolean_ | shared specifies whether the network resource can be accessed by any<br />tenant. |  |  |
-| `subnets` _string array_ | subnets associated with this network. |  | MaxItems: 32 <br /> |
+| `subnets` _string array_ | subnets associated with this network. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
 #### NetworkSpec
@@ -1526,7 +1525,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[NetworkImport](#networkimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[NetworkResourceSpec](#networkresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[NetworkResourceSpec](#networkresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -1545,7 +1544,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[NetworkResourceStatus](#networkresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -1854,14 +1853,14 @@ _Appears in:_
 | `networkID` _string_ | networkID is the ID of the attached network. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the port,<br />which is up (true) or down (false). |  |  |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 1024 <br /> |
 | `deviceID` _string_ | deviceID is the ID of the device that uses this port. |  | MaxLength: 1024 <br /> |
 | `deviceOwner` _string_ | deviceOwner is the entity type that uses this port. |  | MaxLength: 1024 <br /> |
 | `allowedAddressPairs` _[AllowedAddressPairStatus](#allowedaddresspairstatus) array_ | allowedAddressPairs is a set of zero or more allowed address pair<br />objects each where address pair object contains an IP address and<br />MAC address. |  | MaxItems: 32 <br /> |
 | `fixedIPs` _[FixedIPStatus](#fixedipstatus) array_ | fixedIPs is a set of zero or more fixed IP objects each where fixed<br />IP object contains an IP address and subnet ID from which the IP<br />address is assigned. |  | MaxItems: 32 <br /> |
-| `securityGroups` _string array_ | securityGroups contains the IDs of security groups applied to the port. |  | MaxItems: 32 <br /> |
+| `securityGroups` _string array_ | securityGroups contains the IDs of security groups applied to the port. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
@@ -1903,7 +1902,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[PortImport](#portimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[PortResourceSpec](#portresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[PortResourceSpec](#portresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -1922,7 +1921,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[PortResourceStatus](#portresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2041,7 +2040,7 @@ _Appears in:_
 | `name` _string_ | name is a Human-readable name for the project. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 65535 <br /> |
 | `enabled` _boolean_ | enabled represents whether a project is enabled or not. |  |  |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 80 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 80 <br />items:MaxLength: 1024 <br /> |
 
 
 #### ProjectSpec
@@ -2058,7 +2057,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[ProjectImport](#projectimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[ProjectResourceSpec](#projectresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[ProjectResourceSpec](#projectresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -2077,7 +2076,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ProjectResourceStatus](#projectresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2271,7 +2270,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the port created for the router interface |  | MaxLength: 1024 <br /> |
 
 
@@ -2352,10 +2351,10 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the router,<br />which is up (true) or down (false). |  |  |
 | `externalGateways` _[ExternalGatewayStatus](#externalgatewaystatus) array_ | externalGateways is a list of external gateways for the router. |  | MaxItems: 32 <br /> |
-| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />router. |  | MaxItems: 32 <br /> |
+| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />router. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
 #### RouterSpec
@@ -2372,7 +2371,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[RouterImport](#routerimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[RouterResourceSpec](#routerresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[RouterResourceSpec](#routerresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -2391,7 +2390,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[RouterResourceStatus](#routerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2528,7 +2527,7 @@ _Appears in:_
 | `name` _string_ | name is a Human-readable name for the security group. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the security group. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `stateful` _boolean_ | stateful indicates if the security group is stateful or stateless. |  |  |
 | `rules` _[SecurityGroupRuleStatus](#securitygrouprulestatus) array_ | rules is a list of security group rules belonging to this SG. |  | MaxItems: 256 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
@@ -2595,7 +2594,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[SecurityGroupImport](#securitygroupimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[SecurityGroupResourceSpec](#securitygroupresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[SecurityGroupResourceSpec](#securitygroupresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -2614,7 +2613,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[SecurityGroupResourceStatus](#securitygroupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2839,7 +2838,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[ServerGroupImport](#servergroupimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[ServerGroupResourceSpec](#servergroupresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[ServerGroupResourceSpec](#servergroupresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -2858,7 +2857,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ServerGroupResourceStatus](#servergroupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2958,8 +2957,8 @@ _Appears in:_
 | `hostID` _string_ | hostID is the host where the server is located in the cloud. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
-| `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br /> |
+| `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
 #### ServerSpec
@@ -2976,7 +2975,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[ServerImport](#serverimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[ServerResourceSpec](#serverresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[ServerResourceSpec](#serverresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -2995,7 +2994,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ServerResourceStatus](#serverresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -3181,7 +3180,7 @@ _Appears in:_
 | `ipVersion` _integer_ | ipVersion specifies IP version, either `4' or `6'. |  |  |
 | `cidr` _string_ | cidr representing IP range for this subnet, based on IP version. |  | MaxLength: 1024 <br /> |
 | `gatewayIP` _string_ | gatewayIP is the default gateway used by devices in this subnet, if any. |  | MaxLength: 1024 <br /> |
-| `dnsNameservers` _string array_ | dnsNameservers is a list of name servers used by hosts in this subnet. |  | MaxItems: 16 <br /> |
+| `dnsNameservers` _string array_ | dnsNameservers is a list of name servers used by hosts in this subnet. |  | MaxItems: 16 <br />items:MaxLength: 1024 <br /> |
 | `dnsPublishFixedIP` _boolean_ | dnsPublishFixedIP specifies whether the fixed IP addresses are published to the DNS. |  |  |
 | `allocationPools` _[AllocationPoolStatus](#allocationpoolstatus) array_ | allocationPools is a list of sub-ranges within CIDR available for dynamic<br />allocation to ports. |  | MaxItems: 32 <br /> |
 | `hostRoutes` _[HostRouteStatus](#hostroutestatus) array_ | hostRoutes is a list of routes that should be used by devices with IPs<br />from this subnet (not including local subnet route). |  | MaxItems: 256 <br /> |
@@ -3191,7 +3190,7 @@ _Appears in:_
 | `ipv6AddressMode` _string_ | ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses. |  | MaxLength: 1024 <br /> |
 | `ipv6RAMode` _string_ | ipv6RAMode is the IPv6 router advertisement mode. It specifies<br />whether the networking service should transmit ICMPv6 packets. |  | MaxLength: 1024 <br /> |
 | `subnetPoolID` _string_ | subnetPoolID is the id of the subnet pool associated with the subnet. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags optionally set via extensions/attributestags |  | MaxItems: 32 <br /> |
+| `tags` _string array_ | tags optionally set via extensions/attributestags |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
@@ -3211,7 +3210,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `import` _[SubnetImport](#subnetimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `resource` _[SubnetResourceSpec](#subnetresourcespec)_ | resource specifies the desired state of the resource.<br /><br />resource may not be specified if the management policy is `unmanaged`.<br /><br />resource must be specified if the management policy is `managed`. |  |  |
+| `resource` _[SubnetResourceSpec](#subnetresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
@@ -3230,7 +3229,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br /><br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br /><br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[SubnetResourceStatus](#subnetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
