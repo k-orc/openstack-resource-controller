@@ -346,7 +346,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Flavor` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[FlavorSpec](#flavorspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[FlavorStatus](#flavorstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -405,7 +405,7 @@ FlavorList contains a list of Flavor.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `FlavorList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Flavor](#flavor) array_ | items contains a list of Flavor. |  |  |
 
 
@@ -488,7 +488,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[FlavorResourceStatus](#flavorresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -508,7 +508,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `FloatingIP` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[FloatingIPSpec](#floatingipspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[FloatingIPStatus](#floatingipstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -573,7 +573,7 @@ FloatingIPList contains a list of FloatingIP.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `FloatingIPList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[FloatingIP](#floatingip) array_ | items contains a list of FloatingIP. |  |  |
 
 
@@ -623,8 +623,8 @@ _Appears in:_
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
 | `routerID` _string_ | routerID is the ID of the router to which the floatingip is associated. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
-| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
-| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 
 
@@ -661,7 +661,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[FloatingIPResourceStatus](#floatingipresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -800,7 +800,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Image` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[ImageSpec](#imagespec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[ImageStatus](#imagestatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -1018,7 +1018,7 @@ ImageList contains a list of Image.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `ImageList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Image](#image) array_ | items contains a list of Image. |  |  |
 
 
@@ -1163,7 +1163,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ImageResourceStatus](#imageresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 | `downloadAttempts` _integer_ | downloadAttempts is the number of times the controller has attempted to download the image contents |  |  |
@@ -1386,7 +1386,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Network` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[NetworkSpec](#networkspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[NetworkStatus](#networkstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -1449,7 +1449,7 @@ NetworkList contains a list of Network.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `NetworkList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Network](#network) array_ | items contains a list of Network. |  |  |
 
 
@@ -1497,8 +1497,8 @@ _Appears in:_
 | `projectID` _string_ | projectID is the project owner of the network. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates whether network is currently operational. Possible values<br />include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define<br />additional values. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
-| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
-| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the network,<br />which is up (true) or down (false). |  |  |
 | `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />network. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
@@ -1544,7 +1544,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[NetworkResourceStatus](#networkresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -1593,8 +1593,8 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
-| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 
 
@@ -1694,7 +1694,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Port` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[PortSpec](#portspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[PortStatus](#portstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -1757,7 +1757,7 @@ PortList contains a list of Port.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `PortList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Port](#port) array_ | items contains a list of Port. |  |  |
 
 
@@ -1864,8 +1864,8 @@ _Appears in:_
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
-| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
-| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 
 
@@ -1921,7 +1921,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[PortResourceStatus](#portresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -1941,7 +1941,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Project` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[ProjectSpec](#projectspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[ProjectStatus](#projectstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -2001,7 +2001,7 @@ ProjectList contains a list of Project.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `ProjectList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Project](#project) array_ | items contains a list of Project. |  |  |
 
 
@@ -2076,7 +2076,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ProjectResourceStatus](#projectresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2153,7 +2153,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Router` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[RouterSpec](#routerspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[RouterStatus](#routerstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -2216,7 +2216,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `RouterInterface` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[RouterInterfaceSpec](#routerinterfacespec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[RouterInterfaceStatus](#routerinterfacestatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -2235,7 +2235,7 @@ RouterInterfaceList contains a list of RouterInterface.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `RouterInterfaceList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[RouterInterface](#routerinterface) array_ | items contains a list of RouterInterface. |  | MaxItems: 32 <br /> |
 
 
@@ -2270,7 +2270,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the port created for the router interface |  | MaxLength: 1024 <br /> |
 
 
@@ -2307,7 +2307,7 @@ RouterList contains a list of Router.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `RouterList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Router](#router) array_ | items contains a list of Router. |  |  |
 
 
@@ -2390,7 +2390,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[RouterResourceStatus](#routerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2424,7 +2424,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `SecurityGroup` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[SecurityGroupSpec](#securitygroupspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[SecurityGroupStatus](#securitygroupstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -2486,7 +2486,7 @@ SecurityGroupList contains a list of SecurityGroup.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `SecurityGroupList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[SecurityGroup](#securitygroup) array_ | items contains a list of SecurityGroup. |  |  |
 
 
@@ -2530,8 +2530,8 @@ _Appears in:_
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `stateful` _boolean_ | stateful indicates if the security group is stateful or stateless. |  |  |
 | `rules` _[SecurityGroupRuleStatus](#securitygrouprulestatus) array_ | rules is a list of security group rules belonging to this SG. |  | MaxItems: 256 <br /> |
-| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
-| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 
 
@@ -2613,7 +2613,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[SecurityGroupResourceStatus](#securitygroupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2633,7 +2633,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Server` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[ServerSpec](#serverspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[ServerStatus](#serverstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -2674,7 +2674,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `ServerGroup` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[ServerGroupSpec](#servergroupspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[ServerGroupStatus](#servergroupstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -2730,7 +2730,7 @@ ServerGroupList contains a list of ServerGroup.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `ServerGroupList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[ServerGroup](#servergroup) array_ | items contains a list of ServerGroup. |  |  |
 
 
@@ -2857,7 +2857,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ServerGroupResourceStatus](#servergroupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -2896,7 +2896,7 @@ ServerList contains a list of Server.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `ServerList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Server](#server) array_ | items contains a list of Server. |  |  |
 
 
@@ -2994,7 +2994,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[ServerResourceStatus](#serverresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
@@ -3031,7 +3031,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `Subnet` | | |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[SubnetSpec](#subnetspec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[SubnetStatus](#subnetstatus)_ | status defines the observed state of the resource. |  |  |
 
@@ -3128,7 +3128,7 @@ SubnetList contains a list of Subnet.
 | --- | --- | --- | --- |
 | `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
 | `kind` _string_ | `SubnetList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `items` _[Subnet](#subnet) array_ | items contains a list of Subnet. |  |  |
 
 
@@ -3191,8 +3191,8 @@ _Appears in:_
 | `ipv6RAMode` _string_ | ipv6RAMode is the IPv6 router advertisement mode. It specifies<br />whether the networking service should transmit ICMPv6 packets. |  | MaxLength: 1024 <br /> |
 | `subnetPoolID` _string_ | subnetPoolID is the id of the subnet pool associated with the subnet. |  | MaxLength: 1024 <br /> |
 | `tags` _string array_ | tags optionally set via extensions/attributestags |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
-| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
-| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 
 
@@ -3229,7 +3229,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[SubnetResourceStatus](#subnetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 

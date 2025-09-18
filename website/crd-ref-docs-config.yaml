@@ -5,4 +5,4 @@ processor:
   ignoreFields:
     - "TypeMeta$"
 render:
-  kubernetesVersion: 1.22
+  kubernetesVersion: 1.29
