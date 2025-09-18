@@ -1,7 +1,7 @@
 .PHONY: default
 default: generated
 
-CRD_REF_DOCS?=github.com/elastic/crd-ref-docs@v0.1.0
+CRD_REF_DOCS?=github.com/elastic/crd-ref-docs@v0.2.0
 GOMARKDOC?=github.com/princjef/gomarkdoc/cmd/gomarkdoc@v1.1.0
 
 websitedir := $(dir $(lastword $(MAKEFILE_LIST)))
