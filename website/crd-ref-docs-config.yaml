@@ -1,7 +1,6 @@
 processor:
   ignoreTypes:
-    - "OpenStack(.*)List$"
-    - "(OpenStack|Common)(.*)Status$"
+    - "(.*)List$"
   ignoreFields:
     - "TypeMeta$"
 render:

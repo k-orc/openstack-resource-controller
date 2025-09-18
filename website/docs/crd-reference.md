@@ -11,29 +11,17 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 
 ### Resource Types
 - [Flavor](#flavor)
-- [FlavorList](#flavorlist)
 - [FloatingIP](#floatingip)
-- [FloatingIPList](#floatingiplist)
 - [Image](#image)
-- [ImageList](#imagelist)
 - [Network](#network)
-- [NetworkList](#networklist)
 - [Port](#port)
-- [PortList](#portlist)
 - [Project](#project)
-- [ProjectList](#projectlist)
 - [Router](#router)
 - [RouterInterface](#routerinterface)
-- [RouterInterfaceList](#routerinterfacelist)
-- [RouterList](#routerlist)
 - [SecurityGroup](#securitygroup)
-- [SecurityGroupList](#securitygrouplist)
 - [Server](#server)
 - [ServerGroup](#servergroup)
-- [ServerGroupList](#servergrouplist)
-- [ServerList](#serverlist)
 - [Subnet](#subnet)
-- [SubnetList](#subnetlist)
 
 
 
@@ -339,8 +327,7 @@ Flavor is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [FlavorList](#flavorlist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -389,24 +376,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[FlavorFilter](#flavorfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### FlavorList
-
-
-
-FlavorList contains a list of Flavor.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `FlavorList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Flavor](#flavor) array_ | items contains a list of Flavor. |  |  |
 
 
 #### FlavorResourceSpec
@@ -501,8 +470,7 @@ FloatingIP is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [FloatingIPList](#floatingiplist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -557,24 +525,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[FloatingIPFilter](#floatingipfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### FloatingIPList
-
-
-
-FloatingIPList contains a list of FloatingIP.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `FloatingIPList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[FloatingIP](#floatingip) array_ | items contains a list of FloatingIP. |  |  |
 
 
 #### FloatingIPResourceSpec
@@ -793,8 +743,7 @@ Image is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [ImageList](#imagelist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1002,24 +951,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[ImageFilter](#imagefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### ImageList
-
-
-
-ImageList contains a list of Image.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `ImageList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Image](#image) array_ | items contains a list of Image. |  |  |
 
 
 #### ImageProperties
@@ -1379,8 +1310,7 @@ Network is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [NetworkList](#networklist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1433,24 +1363,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[NetworkFilter](#networkfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### NetworkList
-
-
-
-NetworkList contains a list of Network.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `NetworkList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Network](#network) array_ | items contains a list of Network. |  |  |
 
 
 #### NetworkResourceSpec
@@ -1687,8 +1599,7 @@ Port is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [PortList](#portlist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1741,24 +1652,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[PortFilter](#portfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### PortList
-
-
-
-PortList contains a list of Port.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `PortList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Port](#port) array_ | items contains a list of Port. |  |  |
 
 
 #### PortNumber
@@ -1934,8 +1827,7 @@ Project is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [ProjectList](#projectlist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1985,24 +1877,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[ProjectFilter](#projectfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### ProjectList
-
-
-
-ProjectList contains a list of Project.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `ProjectList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Project](#project) array_ | items contains a list of Project. |  |  |
 
 
 #### ProjectResourceSpec
@@ -2146,8 +2020,7 @@ Router is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [RouterList](#routerlist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2209,8 +2082,7 @@ RouterInterface is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [RouterInterfaceList](#routerinterfacelist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2219,24 +2091,6 @@ _Appears in:_
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
 | `spec` _[RouterInterfaceSpec](#routerinterfacespec)_ | spec specifies the desired state of the resource. |  |  |
 | `status` _[RouterInterfaceStatus](#routerinterfacestatus)_ | status defines the observed state of the resource. |  |  |
-
-
-#### RouterInterfaceList
-
-
-
-RouterInterfaceList contains a list of RouterInterface.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `RouterInterfaceList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[RouterInterface](#routerinterface) array_ | items contains a list of RouterInterface. |  | MaxItems: 32 <br /> |
 
 
 #### RouterInterfaceSpec
@@ -2291,24 +2145,6 @@ _Appears in:_
 | Field | Description |
 | --- | --- |
 | `Subnet` |  |
-
-
-#### RouterList
-
-
-
-RouterList contains a list of Router.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `RouterList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Router](#router) array_ | items contains a list of Router. |  |  |
 
 
 #### RouterResourceSpec
@@ -2417,8 +2253,7 @@ SecurityGroup is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [SecurityGroupList](#securitygrouplist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2470,24 +2305,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[SecurityGroupFilter](#securitygroupfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### SecurityGroupList
-
-
-
-SecurityGroupList contains a list of SecurityGroup.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `SecurityGroupList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[SecurityGroup](#securitygroup) array_ | items contains a list of SecurityGroup. |  |  |
 
 
 #### SecurityGroupResourceSpec
@@ -2626,8 +2443,7 @@ Server is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [ServerList](#serverlist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2667,8 +2483,7 @@ ServerGroup is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [ServerGroupList](#servergrouplist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -2714,24 +2529,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[ServerGroupFilter](#servergroupfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### ServerGroupList
-
-
-
-ServerGroupList contains a list of ServerGroup.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `ServerGroupList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[ServerGroup](#servergroup) array_ | items contains a list of ServerGroup. |  |  |
 
 
 #### ServerGroupPolicy
@@ -2882,24 +2679,6 @@ _Appears in:_
 | `filter` _[ServerFilter](#serverfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
 
 
-#### ServerList
-
-
-
-ServerList contains a list of Server.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `ServerList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Server](#server) array_ | items contains a list of Server. |  |  |
-
-
 #### ServerPortSpec
 
 
@@ -3024,8 +2803,7 @@ Subnet is the Schema for an ORC resource.
 
 
 
-_Appears in:_
-- [SubnetList](#subnetlist)
+
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -3112,24 +2890,6 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
 | `filter` _[SubnetFilter](#subnetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
-
-
-#### SubnetList
-
-
-
-SubnetList contains a list of Subnet.
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
-| `kind` _string_ | `SubnetList` | | |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Subnet](#subnet) array_ | items contains a list of Subnet. |  |  |
 
 
 #### SubnetResourceSpec
