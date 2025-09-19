@@ -28,6 +28,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/tags"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -61,6 +62,8 @@ type ComputeClient interface {
 	DeleteServerGroup(ctx context.Context, serverGroupID string) error
 	GetServerGroup(ctx context.Context, serverGroupID string) (*servergroups.ServerGroup, error)
 	ListServerGroups(ctx context.Context, listOpts servergroups.ListOptsBuilder) iter.Seq2[*servergroups.ServerGroup, error]
+
+	ReplaceAllServerAttributesTags(ctx context.Context, resourceID string, opts tags.ReplaceAllOptsBuilder) ([]string, error)
 }
 
 type computeClient struct{ client *gophercloud.ServiceClient }
@@ -160,6 +163,10 @@ func (c computeClient) ListServerGroups(ctx context.Context, opts servergroups.L
 	}
 }
 
+func (c computeClient) ReplaceAllServerAttributesTags(ctx context.Context, resourceID string, opts tags.ReplaceAllOptsBuilder) ([]string, error) {
+	return tags.ReplaceAll(ctx, c.client, resourceID, opts).Extract()
+}
+
 type computeErrorClient struct{ error }
 
 // NewComputeErrorClient returns a ComputeClient in which every method returns the given error.
@@ -231,4 +238,8 @@ func (e computeErrorClient) ListAttachedInterfaces(_ context.Context, _ string) 
 
 func (e computeErrorClient) DeleteAttachedInterface(_ context.Context, _, _ string) error {
 	return e.error
+}
+
+func (e computeErrorClient) ReplaceAllServerAttributesTags(_ context.Context, _ string, _ tags.ReplaceAllOptsBuilder) ([]string, error) {
+	return nil, e.error
 }
