@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "orc.fullname" . }}-controller-manager
+  labels:
+    {{- include "orc.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "orc.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        {{- include "orc.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: manager
+        image: {{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args:
+        - --leader-elect
+        {{- if .Values.probes.enable }}
+        - --health-probe-bind-address=:{{ .Values.probes.port }}
+        {{- else }}
+        - --health-probe-bind-address=0
+        {{- end }}
+        {{- if .Values.metrics.enable }}
+        - --metrics-secure={{ .Values.metrics.secure }}
+        - --metrics-bind-address=:{{ .Values.metrics.port }}
+        {{- end }}
+        {{- with .Values.extraArgs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        command:
+        - /manager
+        ports:
+          {{- if .Values.metrics.enable }}
+          - name: metrics
+            containerPort: {{ .Values.metrics.port }}
+            protocol: TCP
+          {{- end }}
+          {{- if .Values.probes.enable }}
+          - name: health
+            containerPort: {{ .Values.probes.port }}
+            protocol: TCP
+          {{- end }}
+        {{- if .Values.probes.enable }}
+        {{- with .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.resources }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        {{- end }}
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        terminationMessagePolicy: FallbackToLogsOnError
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "orc.serviceAccountName" . }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+  {{- with .Values.updateStrategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
