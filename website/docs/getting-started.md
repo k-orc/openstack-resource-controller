@@ -47,8 +47,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: network-1
   resource:
+    networkRef: network-1
     description: |
       Example subnet
     tags:
@@ -137,8 +137,8 @@ spec:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  networkRef: network-1
   resource:
+    networkRef: network-1
     allocationPools:
     - end: 192.168.1.60
       start: 192.168.1.5
