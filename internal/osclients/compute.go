@@ -50,6 +50,7 @@ type ComputeClient interface {
 	GetFlavor(ctx context.Context, id string) (*flavors.Flavor, error)
 	DeleteFlavor(ctx context.Context, id string) error
 	ListFlavors(ctx context.Context, listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error]
+	UpdateFlavor(ctx context.Context, id string, opts flavors.UpdateOptsBuilder) (*flavors.Flavor, error)
 
 	CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error)
 	DeleteServer(ctx context.Context, serverID string) error
@@ -104,6 +105,10 @@ func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBui
 	return func(yield func(*flavors.Flavor, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(flavors.ExtractFlavors, yield))
 	}
+}
+
+func (c computeClient) UpdateFlavor(ctx context.Context, id string, opts flavors.UpdateOptsBuilder) (*flavors.Flavor, error) {
+	return flavors.Update(ctx, c.client, id, opts).Extract()
 }
 
 func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
@@ -179,6 +184,10 @@ func (e computeErrorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBui
 	return func(yield func(*flavors.Flavor, error) bool) {
 		yield(nil, e.error)
 	}
+}
+
+func (e computeErrorClient) UpdateFlavor(_ context.Context, _ string, _ flavors.UpdateOptsBuilder) (*flavors.Flavor, error) {
+	return nil, e.error
 }
 
 func (e computeErrorClient) ListAvailabilityZones(_ context.Context) ([]availabilityzones.AvailabilityZone, error) {

@@ -17,11 +17,11 @@ limitations under the License.
 package v1alpha1
 
 // FlavorResourceSpec contains the desired state of a flavor
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="FlavorResourceSpec is immutable"
 type FlavorResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// description contains a free form description of the flavor.
@@ -33,11 +33,13 @@ type FlavorResourceSpec struct {
 	// ram is the memory of the flavor, measured in MB.
 	// +kubebuilder:validation:Minimum=1
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ram is immutable"
 	RAM int32 `json:"ram"`
 
 	// vcpus is the number of vcpus for the flavor.
 	// +kubebuilder:validation:Minimum=1
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="vcpus is immutable"
 	Vcpus int32 `json:"vcpus"`
 
 	// disk is the size of the root disk that will be created in GiB. If 0
@@ -50,16 +52,19 @@ type FlavorResourceSpec struct {
 	// os_compute_api:servers:create:zero_disk_flavor policy rule.
 	// +kubebuilder:validation:Minimum=0
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="disk is immutable"
 	Disk int32 `json:"disk"`
 
 	// swap is the size of a dedicated swap disk that will be allocated, in
 	// MiB. If 0 (the default), no dedicated swap disk will be created.
 	// +kubebuilder:validation:Minimum=0
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="swap is immutable"
 	Swap int32 `json:"swap,omitempty"`
 
 	// isPublic flags a flavor as being available to all projects or not.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="isPublic is immutable"
 	IsPublic *bool `json:"isPublic,omitempty"`
 
 	// ephemeral is the size of the ephemeral disk that will be created, in GiB.
@@ -68,6 +73,7 @@ type FlavorResourceSpec struct {
 	// limitations. Defaults to 0.
 	// +kubebuilder:validation:Minimum=0
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ephemeral is immutable"
 	Ephemeral int32 `json:"ephemeral,omitempty"`
 }
 

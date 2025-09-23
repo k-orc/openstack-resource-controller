@@ -233,6 +233,21 @@ func (mr *MockComputeClientMockRecorder) ListServers(ctx, listOpts any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServers", reflect.TypeOf((*MockComputeClient)(nil).ListServers), ctx, listOpts)
 }
 
+// UpdateFlavor mocks base method.
+func (m *MockComputeClient) UpdateFlavor(ctx context.Context, id string, opts flavors.UpdateOptsBuilder) (*flavors.Flavor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateFlavor", ctx, id, opts)
+	ret0, _ := ret[0].(*flavors.Flavor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateFlavor indicates an expected call of UpdateFlavor.
+func (mr *MockComputeClientMockRecorder) UpdateFlavor(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFlavor", reflect.TypeOf((*MockComputeClient)(nil).UpdateFlavor), ctx, id, opts)
+}
+
 // UpdateServer mocks base method.
 func (m *MockComputeClient) UpdateServer(ctx context.Context, id string, opts servers.UpdateOptsBuilder) (*servers.Server, error) {
 	m.ctrl.T.Helper()
