@@ -1,0 +1,30 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: FloatingIP
+      name: floatingip-update
+      ref: floatingIP
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: floatingip-update
+      ref: network
+assertAll:
+    - celExpr: "floatingIP.status.resource.floatingNetworkID == network.status.id"
+    - celExpr: "floatingIP.status.resource.floatingIP != ''"
+    - celExpr: "!has(floatingIP.status.resource.tags)"
+    - celExpr: "!has(floatingIP.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-update
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

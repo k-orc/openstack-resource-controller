@@ -244,6 +244,9 @@ spec:
                     maxLength: 45
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: fixedIP is immutable
+                      rule: self == oldSelf
                   floatingIP:
                     description: |-
                       floatingIP is the IP that will be assigned to the floatingip. If not set, it will
@@ -251,24 +254,36 @@ spec:
                     maxLength: 45
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: floatingIP is immutable
+                      rule: self == oldSelf
                   floatingNetworkRef:
                     description: floatingNetworkRef references the network to which
                       the floatingip is associated.
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: floatingNetworkRef is immutable
+                      rule: self == oldSelf
                   floatingSubnetRef:
                     description: floatingSubnetRef references the subnet to which
                       the floatingip is associated.
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: floatingSubnetRef is immutable
+                      rule: self == oldSelf
                   portRef:
                     description: portRef is a reference to the ORC Port which this
                       resource is associated with.
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: portRef is immutable
+                      rule: self == oldSelf
                   projectRef:
                     description: |-
                       projectRef is a reference to the ORC Project this resource is associated with.
@@ -276,6 +291,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: projectRef is immutable
+                      rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
                       floatingip.
@@ -291,8 +309,6 @@ spec:
                     x-kubernetes-list-type: set
                 type: object
                 x-kubernetes-validations:
-                - message: FloatingIPResourceSpec is immutable
-                  rule: self == oldSelf
                 - message: Exactly one of 'floatingNetworkRef' or 'floatingSubnetRef'
                     must be set
                   rule: has(self.floatingNetworkRef) != has(self.floatingSubnetRef)

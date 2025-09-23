@@ -25,6 +25,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
@@ -36,8 +37,7 @@ import (
 )
 
 type (
-	osResourceT = floatingips.FloatingIP
-
+	osResourceT               = floatingips.FloatingIP
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
@@ -58,11 +58,11 @@ type floatingipCreateActuator struct {
 var _ createResourceActuator = floatingipCreateActuator{}
 var _ deleteResourceActuator = floatingipActuator{}
 
-func (floatingipActuator) GetResourceID(osResource *floatingips.FloatingIP) string {
+func (floatingipActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator floatingipActuator) GetOSResourceByID(ctx context.Context, id string) (*floatingips.FloatingIP, progress.ReconcileStatus) {
+func (actuator floatingipActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	floatingip, err := actuator.osClient.GetFloatingIP(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -166,7 +166,7 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 	return actuator.osClient.ListFloatingIP(ctx, listOpts), nil
 }
 
-func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.FloatingIP) (*floatingips.FloatingIP, progress.ReconcileStatus) {
+func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.FloatingIP) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -259,8 +259,65 @@ func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj
 	return osResource, nil
 }
 
-func (actuator floatingipActuator) DeleteResource(ctx context.Context, _ orcObjectPT, floatingip *floatingips.FloatingIP) progress.ReconcileStatus {
+func (actuator floatingipActuator) DeleteResource(ctx context.Context, _ orcObjectPT, floatingip *osResourceT) progress.ReconcileStatus {
 	return progress.WrapError(actuator.osClient.DeleteFloatingIP(ctx, floatingip.ID))
+}
+
+func (actuator floatingipActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := &floatingips.UpdateOpts{}
+
+	handleDescriptionUpdate(updateOpts, resource, osResource)
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	updateOpts.RevisionNumber = &osResource.RevisionNumber
+
+	_, err = actuator.osClient.UpdateFloatingIP(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts floatingips.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToFloatingIPUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	floatingIPUpdateMap, ok := updateOptsMap["floatingip"].(map[string]any)
+	if !ok {
+		floatingIPUpdateMap = make(map[string]any)
+	}
+
+	return len(floatingIPUpdateMap) > 0, nil
+}
+
+func handleDescriptionUpdate(updateOpts *floatingips.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
 }
 
 var _ reconcileResourceActuator = floatingipActuator{}
@@ -268,6 +325,7 @@ var _ reconcileResourceActuator = floatingipActuator{}
 func (actuator floatingipActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "floatingips", osResource.ID)),
+		actuator.updateResource,
 	}, nil
 }
 
