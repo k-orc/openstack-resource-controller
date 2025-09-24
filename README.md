@@ -14,13 +14,12 @@ ORC is based on [Gophercloud][gophercloud], the OpenStack Go SDK.
 [orc]: https://github.com/k-orc/openstack-resource-controller
 [gophercloud]: https://github.com/gophercloud/gophercloud
 
-## Disclaimer
+## Maturity
 
-This project is in active development, and features, functionality, or APIs may
-change frequently. While we strive to make the project stable, you may
-encounter bugs, unfinished features, or breaking changes. We encourage you to
-contribute, file issues, and help improve the project as we continue to work on
-it!
+While we currently cover a limited subset of OpenStack resources, we focus on
+making existing controllers as correct and predictable as possible. We
+encourage you to contribute, file issues, and help improve the project as we
+continue to work on it!
 
 ORC versioning follows [semver](https://semver.org/spec/v2.0.0.html): there will be no breaking changes within a major release.
 
