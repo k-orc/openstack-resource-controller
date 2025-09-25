@@ -30,6 +30,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/flavor"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/floatingip"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/hostaggregate"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
@@ -116,6 +117,7 @@ func main() {
 		project.New(scopeFactory),
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
+		hostaggregate.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

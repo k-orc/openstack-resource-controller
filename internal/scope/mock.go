@@ -34,12 +34,13 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
-	ComputeClient    *mock.MockComputeClient
-	NetworkClient    *mock.MockNetworkClient
-	ImageClient      *mock.MockImageClient
-	IdentityClient   *mock.MockIdentityClient
-	VolumeClient     *mock.MockVolumeClient
-	VolumeTypeClient *mock.MockVolumeTypeClient
+	ComputeClient       *mock.MockComputeClient
+	NetworkClient       *mock.MockNetworkClient
+	ImageClient         *mock.MockImageClient
+	IdentityClient      *mock.MockIdentityClient
+	VolumeClient        *mock.MockVolumeClient
+	VolumeTypeClient    *mock.MockVolumeTypeClient
+	HostAggregateClient *mock.MockHostAggregateClient
 
 	clientScopeCreateError error
 }
@@ -51,14 +52,16 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
+	hostAggregateClient := mock.NewMockHostAggregateClient(mockCtrl)
 
 	return &MockScopeFactory{
-		ComputeClient:    computeClient,
-		ImageClient:      imageClient,
-		NetworkClient:    networkClient,
-		IdentityClient:   identityClient,
-		VolumeClient:     volumeClient,
-		VolumeTypeClient: volumetypeClient,
+		ComputeClient:       computeClient,
+		ImageClient:         imageClient,
+		NetworkClient:       networkClient,
+		IdentityClient:      identityClient,
+		VolumeClient:        volumeClient,
+		VolumeTypeClient:    volumetypeClient,
+		HostAggregateClient: hostAggregateClient,
 	}
 }
 
@@ -95,6 +98,10 @@ func (f *MockScopeFactory) NewVolumeClient() (osclients.VolumeClient, error) {
 
 func (f *MockScopeFactory) NewVolumeTypeClient() (osclients.VolumeTypeClient, error) {
 	return f.VolumeTypeClient, nil
+}
+
+func (f *MockScopeFactory) NewHostAggregateClient() (osclients.HostAggregateClient, error) {
+	return f.HostAggregateClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

@@ -28,6 +28,8 @@ type Interface interface {
 	Flavors() FlavorInformer
 	// FloatingIPs returns a FloatingIPInformer.
 	FloatingIPs() FloatingIPInformer
+	// HostAggregates returns a HostAggregateInformer.
+	HostAggregates() HostAggregateInformer
 	// Images returns a ImageInformer.
 	Images() ImageInformer
 	// Networks returns a NetworkInformer.
@@ -73,6 +75,11 @@ func (v *version) Flavors() FlavorInformer {
 // FloatingIPs returns a FloatingIPInformer.
 func (v *version) FloatingIPs() FloatingIPInformer {
 	return &floatingIPInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// HostAggregates returns a HostAggregateInformer.
+func (v *version) HostAggregates() HostAggregateInformer {
+	return &hostAggregateInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Images returns a ImageInformer.

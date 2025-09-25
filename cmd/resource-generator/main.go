@@ -86,6 +86,9 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
+		Name: "HostAggregate",
+	},
+	{
 		Name: "Image",
 		SpecExtraValidations: []specExtraValidation{
 			{

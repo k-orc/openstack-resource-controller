@@ -36,6 +36,10 @@ func (c *FakeOpenstackV1alpha1) FloatingIPs(namespace string) v1alpha1.FloatingI
 	return newFakeFloatingIPs(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) HostAggregates(namespace string) v1alpha1.HostAggregateInterface {
+	return newFakeHostAggregates(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Images(namespace string) v1alpha1.ImageInterface {
 	return newFakeImages(c, namespace)
 }

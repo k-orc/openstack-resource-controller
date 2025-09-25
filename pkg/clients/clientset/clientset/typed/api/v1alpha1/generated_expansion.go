@@ -22,6 +22,8 @@ type FlavorExpansion interface{}
 
 type FloatingIPExpansion interface{}
 
+type HostAggregateExpansion interface{}
+
 type ImageExpansion interface{}
 
 type NetworkExpansion interface{}
