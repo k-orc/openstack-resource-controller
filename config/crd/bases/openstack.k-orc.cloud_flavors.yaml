@@ -179,6 +179,9 @@ spec:
                     format: int32
                     minimum: 0
                     type: integer
+                    x-kubernetes-validations:
+                    - message: disk is immutable
+                      rule: self == oldSelf
                   ephemeral:
                     description: |-
                       ephemeral is the size of the ephemeral disk that will be created, in GiB.
@@ -188,10 +191,16 @@ spec:
                     format: int32
                     minimum: 0
                     type: integer
+                    x-kubernetes-validations:
+                    - message: ephemeral is immutable
+                      rule: self == oldSelf
                   isPublic:
                     description: isPublic flags a flavor as being available to all
                       projects or not.
                     type: boolean
+                    x-kubernetes-validations:
+                    - message: isPublic is immutable
+                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -200,11 +209,17 @@ spec:
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
+                    x-kubernetes-validations:
+                    - message: name is immutable
+                      rule: self == oldSelf
                   ram:
                     description: ram is the memory of the flavor, measured in MB.
                     format: int32
                     minimum: 1
                     type: integer
+                    x-kubernetes-validations:
+                    - message: ram is immutable
+                      rule: self == oldSelf
                   swap:
                     description: |-
                       swap is the size of a dedicated swap disk that will be allocated, in
@@ -212,19 +227,22 @@ spec:
                     format: int32
                     minimum: 0
                     type: integer
+                    x-kubernetes-validations:
+                    - message: swap is immutable
+                      rule: self == oldSelf
                   vcpus:
                     description: vcpus is the number of vcpus for the flavor.
                     format: int32
                     minimum: 1
                     type: integer
+                    x-kubernetes-validations:
+                    - message: vcpus is immutable
+                      rule: self == oldSelf
                 required:
                 - disk
                 - ram
                 - vcpus
                 type: object
-                x-kubernetes-validations:
-                - message: FlavorResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

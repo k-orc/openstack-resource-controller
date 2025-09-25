@@ -81,7 +81,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(2).WithVcpus(1).WithDisk(1))
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("FlavorResourceSpec is immutable")))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("ram is immutable")))
 	})
 
 	It("should reject a flavor without required fields", func(ctx context.Context) {

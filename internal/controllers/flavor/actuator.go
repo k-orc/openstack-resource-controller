@@ -28,24 +28,26 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	generic "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
 // OpenStack resource types
 type (
-	osResourceT = flavors.Flavor
-
+	osResourceT            = flavors.Flavor
 	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	resourceReconciler     = generic.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type flavorClient interface {
-	GetFlavor(context.Context, string) (*flavors.Flavor, error)
-	ListFlavors(context.Context, flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error]
-	CreateFlavor(context.Context, flavors.CreateOptsBuilder) (*flavors.Flavor, error)
+	GetFlavor(context.Context, string) (*osResourceT, error)
+	ListFlavors(context.Context, flavors.ListOptsBuilder) iter.Seq2[*osResourceT, error]
+	CreateFlavor(context.Context, flavors.CreateOptsBuilder) (*osResourceT, error)
 	DeleteFlavor(context.Context, string) error
+	UpdateFlavor(context.Context, string, flavors.UpdateOptsBuilder) (*osResourceT, error)
 }
 
 type flavorActuator struct {
@@ -55,11 +57,11 @@ type flavorActuator struct {
 var _ createResourceActuator = flavorActuator{}
 var _ deleteResourceActuator = flavorActuator{}
 
-func (flavorActuator) GetResourceID(osResource *flavors.Flavor) string {
+func (flavorActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator flavorActuator) GetOSResourceByID(ctx context.Context, id string) (*flavors.Flavor, progress.ReconcileStatus) {
+func (actuator flavorActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	flavor, err := actuator.osClient.GetFlavor(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -67,7 +69,7 @@ func (actuator flavorActuator) GetOSResourceByID(ctx context.Context, id string)
 	return flavor, nil
 }
 
-func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*flavors.Flavor, error], bool) {
+func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
 	resourceSpec := orcObject.Spec.Resource
 	if resourceSpec == nil {
 		return nil, false
@@ -77,7 +79,7 @@ func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	listOpts := flavors.ListOpts{}
 
 	filters = append(filters,
-		func(f *flavors.Flavor) bool {
+		func(f *osResourceT) bool {
 			name := getResourceName(orcObject)
 			// Compare non-pointer values
 			return f.Name == name &&
@@ -90,7 +92,7 @@ func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	)
 
 	if resourceSpec.Description != nil {
-		filters = append(filters, func(f *flavors.Flavor) bool {
+		filters = append(filters, func(f *osResourceT) bool {
 			return f.Description == *resourceSpec.Description
 		})
 	}
@@ -111,30 +113,30 @@ func (actuator flavorActuator) ListOSResourcesForImport(ctx context.Context, obj
 	var filters []osclients.ResourceFilter[osResourceT]
 
 	if filter.Name != nil {
-		filters = append(filters, func(f *flavors.Flavor) bool { return f.Name == string(*filter.Name) })
+		filters = append(filters, func(f *osResourceT) bool { return f.Name == string(*filter.Name) })
 	}
 
 	if filter.RAM != nil {
-		filters = append(filters, func(f *flavors.Flavor) bool { return f.RAM == int(*filter.RAM) })
+		filters = append(filters, func(f *osResourceT) bool { return f.RAM == int(*filter.RAM) })
 	}
 
 	if filter.Vcpus != nil {
-		filters = append(filters, func(f *flavors.Flavor) bool { return f.VCPUs == int(*filter.Vcpus) })
+		filters = append(filters, func(f *osResourceT) bool { return f.VCPUs == int(*filter.Vcpus) })
 	}
 
 	if filter.Disk != nil {
-		filters = append(filters, func(f *flavors.Flavor) bool { return f.Disk == int(*filter.Disk) })
+		filters = append(filters, func(f *osResourceT) bool { return f.Disk == int(*filter.Disk) })
 	}
 
 	return actuator.listOSResources(ctx, filters, &flavors.ListOpts{}), nil
 }
 
-func (actuator flavorActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
+func (actuator flavorActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts flavors.ListOptsBuilder) iter.Seq2[*osResourceT, error] {
 	flavors := actuator.osClient.ListFlavors(ctx, listOpts)
 	return osclients.Filter(flavors, filters...)
 }
 
-func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*flavors.Flavor, progress.ReconcileStatus) {
+func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -166,8 +168,69 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 	return osResource, nil
 }
 
-func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *flavors.Flavor) progress.ReconcileStatus {
+func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT, flavor *osResourceT) progress.ReconcileStatus {
 	return progress.WrapError(actuator.osClient.DeleteFlavor(ctx, flavor.ID))
+}
+
+func (actuator flavorActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+	return []resourceReconciler{
+		actuator.updateResource,
+	}, nil
+}
+
+func (actuator flavorActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := &flavors.UpdateOpts{}
+
+	handleDescriptionUpdate(updateOpts, resource, osResource)
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err = actuator.osClient.UpdateFlavor(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts flavors.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToFlavorUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	flavorUpdateMap, ok := updateOptsMap["flavor"].(map[string]any)
+	if !ok {
+		flavorUpdateMap = make(map[string]any)
+	}
+
+	return len(flavorUpdateMap) > 0, nil
+}
+
+func handleDescriptionUpdate(updateOpts *flavors.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := ptr.Deref(resource.Description, "")
+	if osResource.Description != description {
+		updateOpts.Description = description
+	}
 }
 
 type flavorHelperFactory struct{}

@@ -26,6 +26,67 @@ type mockFlavorClient struct {
 
 var _ flavorClient = mockFlavorClient{}
 
+func TestNeedsUpdate(t *testing.T) {
+	testCases := []struct {
+		name         string
+		updateOpts   flavors.UpdateOptsBuilder
+		expectChange bool
+	}{
+		{
+			name:         "Empty base opts",
+			updateOpts:   flavors.UpdateOpts{},
+			expectChange: false,
+		},
+		{
+			name:         "Updated opts",
+			updateOpts:   flavors.UpdateOpts{Description: "updated"},
+			expectChange: true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := needsUpdate(tt.updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleDescriptionUpdate(t *testing.T) {
+	ptrToDescription := ptr.To[string]
+	testCases := []struct {
+		name          string
+		newValue      *string
+		existingValue string
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
+		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
+		// FIXME(dkokkino): In the version of gophercloud used by the project, the `Description` field in UpdateOpts
+		// is defined as a string rather than *string. This prevents updating the value to an empty string.
+		// {name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
+		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.FlavorResourceSpec{Description: tt.newValue}
+			osResource := &flavors.Flavor{Description: tt.existingValue}
+
+			updateOpts := flavors.UpdateOpts{}
+			handleDescriptionUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+
+	}
+}
+
 func (l mockFlavorClient) ListFlavors(_ context.Context, _ flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
 	return func(yield func(*flavors.Flavor, error) bool) {
 		for i := range l.flavors {
@@ -46,6 +107,10 @@ func (l mockFlavorClient) CreateFlavor(_ context.Context, _ flavors.CreateOptsBu
 
 func (l mockFlavorClient) DeleteFlavor(_ context.Context, _ string) error {
 	return errNotImplemented
+}
+
+func (l mockFlavorClient) UpdateFlavor(_ context.Context, _ string, _ flavors.UpdateOptsBuilder) (*flavors.Flavor, error) {
+	return nil, errNotImplemented
 }
 
 type flavorResult struct {

@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: flavor-update
+    description: flavor-update
+    ram: 1
+    vcpus: 2
+    disk: 0
