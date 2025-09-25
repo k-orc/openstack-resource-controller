@@ -1,0 +1,18 @@
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: volumetype-create-full-override
+    description: VolumeType from "create full" test
+    isPublic: false
+    extraSpecs:
+    - name: spec
+      value: specValue
