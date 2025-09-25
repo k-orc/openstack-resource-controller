@@ -1,0 +1,19 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-update
+status:
+  resource: 
+    name: router-update-updated
+    description: router-update-updated
+    adminStateUp: false
+    tags:
+      - tag1
+      - tag2
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

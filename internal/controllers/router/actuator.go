@@ -31,6 +31,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
@@ -59,11 +60,11 @@ type routerCreateActuator struct {
 var _ createResourceActuator = routerCreateActuator{}
 var _ deleteResourceActuator = routerActuator{}
 
-func (routerActuator) GetResourceID(osResource *routers.Router) string {
+func (routerActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator routerActuator) GetOSResourceByID(ctx context.Context, id string) (*routers.Router, progress.ReconcileStatus) {
+func (actuator routerActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	router, err := actuator.osClient.GetRouter(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -119,7 +120,7 @@ func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	return actuator.osClient.ListRouter(ctx, listOpts), nil
 }
 
-func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) (*routers.Router, progress.ReconcileStatus) {
+func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -189,8 +190,82 @@ func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *or
 	return osResource, nil
 }
 
-func (actuator routerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, router *routers.Router) progress.ReconcileStatus {
+func (actuator routerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, router *osResourceT) progress.ReconcileStatus {
 	return progress.WrapError(actuator.osClient.DeleteRouter(ctx, router.ID))
+}
+
+func (actuator routerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := &routers.UpdateOpts{}
+
+	handleNameUpdate(updateOpts, obj, osResource)
+	handleDescriptionUpdate(updateOpts, resource, osResource)
+	handleAdminStateUpUpdate(updateOpts, resource, osResource)
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpdate {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	updateOpts.RevisionNumber = &osResource.RevisionNumber
+
+	_, err = actuator.osClient.UpdateRouter(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts routers.UpdateOptsBuilder) (bool, error) {
+	updateOptsMap, err := updateOpts.ToRouterUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	routerUpdateMap, ok := updateOptsMap["router"].(map[string]any)
+	if !ok {
+		routerUpdateMap = make(map[string]any)
+	}
+
+	return len(routerUpdateMap) > 0, nil
+}
+
+func handleNameUpdate(updateOpts *routers.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *routers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func handleAdminStateUpUpdate(updateOpts *routers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	AdminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != AdminStateUp {
+		updateOpts.AdminStateUp = &AdminStateUp
+	}
 }
 
 var _ reconcileResourceActuator = routerActuator{}
@@ -198,6 +273,7 @@ var _ reconcileResourceActuator = routerActuator{}
 func (actuator routerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "routers", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
+		actuator.updateResource,
 	}, nil
 }
 

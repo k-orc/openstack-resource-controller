@@ -228,6 +228,9 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: set
+                    x-kubernetes-validations:
+                    - message: availabilityZoneHints is immutable
+                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -239,6 +242,9 @@ spec:
                       distributed indicates whether the router is distributed or not. It
                       is available when dvr extension is enabled.
                     type: boolean
+                    x-kubernetes-validations:
+                    - message: distributed is immutable
+                      rule: self == oldSelf
                   externalGateways:
                     description: |-
                       externalGateways is a list of external gateways for the router.
@@ -258,6 +264,9 @@ spec:
                     maxItems: 1
                     type: array
                     x-kubernetes-list-type: atomic
+                    x-kubernetes-validations:
+                    - message: externalGateways is immutable
+                      rule: self == oldSelf
                   name:
                     description: |-
                       name is a human-readable name of the router. If not set, the
@@ -273,6 +282,9 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: projectRef is immutable
+                      rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
                       router.
@@ -287,9 +299,6 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                 type: object
-                x-kubernetes-validations:
-                - message: RouterResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

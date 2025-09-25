@@ -49,7 +49,6 @@ type ExternalGatewayStatus struct {
 	NetworkID string `json:"networkID,omitempty"`
 }
 
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="RouterResourceSpec is immutable"
 type RouterResourceSpec struct {
 	// name is a human-readable name of the router. If not set, the
 	// object's name will be used.
@@ -76,22 +75,26 @@ type RouterResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=1
 	// +listType=atomic
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="externalGateways is immutable"
 	ExternalGateways []ExternalGateway `json:"externalGateways,omitempty"`
 
 	// distributed indicates whether the router is distributed or not. It
 	// is available when dvr extension is enabled.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="distributed is immutable"
 	Distributed *bool `json:"distributed,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the router.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZoneHints is immutable"
 	AvailabilityZoneHints []AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 
