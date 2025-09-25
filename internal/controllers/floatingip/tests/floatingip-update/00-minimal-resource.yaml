@@ -1,0 +1,16 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    floatingNetworkRef: floatingip-update-external
+    portRef: floatingip-update
+    description: floatingip-update
+    fixedIP: 10.0.0.10
+    floatingIP: 192.168.155.5
+    projectRef: floatingip-update

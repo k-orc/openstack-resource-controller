@@ -1,0 +1,21 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-update
+spec:
+  resource:
+    floatingNetworkRef: floatingip-update-external
+    portRef: floatingip-update
+    description: floatingip-update-updated
+    #FIXME(dkokkino): Maybe this field should not be mutable? Currently unable to update the fixed IP due to the following error:
+    # 'Expected HTTP response code [200] when accessing [PUT http://192.168.200.64:9696/networking/v2.0/floatingips/32e69339-2e13-4eb8-905b-1c9602285c42],
+    #  but got 400 instead: {"NeutronError": {"type": "BadRequest", "message": "Bad
+    #  floatingip request: fixed_ip_address cannot be specified without a port_id.",
+    #  "detail": ""}}'
+    # fixedIP: 10.0.0.20
+    fixedIP: 10.0.0.10 
+    floatingIP: 192.168.155.5
+    projectRef: floatingip-update
+    tags:
+      - tag1
+      - tag2
