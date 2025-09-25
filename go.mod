@@ -11,6 +11,7 @@ require (
 	github.com/onsi/gomega v1.38.2
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
+	golang.org/x/text v0.28.0
 	k8s.io/api v0.32.9
 	k8s.io/apimachinery v0.32.9
 	k8s.io/client-go v0.32.9
@@ -91,7 +92,6 @@ require (
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/term v0.34.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect

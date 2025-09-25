@@ -1,0 +1,22 @@
+{{ $packageName := .PackageName -}}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: {{ .Kind }}
+metadata:
+  name: {{ .PackageName }}-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+{{- range .ImportDependencies }}
+        Waiting for {{ . }}/{{ $packageName}}-import-dependency to be ready
+{{- end }}
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+{{- range .ImportDependencies }}
+        Waiting for {{ . }}/{{ $packageName}}-import-dependency to be ready
+{{- end }}
+      status: "True"
+      reason: Progressing
