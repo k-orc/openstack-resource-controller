@@ -83,11 +83,7 @@ Dependencies are at the core of what ORC does. At the lowest level ORC performs 
 * As soon as possible
 * In parallel if possible
 
-It achieves this through dependency management.
-
-!!! note
-
-    ORC dependencies can *only* be expressed between ORC objects. Therefore if one OpenStack resource depends on another, that relationship can only be expressed in ORC if both resources have corresponding ORC objects. Resoruces which a user may depend on but cannot create, like a flavor or a provider network, can be expressed by importing an existing resource.
+ORC achieves this through dependency management. OpenStack doesn't have the concept of resource dependencies natively, so ORC expresses dependencies through ORC objects, not their underlying OpenStack resources. Resources that a user can create and may be depended on, like a server group or image, are expressed as *create dependencies*, while resources that the user cannot create but may be depended on, like a flavor or provider network, are expressed *import dependencies*.
 
 A dependency is used anywhere that the controller must reference another object to complete an action. The dependency has features that enable us to:
 
