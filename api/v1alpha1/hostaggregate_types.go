@@ -18,24 +18,18 @@ package v1alpha1
 
 // HostAggregateResourceSpec contains the desired state of the resource.
 type HostAggregateResourceSpec struct {
+	// TODO(stephenfin): Enforce that the name should not contain a colon.
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *OpenStackName `json:"name"`
 
-	// description is a human-readable description for the resource.
+	// availabilityZone is the availability zone of the host aggregate.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
 	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/compute/v2/aggregates
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 }
 
 // HostAggregateFilter defines an existing resource by its properties
@@ -44,31 +38,37 @@ type HostAggregateFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/compute/v2/aggregates
 }
 
 // HostAggregateResourceStatus represents the observed state of the resource.
 type HostAggregateResourceStatus struct {
+	// The availability zone of the host aggregate.
+	// +optional
+	AvailabilityZone string `json:"availabilityZone"`
+
+	// A list of host ids in this aggregate.
+	//Hosts []string `json:"hosts"`
+
+	// Metadata key and value pairs associate with the aggregate.
+	// Metadata map[string]string `json:"metadata"`
+
 	// name is a Human-readable name for the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Description string `json:"description,omitempty"`
+	// The date and time when the resource was created.
+	// CreatedAt time.Time `json:"-"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the HostAggregate stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/compute/v2/aggregates
+	// The date and time when the resource was updated,
+	// if the resource has not been updated, this field will show as null.
+	// UpdatedAt time.Time `json:"-"`
+
+	// The date and time when the resource was deleted,
+	// if the resource has not been deleted yet, this field will be null.
+	// DeletedAt time.Time `json:"-"`
+
+	// A boolean indicates whether this aggregate is deleted or not,
+	// if it has not been deleted, false will appear.
+	// Deleted bool `json:"deleted"`
 }

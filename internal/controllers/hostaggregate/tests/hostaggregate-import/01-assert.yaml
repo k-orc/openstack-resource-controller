@@ -15,8 +15,6 @@ status:
       reason: Success
   resource:
     name: hostaggregate-import-external-not-this-one
-    description: HostAggregate hostaggregate-import-external from "hostaggregate-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: HostAggregate

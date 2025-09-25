@@ -6,8 +6,6 @@ metadata:
 status:
   resource:
     name: hostaggregate-update-updated
-    description: hostaggregate-update-updated
-    # TODO(scaffolding): match all fields that were modified
   conditions:
   - type: Available
     status: "True"

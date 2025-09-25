@@ -52,12 +52,5 @@ func (hostaggregateStatusWriter) ApplyResourceStatus(log logr.Logger, osResource
 	resourceStatus := orcapplyconfigv1alpha1.HostAggregateResourceStatus().
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the HostAggregateResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
-	}
-
 	statusApply.WithResource(resourceStatus)
 }

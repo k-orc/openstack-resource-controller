@@ -6,8 +6,7 @@ resourceRefs:
       kind: HostAggregate
       name: hostaggregate-update
       ref: hostaggregate
-assertAll:
-    - celExpr: "!has(hostaggregate.status.resource.description)"
+assertAll: []
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: HostAggregate

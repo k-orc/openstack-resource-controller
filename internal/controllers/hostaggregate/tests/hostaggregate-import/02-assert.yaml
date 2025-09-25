@@ -29,5 +29,3 @@ status:
       reason: Success
   resource:
     name: hostaggregate-import-external
-    description: HostAggregate hostaggregate-import-external from "hostaggregate-import" test
-    # TODO(scaffolding): Add all fields the resource supports

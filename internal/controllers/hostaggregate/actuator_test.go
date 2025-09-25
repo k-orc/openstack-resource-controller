@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   aggregates.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   aggregates.UpdateOpts{Name: "updated"},
 			expectChange: true,
 		},
 	}
@@ -77,37 +77,6 @@ func TestHandleNameUpdate(t *testing.T) {
 
 			updateOpts := aggregates.UpdateOpts{}
 			handleNameUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
-	}
-}
-
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
-	testCases := []struct {
-		name          string
-		newValue      *string
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.HostAggregateResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
-
-			updateOpts := aggregates.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {

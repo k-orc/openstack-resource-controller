@@ -19,10 +19,10 @@ package hostaggregate
 import (
 	"context"
 	"iter"
+	"strconv"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/aggregates"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -36,7 +36,7 @@ import (
 
 // OpenStack resource types
 type (
-	osResourceT = aggregates.HostAggregate
+	osResourceT = aggregates.Aggregate
 
 	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
@@ -52,12 +52,14 @@ type hostaggregateActuator struct {
 var _ createResourceActuator = hostaggregateActuator{}
 var _ deleteResourceActuator = hostaggregateActuator{}
 
+// TODO(stephenfin): I suspect we need to change the interface since Nova expects integer IDs
 func (hostaggregateActuator) GetResourceID(osResource *osResourceT) string {
-	return osResource.ID
+	return strconv.Itoa(osResource.ID)
 }
 
 func (actuator hostaggregateActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetHostAggregate(ctx, id)
+	iid, err := strconv.Atoi(id)
+	resource, err := actuator.osClient.GetHostAggregate(ctx, iid)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
@@ -70,30 +72,36 @@ func (actuator hostaggregateActuator) ListOSResourcesForAdoption(ctx context.Con
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := aggregates.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-	}
+	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
+	filters = append(filters,
+		func(f *aggregates.Aggregate) bool {
+			name := getResourceName(orcObject)
+			// Compare non-pointer values
+			return f.Name == name
+		},
+	)
 
-	return actuator.osClient.ListHostAggregates(ctx, listOpts), true
+	return actuator.listOSResources(ctx, filters), true
 }
 
 func (actuator hostaggregateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := aggregates.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
+	if filter.Name != nil {
+		filters = append(filters, func(f *aggregates.Aggregate) bool {
+			return f.Name == string(*filter.Name)
+		})
 	}
 
-	return actuator.osClient.ListHostAggregates(ctx, listOpts), nil
+	return actuator.listOSResources(ctx, filters), nil
+}
+
+func (actuator hostaggregateActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT]) iter.Seq2[*aggregates.Aggregate, error] {
+	volumetypes := actuator.osClient.ListHostAggregates(ctx)
+	return osclients.Filter(volumetypes, filters...)
 }
 
 func (actuator hostaggregateActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -106,8 +114,6 @@ func (actuator hostaggregateActuator) CreateResource(ctx context.Context, obj or
 	}
 	createOpts := aggregates.CreateOpts{
 		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
 	}
 
 	osResource, err := actuator.osClient.CreateHostAggregate(ctx, createOpts)
@@ -138,7 +144,6 @@ func (actuator hostaggregateActuator) updateResource(ctx context.Context, obj or
 	updateOpts := aggregates.UpdateOpts{}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
 
 	// TODO(scaffolding): add handler for all fields supporting mutability
 
@@ -167,7 +172,7 @@ func (actuator hostaggregateActuator) updateResource(ctx context.Context, obj or
 }
 
 func needsUpdate(updateOpts aggregates.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToHostAggregateUpdateMap()
+	updateOptsMap, err := updateOpts.ToAggregatesUpdateMap()
 	if err != nil {
 		return false, err
 	}
@@ -183,14 +188,7 @@ func needsUpdate(updateOpts aggregates.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *aggregates.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *aggregates.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+		updateOpts.Name = name
 	}
 }
 

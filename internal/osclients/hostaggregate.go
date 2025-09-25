@@ -28,11 +28,11 @@ import (
 )
 
 type HostAggregateClient interface {
-	ListHostAggregates(ctx context.Context, listOpts aggregates.ListOptsBuilder) iter.Seq2[*aggregates.HostAggregate, error]
-	CreateHostAggregate(ctx context.Context, opts aggregates.CreateOptsBuilder) (*aggregates.HostAggregate, error)
-	DeleteHostAggregate(ctx context.Context, resourceID string) error
-	GetHostAggregate(ctx context.Context, resourceID string) (*aggregates.HostAggregate, error)
-	UpdateHostAggregate(ctx context.Context, id string, opts aggregates.UpdateOptsBuilder) (*aggregates.HostAggregate, error)
+	ListHostAggregates(ctx context.Context) iter.Seq2[*aggregates.Aggregate, error]
+	CreateHostAggregate(ctx context.Context, opts aggregates.CreateOptsBuilder) (*aggregates.Aggregate, error)
+	DeleteHostAggregate(ctx context.Context, resourceID int) error
+	GetHostAggregate(ctx context.Context, resourceID int) (*aggregates.Aggregate, error)
+	UpdateHostAggregate(ctx context.Context, id int, opts aggregates.UpdateOptsBuilder) (*aggregates.Aggregate, error)
 }
 
 type hostaggregateClient struct{ client *gophercloud.ServiceClient }
@@ -51,27 +51,27 @@ func NewHostAggregateClient(providerClient *gophercloud.ProviderClient, provider
 	return &hostaggregateClient{client}, nil
 }
 
-func (c hostaggregateClient) ListHostAggregates(ctx context.Context, listOpts aggregates.ListOptsBuilder) iter.Seq2[*aggregates.HostAggregate, error] {
-	pager := aggregates.List(c.client, listOpts)
-	return func(yield func(*aggregates.HostAggregate, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(aggregates.ExtractHostAggregates, yield))
+func (c hostaggregateClient) ListHostAggregates(ctx context.Context) iter.Seq2[*aggregates.Aggregate, error] {
+	pager := aggregates.List(c.client)
+	return func(yield func(*aggregates.Aggregate, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(aggregates.ExtractAggregates, yield))
 	}
 }
 
-func (c hostaggregateClient) CreateHostAggregate(ctx context.Context, opts aggregates.CreateOptsBuilder) (*aggregates.HostAggregate, error) {
+func (c hostaggregateClient) CreateHostAggregate(ctx context.Context, opts aggregates.CreateOptsBuilder) (*aggregates.Aggregate, error) {
 	return aggregates.Create(ctx, c.client, opts).Extract()
 }
 
-func (c hostaggregateClient) DeleteHostAggregate(ctx context.Context, resourceID string) error {
+func (c hostaggregateClient) DeleteHostAggregate(ctx context.Context, resourceID int) error {
 	return aggregates.Delete(ctx, c.client, resourceID).ExtractErr()
 }
 
-func (c hostaggregateClient) GetHostAggregate(ctx context.Context, resourceID string) (*aggregates.HostAggregate, error) {
+func (c hostaggregateClient) GetHostAggregate(ctx context.Context, resourceID int) (*aggregates.Aggregate, error) {
 	return aggregates.Get(ctx, c.client, resourceID).Extract()
 }
 
-func (c hostaggregateClient) UpdateHostAggregate(ctx context.Context, id string, opts aggregates.UpdateOptsBuilder) (*aggregates.HostAggregate, error) {
-	return aggregates.Update(ctx, c.client, id, opts).Extract()
+func (c hostaggregateClient) UpdateHostAggregate(ctx context.Context, resourceID int, opts aggregates.UpdateOptsBuilder) (*aggregates.Aggregate, error) {
+	return aggregates.Update(ctx, c.client, resourceID, opts).Extract()
 }
 
 type hostaggregateErrorClient struct{ error }
@@ -81,24 +81,24 @@ func NewHostAggregateErrorClient(e error) HostAggregateClient {
 	return hostaggregateErrorClient{e}
 }
 
-func (e hostaggregateErrorClient) ListHostAggregates(_ context.Context, _ aggregates.ListOptsBuilder) iter.Seq2[*aggregates.HostAggregate, error] {
-	return func(yield func(*aggregates.HostAggregate, error) bool) {
+func (e hostaggregateErrorClient) ListHostAggregates(_ context.Context) iter.Seq2[*aggregates.Aggregate, error] {
+	return func(yield func(*aggregates.Aggregate, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e hostaggregateErrorClient) CreateHostAggregate(_ context.Context, _ aggregates.CreateOptsBuilder) (*aggregates.HostAggregate, error) {
+func (e hostaggregateErrorClient) CreateHostAggregate(_ context.Context, _ aggregates.CreateOptsBuilder) (*aggregates.Aggregate, error) {
 	return nil, e.error
 }
 
-func (e hostaggregateErrorClient) DeleteHostAggregate(_ context.Context, _ string) error {
+func (e hostaggregateErrorClient) DeleteHostAggregate(_ context.Context, _ int) error {
 	return e.error
 }
 
-func (e hostaggregateErrorClient) GetHostAggregate(_ context.Context, _ string) (*aggregates.HostAggregate, error) {
+func (e hostaggregateErrorClient) GetHostAggregate(_ context.Context, _ int) (*aggregates.Aggregate, error) {
 	return nil, e.error
 }
 
-func (e hostaggregateErrorClient) UpdateHostAggregate(_ context.Context, _ string, _ aggregates.UpdateOptsBuilder) (*aggregates.HostAggregate, error) {
+func (e hostaggregateErrorClient) UpdateHostAggregate(_ context.Context, _ int, _ aggregates.UpdateOptsBuilder) (*aggregates.Aggregate, error) {
 	return nil, e.error
 }

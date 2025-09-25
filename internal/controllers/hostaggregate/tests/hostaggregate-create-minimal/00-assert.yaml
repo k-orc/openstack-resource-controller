@@ -6,7 +6,6 @@ metadata:
 status:
   resource:
     name: hostaggregate-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +23,3 @@ resourceRefs:
       ref: hostaggregate
 assertAll:
     - celExpr: "hostaggregate.status.id != ''"
-    # TODO(scaffolding): Add more checks

@@ -1,8 +1,8 @@
-# Create a HostAggregate with the minimum options
+# Create a host aggregate with the minimum options
 
 ## Step 00
 
-Create a minimal HostAggregate, that sets only the required fields, and verify that the observed state corresponds to the spec.
+Create a minimal host aggregate, that sets only the required fields, and verify that the observed state corresponds to the spec.
 
 Also validate that the OpenStack resource uses the name of the ORC object when it is not specified.
 
