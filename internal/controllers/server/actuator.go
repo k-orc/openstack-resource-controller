@@ -37,8 +37,10 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/attachments"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
+	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 type (
@@ -240,8 +242,32 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	return osResource, nil
 }
 
-func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteServer(ctx, osResource.ID))
+func (actuator serverActuator) DeleteResource(ctx context.Context, obj orcObjectPT, osResource *servers.Server) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	if osResource.Status != ServerStatusDeleted && osResource.Status != ServerStatusSoftDeleted {
+		err := actuator.osClient.DeleteServer(ctx, osResource.ID)
+		if err != nil {
+			return progress.WrapError(err)
+		}
+		return progress.NewReconcileStatus()
+	}
+
+	// Delete attachments references
+	for _, attachment := range osResource.AttachedVolumes {
+		volume, err := actuator.findVolumeByID(ctx, obj.Namespace, attachment.ID)
+		if err != nil {
+			// Do nothing, there's nothing to refresh
+			log.V(logging.Verbose).Info("Failed to get volume", "volume", attachment.ID, "err", err)
+		} else {
+			// Remove the reference to the server on the volume object, to trigger a refresh of it
+			volumeAttachment := attachments.NewAttachableResource(
+				volume, orcapplyconfigv1alpha1.Volume, orcapplyconfigv1alpha1.VolumeSpec)
+			volumeAttachment.DetachFrom(ctx, actuator.k8sClient, controllerName, obj.Name)
+		}
+	}
+
+	return progress.NewReconcileStatus()
 }
 
 var _ reconcileResourceActuator = serverActuator{}
@@ -374,6 +400,11 @@ func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, o
 				// Give time for the change to be reflected on the server resource before next reconcile
 				reconcileStatus = reconcileStatus.WithReconcileStatus(
 					progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+
+				// Add a reference to the server on the volume object, to trigger a refresh of it
+				volumeAttachment := attachments.NewAttachableResource(
+					volume, orcapplyconfigv1alpha1.Volume, orcapplyconfigv1alpha1.VolumeSpec)
+				volumeAttachment.AttachTo(ctx, actuator.k8sClient, controllerName, obj.Name)
 			}
 		}
 	}
@@ -395,10 +426,35 @@ func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, o
 			// Give time for the change to be reflected on the server resource before next reconcile
 			reconcileStatus = reconcileStatus.WithReconcileStatus(
 				progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+
+			volume, err := actuator.findVolumeByID(ctx, obj.Namespace, attachment.ID)
+			if err != nil {
+				// Do nothing, there's nothing to refresh
+				log.V(logging.Verbose).Info("Failed to get volume", "volume", attachment.ID, "err", err)
+			} else {
+				// Remove the reference to the server on the volume object, to trigger a refresh of it
+				volumeAttachment := attachments.NewAttachableResource(
+					volume, orcapplyconfigv1alpha1.Volume, orcapplyconfigv1alpha1.VolumeSpec)
+				volumeAttachment.DetachFrom(ctx, actuator.k8sClient, controllerName, obj.Name)
+			}
 		}
 	}
 
 	return reconcileStatus
+}
+
+func (actuator serverActuator) findVolumeByID(ctx context.Context, namespace string, volumeID string) (*orcv1alpha1.Volume, error) {
+	var volumeList = orcv1alpha1.VolumeList{}
+	if err := actuator.k8sClient.List(ctx, &volumeList, client.InNamespace(namespace)); err != nil {
+		return nil, err
+	}
+
+	for _, v := range volumeList.GetItems() {
+		if v.Status.ID != nil && *v.Status.ID == volumeID {
+			return &v, nil
+		}
+	}
+	return nil, fmt.Errorf("no volume found with ID %s", volumeID)
 }
 
 type serverHelperFactory struct{}

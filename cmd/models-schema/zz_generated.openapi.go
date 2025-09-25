@@ -160,6 +160,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume":                         schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeExtra":                    schema_openstack_resource_controller_v2_api_v1alpha1_VolumeExtra(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeList":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeList(ref),
@@ -7909,6 +7910,38 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeExtra(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"attachments": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "attachments is a list of ORC resources this volume is attached to",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -8332,6 +8365,26 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSpec(ref common.
 				Description: "VolumeSpec defines the desired state of an ORC object.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"attachments": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "attachments is a list of ORC resources this volume is attached to",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 					"import": {
 						SchemaProps: spec.SchemaProps{
 							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",

@@ -18,11 +18,17 @@ resourceRefs:
       kind: ServerGroup
       name: server-update
       ref: sg
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: server-update
+      ref: volume
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
     - celExpr: "server.status.resource.imageID == image.status.id"
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "!has(server.status.resource.tags)"
+    - celExpr: "!has(server.status.resource.volumes)"
+    - celExpr: "!has(volume.status.resource.attachments)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server

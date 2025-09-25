@@ -29,8 +29,10 @@ import (
 )
 
 const (
-	ServerStatusActive = "ACTIVE"
-	ServerStatusError  = "ERROR"
+	ServerStatusActive      = "ACTIVE"
+	ServerStatusDeleted     = "DELETED"
+	ServerStatusError       = "ERROR"
+	ServerStatusSoftDeleted = "SOFT_DELETED"
 )
 
 type objectApplyPT = *orcapplyconfigv1alpha1.ServerApplyConfiguration
