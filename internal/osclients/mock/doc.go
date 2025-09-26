@@ -34,3 +34,6 @@ import (
 
 //go:generate mockgen -package mock -destination=identity.go -source=../identity.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock IdentityClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt identity.go > _identity.go && mv _identity.go identity.go"
+
+//go:generate mockgen -package mock -destination=hostaggregate.go -source=../hostaggregate.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock HostAggregateClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt hostaggregate.go > _hostaggregate.go && mv _hostaggregate.go hostaggregate.go"

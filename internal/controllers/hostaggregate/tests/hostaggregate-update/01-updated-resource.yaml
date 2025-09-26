@@ -1,0 +1,8 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: HostAggregate
+metadata:
+  name: hostaggregate-update
+spec:
+  resource:
+    name: hostaggregate-update-updated

@@ -1,0 +1,25 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: HostAggregate
+metadata:
+  name: hostaggregate-create-full
+status:
+  resource:
+    name: hostaggregate-create-full-override
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: HostAggregate
+      name: hostaggregate-create-full
+      ref: hostaggregate
+assertAll:
+    - celExpr: "hostaggregate.status.id != ''"
