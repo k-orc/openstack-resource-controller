@@ -60,6 +60,27 @@ type ServerPortSpec struct {
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
+// +kubebuilder:validation:MinProperties:=1
+type ServerVolumeSpec struct {
+	// volumeRef is a reference to a Volume object. Server creation will wait for
+	// this volume to be created and available.
+	// +required
+	VolumeRef KubernetesNameRef `json:"volumeRef"`
+
+	// device is the name of the device, such as `/dev/vdb`.
+	// Omit for auto-assignment
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Device *string `json:"device,omitempty"`
+}
+
+type ServerVolumeStatus struct {
+	// id is the ID of a volume attached to the server.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	ID string `json:"id,omitempty"`
+}
+
 // ServerResourceSpec contains the desired state of a server
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
@@ -91,6 +112,12 @@ type ServerResourceSpec struct {
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ports is immutable"
 	Ports []ServerPortSpec `json:"ports"`
+
+	// volumes is a list of volumes attached to the server.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	Volumes []ServerVolumeSpec `json:"volumes,omitempty"`
 
 	// serverGroupRef is a reference to a ServerGroup object. The server
 	// will be created in the server group.
@@ -154,6 +181,12 @@ type ServerResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	ServerGroups []string `json:"serverGroups,omitempty"`
+
+	// volumes contains the volumes attached to the server.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	Volumes []ServerVolumeStatus `json:"volumes,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32

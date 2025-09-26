@@ -21,12 +21,13 @@ package v1alpha1
 // ServerResourceStatusApplyConfiguration represents a declarative configuration of the ServerResourceStatus type for use
 // with apply.
 type ServerResourceStatusApplyConfiguration struct {
-	Name         *string  `json:"name,omitempty"`
-	HostID       *string  `json:"hostID,omitempty"`
-	Status       *string  `json:"status,omitempty"`
-	ImageID      *string  `json:"imageID,omitempty"`
-	ServerGroups []string `json:"serverGroups,omitempty"`
-	Tags         []string `json:"tags,omitempty"`
+	Name         *string                                `json:"name,omitempty"`
+	HostID       *string                                `json:"hostID,omitempty"`
+	Status       *string                                `json:"status,omitempty"`
+	ImageID      *string                                `json:"imageID,omitempty"`
+	ServerGroups []string                               `json:"serverGroups,omitempty"`
+	Volumes      []ServerVolumeStatusApplyConfiguration `json:"volumes,omitempty"`
+	Tags         []string                               `json:"tags,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
@@ -73,6 +74,19 @@ func (b *ServerResourceStatusApplyConfiguration) WithImageID(value string) *Serv
 func (b *ServerResourceStatusApplyConfiguration) WithServerGroups(values ...string) *ServerResourceStatusApplyConfiguration {
 	for i := range values {
 		b.ServerGroups = append(b.ServerGroups, values[i])
+	}
+	return b
+}
+
+// WithVolumes adds the given value to the Volumes field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Volumes field.
+func (b *ServerResourceStatusApplyConfiguration) WithVolumes(values ...*ServerVolumeStatusApplyConfiguration) *ServerResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithVolumes")
+		}
+		b.Volumes = append(b.Volumes, *values[i])
 	}
 	return b
 }

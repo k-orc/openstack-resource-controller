@@ -20,10 +20,12 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"maps"
 	"slices"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
@@ -53,6 +55,9 @@ type (
 const (
 	// The frequency to poll when waiting for a server to become active
 	serverActivePollingPeriod = 15 * time.Second
+
+	// The frequency to poll when waiting for an attachment or detachment to be reflected
+	serverAttachmentPollingPeriod = 5 * time.Second
 )
 
 type serverActuator struct {
@@ -245,6 +250,7 @@ func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcOb
 	return []resourceReconciler{
 		actuator.checkStatus,
 		actuator.updateResource,
+		actuator.reconcileVolumeAttachments,
 	}, nil
 }
 
@@ -318,6 +324,80 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 	}
+}
+
+func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	volumeDepsMap, reconcileStatus := volumeDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(volume *orcv1alpha1.Volume) bool {
+			return orcv1alpha1.IsAvailable(volume) && volume.Status.ID != nil
+		},
+	)
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
+	}
+
+	// Only operate on servers in available status
+	if osResource.Status != ServerStatusActive {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	// Create missing attachments
+	for i := range resource.Volumes {
+		volumeRef := resource.Volumes[i].VolumeRef
+		if volume, ok := volumeDepsMap[string(volumeRef)]; !ok {
+			// Programming error
+			return reconcileStatus.WithError(fmt.Errorf("volume %s not present in dependencies", volumeRef))
+		} else {
+			// The volume is not yet attached to the server
+			if !slices.ContainsFunc(osResource.AttachedVolumes, func(attachment servers.AttachedVolume) bool {
+				return attachment.ID == *volume.Status.ID
+			}) {
+				createOpts := volumeattach.CreateOpts{
+					VolumeID: *volume.Status.ID,
+				}
+				log.V(logging.Verbose).Info("Attaching volume to server", "volume", *volume.Status.ID, "server", *obj.Status.ID)
+				_, err := actuator.osClient.CreateVolumeAttachment(ctx, *obj.Status.ID, createOpts)
+				if err != nil {
+					return reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+				}
+
+				// Give time for the change to be reflected on the server resource before next reconcile
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+			}
+		}
+	}
+
+	volumeDeps := slices.Collect(maps.Values(volumeDepsMap))
+
+	// Delete extra attachments
+	for _, attachment := range osResource.AttachedVolumes {
+		// There's a attachment that is not marked as a dependency
+		if !slices.ContainsFunc(volumeDeps, func(v *orcv1alpha1.Volume) bool {
+			return attachment.ID == *v.Status.ID
+		}) {
+			log.V(logging.Verbose).Info("Detaching volume from server", "volume", attachment.ID, "server", *obj.Status.ID)
+			err := actuator.osClient.DeleteVolumeAttachment(ctx, *obj.Status.ID, attachment.ID)
+			if err != nil {
+				return reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+			}
+
+			// Give time for the change to be reflected on the server resource before next reconcile
+			reconcileStatus = reconcileStatus.WithReconcileStatus(
+				progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+		}
+	}
+
+	return reconcileStatus
 }
 
 type serverHelperFactory struct{}

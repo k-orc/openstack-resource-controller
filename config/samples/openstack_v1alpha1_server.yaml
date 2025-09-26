@@ -12,6 +12,8 @@ spec:
     flavorRef: server-sample
     ports:
       - portRef: server-sample
+    volumes:
+      - volumeRef: server-sample
     serverGroupRef: server-sample
     tags:
       - tag1

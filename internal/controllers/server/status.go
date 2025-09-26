@@ -73,5 +73,10 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		status.WithImageID(fmt.Sprintf("%s", imageID))
 	}
 
+	for i := range osResource.AttachedVolumes {
+		status.WithVolumes(orcapplyconfigv1alpha1.ServerVolumeStatus().
+			WithID(osResource.AttachedVolumes[i].ID))
+	}
+
 	statusApply.WithResource(status)
 }
