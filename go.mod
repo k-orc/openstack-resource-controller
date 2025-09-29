@@ -1,6 +1,6 @@
 module github.com/k-orc/openstack-resource-controller/v2
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -11,7 +11,7 @@ require (
 	github.com/onsi/gomega v1.38.2
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
-	golang.org/x/text v0.28.0
+	golang.org/x/text v0.29.0
 	k8s.io/api v0.32.9
 	k8s.io/apimachinery v0.32.9
 	k8s.io/client-go v0.32.9
@@ -89,7 +89,7 @@ require (
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/term v0.34.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
