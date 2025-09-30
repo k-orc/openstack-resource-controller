@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-update
+spec:
+  resource:
+    name: volumetype-update-updated
+    description: volumetype-update-updated
+    isPublic: false
