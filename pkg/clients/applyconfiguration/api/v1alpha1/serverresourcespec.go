@@ -25,13 +25,14 @@ import (
 // ServerResourceSpecApplyConfiguration represents a declarative configuration of the ServerResourceSpec type for use
 // with apply.
 type ServerResourceSpecApplyConfiguration struct {
-	Name           *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
-	ImageRef       *apiv1alpha1.KubernetesNameRef     `json:"imageRef,omitempty"`
-	FlavorRef      *apiv1alpha1.KubernetesNameRef     `json:"flavorRef,omitempty"`
-	UserData       *UserDataSpecApplyConfiguration    `json:"userData,omitempty"`
-	Ports          []ServerPortSpecApplyConfiguration `json:"ports,omitempty"`
-	ServerGroupRef *apiv1alpha1.KubernetesNameRef     `json:"serverGroupRef,omitempty"`
-	Tags           []apiv1alpha1.ServerTag            `json:"tags,omitempty"`
+	Name           *apiv1alpha1.OpenStackName           `json:"name,omitempty"`
+	ImageRef       *apiv1alpha1.KubernetesNameRef       `json:"imageRef,omitempty"`
+	FlavorRef      *apiv1alpha1.KubernetesNameRef       `json:"flavorRef,omitempty"`
+	UserData       *UserDataSpecApplyConfiguration      `json:"userData,omitempty"`
+	Ports          []ServerPortSpecApplyConfiguration   `json:"ports,omitempty"`
+	Volumes        []ServerVolumeSpecApplyConfiguration `json:"volumes,omitempty"`
+	ServerGroupRef *apiv1alpha1.KubernetesNameRef       `json:"serverGroupRef,omitempty"`
+	Tags           []apiv1alpha1.ServerTag              `json:"tags,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -81,6 +82,19 @@ func (b *ServerResourceSpecApplyConfiguration) WithPorts(values ...*ServerPortSp
 			panic("nil value passed to WithPorts")
 		}
 		b.Ports = append(b.Ports, *values[i])
+	}
+	return b
+}
+
+// WithVolumes adds the given value to the Volumes field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Volumes field.
+func (b *ServerResourceSpecApplyConfiguration) WithVolumes(values ...*ServerVolumeSpecApplyConfiguration) *ServerResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithVolumes")
+		}
+		b.Volumes = append(b.Volumes, *values[i])
 	}
 	return b
 }

@@ -242,6 +242,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerStatus"):
 		return &apiv1alpha1.ServerStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerVolumeSpec"):
+		return &apiv1alpha1.ServerVolumeSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerVolumeStatus"):
+		return &apiv1alpha1.ServerVolumeStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Subnet"):
 		return &apiv1alpha1.SubnetApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetFilter"):
@@ -260,6 +264,26 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SubnetStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("UserDataSpec"):
 		return &apiv1alpha1.UserDataSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Volume"):
+		return &apiv1alpha1.VolumeApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeAttachmentStatus"):
+		return &apiv1alpha1.VolumeAttachmentStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeFilter"):
+		return &apiv1alpha1.VolumeFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeImport"):
+		return &apiv1alpha1.VolumeImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeMetadata"):
+		return &apiv1alpha1.VolumeMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeMetadataStatus"):
+		return &apiv1alpha1.VolumeMetadataStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeResourceSpec"):
+		return &apiv1alpha1.VolumeResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeResourceStatus"):
+		return &apiv1alpha1.VolumeResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSpec"):
+		return &apiv1alpha1.VolumeSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeStatus"):
+		return &apiv1alpha1.VolumeStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeType"):
 		return &apiv1alpha1.VolumeTypeApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeTypeExtraSpec"):

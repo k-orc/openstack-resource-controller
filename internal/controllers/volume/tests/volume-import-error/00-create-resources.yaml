@@ -1,0 +1,27 @@
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Volume from "import error" test
+    size: 1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Volume from "import error" test
+    size: 1

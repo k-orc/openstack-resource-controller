@@ -1971,6 +1971,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: userData
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserDataSpec
+    - name: volumes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeSpec
+          elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
   map:
     fields:
@@ -1997,6 +2003,12 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             scalar: string
+          elementRelationship: atomic
+    - name: volumes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
           elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSpec
   map:
@@ -2034,6 +2046,22 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeSpec
+  map:
+    fields:
+    - name: device
+      type:
+        scalar: string
+    - name: volumeRef
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subnet
   map:
     fields:
@@ -2303,6 +2331,216 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: secretRef
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Volume
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeAttachmentStatus
+  map:
+    fields:
+    - name: attachedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: attachmentID
+      type:
+        scalar: string
+      default: ""
+    - name: device
+      type:
+        scalar: string
+      default: ""
+    - name: serverID
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeMetadata
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: value
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeMetadataStatus
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeMetadata
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+      default: 0
+    - name: volumeTypeRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
+  map:
+    fields:
+    - name: attachments
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeAttachmentStatus
+          elementRelationship: atomic
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: backupID
+      type:
+        scalar: string
+    - name: bootable
+      type:
+        scalar: boolean
+    - name: consistencyGroupID
+      type:
+        scalar: string
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: encrypted
+      type:
+        scalar: boolean
+    - name: host
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeMetadataStatus
+          elementRelationship: atomic
+    - name: multiattach
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: replicationStatus
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+    - name: snapshotID
+      type:
+        scalar: string
+    - name: sourceVolID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: tenantID
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: userID
+      type:
+        scalar: string
+    - name: volumeType
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeType
   map:
     fields:

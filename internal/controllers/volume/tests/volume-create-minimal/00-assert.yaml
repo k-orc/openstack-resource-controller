@@ -1,0 +1,38 @@
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-create-minimal
+status:
+  resource:
+    name: volume-create-minimal
+    size: 1
+    status: available
+    bootable: false
+    encrypted: false
+    multiattach: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volume-create-minimal
+      ref: volume
+assertAll:
+    - celExpr: "volume.status.id != ''"
+    - celExpr: "volume.status.resource.tenantID != ''"
+    - celExpr: "volume.status.resource.userID != ''"
+    - celExpr: "volume.status.resource.volumeType != ''"
+    - celExpr: "volume.status.resource.createdAt != ''"
+    - celExpr: "volume.status.resource.updatedAt != ''"
+    - celExpr: "!has(volume.status.resource.description)"
+    - celExpr: "!has(volume.status.resource.metadata)"

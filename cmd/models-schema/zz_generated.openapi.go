@@ -146,6 +146,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_ServerSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_ServerStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_ServerVolumeSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_ServerVolumeStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subnet":                         schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref),
@@ -156,6 +158,17 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume":                         schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeList":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadata":                 schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadataStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadataStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeType":                     schema_openstack_resource_controller_v2_api_v1alpha1_VolumeType(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpec":            schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeExtraSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeExtraSpecStatus":      schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeExtraSpecStatus(ref),
@@ -6705,6 +6718,25 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							},
 						},
 					},
+					"volumes": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "volumes is a list of volumes attached to the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec"),
+									},
+								},
+							},
+						},
+					},
 					"serverGroupRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "serverGroupRef is a reference to a ServerGroup object. The server will be created in the server group.",
@@ -6737,7 +6769,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
 	}
 }
 
@@ -6796,6 +6828,25 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 							},
 						},
 					},
+					"volumes": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "volumes contains the volumes attached to the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"),
+									},
+								},
+							},
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -6819,6 +6870,8 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
 	}
 }
 
@@ -6919,6 +6972,53 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerStatus(ref commo
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerVolumeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"volumeRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeRef is a reference to a Volume object. Server creation will wait for this volume to be created and available.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"device": {
+						SchemaProps: spec.SchemaProps{
+							Description: "device is the name of the device, such as `/dev/vdb`. Omit for auto-assignment",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"volumeRef"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerVolumeStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of a volume attached to the server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -7712,6 +7812,616 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref commo
 				},
 			},
 		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "Volume is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"attachmentID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "attachmentID represents the attachment UUID.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serverID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serverID is the UUID of the server to which the volume is attached.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"device": {
+						SchemaProps: spec.SchemaProps{
+							Description: "device is the name of the device in the instance.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"attachedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "attachedAt shows the date and time when the resource was attached. The date and time stamp format is ISO 8601.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"size": {
+						SchemaProps: spec.SchemaProps{
+							Description: "size is the size of the volume in GiB.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeList contains a list of Volume.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of Volume.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the metadata",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the metadata",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeMetadataStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the metadata",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the metadata",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"size": {
+						SchemaProps: spec.SchemaProps{
+							Description: "size is the size of the volume, in gibibytes (GiB).",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"volumeTypeRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata key and value pairs to be associated with the volume. NOTE(mandre): gophercloud can't clear all metadata at the moment, we thus can't allow mutability for metadata as we might end up in a state that is not reconciliable",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadata"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"size"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadata"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"size": {
+						SchemaProps: spec.SchemaProps{
+							Description: "size is the size of the volume in GiB.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status represents the current status of the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is which availability zone the volume is in.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"attachments": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "attachments is a list of attachments for the volume.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus"),
+									},
+								},
+							},
+						},
+					},
+					"volumeType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeType is the name of associated the volume type.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"snapshotID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "snapshotID is the ID of the snapshot from which the volume was created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sourceVolID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sourceVolID is the ID of another block storage volume from which the current volume was created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"backupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backupID is the ID of the backup from which the volume was restored",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata key and value pairs to be associated with the volume.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadataStatus"),
+									},
+								},
+							},
+						},
+					},
+					"userID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "userID is the ID of the user who created the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"bootable": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bootable indicates whether this is a bootable volume.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"encrypted": {
+						SchemaProps: spec.SchemaProps{
+							Description: "encrypted denotes if the volume is encrypted.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"replicationStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "replicationStatus is the status of replication.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"consistencyGroupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "consistencyGroupID is the consistency group ID.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"multiattach": {
+						SchemaProps: spec.SchemaProps{
+							Description: "multiattach denotes if the volume is multi-attach capable.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"host": {
+						SchemaProps: spec.SchemaProps{
+							Description: "host is the identifier of the host holding the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tenantID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tenantID is the ID of the project that owns the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeMetadataStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceSpec"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VolumeStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 

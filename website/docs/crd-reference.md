@@ -22,6 +22,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Server](#server)
 - [ServerGroup](#servergroup)
 - [Subnet](#subnet)
+- [Volume](#volume)
 - [VolumeType](#volumetype)
 
 
@@ -168,6 +169,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [SubnetSpec](#subnetspec)
+- [VolumeSpec](#volumespec)
 - [VolumeTypeSpec](#volumetypespec)
 
 | Field | Description | Default | Validation |
@@ -1214,9 +1216,11 @@ _Appears in:_
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
+- [ServerVolumeSpec](#servervolumespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [UserDataSpec](#userdataspec)
+- [VolumeResourceSpec](#volumeresourcespec)
 
 
 
@@ -1270,6 +1274,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [SubnetSpec](#subnetspec)
+- [VolumeSpec](#volumespec)
 - [VolumeTypeSpec](#volumetypespec)
 
 | Field | Description | Default | Validation |
@@ -1298,6 +1303,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [SubnetSpec](#subnetspec)
+- [VolumeSpec](#volumespec)
 - [VolumeTypeSpec](#volumetypespec)
 
 | Field | Description |
@@ -1592,6 +1598,8 @@ _Appears in:_
 - [ServerResourceSpec](#serverresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
+- [VolumeFilter](#volumefilter)
+- [VolumeResourceSpec](#volumeresourcespec)
 - [VolumeTypeFilter](#volumetypefilter)
 - [VolumeTypeResourceSpec](#volumetyperesourcespec)
 
@@ -2721,6 +2729,7 @@ _Appears in:_
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 32 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 32 <br />MinProperties: 1 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
@@ -2743,6 +2752,7 @@ _Appears in:_
 | `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
 | `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 32 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
@@ -2799,6 +2809,40 @@ _Appears in:_
 - [ServerFilter](#serverfilter)
 - [ServerResourceSpec](#serverresourcespec)
 
+
+
+#### ServerVolumeSpec
+
+
+
+
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `volumeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeRef is a reference to a Volume object. Server creation will wait for<br />this volume to be created and available. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `device` _string_ | device is the name of the device, such as `/dev/vdb`.<br />Omit for auto-assignment |  | MaxLength: 255 <br /> |
+
+
+#### ServerVolumeStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerResourceStatus](#serverresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of a volume attached to the server. |  | MaxLength: 1024 <br /> |
 
 
 #### Subnet
@@ -3018,6 +3062,211 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `secretRef` _[KubernetesNameRef](#kubernetesnameref)_ | secretRef is a reference to a Secret containing the user data for this server. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+
+
+#### Volume
+
+
+
+Volume is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Volume` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[VolumeSpec](#volumespec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[VolumeStatus](#volumestatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### VolumeAttachmentStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeResourceStatus](#volumeresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `attachmentID` _string_ | attachmentID represents the attachment UUID. |  | MaxLength: 1024 <br /> |
+| `serverID` _string_ | serverID is the UUID of the server to which the volume is attached. |  | MaxLength: 1024 <br /> |
+| `device` _string_ | device is the name of the device in the instance. |  | MaxLength: 1024 <br /> |
+| `attachedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | attachedAt shows the date and time when the resource was attached. The date and time stamp format is ISO 8601. |  |  |
+
+
+#### VolumeFilter
+
+
+
+VolumeFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [VolumeImport](#volumeimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `size` _integer_ | size is the size of the volume in GiB. |  | Minimum: 1 <br /> |
+
+
+#### VolumeImport
+
+
+
+VolumeImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [VolumeSpec](#volumespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
+| `filter` _[VolumeFilter](#volumefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### VolumeMetadata
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeResourceSpec](#volumeresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the metadata |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the value of the metadata |  | MaxLength: 255 <br /> |
+
+
+#### VolumeMetadataStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeResourceStatus](#volumeresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the metadata |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the value of the metadata |  | MaxLength: 255 <br /> |
+
+
+#### VolumeResourceSpec
+
+
+
+VolumeResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [VolumeSpec](#volumespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `size` _integer_ | size is the size of the volume, in gibibytes (GiB). |  | Minimum: 1 <br /> |
+| `volumeTypeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `metadata` _[VolumeMetadata](#volumemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 32 <br /> |
+
+
+#### VolumeResourceStatus
+
+
+
+VolumeResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [VolumeStatus](#volumestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `size` _integer_ | size is the size of the volume in GiB. |  |  |
+| `status` _string_ | status represents the current status of the volume. |  | MaxLength: 1024 <br /> |
+| `availabilityZone` _string_ | availabilityZone is which availability zone the volume is in. |  | MaxLength: 1024 <br /> |
+| `attachments` _[VolumeAttachmentStatus](#volumeattachmentstatus) array_ | attachments is a list of attachments for the volume. |  | MaxItems: 32 <br /> |
+| `volumeType` _string_ | volumeType is the name of associated the volume type. |  | MaxLength: 1024 <br /> |
+| `snapshotID` _string_ | snapshotID is the ID of the snapshot from which the volume was created |  | MaxLength: 1024 <br /> |
+| `sourceVolID` _string_ | sourceVolID is the ID of another block storage volume from which the current volume was created |  | MaxLength: 1024 <br /> |
+| `backupID` _string_ | backupID is the ID of the backup from which the volume was restored |  | MaxLength: 1024 <br /> |
+| `metadata` _[VolumeMetadataStatus](#volumemetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 32 <br /> |
+| `userID` _string_ | userID is the ID of the user who created the volume. |  | MaxLength: 1024 <br /> |
+| `bootable` _boolean_ | bootable indicates whether this is a bootable volume. |  |  |
+| `encrypted` _boolean_ | encrypted denotes if the volume is encrypted. |  |  |
+| `replicationStatus` _string_ | replicationStatus is the status of replication. |  | MaxLength: 1024 <br /> |
+| `consistencyGroupID` _string_ | consistencyGroupID is the consistency group ID. |  | MaxLength: 1024 <br /> |
+| `multiattach` _boolean_ | multiattach denotes if the volume is multi-attach capable. |  |  |
+| `host` _string_ | host is the identifier of the host holding the volume. |  | MaxLength: 1024 <br /> |
+| `tenantID` _string_ | tenantID is the ID of the project that owns the volume. |  | MaxLength: 1024 <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+
+
+#### VolumeSpec
+
+
+
+VolumeSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Volume](#volume)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[VolumeImport](#volumeimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[VolumeResourceSpec](#volumeresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### VolumeStatus
+
+
+
+VolumeStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Volume](#volume)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[VolumeResourceStatus](#volumeresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### VolumeType
