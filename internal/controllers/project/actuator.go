@@ -31,7 +31,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
 // OpenStack resource types
@@ -78,7 +78,7 @@ func (actuator projectActuator) ListOSResourcesForAdoption(ctx context.Context, 
 
 	listOpts := projects.ListOpts{
 		Name: getResourceName(obj),
-		Tags: neutrontags.Join(obj.Spec.Resource.Tags),
+		Tags: tags.Join(obj.Spec.Resource.Tags),
 	}
 
 	return actuator.osClient.ListProjects(ctx, listOpts), true
@@ -87,10 +87,10 @@ func (actuator projectActuator) ListOSResourcesForAdoption(ctx context.Context, 
 func (actuator projectActuator) ListOSResourcesForImport(ctx context.Context, orcObject orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := projects.ListOpts{
 		Name:       string(ptr.Deref(filter.Name, "")),
-		Tags:       neutrontags.Join(filter.Tags),
-		TagsAny:    neutrontags.Join(filter.TagsAny),
-		NotTags:    neutrontags.Join(filter.NotTags),
-		NotTagsAny: neutrontags.Join(filter.NotTagsAny),
+		Tags:       tags.Join(filter.Tags),
+		TagsAny:    tags.Join(filter.TagsAny),
+		NotTags:    tags.Join(filter.NotTags),
+		NotTagsAny: tags.Join(filter.NotTagsAny),
 	}
 
 	return actuator.osClient.ListProjects(ctx, listOpts), nil

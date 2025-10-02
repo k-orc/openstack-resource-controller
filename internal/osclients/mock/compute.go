@@ -32,6 +32,7 @@ import (
 	flavors "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	servergroups "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
+	tags "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/tags"
 	volumeattach "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -261,6 +262,21 @@ func (m *MockComputeClient) ListServers(ctx context.Context, listOpts servers.Li
 func (mr *MockComputeClientMockRecorder) ListServers(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServers", reflect.TypeOf((*MockComputeClient)(nil).ListServers), ctx, listOpts)
+}
+
+// ReplaceAllServerAttributesTags mocks base method.
+func (m *MockComputeClient) ReplaceAllServerAttributesTags(ctx context.Context, resourceID string, opts tags.ReplaceAllOptsBuilder) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReplaceAllServerAttributesTags", ctx, resourceID, opts)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReplaceAllServerAttributesTags indicates an expected call of ReplaceAllServerAttributesTags.
+func (mr *MockComputeClientMockRecorder) ReplaceAllServerAttributesTags(ctx, resourceID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceAllServerAttributesTags", reflect.TypeOf((*MockComputeClient)(nil).ReplaceAllServerAttributesTags), ctx, resourceID, opts)
 }
 
 // UpdateServer mocks base method.

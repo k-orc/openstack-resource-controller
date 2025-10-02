@@ -27,7 +27,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
@@ -81,7 +81,7 @@ func (actuator floatingipActuator) ListOSResourcesForAdoption(ctx context.Contex
 
 	listOpts := floatingips.ListOpts{
 		FloatingIP: string(ptr.Deref(obj.Spec.Resource.FloatingIP, "")),
-		Tags:       neutrontags.Join(obj.Spec.Resource.Tags),
+		Tags:       tags.Join(obj.Spec.Resource.Tags),
 	}
 	return actuator.osClient.ListFloatingIP(ctx, listOpts), true
 }
@@ -156,10 +156,10 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 		FloatingNetworkID: ptr.Deref(network.Status.ID, ""),
 		ProjectID:         ptr.Deref(project.Status.ID, ""),
 		Description:       string(ptr.Deref(filter.Description, "")),
-		Tags:              neutrontags.Join(filter.Tags),
-		TagsAny:           neutrontags.Join(filter.TagsAny),
-		NotTags:           neutrontags.Join(filter.NotTags),
-		NotTagsAny:        neutrontags.Join(filter.NotTagsAny),
+		Tags:              tags.Join(filter.Tags),
+		TagsAny:           tags.Join(filter.TagsAny),
+		NotTags:           tags.Join(filter.NotTags),
+		NotTagsAny:        tags.Join(filter.NotTagsAny),
 		Status:            filter.Status,
 	}
 
@@ -267,7 +267,7 @@ var _ reconcileResourceActuator = floatingipActuator{}
 
 func (actuator floatingipActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		neutrontags.ReconcileTags[orcObjectPT, osResourceT](actuator.osClient, "floatingips", osResource.ID, orcObject.Spec.Resource.Tags, osResource.Tags),
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "floatingips", osResource.ID)),
 	}, nil
 }
 

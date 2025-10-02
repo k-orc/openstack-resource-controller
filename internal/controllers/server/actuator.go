@@ -38,7 +38,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/neutrontags"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
 type (
@@ -87,7 +87,7 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 	listOpts := servers.ListOpts{
 		Name: fmt.Sprintf("^%s$", getResourceName(obj)),
-		Tags: neutrontags.Join(obj.Spec.Resource.Tags),
+		Tags: tags.Join(obj.Spec.Resource.Tags),
 	}
 
 	return actuator.osClient.ListServers(ctx, listOpts), true
@@ -95,10 +95,10 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := servers.ListOpts{
-		Tags:       neutrontags.Join(filter.Tags),
-		TagsAny:    neutrontags.Join(filter.TagsAny),
-		NotTags:    neutrontags.Join(filter.NotTags),
-		NotTagsAny: neutrontags.Join(filter.NotTagsAny),
+		Tags:       tags.Join(filter.Tags),
+		TagsAny:    tags.Join(filter.TagsAny),
+		NotTags:    tags.Join(filter.NotTags),
+		NotTagsAny: tags.Join(filter.NotTagsAny),
 	}
 
 	if filter.Name != nil {
@@ -248,6 +248,7 @@ var _ reconcileResourceActuator = serverActuator{}
 
 func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, *osResource.Tags, tags.NewServerTagReplacer(actuator.osClient, osResource.ID)),
 		actuator.checkStatus,
 		actuator.updateResource,
 		actuator.reconcileVolumeAttachments,
