@@ -1,0 +1,15 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: FloatingIP
+metadata:
+  name: floatingip-update
+spec:
+  resource:
+    floatingNetworkRef: floatingip-update-external
+    portRef: floatingip-update
+    description: floatingip-update-updated
+    fixedIP: 10.0.0.10 
+    floatingIP: 192.168.155.5
+    projectRef: floatingip-update
+    tags:
+      - tag1
+      - tag2
