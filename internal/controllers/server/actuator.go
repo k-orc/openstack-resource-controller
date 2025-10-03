@@ -248,7 +248,7 @@ var _ reconcileResourceActuator = serverActuator{}
 
 func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, *osResource.Tags, tags.NewServerTagReplacer(actuator.osClient, osResource.ID)),
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID)),
 		actuator.checkStatus,
 		actuator.updateResource,
 		actuator.reconcileVolumeAttachments,
