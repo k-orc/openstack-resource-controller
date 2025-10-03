@@ -54,6 +54,16 @@ spec:
           spec:
             description: spec specifies the desired state of the resource.
             properties:
+              attachments:
+                description: attachments is a list of ORC resources this volume is
+                  attached to
+                items:
+                  maxLength: 253
+                  minLength: 1
+                  type: string
+                maxItems: 32
+                type: array
+                x-kubernetes-list-type: set
               cloudCredentialsRef:
                 description: cloudCredentialsRef points to a secret containing OpenStack
                   credentials

@@ -268,6 +268,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.VolumeApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeAttachmentStatus"):
 		return &apiv1alpha1.VolumeAttachmentStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeExtra"):
+		return &apiv1alpha1.VolumeExtraApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeFilter"):
 		return &apiv1alpha1.VolumeFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeImport"):

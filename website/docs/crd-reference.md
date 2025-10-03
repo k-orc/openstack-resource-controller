@@ -1220,7 +1220,9 @@ _Appears in:_
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [UserDataSpec](#userdataspec)
+- [VolumeExtra](#volumeextra)
 - [VolumeResourceSpec](#volumeresourcespec)
+- [VolumeSpec](#volumespec)
 
 
 
@@ -3102,6 +3104,22 @@ _Appears in:_
 | `attachedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | attachedAt shows the date and time when the resource was attached. The date and time stamp format is ISO 8601. |  |  |
 
 
+#### VolumeExtra
+
+
+
+
+
+
+
+_Appears in:_
+- [VolumeSpec](#volumespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `attachments` _[KubernetesNameRef](#kubernetesnameref) array_ | attachments is a list of ORC resources this volume is attached to |  | MaxItems: 32 <br />MaxLength: 253 <br />MinLength: 1 <br /> |
+
+
 #### VolumeFilter
 
 
@@ -3244,6 +3262,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `attachments` _[KubernetesNameRef](#kubernetesnameref) array_ | attachments is a list of ORC resources this volume is attached to |  | MaxItems: 32 <br />MaxLength: 253 <br />MinLength: 1 <br /> |
 | `import` _[VolumeImport](#volumeimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `resource` _[VolumeResourceSpec](#volumeresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
