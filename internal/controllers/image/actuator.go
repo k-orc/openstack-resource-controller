@@ -57,11 +57,11 @@ type imageActuator struct {
 var _ createResourceActuator = imageActuator{}
 var _ deleteResourceActuator = imageActuator{}
 
-func (imageActuator) GetResourceID(osResource *images.Image) string {
+func (imageActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator imageActuator) GetOSResourceByID(ctx context.Context, id string) (*images.Image, progress.ReconcileStatus) {
+func (actuator imageActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	image, err := actuator.osClient.GetImage(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -110,7 +110,7 @@ func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	return actuator.osClient.ListImages(ctx, listOpts), nil
 }
 
-func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) (*images.Image, progress.ReconcileStatus) {
+func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -182,8 +182,110 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	return image, nil
 }
 
-func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *images.Image) progress.ReconcileStatus {
+func (actuator imageActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	return progress.WrapError(actuator.osClient.DeleteImage(ctx, osResource.ID))
+}
+
+func (actuator imageActuator) UpdateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := images.UpdateOpts{}
+
+	updateOpts = handleNameUpdate(updateOpts, obj, osResource)
+	updateOpts = handleVisibilityUpdate(updateOpts, resource, osResource)
+	updateOpts = handleProtectedUpdate(updateOpts, resource, osResource)
+	updateOpts = handleTagsUpdate(updateOpts, resource, osResource)
+
+	if !needsUpdate(updateOpts) {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err := actuator.osClient.UpdateImage(ctx, osResource.ID, updateOpts)
+
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+func needsUpdate(updateOpts images.UpdateOpts) bool {
+	return len(updateOpts) > 0
+}
+
+func handleNameUpdate(updateOpts images.UpdateOpts, obj orcObjectPT, osResource *osResourceT) images.UpdateOpts {
+	name := getResourceName(obj)
+
+	if osResource.Name != name {
+		patch := images.ReplaceImageName{
+			NewName: name,
+		}
+		updateOpts = append(updateOpts, patch)
+	}
+	return updateOpts
+}
+
+func handleVisibilityUpdate(updateOpts images.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) images.UpdateOpts {
+	desiredVisibility := resource.Visibility
+
+	if desiredVisibility == nil {
+		return updateOpts
+	}
+
+	visValue := images.ImageVisibility(*desiredVisibility)
+
+	if osResource.Visibility != visValue {
+		patch := images.UpdateVisibility{
+			Visibility: visValue,
+		}
+		updateOpts = append(updateOpts, patch)
+	}
+
+	return updateOpts
+}
+
+func handleProtectedUpdate(updateOpts images.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) images.UpdateOpts {
+	protectedValue := ptr.Deref(resource.Protected, false)
+
+	if osResource.Protected != protectedValue {
+		patch := images.ReplaceImageProtected{
+			NewProtected: protectedValue,
+		}
+		updateOpts = append(updateOpts, patch)
+	}
+
+	return updateOpts
+}
+
+func handleTagsUpdate(updateOpts images.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) images.UpdateOpts {
+	DesiredTags := []string{}
+	if resource.Tags != nil {
+		DesiredTags = make([]string, len(resource.Tags))
+		for i, tag := range resource.Tags {
+			DesiredTags[i] = string(tag)
+		}
+	}
+
+	slices.Sort(DesiredTags)
+	slices.Sort(osResource.Tags)
+
+	if !slices.Equal(DesiredTags, osResource.Tags) {
+		patch := images.ReplaceImageTags{
+			NewTags: DesiredTags,
+		}
+		updateOpts = append(updateOpts, patch)
+	}
+
+	return updateOpts
 }
 
 // glancePropertiesFromStruct populates a properties struct using field values and glance tags defined on the given struct
@@ -232,6 +334,7 @@ var _ reconcileResourceActuator = imageActuator{}
 func (actuator imageActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.handleUpload,
+		actuator.UpdateResource,
 	}, nil
 }
 

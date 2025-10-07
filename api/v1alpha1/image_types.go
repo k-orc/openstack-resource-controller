@@ -309,12 +309,6 @@ type ImageHash struct {
 }
 
 // ImageResourceSpec contains the desired state of a Glance image
-// +kubebuilder:validation:XValidation:rule="has(self.name) ? self.name == oldSelf.name : !has(oldSelf.name)",message="name is immutable"
-// +kubebuilder:validation:XValidation:rule="has(self.protected) ? self.protected == oldSelf.protected : !has(oldSelf.protected)",message="name is immutable"
-// +kubebuilder:validation:XValidation:rule="has(self.tags) ? self.tags == oldSelf.tags : !has(oldSelf.tags)",message="tags is immutable"
-// +kubebuilder:validation:XValidation:rule="has(self.visibility) ? self.visibility == oldSelf.visibility : !has(oldSelf.visibility)",message="visibility is immutable"
-// +kubebuilder:validation:XValidation:rule="has(self.properties) ? self.properties == oldSelf.properties : !has(oldSelf.properties)",message="properties is immutable"
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ImageResourceSpec is immutable"
 type ImageResourceSpec struct {
 	// name will be the name of the created Glance image. If not specified, the
 	// name of the Image object will be used.
@@ -333,11 +327,11 @@ type ImageResourceSpec struct {
 	Tags []ImageTag `json:"tags,omitempty"`
 
 	// visibility of the image
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="visibility is immutable"
 	// +optional
 	Visibility *ImageVisibility `json:"visibility,omitempty"`
 
 	// properties is metadata available to consumers of the image
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="properties is immutable"
 	// +optional
 	Properties *ImageProperties `json:"properties,omitempty"`
 
