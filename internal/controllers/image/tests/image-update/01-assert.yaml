@@ -1,0 +1,23 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: image-update
+      ref: image
+assertAll:
+    - celExpr: "image.status.resource.tags.size() == 2"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: image-update
+status:
+  resource:
+    name: image-update-updated
+    protected: true
+    visibility: private
+    status: active
+    tags:
+      - tag1
+      - tag2
