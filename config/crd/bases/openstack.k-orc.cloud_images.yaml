@@ -536,26 +536,7 @@ spec:
                     - shared
                     - community
                     type: string
-                    x-kubernetes-validations:
-                    - message: visibility is immutable
-                      rule: self == oldSelf
                 type: object
-                x-kubernetes-validations:
-                - message: name is immutable
-                  rule: 'has(self.name) ? self.name == oldSelf.name : !has(oldSelf.name)'
-                - message: name is immutable
-                  rule: 'has(self.protected) ? self.protected == oldSelf.protected
-                    : !has(oldSelf.protected)'
-                - message: tags is immutable
-                  rule: 'has(self.tags) ? self.tags == oldSelf.tags : !has(oldSelf.tags)'
-                - message: visibility is immutable
-                  rule: 'has(self.visibility) ? self.visibility == oldSelf.visibility
-                    : !has(oldSelf.visibility)'
-                - message: properties is immutable
-                  rule: 'has(self.properties) ? self.properties == oldSelf.properties
-                    : !has(oldSelf.properties)'
-                - message: ImageResourceSpec is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object

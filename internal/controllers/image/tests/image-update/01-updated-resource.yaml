@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: image-update
+spec:
+  resource:
+    name: image-update-updated
+    visibility: private
+    protected: true
+    tags:
+      - tag1
+      - tag2
+    properties:
+      minDiskGB: 2
+      minMemoryMB: 2
