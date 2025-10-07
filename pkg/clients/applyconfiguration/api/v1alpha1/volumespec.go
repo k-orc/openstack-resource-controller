@@ -25,17 +25,28 @@ import (
 // VolumeSpecApplyConfiguration represents a declarative configuration of the VolumeSpec type for use
 // with apply.
 type VolumeSpecApplyConfiguration struct {
-	Import              *VolumeImportApplyConfiguration              `json:"import,omitempty"`
-	Resource            *VolumeResourceSpecApplyConfiguration        `json:"resource,omitempty"`
-	ManagementPolicy    *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
-	ManagedOptions      *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
-	CloudCredentialsRef *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
+	VolumeExtraApplyConfiguration `json:",inline"`
+	Import                        *VolumeImportApplyConfiguration              `json:"import,omitempty"`
+	Resource                      *VolumeResourceSpecApplyConfiguration        `json:"resource,omitempty"`
+	ManagementPolicy              *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
+	ManagedOptions                *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
+	CloudCredentialsRef           *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
 }
 
 // VolumeSpecApplyConfiguration constructs a declarative configuration of the VolumeSpec type for use with
 // apply.
 func VolumeSpec() *VolumeSpecApplyConfiguration {
 	return &VolumeSpecApplyConfiguration{}
+}
+
+// WithAttachments adds the given value to the Attachments field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Attachments field.
+func (b *VolumeSpecApplyConfiguration) WithAttachments(values ...apiv1alpha1.KubernetesNameRef) *VolumeSpecApplyConfiguration {
+	for i := range values {
+		b.VolumeExtraApplyConfiguration.Attachments = append(b.VolumeExtraApplyConfiguration.Attachments, values[i])
+	}
+	return b
 }
 
 // WithImport sets the Import field in the declarative configuration to the given value

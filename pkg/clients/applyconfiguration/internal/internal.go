@@ -2508,6 +2508,12 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
   map:
     fields:
+    - name: attachments
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: cloudCredentialsRef
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
