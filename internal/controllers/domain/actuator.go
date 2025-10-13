@@ -75,8 +75,7 @@ func (actuator domainActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	// Check osclients.ResourceFilter
 
 	listOpts := domains.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListDomains(ctx, listOpts), true
@@ -88,8 +87,7 @@ func (actuator domainActuator) ListOSResourcesForImport(ctx context.Context, obj
 	// Check osclients.ResourceFilter
 
 	listOpts := domains.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
+		Name: string(ptr.Deref(filter.Name, "")),
 		// TODO(scaffolding): Add more import filters
 	}
 
@@ -139,6 +137,7 @@ func (actuator domainActuator) updateResource(ctx context.Context, obj orcObject
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	handleEnabledUpdate(&updateOpts, resource, osResource)
 
 	// TODO(scaffolding): add handler for all fields supporting mutability
 
@@ -183,7 +182,7 @@ func needsUpdate(updateOpts domains.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *domains.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.Name = name
 	}
 }
 
@@ -191,6 +190,13 @@ func handleDescriptionUpdate(updateOpts *domains.UpdateOpts, resource *resourceS
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleEnabledUpdate(updateOpts *domains.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	Enabled := ptr.Deref(resource.Enabled, true)
+	if osResource.Enabled != Enabled {
+		updateOpts.Enabled = &Enabled
 	}
 }
 

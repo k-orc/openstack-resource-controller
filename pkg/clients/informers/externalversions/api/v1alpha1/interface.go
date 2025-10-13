@@ -24,6 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// Domains returns a DomainInformer.
+	Domains() DomainInformer
 	// Flavors returns a FlavorInformer.
 	Flavors() FlavorInformer
 	// FloatingIPs returns a FloatingIPInformer.
@@ -63,6 +65,11 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+}
+
+// Domains returns a DomainInformer.
+func (v *version) Domains() DomainInformer {
+	return &domainInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Flavors returns a FlavorInformer.
