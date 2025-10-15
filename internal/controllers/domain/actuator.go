@@ -105,6 +105,7 @@ func (actuator domainActuator) CreateResource(ctx context.Context, obj orcObject
 	createOpts := domains.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
+		Enabled:     resource.Enabled,
 		// TODO(scaffolding): Add more fields
 	}
 

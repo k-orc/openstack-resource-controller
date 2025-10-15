@@ -21,7 +21,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -157,12 +157,17 @@ func (in *DomainFilter) DeepCopyInto(out *DomainFilter) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(OpenStackName)
+		*out = new(KeystoneName)
 		**out = **in
 	}
 	if in.Description != nil {
 		in, out := &in.Description, &out.Description
 		*out = new(string)
+		**out = **in
+	}
+	if in.Enabled != nil {
+		in, out := &in.Enabled, &out.Enabled
+		*out = new(bool)
 		**out = **in
 	}
 }
@@ -239,7 +244,7 @@ func (in *DomainResourceSpec) DeepCopyInto(out *DomainResourceSpec) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(OpenStackName)
+		*out = new(KeystoneName)
 		**out = **in
 	}
 	if in.Description != nil {

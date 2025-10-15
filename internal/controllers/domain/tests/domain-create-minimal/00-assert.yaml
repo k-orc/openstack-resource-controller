@@ -6,6 +6,5 @@ metadata:
 status:
   resource:
     name: domain-create-minimal
-    enabled: false
     # TODO(scaffolding): Add all fields the resource supports
 

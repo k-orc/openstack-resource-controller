@@ -96,11 +96,15 @@ spec:
                         maxLength: 255
                         minLength: 1
                         type: string
+                      enabled:
+                        description: |-
+                          enabled defines whether a domain is enabled or not. Default is true.
+                          Note: Users can only authorize against an enabled domain (and any of its projects).
+                        type: boolean
                       name:
                         description: name of the existing resource
-                        maxLength: 255
+                        maxLength: 64
                         minLength: 1
-                        pattern: ^[^,]+$
                         type: string
                     type: object
                   id:
@@ -164,9 +168,8 @@ spec:
                     description: |-
                       name will be the name of the created resource. If not specified, the
                       name of the ORC object will be used.
-                    maxLength: 255
+                    maxLength: 64
                     minLength: 1
-                    pattern: ^[^,]+$
                     type: string
                 type: object
             required:

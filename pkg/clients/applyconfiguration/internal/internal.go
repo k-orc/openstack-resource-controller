@@ -93,9 +93,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: secretName
       type:
         scalar: string
-<<<<<<< HEAD
-=======
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Domain
   map:
     fields:
@@ -123,6 +120,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: enabled
+      type:
+        scalar: boolean
     - name: name
       type:
         scalar: string
@@ -195,7 +195,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.DomainResourceStatus
->>>>>>> 216079df (Working Domain Controller, E2E tests next)
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGateway
   map:
     fields:
