@@ -33,12 +33,12 @@ type FlavorResourceSpec struct {
 	// ram is the memory of the flavor, measured in MB.
 	// +kubebuilder:validation:Minimum=1
 	// +required
-	RAM int32 `json:"ram"`
+	RAM int32 `json:"ram,omitempty"`
 
 	// vcpus is the number of vcpus for the flavor.
 	// +kubebuilder:validation:Minimum=1
 	// +required
-	Vcpus int32 `json:"vcpus"`
+	Vcpus int32 `json:"vcpus,omitempty"`
 
 	// disk is the size of the root disk that will be created in GiB. If 0
 	// the root disk will be set to exactly the size of the image used to

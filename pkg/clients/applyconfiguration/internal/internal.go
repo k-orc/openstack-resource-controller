@@ -48,18 +48,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: subnetRef
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllocationPool
   map:
     fields:
     - name: end
       type:
         scalar: string
-      default: ""
     - name: start
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AllocationPoolStatus
   map:
     fields:
@@ -75,7 +72,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ip
       type:
         scalar: string
-      default: ""
     - name: mac
       type:
         scalar: string
@@ -94,18 +90,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: cloudName
       type:
         scalar: string
-      default: ""
     - name: secretName
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGateway
   map:
     fields:
     - name: networkRef
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ExternalGatewayStatus
   map:
     fields:
@@ -188,14 +181,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ram
       type:
         scalar: numeric
-      default: 0
     - name: swap
       type:
         scalar: numeric
     - name: vcpus
       type:
         scalar: numeric
-      default: 0
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceStatus
   map:
     fields:
@@ -451,11 +442,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: destination
       type:
         scalar: string
-      default: ""
     - name: nextHop
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRouteStatus
   map:
     fields:
@@ -504,7 +493,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: diskFormat
       type:
         scalar: string
-      default: ""
     - name: download
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageContentSourceDownload
@@ -542,11 +530,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: algorithm
       type:
         scalar: string
-      default: ""
     - name: value
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageImport
   map:
     fields:
@@ -1047,7 +1033,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: networkRef
       type:
         scalar: string
-      default: ""
     - name: portSecurity
       type:
         scalar: string
@@ -1414,14 +1399,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: routerRef
       type:
         scalar: string
-      default: ""
     - name: subnetRef
       type:
         scalar: string
     - name: type
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterfaceStatus
   map:
     fields:
@@ -1685,7 +1668,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ethertype
       type:
         scalar: string
-      default: ""
     - name: portRange
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortRangeSpec
@@ -1854,7 +1836,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: policy
       type:
         scalar: string
-      default: ""
     - name: rules
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupRules
@@ -1945,11 +1926,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: flavorRef
       type:
         scalar: string
-      default: ""
     - name: imageRef
       type:
         scalar: string
-      default: ""
     - name: name
       type:
         scalar: string
@@ -2055,7 +2034,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: volumeRef
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
   map:
     fields:
@@ -2144,7 +2122,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: type
       type:
         scalar: string
-      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetImport
   map:
     fields:
@@ -2166,7 +2143,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: cidr
       type:
         scalar: string
-      default: ""
     - name: description
       type:
         scalar: string
@@ -2204,7 +2180,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: networkRef
       type:
         scalar: string
-      default: ""
     - name: projectRef
       type:
         scalar: string
@@ -2429,7 +2404,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: size
       type:
         scalar: numeric
-      default: 0
     - name: volumeTypeRef
       type:
         scalar: string

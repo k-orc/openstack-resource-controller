@@ -50,7 +50,7 @@ type ServerGroupResourceSpec struct {
 
 	// policy is the policy to use for the server group.
 	// +required
-	Policy ServerGroupPolicy `json:"policy"`
+	Policy ServerGroupPolicy `json:"policy,omitempty"`
 
 	// rules is the rules to use for the server group.
 	// +optional

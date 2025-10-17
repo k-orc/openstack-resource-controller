@@ -79,11 +79,11 @@ type RouterInterfaceSpec struct {
 	// type specifies the type of the router interface.
 	// +required
 	// +unionDiscriminator
-	Type RouterInterfaceType `json:"type"`
+	Type RouterInterfaceType `json:"type,omitempty"`
 
 	// routerRef references the router to which this interface belongs.
 	// +required
-	RouterRef KubernetesNameRef `json:"routerRef"`
+	RouterRef KubernetesNameRef `json:"routerRef,omitempty"`
 
 	// subnetRef references the subnet the router interface is created on.
 	// +unionMember

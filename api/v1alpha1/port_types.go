@@ -44,7 +44,7 @@ type AllowedAddressPair struct {
 	// send packets with. It can be an IP Address or a CIDR (if supported
 	// by the underlying extension plugin).
 	// +required
-	IP IPvAny `json:"ip"`
+	IP IPvAny `json:"ip,omitempty"`
 
 	// mac contains a MAC address which a server connected to the port can
 	// send packets with. Defaults to the MAC address of the port.
@@ -76,7 +76,7 @@ type Address struct {
 	// subnetRef references the subnet from which to allocate the IP
 	// address.
 	// +required
-	SubnetRef KubernetesNameRef `json:"subnetRef"`
+	SubnetRef KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 
 type FixedIPStatus struct {
@@ -105,7 +105,7 @@ type PortResourceSpec struct {
 	// networkRef is a reference to the ORC Network which this port is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
-	NetworkRef KubernetesNameRef `json:"networkRef"`
+	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the port.
 	// +kubebuilder:validation:MaxItems:=32

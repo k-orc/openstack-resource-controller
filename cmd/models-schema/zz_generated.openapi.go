@@ -480,7 +480,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Address(ref common.Ref
 					"subnetRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "subnetRef references the subnet from which to allocate the IP address.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -501,7 +500,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPool(ref com
 					"start": {
 						SchemaProps: spec.SchemaProps{
 							Description: "start is the first IP address in the allocation pool.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -509,7 +507,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPool(ref com
 					"end": {
 						SchemaProps: spec.SchemaProps{
 							Description: "end is the last IP address in the allocation pool.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -556,7 +553,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPair(ref
 					"ip": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ip contains an IP address which a server connected to the port can send packets with. It can be an IP Address or a CIDR (if supported by the underlying extension plugin).",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -611,7 +607,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_CloudCredentialsRefere
 					"secretName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "secretName is the name of a secret in the same namespace as the resource being provisioned. The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file. The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -619,7 +614,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_CloudCredentialsRefere
 					"cloudName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudName specifies the name of the entry in the clouds.yaml file to use.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -640,7 +634,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ExternalGateway(ref co
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "networkRef is a reference to the ORC Network which the external gateway is on.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1167,7 +1160,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref
 					"ram": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ram is the memory of the flavor, measured in MB.",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -1175,7 +1167,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref
 					"vcpus": {
 						SchemaProps: spec.SchemaProps{
 							Description: "vcpus is the number of vcpus for the flavor.",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -1956,7 +1947,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_HostRoute(ref common.R
 					"destination": {
 						SchemaProps: spec.SchemaProps{
 							Description: "destination for the additional route.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1964,7 +1954,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_HostRoute(ref common.R
 					"nextHop": {
 						SchemaProps: spec.SchemaProps{
 							Description: "nextHop for the additional route.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2094,7 +2083,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageContent(ref commo
 					"diskFormat": {
 						SchemaProps: spec.SchemaProps{
 							Description: "diskFormat is the format of the disk image. Normal values are \"qcow2\", or \"raw\". Glance may be configured to support others.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2206,7 +2194,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageHash(ref common.R
 					"algorithm": {
 						SchemaProps: spec.SchemaProps{
 							Description: "algorithm is the hash algorithm used to generate value.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -2214,7 +2201,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageHash(ref common.R
 					"value": {
 						SchemaProps: spec.SchemaProps{
 							Description: "value is the hash of the image data using Algorithm. It must be hex encoded using lowercase letters.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3770,7 +3756,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "networkRef is a reference to the ORC Network which this port is associated with.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4950,7 +4935,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceSpec(re
 					"type": {
 						SchemaProps: spec.SchemaProps{
 							Description: "type specifies the type of the router interface.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4958,7 +4942,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterfaceSpec(re
 					"routerRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "routerRef references the router to which this interface belongs.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5853,7 +5836,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupRule(ref 
 					"ethertype": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ethertype must be IPv4 or IPv6, and addresses represented in CIDR must match the ingress or egress rules.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6358,7 +6340,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupResourceSpe
 					"policy": {
 						SchemaProps: spec.SchemaProps{
 							Description: "policy is the policy to use for the server group.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6680,7 +6661,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 					"imageRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "imageRef references the image to use for the server instance. NOTE: This is not required in case of boot from volume.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6688,7 +6668,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 					"flavorRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "flavorRef references the flavor to use for the server instance.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -6984,7 +6963,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerVolumeSpec(ref c
 					"volumeRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "volumeRef is a reference to a Volume object. Server creation will wait for this volume to be created and available.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7232,7 +7210,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref comm
 					"type": {
 						SchemaProps: spec.SchemaProps{
 							Description: "type specifies how the default gateway will be created. `Automatic` specifies that neutron will automatically add a default gateway. This is also the default if no Gateway is specified. `None` specifies that the subnet will not have a default gateway. `IP` specifies that the subnet will use a specific address as the default gateway, which must be specified in `IP`.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7353,7 +7330,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "networkRef is a reference to the ORC Network which this subnet is associated with.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7389,7 +7365,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceSpec(ref
 					"cidr": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8101,7 +8076,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref
 					"size": {
 						SchemaProps: spec.SchemaProps{
 							Description: "size is the size of the volume, in gibibytes (GiB).",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
