@@ -33,6 +33,8 @@ linters:
         description: Kube API Linter lints Kube like APIs based on API conventions and best practices.
         settings:
           linters:
+            disable:
+              - optionalfields
             enable:
               - commentstart
               - conditions
@@ -43,18 +45,26 @@ linters:
               # NOTE: we have a number of boolean fields. Should we convert them to
               # string?
               # - nobools
+              - nodurations
               - nofloats
               - nomaps
+              - nonullable
+              - notimestamp
               - nophase
               - optionalorrequired
               - requiredfields
+              - ssatags
               - statusoptional
               - statussubresource
+              - uniquemarkers
           lintersConfig:
             conditions:
               isFirstField: Warn
               usePatchStrategy: Ignore
               useProtobuf: Forbid
+            requiredfields:
+              omitempty:
+                policy: Ignore
   exclusions:
     generated: lax
     rules:
