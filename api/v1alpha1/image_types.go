@@ -262,7 +262,7 @@ type ImageContent struct {
 	// diskFormat is the format of the disk image.
 	// Normal values are "qcow2", or "raw". Glance may be configured to support others.
 	// +required
-	DiskFormat ImageDiskFormat `json:"diskFormat"`
+	DiskFormat ImageDiskFormat `json:"diskFormat,omitempty"`
 
 	// download describes how to obtain image data by downloading it from a URL.
 	// Must be set when creating a managed image.
@@ -298,14 +298,14 @@ type ImageContentSourceDownload struct {
 type ImageHash struct {
 	// algorithm is the hash algorithm used to generate value.
 	// +required
-	Algorithm ImageHashAlgorithm `json:"algorithm"`
+	Algorithm ImageHashAlgorithm `json:"algorithm,omitempty"`
 
 	// value is the hash of the image data using Algorithm. It must be hex encoded using lowercase letters.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=1024
 	// +kubebuilder:validation:Pattern:=`^[0-9a-f]+$`
 	// +required
-	Value string `json:"value"`
+	Value string `json:"value,omitempty"`
 }
 
 // ImageResourceSpec contains the desired state of a Glance image

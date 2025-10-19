@@ -74,7 +74,7 @@ type SubnetResourceSpec struct {
 	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
-	NetworkRef KubernetesNameRef `json:"networkRef"`
+	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the subnet.
 	// +kubebuilder:validation:MaxItems:=32
@@ -90,7 +90,7 @@ type SubnetResourceSpec struct {
 	// cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="cidr is immutable"
-	CIDR CIDR `json:"cidr"`
+	CIDR CIDR `json:"cidr,omitempty"`
 
 	// allocationPools are IP Address pools that will be available for DHCP. IP
 	// addresses must be in CIDR.
@@ -284,7 +284,7 @@ type SubnetGateway struct {
 	// specified in `IP`.
 	// +kubebuilder:validation:Enum:=None;Automatic;IP
 	// +required
-	Type SubnetGatewayType `json:"type"`
+	Type SubnetGatewayType `json:"type,omitempty"`
 
 	// ip is the IP address of the default gateway, which must be specified if
 	// Type is `IP`. It must be a valid IP address, either IPv4 or IPv6,
@@ -296,11 +296,11 @@ type SubnetGateway struct {
 type AllocationPool struct {
 	// start is the first IP address in the allocation pool.
 	// +required
-	Start IPvAny `json:"start"`
+	Start IPvAny `json:"start,omitempty"`
 
 	// end is the last IP address in the allocation pool.
 	// +required
-	End IPvAny `json:"end"`
+	End IPvAny `json:"end,omitempty"`
 }
 
 type AllocationPoolStatus struct {
@@ -318,11 +318,11 @@ type AllocationPoolStatus struct {
 type HostRoute struct {
 	// destination for the additional route.
 	// +required
-	Destination CIDR `json:"destination"`
+	Destination CIDR `json:"destination,omitempty"`
 
 	// nextHop for the additional route.
 	// +required
-	NextHop IPvAny `json:"nextHop"`
+	NextHop IPvAny `json:"nextHop,omitempty"`
 }
 
 type HostRouteStatus struct {

@@ -39,7 +39,7 @@ type ExternalGateway struct {
 	// networkRef is a reference to the ORC Network which the external
 	// gateway is on.
 	// +required
-	NetworkRef KubernetesNameRef `json:"networkRef"`
+	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 }
 
 type ExternalGatewayStatus struct {

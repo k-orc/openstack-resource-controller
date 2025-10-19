@@ -65,7 +65,7 @@ type ServerVolumeSpec struct {
 	// volumeRef is a reference to a Volume object. Server creation will wait for
 	// this volume to be created and available.
 	// +required
-	VolumeRef KubernetesNameRef `json:"volumeRef"`
+	VolumeRef KubernetesNameRef `json:"volumeRef,omitempty"`
 
 	// device is the name of the device, such as `/dev/vdb`.
 	// Omit for auto-assignment
@@ -92,12 +92,12 @@ type ServerResourceSpec struct {
 	// NOTE: This is not required in case of boot from volume.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
-	ImageRef KubernetesNameRef `json:"imageRef"`
+	ImageRef KubernetesNameRef `json:"imageRef,omitempty"`
 
 	// flavorRef references the flavor to use for the server instance.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="flavorRef is immutable"
-	FlavorRef KubernetesNameRef `json:"flavorRef"`
+	FlavorRef KubernetesNameRef `json:"flavorRef,omitempty"`
 
 	// userData specifies data which will be made available to the server at
 	// boot time, either via the metadata service or a config drive. It is
@@ -111,7 +111,7 @@ type ServerResourceSpec struct {
 	// +listType=atomic
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ports is immutable"
-	Ports []ServerPortSpec `json:"ports"`
+	Ports []ServerPortSpec `json:"ports,omitempty"`
 
 	// volumes is a list of volumes attached to the server.
 	// +kubebuilder:validation:MaxItems:=32

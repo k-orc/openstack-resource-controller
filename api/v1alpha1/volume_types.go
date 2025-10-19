@@ -35,7 +35,7 @@ type VolumeResourceSpec struct {
 	// +kubebuilder:validation:Minimum=1
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="size is immutable"
-	Size int32 `json:"size"`
+	Size int32 `json:"size,omitempty"`
 
 	// volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with.
 	// +optional
