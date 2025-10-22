@@ -3825,7 +3825,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "securityGroupRefs are the names of the security groups associated with this port.",
+							Description: "securityGroupRefs are references to the security groups associated with this port.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
