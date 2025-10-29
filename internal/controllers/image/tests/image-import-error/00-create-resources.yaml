@@ -11,7 +11,7 @@ spec:
   resource:
     name: image-import-error-external
     content:
-      diskFormat: qcow2
+      diskFormat: raw
       download:
         url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img
     # This is how we workaround https://github.com/k-orc/openstack-resource-controller/issues/266
@@ -31,7 +31,7 @@ spec:
   resource:
     name: image-import-error-external
     content:
-      diskFormat: qcow2
+      diskFormat: raw
       download:
         url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img
     # This is how we workaround https://github.com/k-orc/openstack-resource-controller/issues/266
