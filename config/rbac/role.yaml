@@ -19,6 +19,7 @@ rules:
   resources:
   - flavors
   - floatingips
+  - hostaggregates
   - images
   - networks
   - ports
@@ -44,6 +45,7 @@ rules:
   resources:
   - flavors/status
   - floatingips/status
+  - hostaggregates/status
   - images/status
   - networks/status
   - ports/status

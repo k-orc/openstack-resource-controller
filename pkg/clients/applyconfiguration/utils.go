@@ -84,6 +84,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.FloatingIPSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("FloatingIPStatus"):
 		return &apiv1alpha1.FloatingIPStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregate"):
+		return &apiv1alpha1.HostAggregateApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregateFilter"):
+		return &apiv1alpha1.HostAggregateFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregateImport"):
+		return &apiv1alpha1.HostAggregateImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregateResourceSpec"):
+		return &apiv1alpha1.HostAggregateResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregateResourceStatus"):
+		return &apiv1alpha1.HostAggregateResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregateSpec"):
+		return &apiv1alpha1.HostAggregateSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostAggregateStatus"):
+		return &apiv1alpha1.HostAggregateStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HostRoute"):
 		return &apiv1alpha1.HostRouteApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HostRouteStatus"):

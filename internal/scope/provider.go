@@ -161,6 +161,10 @@ func (s *providerScope) NewVolumeTypeClient() (clients.VolumeTypeClient, error) 
 	return clients.NewVolumeTypeClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewHostAggregateClient() (clients.HostAggregateClient, error) {
+	return clients.NewHostAggregateClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	client, err := openstack.NewIdentityV3(s.providerClient, gophercloud.EndpointOpts{})
 	if err != nil {
