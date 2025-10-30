@@ -146,6 +146,21 @@ func (mr *MockImageClientMockRecorder) ListImages(ctx, listOpts any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImages", reflect.TypeOf((*MockImageClient)(nil).ListImages), ctx, listOpts)
 }
 
+// UpdateImage mocks base method.
+func (m *MockImageClient) UpdateImage(ctx context.Context, id string, updateOpts images.UpdateOptsBuilder) (*images.Image, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateImage", ctx, id, updateOpts)
+	ret0, _ := ret[0].(*images.Image)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateImage indicates an expected call of UpdateImage.
+func (mr *MockImageClientMockRecorder) UpdateImage(ctx, id, updateOpts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateImage", reflect.TypeOf((*MockImageClient)(nil).UpdateImage), ctx, id, updateOpts)
+}
+
 // UploadData mocks base method.
 func (m *MockImageClient) UploadData(ctx context.Context, id string, data io.Reader) error {
 	m.ctrl.T.Helper()

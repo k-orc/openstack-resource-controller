@@ -35,6 +35,7 @@ type ImageClient interface {
 	GetImage(ctx context.Context, id string) (*images.Image, error)
 	CreateImage(ctx context.Context, createOpts images.CreateOptsBuilder) (*images.Image, error)
 	DeleteImage(ctx context.Context, id string) error
+	UpdateImage(ctx context.Context, id string, updateOpts images.UpdateOptsBuilder) (*images.Image, error)
 	UploadData(ctx context.Context, id string, data io.Reader) error
 	GetImportInfo(ctx context.Context) (*imageimport.ImportInfo, error)
 	CreateImport(ctx context.Context, id string, createOpts imageimport.CreateOptsBuilder) error
@@ -83,6 +84,10 @@ func (c imageClient) DeleteImage(ctx context.Context, id string) error {
 	return images.Delete(ctx, c.client, id).ExtractErr()
 }
 
+func (c imageClient) UpdateImage(ctx context.Context, id string, opts images.UpdateOptsBuilder) (*images.Image, error) {
+	return images.Update(ctx, c.client, id, opts).Extract()
+}
+
 func (c imageClient) UploadData(ctx context.Context, id string, data io.Reader) error {
 	return imagedata.Upload(ctx, c.client, id, data).ExtractErr()
 }
@@ -118,6 +123,10 @@ func (e imageErrorClient) CreateImage(_ context.Context, _ images.CreateOptsBuil
 
 func (e imageErrorClient) DeleteImage(_ context.Context, _ string) error {
 	return e.error
+}
+
+func (e imageErrorClient) UpdateImage(_ context.Context, _ string, _ images.UpdateOptsBuilder) (*images.Image, error) {
+	return nil, e.error
 }
 
 func (e imageErrorClient) UploadData(_ context.Context, _ string, _ io.Reader) error {

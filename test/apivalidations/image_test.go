@@ -69,7 +69,14 @@ func testImageImport() *applyconfigv1alpha1.ImageImportApplyConfiguration {
 
 type getWithFn[argType, returnType any] func(*applyconfigv1alpha1.ImageApplyConfiguration) func(argType) returnType
 
-func testMutability[argType, returnType any](ctx context.Context, namespace *corev1.Namespace, getFn getWithFn[argType, returnType], valueA, valueB argType, allowsUnset bool, initFns ...func(*applyconfigv1alpha1.ImageApplyConfiguration)) {
+func testMutability[argType, returnType any](
+	ctx context.Context,
+	namespace *corev1.Namespace,
+	getFn getWithFn[argType, returnType],
+	valueA, valueB argType,
+	expectFailure bool,
+	initFns ...func(*applyconfigv1alpha1.ImageApplyConfiguration),
+) {
 	setup := func(name string) (client.Object, *applyconfigv1alpha1.ImageApplyConfiguration, func(argType) returnType) {
 		obj := imageStub(name, namespace)
 		patch := minimalManagedPatch(obj)
@@ -77,26 +84,21 @@ func testMutability[argType, returnType any](ctx context.Context, namespace *cor
 			initFn(patch)
 		}
 		withFn := getFn(patch)
-
 		return obj, patch, withFn
-	}
-
-	if allowsUnset {
-		obj, patch, withFn := setup("unset")
-
-		Expect(applyObj(ctx, obj, patch)).To(Succeed(), fmt.Sprintf("create with value unset: %s", format.Object(patch, 2)))
-
-		withFn(valueA)
-		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), fmt.Sprintf("update with value set: %s", format.Object(patch, 2)))
 	}
 
 	obj, patch, withFn := setup("modify")
 
 	withFn(valueA)
-	Expect(applyObj(ctx, obj, patch)).To(Succeed(), fmt.Sprintf("create with value '%v': %s", valueA, format.Object(patch, 2)))
+	Expect(applyObj(ctx, obj, patch)).To(Succeed(), fmt.Sprintf("create with value '%v' should succeed: %s", valueA, format.Object(patch, 2)))
 
 	withFn(valueB)
-	Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), fmt.Sprintf("update with value '%v': %s", valueB, format.Object(patch, 2)))
+
+	if expectFailure {
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), fmt.Sprintf("update with value '%v' should be rejected: %s", valueB, format.Object(patch, 2)))
+	} else {
+		Expect(applyObj(ctx, obj, patch)).To(Succeed(), fmt.Sprintf("update with value '%v' should be permitted: %s", valueB, format.Object(patch, 2)))
+	}
 }
 
 var _ = Describe("ORC Image API validations", func() {
@@ -279,38 +281,38 @@ var _ = Describe("ORC Image API validations", func() {
 		Expect(applyObj(ctx, image, patch)).NotTo(Succeed(), "create image")
 	})
 
-	It("should not permit modifying resource.name", func(ctx context.Context) {
+	It("should permit modifying resource.name", func(ctx context.Context) {
 		testMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(orcv1alpha1.OpenStackName) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithName
 			},
-			"foo", "bar", true,
+			"foo", "bar", false,
 		)
 	})
 
-	It("should not permit modifying resource.protected", func(ctx context.Context) {
+	It("should permit modifying resource.protected", func(ctx context.Context) {
 		testMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(bool) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithProtected
-			}, true, false, true,
+			}, true, false, false,
 		)
 	})
 
-	It("should not permit modifying resource.tags", func(ctx context.Context) {
+	It("should permit modifying resource.tags", func(ctx context.Context) {
 		testMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(string) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return func(tag string) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 					return applyConfig.Spec.Resource.WithTags(orcv1alpha1.ImageTag(tag))
 				}
-			}, "foo", "bar", true,
+			}, "foo", "bar", false,
 		)
 	})
 
-	It("should not permit modifying resource.visibility", func(ctx context.Context) {
+	It("should permit modifying resource.visibility", func(ctx context.Context) {
 		testMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(orcv1alpha1.ImageVisibility) *applyconfigv1alpha1.ImageResourceSpecApplyConfiguration {
 				return applyConfig.Spec.Resource.WithVisibility
-			}, orcv1alpha1.ImageVisibilityPublic, orcv1alpha1.ImageVisibilityPrivate, true,
+			}, orcv1alpha1.ImageVisibilityPublic, orcv1alpha1.ImageVisibilityPrivate, false,
 		)
 	})
 
@@ -353,7 +355,7 @@ var _ = Describe("ORC Image API validations", func() {
 					}
 					return content.WithContainerFormat(fmt)
 				}
-			}, orcv1alpha1.ImageContainerFormatAKI, orcv1alpha1.ImageContainerFormatAMI, false,
+			}, orcv1alpha1.ImageContainerFormatAKI, orcv1alpha1.ImageContainerFormatAMI, true,
 			func(patch *applyconfigv1alpha1.ImageApplyConfiguration) {
 				patch.Spec.Resource.Content = nil
 			},
@@ -364,7 +366,7 @@ var _ = Describe("ORC Image API validations", func() {
 		testMutability(ctx, namespace,
 			func(applyConfig *applyconfigv1alpha1.ImageApplyConfiguration) func(string) *applyconfigv1alpha1.ImageContentSourceDownloadApplyConfiguration {
 				return applyConfig.Spec.Resource.Content.Download.WithURL
-			}, "https://example.com/image1.qcow2", "https://example.com/image2.qcow2", false,
+			}, "https://example.com/image1.qcow2", "https://example.com/image2.qcow2", true,
 		)
 	})
 })
