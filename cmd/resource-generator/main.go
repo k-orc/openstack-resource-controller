@@ -137,7 +137,8 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
-		Name: "Volume",
+		Name:          "Volume",
+		SpecExtraType: "VolumeExtra",
 	},
 	{
 		Name: "VolumeType",

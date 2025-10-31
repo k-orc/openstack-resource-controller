@@ -29,10 +29,10 @@ assertAll:
     - celExpr: "server.status.resource.volumes[0].id == volume.status.id"
     # Commented out because of https://github.com/k-orc/openstack-resource-controller/issues/282
     # - celExpr: "port.status.resource.deviceID == server.status.id"
-    # - celExpr: "volume.status.resource.attachments[0].attachmentID != ''"
-    # - celExpr: "volume.status.resource.attachments[0].serverID == server.status.id"
-    # - celExpr: "volume.status.resource.attachments[0].device == /dev/sdb"
-    # - celExpr: "volume.status.resource.attachments[0].attachedAt != ''"
+    - celExpr: "volume.status.resource.attachments[0].attachmentID != ''"
+    - celExpr: "volume.status.resource.attachments[0].serverID == server.status.id"
+    - celExpr: "volume.status.resource.attachments[0].device != ''"
+    - celExpr: "volume.status.resource.attachments[0].attachedAt != ''"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server

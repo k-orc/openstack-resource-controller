@@ -52,6 +52,14 @@ type VolumeResourceSpec struct {
 	Metadata []VolumeMetadata `json:"metadata,omitempty"`
 }
 
+type VolumeExtra struct {
+	// attachments is a list of ORC resources this volume is attached to
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=set
+	// +optional
+	Attachments []KubernetesNameRef `json:"attachments,omitempty"`
+}
+
 // VolumeFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type VolumeFilter struct {
@@ -224,4 +232,8 @@ type VolumeMetadataStatus struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Value string `json:"value,omitempty"`
+}
+
+func (i *Volume) GetAttachments() []KubernetesNameRef {
+	return i.Spec.Attachments
 }
