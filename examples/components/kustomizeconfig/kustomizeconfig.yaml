@@ -2,25 +2,27 @@ nameReference:
 - kind: Secret
   fieldSpecs:
   - path: spec/cloudCredentialsRef/secretName
+    kind: Flavor
+  - path: spec/cloudCredentialsRef/secretName
+    kind: FloatingIP
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Image
+  - path: spec/cloudCredentialsRef/secretName
     kind: Network
-  - path: spec/cloudCredentialsRef/secretName
-    kind: Subnet
-  - path: spec/cloudCredentialsRef/secretName
-    kind: Router
   - path: spec/cloudCredentialsRef/secretName
     kind: Port
   - path: spec/cloudCredentialsRef/secretName
-    kind: Flavor
+    kind: Project
+  - path: spec/cloudCredentialsRef/secretName
+    kind: Router
   - path: spec/cloudCredentialsRef/secretName
     kind: SecurityGroup
-  - path: spec/cloudCredentialsRef/secretName
-    kind: Image
   - path: spec/cloudCredentialsRef/secretName
     kind: Server
   - path: spec/resource/userData/secretRef
     kind: Server
   - path: spec/cloudCredentialsRef/secretName
-    kind: Project
+    kind: Subnet
 
 - kind: Network
   fieldSpecs:
@@ -34,6 +36,8 @@ nameReference:
     kind: Port
   - path: spec/import/filter/networkRef
     kind: Port
+  - path: spec/resource/floatingNetworkRef
+    kind: FloatingIP
 
 - kind: SecurityGroup
   fieldSpecs:
@@ -62,6 +66,8 @@ nameReference:
 
 - kind: Port
   fieldSpecs:
+  - path: spec/resource/portRef
+    kind: FloatingIP
   - path: spec/resource/ports[]/portRef
     kind: Server
 

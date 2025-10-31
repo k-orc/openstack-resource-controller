@@ -1,8 +1,7 @@
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
+kind: Subnet
 metadata:
-  name: port
+  name: subnet
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -11,9 +10,7 @@ spec:
   resource:
     networkRef: network
     tags:
-    - orc-test
-    securityGroupRefs:
-    - allow-ssh
-    - default
-    addresses:
-    - subnetRef: subnet
+      - orc-test
+    ipVersion: 4
+    cidr: 192.168.1.0/24
+    routerRef: router

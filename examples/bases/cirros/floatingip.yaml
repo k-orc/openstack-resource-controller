@@ -1,19 +1,14 @@
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
+kind: FloatingIP
 metadata:
-  name: port
+  name: floatingip
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: cloud-config
   managementPolicy: managed
   resource:
-    networkRef: network
+    floatingNetworkRef: external-network
+    portRef: port
     tags:
-    - orc-test
-    securityGroupRefs:
-    - allow-ssh
-    - default
-    addresses:
-    - subnetRef: subnet
+      - tag1
