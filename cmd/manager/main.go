@@ -34,6 +34,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/role"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/router"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/routerinterface"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/securitygroup"
@@ -116,6 +117,7 @@ func main() {
 		project.New(scopeFactory),
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
+		role.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

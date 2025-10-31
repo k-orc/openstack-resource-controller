@@ -30,6 +30,8 @@ type PortExpansion interface{}
 
 type ProjectExpansion interface{}
 
+type RoleExpansion interface{}
+
 type RouterExpansion interface{}
 
 type RouterInterfaceExpansion interface{}

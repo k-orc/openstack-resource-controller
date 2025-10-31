@@ -23,6 +23,7 @@ rules:
   - networks
   - ports
   - projects
+  - roles
   - routerinterfaces
   - routers
   - securitygroups
@@ -48,6 +49,7 @@ rules:
   - networks/status
   - ports/status
   - projects/status
+  - roles/status
   - routerinterfaces/status
   - routers/status
   - securitygroups/status

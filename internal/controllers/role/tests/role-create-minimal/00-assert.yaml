@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-create-minimal
+status:
+  resource:
+    name: role-create-minimal
+
