@@ -11,7 +11,16 @@ export OS_CLOUD=${E2E_OPENSTACK_CLOUD_NAME}
 
 # External network to be used in the examples
 # NOTE: we should rely on E2E_EXTERNAL_NETWORK_NAME instead
-export EXAMPLE_EXTERNAL_NETWORK_NAME=${EXAMPLE_EXTERNAL_NETWORK_NAME:-provider_net_dualstack_1}
+export EXAMPLE_EXTERNAL_NETWORK_NAME=${EXAMPLE_EXTERNAL_NETWORK_NAME:-public}
+
+echo "As demo user"
+OS_CLOUD=devstack openstack network list
+OS_CLOUD=devstack openstack subnet list
+
+echo "As admin user"
+OS_CLOUD=devstack-admin openstack network list
+OS_CLOUD=devstack-admin openstack subnet list
+
 
 cd ./examples
 
