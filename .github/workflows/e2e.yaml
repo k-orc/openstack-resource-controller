@@ -36,6 +36,7 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
+        enabled_services: "openstack-cli-server"
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3

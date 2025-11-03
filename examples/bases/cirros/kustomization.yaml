@@ -16,6 +16,10 @@ secretGenerator:
 resources:
 - ../cirros-image
 - flavor.yaml
+- floatingip.yaml
+- network.yaml
 - port.yaml
+- router.yaml
 - securitygroup.yaml
 - server.yaml
+- subnet.yaml

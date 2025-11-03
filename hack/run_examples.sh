@@ -11,7 +11,7 @@ export OS_CLOUD=${E2E_OPENSTACK_CLOUD_NAME}
 
 # External network to be used in the examples
 # NOTE: we should rely on E2E_EXTERNAL_NETWORK_NAME instead
-export EXAMPLE_EXTERNAL_NETWORK_NAME=${EXAMPLE_EXTERNAL_NETWORK_NAME:-private}
+export EXAMPLE_EXTERNAL_NETWORK_NAME=${EXAMPLE_EXTERNAL_NETWORK_NAME:-public}
 
 cd ./examples
 
