@@ -23,6 +23,7 @@ assertAll:
     - celExpr: "server.status.resource.imageID == image.status.id"
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "!has(server.status.resource.tags)"
+    - celExpr: "!has(server.status.resource.volumes)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
