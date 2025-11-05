@@ -1914,6 +1914,36 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerInterfaceFixedIP
+  map:
+    fields:
+    - name: ipAddress
+      type:
+        scalar: string
+    - name: subnetID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerInterfaceStatus
+  map:
+    fields:
+    - name: fixedIPs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerInterfaceFixedIP
+          elementRelationship: atomic
+    - name: macAddr
+      type:
+        scalar: string
+    - name: netID
+      type:
+        scalar: string
+    - name: portID
+      type:
+        scalar: string
+    - name: portState
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
   map:
     fields:
@@ -1965,6 +1995,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: imageID
       type:
         scalar: string
+    - name: interfaces
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerInterfaceStatus
+          elementRelationship: atomic
     - name: name
       type:
         scalar: string

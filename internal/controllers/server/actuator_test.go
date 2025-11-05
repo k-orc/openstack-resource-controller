@@ -57,7 +57,9 @@ func TestHandleNameUpdate(t *testing.T) {
 			resource.Spec = orcv1alpha1.ServerSpec{
 				Resource: &orcv1alpha1.ServerResourceSpec{Name: tt.newValue},
 			}
-			osResource := &servers.Server{Name: tt.existingValue}
+			osResource := &osResourceT{
+				Server: servers.Server{Name: tt.existingValue},
+			}
 
 			updateOpts := servers.UpdateOpts{}
 			handleNameUpdate(&updateOpts, resource, osResource)

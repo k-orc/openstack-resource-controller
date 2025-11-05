@@ -416,6 +416,53 @@ spec:
                       server.
                     maxLength: 1024
                     type: string
+                  interfaces:
+                    description: interfaces contains the list of interfaces attached
+                      to the server.
+                    items:
+                      properties:
+                        fixedIPs:
+                          description: fixedIPs is the list of fixed IP addresses
+                            assigned to the interface.
+                          items:
+                            properties:
+                              ipAddress:
+                                description: ipAddress is the IP address assigned
+                                  to the port.
+                                maxLength: 1024
+                                type: string
+                              subnetID:
+                                description: subnetID is the ID of the subnet from
+                                  which the IP address is allocated.
+                                maxLength: 1024
+                                type: string
+                            type: object
+                          maxItems: 32
+                          type: array
+                          x-kubernetes-list-type: atomic
+                        macAddr:
+                          description: macAddr is the MAC address of the interface.
+                          maxLength: 1024
+                          type: string
+                        netID:
+                          description: netID is the ID of the network to which the
+                            interface is attached.
+                          maxLength: 1024
+                          type: string
+                        portID:
+                          description: portID is the ID of a port attached to the
+                            server.
+                          maxLength: 1024
+                          type: string
+                        portState:
+                          description: portState is the state of the port (e.g., ACTIVE,
+                            DOWN).
+                          maxLength: 1024
+                          type: string
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
                   name:
                     description: name is the human-readable name of the resource.
                       Might not be unique.

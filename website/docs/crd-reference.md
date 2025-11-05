@@ -2693,6 +2693,43 @@ _Appears in:_
 | `filter` _[ServerFilter](#serverfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
 
 
+#### ServerInterfaceFixedIP
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerInterfaceStatus](#serverinterfacestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `ipAddress` _string_ | ipAddress is the IP address assigned to the port. |  | MaxLength: 1024 <br /> |
+| `subnetID` _string_ | subnetID is the ID of the subnet from which the IP address is allocated. |  | MaxLength: 1024 <br /> |
+
+
+#### ServerInterfaceStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerResourceStatus](#serverresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `portID` _string_ | portID is the ID of a port attached to the server. |  | MaxLength: 1024 <br /> |
+| `netID` _string_ | netID is the ID of the network to which the interface is attached. |  | MaxLength: 1024 <br /> |
+| `macAddr` _string_ | macAddr is the MAC address of the interface. |  | MaxLength: 1024 <br /> |
+| `portState` _string_ | portState is the state of the port (e.g., ACTIVE, DOWN). |  | MaxLength: 1024 <br /> |
+| `fixedIPs` _[ServerInterfaceFixedIP](#serverinterfacefixedip) array_ | fixedIPs is the list of fixed IP addresses assigned to the interface. |  | MaxItems: 32 <br /> |
+
+
 #### ServerPortSpec
 
 
@@ -2753,6 +2790,7 @@ _Appears in:_
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
 | `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 32 <br /> |
+| `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 32 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 
 
