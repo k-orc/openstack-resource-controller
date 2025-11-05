@@ -25,8 +25,7 @@ resourceRefs:
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
     - celExpr: "server.status.resource.imageID == image.status.id"
-    # Commented out because of https://github.com/k-orc/openstack-resource-controller/issues/282
-    # - celExpr: "port.status.resource.deviceID == server.status.id"
+    - celExpr: "port.status.resource.deviceID == server.status.id"
     - celExpr: "size(server.status.resource.interfaces) == 1"
     - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
     - celExpr: "server.status.resource.interfaces[0].netID == network.status.id"
