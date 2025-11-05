@@ -300,6 +300,7 @@ func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcOb
 		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID)),
 		actuator.checkStatus,
 		actuator.updateResource,
+		actuator.reconcilePortAttachments,
 		actuator.reconcileVolumeAttachments,
 	}, nil
 }
@@ -374,6 +375,86 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 	}
+}
+
+func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	portDepsMap, reconcileStatus := portDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
+			return port.Status.ID != nil
+		},
+	)
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
+	}
+
+	// Only operate on servers in available status
+	if osResource.Status != ServerStatusActive {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	// Create missing attachments
+	for i := range resource.Ports {
+		portSpec := &resource.Ports[i]
+		if portSpec.PortRef == nil {
+			// Should have been caught by API validation
+			return reconcileStatus.WithError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec"))
+		}
+
+		portRef := *portSpec.PortRef
+		if port, ok := portDepsMap[string(portRef)]; !ok {
+			// Programming error
+			return reconcileStatus.WithError(fmt.Errorf("port %s not present in dependencies", portRef))
+		} else {
+			// The port is not yet attached to the server
+			if !slices.ContainsFunc(osResource.Interfaces, func(iface attachinterfaces.Interface) bool {
+				return iface.PortID == *port.Status.ID
+			}) {
+				createOpts := attachinterfaces.CreateOpts{
+					PortID: *port.Status.ID,
+				}
+				log.V(logging.Verbose).Info("Attaching port to server", "port", *port.Status.ID, "server", *obj.Status.ID)
+				_, err := actuator.osClient.CreateAttachedInterface(ctx, *obj.Status.ID, &createOpts)
+				if err != nil {
+					return reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+				}
+
+				// Give time for the change to be reflected on the server resource before next reconcile
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+			}
+		}
+	}
+
+	portDeps := slices.Collect(maps.Values(portDepsMap))
+
+	// Delete extra attachments
+	for _, iface := range osResource.Interfaces {
+		// There's an attachment that is not marked as a dependency
+		if !slices.ContainsFunc(portDeps, func(p *orcv1alpha1.Port) bool {
+			return iface.PortID == *p.Status.ID
+		}) {
+			log.V(logging.Verbose).Info("Detaching port from server", "port", iface.PortID, "server", *obj.Status.ID)
+			err := actuator.osClient.DeleteAttachedInterface(ctx, *obj.Status.ID, iface.PortID)
+			if err != nil {
+				return reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+			}
+
+			// Give time for the change to be reflected on the server resource before next reconcile
+			reconcileStatus = reconcileStatus.WithReconcileStatus(
+				progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+		}
+	}
+
+	return reconcileStatus
 }
 
 func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {

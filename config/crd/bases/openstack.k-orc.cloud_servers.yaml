@@ -234,9 +234,6 @@ spec:
                     maxItems: 32
                     type: array
                     x-kubernetes-list-type: atomic
-                    x-kubernetes-validations:
-                    - message: ports is immutable
-                      rule: self == oldSelf
                   serverGroupRef:
                     description: |-
                       serverGroupRef is a reference to a ServerGroup object. The server

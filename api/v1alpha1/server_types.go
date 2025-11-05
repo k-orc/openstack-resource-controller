@@ -150,7 +150,6 @@ type ServerResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ports is immutable"
 	Ports []ServerPortSpec `json:"ports,omitempty"`
 
 	// volumes is a list of volumes attached to the server.
