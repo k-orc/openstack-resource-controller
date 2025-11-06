@@ -67,6 +67,10 @@ type ComputeClient interface {
 	CreateVolumeAttachment(ctx context.Context, serverID string, createOpts volumeattach.CreateOptsBuilder) (*volumeattach.VolumeAttachment, error)
 	DeleteVolumeAttachment(ctx context.Context, serverID, volumeID string) error
 
+	ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error)
+	CreateAttachedInterface(ctx context.Context, serverID string, createOpts attachinterfaces.CreateOptsBuilder) (*attachinterfaces.Interface, error)
+	DeleteAttachedInterface(ctx context.Context, serverID, portID string) error
+
 	ReplaceAllServerAttributesTags(ctx context.Context, resourceID string, opts tags.ReplaceAllOptsBuilder) ([]string, error)
 }
 
@@ -142,6 +146,10 @@ func (c computeClient) ListAttachedInterfaces(ctx context.Context, serverID stri
 		return nil, err
 	}
 	return attachinterfaces.ExtractInterfaces(interfaces)
+}
+
+func (c computeClient) CreateAttachedInterface(ctx context.Context, serverID string, createOpts attachinterfaces.CreateOptsBuilder) (*attachinterfaces.Interface, error) {
+	return attachinterfaces.Create(ctx, c.client, serverID, createOpts).Extract()
 }
 
 func (c computeClient) DeleteAttachedInterface(ctx context.Context, serverID, portID string) error {
@@ -253,6 +261,10 @@ func (e computeErrorClient) DeleteVolumeAttachment(_ context.Context, _, _ strin
 }
 
 func (e computeErrorClient) ListAttachedInterfaces(_ context.Context, _ string) ([]attachinterfaces.Interface, error) {
+	return nil, e.error
+}
+
+func (e computeErrorClient) CreateAttachedInterface(_ context.Context, _ string, _ attachinterfaces.CreateOptsBuilder) (*attachinterfaces.Interface, error) {
 	return nil, e.error
 }
 

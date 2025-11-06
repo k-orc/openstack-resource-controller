@@ -29,6 +29,7 @@ import (
 	iter "iter"
 	reflect "reflect"
 
+	attachinterfaces "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
 	flavors "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
 	servergroups "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
@@ -59,6 +60,21 @@ func NewMockComputeClient(ctrl *gomock.Controller) *MockComputeClient {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockComputeClient) EXPECT() *MockComputeClientMockRecorder {
 	return m.recorder
+}
+
+// CreateAttachedInterface mocks base method.
+func (m *MockComputeClient) CreateAttachedInterface(ctx context.Context, serverID string, createOpts attachinterfaces.CreateOptsBuilder) (*attachinterfaces.Interface, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateAttachedInterface", ctx, serverID, createOpts)
+	ret0, _ := ret[0].(*attachinterfaces.Interface)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateAttachedInterface indicates an expected call of CreateAttachedInterface.
+func (mr *MockComputeClientMockRecorder) CreateAttachedInterface(ctx, serverID, createOpts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAttachedInterface", reflect.TypeOf((*MockComputeClient)(nil).CreateAttachedInterface), ctx, serverID, createOpts)
 }
 
 // CreateFlavor mocks base method.
@@ -119,6 +135,20 @@ func (m *MockComputeClient) CreateVolumeAttachment(ctx context.Context, serverID
 func (mr *MockComputeClientMockRecorder) CreateVolumeAttachment(ctx, serverID, createOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVolumeAttachment", reflect.TypeOf((*MockComputeClient)(nil).CreateVolumeAttachment), ctx, serverID, createOpts)
+}
+
+// DeleteAttachedInterface mocks base method.
+func (m *MockComputeClient) DeleteAttachedInterface(ctx context.Context, serverID, portID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAttachedInterface", ctx, serverID, portID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAttachedInterface indicates an expected call of DeleteAttachedInterface.
+func (mr *MockComputeClientMockRecorder) DeleteAttachedInterface(ctx, serverID, portID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAttachedInterface", reflect.TypeOf((*MockComputeClient)(nil).DeleteAttachedInterface), ctx, serverID, portID)
 }
 
 // DeleteFlavor mocks base method.
@@ -220,6 +250,21 @@ func (m *MockComputeClient) GetServerGroup(ctx context.Context, serverGroupID st
 func (mr *MockComputeClientMockRecorder) GetServerGroup(ctx, serverGroupID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServerGroup", reflect.TypeOf((*MockComputeClient)(nil).GetServerGroup), ctx, serverGroupID)
+}
+
+// ListAttachedInterfaces mocks base method.
+func (m *MockComputeClient) ListAttachedInterfaces(ctx context.Context, serverID string) ([]attachinterfaces.Interface, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAttachedInterfaces", ctx, serverID)
+	ret0, _ := ret[0].([]attachinterfaces.Interface)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAttachedInterfaces indicates an expected call of ListAttachedInterfaces.
+func (mr *MockComputeClientMockRecorder) ListAttachedInterfaces(ctx, serverID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAttachedInterfaces", reflect.TypeOf((*MockComputeClient)(nil).ListAttachedInterfaces), ctx, serverID)
 }
 
 // ListFlavors mocks base method.

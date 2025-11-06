@@ -232,6 +232,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerGroupStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerImport"):
 		return &apiv1alpha1.ServerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerInterfaceFixedIP"):
+		return &apiv1alpha1.ServerInterfaceFixedIPApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerInterfaceStatus"):
+		return &apiv1alpha1.ServerInterfaceStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerPortSpec"):
 		return &apiv1alpha1.ServerPortSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerResourceSpec"):

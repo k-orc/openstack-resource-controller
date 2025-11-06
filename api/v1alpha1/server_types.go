@@ -81,6 +81,46 @@ type ServerVolumeStatus struct {
 	ID string `json:"id,omitempty"`
 }
 
+type ServerInterfaceFixedIP struct {
+	// ipAddress is the IP address assigned to the port.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	IPAddress string `json:"ipAddress,omitempty"`
+
+	// subnetID is the ID of the subnet from which the IP address is allocated.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	SubnetID string `json:"subnetID,omitempty"`
+}
+
+type ServerInterfaceStatus struct {
+	// portID is the ID of a port attached to the server.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	PortID string `json:"portID,omitempty"`
+
+	// netID is the ID of the network to which the interface is attached.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	NetID string `json:"netID,omitempty"`
+
+	// macAddr is the MAC address of the interface.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	MACAddr string `json:"macAddr,omitempty"`
+
+	// portState is the state of the port (e.g., ACTIVE, DOWN).
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	PortState string `json:"portState,omitempty"`
+
+	// fixedIPs is the list of fixed IP addresses assigned to the interface.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	FixedIPs []ServerInterfaceFixedIP `json:"fixedIPs,omitempty"`
+}
+
 // ServerResourceSpec contains the desired state of a server
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
@@ -110,7 +150,6 @@ type ServerResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ports is immutable"
 	Ports []ServerPortSpec `json:"ports,omitempty"`
 
 	// volumes is a list of volumes attached to the server.
@@ -187,6 +226,12 @@ type ServerResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	Volumes []ServerVolumeStatus `json:"volumes,omitempty"`
+
+	// interfaces contains the list of interfaces attached to the server.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	Interfaces []ServerInterfaceStatus `json:"interfaces,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=32

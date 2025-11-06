@@ -19,19 +19,31 @@ package port
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	applyconfigmetav1 "k8s.io/client-go/applyconfigurations/meta/v1"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	applyconfigv1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 )
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports,verbs=get;list;watch;create;update;patch;delete
@@ -117,6 +129,121 @@ var (
 	)
 )
 
+// serverToPortMapFunc creates a mapping function that reconciles ports when:
+// - a port ID appears in server status but the port doesn't have attachment info for that server
+// - a port has attachment info for a server, but the server no longer lists that port
+func serverToPortMapFunc(ctx context.Context, k8sClient client.Client) handler.MapFunc {
+	log := ctrl.LoggerFrom(ctx)
+
+	return func(ctx context.Context, obj client.Object) []reconcile.Request {
+		server, ok := obj.(*orcv1alpha1.Server)
+		if !ok {
+			log.Info("serverToPortMapFunc got unexpected object type",
+				"got", fmt.Sprintf("%T", obj),
+				"expected", fmt.Sprintf("%T", &orcv1alpha1.Server{}))
+			return nil
+		}
+
+		// Get the server's ID and port IDs from status
+		serverStatus := server.Status.Resource
+		if serverStatus == nil {
+			return nil
+		}
+
+		serverID := ptr.Deref(server.Status.ID, "")
+		if serverID == "" {
+			// Server doesn't have an ID yet, nothing to reconcile
+			return nil
+		}
+
+		// Build a set of port IDs attached to this server according to server status
+		serverPortIDs := make(map[string]struct{})
+		for i := range serverStatus.Interfaces {
+			portID := serverStatus.Interfaces[i].PortID
+			if portID != "" {
+				serverPortIDs[portID] = struct{}{}
+			}
+		}
+
+		// List all ports in the same namespace
+		portList := &orcv1alpha1.PortList{}
+		if err := k8sClient.List(ctx, portList, client.InNamespace(server.Namespace)); err != nil {
+			log.Error(err, "failed to list ports", "namespace", server.Namespace)
+			return nil
+		}
+
+		requests := []reconcile.Request{}
+
+		for i := range portList.Items {
+			port := &portList.Items[i]
+			portStatus := port.Status.Resource
+			if portStatus == nil {
+				continue
+			}
+
+			portID := ptr.Deref(port.Status.ID, "")
+			if portID == "" {
+				continue
+			}
+
+			shouldReconcile := false
+			var reason string
+
+			// Port ID is in server's status, but port doesn't have attachment info for this server
+			if _, portInServerStatus := serverPortIDs[portID]; portInServerStatus {
+				if portStatus.DeviceID != serverID {
+					shouldReconcile = true
+					reason = "Server attached port but port status not updated"
+					log.V(logging.Verbose).Info("port needs reconciliation: listed in server status but deviceID not set",
+						"port", client.ObjectKeyFromObject(port),
+						"server", client.ObjectKeyFromObject(server))
+				}
+			}
+
+			// Port has attachment info for this server, but server no longer lists this port
+			if !shouldReconcile {
+				if portStatus.DeviceID == serverID {
+					// Port thinks it's attached to this server
+					if _, stillAttached := serverPortIDs[portID]; !stillAttached {
+						shouldReconcile = true
+						reason = "Server detached port but port status not updated"
+						log.V(logging.Verbose).Info("port needs reconciliation: has deviceID set but not in server status",
+							"port", client.ObjectKeyFromObject(port),
+							"server", client.ObjectKeyFromObject(server))
+					}
+				}
+			}
+
+			if shouldReconcile {
+				// Update the port's Progressing condition to trigger reconciliation
+				portApply := applyconfigv1.Port(port.Name, port.Namespace).
+					WithStatus(applyconfigv1.PortStatus().
+						WithConditions(applyconfigmetav1.Condition().
+							WithType(orcv1alpha1.ConditionProgressing).
+							WithStatus(metav1.ConditionTrue).
+							WithReason(orcv1alpha1.ConditionReasonProgressing).
+							WithMessage(reason).
+							WithObservedGeneration(port.Generation),
+						),
+					)
+
+				if err := k8sClient.Status().Patch(ctx, port, applyconfigs.Patch(types.ApplyPatchType, portApply), orcstrings.GetSSAFieldOwner(controllerName), client.ForceOwnership); err != nil {
+					log.Error(err, "failed to update port progressing status",
+						"port", client.ObjectKeyFromObject(port),
+						"server", client.ObjectKeyFromObject(server))
+				}
+
+				// Also add to reconcile requests
+				requests = append(requests, reconcile.Request{
+					NamespacedName: client.ObjectKeyFromObject(port),
+				})
+			}
+		}
+
+		return requests
+	}
+}
+
 type portReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
@@ -186,6 +313,9 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		).
+		Watches(&orcv1alpha1.Server{}, handler.EnqueueRequestsFromMapFunc(serverToPortMapFunc(ctx, k8sClient)),
+			builder.WithPredicates(predicates.NewServerInterfacesChanged(log)),
 		)
 
 	if err := errors.Join(

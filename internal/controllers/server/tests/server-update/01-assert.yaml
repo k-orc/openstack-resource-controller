@@ -13,7 +13,11 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Port
       name: server-update
-      ref: port
+      ref: port1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-update-second
+      ref: port2
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: ServerGroup
       name: server-update
@@ -27,8 +31,13 @@ assertAll:
     - celExpr: "server.status.resource.imageID == image.status.id"
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "server.status.resource.volumes[0].id == volume.status.id"
-    # Commented out because of https://github.com/k-orc/openstack-resource-controller/issues/282
-    # - celExpr: "port.status.resource.deviceID == server.status.id"
+    - celExpr: "port1.status.resource.deviceID == server.status.id"
+    - celExpr: "port1.status.resource.status == 'ACTIVE'"
+    - celExpr: "port2.status.resource.deviceID == server.status.id"
+    - celExpr: "port2.status.resource.status == 'ACTIVE'"
+    - celExpr: "size(server.status.resource.interfaces) == 2"
+    - celExpr: "server.status.resource.interfaces.exists(i, i.portID == port1.status.id)"
+    - celExpr: "server.status.resource.interfaces.exists(i, i.portID == port2.status.id)"
     - celExpr: "volume.status.resource.attachments[0].attachmentID != ''"
     - celExpr: "volume.status.resource.attachments[0].serverID == server.status.id"
     - celExpr: "volume.status.resource.attachments[0].device != ''"

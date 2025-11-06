@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"iter"
 	"slices"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
@@ -49,6 +50,11 @@ type (
 	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 	portIterator              = iter.Seq2[*osResourceT, error]
+)
+
+const (
+	// The frequency to poll when waiting for a server to become active
+	serverBuildPollingPeriod = 15 * time.Second
 )
 
 type portActuator struct {
@@ -281,9 +287,46 @@ var _ reconcileResourceActuator = portActuator{}
 
 func (actuator portActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.checkAttachedServer,
 		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "ports", osResource.ID)),
 		actuator.updateResource,
 	}, nil
+}
+
+func (actuator portActuator) checkAttachedServer(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	// If the port is attached to a device, check if it's a server in BUILD status
+	if osResource.DeviceID == "" {
+		return nil
+	}
+
+	// List all servers in the namespace to find the one with matching ID
+	serverList := &orcv1alpha1.ServerList{}
+	if err := actuator.k8sClient.List(ctx, serverList, client.InNamespace(obj.Namespace)); err != nil {
+		log.Error(err, "failed to list servers", "namespace", obj.Namespace)
+		// Don't block port reconciliation if we can't list servers
+		return nil
+	}
+
+	// Find server with matching ID
+	for i := range serverList.Items {
+		server := &serverList.Items[i]
+		if server.Status.ID != nil && *server.Status.ID == osResource.DeviceID {
+			// Check if server is in BUILD status
+			if server.Status.Resource != nil && server.Status.Resource.Status == "BUILD" {
+				log.V(logging.Verbose).Info("Port is attached to server in BUILD status, waiting",
+					"port", obj.Name,
+					"server", server.Name,
+					"serverStatus", server.Status.Resource.Status)
+				return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverBuildPollingPeriod)
+			}
+			// Server found and not in BUILD status, continue reconciliation
+			break
+		}
+	}
+
+	return nil
 }
 
 func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {

@@ -140,6 +140,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupSpec":                schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupStatus":              schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerImport":                   schema_openstack_resource_controller_v2_api_v1alpha1_ServerImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceFixedIP":         schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceFixedIP(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerList":                     schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec":                 schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref),
@@ -6574,6 +6576,93 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerImport(ref commo
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceFixedIP(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"ipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ipAddress is the IP address assigned to the port.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"subnetID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetID is the ID of the subnet from which the IP address is allocated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"portID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portID is the ID of a port attached to the server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"netID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "netID is the ID of the network to which the interface is attached.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"macAddr": {
+						SchemaProps: spec.SchemaProps{
+							Description: "macAddr is the MAC address of the interface.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portState": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portState is the state of the port (e.g., ACTIVE, DOWN).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"fixedIPs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "fixedIPs is the list of fixed IP addresses assigned to the interface.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceFixedIP"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceFixedIP"},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -6826,6 +6915,25 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 							},
 						},
 					},
+					"interfaces": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "interfaces contains the list of interfaces attached to the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus"),
+									},
+								},
+							},
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -6850,7 +6958,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
 	}
 }
 

@@ -78,5 +78,22 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 			WithID(osResource.AttachedVolumes[i].ID))
 	}
 
+	for i := range osResource.Interfaces {
+		iface := osResource.Interfaces[i]
+		interfaceStatus := orcapplyconfigv1alpha1.ServerInterfaceStatus().
+			WithPortID(iface.PortID).
+			WithNetID(iface.NetID).
+			WithMACAddr(iface.MACAddr).
+			WithPortState(iface.PortState)
+
+		for j := range iface.FixedIPs {
+			interfaceStatus.WithFixedIPs(orcapplyconfigv1alpha1.ServerInterfaceFixedIP().
+				WithIPAddress(iface.FixedIPs[j].IPAddress).
+				WithSubnetID(iface.FixedIPs[j].SubnetID))
+		}
+
+		status.WithInterfaces(interfaceStatus)
+	}
+
 	statusApply.WithResource(status)
 }
