@@ -4,16 +4,16 @@
 
 All APIs are expected to have good API validation test coverage.
 
-API validation tests are tests which ensure that any validations defined in the
+API validation tests ensure that any validations defined in the
 API and included in the CRD perform as expected. Add API validation tests for
 your controller in `test/apivalidations`.
 
 ## E2E tests
 
 All controllers are expected to have good test coverage. ORC uses
-[kuttl](https://kuttl.dev/) for end-to-end testing.
+[kuttl](https://github.com/kudobuilder/kuttl) for end-to-end testing.
 
-### General consideration when writing kuttl tests
+### General considerations when writing kuttl tests
 
 #### Documentation
 
@@ -49,8 +49,8 @@ created.
 However, if you have created OpenStack resources outside of ORC as part of the
 test, you MUST clean them to avoid leaking resources. Keep in mind that if the
 test fails before it had a chance to manually clean the resources, you would
-still have a leak. As a counter measures, only create OpenStack resources
-externally when it is an absolute necessity, and avoid writing tests that fail.
+still have a leak. To counter this, only create OpenStack resources
+externally when it is absolutely necessary, and avoid writing tests that fail.
 
 ### Testing patterns
 
@@ -79,7 +79,7 @@ spec:
   resource: {}
 ```
 
-Because this test creates a resource with the minimal dependencies, we overload
+Because this test creates a resource with minimal dependencies, we overload
 it to validate the dependency on secrets. Every resource that interacts with
 OpenStack should have a dependency on the credentials secret, meaning that we can't
 delete the secret while the object exists.
@@ -128,7 +128,7 @@ it.
 
 To know if your controller needs to implement this test, check the API and see
 if it accepts any `<Resource>Ref` field in its resource spec. This should
-almost always be the case, because unless exceptional cases, every resource has
+almost always be the case; with few exceptional cases, every resource has
 a dependency on the secret.
 For additional dependencies, subnet for example has a dependency on
 a [network][subnet-network-dep], and possibly a [router][subnet-router-dep].
@@ -164,9 +164,9 @@ The testing pattern goes like this:
    waiting on a resource called `foo`, create a resource called `foobar`.
     1. Verify that this resource is not being imported -- it validates that we
        don't perform regex-based name search (some OpenStack projects do it)
-1. Create a resource marching all of the import filters, including the name.
+1. Create a resource matching all of the import filters, including the name.
     1. Verify that the imported resource is available and the observed status
-       correspond to the one of the created resource
+       corresponds to that of the created resource.
     1. Validate that the previously created resource wasn't imported as the new
        one, again, because of regex-based name matching
 
@@ -206,7 +206,7 @@ The pattern for this test is:
 1. Create a dummy resource matching the import filter except for the dependency
     1. Verify it is not being imported
 1. Create resources matching the import filter for the resource being tested and for the dependency
-    1. The resource under test must move to Available, and its observed status correspond to the created resource
+    1. The resource under test must move to Available, and its observed status corresponds to the created resource
 1. Delete the dependency
     1. Verify it's gone
 1. Finally delete the resource
@@ -217,18 +217,18 @@ The pattern for this test is:
 #### update
 
 The `update` test is required for resources that implement mutability. It
-should test both setting and unsetting resources properties.
+should test both setting and unsetting resource properties.
 
-The testing pattern consists in:
+The testing pattern consists of:
 
 1. Create a resource using only mandatory fields, similar to the `minimal` test
 1. Update all fields that support mutability
-    1. Verify that the changes have been reflected in the observed status
+    1. Verify that the changes are reflected in the observed status
 1. Revert the changes
     1. Verify that the resource status is similar to the one we had in the first step
 
 As support for mutability is still being worked on, we don't have tests that
-implement this patter yet. The closest we have is the
+implement this pattern yet. The closest we have is the
 [`securitygroup-update`][securitygroup-update] test.
 
 [securitygroup-update]: https://github.com/k-orc/openstack-resource-controller/tree/main/internal/controllers/securitygroup/tests/securitygroup-update
@@ -278,5 +278,5 @@ E2E_KUTTL_DIR=internal/controllers/subnet/tests E2E_KUTTL_TEST=import-dependency
 
 ## Controller-specific tests
 
-Tests other than the above, for example tests covering functionality specific to
+Tests other than the ones above, that cover the functionality specific to
 a single controller, should live in the controller's directory.

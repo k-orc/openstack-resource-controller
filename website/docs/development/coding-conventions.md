@@ -18,7 +18,7 @@ Example: ```OpenStack resource created```
 
 ### Verbose Level
 
-`Verbose` logs provide additional context for an administrator trying to understand why an action
+`Verbose` logs provide additional context for an administrator trying to understand why an action may
 be occurring or not occurring. It should produce logs on every reconcile attempt.  
 Example: ```web-download is not supported because...```
 

@@ -77,7 +77,7 @@ To return a terminal error, wrap the error in an `orcerrors.TerminalError`. The 
 
 ## Dependencies
 
-Dependencies are at the core of what ORC does. At the lowest level ORC performs CRUD operations OpenStack resources using the REST API. However, one of the principal benefits of using ORC rather than just making REST calls is that it automatically does this:
+Dependencies are at the core of what ORC does. At the lowest level, ORC performs CRUD operations on OpenStack resources using the REST API. However, one of the principal benefits of using ORC rather than just making REST calls is that it automatically does this:
 
 * In the correct order
 * As soon as possible
@@ -87,7 +87,7 @@ It achieves this through dependency management.
 
 !!! note
 
-    ORC dependencies can *only* be expressed between ORC objects. Therefore if one OpenStack resource depends on another, that relationship can only be expressed in ORC if both resources have corresponding ORC objects. Resoruces which a user may depend on but cannot create, like a flavor or a provider network, can be expressed by importing an existing resource.
+    ORC dependencies can *only* be expressed between ORC objects. Therefore if one OpenStack resource depends on another, that relationship can only be expressed in ORC if both resources have corresponding ORC objects. Any resource which a user may depend on but cannot create, like a flavor or a provider network, can be expressed by importing an existing resource.
 
 A dependency is used anywhere that the controller must reference another object to complete an action. The dependency has features that enable us to:
 
@@ -97,12 +97,12 @@ A dependency is used anywhere that the controller must reference another object 
 
 Dependencies can be used anywhere in the resource actuator that can return `[]ProgressStatus` and `error`, which is most places. In general, try to resolve dependencies as late as possible, as close to the point of use as possible. Do this to avoid accidentally injecting a dependency requirement where it is not strictly required. For example, Subnet depends on Network. Subnet requires its network to be present:
 
-* For creation, because a Subnet cannot be created without a network
+* For creation, because a Subnet cannot be created without a Network
 * For import by filter, because the filter has an implicit constraint to the Subnet's Network
 
-However, Network is not required for import by ID, or once `status.ID` has been set, so we should try to avoid requiring it in those circumstances. The reason for this is that it reduces coupling, so gives a user attempting to fix a failed deployment greater freedom. This is especially important when deleting resources. In a situation where a user has, for whatever reason, force deleted a network resource, we should not require them to recreate it before deleting a subnet resource whose `status.ID` is already set, or to propagate the requirement for manually removing finalizers.
+However, a Network is not required for import by ID, or once `status.ID` has been set, so we should try to avoid requiring it in those circumstances. The reason for this is that it reduces coupling, so gives a user attempting to fix a failed deployment greater freedom. This is especially important when deleting resources. In a situation where a user has, for whatever reason, force deleted a network resource, we should not require them to recreate it before deleting a subnet resource whose `status.ID` is already set, or to propagate the requirement for manually removing finalizers.
 
-To illustrate how this works we'll use a concrete example: a Server has a FlavorRef. When reconciling a Server, the controller will attempt to fetch the Flavor named by FlavorRef. If that Flavor doesn't exist, or is not yet ready, the operation will return an appropriate ProgressStatus indicating that we are waiting on another object. This will set the Progressing condition to True, but will not directly trigger another reconcile.
+To illustrate how this works we'll use an example: a Server has a FlavorRef. When reconciling a Server, the controller will attempt to fetch the Flavor named by FlavorRef. If that Flavor doesn't exist, or is not yet ready, the operation will return an appropriate ProgressStatus indicating that we are waiting on another object. This will set the Progressing condition to True, but will not directly trigger another reconcile.
 
 We must therefore ensure that we are triggered again when the Flavor named by FlavorRef becomes available. To achieve this, the Server controller must watch Flavors. For each Flavor which becomes Available, the watch must lookup every Server object which has a reference to it, and trigger a reconcile for that object. However, as a Flavor does not have a reference to all the Servers which reference it we need some way to perform the 'reverse' lookup. We do this by adding an index of FlavorRefs to Servers.
 
@@ -131,15 +131,15 @@ A deletion dependency works, and this is how this is currently implemented. The 
 
 Deletion dependencies have all the same properties as a regular dependency, but additionally prevent the dependency object from being deleted while the object which depends on it still exists. This is achieved by:
 
-* adding a finalizer to dependency object
+* adding a finalizer to the dependency object
 * adding a small controller, called a deletion guard, to the dependency object which removes the finalizer if the dependency is marked deleted and no longer has any references managed by the deletion guard.
 
 Deletion dependencies must be used where deleting the dependency object would either fail, or cause the reconciled object to fail. An example of each:
 
 * Port has a SubnetRef. Attempting to delete a Subnet which still has ports will fail with a 409. Port adds a deletion dependency on Subnet so ORC will not attempt to delete a Subnet until all Ports referencing it have been deleted.
-* Almost all objects reference a Secret containing cloud credentials. Deleting this Secret would cause any object using it to fail. Objects with a cloudCredentialsRef add a deletion dependency on Secret so Secrets may not be deleted while they are still in use.
+* Almost all objects reference a Secret containing cloud credentials. Deleting this Secret would cause any object using it to fail. Objects with a cloudCredentialsRef add a deletion dependency on Secret, so Secrets may not be deleted while they are still in use.
 
-Deletion dependencies should be avoided where the deletion of an object is allowed by OpenStack, even when it may cause another object to become out of date. Prefer a [reconcle dependency](#reconcile-dependencies) in this case.
+Deletion dependencies should be avoided where the deletion of an object is allowed by OpenStack, even when it may cause another object to become out of date. Prefer a [reconcile dependency](#reconcile-dependencies) in this case.
 
 Deletion dependencies are handled by `dependency.DeletionGuardDependency`. Refer to the godoc for details.
 
