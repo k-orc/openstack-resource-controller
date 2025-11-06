@@ -104,7 +104,7 @@ type NetworkResourceSpec struct {
 	Shared *bool `json:"shared,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the network.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZoneHints is immutable"
@@ -166,7 +166,7 @@ type NetworkResourceStatus struct {
 	Status string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
@@ -181,7 +181,7 @@ type NetworkResourceStatus struct {
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// network.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
@@ -224,7 +224,7 @@ type NetworkResourceStatus struct {
 	Shared *bool `json:"shared,omitempty"`
 
 	// subnets associated with this network.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=256
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional

@@ -30,7 +30,7 @@ type VolumeTypeResourceSpec struct {
 	Description *string `json:"description,omitempty"`
 
 	// extraSpecs is a map of key-value pairs that define extra specifications for the volume type.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	ExtraSpecs []VolumeTypeExtraSpec `json:"extraSpecs,omitempty"`
@@ -71,7 +71,7 @@ type VolumeTypeResourceStatus struct {
 	Description string `json:"description,omitempty"`
 
 	// extraSpecs is a map of key-value pairs that define extra specifications for the volume type.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	ExtraSpecs []VolumeTypeExtraSpecStatus `json:"extraSpecs"`

@@ -77,7 +77,7 @@ type SubnetResourceSpec struct {
 	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the subnet.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
@@ -228,7 +228,7 @@ type SubnetResourceStatus struct {
 	SubnetPoolID string `json:"subnetPoolID,omitempty"`
 
 	// tags optionally set via extensions/attributestags
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional

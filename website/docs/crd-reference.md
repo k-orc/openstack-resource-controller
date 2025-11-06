@@ -281,10 +281,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### FilterByServerTags
@@ -300,10 +300,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
 #### FixedIPStatus
@@ -505,10 +505,10 @@ _Appears in:_
 | `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `status` _string_ | status is the status of the floatingip. |  | MaxLength: 1024 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### FloatingIPImport
@@ -545,7 +545,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the floatingip. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the floatingip. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `floatingNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | floatingNetworkRef references the network to which the floatingip is associated. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `floatingSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | floatingSubnetRef references the subnet to which the floatingip is associated. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `floatingIP` _[IPvAny](#ipvany)_ | floatingIP is the IP that will be assigned to the floatingip. If not set, it will<br />be assigned automatically. |  | MaxLength: 45 <br />MinLength: 1 <br /> |
@@ -576,7 +576,7 @@ _Appears in:_
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
 | `routerID` _string_ | routerID is the ID of the router to which the floatingip is associated. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
@@ -880,7 +880,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name specifies the name of a Glance image |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `visibility` _[ImageVisibility](#imagevisibility)_ | visibility specifies the visibility of a Glance image. |  | Enum: [public private shared community] <br /> |
-| `tags` _[ImageTag](#imagetag) array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[ImageTag](#imagetag) array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### ImageHWBus
@@ -1036,7 +1036,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created Glance image. If not specified, the<br />name of the Image object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `protected` _boolean_ | protected specifies that the image is protected from deletion.<br />If not specified, the default is false. |  |  |
-| `tags` _[ImageTag](#imagetag) array_ | tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[ImageTag](#imagetag) array_ | tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `visibility` _[ImageVisibility](#imagevisibility)_ | visibility of the image |  | Enum: [public private shared community] <br /> |
 | `properties` _[ImageProperties](#imageproperties)_ | properties is metadata available to consumers of the image |  |  |
 | `content` _[ImageContent](#imagecontent)_ | content specifies how to obtain the image content. |  |  |
@@ -1062,7 +1062,7 @@ _Appears in:_
 | `hash` _[ImageHash](#imagehash)_ | hash is the hash of the image data published by Glance. Note that this is<br />a hash of the data stored internally by Glance, which will have been<br />decompressed and potentially format converted depending on server-side<br />configuration which is not visible to clients. It is expected that this<br />hash will usually differ from the download hash. |  |  |
 | `sizeB` _integer_ | sizeB is the size of the image data, in bytes |  |  |
 | `virtualSizeB` _integer_ | virtualSizeB is the size of the disk the image data represents, in bytes |  |  |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 
 
 #### ImageSpec
@@ -1349,10 +1349,10 @@ _Appears in:_
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `external` _boolean_ | external indicates whether the network has an external routing<br />facility that’s not managed by the networking service. |  |  |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### NetworkImport
@@ -1397,7 +1397,7 @@ _Appears in:_
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled is the port security status of the network.<br />Valid values are enabled (true) and disabled (false). This value is<br />used as the default value of port_security_enabled field of a newly<br />created port. |  |  |
 | `external` _boolean_ | external indicates whether the network has an external routing<br />facility that’s not managed by the networking service. |  |  |
 | `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects. By default, only administrative users can change this<br />value. |  |  |
-| `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the network. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the network. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
@@ -1418,19 +1418,19 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the network. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates whether network is currently operational. Possible values<br />include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define<br />additional values. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the network,<br />which is up (true) or down (false). |  |  |
-| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />network. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />network. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `dnsDomain` _string_ | dnsDomain is the DNS domain of the network |  | MaxLength: 1024 <br /> |
 | `mtu` _integer_ | mtu is the the maximum transmission unit value to address<br />fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6. |  |  |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled is the port security status of the network.<br />Valid values are enabled (true) and disabled (false). This value is<br />used as the default value of port_security_enabled field of a newly<br />created port. |  |  |
 | `provider` _[ProviderPropertiesStatus](#providerpropertiesstatus)_ | provider contains provider-network properties. |  |  |
 | `external` _boolean_ | external defines whether the network may be used for creation of<br />floating IPs. Only networks with this flag may be an external<br />gateway for routers. The network must have an external routing<br />facility that is not managed by the networking service. If the<br />network is updated from external to internal the unused floating IPs<br />of this network are automatically deleted when extension<br />floatingip-autodelete-internal is present. |  |  |
 | `shared` _boolean_ | shared specifies whether the network resource can be accessed by any<br />tenant. |  |  |
-| `subnets` _string array_ | subnets associated with this network. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `subnets` _string array_ | subnets associated with this network. |  | MaxItems: 256 <br />items:MaxLength: 1024 <br /> |
 
 
 #### NetworkSpec
@@ -1642,10 +1642,10 @@ _Appears in:_
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### PortImport
@@ -1733,10 +1733,10 @@ _Appears in:_
 | `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the port. If not set, the object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the port. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `allowedAddressPairs` _[AllowedAddressPair](#allowedaddresspair) array_ | allowedAddressPairs are allowed addresses associated with this port. |  | MaxItems: 32 <br /> |
-| `addresses` _[Address](#address) array_ | addresses are the IP addresses for the port. |  | MaxItems: 32 <br /> |
-| `securityGroupRefs` _[OpenStackName](#openstackname) array_ | securityGroupRefs are the names of the security groups associated<br />with this port. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the port. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `allowedAddressPairs` _[AllowedAddressPair](#allowedaddresspair) array_ | allowedAddressPairs are allowed addresses associated with this port. |  | MaxItems: 128 <br /> |
+| `addresses` _[Address](#address) array_ | addresses are the IP addresses for the port. |  | MaxItems: 128 <br /> |
+| `securityGroupRefs` _[OpenStackName](#openstackname) array_ | securityGroupRefs are the names of the security groups associated<br />with this port. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `vnicType` _string_ | vnicType specifies the type of vNIC which this port should be<br />attached to. This is used to determine which mechanism driver(s) to<br />be used to bind the port. The valid values are normal, macvtap,<br />direct, baremetal, direct-physical, virtio-forwarder, smart-nic and<br />remote-managed, although these values will not be validated in this<br />API to ensure compatibility with future neutron changes or custom<br />implementations. What type of vNIC is actually available depends on<br />deployments. If not specified, the Neutron default value is used. |  | MaxLength: 64 <br /> |
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
@@ -1760,14 +1760,14 @@ _Appears in:_
 | `networkID` _string_ | networkID is the ID of the attached network. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the port,<br />which is up (true) or down (false). |  |  |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 1024 <br /> |
 | `deviceID` _string_ | deviceID is the ID of the device that uses this port. |  | MaxLength: 1024 <br /> |
 | `deviceOwner` _string_ | deviceOwner is the entity type that uses this port. |  | MaxLength: 1024 <br /> |
-| `allowedAddressPairs` _[AllowedAddressPairStatus](#allowedaddresspairstatus) array_ | allowedAddressPairs is a set of zero or more allowed address pair<br />objects each where address pair object contains an IP address and<br />MAC address. |  | MaxItems: 32 <br /> |
-| `fixedIPs` _[FixedIPStatus](#fixedipstatus) array_ | fixedIPs is a set of zero or more fixed IP objects each where fixed<br />IP object contains an IP address and subnet ID from which the IP<br />address is assigned. |  | MaxItems: 32 <br /> |
-| `securityGroups` _string array_ | securityGroups contains the IDs of security groups applied to the port. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `allowedAddressPairs` _[AllowedAddressPairStatus](#allowedaddresspairstatus) array_ | allowedAddressPairs is a set of zero or more allowed address pair<br />objects each where address pair object contains an IP address and<br />MAC address. |  | MaxItems: 128 <br /> |
+| `fixedIPs` _[FixedIPStatus](#fixedipstatus) array_ | fixedIPs is a set of zero or more fixed IP objects each where fixed<br />IP object contains an IP address and subnet ID from which the IP<br />address is assigned. |  | MaxItems: 128 <br /> |
+| `securityGroups` _string array_ | securityGroups contains the IDs of security groups applied to the port. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
@@ -2062,10 +2062,10 @@ _Appears in:_
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### RouterImport
@@ -2176,11 +2176,11 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the router. If not set, the<br />object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the router. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the router. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp represents the administrative state of the resource,<br />which is up (true) or down (false). Default is true. |  |  |
 | `externalGateways` _[ExternalGateway](#externalgateway) array_ | externalGateways is a list of external gateways for the router.<br />Multiple gateways are not currently supported by ORC. |  | MaxItems: 1 <br /> |
 | `distributed` _boolean_ | distributed indicates whether the router is distributed or not. It<br />is available when dvr extension is enabled. |  |  |
-| `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the router. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the router. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
@@ -2201,10 +2201,10 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status indicates the current status of the resource. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the router,<br />which is up (true) or down (false). |  |  |
 | `externalGateways` _[ExternalGatewayStatus](#externalgatewaystatus) array_ | externalGateways is a list of external gateways for the router. |  | MaxItems: 32 <br /> |
-| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />router. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />router. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 
 
 #### RouterSpec
@@ -2295,10 +2295,10 @@ _Appears in:_
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### SecurityGroupImport
@@ -2336,7 +2336,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the security group. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the security group. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `stateful` _boolean_ | stateful indicates if the security group is stateful or stateless. |  |  |
 | `rules` _[SecurityGroupRule](#securitygrouprule) array_ | rules is a list of security group rules belonging to this SG. |  | MaxItems: 256 <br />MinProperties: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
@@ -2358,7 +2358,7 @@ _Appears in:_
 | `name` _string_ | name is a Human-readable name for the security group. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the project owner of the security group. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `stateful` _boolean_ | stateful indicates if the security group is stateful or stateless. |  |  |
 | `rules` _[SecurityGroupRuleStatus](#securitygrouprulestatus) array_ | rules is a list of security group rules belonging to this SG. |  | MaxItems: 256 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
@@ -2483,10 +2483,10 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
 #### ServerGroup
@@ -2765,10 +2765,10 @@ _Appears in:_
 | `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />NOTE: This is not required in case of boot from volume. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 32 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 32 <br />MinProperties: 1 <br /> |
+| `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 64 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 32 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
 #### ServerResourceStatus
@@ -2789,9 +2789,9 @@ _Appears in:_
 | `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
 | `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
-| `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 32 <br /> |
-| `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 32 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 64 <br /> |
+| `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 
 
 #### ServerSpec
@@ -2924,10 +2924,10 @@ _Appears in:_
 | `ipv6` _[IPv6Options](#ipv6options)_ | ipv6 options of the existing resource |  | MinProperties: 1 <br /> |
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### SubnetGateway
@@ -2996,7 +2996,7 @@ _Appears in:_
 | `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the subnet. If not set, the object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this subnet is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the subnet. |  | MaxItems: 32 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the subnet. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP version for the subnet. |  | Enum: [4 6] <br /> |
 | `cidr` _[CIDR](#cidr)_ | cidr is the address CIDR of the subnet. It must match the IP version specified in IPVersion. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
 | `allocationPools` _[AllocationPool](#allocationpool) array_ | allocationPools are IP Address pools that will be available for DHCP. IP<br />addresses must be in CIDR. |  | MaxItems: 32 <br /> |
@@ -3038,7 +3038,7 @@ _Appears in:_
 | `ipv6AddressMode` _string_ | ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses. |  | MaxLength: 1024 <br /> |
 | `ipv6RAMode` _string_ | ipv6RAMode is the IPv6 router advertisement mode. It specifies<br />whether the networking service should transmit ICMPv6 packets. |  | MaxLength: 1024 <br /> |
 | `subnetPoolID` _string_ | subnetPoolID is the id of the subnet pool associated with the subnet. |  | MaxLength: 1024 <br /> |
-| `tags` _string array_ | tags optionally set via extensions/attributestags |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags optionally set via extensions/attributestags |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
@@ -3230,7 +3230,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `size` _integer_ | size is the size of the volume, in gibibytes (GiB). |  | Minimum: 1 <br /> |
 | `volumeTypeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `metadata` _[VolumeMetadata](#volumemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 32 <br /> |
+| `metadata` _[VolumeMetadata](#volumemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
 
 
 #### VolumeResourceStatus
@@ -3256,7 +3256,7 @@ _Appears in:_
 | `snapshotID` _string_ | snapshotID is the ID of the snapshot from which the volume was created |  | MaxLength: 1024 <br /> |
 | `sourceVolID` _string_ | sourceVolID is the ID of another block storage volume from which the current volume was created |  | MaxLength: 1024 <br /> |
 | `backupID` _string_ | backupID is the ID of the backup from which the volume was restored |  | MaxLength: 1024 <br /> |
-| `metadata` _[VolumeMetadataStatus](#volumemetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 32 <br /> |
+| `metadata` _[VolumeMetadataStatus](#volumemetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
 | `userID` _string_ | userID is the ID of the user who created the volume. |  | MaxLength: 1024 <br /> |
 | `bootable` _boolean_ | bootable indicates whether this is a bootable volume. |  |  |
 | `encrypted` _boolean_ | encrypted denotes if the volume is encrypted. |  |  |
@@ -3414,7 +3414,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `extraSpecs` _[VolumeTypeExtraSpec](#volumetypeextraspec) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 32 <br /> |
+| `extraSpecs` _[VolumeTypeExtraSpec](#volumetypeextraspec) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 64 <br /> |
 | `isPublic` _boolean_ | isPublic indicates whether the volume type is public. |  |  |
 
 
@@ -3433,7 +3433,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
-| `extraSpecs` _[VolumeTypeExtraSpecStatus](#volumetypeextraspecstatus) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 32 <br /> |
+| `extraSpecs` _[VolumeTypeExtraSpecStatus](#volumetypeextraspecstatus) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 64 <br /> |
 | `isPublic` _boolean_ | isPublic indicates whether the VolumeType is public. |  |  |
 
 

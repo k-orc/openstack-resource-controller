@@ -60,7 +60,7 @@ type RouterResourceSpec struct {
 	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the router.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
@@ -85,7 +85,7 @@ type RouterResourceSpec struct {
 	Distributed *bool `json:"distributed,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the router.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZoneHints is immutable"
@@ -120,7 +120,7 @@ type RouterResourceStatus struct {
 	Status string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
@@ -139,7 +139,7 @@ type RouterResourceStatus struct {
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// router.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
