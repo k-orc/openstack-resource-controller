@@ -1865,7 +1865,7 @@ func (in *PortResourceSpec) DeepCopyInto(out *PortResourceSpec) {
 	}
 	if in.SecurityGroupRefs != nil {
 		in, out := &in.SecurityGroupRefs, &out.SecurityGroupRefs
-		*out = make([]OpenStackName, len(*in))
+		*out = make([]KubernetesNameRef, len(*in))
 		copy(*out, *in)
 	}
 	if in.ProjectRef != nil {

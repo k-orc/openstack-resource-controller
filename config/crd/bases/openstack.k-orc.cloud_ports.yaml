@@ -326,12 +326,11 @@ spec:
                       rule: self == oldSelf
                   securityGroupRefs:
                     description: |-
-                      securityGroupRefs are the names of the security groups associated
+                      securityGroupRefs are references to the security groups associated
                       with this port.
                     items:
-                      maxLength: 255
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[^,]+$
                       type: string
                     maxItems: 32
                     type: array
