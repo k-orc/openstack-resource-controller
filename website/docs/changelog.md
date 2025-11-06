@@ -1,5 +1,34 @@
 # Changelog
 
+## v2.3 - November 7, 2025
+
+### New controllers
+
+- Volume: Manage Cinder block storage volumes
+- VolumeType: Manage Cinder volume types
+
+### New features
+
+- Added support for updating resources (mutability) for all relevant controllers
+- Server: Expose network interfaces status
+- Server: Added ability to attach and detach volumes and interfaces
+- Server: Added support for Availability Zone
+- Image: Added visibility filter support for image import
+- Added support for generating and publishing OLM bundle images
+- Added controller scaffolding tool for easier development
+
+### Bug fixes
+
+- Attachable resource now have their status more closely reflecting reality (Fixes [#282](https://github.com/k-orc/openstack-resource-controller/issues/282))
+- Documentation: Fixed examples in getting-started guide
+- Make ORC more suited for production environment by increasing memory limit to 256Mi and adjusing the API max items limits (Fixes [#527](https://github.com/k-orc/openstack-resource-controller/issues/527))
+
+### Infrastructure improvements
+
+- CI: Dropped caracal support, added epoxy and flamingo OpenStack versions
+- CI: Enabled openstack-cli-server for testing
+- Go: Bumped to version 1.24
+
 ## v2.2 - June 11, 2025
 
 ### New controllers
