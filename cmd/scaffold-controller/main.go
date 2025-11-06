@@ -140,9 +140,10 @@ func main() {
 	}
 
 	if len(fields.RequiredCreateDependencies) == 0 {
-		answer := getUserInput("Does this resource have required dependencies upon creation? "+
-			"List all the resources it must depend on. "+
-			"Provide this as a comma-separated list, for example: Subnet, Port, Project", interactive)
+		answer := getUserInput("Does this resource have **required** dependencies upon creation? "+
+			"List all the resources it **must** depend on, if any. "+
+			"Provide this as a comma-separated list or omit if there are no dependencies. "+
+			"For example: Subnet, Port, Project", interactive)
 		dependencies := strings.Split(answer, ",")
 		for _, dep := range dependencies {
 			trimmedDep := strings.TrimSpace(dep)
@@ -153,9 +154,10 @@ func main() {
 	}
 
 	if len(fields.OptionalCreateDependencies) == 0 {
-		answer := getUserInput("Does this resource have optional dependencies upon creation? "+
-			"List all the resources it optionally depend on. "+
-			"Provide this as a comma-separated list, for example: Subnet, Port, Project", interactive)
+		answer := getUserInput("Does this resource have **optional** dependencies upon creation? "+
+			"List all the resources it **optionally** depends on, if any. "+
+			"Provide this as a comma-separated list or omit if there are no dependencies. "+
+			"For example: Subnet, Port, Project", interactive)
 		dependencies := strings.Split(answer, ",")
 		for _, dep := range dependencies {
 			trimmedDep := strings.TrimSpace(dep)
@@ -168,7 +170,8 @@ func main() {
 	if len(fields.ImportDependencies) == 0 {
 		answer := getUserInput("Does this resource have dependencies upon import? "+
 			"List all the resources it can depend on. "+
-			"Provide this as a comma-separated list, for example: Subnet, Port, Project", interactive)
+			"Provide this as a comma-separated list or omit if there are no dependencies. "+
+			"For example: Subnet, Port, Project", interactive)
 		dependencies := strings.Split(answer, ",")
 		for _, dep := range dependencies {
 			trimmedDep := strings.TrimSpace(dep)
