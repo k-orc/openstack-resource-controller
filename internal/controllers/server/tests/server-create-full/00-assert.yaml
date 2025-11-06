@@ -40,6 +40,7 @@ assertAll:
     - celExpr: "volume.status.resource.attachments[0].device != ''"
     - celExpr: "volume.status.resource.attachments[0].attachedAt != ''"
     - celExpr: "port.status.resource.deviceID == server.status.id"
+    - celExpr: "port.status.resource.status == 'ACTIVE'"
     - celExpr: "size(server.status.resource.interfaces) == 1"
     - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
     - celExpr: "server.status.resource.interfaces[0].netID == network.status.id"

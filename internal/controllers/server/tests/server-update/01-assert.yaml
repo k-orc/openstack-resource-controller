@@ -32,10 +32,7 @@ assertAll:
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "server.status.resource.volumes[0].id == volume.status.id"
     - celExpr: "port1.status.resource.deviceID == server.status.id"
-    # FIXME(mandre) It should be active, but wasn't refreshed because the port
-    # is attached to the server while it's still in BUILD status
-    # - celExpr: "port1.status.resource.status == 'ACTIVE'"
-    - celExpr: "port1.status.resource.status == 'DOWN'"
+    - celExpr: "port1.status.resource.status == 'ACTIVE'"
     - celExpr: "port2.status.resource.deviceID == server.status.id"
     - celExpr: "port2.status.resource.status == 'ACTIVE'"
     - celExpr: "size(server.status.resource.interfaces) == 2"
