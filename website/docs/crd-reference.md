@@ -300,10 +300,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
 #### FixedIPStatus
@@ -2484,10 +2484,10 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone of the existing resource |  | MaxLength: 255 <br /> |
-| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
-| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[ServerTag](#servertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
 #### ServerGroup
@@ -2770,7 +2770,7 @@ _Appears in:_
 | `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
-| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
 #### ServerResourceStatus
@@ -2794,7 +2794,7 @@ _Appears in:_
 | `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 64 <br /> |
 | `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |
-| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 50 <br />items:MaxLength: 1024 <br /> |
 
 
 #### ServerSpec
