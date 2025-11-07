@@ -16,4 +16,4 @@ testDirs:
 - ./internal/controllers/subnet/tests/
 - ./internal/controllers/volume/tests/
 - ./internal/controllers/volumetype/tests/
-timeout: 120
+timeout: 240

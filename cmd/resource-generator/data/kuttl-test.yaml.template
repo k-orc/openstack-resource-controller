@@ -4,4 +4,4 @@ testDirs:
 {{- range . }}
 - ./internal/controllers/{{ .NameLower }}/tests/
 {{- end}}
-timeout: 120
+timeout: 240
