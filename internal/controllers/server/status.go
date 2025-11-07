@@ -30,6 +30,7 @@ import (
 
 const (
 	ServerStatusActive = "ACTIVE"
+	ServerStatusBuild  = "BUILD"
 	ServerStatusError  = "ERROR"
 )
 

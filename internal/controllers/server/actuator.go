@@ -299,9 +299,9 @@ var _ reconcileResourceActuator = serverActuator{}
 
 func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID)),
 		actuator.checkStatus,
 		actuator.updateResource,
+		actuator.reconcileTags,
 		actuator.reconcilePortAttachments,
 		actuator.reconcileVolumeAttachments,
 	}, nil
@@ -377,6 +377,15 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 	}
+}
+
+func (actuator serverActuator) reconcileTags(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	// Tags cannot be set on a server that is still building
+	if osResource.Status == "" || osResource.Status == ServerStatusBuild {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	return tags.ReconcileTags[orcObjectPT, osResourceT](obj.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID))(ctx, obj, osResource)
 }
 
 func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
