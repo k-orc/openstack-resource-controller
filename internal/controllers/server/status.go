@@ -66,6 +66,7 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithName(osResource.Name).
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
+		WithAvailabilityZone(osResource.AvailabilityZone).
 		WithServerGroups(ptr.Deref(osResource.ServerGroups, []string{})...).
 		WithTags(ptr.Deref(osResource.Tags, []string{})...)
 

@@ -91,6 +91,11 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      availabilityZone:
+                        description: availabilityZone is the availability zone of
+                          the existing resource
+                        maxLength: 255
+                        type: string
                       name:
                         description: name of the existing resource
                         maxLength: 255
@@ -189,6 +194,14 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  availabilityZone:
+                    description: availabilityZone is the availability zone in which
+                      to create the server.
+                    maxLength: 255
+                    type: string
+                    x-kubernetes-validations:
+                    - message: availabilityZone is immutable
+                      rule: self == oldSelf
                   flavorRef:
                     description: flavorRef references the flavor to use for the server
                       instance.
@@ -403,6 +416,11 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  availabilityZone:
+                    description: availabilityZone is the availability zone where the
+                      server is located.
+                    maxLength: 1024
+                    type: string
                   hostID:
                     description: hostID is the host where the server is located in
                       the cloud.

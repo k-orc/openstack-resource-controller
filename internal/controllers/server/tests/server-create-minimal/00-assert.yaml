@@ -24,6 +24,7 @@ resourceRefs:
       ref: subnet
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.availabilityZone != ''"
     - celExpr: "server.status.resource.imageID == image.status.id"
     - celExpr: "port.status.resource.deviceID == server.status.id"
     - celExpr: "port.status.resource.status == 'ACTIVE'"

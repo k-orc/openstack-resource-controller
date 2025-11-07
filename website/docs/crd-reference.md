@@ -2483,6 +2483,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone of the existing resource |  | MaxLength: 255 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 | `tagsAny` _[ServerTag](#servertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 | `notTags` _[ServerTag](#servertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
@@ -2768,6 +2769,7 @@ _Appears in:_
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 64 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 64 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 
@@ -2788,6 +2790,7 @@ _Appears in:_
 | `hostID` _string_ | hostID is the host where the server is located in the cloud. |  | MaxLength: 1024 <br /> |
 | `status` _string_ | status contains the current operational status of the server,<br />such as IN_PROGRESS or ACTIVE. |  | MaxLength: 1024 <br /> |
 | `imageID` _string_ | imageID indicates the OS image used to deploy the server. |  | MaxLength: 1024 <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone where the server is located. |  | MaxLength: 1024 <br /> |
 | `serverGroups` _string array_ | serverGroups is a slice of strings containing the UUIDs of the<br />server groups to which the server belongs. Currently this can<br />contain at most one entry. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br /> |
 | `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 64 <br /> |
 | `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |

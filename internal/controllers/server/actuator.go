@@ -134,10 +134,11 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := servers.ListOpts{
-		Tags:       tags.Join(filter.Tags),
-		TagsAny:    tags.Join(filter.TagsAny),
-		NotTags:    tags.Join(filter.NotTags),
-		NotTagsAny: tags.Join(filter.NotTagsAny),
+		Tags:             tags.Join(filter.Tags),
+		TagsAny:          tags.Join(filter.TagsAny),
+		NotTags:          tags.Join(filter.NotTags),
+		NotTagsAny:       tags.Join(filter.NotTagsAny),
+		AvailabilityZone: filter.AvailabilityZone,
 	}
 
 	if filter.Name != nil {
@@ -255,12 +256,13 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	slices.Sort(tags)
 
 	createOpts := servers.CreateOpts{
-		Name:      getResourceName(obj),
-		ImageRef:  *image.Status.ID,
-		FlavorRef: *flavor.Status.ID,
-		Networks:  portList,
-		UserData:  userData,
-		Tags:      tags,
+		Name:             getResourceName(obj),
+		ImageRef:         *image.Status.ID,
+		FlavorRef:        *flavor.Status.ID,
+		Networks:         portList,
+		UserData:         userData,
+		Tags:             tags,
+		AvailabilityZone: resource.AvailabilityZone,
 	}
 
 	schedulerHints := servers.SchedulerHintOpts{
