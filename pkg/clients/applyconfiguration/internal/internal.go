@@ -1764,6 +1764,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerFilter
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
     - name: name
       type:
         scalar: string
@@ -1953,6 +1956,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceSpec
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
     - name: flavorRef
       type:
         scalar: string
@@ -1989,6 +1995,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
     - name: hostID
       type:
         scalar: string

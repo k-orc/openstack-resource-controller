@@ -164,6 +164,12 @@ type ServerResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serverGroupRef is immutable"
 	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
 
+	// availabilityZone is the availability zone in which to create the server.
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+
 	// tags is a list of tags which will be applied to the server.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
@@ -185,6 +191,11 @@ type ServerFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
+
+	// availabilityZone is the availability zone of the existing resource
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
 	FilterByServerTags `json:",inline"`
 }
@@ -211,6 +222,11 @@ type ServerResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
+
+	// availabilityZone is the availability zone where the server is located.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
 	// serverGroups is a slice of strings containing the UUIDs of the
 	// server groups to which the server belongs. Currently this can

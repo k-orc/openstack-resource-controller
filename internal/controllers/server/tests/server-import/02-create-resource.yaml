@@ -27,6 +27,7 @@ spec:
     flavorRef: server-import
     ports:
       - portRef: server-import-external
+    availabilityZone: nova
     tags:
       - tag1
       - tag2

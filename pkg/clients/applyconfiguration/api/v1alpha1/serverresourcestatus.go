@@ -21,14 +21,15 @@ package v1alpha1
 // ServerResourceStatusApplyConfiguration represents a declarative configuration of the ServerResourceStatus type for use
 // with apply.
 type ServerResourceStatusApplyConfiguration struct {
-	Name         *string                                   `json:"name,omitempty"`
-	HostID       *string                                   `json:"hostID,omitempty"`
-	Status       *string                                   `json:"status,omitempty"`
-	ImageID      *string                                   `json:"imageID,omitempty"`
-	ServerGroups []string                                  `json:"serverGroups,omitempty"`
-	Volumes      []ServerVolumeStatusApplyConfiguration    `json:"volumes,omitempty"`
-	Interfaces   []ServerInterfaceStatusApplyConfiguration `json:"interfaces,omitempty"`
-	Tags         []string                                  `json:"tags,omitempty"`
+	Name             *string                                   `json:"name,omitempty"`
+	HostID           *string                                   `json:"hostID,omitempty"`
+	Status           *string                                   `json:"status,omitempty"`
+	ImageID          *string                                   `json:"imageID,omitempty"`
+	AvailabilityZone *string                                   `json:"availabilityZone,omitempty"`
+	ServerGroups     []string                                  `json:"serverGroups,omitempty"`
+	Volumes          []ServerVolumeStatusApplyConfiguration    `json:"volumes,omitempty"`
+	Interfaces       []ServerInterfaceStatusApplyConfiguration `json:"interfaces,omitempty"`
+	Tags             []string                                  `json:"tags,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
@@ -66,6 +67,14 @@ func (b *ServerResourceStatusApplyConfiguration) WithStatus(value string) *Serve
 // If called multiple times, the ImageID field is set to the value of the last call.
 func (b *ServerResourceStatusApplyConfiguration) WithImageID(value string) *ServerResourceStatusApplyConfiguration {
 	b.ImageID = &value
+	return b
+}
+
+// WithAvailabilityZone sets the AvailabilityZone field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AvailabilityZone field is set to the value of the last call.
+func (b *ServerResourceStatusApplyConfiguration) WithAvailabilityZone(value string) *ServerResourceStatusApplyConfiguration {
+	b.AvailabilityZone = &value
 	return b
 }
 

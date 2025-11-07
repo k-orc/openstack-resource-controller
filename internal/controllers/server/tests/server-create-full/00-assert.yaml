@@ -32,6 +32,7 @@ resourceRefs:
       ref: subnet
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.availabilityZone == 'nova'"
     - celExpr: "server.status.resource.imageID == image.status.id"
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "server.status.resource.volumes[0].id == volume.status.id"

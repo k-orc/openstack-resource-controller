@@ -43,6 +43,7 @@ spec:
     serverGroupRef: server-create-full
     volumes:
       - volumeRef: server-create-full
+    availabilityZone: nova
     tags:
       - tag1
       - tag2

@@ -6090,6 +6090,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref commo
 							Format:      "",
 						},
 					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -6812,6 +6819,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone in which to create the server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -6872,6 +6886,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 					"imageID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "imageID indicates the OS image used to deploy the server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone where the server is located.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
