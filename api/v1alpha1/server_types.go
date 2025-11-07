@@ -25,7 +25,7 @@ type FilterByServerTags struct {
 	// have all of the tags specified to be included in the result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:MaxItems:=50
 	Tags []ServerTag `json:"tags,omitempty"`
 
 	// tagsAny is a list of tags to filter by. If specified, the resource
@@ -33,21 +33,21 @@ type FilterByServerTags struct {
 	// result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:MaxItems:=50
 	TagsAny []ServerTag `json:"tagsAny,omitempty"`
 
 	// notTags is a list of tags to filter by. If specified, resources which
 	// contain all of the given tags will be excluded from the result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:MaxItems:=50
 	NotTags []ServerTag `json:"notTags,omitempty"`
 
 	// notTagsAny is a list of tags to filter by. If specified, resources
 	// which contain any of the given tags will be excluded from the result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:MaxItems:=50
 	NotTagsAny []ServerTag `json:"notTagsAny,omitempty"`
 }
 
@@ -171,7 +171,7 @@ type ServerResourceSpec struct {
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
 	// tags is a list of tags which will be applied to the server.
-	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:MaxItems:=50
 	// +listType=set
 	// +optional
 	Tags []ServerTag `json:"tags,omitempty"`
@@ -250,7 +250,7 @@ type ServerResourceStatus struct {
 	Interfaces []ServerInterfaceStatus `json:"interfaces,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:MaxItems:=50
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
