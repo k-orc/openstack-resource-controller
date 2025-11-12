@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    type: service-import-external
+    extra:
+      name: service-import-external
+      description: Service from "import" test case
