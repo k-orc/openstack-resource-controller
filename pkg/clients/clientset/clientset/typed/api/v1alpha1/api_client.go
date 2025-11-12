@@ -30,6 +30,7 @@ type OpenstackV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	FlavorsGetter
 	FloatingIPsGetter
+	HostAggregatesGetter
 	ImagesGetter
 	NetworksGetter
 	PortsGetter
@@ -55,6 +56,10 @@ func (c *OpenstackV1alpha1Client) Flavors(namespace string) FlavorInterface {
 
 func (c *OpenstackV1alpha1Client) FloatingIPs(namespace string) FloatingIPInterface {
 	return newFloatingIPs(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) HostAggregates(namespace string) HostAggregateInterface {
+	return newHostAggregates(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {

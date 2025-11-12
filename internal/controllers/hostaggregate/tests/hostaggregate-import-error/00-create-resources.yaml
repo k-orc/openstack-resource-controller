@@ -1,0 +1,22 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: HostAggregate
+metadata:
+  name: hostaggregate-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: HostAggregate
+metadata:
+  name: hostaggregate-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}

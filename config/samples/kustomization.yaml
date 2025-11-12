@@ -3,6 +3,7 @@
 resources:
 - openstack_v1alpha1_flavor.yaml
 - openstack_v1alpha1_floatingip.yaml
+- openstack_v1alpha1_hostaggregate.yaml
 - openstack_v1alpha1_image.yaml
 - openstack_v1alpha1_network.yaml
 - openstack_v1alpha1_port.yaml
