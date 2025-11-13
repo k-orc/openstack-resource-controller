@@ -1,6 +1,10 @@
 - color: '30ABB9'
   description: This PR will be backported to v1.0
   name: backport-v1.0
+- color: '30ABB9'
+  description: This PR targets v1.0
+  name: v1.0
+
 - color: 'BCF611'
   description: A good issue for first-time contributors
   name: good first issue
@@ -19,7 +23,6 @@
 - color: 'F9D0C4'
   description: Additional information requested
   name: needinfo
-
-- color: '30ABB9'
-  description: This PR targets v1.0
-  name: v1.0
+- color: 'C2E0C6'
+  description: Documentation
+  name: docs
