@@ -16,7 +16,8 @@ status:
   resource:
     name: domain-import-external-not-this-one
     description: Domain domain-import-external from "domain-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+
+
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain

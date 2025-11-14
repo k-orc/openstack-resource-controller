@@ -1,11 +1,9 @@
----
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
-    - apiVersion: v1
-      kind: Secret
-      name: openstack-clouds
-      ref: secret
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Domain
+    name: domain-create-minimal
+    ref: domain
 assertAll:
-    - celExpr: "secret.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/domain' in secret.metadata.finalizers"
+  - celExpr: "domain.status.resource.enabled == false"

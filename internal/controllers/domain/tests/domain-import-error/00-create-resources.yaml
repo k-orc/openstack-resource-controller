@@ -5,13 +5,13 @@ metadata:
   name: domain-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Domain from "import error" test
-    # TODO(scaffolding): add any required field
+    enabled: false
+    
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain
@@ -19,10 +19,11 @@ metadata:
   name: domain-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Domain from "import error" test
-    # TODO(scaffolding): add any required field
+    enabled: false
+    
+  

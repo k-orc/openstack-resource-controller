@@ -5,11 +5,10 @@ metadata:
   name: domain-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: domain-create-full-override
     description: Domain from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: false

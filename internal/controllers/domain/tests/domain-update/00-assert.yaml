@@ -16,7 +16,7 @@ metadata:
 status:
   resource:
     name: domain-update
-    # TODO(scaffolding): Add matches for more fields
+    enabled: true
   conditions:
   - type: Available
     status: "True"

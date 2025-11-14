@@ -7,7 +7,9 @@ resourceRefs:
       name: domain-update
       ref: domain
 assertAll:
+    - celExpr: "domain.status.id != ''"
     - celExpr: "!has(domain.status.resource.description)"
+
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain
@@ -16,7 +18,7 @@ metadata:
 status:
   resource:
     name: domain-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    enabled: true
   conditions:
   - type: Available
     status: "True"

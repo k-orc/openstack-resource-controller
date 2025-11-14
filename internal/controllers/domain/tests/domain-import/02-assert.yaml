@@ -30,4 +30,4 @@ status:
   resource:
     name: domain-import-external
     description: Domain domain-import-external from "domain-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    

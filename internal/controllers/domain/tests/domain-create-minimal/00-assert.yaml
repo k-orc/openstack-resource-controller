@@ -6,7 +6,6 @@ metadata:
 status:
   resource:
     name: domain-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +23,4 @@ resourceRefs:
       ref: domain
 assertAll:
     - celExpr: "domain.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(domain.status.resource.description)"

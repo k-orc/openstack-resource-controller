@@ -21,7 +21,7 @@ type DomainResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *KeystoneName `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
@@ -29,13 +29,10 @@ type DomainResourceSpec struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// enabled defines whether a domain is enabled or not. Default is true.
+	// Note: Users can only authorize against an enabled domain (and any of its projects).
+	// +optional
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // DomainFilter defines an existing resource by its properties
@@ -43,17 +40,12 @@ type DomainResourceSpec struct {
 type DomainFilter struct {
 	// name of the existing resource
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *KeystoneName `json:"name,omitempty"`
 
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// enabled defines whether a domain is enabled or not. Default is true.
+	// Note: Users can only authorize against an enabled domain (and any of its projects).
 	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // DomainResourceStatus represents the observed state of the resource.
@@ -68,7 +60,8 @@ type DomainResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Domain stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains
+	// enabled defines whether a domain is enabled or not. Default is true.
+	// Note: Users can only authorize against an enabled domain (and any of its projects).
+	// +optional
+	Enabled *bool `json:"enabled,omitempty"`
 }

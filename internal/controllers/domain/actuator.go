@@ -70,27 +70,18 @@ func (actuator domainActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := domains.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListDomains(ctx, listOpts), true
 }
 
 func (actuator domainActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 
 	listOpts := domains.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Name:    string(ptr.Deref(filter.Name, "")),
+		Enabled: filter.Enabled,
 	}
 
 	return actuator.osClient.ListDomains(ctx, listOpts), nil
@@ -107,7 +98,7 @@ func (actuator domainActuator) CreateResource(ctx context.Context, obj orcObject
 	createOpts := domains.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		Enabled:     resource.Enabled,
 	}
 
 	osResource, err := actuator.osClient.CreateDomain(ctx, createOpts)
@@ -139,8 +130,7 @@ func (actuator domainActuator) updateResource(ctx context.Context, obj orcObject
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleEnabledUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -183,7 +173,7 @@ func needsUpdate(updateOpts domains.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *domains.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.Name = name
 	}
 }
 
@@ -191,6 +181,13 @@ func handleDescriptionUpdate(updateOpts *domains.UpdateOpts, resource *resourceS
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleEnabledUpdate(updateOpts *domains.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	Enabled := ptr.Deref(resource.Enabled, true)
+	if osResource.Enabled != Enabled {
+		updateOpts.Enabled = &Enabled
 	}
 }
 

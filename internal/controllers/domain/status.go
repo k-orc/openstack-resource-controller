@@ -50,14 +50,11 @@ func (domainStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Domain,
 
 func (domainStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.DomainResourceStatus().
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the DomainResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithEnabled(osResource.Enabled)
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}
-
 	statusApply.WithResource(resourceStatus)
 }

@@ -7,4 +7,4 @@ spec:
   resource:
     name: domain-update-updated
     description: domain-update-updated
-    # TODO(scaffolding): update all mutable fields
+    enabled: false

@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   domains.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   domains.UpdateOpts{Name: "updated"},
 			expectChange: true,
 		},
 	}
@@ -53,10 +53,10 @@ func TestNeedsUpdate(t *testing.T) {
 }
 
 func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+	ptrToName := ptr.To[orcv1alpha1.KeystoneName]
 	testCases := []struct {
 		name          string
-		newValue      *orcv1alpha1.OpenStackName
+		newValue      *orcv1alpha1.KeystoneName
 		existingValue string
 		expectChange  bool
 	}{
@@ -115,5 +115,35 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			}
 		})
 
+	}
+}
+
+func TestHandleEnabledUpdate(t *testing.T) {
+	ptrToBool := ptr.To[bool]
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToBool(true), existingValue: true, expectChange: false},
+		{name: "Different", newValue: ptrToBool(true), existingValue: false, expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: false, expectChange: true},
+		{name: "No value provided, existing is default", newValue: nil, existingValue: true, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.DomainResourceSpec{Enabled: tt.newValue}
+			osResource := &domains.Domain{Enabled: tt.existingValue}
+
+			updateOpts := domains.UpdateOpts{}
+			handleEnabledUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
 	}
 }
