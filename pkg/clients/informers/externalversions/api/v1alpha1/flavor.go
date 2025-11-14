@@ -62,13 +62,25 @@ func NewFilteredFlavorInformer(client clientset.Interface, namespace string, res
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.OpenstackV1alpha1().Flavors(namespace).List(context.TODO(), options)
+				return client.OpenstackV1alpha1().Flavors(namespace).List(context.Background(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.OpenstackV1alpha1().Flavors(namespace).Watch(context.TODO(), options)
+				return client.OpenstackV1alpha1().Flavors(namespace).Watch(context.Background(), options)
+			},
+			ListWithContextFunc: func(ctx context.Context, options v1.ListOptions) (runtime.Object, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.OpenstackV1alpha1().Flavors(namespace).List(ctx, options)
+			},
+			WatchFuncWithContext: func(ctx context.Context, options v1.ListOptions) (watch.Interface, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.OpenstackV1alpha1().Flavors(namespace).Watch(ctx, options)
 			},
 		},
 		&v2apiv1alpha1.Flavor{},
