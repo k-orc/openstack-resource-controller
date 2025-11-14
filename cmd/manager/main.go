@@ -27,6 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/flavor"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/floatingip"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
@@ -116,6 +117,7 @@ func main() {
 		project.New(scopeFactory),
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
+		domain.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

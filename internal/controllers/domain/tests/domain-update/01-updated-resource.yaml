@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-update
+spec:
+  resource:
+    name: domain-update-updated
+    description: domain-update-updated
+    enabled: false

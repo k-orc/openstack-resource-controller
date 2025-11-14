@@ -19,6 +19,11 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: Domain is the Schema for an ORC resource.
+      displayName: Domain
+      kind: Domain
+      name: domains.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Flavor is the Schema for an ORC resource.
       displayName: Flavor
       kind: Flavor

@@ -10,6 +10,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 
 
 ### Resource Types
+- [Domain](#domain)
 - [Flavor](#flavor)
 - [FloatingIP](#floatingip)
 - [Image](#image)
@@ -158,6 +159,7 @@ CloudCredentialsReference is a reference to a secret containing OpenStack creden
 
 
 _Appears in:_
+- [DomainSpec](#domainspec)
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [ImageSpec](#imagespec)
@@ -192,6 +194,137 @@ _Validation:_
 _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 
+
+
+#### Domain
+
+
+
+Domain is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Domain` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[DomainSpec](#domainspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[DomainStatus](#domainstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### DomainFilter
+
+
+
+DomainFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [DomainImport](#domainimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[KeystoneName](#keystonename)_ | name of the existing resource |  | MaxLength: 64 <br />MinLength: 1 <br /> |
+| `enabled` _boolean_ | enabled defines whether a domain is enabled or not. Default is true.<br />Note: Users can only authorize against an enabled domain (and any of its projects). |  |  |
+
+
+#### DomainImport
+
+
+
+DomainImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [DomainSpec](#domainspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
+| `filter` _[DomainFilter](#domainfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### DomainResourceSpec
+
+
+
+DomainResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [DomainSpec](#domainspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[KeystoneName](#keystonename)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 64 <br />MinLength: 1 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `enabled` _boolean_ | enabled defines whether a domain is enabled or not. Default is true.<br />Note: Users can only authorize against an enabled domain (and any of its projects). |  |  |
+
+
+#### DomainResourceStatus
+
+
+
+DomainResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [DomainStatus](#domainstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `enabled` _boolean_ | enabled defines whether a domain is enabled or not. Default is true.<br />Note: Users can only authorize against an enabled domain (and any of its projects). |  |  |
+
+
+#### DomainSpec
+
+
+
+DomainSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Domain](#domain)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[DomainImport](#domainimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[DomainResourceSpec](#domainresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### DomainStatus
+
+
+
+DomainStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Domain](#domain)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[DomainResourceStatus](#domainresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Ethertype
@@ -1168,6 +1301,8 @@ _Validation:_
 - MinLength: 1
 
 _Appears in:_
+- [DomainFilter](#domainfilter)
+- [DomainResourceSpec](#domainresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
 
@@ -1263,6 +1398,7 @@ _Appears in:_
 
 
 _Appears in:_
+- [DomainSpec](#domainspec)
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [ImageSpec](#imagespec)
@@ -1292,6 +1428,7 @@ _Validation:_
 - Enum: [managed unmanaged]
 
 _Appears in:_
+- [DomainSpec](#domainspec)
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [ImageSpec](#imagespec)
