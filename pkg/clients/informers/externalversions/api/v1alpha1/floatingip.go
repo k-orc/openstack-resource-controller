@@ -62,13 +62,25 @@ func NewFilteredFloatingIPInformer(client clientset.Interface, namespace string,
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.OpenstackV1alpha1().FloatingIPs(namespace).List(context.TODO(), options)
+				return client.OpenstackV1alpha1().FloatingIPs(namespace).List(context.Background(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.OpenstackV1alpha1().FloatingIPs(namespace).Watch(context.TODO(), options)
+				return client.OpenstackV1alpha1().FloatingIPs(namespace).Watch(context.Background(), options)
+			},
+			ListWithContextFunc: func(ctx context.Context, options v1.ListOptions) (runtime.Object, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.OpenstackV1alpha1().FloatingIPs(namespace).List(ctx, options)
+			},
+			WatchFuncWithContext: func(ctx context.Context, options v1.ListOptions) (watch.Interface, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.OpenstackV1alpha1().FloatingIPs(namespace).Watch(ctx, options)
 			},
 		},
 		&v2apiv1alpha1.FloatingIP{},
