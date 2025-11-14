@@ -280,3 +280,20 @@ E2E_KUTTL_DIR=internal/controllers/subnet/tests E2E_KUTTL_TEST=import-dependency
 
 Tests other than the ones above, that cover the functionality specific to
 a single controller, should live in the controller's directory.
+
+## Unit tests
+
+For each controller, we have a file called `actuator_test.go`. It is highly
+recommended that you implement your tests and make them run as expected.
+
+You can run them with:
+
+```bash
+$ go test ./...
+```
+
+Or specifying the specific controller, for example:
+
+```bash
+$ go test ./internal/controller/subnet/...
+```
