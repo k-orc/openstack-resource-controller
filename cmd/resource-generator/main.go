@@ -142,6 +142,9 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "VolumeType",
 	},
+	{
+		Name: "Role",
+	},
 }
 
 // These resources won't be generated

@@ -80,7 +80,7 @@ kubectl delete -f $ORC_RELEASE
 | subnet                      |         |    ◐    |     ◐    |
 | volume                      |         |    ◐    |     ◐    |
 | volume type                 |         |    ◐    |     ◐    |
-
+| role                        |         |    ◐    |     ◐    |
 ✔: mostly implemented
 
 ◐: partially implemented

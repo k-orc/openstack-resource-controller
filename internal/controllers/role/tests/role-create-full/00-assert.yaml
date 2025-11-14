@@ -1,0 +1,8 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-create-full
+status:
+  resource:
+    name: role-create-full-override
