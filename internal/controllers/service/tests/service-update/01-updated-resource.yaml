@@ -7,4 +7,5 @@ spec:
   resource:
     name: service-update-updated
     description: service-update-updated
-    # TODO(scaffolding): update all mutable fields
+    enabled: false
+    type: service-update-updated

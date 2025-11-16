@@ -4,14 +4,20 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Service
-      name: service-import-external
+      name: service-import
       ref: service1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Service
-      name: service-import-external-not-this-one
+      name: service-import-external
       ref: service2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: service-import-external-not-this-one
+      ref: service3
 assertAll:
-    - celExpr: "service1.status.id != service2.status.id"
+    - celExpr: "service2.status.id != service3.status.id"
+    - celExpr: "service1.status.id == service2.status.id"
+    - celExpr: "service1.status.resource.name == service2.status.resource.name"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
@@ -29,5 +35,5 @@ status:
       reason: Success
   resource:
     name: service-import-external
-    description: Service service-import-external from "service-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    description: Service from "import" test case
+    type: service-import-external

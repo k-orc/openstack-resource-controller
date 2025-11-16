@@ -29,6 +29,7 @@ rules:
   - securitygroups
   - servergroups
   - servers
+  - services
   - subnets
   - volumes
   - volumetypes
@@ -55,6 +56,7 @@ rules:
   - securitygroups/status
   - servergroups/status
   - servers/status
+  - services/status
   - subnets/status
   - volumes/status
   - volumetypes/status

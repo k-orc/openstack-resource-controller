@@ -36,8 +36,8 @@ func TestNeedsUpdate(t *testing.T) {
 			expectChange: false,
 		},
 		{
-			name:         "Updated opts",
-			updateOpts:   services.UpdateOpts{Name: ptr.To("updated")},
+			name:         "Updated type opt",
+			updateOpts:   services.UpdateOpts{Type: "updated"},
 			expectChange: true,
 		},
 	}
@@ -52,68 +52,116 @@ func TestNeedsUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+func TestHandleTypeUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
-		newValue      *orcv1alpha1.OpenStackName
+		newValue      string
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
+		{name: "Identical", newValue: "service", existingValue: "service", expectChange: false},
+		{name: "Different", newValue: "new-service", existingValue: "service", expectChange: true},
+		{name: "No value provided, existing is set", newValue: "", existingValue: "service", expectChange: false},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.Service{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.ServiceSpec{
-				Resource: &orcv1alpha1.ServiceResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
+			resource := &orcv1alpha1.ServiceResourceSpec{Type: tt.newValue}
+			osResource := &osResourceT{Type: tt.existingValue}
 
 			updateOpts := services.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
+			handleTypeUpdate(&updateOpts, resource, osResource)
 
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
+			if got, _ := needsUpdate(updateOpts); got != tt.expectChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-
 	}
 }
 
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+func TestHandleEnabledUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptr.To(true), existingValue: true, expectChange: false},
+		{name: "Different", newValue: ptr.To(false), existingValue: true, expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: true, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.ServiceResourceSpec{Enabled: tt.newValue}
+			osResource := &osResourceT{Enabled: tt.existingValue}
+
+			updateOpts := services.UpdateOpts{}
+			handleEnabledUpdate(&updateOpts, resource, osResource)
+
+			if got, _ := needsUpdate(updateOpts); got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleNameUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
 		newValue      *string
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Identical", newValue: ptr.To("same-name"), existingValue: "same-name", expectChange: false},
+		{name: "Different", newValue: ptr.To("new-name"), existingValue: "same-name", expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "service-name", expectChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.ServiceResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			obj := &orcv1alpha1.Service{Spec: orcv1alpha1.ServiceSpec{
+				Resource: &orcv1alpha1.ServiceResourceSpec{
+					Name: (*orcv1alpha1.OpenStackName)(tt.newValue)},
+			},
+			}
+			osResource := &osResourceT{Extra: map[string]any{"name": tt.existingValue}}
 
-			updateOpts := services.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			updateOpts := services.UpdateOpts{Extra: make(map[string]any)}
+			handleNameUpdate(&updateOpts, obj, osResource)
 
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
+			if got, _ := needsUpdate(updateOpts); got != tt.expectChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
+	}
+}
 
+func TestHandleDescriptionUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      *string
+		existingValue string
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptr.To("same-description"), existingValue: "same-description", expectChange: false},
+		{name: "Different", newValue: ptr.To("new-description"), existingValue: "same-description", expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "description", expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.ServiceResourceSpec{
+				Description: tt.newValue,
+			}
+			osResource := &osResourceT{Extra: map[string]any{"description": tt.existingValue}}
+
+			updateOpts := services.UpdateOpts{Extra: make(map[string]any)}
+			handleDescriptionUpdate(&updateOpts, resource, osResource)
+
+			if got, _ := needsUpdate(updateOpts); got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
 	}
 }

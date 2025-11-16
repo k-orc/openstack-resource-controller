@@ -50,13 +50,12 @@ func (serviceStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Servic
 
 func (serviceStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.ServiceResourceStatus().
-		WithName(osResource.Name)
+		WithEnabled(osResource.Enabled).
+		WithType(osResource.Type).
+		WithName(osResource.Extra["name"].(string))
 
-	// TODO(scaffolding): add all of the fields supported in the ServiceResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+	if description, ok := osResource.Extra["description"]; ok && description != nil {
+		resourceStatus.WithDescription(description.(string))
 	}
 
 	statusApply.WithResource(resourceStatus)

@@ -5,8 +5,9 @@ metadata:
   name: service-create-minimal
 status:
   resource:
-    name: service-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    name: "service-create-minimal"
+    type: "service"
+    enabled: true
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +25,4 @@ resourceRefs:
       ref: service
 assertAll:
     - celExpr: "service.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(service.status.resource.description)"

@@ -40,6 +40,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/securitygroup"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/server"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/servergroup"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/service"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volumetype"
@@ -118,6 +119,7 @@ func main() {
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
 		domain.New(scopeFactory),
+		service.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

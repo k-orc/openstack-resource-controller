@@ -41,6 +41,7 @@ type MockScopeFactory struct {
 	VolumeClient     *mock.MockVolumeClient
 	VolumeTypeClient *mock.MockVolumeTypeClient
 	DomainClient     *mock.MockDomainClient
+	ServiceClient    *mock.MockServiceClient
 
 	clientScopeCreateError error
 }
@@ -53,6 +54,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 	domainClient := mock.NewMockDomainClient(mockCtrl)
+	serviceClient := mock.NewMockServiceClient(mockCtrl)
 
 	return &MockScopeFactory{
 		ComputeClient:    computeClient,
@@ -62,6 +64,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		VolumeClient:     volumeClient,
 		VolumeTypeClient: volumetypeClient,
 		DomainClient:     domainClient,
+		ServiceClient:    serviceClient,
 	}
 }
 
@@ -102,6 +105,10 @@ func (f *MockScopeFactory) NewVolumeTypeClient() (osclients.VolumeTypeClient, er
 
 func (f *MockScopeFactory) NewDomainClient() (osclients.DomainClient, error) {
 	return f.DomainClient, nil
+}
+
+func (f *MockScopeFactory) NewServiceClient() (osclients.ServiceClient, error) {
+	return f.ServiceClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

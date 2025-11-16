@@ -70,27 +70,18 @@ func (actuator serviceActuator) ListOSResourcesForAdoption(ctx context.Context, 
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := services.ListOpts{
 		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		ServiceType: resourceSpec.Type,
 	}
 
 	return actuator.osClient.ListServices(ctx, listOpts), true
 }
 
 func (actuator serviceActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := services.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		ServiceType: ptr.Deref(filter.Type, ""),
 	}
 
 	return actuator.osClient.ListServices(ctx, listOpts), nil
@@ -104,10 +95,16 @@ func (actuator serviceActuator) CreateResource(ctx context.Context, obj orcObjec
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
+	extra := map[string]any{
+		"name":        getResourceName(obj),
+		"description": resource.Description,
+	}
+
 	createOpts := services.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		Type:    resource.Type,
+		Enabled: resource.Enabled,
+		Extra:   extra,
 	}
 
 	osResource, err := actuator.osClient.CreateService(ctx, createOpts)
@@ -135,12 +132,12 @@ func (actuator serviceActuator) updateResource(ctx context.Context, obj orcObjec
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	updateOpts := services.UpdateOpts{}
+	updateOpts := services.UpdateOpts{Extra: make(map[string]any)}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleTypeUpdate(&updateOpts, resource, osResource)
+	handleEnabledUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -151,6 +148,11 @@ func (actuator serviceActuator) updateResource(ctx context.Context, obj orcObjec
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
+
+	// NOTE(winiciusallan): we need to add Type before every update to avoid
+	// gophercloud create UpdateOpts with type as empty value. for more
+	// information https://github.com/gophercloud/gophercloud/issues/3553
+	updateOpts.Type = resource.Type
 
 	_, err = actuator.osClient.UpdateService(ctx, osResource.ID, updateOpts)
 
@@ -177,20 +179,48 @@ func needsUpdate(updateOpts services.UpdateOpts) (bool, error) {
 		updateMap = make(map[string]any)
 	}
 
+	if serviceType, ok := updateMap["type"]; ok && serviceType == "" {
+		delete(updateMap, "type")
+	}
+
 	return len(updateMap) > 0, nil
 }
 
 func handleNameUpdate(updateOpts *services.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
+	if osResource.Extra["name"] != "" {
+		if osResource.Extra["name"] != name {
+			updateOpts.Extra["name"] = name
+		}
 	}
 }
 
 func handleDescriptionUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+	curr, ok := osResource.Extra["description"]
+
+	if resource.Description == nil {
+		if curr == nil {
+			return
+		}
+		updateOpts.Extra["description"] = nil
+		return
+	}
+
+	if !ok || curr != *resource.Description {
+		updateOpts.Extra["description"] = *resource.Description
+	}
+}
+
+func handleTypeUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if osResource.Type != resource.Type {
+		updateOpts.Type = resource.Type
+	}
+}
+
+func handleEnabledUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	enabled := ptr.Deref(resource.Enabled, true)
+	if osResource.Enabled != enabled {
+		updateOpts.Enabled = &enabled
 	}
 }
 
