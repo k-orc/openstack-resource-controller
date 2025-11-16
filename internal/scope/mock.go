@@ -35,6 +35,7 @@ import (
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
 	ComputeClient    *mock.MockComputeClient
+	KeyPairClient    osclients.KeyPairClient
 	NetworkClient    *mock.MockNetworkClient
 	ImageClient      *mock.MockImageClient
 	IdentityClient   *mock.MockIdentityClient
@@ -109,6 +110,10 @@ func (f *MockScopeFactory) NewDomainClient() (osclients.DomainClient, error) {
 
 func (f *MockScopeFactory) NewServiceClient() (osclients.ServiceClient, error) {
 	return f.ServiceClient, nil
+}
+
+func (f *MockScopeFactory) NewKeyPairClient() (osclients.KeyPairClient, error) {
+	return f.KeyPairClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

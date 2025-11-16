@@ -70,6 +70,7 @@ kubectl delete -f $ORC_RELEASE
 | flavor                      |         |    ✔    |     ✔    |
 | floating ip                 |         |    ◐    |     ◐    |
 | image                       |    ✔    |    ✔    |     ✔    |
+| keypair                     |         |    ◐    |     ◐    |
 | network                     |         |    ◐    |     ◐    |
 | port                        |         |    ◐    |     ◐    |
 | project                     |         |    ◐    |     ◐    |

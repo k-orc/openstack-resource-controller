@@ -23,37 +23,25 @@ type KeyPairResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// type specifies the type of the Keypair. Allowed values are ssh or x509.
+	// If not specified, defaults to ssh.
+	// +kubebuilder:validation:Enum=ssh;x509
 	// +optional
-	Description *string `json:"description,omitempty"`
+	Type *string `json:"type,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// publicKey is the public key to import.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=16384
+	// +required
+	PublicKey string `json:"publicKey,omitempty"`
 }
 
 // KeyPairFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type KeyPairFilter struct {
-	// name of the existing resource
+	// name of the existing Keypair
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs
 }
 
 // KeyPairResourceStatus represents the observed state of the resource.
@@ -63,12 +51,18 @@ type KeyPairResourceStatus struct {
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
+	// fingerprint is the fingerprint of the public key
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Fingerprint string `json:"fingerprint,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the KeyPair structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs
+	// publicKey is the public key of the Keypair
+	// +kubebuilder:validation:MaxLength=16384
+	// +optional
+	PublicKey string `json:"publicKey,omitempty"`
+
+	// type is the type of the Keypair (ssh or x509)
+	// +kubebuilder:validation:MaxLength=64
+	// +optional
+	Type string `json:"type,omitempty"`
 }

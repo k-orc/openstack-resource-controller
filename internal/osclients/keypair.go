@@ -30,9 +30,8 @@ import (
 type KeyPairClient interface {
 	ListKeyPairs(ctx context.Context, listOpts keypairs.ListOptsBuilder) iter.Seq2[*keypairs.KeyPair, error]
 	CreateKeyPair(ctx context.Context, opts keypairs.CreateOptsBuilder) (*keypairs.KeyPair, error)
-	DeleteKeyPair(ctx context.Context, resourceID string) error
-	GetKeyPair(ctx context.Context, resourceID string) (*keypairs.KeyPair, error)
-	UpdateKeyPair(ctx context.Context, id string, opts keypairs.UpdateOptsBuilder) (*keypairs.KeyPair, error)
+	DeleteKeyPair(ctx context.Context, name string) error
+	GetKeyPair(ctx context.Context, name string) (*keypairs.KeyPair, error)
 }
 
 type keypairClient struct{ client *gophercloud.ServiceClient }
@@ -47,6 +46,7 @@ func NewKeyPairClient(providerClient *gophercloud.ProviderClient, providerClient
 	if err != nil {
 		return nil, fmt.Errorf("failed to create keypair service client: %v", err)
 	}
+	client.Microversion = NovaMinimumMicroversion
 
 	return &keypairClient{client}, nil
 }
@@ -62,16 +62,12 @@ func (c keypairClient) CreateKeyPair(ctx context.Context, opts keypairs.CreateOp
 	return keypairs.Create(ctx, c.client, opts).Extract()
 }
 
-func (c keypairClient) DeleteKeyPair(ctx context.Context, resourceID string) error {
-	return keypairs.Delete(ctx, c.client, resourceID).ExtractErr()
+func (c keypairClient) DeleteKeyPair(ctx context.Context, name string) error {
+	return keypairs.Delete(ctx, c.client, name, nil).ExtractErr()
 }
 
-func (c keypairClient) GetKeyPair(ctx context.Context, resourceID string) (*keypairs.KeyPair, error) {
-	return keypairs.Get(ctx, c.client, resourceID).Extract()
-}
-
-func (c keypairClient) UpdateKeyPair(ctx context.Context, id string, opts keypairs.UpdateOptsBuilder) (*keypairs.KeyPair, error) {
-	return keypairs.Update(ctx, c.client, id, opts).Extract()
+func (c keypairClient) GetKeyPair(ctx context.Context, name string) (*keypairs.KeyPair, error) {
+	return keypairs.Get(ctx, c.client, name, nil).Extract()
 }
 
 type keypairErrorClient struct{ error }
@@ -96,9 +92,5 @@ func (e keypairErrorClient) DeleteKeyPair(_ context.Context, _ string) error {
 }
 
 func (e keypairErrorClient) GetKeyPair(_ context.Context, _ string) (*keypairs.KeyPair, error) {
-	return nil, e.error
-}
-
-func (e keypairErrorClient) UpdateKeyPair(_ context.Context, _ string, _ keypairs.UpdateOptsBuilder) (*keypairs.KeyPair, error) {
 	return nil, e.error
 }

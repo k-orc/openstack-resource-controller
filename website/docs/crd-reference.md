@@ -14,6 +14,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Flavor](#flavor)
 - [FloatingIP](#floatingip)
 - [Image](#image)
+- [KeyPair](#keypair)
 - [Network](#network)
 - [Port](#port)
 - [Project](#project)
@@ -164,6 +165,7 @@ _Appears in:_
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [ImageSpec](#imagespec)
+- [KeyPairSpec](#keypairspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -1292,6 +1294,137 @@ _Appears in:_
 | `community` |  |
 
 
+#### KeyPair
+
+
+
+KeyPair is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `KeyPair` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[KeyPairSpec](#keypairspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[KeyPairStatus](#keypairstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### KeyPairFilter
+
+
+
+KeyPairFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [KeyPairImport](#keypairimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing Keypair |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+
+
+#### KeyPairImport
+
+
+
+KeyPairImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [KeyPairSpec](#keypairspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the name of an existing resource. Note: This resource uses<br />the resource name as the unique identifier, not a UUID.<br />When specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  |  |
+| `filter` _[KeyPairFilter](#keypairfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### KeyPairResourceSpec
+
+
+
+KeyPairResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [KeyPairSpec](#keypairspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `type` _string_ | type specifies the type of the Keypair. Allowed values are ssh or x509.<br />If not specified, defaults to ssh. |  | Enum: [ssh x509] <br /> |
+| `publicKey` _string_ | publicKey is the public key to import. |  | MaxLength: 16384 <br />MinLength: 1 <br /> |
+
+
+#### KeyPairResourceStatus
+
+
+
+KeyPairResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [KeyPairStatus](#keypairstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `fingerprint` _string_ | fingerprint is the fingerprint of the public key |  | MaxLength: 1024 <br /> |
+| `publicKey` _string_ | publicKey is the public key of the Keypair |  | MaxLength: 16384 <br /> |
+| `type` _string_ | type is the type of the Keypair (ssh or x509) |  | MaxLength: 64 <br /> |
+
+
+#### KeyPairSpec
+
+
+
+KeyPairSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [KeyPair](#keypair)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[KeyPairImport](#keypairimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[KeyPairResourceSpec](#keypairresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### KeyPairStatus
+
+
+
+KeyPairStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [KeyPair](#keypair)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[KeyPairResourceStatus](#keypairresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
 #### KeystoneName
 
 _Underlying type:_ _string_
@@ -1404,6 +1537,7 @@ _Appears in:_
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [ImageSpec](#imagespec)
+- [KeyPairSpec](#keypairspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -1435,6 +1569,7 @@ _Appears in:_
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [ImageSpec](#imagespec)
+- [KeyPairSpec](#keypairspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -1725,6 +1860,8 @@ _Appears in:_
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)
 - [ImageResourceSpec](#imageresourcespec)
+- [KeyPairFilter](#keypairfilter)
+- [KeyPairResourceSpec](#keypairresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)

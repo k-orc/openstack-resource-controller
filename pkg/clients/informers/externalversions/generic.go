@@ -61,6 +61,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().FloatingIPs().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("images"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Images().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("keypairs"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().KeyPairs().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("networks"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Networks().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("ports"):

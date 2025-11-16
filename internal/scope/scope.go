@@ -57,6 +57,7 @@ type Scope interface {
 	NewDomainClient() (osclients.DomainClient, error)
 	NewServiceClient() (osclients.ServiceClient, error)
 	ExtractToken() (*tokens.Token, error)
+	NewKeyPairClient() (osclients.KeyPairClient, error)
 }
 
 // WithLogger extends Scope with a logger.

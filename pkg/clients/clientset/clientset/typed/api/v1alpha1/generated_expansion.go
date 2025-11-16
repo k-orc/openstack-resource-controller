@@ -26,6 +26,8 @@ type FloatingIPExpansion interface{}
 
 type ImageExpansion interface{}
 
+type KeyPairExpansion interface{}
+
 type NetworkExpansion interface{}
 
 type PortExpansion interface{}

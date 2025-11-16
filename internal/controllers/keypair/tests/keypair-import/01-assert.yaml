@@ -14,9 +14,9 @@ status:
       status: "False"
       reason: Success
   resource:
+    # This is a different keypair with a similar name
     name: keypair-import-external-not-this-one
-    description: KeyPair keypair-import-external from "keypair-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    type: ssh
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: KeyPair
