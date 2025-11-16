@@ -50,6 +50,14 @@ type ImageListerExpansion interface{}
 // ImageNamespaceLister.
 type ImageNamespaceListerExpansion interface{}
 
+// KeyPairListerExpansion allows custom methods to be added to
+// KeyPairLister.
+type KeyPairListerExpansion interface{}
+
+// KeyPairNamespaceListerExpansion allows custom methods to be added to
+// KeyPairNamespaceLister.
+type KeyPairNamespaceListerExpansion interface{}
+
 // NetworkListerExpansion allows custom methods to be added to
 // NetworkLister.
 type NetworkListerExpansion interface{}

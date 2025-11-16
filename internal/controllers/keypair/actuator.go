@@ -22,6 +22,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -29,8 +30,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
@@ -44,20 +44,34 @@ type (
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
+type KeyPairClient interface {
+	GetKeyPair(context.Context, string, string) (*osResourceT, error)
+	ListKeyPairs(context.Context, keypairs.ListOptsBuilder) iter.Seq2[*osResourceT, error]
+	CreateKeyPair(context.Context, keypairs.CreateOptsBuilder) (*osResourceT, error)
+	DeleteKeyPair(context.Context, string, string) error
+}
+
 type keypairActuator struct {
-	osClient  osclients.KeyPairClient
+	osClient  KeyPairClient
 	k8sClient client.Client
 }
 
 var _ createResourceActuator = keypairActuator{}
 var _ deleteResourceActuator = keypairActuator{}
 
-func (keypairActuator) GetResourceID(osResource *osResourceT) string {
-	return osResource.ID
+func (keypairActuator) GetResourceID(osResource *keypairs.KeyPair) string {
+	return osResource.Name
 }
 
-func (actuator keypairActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetKeyPair(ctx, id)
+func (actuator keypairActuator) GetOSResourceByID(ctx context.Context, name string) (*osResourceT, progress.ReconcileStatus) {
+	// For Keypairs, ID is the name
+	// Note: We pass empty userID here, which means we get the keypair for the authenticated user.
+	// This works for most cases. For admin users managing keypairs for other users,
+	// the userID would need to be extracted from the ORC object, but GetOSResourceByID
+	// interface only provides the ID. This is a known limitation - admin users should
+	// use import by filter instead of import by ID when managing keypairs for other users.
+	userID := ""
+	resource, err := actuator.osClient.GetKeyPair(ctx, name, userID)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
@@ -70,30 +84,42 @@ func (actuator keypairActuator) ListOSResourcesForAdoption(ctx context.Context, 
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	// Filter by the expected resource name to avoid adopting wrong keypairs.
+	// The OpenStack Keypairs API only supports filtering by userID server-side,
+	// so we must use client-side filtering for the name.
+	var filters []osclients.ResourceFilter[osResourceT]
+	filters = append(filters, func(kp *keypairs.KeyPair) bool {
+		return kp.Name == getResourceName(orcObject)
+	})
 
 	listOpts := keypairs.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		UserID: ptr.Deref(resourceSpec.UserID, ""),
 	}
 
-	return actuator.osClient.ListKeyPairs(ctx, listOpts), true
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator keypairActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	// The OpenStack Keypairs API only supports filtering by userID server-side.
+	// Client-side filtering is required for the name field.
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := keypairs.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	if filter.Name != nil {
+		filters = append(filters, func(kp *keypairs.KeyPair) bool {
+			return kp.Name == string(*filter.Name)
+		})
 	}
 
-	return actuator.osClient.ListKeyPairs(ctx, listOpts), nil
+	listOpts := keypairs.ListOpts{
+		UserID: ptr.Deref(filter.UserID, ""),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator keypairActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts keypairs.ListOptsBuilder) iter.Seq2[*osResourceT, error] {
+	keypairs := actuator.osClient.ListKeyPairs(ctx, listOpts)
+	return osclients.Filter(keypairs, filters...)
 }
 
 func (actuator keypairActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -104,121 +130,130 @@ func (actuator keypairActuator) CreateResource(ctx context.Context, obj orcObjec
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
-	var reconcileStatus progress.ReconcileStatus
 
-	var projectID string
-        project, projectDepRS := projectDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
-        if project != nil {
-                projectID = ptr.Deref(project.Status.ID, "")
-        }
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
-		return nil, reconcileStatus
+	// Validate configuration
+	if resource.PublicKey == nil && resource.PrivateKeySecretRef == nil {
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"Either publicKey (for import) or privateKeySecretRef (for generation) must be specified"))
 	}
+
 	createOpts := keypairs.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		ProjectID:  projectID,
-		// TODO(scaffolding): Add more fields
+		Name:   getResourceName(obj),
+		Type:   ptr.Deref(resource.Type, "ssh"),
+		UserID: ptr.Deref(resource.UserID, ""),
+	}
+
+	// If publicKey is provided, import it
+	if resource.PublicKey != nil {
+		createOpts.PublicKey = *resource.PublicKey
 	}
 
 	osResource, err := actuator.osClient.CreateKeyPair(ctx, createOpts)
 	if err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
 		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"invalid configuration creating Keypair: "+err.Error(), err)
 		}
 		return nil, progress.WrapError(err)
+	}
+
+	// If we generated a new Keypair (no public key provided), we MUST store the private key
+	// The private key is only available during creation and cannot be retrieved later
+	if resource.PublicKey == nil && osResource.PrivateKey != "" {
+		if err := actuator.storePrivateKey(ctx, obj, osResource.PrivateKey); err != nil {
+			log := ctrl.LoggerFrom(ctx)
+			log.Error(err, "Failed to store generated private key, deleting orphaned keypair to prevent unusable resource")
+
+			// Clean up the keypair since we can't store its private key
+			// Without the private key, this keypair is useless
+			userID := ptr.Deref(resource.UserID, "")
+			deleteErr := actuator.osClient.DeleteKeyPair(ctx, osResource.Name, userID)
+			if deleteErr != nil {
+				log.Error(deleteErr, "Failed to delete orphaned keypair after secret creation failure - manual cleanup may be required", "keypairName", osResource.Name)
+			}
+
+			// Return a terminal error - the user needs to fix the secret permissions/configuration
+			return nil, progress.WrapError(
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError,
+					"failed to store generated private key in secret "+resource.PrivateKeySecretRef.Name+": "+err.Error()+". The keypair was deleted to prevent orphaned resources. Please ensure the controller has permission to create/update secrets in this namespace and retry."))
+		}
 	}
 
 	return osResource, nil
 }
 
-func (actuator keypairActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteKeyPair(ctx, resource.ID))
-}
-
-func (actuator keypairActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+func (actuator keypairActuator) storePrivateKey(ctx context.Context, obj orcObjectPT, privateKey string) error {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+
+	if resource.PrivateKeySecretRef == nil {
+		return orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+			"privateKeySecretRef not specified but private key needs to be stored")
 	}
 
-	updateOpts := keypairs.UpdateOpts{}
+	secretName := resource.PrivateKeySecretRef.Name
+	secretKey := ptr.Deref(resource.PrivateKeySecretRef.Key, "private_key")
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
-	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: obj.Namespace,
+		},
+		StringData: map[string]string{
+			secretKey: privateKey,
+		},
+		Type: corev1.SecretTypeOpaque,
 	}
 
-	_, err = actuator.osClient.UpdateKeyPair(ctx, osResource.ID, updateOpts)
-
-	// We should require the spec to be updated before retrying an update which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	// Set owner reference so secret is deleted with Keypair
+	if err := ctrl.SetControllerReference(obj, secret, actuator.k8sClient.Scheme()); err != nil {
+		return err
 	}
 
-	if err != nil {
-		return progress.WrapError(err)
+	// Create or update the secret
+	existing := &corev1.Secret{}
+	err := actuator.k8sClient.Get(ctx, client.ObjectKey{
+		Name:      secretName,
+		Namespace: obj.Namespace,
+	}, existing)
+
+	if err == nil {
+		// Secret exists, update it
+		// Note: StringData is write-only, so we must update Data (bytes) instead
+		if existing.Data == nil {
+			existing.Data = make(map[string][]byte)
+		}
+		existing.Data[secretKey] = []byte(privateKey)
+		if err := actuator.k8sClient.Update(ctx, existing); err != nil {
+			return err
+		}
+		log.Info("Updated private key secret", "secret", secretName)
+	} else {
+		// Secret doesn't exist, create it
+		if err := actuator.k8sClient.Create(ctx, secret); err != nil {
+			return err
+		}
+		log.Info("Created private key secret", "secret", secretName)
 	}
 
-	return progress.NeedsRefresh()
+	return nil
 }
 
-func needsUpdate(updateOpts keypairs.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToKeyPairUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["keypair"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *keypairs.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *keypairs.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
+func (actuator keypairActuator) DeleteResource(ctx context.Context, _ orcObjectPT, Keypair *osResourceT) progress.ReconcileStatus {
+	// Use the userID from the OpenStack resource itself.
+	// If empty, OpenStack will use the authenticated user.
+	return progress.WrapError(actuator.osClient.DeleteKeyPair(ctx, Keypair.Name, Keypair.UserID))
 }
 
 func (actuator keypairActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
+	// Keypairs are immutable - no update reconcilers needed
+	return []resourceReconciler{}, nil
 }
 
-type keypairHelperFactory struct{}
+type KeypairHelperFactory struct{}
 
-var _ helperFactory = keypairHelperFactory{}
+var _ helperFactory = KeypairHelperFactory{}
 
 func newActuator(ctx context.Context, orcObject *orcv1alpha1.KeyPair, controller interfaces.ResourceController) (keypairActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
@@ -233,7 +268,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.KeyPair, controller
 	if err != nil {
 		return keypairActuator{}, progress.WrapError(err)
 	}
-	osClient, err := clientScope.NewKeyPairClient()
+	osClient, err := clientScope.NewComputeClient()
 	if err != nil {
 		return keypairActuator{}, progress.WrapError(err)
 	}
@@ -244,14 +279,14 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.KeyPair, controller
 	}, nil
 }
 
-func (keypairHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
+func (KeypairHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return keypairAdapter{obj}
 }
 
-func (keypairHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+func (KeypairHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }
 
-func (keypairHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+func (KeypairHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }

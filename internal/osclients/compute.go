@@ -26,6 +26,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/availabilityzones"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/tags"
@@ -72,6 +73,11 @@ type ComputeClient interface {
 	DeleteAttachedInterface(ctx context.Context, serverID, portID string) error
 
 	ReplaceAllServerAttributesTags(ctx context.Context, resourceID string, opts tags.ReplaceAllOptsBuilder) ([]string, error)
+
+	CreateKeyPair(ctx context.Context, opts keypairs.CreateOptsBuilder) (*keypairs.KeyPair, error)
+	GetKeyPair(ctx context.Context, name, userID string) (*keypairs.KeyPair, error)
+	DeleteKeyPair(ctx context.Context, name string, userID string) error
+	ListKeyPairs(ctx context.Context, opts keypairs.ListOptsBuilder) iter.Seq2[*keypairs.KeyPair, error]
 }
 
 type computeClient struct{ client *gophercloud.ServiceClient }
@@ -187,6 +193,25 @@ func (c computeClient) ReplaceAllServerAttributesTags(ctx context.Context, resou
 	return tags.ReplaceAll(ctx, c.client, resourceID, opts).Extract()
 }
 
+func (c computeClient) CreateKeyPair(ctx context.Context, opts keypairs.CreateOptsBuilder) (*keypairs.KeyPair, error) {
+	return keypairs.Create(ctx, c.client, opts).Extract()
+}
+
+func (c computeClient) GetKeyPair(ctx context.Context, name string, userID string) (*keypairs.KeyPair, error) {
+	return keypairs.Get(ctx, c.client, name, keypairs.GetOpts{UserID: userID}).Extract()
+}
+
+func (c computeClient) DeleteKeyPair(ctx context.Context, name string, userID string) error {
+	return keypairs.Delete(ctx, c.client, name, keypairs.DeleteOpts{UserID: userID}).ExtractErr()
+}
+
+func (c computeClient) ListKeyPairs(ctx context.Context, opts keypairs.ListOptsBuilder) iter.Seq2[*keypairs.KeyPair, error] {
+	pager := keypairs.List(c.client, opts)
+	return func(yield func(*keypairs.KeyPair, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(keypairs.ExtractKeyPairs, yield))
+	}
+}
+
 type computeErrorClient struct{ error }
 
 // NewComputeErrorClient returns a ComputeClient in which every method returns the given error.
@@ -274,4 +299,22 @@ func (e computeErrorClient) DeleteAttachedInterface(_ context.Context, _, _ stri
 
 func (e computeErrorClient) ReplaceAllServerAttributesTags(_ context.Context, _ string, _ tags.ReplaceAllOptsBuilder) ([]string, error) {
 	return nil, e.error
+}
+
+func (e computeErrorClient) CreateKeyPair(_ context.Context, _ keypairs.CreateOptsBuilder) (*keypairs.KeyPair, error) {
+	return nil, e.error
+}
+
+func (e computeErrorClient) GetKeyPair(_ context.Context, _ string, _ string) (*keypairs.KeyPair, error) {
+	return nil, e.error
+}
+
+func (e computeErrorClient) DeleteKeyPair(_ context.Context, _ string, _ string) error {
+	return e.error
+}
+
+func (e computeErrorClient) ListKeyPairs(_ context.Context, _ keypairs.ListOptsBuilder) iter.Seq2[*keypairs.KeyPair, error] {
+	return func(yield func(*keypairs.KeyPair, error) bool) {
+		yield(nil, e.error)
+	}
 }

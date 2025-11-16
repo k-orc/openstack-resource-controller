@@ -5,9 +5,13 @@ metadata:
   name: keypair-create-full
 status:
   resource:
+    # Verify the custom name was used
     name: keypair-create-full-override
-    description: KeyPair from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    # Type should be ssh as specified
+    type: ssh
+    # These fields should be populated by OpenStack
+    # fingerprint: (dynamically generated)
+    # publicKey: (dynamically generated)
   conditions:
   - type: Available
     status: "True"
@@ -23,11 +27,33 @@ resourceRefs:
       kind: KeyPair
       name: keypair-create-full
       ref: keypair
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: keypair-create-full
-      ref: project
 assertAll:
+    # Verify ID is set
     - celExpr: "keypair.status.id != ''"
-    - celExpr: "keypair.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks
+    # Verify name override worked
+    - celExpr: "keypair.status.resource.name == 'keypair-create-full-override'"
+    # Verify type is set
+    - celExpr: "keypair.status.resource.type == 'ssh'"
+    # Verify fingerprint is populated
+    - celExpr: "keypair.status.resource.fingerprint != ''"
+    # Verify public key is populated
+    - celExpr: "keypair.status.resource.publicKey != ''"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keypair-create-full-private-key
+type: Opaque
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: v1
+      kind: Secret
+      name: keypair-create-full-private-key
+      ref: secret
+assertAll:
+    # Verify the private key secret was created
+    - celExpr: "secret.data.private_key != null"
+    # Verify private key is not empty
+    - celExpr: "size(secret.data.private_key) > 0"

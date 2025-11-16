@@ -10,4 +10,6 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: KeyPair from "import error" test
+      # Use empty string for userID to match all keypairs for the authenticated user
+      # This should match both keypair-import-error-1 and keypair-import-error-2
+      userID: ""

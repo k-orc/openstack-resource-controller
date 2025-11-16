@@ -9,6 +9,7 @@ rules:
   resources:
   - secrets
   verbs:
+  - create
   - get
   - list
   - patch
@@ -17,6 +18,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - Keypairs
   - domains
   - flavors
   - floatingips
@@ -43,6 +45,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - Keypairs/status
   - domains/status
   - flavors/status
   - floatingips/status

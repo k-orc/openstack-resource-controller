@@ -132,6 +132,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ImageStatusExtraApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("IPv6Options"):
 		return &apiv1alpha1.IPv6OptionsApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPair"):
+		return &apiv1alpha1.KeyPairApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairFilter"):
+		return &apiv1alpha1.KeyPairFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairImport"):
+		return &apiv1alpha1.KeyPairImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairResourceSpec"):
+		return &apiv1alpha1.KeyPairResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairResourceStatus"):
+		return &apiv1alpha1.KeyPairResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairSpec"):
+		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
+		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ManagedOptions"):
 		return &apiv1alpha1.ManagedOptionsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Network"):
@@ -204,6 +218,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.RouterSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RouterStatus"):
 		return &apiv1alpha1.RouterStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SecretReference"):
+		return &apiv1alpha1.SecretReferenceApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SecurityGroup"):
 		return &apiv1alpha1.SecurityGroupApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SecurityGroupFilter"):

@@ -44,6 +44,10 @@ func (c *FakeOpenstackV1alpha1) Images(namespace string) v1alpha1.ImageInterface
 	return newFakeImages(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) KeyPairs(namespace string) v1alpha1.KeyPairInterface {
+	return newFakeKeyPairs(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Networks(namespace string) v1alpha1.NetworkInterface {
 	return newFakeNetworks(c, namespace)
 }

@@ -11,6 +11,7 @@ resourceRefs:
       name: keypair-import-external-not-this-one
       ref: keypair2
 assertAll:
+    # Verify they have different IDs
     - celExpr: "keypair1.status.id != keypair2.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -28,6 +29,6 @@ status:
       status: "False"
       reason: Success
   resource:
+    # Imported keypair should have this name
     name: keypair-import-external
-    description: KeyPair keypair-import-external from "keypair-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    type: ssh

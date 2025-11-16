@@ -5,8 +5,10 @@ metadata:
   name: keypair-create-minimal
 status:
   resource:
+    # Name should default to object name
     name: keypair-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    # Type should default to ssh
+    type: ssh
   conditions:
   - type: Available
     status: "True"
@@ -22,11 +24,33 @@ resourceRefs:
       kind: KeyPair
       name: keypair-create-minimal
       ref: keypair
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: keypair-create-minimal
-      ref: project
 assertAll:
+    # Verify ID is set
     - celExpr: "keypair.status.id != ''"
-    - celExpr: "keypair.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks
+    # Verify name uses default (object name)
+    - celExpr: "keypair.status.resource.name == 'keypair-create-minimal'"
+    # Verify type defaults to ssh
+    - celExpr: "keypair.status.resource.type == 'ssh'"
+    # Verify fingerprint is populated
+    - celExpr: "keypair.status.resource.fingerprint != ''"
+    # Verify public key is populated
+    - celExpr: "keypair.status.resource.publicKey != ''"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keypair-create-minimal-private-key
+type: Opaque
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: v1
+      kind: Secret
+      name: keypair-create-minimal-private-key
+      ref: secret
+assertAll:
+    # Verify the private key secret was created with default key name
+    - celExpr: "secret.data.private_key != null"
+    # Verify private key is not empty
+    - celExpr: "size(secret.data.private_key) > 0"

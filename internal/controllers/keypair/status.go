@@ -50,14 +50,14 @@ func (keypairStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.KeyPai
 
 func (keypairStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.KeyPairResourceStatus().
-		WithProjectID(osResource.ProjectID).
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithFingerprint(osResource.Fingerprint).
+		WithPublicKey(osResource.PublicKey).
+		WithType(osResource.Type)
 
-	// TODO(scaffolding): add all of the fields supported in the KeyPairResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+	// UserID is only populated for admin operations managing keys for other users
+	if osResource.UserID != "" {
+		resourceStatus.WithUserID(osResource.UserID)
 	}
 
 	statusApply.WithResource(resourceStatus)

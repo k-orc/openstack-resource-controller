@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: KeyPair
 metadata:
-  name: keypair-import-error-external-1
+  name: keypair-import-error-1
 status:
   conditions:
     - type: Available
@@ -13,11 +13,14 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+  resource:
+    name: keypair-import-error-1
+    type: ssh
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: KeyPair
 metadata:
-  name: keypair-import-error-external-2
+  name: keypair-import-error-2
 status:
   conditions:
     - type: Available
@@ -28,3 +31,6 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+  resource:
+    name: keypair-import-error-2
+    type: ssh

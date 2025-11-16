@@ -31,6 +31,7 @@ import (
 
 	attachinterfaces "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
 	flavors "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
+	keypairs "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs"
 	servergroups "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	servers "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	tags "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/tags"
@@ -90,6 +91,21 @@ func (m *MockComputeClient) CreateFlavor(ctx context.Context, opts flavors.Creat
 func (mr *MockComputeClientMockRecorder) CreateFlavor(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFlavor", reflect.TypeOf((*MockComputeClient)(nil).CreateFlavor), ctx, opts)
+}
+
+// CreateKeyPair mocks base method.
+func (m *MockComputeClient) CreateKeyPair(ctx context.Context, opts keypairs.CreateOptsBuilder) (*keypairs.KeyPair, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateKeyPair", ctx, opts)
+	ret0, _ := ret[0].(*keypairs.KeyPair)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateKeyPair indicates an expected call of CreateKeyPair.
+func (mr *MockComputeClientMockRecorder) CreateKeyPair(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateKeyPair", reflect.TypeOf((*MockComputeClient)(nil).CreateKeyPair), ctx, opts)
 }
 
 // CreateServer mocks base method.
@@ -165,6 +181,20 @@ func (mr *MockComputeClientMockRecorder) DeleteFlavor(ctx, id any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFlavor", reflect.TypeOf((*MockComputeClient)(nil).DeleteFlavor), ctx, id)
 }
 
+// DeleteKeyPair mocks base method.
+func (m *MockComputeClient) DeleteKeyPair(ctx context.Context, name, userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteKeyPair", ctx, name, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteKeyPair indicates an expected call of DeleteKeyPair.
+func (mr *MockComputeClientMockRecorder) DeleteKeyPair(ctx, name, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteKeyPair", reflect.TypeOf((*MockComputeClient)(nil).DeleteKeyPair), ctx, name, userID)
+}
+
 // DeleteServer mocks base method.
 func (m *MockComputeClient) DeleteServer(ctx context.Context, serverID string) error {
 	m.ctrl.T.Helper()
@@ -220,6 +250,21 @@ func (m *MockComputeClient) GetFlavor(ctx context.Context, id string) (*flavors.
 func (mr *MockComputeClientMockRecorder) GetFlavor(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFlavor", reflect.TypeOf((*MockComputeClient)(nil).GetFlavor), ctx, id)
+}
+
+// GetKeyPair mocks base method.
+func (m *MockComputeClient) GetKeyPair(ctx context.Context, name, userID string) (*keypairs.KeyPair, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetKeyPair", ctx, name, userID)
+	ret0, _ := ret[0].(*keypairs.KeyPair)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetKeyPair indicates an expected call of GetKeyPair.
+func (mr *MockComputeClientMockRecorder) GetKeyPair(ctx, name, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKeyPair", reflect.TypeOf((*MockComputeClient)(nil).GetKeyPair), ctx, name, userID)
 }
 
 // GetServer mocks base method.
@@ -279,6 +324,20 @@ func (m *MockComputeClient) ListFlavors(ctx context.Context, listOpts flavors.Li
 func (mr *MockComputeClientMockRecorder) ListFlavors(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFlavors", reflect.TypeOf((*MockComputeClient)(nil).ListFlavors), ctx, listOpts)
+}
+
+// ListKeyPairs mocks base method.
+func (m *MockComputeClient) ListKeyPairs(ctx context.Context, opts keypairs.ListOptsBuilder) iter.Seq2[*keypairs.KeyPair, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListKeyPairs", ctx, opts)
+	ret0, _ := ret[0].(iter.Seq2[*keypairs.KeyPair, error])
+	return ret0
+}
+
+// ListKeyPairs indicates an expected call of ListKeyPairs.
+func (mr *MockComputeClientMockRecorder) ListKeyPairs(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListKeyPairs", reflect.TypeOf((*MockComputeClient)(nil).ListKeyPairs), ctx, opts)
 }
 
 // ListServerGroups mocks base method.

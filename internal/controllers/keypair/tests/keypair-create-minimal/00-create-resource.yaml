@@ -1,28 +1,15 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: keypair-create-minimal
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: KeyPair
 metadata:
   name: keypair-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
+  # Minimal creation: generate a keypair with just a secret reference
+  # Name and type will use defaults (object name and ssh)
   resource:
-    projectRef: keypair-create-full
+    privateKeySecretRef:
+      name: keypair-create-minimal-private-key
