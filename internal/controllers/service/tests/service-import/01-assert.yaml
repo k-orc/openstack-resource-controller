@@ -14,9 +14,9 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: service-import-external-not-this-one
-    description: Service service-import-external from "service-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    type: service-import
+    extra:
+      name: service-import-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service

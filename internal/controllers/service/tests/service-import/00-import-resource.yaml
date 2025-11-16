@@ -5,11 +5,10 @@ metadata:
   name: service-import
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
       name: service-import-external
-      description: Service service-import-external from "service-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      type: service-import-external

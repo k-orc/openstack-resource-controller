@@ -18,24 +18,18 @@ package v1alpha1
 
 // ServiceResourceSpec contains the desired state of the resource.
 type ServiceResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
+	// type indicates which resource the service is responsible for.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Description *string `json:"description,omitempty"`
+	Type *string `json:"type,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/services
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// enabled indicates whether the service is enabled or not.
+	// +kubebuilder:default=true
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// extra indicates key-value information about the service.
+	Extra map[string]any `json:"extra,omitempty"`
 }
 
 // ServiceFilter defines an existing resource by its properties
@@ -45,30 +39,27 @@ type ServiceFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the existing resource
+	// type of the existing resource
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/services
+	Type *string `json:"type,omitempty"`
 }
 
 // ServiceResourceStatus represents the observed state of the resource.
 type ServiceResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Name string `json:"name,omitempty"`
-
 	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Description string `json:"description,omitempty"`
+	Type *string `json:"type,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Service stucture from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/services
+	// enabled indicates whether the service is enabled or not.
+	// +kubebuilder:default=true
+	// +optional
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// extra indicates key-value information about the service.
+	// +optional
+	Extra map[string]any `json:"extra,omitempty"`
 }

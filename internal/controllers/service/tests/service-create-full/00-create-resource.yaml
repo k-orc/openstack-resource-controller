@@ -5,11 +5,12 @@ metadata:
   name: service-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: service-create-full-override
-    description: Service from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: True
+    type: "service-create-full"
+    extra:
+      name: "service-create-full"
+      description: "Service from create-full test case"

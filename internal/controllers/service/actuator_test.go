@@ -36,8 +36,8 @@ func TestNeedsUpdate(t *testing.T) {
 			expectChange: false,
 		},
 		{
-			name:         "Updated opts",
-			updateOpts:   services.UpdateOpts{Name: ptr.To("updated")},
+			name:         "Updated type opt",
+			updateOpts:   services.UpdateOpts{Type: "updated"},
 			expectChange: true,
 		},
 	}
@@ -52,68 +52,83 @@ func TestNeedsUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+func TestHandleTypeUpdate(t *testing.T) {
 	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.OpenStackName
-		existingValue string
-		expectChange  bool
+		name           string
+		newValue       *string
+		existingValue  string
+		expectedChange bool
 	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
+		{name: "Identical", newValue: ptr.To("service"), existingValue: "service", expectedChange: false},
+		{name: "Different", newValue: ptr.To("new-service"), existingValue: "service", expectedChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "service", expectedChange: false},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.Service{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.ServiceSpec{
-				Resource: &orcv1alpha1.ServiceResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
+			resource := &orcv1alpha1.ServiceResourceSpec{Type: tt.newValue}
+			osResource := &osResourceT{Type: tt.existingValue}
 
 			updateOpts := services.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
+			handleTypeUpdate(&updateOpts, resource, osResource)
 
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			if got, _ := needsUpdate(updateOpts); got != tt.expectedChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectedChange, got)
 			}
 		})
-
 	}
 }
 
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+func TestHandleEnabledUpdate(t *testing.T) {
 	testCases := []struct {
-		name          string
-		newValue      *string
-		existingValue string
-		expectChange  bool
+		name           string
+		newValue       *bool
+		existingValue  bool
+		expectedChange bool
 	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Identical", newValue: ptr.To(true), existingValue: true, expectedChange: false},
+		{name: "Different", newValue: ptr.To(false), existingValue: true, expectedChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: true, expectedChange: false},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.ServiceResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			resource := &orcv1alpha1.ServiceResourceSpec{Enabled: tt.newValue}
+			osResource := &osResourceT{Enabled: tt.existingValue}
 
 			updateOpts := services.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			handleEnabledUpdate(&updateOpts, resource, osResource)
 
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			if got, _ := needsUpdate(updateOpts); got != tt.expectedChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectedChange, got)
 			}
 		})
+	}
+}
 
+func TestHandleExtraUpdate(t *testing.T) {
+	testCases := []struct {
+		name           string
+		newValue       map[string]any
+		existingValue  map[string]any
+		expectedChange bool
+	}{
+		{name: "Identical", newValue: map[string]any{"name": "service"}, existingValue: map[string]any{"name": "service"}, expectedChange: false},
+		{name: "Different", newValue: map[string]any{"name": "new-service"}, existingValue: map[string]any{"name": "service"}, expectedChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: map[string]any{"name": "service"}, expectedChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.ServiceResourceSpec{Extra: tt.newValue}
+			osResource := &osResourceT{Extra: tt.existingValue}
+
+			updateOpts := services.UpdateOpts{}
+			handleExtraUpdate(&updateOpts, resource, osResource)
+
+			if got, _ := needsUpdate(updateOpts); got != tt.expectedChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectedChange, got)
+			}
+		})
 	}
 }

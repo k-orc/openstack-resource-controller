@@ -5,9 +5,11 @@ metadata:
   name: service-update
 status:
   resource:
-    name: service-update-updated
-    description: service-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    enabled: false
+    type: service-update-updated
+    extra:
+      name: service-update-updated
+      description: service-update-updated
   conditions:
   - type: Available
     status: "True"

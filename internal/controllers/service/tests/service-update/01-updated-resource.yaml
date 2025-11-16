@@ -5,6 +5,8 @@ metadata:
   name: service-update
 spec:
   resource:
-    name: service-update-updated
-    description: service-update-updated
-    # TODO(scaffolding): update all mutable fields
+    enabled: false
+    type: service-update-updated
+    extra:
+      name: service-update-updated
+      description: service-update-updated

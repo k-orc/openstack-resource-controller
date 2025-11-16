@@ -5,9 +5,11 @@ metadata:
   name: service-create-full
 status:
   resource:
-    name: service-create-full-override
-    description: Service from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: True
+    type: "service-create-full"
+    extra:
+      name: service-create-full
+      description: "Service from create-full test case"
   conditions:
   - type: Available
     status: "True"
@@ -25,4 +27,4 @@ resourceRefs:
       ref: service
 assertAll:
     - celExpr: "service.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "service.status.resource.enabled"

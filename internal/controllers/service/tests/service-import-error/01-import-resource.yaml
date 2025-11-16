@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: Service from "import error" test
+      name: service-import-error-external

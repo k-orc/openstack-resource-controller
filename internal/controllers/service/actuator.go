@@ -70,27 +70,34 @@ func (actuator serviceActuator) ListOSResourcesForAdoption(ctx context.Context, 
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var serviceName *string
+
+	if _, ok := resourceSpec.Extra["name"]; ok {
+		serviceName = ptr.To(resourceSpec.Extra["name"].(string))
+	}
 
 	listOpts := services.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: ptr.Deref(serviceName, ""),
+		ServiceType: *resourceSpec.Type,
 	}
 
 	return actuator.osClient.ListServices(ctx, listOpts), true
 }
 
 func (actuator serviceActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var serviceName *orcv1alpha1.OpenStackName
+	if filter.Name != nil {
+		serviceName = filter.Name
+	}
+
+	var serviceType *string
+	if filter.Type != nil {
+		serviceType = filter.Type
+	}
 
 	listOpts := services.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Name: string(ptr.Deref(serviceName, "")),
+		ServiceType: ptr.Deref(serviceType, ""),
 	}
 
 	return actuator.osClient.ListServices(ctx, listOpts), nil
@@ -104,10 +111,31 @@ func (actuator serviceActuator) CreateResource(ctx context.Context, obj orcObjec
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
+	extra := map[string]any{}
+
+	for k, v := range resource.Extra {
+		extra[k] = v
+	}
+
+	if _, ok := extra["name"]; !ok {
+		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Service is missing the name field in extra map"))
+	}
+
+	var enabled *bool
+	if resource.Enabled != nil {
+		enabled = resource.Enabled
+	}
+
+	var serviceType string
+	if resource.Type != nil {
+		serviceType = ptr.Deref(resource.Type, "")
+	}
+
 	createOpts := services.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		Type: serviceType,
+		Enabled: enabled,
+		Extra: extra,
 	}
 
 	osResource, err := actuator.osClient.CreateService(ctx, createOpts)
@@ -137,10 +165,9 @@ func (actuator serviceActuator) updateResource(ctx context.Context, obj orcObjec
 
 	updateOpts := services.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleTypeUpdate(&updateOpts, resource, osResource)
+	handleEnabledUpdate(&updateOpts, resource, osResource)
+	handleExtraUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -151,6 +178,11 @@ func (actuator serviceActuator) updateResource(ctx context.Context, obj orcObjec
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
+	
+	// NOTE(winiciusallan): we need to add Type in before every update to avoid
+	// gophercloud create UpdateOpts with type as empty value. for more
+	// information https://github.com/gophercloud/gophercloud/issues/3553
+	updateOpts.Type = ptr.Deref(resource.Type, "")
 
 	_, err = actuator.osClient.UpdateService(ctx, osResource.ID, updateOpts)
 
@@ -177,21 +209,35 @@ func needsUpdate(updateOpts services.UpdateOpts) (bool, error) {
 		updateMap = make(map[string]any)
 	}
 
+	if serviceType, ok := updateMap["type"]; ok && serviceType == "" {
+		delete(updateMap, "type")
+	}
+
 	return len(updateMap) > 0, nil
 }
 
-func handleNameUpdate(updateOpts *services.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
+func handleTypeUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	serviceType := ptr.Deref(resource.Type, "")
+	if osResource.Type != serviceType {
+		updateOpts.Type = serviceType
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+func handleEnabledUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	enabled := ptr.Deref(resource.Enabled, true)
+	if osResource.Enabled != enabled {
+		updateOpts.Enabled = &enabled
 	}
+}
+
+func handleExtraUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	extra := resource.Extra
+	updateOpts.Extra = map[string]any{}
+	for k, v := range extra {
+		if osResource.Extra[k] != extra[k] {
+			updateOpts.Extra[k] = v
+		}
+	} 
 }
 
 func (actuator serviceActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {

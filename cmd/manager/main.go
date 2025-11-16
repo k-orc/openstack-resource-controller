@@ -42,6 +42,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volumetype"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/service"
 	internalmanager "github.com/k-orc/openstack-resource-controller/v2/internal/manager"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scheme"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
@@ -116,6 +117,7 @@ func main() {
 		project.New(scopeFactory),
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
+		service.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
