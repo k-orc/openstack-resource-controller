@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-import-external
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Service service-import-external from "service-import" test
+    # TODO(scaffolding): Add fields necessary to match filter
