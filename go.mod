@@ -12,10 +12,10 @@ require (
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
 	golang.org/x/text v0.28.0
-	k8s.io/api v0.32.9
-	k8s.io/apimachinery v0.32.9
-	k8s.io/client-go v0.32.9
-	k8s.io/code-generator v0.32.9
+	k8s.io/api v0.32.10
+	k8s.io/apimachinery v0.32.10
+	k8s.io/client-go v0.32.10
+	k8s.io/code-generator v0.32.10
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738
