@@ -221,6 +221,16 @@ spec:
                     x-kubernetes-validations:
                     - message: imageRef is immutable
                       rule: self == oldSelf
+                  keypairRef:
+                    description: |-
+                      keypairRef is a reference to a KeyPair object. The server will be
+                      created with this keypair for SSH access.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: keypairRef is immutable
+                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
