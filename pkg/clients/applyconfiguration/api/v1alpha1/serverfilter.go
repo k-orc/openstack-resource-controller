@@ -26,6 +26,7 @@ import (
 // with apply.
 type ServerFilterApplyConfiguration struct {
 	Name                                 *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	AvailabilityZone                     *string                    `json:"availabilityZone,omitempty"`
 	FilterByServerTagsApplyConfiguration `json:",inline"`
 }
 
@@ -40,6 +41,14 @@ func ServerFilter() *ServerFilterApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *ServerFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ServerFilterApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithAvailabilityZone sets the AvailabilityZone field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AvailabilityZone field is set to the value of the last call.
+func (b *ServerFilterApplyConfiguration) WithAvailabilityZone(value string) *ServerFilterApplyConfiguration {
+	b.AvailabilityZone = &value
 	return b
 }
 

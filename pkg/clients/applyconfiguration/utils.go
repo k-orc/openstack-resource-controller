@@ -44,6 +44,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.AllowedAddressPairStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("CloudCredentialsReference"):
 		return &apiv1alpha1.CloudCredentialsReferenceApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Domain"):
+		return &apiv1alpha1.DomainApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DomainFilter"):
+		return &apiv1alpha1.DomainFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DomainImport"):
+		return &apiv1alpha1.DomainImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DomainResourceSpec"):
+		return &apiv1alpha1.DomainResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DomainResourceStatus"):
+		return &apiv1alpha1.DomainResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DomainSpec"):
+		return &apiv1alpha1.DomainSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DomainStatus"):
+		return &apiv1alpha1.DomainStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ExternalGateway"):
 		return &apiv1alpha1.ExternalGatewayApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ExternalGatewayStatus"):
@@ -232,6 +246,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerGroupStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerImport"):
 		return &apiv1alpha1.ServerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerInterfaceFixedIP"):
+		return &apiv1alpha1.ServerInterfaceFixedIPApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerInterfaceStatus"):
+		return &apiv1alpha1.ServerInterfaceStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerPortSpec"):
 		return &apiv1alpha1.ServerPortSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerResourceSpec"):

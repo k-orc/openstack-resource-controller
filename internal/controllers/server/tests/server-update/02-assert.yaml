@@ -13,7 +13,11 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Port
       name: server-update
-      ref: port
+      ref: port1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-update-second
+      ref: port2
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: ServerGroup
       name: server-update
@@ -29,6 +33,12 @@ assertAll:
     - celExpr: "!has(server.status.resource.tags)"
     - celExpr: "!has(server.status.resource.volumes)"
     - celExpr: "!has(volume.status.resource.attachments)"
+    - celExpr: "port1.status.resource.deviceID == server.status.id"
+    - celExpr: "port1.status.resource.status == 'ACTIVE'"
+    - celExpr: "!has(port2.status.resource.deviceID)"
+    - celExpr: "port2.status.resource.status == 'DOWN'"
+    - celExpr: "size(server.status.resource.interfaces) == 1"
+    - celExpr: "server.status.resource.interfaces[0].portID == port1.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server

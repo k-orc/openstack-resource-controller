@@ -55,7 +55,7 @@ type RouterInterfaceList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// items contains a list of RouterInterface.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +required
 	Items []RouterInterface `json:"items"`
 }

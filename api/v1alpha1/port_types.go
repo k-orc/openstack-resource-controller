@@ -108,19 +108,19 @@ type PortResourceSpec struct {
 	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the port.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
 
 	// allowedAddressPairs are allowed addresses associated with this port.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=128
 	// +listType=atomic
 	// +optional
 	AllowedAddressPairs []AllowedAddressPair `json:"allowedAddressPairs,omitempty"`
 
 	// addresses are the IP addresses for the port.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=128
 	// +listType=atomic
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="addresses is immutable"
@@ -128,7 +128,7 @@ type PortResourceSpec struct {
 
 	// securityGroupRefs are the names of the security groups associated
 	// with this port.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
@@ -188,7 +188,7 @@ type PortResourceStatus struct {
 	Status string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional
@@ -217,7 +217,7 @@ type PortResourceStatus struct {
 	// allowedAddressPairs is a set of zero or more allowed address pair
 	// objects each where address pair object contains an IP address and
 	// MAC address.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=128
 	// +listType=atomic
 	// +optional
 	AllowedAddressPairs []AllowedAddressPairStatus `json:"allowedAddressPairs,omitempty"`
@@ -225,13 +225,13 @@ type PortResourceStatus struct {
 	// fixedIPs is a set of zero or more fixed IP objects each where fixed
 	// IP object contains an IP address and subnet ID from which the IP
 	// address is assigned.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=128
 	// +listType=atomic
 	// +optional
 	FixedIPs []FixedIPStatus `json:"fixedIPs,omitempty"`
 
 	// securityGroups contains the IDs of security groups applied to the port.
-	// +kubebuilder:validation:MaxItems=32
+	// +kubebuilder:validation:MaxItems=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional

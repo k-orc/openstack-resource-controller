@@ -161,8 +161,12 @@ func (s *providerScope) NewVolumeTypeClient() (clients.VolumeTypeClient, error) 
 	return clients.NewVolumeTypeClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewDomainClient() (clients.DomainClient, error) {
+	return clients.NewDomainClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewServiceClient() (clients.ServiceClient, error) {
-	return clients.NewServiceClient(s.providerClient, s.providerClientOpts)	
+	return clients.NewServiceClient(s.providerClient, s.providerClientOpts)
 }
 
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {

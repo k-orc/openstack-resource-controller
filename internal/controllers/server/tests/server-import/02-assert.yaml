@@ -30,6 +30,7 @@ status:
   resource:
     # TODO(mandre) add more fields
     name: server-import-external
+    availabilityZone: nova
     tags:
       - tag1
       - tag2

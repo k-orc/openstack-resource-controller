@@ -69,6 +69,9 @@ type templateFields struct {
 
 var resources []templateFields = []templateFields{
 	{
+		Name: "Domain",
+	},
+	{
 		Name:             "Flavor",
 		ExistingOSClient: true,
 	},
@@ -143,8 +146,8 @@ var resources []templateFields = []templateFields{
 		Name: "VolumeType",
 	},
 	{
-		Name: "Service",
-		IsNotNamed:       true,
+		Name:       "Service",
+		IsNotNamed: true,
 	},
 }
 

@@ -160,7 +160,7 @@ spec:
                           maxLength: 255
                           minLength: 1
                           type: string
-                        maxItems: 32
+                        maxItems: 64
                         type: array
                         x-kubernetes-list-type: set
                       notTagsAny:
@@ -174,7 +174,7 @@ spec:
                           maxLength: 255
                           minLength: 1
                           type: string
-                        maxItems: 32
+                        maxItems: 64
                         type: array
                         x-kubernetes-list-type: set
                       projectRef:
@@ -195,7 +195,7 @@ spec:
                           maxLength: 255
                           minLength: 1
                           type: string
-                        maxItems: 32
+                        maxItems: 64
                         type: array
                         x-kubernetes-list-type: set
                       tagsAny:
@@ -210,7 +210,7 @@ spec:
                           maxLength: 255
                           minLength: 1
                           type: string
-                        maxItems: 32
+                        maxItems: 64
                         type: array
                         x-kubernetes-list-type: set
                     type: object
@@ -457,7 +457,7 @@ spec:
                       maxLength: 255
                       minLength: 1
                       type: string
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: set
                 required:
@@ -685,7 +685,7 @@ spec:
                     items:
                       maxLength: 1024
                       type: string
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
                   updatedAt:

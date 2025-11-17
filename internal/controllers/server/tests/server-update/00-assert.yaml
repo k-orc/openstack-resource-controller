@@ -24,6 +24,8 @@ assertAll:
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "!has(server.status.resource.tags)"
     - celExpr: "!has(server.status.resource.volumes)"
+    - celExpr: "size(server.status.resource.interfaces) == 1"
+    - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server

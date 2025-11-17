@@ -1,0 +1,27 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-create-full
+status:
+  resource:
+    name: domain-create-full-override
+    description: Domain from "create full" test
+    enabled: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: domain-create-full
+      ref: domain
+assertAll:
+    - celExpr: "domain.status.id != ''"

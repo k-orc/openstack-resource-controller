@@ -44,7 +44,7 @@ type {{ .Kind }}ResourceSpec struct {
 {{- end }}
 
 	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts stucture from
+	// To see what is supported, you can take inspiration from the CreateOpts structure from
 	// {{ .GophercloudModule }}
 	//
 	// Until you have implemented mutability for the field, you must add a CEL validation
@@ -72,7 +72,7 @@ type {{ .Kind }}Filter struct {
 {{- end }}
 
 	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts stucture from
+	// To see what is supported, you can take inspiration from the ListOpts structure from
 	// {{ .GophercloudModule }}
 }
 
@@ -96,6 +96,6 @@ type {{ .Kind }}ResourceStatus struct {
 {{- end }}
 
 	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the {{ .GophercloudType }} stucture from
+	// To see what is supported, you can take inspiration from the {{ .GophercloudType }} structure from
 	// {{ .GophercloudModule }}
 }

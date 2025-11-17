@@ -25,7 +25,7 @@ kubectl create secret generic openstack-clouds \
 !!! note
 
     The command above will upload your entire `clouds.yaml` to your Kubernetes
-    cluster! If that is not appropriate, you may want to upload a slimmed version
+    cluster! If that is not appropriate, you may want to upload a slimmed down version
     of it.
 
 ## Deploy your OpenStack infrastructure as Kubernetes custom resources

@@ -23,13 +23,13 @@ The actuator implements the majority of the resource-specific functionality. It 
 * [`DeleteResourceActuator`](godoc/generic-interfaces.md#DeleteResourceActuator): methods required for deleting a resource
 * [`ReconcileResourceActuator`](godoc/generic-interfaces.md/#ReconcileResourceActuator): methods required for reconciling a resource after creation
 
-CreateResourceActuator and DeleteResourceActuator are separated as they may have different initialisation requirements. It is especially for the delete flow to minimise any initialisation requirements. It is idiomatic in Kubernetes to attempt to resolve problems by deleting and recreating resources. We must consider that a user may have taken manual actions to attempt to work round some problem, and therefore objects may be an inconsistent or illegal state. We don't want to limit a user's options by refusing to run deletion because we are unable to perform actions which are not strictly necessary for deletion. In practise they may both be implemented on the same struct.
+CreateResourceActuator and DeleteResourceActuator are separated as they may have different initialisation requirements. It is especially important for the delete flow to minimise any initialisation requirements. It is idiomatic in Kubernetes to attempt to resolve problems by deleting and recreating resources. We must consider that a user may have taken manual actions to attempt to work round some problem, and therefore objects may be in an inconsistent or illegal state. We don't want to limit a user's options by refusing to run deletion because we are unable to perform actions which are not strictly necessary for deletion. In practise they may both be implemented on the same struct.
 
 Note that both `NewCreateActuator` and `NewDeleteActuator` can return `[]progress.ProgressStatus` and `error`. If it is not possible to initialise the actuator yet, one of these **MUST** be returned.
 
-Another point worth emphasising is that although `CreateResource` and `DeleteResource` are permitted to perform actions other than a single Create or Delete API call, they **MUST NOT** perform any action after the relevant OpenStack Create or Delete call. In some circumstances it is not possible to fully initialise an OpenStack resource in single Create call. For example, it is not possible to set tags on most Neutron resources during creation; they must be set in a separate call after the resource has been created. However, we **MUST NOT** do this in `CreateResource`, because we cannot perform any action after creating the Neutron resource. Instead we must implement this as a reconcile action.
+Another point worth emphasising is that although `CreateResource` and `DeleteResource` are permitted to perform actions other than a single Create or Delete API call, they **MUST NOT** perform any action after the relevant OpenStack Create or Delete call. In some circumstances it is not possible to fully initialise an OpenStack resource in a single Create call. For example, it is not possible to set tags on most Neutron resources during creation; they must be set in a separate call after the resource has been created. However, we **MUST NOT** do this in `CreateResource`, because we cannot perform any action after creating the Neutron resource. Instead we must implement this as a reconcile action.
 
-The reason for this is idempotency. We call `CreateResource` if the resource does not exist. We don't call `CreateResource` if the resource exists. This means that if any action after resource creation fails, it will never be retried. The same is true for `DeleteResource`: we stop calling `DeleteResource` when we observe that the OpenStack resource is no longer present. Therefore any action after the Delete API call may never be retried.
+The reason for this is idempotency. If the resource does not exist, we do call `CreateResource`. If the resource does exist, we do not call `CreateResource`. This means that if any action after resource creation fails, it will never be retried. The same is true for `DeleteResource`: we stop calling `DeleteResource` when we observe that the OpenStack resource is no longer present. Therefore any action after the Delete API call may never be retried.
 
 For the same reason, it is also important to remember that both `CreateResource` and `DeleteResource` may be called many times until they finally succeed. Therefore any actions prior to resource creation must be idempotent. If `CreateResource` takes any state-changing action prior to resource creation, calling `CreateResource` again must not do it again.
 
@@ -40,7 +40,7 @@ For the same reason, it is also important to remember that both `CreateResource`
 * Post-creation initialisation (e.g. setting Neutron tags)
 * Object mutability (responding to spec changes after creation)
 
-Because it is an optional interface, `ReconcileResourceActuator` not not have a separate constructor in `ResourceHelperFactory`. If the create actuator implements this interface, its methods will be called.
+Because it is an optional interface, `ReconcileResourceActuator` does not have a separate constructor in `ResourceHelperFactory`. If the create actuator implements this interface, its methods will be called.
 
 `GetResourceReconcilers` returns a set of functions implementing [`ResourceReconciler`](godoc/generic-interfaces.md/#ResourceReconciler). Without the type descriptors, the signature of a `ResourceReconciler` looks like:
 
@@ -58,7 +58,7 @@ Reconcilers execute prior to generating the resource status, but they cannot aff
 
 ## ResourceStatusWriter
 
-The `Available` and `Progressing` conditions are critical components of the ORC API. To ensure they are implemented consistently by all controllers they are substantially generated by code called by the generic controller. The [`ResourceStatusWriter` interface](godoc/generic-interfaces.md/#ResourceStatusWriter) provides necessary resource-specific methods to populate:
+The `Available` and `Progressing` conditions are critical components of the ORC API. To ensure they are implemented consistently by all controllers they are largely generated by code called by the generic controller. The [`ResourceStatusWriter` interface](godoc/generic-interfaces.md/#ResourceStatusWriter) provides the resource-specific methods required to populate:
 
 * The `Available` condition
 * The `Progressing` condition
@@ -76,4 +76,4 @@ This sets the value of the `Available` condition. This should not return `true` 
 
 Writes the observed resource status to an apply configuration.
 
-Note that object status is written in a single server-side apply 'transaction'. This means that if, during a reconcile, the controller is not able to fetch the resource from OpenStack, it will not be able to add the resource status to the transaction and therefore `status.resource` will be unset. This is intentional behaviour, and you should not attempt to work round this or save previous state. The state will be populated again when the controller is able to fetch the resource.
+Note that object status is written in a single server-side apply 'transaction'. Meaning if, during a reconcile, the controller is not able to fetch the resource from OpenStack, it will not be able to add the resource status to the transaction and therefore `status.resource` will be unset. This is intentional behaviour, and you should not attempt to work around this or save the previous state. The state will be populated again when the controller is able to fetch the resource.

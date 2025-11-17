@@ -46,7 +46,7 @@ type VolumeResourceSpec struct {
 	// NOTE(mandre): gophercloud can't clear all metadata at the moment, we thus can't allow
 	// mutability for metadata as we might end up in a state that is not reconciliable
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="metadata is immutable"
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	Metadata []VolumeMetadata `json:"metadata,omitempty"`
@@ -151,7 +151,7 @@ type VolumeResourceStatus struct {
 	BackupID string `json:"backupID,omitempty"`
 
 	// metadata key and value pairs to be associated with the volume.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	Metadata []VolumeMetadataStatus `json:"metadata,omitempty"`

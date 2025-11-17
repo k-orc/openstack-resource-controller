@@ -25,7 +25,7 @@ type FilterByServerTags struct {
 	// have all of the tags specified to be included in the result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=50
 	Tags []ServerTag `json:"tags,omitempty"`
 
 	// tagsAny is a list of tags to filter by. If specified, the resource
@@ -33,21 +33,21 @@ type FilterByServerTags struct {
 	// result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=50
 	TagsAny []ServerTag `json:"tagsAny,omitempty"`
 
 	// notTags is a list of tags to filter by. If specified, resources which
 	// contain all of the given tags will be excluded from the result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=50
 	NotTags []ServerTag `json:"notTags,omitempty"`
 
 	// notTagsAny is a list of tags to filter by. If specified, resources
 	// which contain any of the given tags will be excluded from the result.
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=50
 	NotTagsAny []ServerTag `json:"notTagsAny,omitempty"`
 }
 
@@ -81,6 +81,46 @@ type ServerVolumeStatus struct {
 	ID string `json:"id,omitempty"`
 }
 
+type ServerInterfaceFixedIP struct {
+	// ipAddress is the IP address assigned to the port.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	IPAddress string `json:"ipAddress,omitempty"`
+
+	// subnetID is the ID of the subnet from which the IP address is allocated.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	SubnetID string `json:"subnetID,omitempty"`
+}
+
+type ServerInterfaceStatus struct {
+	// portID is the ID of a port attached to the server.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	PortID string `json:"portID,omitempty"`
+
+	// netID is the ID of the network to which the interface is attached.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	NetID string `json:"netID,omitempty"`
+
+	// macAddr is the MAC address of the interface.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	MACAddr string `json:"macAddr,omitempty"`
+
+	// portState is the state of the port (e.g., ACTIVE, DOWN).
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	PortState string `json:"portState,omitempty"`
+
+	// fixedIPs is the list of fixed IP addresses assigned to the interface.
+	// +kubebuilder:validation:MaxItems:=32
+	// +listType=atomic
+	// +optional
+	FixedIPs []ServerInterfaceFixedIP `json:"fixedIPs,omitempty"`
+}
+
 // ServerResourceSpec contains the desired state of a server
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
@@ -107,14 +147,13 @@ type ServerResourceSpec struct {
 	UserData *UserDataSpec `json:"userData,omitempty"`
 
 	// ports defines a list of ports which will be attached to the server.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ports is immutable"
 	Ports []ServerPortSpec `json:"ports,omitempty"`
 
 	// volumes is a list of volumes attached to the server.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	Volumes []ServerVolumeSpec `json:"volumes,omitempty"`
@@ -125,8 +164,14 @@ type ServerResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serverGroupRef is immutable"
 	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
 
+	// availabilityZone is the availability zone in which to create the server.
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+
 	// tags is a list of tags which will be applied to the server.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=50
 	// +listType=set
 	// +optional
 	Tags []ServerTag `json:"tags,omitempty"`
@@ -146,6 +191,11 @@ type ServerFilter struct {
 	// name of the existing resource
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
+
+	// availabilityZone is the availability zone of the existing resource
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
 	FilterByServerTags `json:",inline"`
 }
@@ -173,6 +223,11 @@ type ServerResourceStatus struct {
 	// +optional
 	ImageID string `json:"imageID,omitempty"`
 
+	// availabilityZone is the availability zone where the server is located.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+
 	// serverGroups is a slice of strings containing the UUIDs of the
 	// server groups to which the server belongs. Currently this can
 	// contain at most one entry.
@@ -183,13 +238,19 @@ type ServerResourceStatus struct {
 	ServerGroups []string `json:"serverGroups,omitempty"`
 
 	// volumes contains the volumes attached to the server.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	Volumes []ServerVolumeStatus `json:"volumes,omitempty"`
 
+	// interfaces contains the list of interfaces attached to the server.
+	// +kubebuilder:validation:MaxItems:=64
+	// +listType=atomic
+	// +optional
+	Interfaces []ServerInterfaceStatus `json:"interfaces,omitempty"`
+
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=50
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional

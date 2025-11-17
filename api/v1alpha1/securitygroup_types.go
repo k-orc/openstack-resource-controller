@@ -196,7 +196,7 @@ type SecurityGroupResourceSpec struct {
 	Description *NeutronDescription `json:"description,omitempty"`
 
 	// tags is a list of tags which will be applied to the security group.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []NeutronTag `json:"tags,omitempty"`
@@ -256,7 +256,7 @@ type SecurityGroupResourceStatus struct {
 	ProjectID string `json:"projectID,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional

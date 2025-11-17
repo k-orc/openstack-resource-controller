@@ -176,7 +176,7 @@ spec:
                       - name
                       - value
                       type: object
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
                   isPublic:
@@ -312,7 +312,7 @@ spec:
                           maxLength: 255
                           type: string
                       type: object
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
                   isPublic:

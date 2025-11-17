@@ -2,6 +2,7 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
+- ./internal/controllers/domain/tests/
 - ./internal/controllers/flavor/tests/
 - ./internal/controllers/floatingip/tests/
 - ./internal/controllers/image/tests/
@@ -17,4 +18,4 @@ testDirs:
 - ./internal/controllers/subnet/tests/
 - ./internal/controllers/volume/tests/
 - ./internal/controllers/volumetype/tests/
-timeout: 120
+timeout: 240

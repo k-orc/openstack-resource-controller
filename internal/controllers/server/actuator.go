@@ -24,6 +24,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	corev1 "k8s.io/api/core/v1"
@@ -41,9 +42,13 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
-type (
-	osResourceT = servers.Server
+// osResourceT is a wrapper around servers.Server that includes attached interfaces
+type osResourceT struct {
+	servers.Server
+	Interfaces []attachinterfaces.Interface
+}
 
+type (
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
 	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
@@ -68,16 +73,49 @@ type serverActuator struct {
 var _ createResourceActuator = serverActuator{}
 var _ deleteResourceActuator = serverActuator{}
 
-func (serverActuator) GetResourceID(osResource *servers.Server) string {
+func (serverActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func (actuator serverActuator) GetOSResourceByID(ctx context.Context, id string) (*servers.Server, progress.ReconcileStatus) {
+func (actuator serverActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	server, err := actuator.osClient.GetServer(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
-	return server, nil
+
+	interfaces, err := actuator.osClient.ListAttachedInterfaces(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+
+	return &osResourceT{
+		Server:     *server,
+		Interfaces: interfaces,
+	}, nil
+}
+
+// wrapServers wraps a server iterator to convert servers to osResourceT without fetching interfaces
+func wrapServers(serverIter iter.Seq2[*servers.Server, error]) iter.Seq2[*osResourceT, error] {
+	return func(yield func(*osResourceT, error) bool) {
+		for server, err := range serverIter {
+			if err != nil {
+				if !yield(nil, err) {
+					return
+				}
+				continue
+			}
+
+			wrapped := &osResourceT{
+				Server: *server,
+				// Interfaces are not fetched here as they are not needed for adoption/import filtering
+				// They will be fetched later when the resource is reconciled
+				Interfaces: nil,
+			}
+			if !yield(wrapped, nil) {
+				return
+			}
+		}
+	}
 }
 
 func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Server) (serverIterator, bool) {
@@ -90,25 +128,28 @@ func (actuator serverActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		Tags: tags.Join(obj.Spec.Resource.Tags),
 	}
 
-	return actuator.osClient.ListServers(ctx, listOpts), true
+	// We don't fetch interfaces during adoption listing as we don't filter on them
+	return wrapServers(actuator.osClient.ListServers(ctx, listOpts)), true
 }
 
 func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	listOpts := servers.ListOpts{
-		Tags:       tags.Join(filter.Tags),
-		TagsAny:    tags.Join(filter.TagsAny),
-		NotTags:    tags.Join(filter.NotTags),
-		NotTagsAny: tags.Join(filter.NotTagsAny),
+		Tags:             tags.Join(filter.Tags),
+		TagsAny:          tags.Join(filter.TagsAny),
+		NotTags:          tags.Join(filter.NotTags),
+		NotTagsAny:       tags.Join(filter.NotTagsAny),
+		AvailabilityZone: filter.AvailabilityZone,
 	}
 
 	if filter.Name != nil {
 		listOpts.Name = fmt.Sprintf("^%s$", string(*filter.Name))
 	}
 
-	return actuator.osClient.ListServers(ctx, listOpts), nil
+	// We don't fetch interfaces during import listing as we don't filter on them
+	return wrapServers(actuator.osClient.ListServers(ctx, listOpts)), nil
 }
 
-func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) (*servers.Server, progress.ReconcileStatus) {
+func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -215,19 +256,20 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	slices.Sort(tags)
 
 	createOpts := servers.CreateOpts{
-		Name:      getResourceName(obj),
-		ImageRef:  *image.Status.ID,
-		FlavorRef: *flavor.Status.ID,
-		Networks:  portList,
-		UserData:  userData,
-		Tags:      tags,
+		Name:             getResourceName(obj),
+		ImageRef:         *image.Status.ID,
+		FlavorRef:        *flavor.Status.ID,
+		Networks:         portList,
+		UserData:         userData,
+		Tags:             tags,
+		AvailabilityZone: resource.AvailabilityZone,
 	}
 
 	schedulerHints := servers.SchedulerHintOpts{
 		Group: ptr.Deref(serverGroup.Status.ID, ""),
 	}
 
-	osResource, err := actuator.osClient.CreateServer(ctx, &createOpts, schedulerHints)
+	server, err := actuator.osClient.CreateServer(ctx, &createOpts, schedulerHints)
 
 	// We should require the spec to be updated before retrying a create which returned a non-retryable error
 	if err != nil {
@@ -237,10 +279,19 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		return nil, progress.WrapError(err)
 	}
 
-	return osResource, nil
+	// Fetch interfaces for the newly created server
+	interfaces, err := actuator.osClient.ListAttachedInterfaces(ctx, server.ID)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+
+	return &osResourceT{
+		Server:     *server,
+		Interfaces: interfaces,
+	}, nil
 }
 
-func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *servers.Server) progress.ReconcileStatus {
+func (actuator serverActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	return progress.WrapError(actuator.osClient.DeleteServer(ctx, osResource.ID))
 }
 
@@ -248,9 +299,10 @@ var _ reconcileResourceActuator = serverActuator{}
 
 func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID)),
 		actuator.checkStatus,
 		actuator.updateResource,
+		actuator.reconcileTags,
+		actuator.reconcilePortAttachments,
 		actuator.reconcileVolumeAttachments,
 	}, nil
 }
@@ -325,6 +377,95 @@ func (serverActuator) checkStatus(ctx context.Context, orcObject orcObjectPT, os
 		log.V(logging.Verbose).Info("Waiting for OpenStack resource to be ACTIVE")
 		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
 	}
+}
+
+func (actuator serverActuator) reconcileTags(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	// Tags cannot be set on a server that is still building
+	if osResource.Status == "" || osResource.Status == ServerStatusBuild {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	return tags.ReconcileTags[orcObjectPT, osResourceT](obj.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID))(ctx, obj, osResource)
+}
+
+func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		// Should have been caught by API validation
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	portDepsMap, reconcileStatus := portDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
+			return port.Status.ID != nil
+		},
+	)
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
+	}
+
+	// Only operate on servers in available status
+	if osResource.Status != ServerStatusActive {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	// Create missing attachments
+	for i := range resource.Ports {
+		portSpec := &resource.Ports[i]
+		if portSpec.PortRef == nil {
+			// Should have been caught by API validation
+			return reconcileStatus.WithError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "empty port spec"))
+		}
+
+		portRef := *portSpec.PortRef
+		if port, ok := portDepsMap[string(portRef)]; !ok {
+			// Programming error
+			return reconcileStatus.WithError(fmt.Errorf("port %s not present in dependencies", portRef))
+		} else {
+			// The port is not yet attached to the server
+			if !slices.ContainsFunc(osResource.Interfaces, func(iface attachinterfaces.Interface) bool {
+				return iface.PortID == *port.Status.ID
+			}) {
+				createOpts := attachinterfaces.CreateOpts{
+					PortID: *port.Status.ID,
+				}
+				log.V(logging.Verbose).Info("Attaching port to server", "port", *port.Status.ID, "server", *obj.Status.ID)
+				_, err := actuator.osClient.CreateAttachedInterface(ctx, *obj.Status.ID, &createOpts)
+				if err != nil {
+					return reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+				}
+
+				// Give time for the change to be reflected on the server resource before next reconcile
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+			}
+		}
+	}
+
+	portDeps := slices.Collect(maps.Values(portDepsMap))
+
+	// Delete extra attachments
+	for _, iface := range osResource.Interfaces {
+		// There's an attachment that is not marked as a dependency
+		if !slices.ContainsFunc(portDeps, func(p *orcv1alpha1.Port) bool {
+			return iface.PortID == *p.Status.ID
+		}) {
+			log.V(logging.Verbose).Info("Detaching port from server", "port", iface.PortID, "server", *obj.Status.ID)
+			err := actuator.osClient.DeleteAttachedInterface(ctx, *obj.Status.ID, iface.PortID)
+			if err != nil {
+				return reconcileStatus.WithReconcileStatus(progress.WrapError(err))
+			}
+
+			// Give time for the change to be reflected on the server resource before next reconcile
+			reconcileStatus = reconcileStatus.WithReconcileStatus(
+				progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverAttachmentPollingPeriod))
+		}
+	}
+
+	return reconcileStatus
 }
 
 func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {

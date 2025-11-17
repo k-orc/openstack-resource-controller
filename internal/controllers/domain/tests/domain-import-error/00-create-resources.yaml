@@ -1,0 +1,29 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Domain from "import error" test
+    enabled: false
+    
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Domain from "import error" test
+    enabled: false
+    
+  

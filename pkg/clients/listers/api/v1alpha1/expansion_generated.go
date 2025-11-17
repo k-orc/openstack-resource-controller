@@ -18,6 +18,14 @@ limitations under the License.
 
 package v1alpha1
 
+// DomainListerExpansion allows custom methods to be added to
+// DomainLister.
+type DomainListerExpansion interface{}
+
+// DomainNamespaceListerExpansion allows custom methods to be added to
+// DomainNamespaceLister.
+type DomainNamespaceListerExpansion interface{}
+
 // FlavorListerExpansion allows custom methods to be added to
 // FlavorLister.
 type FlavorListerExpansion interface{}

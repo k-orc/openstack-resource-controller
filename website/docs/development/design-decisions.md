@@ -79,7 +79,7 @@ same name.
 
 ## Name reuse
 
-We allow name reuse of ORC objects. This is safe thanks to our dependency
+We allow name reuse of ORC objects. This is safe, thanks to ORC's dependency
 management.
 
 ## Error reporting

@@ -103,7 +103,7 @@ spec:
                           maxLength: 255
                           minLength: 1
                           type: string
-                        maxItems: 32
+                        maxItems: 64
                         type: array
                         x-kubernetes-list-type: set
                       visibility:
@@ -528,7 +528,7 @@ spec:
                       maxLength: 255
                       minLength: 1
                       type: string
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: set
                   visibility:
@@ -699,7 +699,7 @@ spec:
                     items:
                       maxLength: 1024
                       type: string
-                    maxItems: 32
+                    maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
                   virtualSizeB:

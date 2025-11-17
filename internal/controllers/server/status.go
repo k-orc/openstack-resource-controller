@@ -30,6 +30,7 @@ import (
 
 const (
 	ServerStatusActive = "ACTIVE"
+	ServerStatusBuild  = "BUILD"
 	ServerStatusError  = "ERROR"
 )
 
@@ -66,6 +67,7 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithName(osResource.Name).
 		WithStatus(osResource.Status).
 		WithHostID(osResource.HostID).
+		WithAvailabilityZone(osResource.AvailabilityZone).
 		WithServerGroups(ptr.Deref(osResource.ServerGroups, []string{})...).
 		WithTags(ptr.Deref(osResource.Tags, []string{})...)
 
@@ -76,6 +78,23 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 	for i := range osResource.AttachedVolumes {
 		status.WithVolumes(orcapplyconfigv1alpha1.ServerVolumeStatus().
 			WithID(osResource.AttachedVolumes[i].ID))
+	}
+
+	for i := range osResource.Interfaces {
+		iface := osResource.Interfaces[i]
+		interfaceStatus := orcapplyconfigv1alpha1.ServerInterfaceStatus().
+			WithPortID(iface.PortID).
+			WithNetID(iface.NetID).
+			WithMACAddr(iface.MACAddr).
+			WithPortState(iface.PortState)
+
+		for j := range iface.FixedIPs {
+			interfaceStatus.WithFixedIPs(orcapplyconfigv1alpha1.ServerInterfaceFixedIP().
+				WithIPAddress(iface.FixedIPs[j].IPAddress).
+				WithSubnetID(iface.FixedIPs[j].SubnetID))
+		}
+
+		status.WithInterfaces(interfaceStatus)
 	}
 
 	statusApply.WithResource(status)

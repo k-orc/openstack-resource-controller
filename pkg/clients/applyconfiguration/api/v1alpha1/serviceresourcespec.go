@@ -21,8 +21,8 @@ package v1alpha1
 // ServiceResourceSpecApplyConfiguration represents a declarative configuration of the ServiceResourceSpec type for use
 // with apply.
 type ServiceResourceSpecApplyConfiguration struct {
-	Type    *string           `json:"type,omitempty"`
-	Enabled *bool             `json:"enabled,omitempty"`
+	Type    *string        `json:"type,omitempty"`
+	Enabled *bool          `json:"enabled,omitempty"`
 	Extra   map[string]any `json:"extra,omitempty"`
 }
 

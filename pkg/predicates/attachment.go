@@ -29,33 +29,23 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 )
 
-// NewServerVolumesChanged returns a predicate that filters Server events to only those
-// where the status.resource.volumes field changed.
-func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
+// newServerResourceChanged is a generic predicate factory that filters Server events based on
+// changes to a list of resource IDs extracted by the provided getIDs function.
+func newServerResourceChanged(
+	log logr.Logger,
+	functionName string,
+	getIDs func(*orcv1alpha1.Server) []string,
+) predicate.Predicate {
 	getServer := func(obj client.Object, event string) *orcv1alpha1.Server {
 		server, ok := obj.(*orcv1alpha1.Server)
 		if !ok {
-			log.Info("NewServerVolumesChanged got unexpected object type",
+			log.Info(fmt.Sprintf("%s got unexpected object type", functionName),
 				"got", fmt.Sprintf("%T", obj),
 				"expected", fmt.Sprintf("%T", &orcv1alpha1.Server{}),
 				"event", event)
 			return nil
 		}
 		return server
-	}
-
-	getVolumeIDs := func(server *orcv1alpha1.Server) []string {
-		if server.Status.Resource == nil {
-			return nil
-		}
-		volumeIDs := make([]string, 0, len(server.Status.Resource.Volumes))
-		for i := range server.Status.Resource.Volumes {
-			volumeID := server.Status.Resource.Volumes[i].ID
-			if volumeID != "" {
-				volumeIDs = append(volumeIDs, volumeID)
-			}
-		}
-		return volumeIDs
 	}
 
 	log = log.WithValues("watchKind", fmt.Sprintf("%T", &orcv1alpha1.Server{}))
@@ -70,9 +60,9 @@ func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
 				return false
 			}
 
-			// Trigger reconciliation if server is created with volumes
-			volumeIDs := getVolumeIDs(server)
-			return len(volumeIDs) > 0
+			// Trigger reconciliation if server is created with resources
+			ids := getIDs(server)
+			return len(ids) > 0
 		},
 		UpdateFunc: func(e event.UpdateEvent) bool {
 			log := log.WithValues("name", e.ObjectOld.GetName(), "namespace", e.ObjectOld.GetNamespace())
@@ -85,11 +75,11 @@ func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
 				return false
 			}
 
-			oldVolumeIDs := getVolumeIDs(oldServer)
-			newVolumeIDs := getVolumeIDs(newServer)
+			oldIDs := getIDs(oldServer)
+			newIDs := getIDs(newServer)
 
-			// Trigger reconciliation if the volume IDs changed
-			return !slices.Equal(oldVolumeIDs, newVolumeIDs)
+			// Trigger reconciliation if the resource IDs changed
+			return !slices.Equal(oldIDs, newIDs)
 		},
 		DeleteFunc: func(e event.DeleteEvent) bool {
 			log := log.WithValues("name", e.Object.GetName(), "namespace", e.Object.GetNamespace())
@@ -100,9 +90,49 @@ func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
 				return false
 			}
 
-			// Trigger reconciliation if server is deleted with volumes
-			volumeIDs := getVolumeIDs(server)
-			return len(volumeIDs) > 0
+			// Trigger reconciliation if server is deleted with resources
+			ids := getIDs(server)
+			return len(ids) > 0
 		},
 	}
+}
+
+// NewServerVolumesChanged returns a predicate that filters Server events to only those
+// where the status.resource.volumes field changed.
+func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
+	getVolumeIDs := func(server *orcv1alpha1.Server) []string {
+		if server.Status.Resource == nil {
+			return nil
+		}
+		volumeIDs := make([]string, 0, len(server.Status.Resource.Volumes))
+		for i := range server.Status.Resource.Volumes {
+			volumeID := server.Status.Resource.Volumes[i].ID
+			if volumeID != "" {
+				volumeIDs = append(volumeIDs, volumeID)
+			}
+		}
+		return volumeIDs
+	}
+
+	return newServerResourceChanged(log, "NewServerVolumesChanged", getVolumeIDs)
+}
+
+// NewServerInterfacesChanged returns a predicate that filters Server events to only those
+// where the status.resource.interfaces field changed.
+func NewServerInterfacesChanged(log logr.Logger) predicate.Predicate {
+	getPortIDs := func(server *orcv1alpha1.Server) []string {
+		if server.Status.Resource == nil {
+			return nil
+		}
+		portIDs := make([]string, 0, len(server.Status.Resource.Interfaces))
+		for i := range server.Status.Resource.Interfaces {
+			portID := server.Status.Resource.Interfaces[i].PortID
+			if portID != "" {
+				portIDs = append(portIDs, portID)
+			}
+		}
+		return portIDs
+	}
+
+	return newServerResourceChanged(log, "NewServerInterfacesChanged", getPortIDs)
 }

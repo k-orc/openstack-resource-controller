@@ -321,7 +321,7 @@ type ImageResourceSpec struct {
 	Protected *bool `json:"protected,omitempty"`
 
 	// tags is a list of tags which will be applied to the image. A tag has a maximum length of 255 characters.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []ImageTag `json:"tags,omitempty"`
@@ -353,7 +353,7 @@ type ImageFilter struct {
 	Visibility *ImageVisibility `json:"visibility,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
 	Tags []ImageTag `json:"tags,omitempty"`
@@ -397,7 +397,7 @@ type ImageResourceStatus struct {
 	VirtualSizeB *int64 `json:"virtualSizeB,omitempty"`
 
 	// tags is the list of tags on the resource.
-	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:MaxItems:=64
 	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=atomic
 	// +optional

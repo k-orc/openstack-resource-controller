@@ -77,7 +77,7 @@ func (actuator serviceActuator) ListOSResourcesForAdoption(ctx context.Context, 
 	}
 
 	listOpts := services.ListOpts{
-		Name: ptr.Deref(serviceName, ""),
+		Name:        ptr.Deref(serviceName, ""),
 		ServiceType: *resourceSpec.Type,
 	}
 
@@ -96,7 +96,7 @@ func (actuator serviceActuator) ListOSResourcesForImport(ctx context.Context, ob
 	}
 
 	listOpts := services.ListOpts{
-		Name: string(ptr.Deref(serviceName, "")),
+		Name:        string(ptr.Deref(serviceName, "")),
 		ServiceType: ptr.Deref(serviceType, ""),
 	}
 
@@ -133,9 +133,9 @@ func (actuator serviceActuator) CreateResource(ctx context.Context, obj orcObjec
 	}
 
 	createOpts := services.CreateOpts{
-		Type: serviceType,
+		Type:    serviceType,
 		Enabled: enabled,
-		Extra: extra,
+		Extra:   extra,
 	}
 
 	osResource, err := actuator.osClient.CreateService(ctx, createOpts)
@@ -178,7 +178,7 @@ func (actuator serviceActuator) updateResource(ctx context.Context, obj orcObjec
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
-	
+
 	// NOTE(winiciusallan): we need to add Type in before every update to avoid
 	// gophercloud create UpdateOpts with type as empty value. for more
 	// information https://github.com/gophercloud/gophercloud/issues/3553
@@ -237,7 +237,7 @@ func handleExtraUpdate(updateOpts *services.UpdateOpts, resource *resourceSpecT,
 		if osResource.Extra[k] != extra[k] {
 			updateOpts.Extra[k] = v
 		}
-	} 
+	}
 }
 
 func (actuator serviceActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
