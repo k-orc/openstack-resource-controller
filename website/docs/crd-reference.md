@@ -3050,6 +3050,7 @@ _Appears in:_
 | `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
+| `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 
 

@@ -19,6 +19,10 @@ resourceRefs:
       name: server-create-full
       ref: sg
     - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: KeyPair
+      name: server-create-full
+      ref: keypair
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Volume
       name: server-create-full
       ref: volume

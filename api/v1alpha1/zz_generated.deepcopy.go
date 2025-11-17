@@ -3802,6 +3802,11 @@ func (in *ServerResourceSpec) DeepCopyInto(out *ServerResourceSpec) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
+	if in.KeypairRef != nil {
+		in, out := &in.KeypairRef, &out.KeypairRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make([]ServerTag, len(*in))

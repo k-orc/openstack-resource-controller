@@ -2163,6 +2163,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: imageRef
       type:
         scalar: string
+    - name: keypairRef
+      type:
+        scalar: string
     - name: name
       type:
         scalar: string

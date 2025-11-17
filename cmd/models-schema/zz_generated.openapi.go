@@ -7506,6 +7506,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"keypairRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "keypairRef is a reference to a KeyPair object. The server will be created with this keypair for SSH access.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
