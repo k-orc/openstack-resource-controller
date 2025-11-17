@@ -9,21 +9,6 @@ custom code and mutability operations. We require those tests to get good
 coverage from all of our controllers. So, if your controller implements mutable
 fields, you should add tests for those fields.
 
-You can run all with:
-
-```bash
-$ make test
-```
-
-You can also specify which controller do you want to test using the `TEST_PATHS`
-environment variable. This variable indicates a list of module paths, and you
-can specify modules that you want to test by passing the package's path
-separated by a blank space, for example:
-
-```bash
-$ TEST_PATHS=$(go list ./internal/controller/server ./internal/controller/image) make test
-```
-
 ### API validation tests
 
 All APIs are expected to have good API validation test coverage.
@@ -36,6 +21,23 @@ your controller in `test/apivalidations`.
 
 Tests other than the ones above, that cover the functionality specific to
 a single controller, should live in the controller's directory.
+
+### Running tests
+
+You can run all with:
+
+```bash
+$ make test
+```
+
+You can also specify which controller do you want to test using the `TEST_PATHS`
+environment variable. This variable indicates a list of directory paths, and you
+can specify modules that you want to test by passing the package's path,
+separated by a blank space, for example:
+
+```bash
+$ TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
+```
 
 ## E2E tests
 
