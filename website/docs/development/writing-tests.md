@@ -1,12 +1,43 @@
 # Writing tests
 
-## API validation tests
+## Unit tests
+
+### Mutability tests
+
+For each controller, we have a file called `actuator_test.go` which handles
+custom code and mutability operations. We require those tests to get good
+coverage from all of our controllers. So, if your controller implements mutable
+fields, you should add tests for those fields.
+
+### API validation tests
 
 All APIs are expected to have good API validation test coverage.
 
 API validation tests ensure that any validations defined in the
 API and included in the CRD perform as expected. Add API validation tests for
 your controller in `test/apivalidations`.
+
+### Controller-specific tests
+
+Tests other than the ones above, that cover the functionality specific to
+a single controller, should live in the controller's directory.
+
+### Running tests
+
+You can run all with:
+
+```bash
+$ make test
+```
+
+You can also specify which controller do you want to test using the `TEST_PATHS`
+environment variable. This variable indicates a list of directory paths, and you
+can specify modules that you want to test by passing the package's path,
+separated by a blank space, for example:
+
+```bash
+$ TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
+```
 
 ## E2E tests
 
@@ -275,8 +306,3 @@ For example, to run the `import-dependency` test from the `subnet` controller:
 ```bash
 E2E_KUTTL_DIR=internal/controllers/subnet/tests E2E_KUTTL_TEST=import-dependency make test-e2e
 ```
-
-## Controller-specific tests
-
-Tests other than the ones above, that cover the functionality specific to
-a single controller, should live in the controller's directory.
