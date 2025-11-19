@@ -12,10 +12,10 @@ require (
 	github.com/onsi/gomega v1.38.2
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
-	k8s.io/api v0.31.13
-	k8s.io/apimachinery v0.31.13
-	k8s.io/client-go v0.31.13
-	k8s.io/code-generator v0.31.13
+	k8s.io/api v0.31.14
+	k8s.io/apimachinery v0.31.14
+	k8s.io/client-go v0.31.14
+	k8s.io/code-generator v0.31.14
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
