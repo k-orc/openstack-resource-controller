@@ -38,9 +38,6 @@ updates:
   # Ignore k8s major and minor bumps and its transitives modules
   - dependency-name: "k8s.io/*"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
-  # Below dependencies require a newer version of go:
-  - dependency-name: "github.com/onsi/gomega"
-  - dependency-name: "golang.org/x/text"
 ## main branch config ends here
 ## release-1.0 branch config starts here
 # github-actions
