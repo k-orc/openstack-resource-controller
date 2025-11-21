@@ -91,6 +91,11 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      availabilityZone:
+                        description: availabilityZone is the availability zone of
+                          the existing resource
+                        maxLength: 255
+                        type: string
                       description:
                         description: description of the existing resource
                         maxLength: 255
@@ -154,6 +159,14 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  availabilityZone:
+                    description: availabilityZone is the availability zone in which
+                      to create the volume.
+                    maxLength: 255
+                    type: string
+                    x-kubernetes-validations:
+                    - message: availabilityZone is immutable
+                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.

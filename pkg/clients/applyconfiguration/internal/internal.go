@@ -2492,6 +2492,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeFilter
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
     - name: description
       type:
         scalar: string
@@ -2533,6 +2536,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceSpec
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
     - name: description
       type:
         scalar: string

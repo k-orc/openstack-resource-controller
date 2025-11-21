@@ -10,6 +10,7 @@ status:
     description: Volume from "create full" test
     size: 1
     status: available
+    availabilityZone: nova
     bootable: false
     encrypted: false
     multiattach: false

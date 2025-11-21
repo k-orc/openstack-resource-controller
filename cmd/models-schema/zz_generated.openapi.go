@@ -8380,6 +8380,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref commo
 							Format:      "int32",
 						},
 					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -8551,6 +8558,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref
 					"volumeTypeRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone in which to create the volume.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
