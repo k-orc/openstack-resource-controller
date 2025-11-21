@@ -1,4 +1,3 @@
-
 ---
 # This `volume-import-external-not-this-one` resource serves two purposes:
 # - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
