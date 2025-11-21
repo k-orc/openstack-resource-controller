@@ -17,6 +17,7 @@ status:
     name: volume-import-external-not-this-one
     description: Volume volume-import-external from "volume-import" test
     size: 1
+    availabilityZone: nova
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Volume

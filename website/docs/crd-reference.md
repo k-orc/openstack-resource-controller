@@ -3297,6 +3297,7 @@ _Appears in:_
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `size` _integer_ | size is the size of the volume in GiB. |  | Minimum: 1 <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone of the existing resource |  | MaxLength: 255 <br /> |
 
 
 #### VolumeImport
@@ -3370,6 +3371,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `size` _integer_ | size is the size of the volume, in gibibytes (GiB). |  | Minimum: 1 <br /> |
 | `volumeTypeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the volume. |  | MaxLength: 255 <br /> |
 | `metadata` _[VolumeMetadata](#volumemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
 
 

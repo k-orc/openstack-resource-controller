@@ -25,6 +25,7 @@ spec:
     description: Volume from "create full" test
     size: 1
     volumeTypeRef: volume-create-full
+    availabilityZone: nova
     metadata:
     - name: metadata
       value: value

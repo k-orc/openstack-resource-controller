@@ -12,3 +12,4 @@ spec:
   resource:
     description: Volume volume-import-external from "volume-import" test
     size: 1
+    availabilityZone: nova

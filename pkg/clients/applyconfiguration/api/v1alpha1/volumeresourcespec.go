@@ -25,11 +25,12 @@ import (
 // VolumeResourceSpecApplyConfiguration represents a declarative configuration of the VolumeResourceSpec type for use
 // with apply.
 type VolumeResourceSpecApplyConfiguration struct {
-	Name          *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
-	Description   *string                            `json:"description,omitempty"`
-	Size          *int32                             `json:"size,omitempty"`
-	VolumeTypeRef *apiv1alpha1.KubernetesNameRef     `json:"volumeTypeRef,omitempty"`
-	Metadata      []VolumeMetadataApplyConfiguration `json:"metadata,omitempty"`
+	Name             *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
+	Description      *string                            `json:"description,omitempty"`
+	Size             *int32                             `json:"size,omitempty"`
+	VolumeTypeRef    *apiv1alpha1.KubernetesNameRef     `json:"volumeTypeRef,omitempty"`
+	AvailabilityZone *string                            `json:"availabilityZone,omitempty"`
+	Metadata         []VolumeMetadataApplyConfiguration `json:"metadata,omitempty"`
 }
 
 // VolumeResourceSpecApplyConfiguration constructs a declarative configuration of the VolumeResourceSpec type for use with
@@ -67,6 +68,14 @@ func (b *VolumeResourceSpecApplyConfiguration) WithSize(value int32) *VolumeReso
 // If called multiple times, the VolumeTypeRef field is set to the value of the last call.
 func (b *VolumeResourceSpecApplyConfiguration) WithVolumeTypeRef(value apiv1alpha1.KubernetesNameRef) *VolumeResourceSpecApplyConfiguration {
 	b.VolumeTypeRef = &value
+	return b
+}
+
+// WithAvailabilityZone sets the AvailabilityZone field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AvailabilityZone field is set to the value of the last call.
+func (b *VolumeResourceSpecApplyConfiguration) WithAvailabilityZone(value string) *VolumeResourceSpecApplyConfiguration {
+	b.AvailabilityZone = &value
 	return b
 }
 

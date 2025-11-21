@@ -80,7 +80,7 @@ func (actuator volumeActuator) ListOSResourcesForAdoption(ctx context.Context, o
 
 	var filters []osclients.ResourceFilter[osResourceT]
 
-	// NOTE: The API doesn't allow filtering by description or size
+	// NOTE: The API doesn't allow filtering by description, size, or availability zone
 	// we'll have to do it client-side.
 	if resourceSpec.Description != nil {
 		filters = append(filters, func(f *volumes.Volume) bool {
@@ -90,6 +90,11 @@ func (actuator volumeActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	filters = append(filters, func(f *volumes.Volume) bool {
 		return f.Size == int(resourceSpec.Size)
 	})
+	if resourceSpec.AvailabilityZone != "" {
+		filters = append(filters, func(f *volumes.Volume) bool {
+			return f.AvailabilityZone == resourceSpec.AvailabilityZone
+		})
+	}
 
 	metadata := make(map[string]string)
 	for _, m := range resourceSpec.Metadata {
@@ -107,7 +112,7 @@ func (actuator volumeActuator) ListOSResourcesForAdoption(ctx context.Context, o
 func (actuator volumeActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var filters []osclients.ResourceFilter[osResourceT]
 
-	// NOTE: The API doesn't allow filtering by description or size
+	// NOTE: The API doesn't allow filtering by description, size, or availability zone
 	// we'll have to do it client-side.
 	if filter.Description != nil {
 		filters = append(filters, func(f *volumes.Volume) bool {
@@ -117,6 +122,11 @@ func (actuator volumeActuator) ListOSResourcesForImport(ctx context.Context, obj
 	if filter.Size != nil {
 		filters = append(filters, func(f *volumes.Volume) bool {
 			return f.Size == int(*filter.Size)
+		})
+	}
+	if filter.AvailabilityZone != "" {
+		filters = append(filters, func(f *volumes.Volume) bool {
+			return f.AvailabilityZone == filter.AvailabilityZone
 		})
 	}
 
@@ -165,11 +175,12 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 	}
 
 	createOpts := volumes.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		Size:        int(resource.Size),
-		Metadata:    metadata,
-		VolumeType:  volumetypeID,
+		Name:             getResourceName(obj),
+		Description:      ptr.Deref(resource.Description, ""),
+		Size:             int(resource.Size),
+		Metadata:         metadata,
+		VolumeType:       volumetypeID,
+		AvailabilityZone: resource.AvailabilityZone,
 	}
 
 	osResource, err := actuator.osClient.CreateVolume(ctx, createOpts)
