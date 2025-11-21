@@ -1,4 +1,3 @@
-
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Volume
