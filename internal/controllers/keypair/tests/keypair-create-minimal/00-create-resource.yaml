@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # Minimal creation: generate a keypair with just a secret reference
+  # Name and type will use defaults (object name and ssh)
+  resource:
+    privateKeySecretRef:
+      name: keypair-create-minimal-private-key

@@ -15,6 +15,7 @@ spec:
     volumes:
       - volumeRef: server-sample
     serverGroupRef: server-sample
+    keypairRef: server-sample
     availabilityZone: nova
     tags:
       - tag1

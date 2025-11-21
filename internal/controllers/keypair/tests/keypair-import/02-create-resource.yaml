@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Create the actual keypair that will be imported
+    privateKeySecretRef:
+      name: keypair-import-external-key

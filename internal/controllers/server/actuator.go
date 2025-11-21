@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/attachinterfaces"
+	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/keypairs"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	corev1 "k8s.io/api/core/v1"
@@ -225,6 +226,20 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		}
 	}
 
+	keypair := &orcv1alpha1.KeyPair{}
+	if resource.KeypairRef != nil {
+		keypairKey := client.ObjectKey{Name: string(*resource.KeypairRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, keypairKey, keypair); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WaitingOnObject("KeyPair", keypairKey.Name, progress.WaitingOnCreation)
+			} else {
+				return nil, reconcileStatus.WithError(fmt.Errorf("fetching keypair %s: %w", keypairKey.Name, err))
+			}
+		} else if !orcv1alpha1.IsAvailable(keypair) {
+			reconcileStatus = reconcileStatus.WaitingOnObject("KeyPair", keypairKey.Name, progress.WaitingOnReady)
+		}
+	}
+
 	var userData []byte
 	if resource.UserData != nil && resource.UserData.SecretRef != nil {
 		secret := &corev1.Secret{}
@@ -255,7 +270,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	// Sort tags before creation to simplify comparisons
 	slices.Sort(tags)
 
-	createOpts := servers.CreateOpts{
+	serverCreateOpts := servers.CreateOpts{
 		Name:             getResourceName(obj),
 		ImageRef:         *image.Status.ID,
 		FlavorRef:        *flavor.Status.ID,
@@ -265,11 +280,19 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		AvailabilityZone: resource.AvailabilityZone,
 	}
 
+	var createOpts servers.CreateOptsBuilder = serverCreateOpts
+	if keypair.Status.Resource != nil {
+		createOpts = keypairs.CreateOptsExt{
+			CreateOptsBuilder: serverCreateOpts,
+			KeyName:           keypair.Status.Resource.Name,
+		}
+	}
+
 	schedulerHints := servers.SchedulerHintOpts{
 		Group: ptr.Deref(serverGroup.Status.ID, ""),
 	}
 
-	server, err := actuator.osClient.CreateServer(ctx, &createOpts, schedulerHints)
+	server, err := actuator.osClient.CreateServer(ctx, createOpts, schedulerHints)
 
 	// We should require the spec to be updated before retrying a create which returned a non-retryable error
 	if err != nil {

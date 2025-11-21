@@ -1,0 +1,19 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Custom name for the keypair in OpenStack
+    name: keypair-create-full-override
+    # Type of keypair: ssh or x509
+    type: ssh
+    # Generate a new keypair and store private key in this secret
+    privateKeySecretRef:
+      name: keypair-create-full-private-key
+      key: private_key

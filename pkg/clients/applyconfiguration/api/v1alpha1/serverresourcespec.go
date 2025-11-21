@@ -33,6 +33,7 @@ type ServerResourceSpecApplyConfiguration struct {
 	Volumes          []ServerVolumeSpecApplyConfiguration `json:"volumes,omitempty"`
 	ServerGroupRef   *apiv1alpha1.KubernetesNameRef       `json:"serverGroupRef,omitempty"`
 	AvailabilityZone *string                              `json:"availabilityZone,omitempty"`
+	KeypairRef       *apiv1alpha1.KubernetesNameRef       `json:"keypairRef,omitempty"`
 	Tags             []apiv1alpha1.ServerTag              `json:"tags,omitempty"`
 }
 
@@ -113,6 +114,14 @@ func (b *ServerResourceSpecApplyConfiguration) WithServerGroupRef(value apiv1alp
 // If called multiple times, the AvailabilityZone field is set to the value of the last call.
 func (b *ServerResourceSpecApplyConfiguration) WithAvailabilityZone(value string) *ServerResourceSpecApplyConfiguration {
 	b.AvailabilityZone = &value
+	return b
+}
+
+// WithKeypairRef sets the KeypairRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the KeypairRef field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithKeypairRef(value apiv1alpha1.KubernetesNameRef) *ServerResourceSpecApplyConfiguration {
+	b.KeypairRef = &value
 	return b
 }
 

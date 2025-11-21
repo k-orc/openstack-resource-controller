@@ -145,6 +145,10 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "VolumeType",
 	},
+	{
+		Name:             "KeyPair",
+		ExistingOSClient: true,
+	},
 }
 
 // These resources won't be generated

@@ -32,6 +32,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/floatingip"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/image"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/keypair"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
@@ -118,6 +119,7 @@ func main() {
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
 		domain.New(scopeFactory),
+		keypair.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

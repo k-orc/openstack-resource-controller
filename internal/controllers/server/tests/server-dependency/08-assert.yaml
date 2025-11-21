@@ -1,0 +1,11 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get server server-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get image server-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get port server-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get secret server-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

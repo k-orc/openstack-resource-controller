@@ -1,0 +1,56 @@
+---
+# Example 1: Generate a new SSH keypair
+# OpenStack will generate a new keypair and store the private key in a Kubernetes secret
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-generated
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Optional: specify a custom name for the keypair in OpenStack
+    # If not specified, the Kubernetes object name will be used
+    # name: my-custom-keypair-name
+
+    # Optional: type of keypair (ssh or x509). Defaults to ssh.
+    type: ssh
+
+    # Required for generation: secret where the private key will be stored
+    privateKeySecretRef:
+      name: keypair-generated-private-key
+      # Optional: key within the secret. Defaults to "private_key"
+      # key: private_key
+---
+# Example 2: Import an existing public key
+# Use this when you already have a keypair and want to import the public key to OpenStack
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-imported
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Public key to import (replace with your actual public key)
+    publicKey: |
+      ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC... user@hostname
+---
+# Example 3: Import an existing keypair (unmanaged)
+# Use this to reference a keypair that was created outside of ORC
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-unmanaged
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: existing-keypair-name
