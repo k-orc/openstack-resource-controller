@@ -102,6 +102,15 @@ type NetworkClient interface {
 	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
 	UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
 
+	ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error)
+	GetTrunk(ctx context.Context, id string) (*trunks.Trunk, error)
+	CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error)
+	UpdateTrunk(ctx context.Context, id string, opts trunks.UpdateOptsBuilder) (*trunks.Trunk, error)
+	DeleteTrunk(ctx context.Context, id string) error
+	ListTrunkSubports(ctx context.Context, trunkID string) ([]trunks.Subport, error)
+	AddSubports(ctx context.Context, id string, opts trunks.AddSubportsOptsBuilder) (*trunks.Trunk, error)
+	RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOptsBuilder) error
+
 	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
 }
 
@@ -214,8 +223,16 @@ func (c networkClient) UpdatePort(ctx context.Context, id string, opts ports.Upd
 	return &portExt, nil
 }
 
+func (c networkClient) GetTrunk(ctx context.Context, id string) (*trunks.Trunk, error) {
+	return trunks.Get(ctx, c.serviceClient, id).Extract()
+}
+
 func (c networkClient) CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error) {
 	return trunks.Create(ctx, c.serviceClient, opts).Extract()
+}
+
+func (c networkClient) UpdateTrunk(ctx context.Context, id string, opts trunks.UpdateOptsBuilder) (*trunks.Trunk, error) {
+	return trunks.Update(ctx, c.serviceClient, id, opts).Extract()
 }
 
 func (c networkClient) DeleteTrunk(ctx context.Context, id string) error {
@@ -237,6 +254,14 @@ func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilde
 		return nil, err
 	}
 	return trunks.ExtractTrunks(allPages)
+}
+
+func (c networkClient) AddSubports(ctx context.Context, id string, opts trunks.AddSubportsOptsBuilder) (*trunks.Trunk, error) {
+	return trunks.AddSubports(ctx, c.serviceClient, id, opts).Extract()
+}
+
+func (c networkClient) RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOptsBuilder) error {
+	return trunks.RemoveSubports(ctx, c.serviceClient, id, opts).ExtractErr()
 }
 
 func (c networkClient) CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error) {
