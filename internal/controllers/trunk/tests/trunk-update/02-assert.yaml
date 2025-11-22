@@ -1,0 +1,14 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: trunk
+      name: trunk-update
+      ref: trunk
+assertAll:
+    - celExpr: "trunk.status.resource.name == 'trunk-update'"
+    - celExpr: "trunk.status.resource.description == ''"
+    - celExpr: "trunk.status.resource.adminStateUp == true"
+    - celExpr: "size(trunk.status.resource.tags) == 0"
+
