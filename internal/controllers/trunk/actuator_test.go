@@ -191,12 +191,4 @@ func handleAdminStateUpUpdate(updateOpts *trunks.UpdateOpts, resource *orcv1alph
 	}
 }
 
-// getResourceName returns the name of the OpenStack resource we should use.
-// This is a test helper that mirrors the function in the generated adapter file.
-func getResourceName(orcObject *orcv1alpha1.Trunk) string {
-	if orcObject.Spec.Resource != nil && orcObject.Spec.Resource.Name != nil {
-		return string(*orcObject.Spec.Resource.Name)
-	}
-	return orcObject.Name
-}
 
