@@ -1,0 +1,64 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-create-full
+status:
+  resource:
+    name: trunk-create-full-override
+    description: Trunk from "create full" test
+    adminStateUp: true
+    status: ACTIVE
+    tags:
+    - tag1
+    - tag2
+    subports:
+    - portID: ""
+      segmentationType: vlan
+      segmentationID: 100
+    - portID: ""
+      segmentationType: vlan
+      segmentationID: 200
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: trunk
+      name: trunk-create-full
+      ref: trunk
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: port
+      name: trunk-create-full
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: port
+      name: trunk-create-full-subport1
+      ref: subport1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: port
+      name: trunk-create-full-subport2
+      ref: subport2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: project
+      name: trunk-create-full
+      ref: project
+assertAll:
+    - celExpr: "trunk.status.id != ''"
+    - celExpr: "trunk.status.resource.createdAt != ''"
+    - celExpr: "trunk.status.resource.updatedAt != ''"
+    - celExpr: "trunk.status.resource.portID == port.status.id"
+    - celExpr: "trunk.status.resource.name == 'trunk-create-full-override'"
+    - celExpr: "trunk.status.resource.description == 'Trunk from \"create full\" test'"
+    - celExpr: "trunk.status.resource.adminStateUp == true"
+    - celExpr: "trunk.status.resource.projectID == project.status.id"
+    - celExpr: "size(trunk.status.resource.subports) == 2"
+    - celExpr: "trunk.status.resource.subports[0].portID == subport1.status.id"
+    - celExpr: "trunk.status.resource.subports[0].segmentationType == 'vlan'"
+    - celExpr: "trunk.status.resource.subports[0].segmentationID == 100"
+    - celExpr: "trunk.status.resource.subports[1].portID == subport2.status.id"
+    - celExpr: "trunk.status.resource.subports[1].segmentationType == 'vlan'"
+    - celExpr: "trunk.status.resource.subports[1].segmentationID == 200"
+    - celExpr: "'tag1' in trunk.status.resource.tags"
+    - celExpr: "'tag2' in trunk.status.resource.tags"
+

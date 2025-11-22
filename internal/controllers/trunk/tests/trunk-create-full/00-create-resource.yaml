@@ -1,0 +1,108 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: trunk-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: trunk-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: trunk-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: trunk-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: trunk-create-full
+    ipVersion: 4
+    cidr: 192.168.157.0/24
+    projectRef: trunk-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-create-full-port
+    description: Parent port for trunk-create-full
+    networkRef: trunk-create-full
+    projectRef: trunk-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-create-full-subport1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-create-full-subport1
+    networkRef: trunk-create-full
+    projectRef: trunk-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-create-full-subport2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-create-full-subport2
+    networkRef: trunk-create-full
+    projectRef: trunk-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-create-full-override
+    description: Trunk from "create full" test
+    portRef: trunk-create-full
+    adminStateUp: true
+    tags:
+    - tag1
+    - tag2
+    subports:
+    - portRef: trunk-create-full-subport1
+      segmentationType: vlan
+      segmentationID: 100
+    - portRef: trunk-create-full-subport2
+      segmentationType: vlan
+      segmentationID: 200
+    projectRef: trunk-create-full
+
