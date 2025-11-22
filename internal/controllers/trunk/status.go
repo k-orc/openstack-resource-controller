@@ -70,7 +70,7 @@ func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
 	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+		resourceStatus = resourceStatus.WithDescription(osResource.Description)
 	}
 
 	if len(osResource.Subports) > 0 {
