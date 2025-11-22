@@ -243,10 +243,6 @@ func (c networkClient) ListTrunkSubports(ctx context.Context, trunkID string) ([
 	return trunks.GetSubports(ctx, c.serviceClient, trunkID).Extract()
 }
 
-func (c networkClient) RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error {
-	_, err := trunks.RemoveSubports(ctx, c.serviceClient, id, opts).Extract()
-	return err
-}
 
 func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error) {
 	allPages, err := trunks.List(c.serviceClient, opts).AllPages(ctx)
@@ -261,7 +257,8 @@ func (c networkClient) AddSubports(ctx context.Context, id string, opts trunks.A
 }
 
 func (c networkClient) RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOptsBuilder) error {
-	return trunks.RemoveSubports(ctx, c.serviceClient, id, opts).ExtractErr()
+	_, err := trunks.RemoveSubports(ctx, c.serviceClient, id, opts).Extract()
+	return err
 }
 
 func (c networkClient) CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error) {

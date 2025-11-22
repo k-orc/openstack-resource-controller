@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright 2025 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ var (
 			return ports
 		},
 		finalizer, externalObjectFieldOwner,
+		dependency.OverrideDependencyName("subport"),
 	)
 
 	projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Project](

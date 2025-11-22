@@ -20,8 +20,6 @@ import (
 	"context"
 	"fmt"
 	"iter"
-	"slices"
-	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
 	corev1 "k8s.io/api/core/v1"
