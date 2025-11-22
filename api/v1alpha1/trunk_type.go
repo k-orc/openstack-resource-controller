@@ -27,14 +27,38 @@ type TrunkFilter struct {
 	// +optional
 	Description *NeutronDescription `json:"description,omitempty"`
 
-	// portRef is a reference to the ORC Port which this trunk is associated with.
+	// admin state of the trunk (UP/DOWN)
 	// +optional
-	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
+	// status of the trunk (ACTIVE/BUILD/ERROR/DELETED/DOWN/any other Neutron-supported status)
+	// +optional
+	Status *string `json:"status,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
+	// projectID is the OpenStack project (tenant) ID for this trunk.
+	// +optional
+	ProjectID *string `json:"projectID,omitempty"`
+
+	// tenantID is the OpenStack tenant ID for this trunk.
+	// +optional
+	TenantID *string `json:"tenantID,omitempty"`
+
+	// portRef is a reference to the ORC Port which this trunk is associated with.
+	// +optional
+	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
+
+	// portID is the OpenStack port ID the trunk is associated with.
+	// +optional
+	PortID *string `json:"portID,omitempty"`
+
+	// revisionNumber is the revision number of the trunk.
+	// +optional
+	RevisionNumber *int64 `json:"revisionNumber,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -43,15 +67,18 @@ type TrunkFilter struct {
 type Subport struct {
 	// portRef is a reference to the ORC Port which will be used as a subport.
 	// +required
-	PortRef KubernetesNameRef `json:"portRef"`
-
-	// segmentationType is the type of segmentation to use (e.g., "vlan").
+	PortRef KubernetesNameRef `json:"portRef,omitempty"`
+	
+	// segmentationType is the type of segmentation to use.
+	// Possible values are "vlan" or "inherit".
 	// +required
-	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:MaxLength=32
 	SegmentationType string `json:"segmentationType"`
 
 	// segmentationID is the segmentation identifier (e.g., VLAN ID).
+	// If segmentationType is "vlan", must be between 1 and 4094 inclusive.
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self.segmentationType != 'vlan' || (self.segmentationID >= 1 && self.segmentationID <= 4094)"
 	SegmentationID int32 `json:"segmentationID"`
 }
 
@@ -63,7 +90,7 @@ type SubportStatus struct {
 	PortID string `json:"portID,omitempty"`
 
 	// segmentationType is the type of segmentation used.
-	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:MaxLength=32
 	// +optional
 	SegmentationType string `json:"segmentationType,omitempty"`
 
@@ -84,8 +111,7 @@ type TrunkResourceSpec struct {
 
 	// portRef is a reference to the ORC Port which will be used as the parent port for this trunk.
 	// +required
-	PortRef KubernetesNameRef `json:"portRef"`
-
+	PortRef KubernetesNameRef `json:"portRef,omitempty"`
 	// tags is a list of tags which will be applied to the trunk.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
@@ -155,4 +181,3 @@ type TrunkResourceStatus struct {
 
 	NeutronStatusMetadata `json:",inline"`
 }
-

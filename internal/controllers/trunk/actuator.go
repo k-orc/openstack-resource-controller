@@ -300,9 +300,15 @@ func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectP
 		return progress.WrapError(err)
 	}
 
+	// Refresh is needed to get the updated resource state from OpenStack after modifications.
+	// This ensures the status accurately reflects the current state before the next reconciliation cycle.
 	return progress.NeedsRefresh()
 }
 
+// reconcileSubports ensures the trunk's subports match the desired state from the spec.
+// It handles adding new subports, removing deleted ones, and updating existing subports.
+// Note: OpenStack trunk API does not support in-place updates of subport segmentation,
+// so changes require removing and re-adding the subport, which may cause brief network interruption.
 func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
@@ -332,6 +338,7 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 		subportPort, ok := portMap[portName]
 		if !ok {
 			// Port not ready yet, will be retried
+			log.V(logging.Debug).Info("Skipping subport: port not ready", "portRef", portName)
 			continue
 		}
 		desiredSubports = append(desiredSubports, trunks.Subport{
@@ -341,23 +348,19 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 		})
 	}
 
-	// Build maps for comparison
-	currentMap := make(map[string]trunks.Subport)
-	for _, subport := range currentSubports {
-		currentMap[subport.PortID] = subport
-	}
-
-	desiredMap := make(map[string]trunks.Subport)
-	for _, subport := range desiredSubports {
-		desiredMap[subport.PortID] = subport
-	}
+	// Build maps for comparison (keyed by PortID for efficient lookup)
+	currentMap := buildSubportMap(currentSubports)
+	desiredMap := buildSubportMap(desiredSubports)
 
 	// Find subports to add
+	// Note: OpenStack trunk API does not support in-place updates of subport segmentation.
+	// When segmentation type or ID changes, we must remove the old subport and add it back
+	// with the new segmentation. This may cause a brief network interruption for that subport.
 	toAdd := []trunks.Subport{}
 	for portID, desired := range desiredMap {
 		if current, exists := currentMap[portID]; !exists {
 			toAdd = append(toAdd, desired)
-		} else if current.SegmentationType != desired.SegmentationType || current.SegmentationID != desired.SegmentationID {
+		} else if subportNeedsUpdate(current, desired) {
 			// Subport exists but with different segmentation, need to remove and re-add
 			// First remove the old one
 			removeOpts := trunks.RemoveSubportsOpts{
@@ -396,10 +399,27 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 	}
 
 	if len(toAdd) > 0 || len(toRemove) > 0 {
+		// Refresh is needed to get the updated subport list from OpenStack after modifications.
+		// This ensures the status accurately reflects the current state before the next reconciliation.
 		return progress.NeedsRefresh()
 	}
 
 	return nil
+}
+
+// buildSubportMap creates a map of subports keyed by PortID for efficient comparison.
+func buildSubportMap(subports []trunks.Subport) map[string]trunks.Subport {
+	result := make(map[string]trunks.Subport, len(subports))
+	for _, subport := range subports {
+		result[subport.PortID] = subport
+	}
+	return result
+}
+
+// subportNeedsUpdate checks if a subport needs to be updated by comparing segmentation parameters.
+// OpenStack trunk API does not support in-place updates, so any change requires remove+re-add.
+func subportNeedsUpdate(current, desired trunks.Subport) bool {
+	return current.SegmentationType != desired.SegmentationType || current.SegmentationID != desired.SegmentationID
 }
 
 type trunkHelperFactory struct{}
