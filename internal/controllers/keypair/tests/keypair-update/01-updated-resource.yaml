@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-update
+spec:
+  resource:
+    name: keypair-update-updated
+    description: keypair-update-updated
+    # TODO(scaffolding): update all mutable fields

@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: keypair-import-external
+      description: KeyPair keypair-import-external from "keypair-import" test
+      # TODO(scaffolding): Add all fields supported by the filter
