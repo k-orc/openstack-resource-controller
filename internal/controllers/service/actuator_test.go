@@ -123,7 +123,7 @@ func TestHandleNameUpdate(t *testing.T) {
 			obj := &orcv1alpha1.Service{Spec: orcv1alpha1.ServiceSpec{
 				Resource: &orcv1alpha1.ServiceResourceSpec{
 					Name: (*orcv1alpha1.OpenStackName)(tt.newValue)},
-				},
+			},
 			}
 			osResource := &osResourceT{Extra: map[string]any{"name": tt.existingValue}}
 
@@ -152,7 +152,7 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			resource := &orcv1alpha1.ServiceResourceSpec{
-					Description: tt.newValue,
+				Description: tt.newValue,
 			}
 			osResource := &osResourceT{Extra: map[string]any{"description": tt.existingValue}}
 
