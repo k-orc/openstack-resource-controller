@@ -55,13 +55,13 @@ func TestNeedsUpdate(t *testing.T) {
 func TestHandleTypeUpdate(t *testing.T) {
 	testCases := []struct {
 		name           string
-		newValue       *string
+		newValue       string
 		existingValue  string
 		expectedChange bool
 	}{
-		{name: "Identical", newValue: ptr.To("service"), existingValue: "service", expectedChange: false},
-		{name: "Different", newValue: ptr.To("new-service"), existingValue: "service", expectedChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "service", expectedChange: false},
+		{name: "Identical", newValue: "service", existingValue: "service", expectedChange: false},
+		{name: "Different", newValue: "new-service", existingValue: "service", expectedChange: true},
+		{name: "No value provided, existing is set", newValue: "", existingValue: "service", expectedChange: false},
 	}
 
 	for _, tt := range testCases {
@@ -106,25 +106,58 @@ func TestHandleEnabledUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleExtraUpdate(t *testing.T) {
+func TestHandleNameUpdate(t *testing.T) {
 	testCases := []struct {
 		name           string
-		newValue       map[string]any
-		existingValue  map[string]any
+		newValue       *string
+		existingValue  string
 		expectedChange bool
 	}{
-		{name: "Identical", newValue: map[string]any{"name": "service"}, existingValue: map[string]any{"name": "service"}, expectedChange: false},
-		{name: "Different", newValue: map[string]any{"name": "new-service"}, existingValue: map[string]any{"name": "service"}, expectedChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: map[string]any{"name": "service"}, expectedChange: false},
+		{name: "Identical", newValue: ptr.To("same-name"), existingValue: "same-name", expectedChange: false},
+		{name: "Different", newValue: ptr.To("new-name"), existingValue: "same-name", expectedChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "service-name", expectedChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.ServiceResourceSpec{Extra: tt.newValue}
-			osResource := &osResourceT{Extra: tt.existingValue}
+			obj := &orcv1alpha1.Service{Spec: orcv1alpha1.ServiceSpec{
+				Resource: &orcv1alpha1.ServiceResourceSpec{
+					Name: (*orcv1alpha1.OpenStackName)(tt.newValue)},
+				},
+			}
+			osResource := &osResourceT{Extra: map[string]any{"name": tt.existingValue}}
 
-			updateOpts := services.UpdateOpts{}
-			handleExtraUpdate(&updateOpts, resource, osResource)
+			updateOpts := services.UpdateOpts{Extra: make(map[string]any)}
+			handleNameUpdate(&updateOpts, obj, osResource)
+
+			if got, _ := needsUpdate(updateOpts); got != tt.expectedChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectedChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleDescriptionUpdate(t *testing.T) {
+	testCases := []struct {
+		name           string
+		newValue       *string
+		existingValue  string
+		expectedChange bool
+	}{
+		{name: "Identical", newValue: ptr.To("same-description"), existingValue: "same-description", expectedChange: false},
+		{name: "Different", newValue: ptr.To("new-description"), existingValue: "same-description", expectedChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "service-description", expectedChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.ServiceResourceSpec{
+					Description: tt.newValue,
+			}
+			osResource := &osResourceT{Extra: map[string]any{"description": tt.existingValue}}
+
+			updateOpts := services.UpdateOpts{Extra: make(map[string]any)}
+			handleDescriptionUpdate(&updateOpts, resource, osResource)
 
 			if got, _ := needsUpdate(updateOpts); got != tt.expectedChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectedChange, got)

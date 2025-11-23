@@ -5,10 +5,9 @@ metadata:
   name: service-update
 status:
   resource:
+    name: service-update
     enabled: true
     type: service-update
-    extra:
-      name: service-update
   conditions:
   - type: Available
     status: "True"

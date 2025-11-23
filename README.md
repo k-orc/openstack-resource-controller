@@ -77,7 +77,7 @@ kubectl delete -f $ORC_RELEASE
 | security group (incl. rule) |         |    ✔    |     ✔    |
 | server                      |         |    ◐    |     ◐    |
 | server group                |         |    ✔    |     ✔    |
-| services                    |         |    ✔    |     ✔    |
+| service                     |         |    ✔    |     ✔    |
 | subnet                      |         |    ◐    |     ◐    |
 | volume                      |         |    ◐    |     ◐    |
 | volume type                 |         |    ◐    |     ◐    |

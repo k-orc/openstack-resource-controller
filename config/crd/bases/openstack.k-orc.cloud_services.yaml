@@ -149,21 +149,32 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  description:
+                    description: description indicates the description of service.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   enabled:
                     default: true
                     description: enabled indicates whether the service is enabled
                       or not.
                     type: boolean
-                  extra:
-                    additionalProperties: true
-                    description: extra indicates key-value information about the service.
-                    type: object
+                  name:
+                    description: |-
+                      name indicates the name of service. If not specified, the name of the ORC
+                      resource will be used.
+                    maxLength: 255
+                    minLength: 1
+                    pattern: ^[^,]+$
+                    type: string
                   type:
                     description: type indicates which resource the service is responsible
                       for.
                     maxLength: 255
                     minLength: 1
                     type: string
+                required:
+                - type
                 type: object
             required:
             - cloudCredentialsRef
@@ -267,16 +278,21 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  description:
+                    description: description indicates the description of service.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   enabled:
                     default: true
                     description: enabled indicates whether the service is enabled
                       or not.
                     type: boolean
-                  extra:
-                    additionalProperties:
-                      type: string
-                    description: extra indicates key-value information about the service.
-                    type: object
+                  name:
+                    description: name indicates the name of service.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   type:
                     description: description is a human-readable description for the
                       resource.

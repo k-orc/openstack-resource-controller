@@ -18,18 +18,27 @@ package v1alpha1
 
 // ServiceResourceSpec contains the desired state of the resource.
 type ServiceResourceSpec struct {
-	// type indicates which resource the service is responsible for.
+	// name indicates the name of service. If not specified, the name of the ORC
+	// resource will be used.
+	// +optional
+	Name *OpenStackName `json:"name,omitempty"`
+
+	// description indicates the description of service.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Type *string `json:"type,omitempty"`
+	Description *string `json:"description,omitempty"`
+
+	// type indicates which resource the service is responsible for.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Type string `json:"type,omitempty"`
 
 	// enabled indicates whether the service is enabled or not.
 	// +kubebuilder:default=true
+	// +optional
 	Enabled *bool `json:"enabled,omitempty"`
-
-	// extra indicates key-value information about the service.
-	Extra map[string]any `json:"extra,omitempty"`
 }
 
 // ServiceFilter defines an existing resource by its properties
@@ -48,18 +57,26 @@ type ServiceFilter struct {
 
 // ServiceResourceStatus represents the observed state of the resource.
 type ServiceResourceStatus struct {
+	// name indicates the name of service.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Name string `json:"name,omitempty"`
+
+	// description indicates the description of service.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Description *string `json:"description,omitempty"`
+
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Type *string `json:"type,omitempty"`
+	Type string `json:"type,omitempty"`
 
 	// enabled indicates whether the service is enabled or not.
 	// +kubebuilder:default=true
 	// +optional
 	Enabled *bool `json:"enabled,omitempty"`
-
-	// extra indicates key-value information about the service.
-	// +optional
-	Extra map[string]any `json:"extra,omitempty"`
 }

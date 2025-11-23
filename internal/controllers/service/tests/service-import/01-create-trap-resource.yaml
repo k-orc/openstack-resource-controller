@@ -12,6 +12,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: "service-import-external"
     type: "service-import"
-    extra:
-      name: "service-import-external"

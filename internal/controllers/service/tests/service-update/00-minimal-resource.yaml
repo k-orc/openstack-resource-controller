@@ -9,6 +9,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: service-update
     type: service-update
-    extra:
-      name: service-update

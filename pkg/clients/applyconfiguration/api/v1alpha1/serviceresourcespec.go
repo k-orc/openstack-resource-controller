@@ -18,18 +18,39 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+)
+
 // ServiceResourceSpecApplyConfiguration represents a declarative configuration of the ServiceResourceSpec type for use
 // with apply.
 type ServiceResourceSpecApplyConfiguration struct {
-	Type    *string        `json:"type,omitempty"`
-	Enabled *bool          `json:"enabled,omitempty"`
-	Extra   map[string]any `json:"extra,omitempty"`
+	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Description *string                    `json:"description,omitempty"`
+	Type        *string                    `json:"type,omitempty"`
+	Enabled     *bool                      `json:"enabled,omitempty"`
 }
 
 // ServiceResourceSpecApplyConfiguration constructs a declarative configuration of the ServiceResourceSpec type for use with
 // apply.
 func ServiceResourceSpec() *ServiceResourceSpecApplyConfiguration {
 	return &ServiceResourceSpecApplyConfiguration{}
+}
+
+// WithName sets the Name field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Name field is set to the value of the last call.
+func (b *ServiceResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ServiceResourceSpecApplyConfiguration {
+	b.Name = &value
+	return b
+}
+
+// WithDescription sets the Description field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Description field is set to the value of the last call.
+func (b *ServiceResourceSpecApplyConfiguration) WithDescription(value string) *ServiceResourceSpecApplyConfiguration {
+	b.Description = &value
+	return b
 }
 
 // WithType sets the Type field in the declarative configuration to the given value
@@ -45,19 +66,5 @@ func (b *ServiceResourceSpecApplyConfiguration) WithType(value string) *ServiceR
 // If called multiple times, the Enabled field is set to the value of the last call.
 func (b *ServiceResourceSpecApplyConfiguration) WithEnabled(value bool) *ServiceResourceSpecApplyConfiguration {
 	b.Enabled = &value
-	return b
-}
-
-// WithExtra puts the entries into the Extra field in the declarative configuration
-// and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, the entries provided by each call will be put on the Extra field,
-// overwriting an existing map entries in Extra field with the same key.
-func (b *ServiceResourceSpecApplyConfiguration) WithExtra(entries map[string]any) *ServiceResourceSpecApplyConfiguration {
-	if b.Extra == nil && len(entries) > 0 {
-		b.Extra = make(map[string]any, len(entries))
-	}
-	for k, v := range entries {
-		b.Extra[k] = v
-	}
 	return b
 }

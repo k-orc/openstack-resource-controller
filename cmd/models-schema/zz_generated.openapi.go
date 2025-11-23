@@ -7632,6 +7632,20 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceResourceSpec(re
 				Description: "ServiceResourceSpec contains the desired state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name indicates the name of service. If not specified, the name of the ORC resource will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description indicates the description of service.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"type": {
 						SchemaProps: spec.SchemaProps{
 							Description: "type indicates which resource the service is responsible for.",
@@ -7646,23 +7660,8 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceResourceSpec(re
 							Format:      "",
 						},
 					},
-					"extra": {
-						SchemaProps: spec.SchemaProps{
-							Description: "extra indicates key-value information about the service.",
-							Type:        []string{"object"},
-							AdditionalProperties: &spec.SchemaOrBool{
-								Allows: true,
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
-						},
-					},
 				},
+				Required: []string{"type"},
 			},
 		},
 	}
@@ -7675,6 +7674,20 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceResourceStatus(
 				Description: "ServiceResourceStatus represents the observed state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name indicates the name of service.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description indicates the description of service.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"type": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
@@ -7687,22 +7700,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceResourceStatus(
 							Description: "enabled indicates whether the service is enabled or not.",
 							Type:        []string{"boolean"},
 							Format:      "",
-						},
-					},
-					"extra": {
-						SchemaProps: spec.SchemaProps{
-							Description: "extra indicates key-value information about the service.",
-							Type:        []string{"object"},
-							AdditionalProperties: &spec.SchemaOrBool{
-								Allows: true,
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
 						},
 					},
 				},

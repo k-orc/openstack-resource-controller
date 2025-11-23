@@ -5,9 +5,9 @@ metadata:
   name: service-create-minimal
 status:
   resource:
+    name: "service-create-minimal"
     type: "service"
-    extra:
-      name: "service-create-minimal"
+    enabled: true
   conditions:
   - type: Available
     status: "True"
@@ -25,7 +25,6 @@ resourceRefs:
       ref: service
 assertAll:
     - celExpr: "service.status.id != ''"
-    - celExpr: "service.status.resource.extra.name != ''"
+    - celExpr: "service.status.resource.name != ''"
     - celExpr: "service.status.resource.type != ''"
-    - celExpr: "!has(service.status.resource.extra.description)"
-    - celExpr: "!has(service.status.resource.extra.enabled)"
+    - celExpr: "!has(service.status.resource.description)"

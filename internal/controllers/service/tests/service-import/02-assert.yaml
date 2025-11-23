@@ -17,7 +17,7 @@ resourceRefs:
 assertAll:
     - celExpr: "service2.status.id != service3.status.id"
     - celExpr: "service1.status.id == service2.status.id"
-    - celExpr: "service1.status.resource.extra.name == service2.status.resource.extra.name"
+    - celExpr: "service1.status.resource.name == service2.status.resource.name"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
@@ -34,7 +34,6 @@ status:
       status: "False"
       reason: Success
   resource:
+    name: service-import-external
+    description: Service from "import" test case
     type: service-import-external
-    extra:
-      name: service-import-external
-      description: Service from "import" test case

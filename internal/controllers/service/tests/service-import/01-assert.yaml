@@ -14,9 +14,9 @@ status:
       status: "False"
       reason: Success
   resource:
+    name: service-import-external
     type: service-import
-    extra:
-      name: service-import-external
+    enabled: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service

@@ -1738,6 +1738,7 @@ _Appears in:_
 - [ServerGroupResourceSpec](#servergroupresourcespec)
 - [ServerResourceSpec](#serverresourcespec)
 - [ServiceFilter](#servicefilter)
+- [ServiceResourceSpec](#serviceresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [VolumeFilter](#volumefilter)
@@ -3098,9 +3099,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name indicates the name of service. If not specified, the name of the ORC<br />resource will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description indicates the description of service. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `type` _string_ | type indicates which resource the service is responsible for. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `enabled` _boolean_ | enabled indicates whether the service is enabled or not. | True |  |
-| `extra` _object (keys:string, values:string)_ | extra indicates key-value information about the service. |  |  |
+| `enabled` _boolean_ | enabled indicates whether the service is enabled or not. | true |  |
 
 
 #### ServiceResourceStatus
@@ -3116,9 +3118,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `name` _string_ | name indicates the name of service. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `description` _string_ | description indicates the description of service. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `type` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `enabled` _boolean_ | enabled indicates whether the service is enabled or not. | True |  |
-| `extra` _object (keys:string, values:string)_ | extra indicates key-value information about the service. |  |  |
+| `enabled` _boolean_ | enabled indicates whether the service is enabled or not. | true |  |
 
 
 #### ServiceSpec

@@ -5,8 +5,7 @@ metadata:
   name: service-update
 spec:
   resource:
+    name: service-update-updated
+    description: service-update-updated
     enabled: false
     type: service-update-updated
-    extra:
-      name: service-update-updated
-      description: service-update-updated

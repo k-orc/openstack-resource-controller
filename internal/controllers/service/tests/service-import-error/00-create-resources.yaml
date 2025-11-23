@@ -9,9 +9,8 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: service-import-error-external
     type: service-import-error-external-1
-    extra:
-      name: service-import-error-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
@@ -23,6 +22,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: service-import-error-external
     type: service-import-error-external-2
-    extra:
-      name: service-import-error-external

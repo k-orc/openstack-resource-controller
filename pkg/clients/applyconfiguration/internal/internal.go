@@ -2226,28 +2226,30 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceSpec
   map:
     fields:
+    - name: description
+      type:
+        scalar: string
     - name: enabled
       type:
         scalar: boolean
-    - name: extra
+    - name: name
       type:
-        map:
-          elementType:
-            scalar: string
+        scalar: string
     - name: type
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceStatus
   map:
     fields:
+    - name: description
+      type:
+        scalar: string
     - name: enabled
       type:
         scalar: boolean
-    - name: extra
+    - name: name
       type:
-        map:
-          elementType:
-            scalar: string
+        scalar: string
     - name: type
       type:
         scalar: string

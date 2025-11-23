@@ -52,7 +52,11 @@ func (serviceStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRe
 	resourceStatus := orcapplyconfigv1alpha1.ServiceResourceStatus().
 		WithEnabled(osResource.Enabled).
 		WithType(osResource.Type).
-		WithExtra(osResource.Extra)
+		WithName(osResource.Extra["name"].(string))
+
+	if description, ok := osResource.Extra["description"]; ok && description != nil {
+		resourceStatus.WithDescription(description.(string))
+	}
 
 	statusApply.WithResource(resourceStatus)
 }

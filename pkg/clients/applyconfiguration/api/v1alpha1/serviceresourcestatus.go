@@ -21,15 +21,32 @@ package v1alpha1
 // ServiceResourceStatusApplyConfiguration represents a declarative configuration of the ServiceResourceStatus type for use
 // with apply.
 type ServiceResourceStatusApplyConfiguration struct {
-	Type    *string        `json:"type,omitempty"`
-	Enabled *bool          `json:"enabled,omitempty"`
-	Extra   map[string]any `json:"extra,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Type        *string `json:"type,omitempty"`
+	Enabled     *bool   `json:"enabled,omitempty"`
 }
 
 // ServiceResourceStatusApplyConfiguration constructs a declarative configuration of the ServiceResourceStatus type for use with
 // apply.
 func ServiceResourceStatus() *ServiceResourceStatusApplyConfiguration {
 	return &ServiceResourceStatusApplyConfiguration{}
+}
+
+// WithName sets the Name field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Name field is set to the value of the last call.
+func (b *ServiceResourceStatusApplyConfiguration) WithName(value string) *ServiceResourceStatusApplyConfiguration {
+	b.Name = &value
+	return b
+}
+
+// WithDescription sets the Description field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Description field is set to the value of the last call.
+func (b *ServiceResourceStatusApplyConfiguration) WithDescription(value string) *ServiceResourceStatusApplyConfiguration {
+	b.Description = &value
+	return b
 }
 
 // WithType sets the Type field in the declarative configuration to the given value
@@ -45,19 +62,5 @@ func (b *ServiceResourceStatusApplyConfiguration) WithType(value string) *Servic
 // If called multiple times, the Enabled field is set to the value of the last call.
 func (b *ServiceResourceStatusApplyConfiguration) WithEnabled(value bool) *ServiceResourceStatusApplyConfiguration {
 	b.Enabled = &value
-	return b
-}
-
-// WithExtra puts the entries into the Extra field in the declarative configuration
-// and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, the entries provided by each call will be put on the Extra field,
-// overwriting an existing map entries in Extra field with the same key.
-func (b *ServiceResourceStatusApplyConfiguration) WithExtra(entries map[string]any) *ServiceResourceStatusApplyConfiguration {
-	if b.Extra == nil && len(entries) > 0 {
-		b.Extra = make(map[string]any, len(entries))
-	}
-	for k, v := range entries {
-		b.Extra[k] = v
-	}
 	return b
 }

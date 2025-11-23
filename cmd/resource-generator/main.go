@@ -146,8 +146,7 @@ var resources []templateFields = []templateFields{
 		Name: "VolumeType",
 	},
 	{
-		Name:       "Service",
-		IsNotNamed: true,
+		Name: "Service",
 	},
 }
 

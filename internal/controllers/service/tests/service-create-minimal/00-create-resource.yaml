@@ -9,6 +9,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: "service-create-minimal"
     type: "service"
-    extra:
-      name: "service-create-minimal"
