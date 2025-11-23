@@ -79,6 +79,11 @@ spec:
       kind: Server
       name: servers.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Service is the Schema for an ORC resource.
+      displayName: Service
+      kind: Service
+      name: services.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Subnet is the Schema for an ORC resource.
       displayName: Subnet
       kind: Subnet

@@ -264,6 +264,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerVolumeSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerVolumeStatus"):
 		return &apiv1alpha1.ServerVolumeStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Service"):
+		return &apiv1alpha1.ServiceApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServiceFilter"):
+		return &apiv1alpha1.ServiceFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServiceImport"):
+		return &apiv1alpha1.ServiceImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServiceResourceSpec"):
+		return &apiv1alpha1.ServiceResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServiceResourceStatus"):
+		return &apiv1alpha1.ServiceResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServiceSpec"):
+		return &apiv1alpha1.ServiceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServiceStatus"):
+		return &apiv1alpha1.ServiceStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Subnet"):
 		return &apiv1alpha1.SubnetApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetFilter"):
