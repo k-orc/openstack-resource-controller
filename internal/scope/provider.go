@@ -275,11 +275,16 @@ func getCloudFromSecret(ctx context.Context, ctrlClient client.Client, secretNam
 		return emptyCloud, nil, fmt.Errorf("failed to unmarshal clouds credentials stored in secret %v: %v", secretName, err)
 	}
 
+	cloudsYaml, ok := clouds.Clouds[cloudName]
+	if !ok {
+		return emptyCloud, nil, fmt.Errorf("no cloud named: %v, in the provided config", cloudName)
+	}
+
 	// get caCert
 	caCert, ok := secret.Data[orcv1alpha1.CloudCredencialsCASecretKey]
 	if !ok {
-		return clouds.Clouds[cloudName], nil, nil
+		return cloudsYaml, nil, nil
 	}
 
-	return clouds.Clouds[cloudName], caCert, nil
+	return cloudsYaml, caCert, nil
 }
