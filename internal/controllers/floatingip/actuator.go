@@ -356,11 +356,11 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.FloatingIP, control
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return floatingipActuator{}, nil
+		return floatingipActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return floatingipActuator{}, nil
+		return floatingipActuator{}, progress.WrapError(err)
 	}
 
 	return floatingipActuator{

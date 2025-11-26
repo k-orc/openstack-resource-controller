@@ -304,11 +304,11 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller 
 
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
-		return routerActuator{}, nil
+		return routerActuator{}, progress.WrapError(err)
 	}
 	osClient, err := clientScope.NewNetworkClient()
 	if err != nil {
-		return routerActuator{}, nil
+		return routerActuator{}, progress.WrapError(err)
 	}
 
 	return routerActuator{
