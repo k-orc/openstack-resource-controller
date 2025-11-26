@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-create-minimal
+status:
+  resource:
+    name: trunk-create-minimal
+    adminStateUp: true
+    status: ACTIVE
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: trunk
+      name: trunk-create-minimal
+      ref: trunk
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: port
+      name: trunk-create-minimal
+      ref: port
+assertAll:
+    - celExpr: "trunk.status.id != ''"
+    - celExpr: "trunk.status.resource.createdAt != ''"
+    - celExpr: "trunk.status.resource.updatedAt != ''"
+    - celExpr: "trunk.status.resource.portID == port.status.id"
+    - celExpr: "trunk.status.resource.name == 'trunk-create-minimal'"
+    - celExpr: "trunk.status.resource.adminStateUp == true"
+
