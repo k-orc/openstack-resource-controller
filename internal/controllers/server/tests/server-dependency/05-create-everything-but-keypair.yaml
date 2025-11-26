@@ -1,0 +1,33 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Server
+  name: server-dependency
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: server-dependency
+data:
+  value: I2Nsb3VkLWNvbmZpZwoKdXNlcnM6CiAgLSBkZWZhdWx0Cg==
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: server-dependency
+    flavorRef: server-dependency
+    ports:
+      - portRef: server-dependency
+    serverGroupRef: server-dependency
+    keypairRef: server-dependency
+    userData:
+      secretRef: server-dependency

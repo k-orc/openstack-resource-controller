@@ -25,12 +25,21 @@ import (
 // +kubebuilder:validation:MinProperties:=1
 // +kubebuilder:validation:MaxProperties:=1
 type {{ .Name }}Import struct {
+{{- if .UsesNameAsID }}
+	// id contains the name of an existing resource. Note: This resource uses
+	// the resource name as the unique identifier, not a UUID.
+	// When specifying an import by ID, the resource MUST already exist.
+	// The ORC object will enter an error state if the resource does not exist.
+	// +optional
+	ID *string `json:"id,omitempty"`
+{{- else }}
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
 	// +optional
 	// +kubebuilder:validation:Format:=uuid
 	ID *string `json:"id,omitempty"`
+{{- end }}
 
 	// filter contains a resource query which is expected to return a single
 	// result. The controller will continue to retry if filter returns no

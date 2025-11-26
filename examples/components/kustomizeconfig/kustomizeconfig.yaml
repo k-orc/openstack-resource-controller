@@ -23,6 +23,8 @@ nameReference:
     kind: Server
   - path: spec/cloudCredentialsRef/secretName
     kind: Subnet
+  - path: spec/cloudCredentialsRef/secretName
+    kind: KeyPair
 
 - kind: Network
   fieldSpecs:
@@ -62,6 +64,11 @@ nameReference:
 - kind: Flavor
   fieldSpecs:
   - path: spec/resource/flavorRef
+    kind: Server
+
+- kind: KeyPair
+  fieldSpecs:
+  - path: spec/resource/keypairRef
     kind: Server
 
 - kind: Port

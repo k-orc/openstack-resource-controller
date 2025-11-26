@@ -65,6 +65,10 @@ type templateFields struct {
 	// NOTE: this is temporary until we migrate the controllers to use a dedicated client
 	// New controllers should not set this field
 	ExistingOSClient bool
+	// UsesNameAsID indicates that this resource uses its name as the ID instead of a UUID.
+	// When true, the UUID validation will be omitted from the Import.ID field.
+	// Default is false (uses UUID).
+	UsesNameAsID bool
 }
 
 var resources []templateFields = []templateFields{
@@ -147,6 +151,10 @@ var resources []templateFields = []templateFields{
 	},
 	{
 		Name: "Service",
+	},
+	{
+		Name:         "KeyPair",
+		UsesNameAsID: true, // Keypairs uses name as ID, not UUID
 	},
 }
 

@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-create-minimal
+status:
+  resource:
+    # Name should default to object name
+    name: keypair-create-minimal
+    # Type should default to ssh
+    type: ssh
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: KeyPair
+      name: keypair-create-minimal
+      ref: keypair
+assertAll:
+    # Verify ID is set (for keypairs, ID equals name - they don't have UUIDs)
+    - celExpr: "keypair.status.id != ''"
+    # Verify fingerprint is populated
+    - celExpr: "keypair.status.resource.fingerprint != ''"
+    # Verify public key matches what we provided in the spec
+    - celExpr: "keypair.status.resource.publicKey == keypair.spec.resource.publicKey"

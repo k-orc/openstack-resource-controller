@@ -32,6 +32,8 @@ type Interface interface {
 	FloatingIPs() FloatingIPInformer
 	// Images returns a ImageInformer.
 	Images() ImageInformer
+	// KeyPairs returns a KeyPairInformer.
+	KeyPairs() KeyPairInformer
 	// Networks returns a NetworkInformer.
 	Networks() NetworkInformer
 	// Ports returns a PortInformer.
@@ -87,6 +89,11 @@ func (v *version) FloatingIPs() FloatingIPInformer {
 // Images returns a ImageInformer.
 func (v *version) Images() ImageInformer {
 	return &imageInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// KeyPairs returns a KeyPairInformer.
+func (v *version) KeyPairs() KeyPairInformer {
+	return &keyPairInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Networks returns a NetworkInformer.

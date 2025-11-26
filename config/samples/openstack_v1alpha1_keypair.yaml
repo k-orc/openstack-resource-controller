@@ -1,0 +1,46 @@
+---
+# Example 1: Import an existing public key
+# Use this when you already have a keypair and want to import the public key to OpenStack
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Public key to import (replace with your actual public key)
+    publicKey: |
+      ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC... user@hostname
+---
+# Example 2: Import an existing keypair by ID (unmanaged)
+# Use this to reference a keypair by name (keypairs use name as ID)
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-unmanaged-by-id
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    # For keypairs, the ID is the keypair name
+    id: existing-keypair-name
+---
+# Example 3: Import an existing keypair by filter (unmanaged)
+# Use this to reference a keypair that was created outside of ORC
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-unmanaged-by-filter
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: existing-keypair-name

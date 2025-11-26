@@ -21,6 +21,7 @@ rules:
   - flavors
   - floatingips
   - images
+  - keypairs
   - networks
   - ports
   - projects
@@ -48,6 +49,7 @@ rules:
   - flavors/status
   - floatingips/status
   - images/status
+  - keypairs/status
   - networks/status
   - ports/status
   - projects/status

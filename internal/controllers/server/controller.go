@@ -130,6 +130,20 @@ var (
 		},
 	)
 
+	// We don't need a deletion guard on the keypair because it's only
+	// used on creation. The keypair reference is injected during server boot.
+	keypairDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.KeyPair](
+		"spec.resource.keypairRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil || resource.KeypairRef == nil {
+				return nil
+			}
+
+			return []string{string(*resource.KeypairRef)}
+		},
+	)
+
 	volumeDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Volume](
 		"spec.resource.volumes",
 		func(server *orcv1alpha1.Server) []string {
@@ -178,6 +192,10 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	keypairWatchEventHandler, err := keypairDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
@@ -197,6 +215,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.Volume{}, volumeWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Volume{})),
 		).
+		Watches(&orcv1alpha1.KeyPair{}, keypairWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.KeyPair{})),
+		).
 		// XXX: This is a general watch on secrets. A general watch on secrets
 		// is undesirable because:
 		// - It requires problematic RBAC
@@ -213,6 +234,7 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		serverGroupDependency.AddToManager(ctx, mgr),
 		userDataDependency.AddToManager(ctx, mgr),
 		volumeDependency.AddToManager(ctx, mgr),
+		keypairDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

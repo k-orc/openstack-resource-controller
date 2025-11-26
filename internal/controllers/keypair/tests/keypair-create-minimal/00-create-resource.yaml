@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # Minimal creation: import a public key with minimal options
+  # Name and type will use defaults (object name and ssh)
+  resource:
+    publicKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCZE5Jn/aIIsiEwN/d3VNM7DP5681UWoSWqg0g/ZyoGB+pTrOhKTjc5cTd386xQkKrSyeVK2KP4PD0YxiVv89gayCHiKlJjq/F6FBwhRRohkbMrTFqW7R3xkmL0xvCCvnD5T0b7ySOP9Og5LttkBmvSf0FgRHHcUOeTJPX1e5PqE+ctsRpRqB99rdicFGoiQ9PNLJykKu6xvZY2yfT6VLpfHlXnBq1q/bXA9CeXM98uxi2HjpJtWrzNLS3vSD8IKTILiralGdOLGSwh209cJbvqpwVUOZ1HZj7WSxO+iF29Ybr2hufoaZbZgFzx1ISH0tDGSRT2t5Bvyk725ERZw4gpSUSQWlQ4IuPZ0UFHIpMo5YO+mjIElVixULXRcLQG41Sh8/wWhAIM5KHVl1No4xxpqHzlWZLdtpUvvs/NCMLk4f70tkIinRq7iC/YOUGy9p9UB5N/MqzsPHKeNsBPlpMaA4t8lyav6a9Ljh5Wleg39w9aEkanJKFEufnCR5XG+iWgKAdMohMBL+cQvOqcm1N45T7PryZqbn63OuqtoBw0MBC7MqBk5c7x+5SyhnBGzh42KKUPXT1OLhXeS6EuW1Lt2VApOzvB16wOs/bIS/Gz1U1adckxXDb85m+sowHJpf/7GQWZExB/c1JaFPUeRlpshA4btVFcKD/oln8EOetx7Q== example_user@example.com
