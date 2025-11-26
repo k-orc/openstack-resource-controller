@@ -22,6 +22,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [SecurityGroup](#securitygroup)
 - [Server](#server)
 - [ServerGroup](#servergroup)
+- [Service](#service)
 - [Subnet](#subnet)
 - [Volume](#volume)
 - [VolumeType](#volumetype)
@@ -170,6 +171,7 @@ _Appears in:_
 - [SecurityGroupSpec](#securitygroupspec)
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
+- [ServiceSpec](#servicespec)
 - [SubnetSpec](#subnetspec)
 - [VolumeSpec](#volumespec)
 - [VolumeTypeSpec](#volumetypespec)
@@ -1409,6 +1411,7 @@ _Appears in:_
 - [SecurityGroupSpec](#securitygroupspec)
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
+- [ServiceSpec](#servicespec)
 - [SubnetSpec](#subnetspec)
 - [VolumeSpec](#volumespec)
 - [VolumeTypeSpec](#volumetypespec)
@@ -1439,6 +1442,7 @@ _Appears in:_
 - [SecurityGroupSpec](#securitygroupspec)
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
+- [ServiceSpec](#servicespec)
 - [SubnetSpec](#subnetspec)
 - [VolumeSpec](#volumespec)
 - [VolumeTypeSpec](#volumetypespec)
@@ -1733,6 +1737,8 @@ _Appears in:_
 - [ServerGroupFilter](#servergroupfilter)
 - [ServerGroupResourceSpec](#servergroupresourcespec)
 - [ServerResourceSpec](#serverresourcespec)
+- [ServiceFilter](#servicefilter)
+- [ServiceResourceSpec](#serviceresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [VolumeFilter](#volumefilter)
@@ -3021,6 +3027,139 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `id` _string_ | id is the ID of a volume attached to the server. |  | MaxLength: 1024 <br /> |
+
+
+#### Service
+
+
+
+Service is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Service` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[ServiceSpec](#servicespec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ServiceStatus](#servicestatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### ServiceFilter
+
+
+
+ServiceFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ServiceImport](#serviceimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `type` _string_ | type of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ServiceImport
+
+
+
+ServiceImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ServiceSpec](#servicespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
+| `filter` _[ServiceFilter](#servicefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### ServiceResourceSpec
+
+
+
+ServiceResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ServiceSpec](#servicespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name indicates the name of service. If not specified, the name of the ORC<br />resource will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description indicates the description of service. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `type` _string_ | type indicates which resource the service is responsible for. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `enabled` _boolean_ | enabled indicates whether the service is enabled or not. | true |  |
+
+
+#### ServiceResourceStatus
+
+
+
+ServiceResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ServiceStatus](#servicestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name indicates the name of service. |  | MaxLength: 255 <br /> |
+| `description` _string_ | description indicates the description of service. |  | MaxLength: 255 <br /> |
+| `type` _string_ | type indicates which resource the service is responsible for. |  | MaxLength: 255 <br /> |
+| `enabled` _boolean_ | enabled indicates whether the service is enabled or not. |  |  |
+
+
+#### ServiceSpec
+
+
+
+ServiceSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Service](#service)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ServiceImport](#serviceimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[ServiceResourceSpec](#serviceresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### ServiceStatus
+
+
+
+ServiceStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Service](#service)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[ServiceResourceStatus](#serviceresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Subnet

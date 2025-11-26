@@ -2184,6 +2184,111 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Service
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceFilter
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: type
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: enabled
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: type
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: enabled
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: type
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subnet
   map:
     fields:

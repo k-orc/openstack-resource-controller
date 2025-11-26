@@ -1,0 +1,11 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-update
+spec:
+  resource:
+    name: service-update-updated
+    description: service-update-updated
+    enabled: false
+    type: service-update-updated

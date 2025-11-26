@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-create-minimal
+status:
+  resource:
+    name: "service-create-minimal"
+    type: "service"
+    enabled: true
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: service-create-minimal
+      ref: service
+assertAll:
+    - celExpr: "service.status.id != ''"
+    - celExpr: "!has(service.status.resource.description)"

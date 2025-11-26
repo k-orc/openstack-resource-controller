@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: "service-create-full-override"
+    description: "Service from create-full test case"
+    enabled: True
+    type: "service-create-full"

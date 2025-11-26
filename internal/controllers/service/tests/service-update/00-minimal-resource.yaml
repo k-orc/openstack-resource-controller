@@ -1,0 +1,12 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    type: service-update
