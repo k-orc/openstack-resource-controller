@@ -4,7 +4,9 @@ site_name: openstack-resource-controller
 site_url: https://k-orc.cloud/
 nav:
   - Home: index.md
-  - Getting started: getting-started.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quick Start: getting-started.md
   - Reference: crd-reference.md
   - Local development quickstart: development/quickstart.md
   - Developing controllers:
