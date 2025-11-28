@@ -105,4 +105,5 @@ ORC automatically deletes the corresponding OpenStack resources.
 
 ## Next Steps
 
+- **[User Guide](user-guide/index.md)** - Learn core concepts like management policies and imports
 - **[CRD Reference](crd-reference.md)** - Full documentation of all resource types

@@ -7,7 +7,8 @@ nav:
   - Getting Started:
     - Installation: installation.md
     - Quick Start: getting-started.md
-  - Reference: crd-reference.md
+  - User Guide: user-guide/index.md
+  - CRD Reference: crd-reference.md
   - Local development quickstart: development/quickstart.md
   - Developing controllers:
     - development/index.md
