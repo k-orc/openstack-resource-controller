@@ -56,6 +56,11 @@ plugins:
         'getting_started.md': 'getting-started.md'
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.details
   - pymdownx.keys
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
