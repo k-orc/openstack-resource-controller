@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-create-minimal
+status:
+  resource:
+    name: endpoint-create-minimal
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Endpoint
+      name: endpoint-create-minimal
+      ref: endpoint
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: endpoint-create-minimal
+      ref: service
+assertAll:
+    - celExpr: "endpoint.status.id != ''"
+    - celExpr: "endpoint.status.resource.serviceID == service.status.id"
+    # TODO(scaffolding): Add more checks

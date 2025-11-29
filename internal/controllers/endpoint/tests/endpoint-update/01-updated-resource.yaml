@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-update
+spec:
+  resource:
+    name: endpoint-update-updated
+    description: endpoint-update-updated
+    # TODO(scaffolding): update all mutable fields
