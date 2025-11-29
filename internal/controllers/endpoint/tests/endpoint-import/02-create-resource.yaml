@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: endpoint-import
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-import-external
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Endpoint endpoint-import-external from "endpoint-import" test
+    serviceRef: endpoint-import
+    # TODO(scaffolding): Add fields necessary to match filter

@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-create-full
+status:
+  resource:
+    name: endpoint-create-full-override
+    description: Endpoint from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Endpoint
+      name: endpoint-create-full
+      ref: endpoint
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: endpoint-create-full
+      ref: service
+assertAll:
+    - celExpr: "endpoint.status.id != ''"
+    - celExpr: "endpoint.status.resource.serviceID == service.status.id"
+    # TODO(scaffolding): Add more checks
