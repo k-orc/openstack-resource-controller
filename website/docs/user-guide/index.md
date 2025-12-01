@@ -124,14 +124,7 @@ spec:
 
 ### Understanding Status and Conditions
 
-Every ORC resource reports its status through conditions:
-
-| Condition | Meaning |
-|-----------|---------|
-| `Available=True` | The OpenStack resource is ready for use |
-| `Available=False` | The resource is not yet ready or has an error |
-| `Progressing=True` | ORC is still working on reconciling the resource |
-| `Progressing=False` | Reconciliation is complete (success or terminal error) |
+Every ORC resource reports its status through two conditions: `Available` (whether the resource is ready for use) and `Progressing` (whether ORC is still working on it). For detailed information about conditions and their meanings, see [Troubleshooting: Status Conditions Explained](../troubleshooting.md#status-conditions-explained).
 
 Check resource status with:
 ```bash

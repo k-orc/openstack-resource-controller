@@ -9,6 +9,7 @@ nav:
     - Quick Start: getting-started.md
   - User Guide: user-guide/index.md
   - CRD Reference: crd-reference.md
+  - Troubleshooting: troubleshooting.md
   - Local development quickstart: development/quickstart.md
   - Developing controllers:
     - development/index.md
