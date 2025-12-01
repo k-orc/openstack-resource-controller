@@ -2,13 +2,12 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
 metadata:
-  name: role-sample
+  name: role-example
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: devstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Sample Role
-    # TODO(scaffolding): Add all fields the resource supports
+    domainRef: role-example-20-nov
+

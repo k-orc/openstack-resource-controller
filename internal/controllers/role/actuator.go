@@ -18,10 +18,12 @@ package role
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -70,27 +72,41 @@ func (actuator roleActuator) ListOSResourcesForAdoption(ctx context.Context, orc
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := roles.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListRoles(ctx, listOpts), true
 }
 
 func (actuator roleActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var reconcileStatus progress.ReconcileStatus
+	domain := &orcv1alpha1.Domain{}
+	if filter.DomainRef != nil {
+		domainKey := client.ObjectKey{Name: string(*filter.DomainRef), Namespace: obj.Namespace}
+		if err := actuator.k8sClient.Get(ctx, domainKey, domain); err != nil {
+			if apierrors.IsNotFound(err) {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Domain", domainKey.Name, progress.WaitingOnCreation))
+			} else {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WrapError(fmt.Errorf("fetching domain %s: %w", domainKey.Name, err)))
+			}
+		} else {
+			if !orcv1alpha1.IsAvailable(domain) || domain.Status.ID == nil {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.WaitingOnObject("Domain", domainKey.Name, progress.WaitingOnReady))
+			}
+		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
 
 	listOpts := roles.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Name:     string(ptr.Deref(filter.Name, "")),
+		DomainID: ptr.Deref(domain.Status.ID, ""),
 	}
 
 	return actuator.osClient.ListRoles(ctx, listOpts), nil
@@ -104,10 +120,29 @@ func (actuator roleActuator) CreateResource(ctx context.Context, obj orcObjectPT
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+	var reconcileStatus progress.ReconcileStatus
+
+	var domainID string
+	if resource.DomainRef != nil {
+		domain, domainDepRS := domainDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Domain) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(domainDepRS)
+		if domain != nil {
+			domainID = ptr.Deref(domain.Status.ID, "")
+		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
 	createOpts := roles.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		DomainID:    domainID,
 	}
 
 	osResource, err := actuator.osClient.CreateRole(ctx, createOpts)
@@ -139,8 +174,6 @@ func (actuator roleActuator) updateResource(ctx context.Context, obj orcObjectPT
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -183,7 +216,7 @@ func needsUpdate(updateOpts roles.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *roles.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.Name = name
 	}
 }
 

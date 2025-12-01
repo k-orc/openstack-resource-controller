@@ -1,0 +1,8 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: role-import-external-not-this-one
+spec:
+  resource:
+    enabled: false

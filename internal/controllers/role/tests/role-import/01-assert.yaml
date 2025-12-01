@@ -16,7 +16,7 @@ status:
   resource:
     name: role-import-external-not-this-one
     description: Role role-import-external from "role-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
@@ -25,10 +25,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for OpenStack resource to be created externally
+      message: Waiting for Domain/role-import-external to be ready
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for OpenStack resource to be created externally
+      message: Waiting for Domain/role-import-external to be ready
       status: "True"
       reason: Progressing

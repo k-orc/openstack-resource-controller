@@ -7,7 +7,6 @@ status:
   resource:
     name: role-create-full-override
     description: Role from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -23,6 +22,11 @@ resourceRefs:
       kind: Role
       name: role-create-full
       ref: role
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: role-create-full
+      ref: domain
 assertAll:
     - celExpr: "role.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "role.status.resource.domainID == domain.status.id"
+

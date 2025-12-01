@@ -21,14 +21,17 @@ import (
 	"errors"
 
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 )
 
 const controllerName = "role"
@@ -48,15 +51,37 @@ func (roleReconcilerConstructor) GetName() string {
 	return controllerName
 }
 
+var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RoleList, *orcv1alpha1.Domain](
+	"spec.resource.domainRef",
+	func(role *orcv1alpha1.Role) []string {
+		resource := role.Spec.Resource
+		if resource == nil || resource.DomainRef == nil {
+			return nil
+		}
+		return []string{string(*resource.DomainRef)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c roleReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
+	k8sClient := mgr.GetClient()
+
+	domainWatchEventHandler, err := domainDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		For(&orcv1alpha1.Role{})
+		For(&orcv1alpha1.Role{}).
+		Watches(&orcv1alpha1.Domain{}, domainWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
+		)
 
 	if err := errors.Join(
+		domainDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

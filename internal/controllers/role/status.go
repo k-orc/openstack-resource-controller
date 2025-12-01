@@ -50,10 +50,8 @@ func (roleStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Role, osR
 
 func (roleStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.RoleResourceStatus().
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the RoleResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithDomainID(osResource.DomainID)
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)

@@ -83,7 +83,7 @@ kubectl delete -f $ORC_RELEASE
 | volume                      |         |    ◐    |     ◐    |
 | volume type                 |         |    ◐    |     ◐    |
 | domain                      |         |    ✔    |     ✔    |
-
+| role                        |         |    ◐    |     ◐    |
 ✔: mostly implemented
 
 ◐: partially implemented

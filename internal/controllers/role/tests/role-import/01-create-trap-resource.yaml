@@ -1,4 +1,15 @@
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: role-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 # This `role-import-external-not-this-one` resource serves two purposes:
 # - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
 # - ensure that importing a resource which name is a substring of it will not pick this one.
@@ -8,10 +19,9 @@ metadata:
   name: role-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Role role-import-external from "role-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    domainRef: role-import-external-not-this-one
