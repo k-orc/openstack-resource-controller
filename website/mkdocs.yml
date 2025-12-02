@@ -43,6 +43,10 @@ theme:
     - navigation.footer
     - navigation.indexes
     - navigation.expand
+    - navigation.sections
+    - content.code.copy
+    - search.highlight
+    - search.suggest
 plugins:
   - search:
   - minify:
