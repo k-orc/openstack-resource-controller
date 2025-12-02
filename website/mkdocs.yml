@@ -10,7 +10,8 @@ nav:
   - User Guide: user-guide/index.md
   - CRD Reference: crd-reference.md
   - Troubleshooting: troubleshooting.md
-  - Local development quickstart: development/quickstart.md
+  - Development Quickstart: development/quickstart.md
+  - Running Examples: development/running-examples.md
   - Developing controllers:
     - development/index.md
     - Generating scaffolding: development/scaffolding.md

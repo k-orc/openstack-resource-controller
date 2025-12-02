@@ -1,134 +1,87 @@
 # Local development quickstart
 
-We will:
+This guide covers setting up a local development environment for ORC, running the controller, and executing tests.
 
-* Run ORC locally:
-    * Create a local kind cluster
-    * Load the ORC CRDs
-    * Run the ORC manager locally directly from source
-* Create an example ORC resource:
-    * Create OpenStack credentials
-    * Initialise the kustomize environment and load OpenStack credentials
-    * Create an ORC resource using the above
+## Setting up kind
 
-## Run ORC locally
+[kind](https://kind.sigs.k8s.io/) (Kubernetes in Docker) provides a local Kubernetes cluster for development.
 
-### Create a kind cluster
+### Install kind
 
-Obtain `kind` from https://kind.sigs.k8s.io/.
+Follow the [official installation instructions](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) for your platform.
+
+### Create a cluster
 
 Create a default kind cluster:
+
 ```bash
 $ kind create cluster
-Creating cluster "kind" ...
- ✓ Ensuring node image (kindest/node:v1.30.0) 🖼c
- ✓ Preparing nodes 📦
- ✓ Writing configuration 📜
- ✓ Starting control-plane 🕹️ 
- ✓ Installing CNI 🔌
- ✓ Installing StorageClass 💾
-Set kubectl context to "kind-kind"
-You can now use your cluster with:
-
-kubectl cluster-info --context kind-kind
-
-Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
 ```
 
-Ensure your local context is set to the newly created kind cluster:
+Verify the cluster is running:
+
 ```bash
-$ kubectl get node
+$ kubectl get nodes
 NAME                 STATUS   ROLES           AGE     VERSION
-kind-control-plane   Ready    control-plane   4m22s   v1.30.0
+kind-control-plane   Ready    control-plane   1m      v1.30.0
 ```
 
-### Load the ORC CRDs
+## Setting up DevStack
 
-From the root directory:
+ORC's end-to-end tests require an OpenStack environment. We recommend [DevStack](https://docs.openstack.org/devstack/latest/) for local development because several e2e tests require admin-level access to OpenStack APIs, and it's easy enough to restart fresh if anything goes wrong with the OpenStack environment while testing.
+
+### Install DevStack
+
+Follow the [DevStack Quick Start Guide](https://docs.openstack.org/devstack/latest/guides/single-machine.html) to set up a single-machine installation.
+
+For ORC development, the default services are currently enough.
+
+### Configure credentials
+
+After DevStack installation, locate your `clouds.yaml` file (typically at `/etc/openstack/clouds.yaml` or in your DevStack directory). You'll need two cloud entries:
+
+- `devstack`, for regular user credentials on the demo project
+- `devstack-admin-demo`, for admin credentials on the demo project
+
+## Loading the CRDs
+
+Install the ORC Custom Resource Definitions into your cluster:
+
 ```bash
 $ kubectl apply -k config/crd --server-side
-customresourcedefinition.apiextensions.k8s.io/images.openstack.k-orc.cloud serverside-applied
-customresourcedefinition.apiextensions.k8s.io/networks.openstack.k-orc.cloud serverside-applied
-customresourcedefinition.apiextensions.k8s.io/subnets.openstack.k-orc.cloud serverside-applied
 ```
 
-### Run the ORC manager locally
+Verify the CRDs are installed:
+
+```bash
+$ kubectl get crds | grep openstack
+flavors.openstack.k-orc.cloud         2024-11-11T12:00:00Z
+images.openstack.k-orc.cloud          2024-11-11T12:00:00Z
+networks.openstack.k-orc.cloud        2024-11-11T12:00:00Z
+...
+```
+
+Whenever you make changes to the API, you'll need to re-generate the CRDs with `make generate` and install the updated CRDs in the cluster using above command.
+
+## Running ORC locally
+
+Run the ORC manager directly from source:
 
 ```bash
 $ go run ./cmd/manager -zap-log-level 5
-2024-11-11T12:09:30Z    INFO    setup   starting manager
-2024-11-11T12:09:30Z    INFO    starting server {"name": "health probe", "addr": "[::]:8081"}
-2024-11-11T12:09:30Z    INFO    Starting EventSource    {"controller": "network", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Network", "source": "kind source: *v1alpha1.Network"}
-2024-11-11T12:09:30Z    INFO    Starting Controller     {"controller": "network", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Network"}
-2024-11-11T12:09:30Z    INFO    Starting EventSource    {"controller": "image", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Image", "source": "kind source: *v1alpha1.Image"}
-2024-11-11T12:09:30Z    INFO    Starting Controller     {"controller": "image", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Image"}
-2024-11-11T12:09:30Z    INFO    Starting workers        {"controller": "image", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Image", "worker count": 1}
-2024-11-11T12:09:30Z    INFO    Starting workers        {"controller": "network", "controllerGroup": "openstack.k-orc.cloud", "controllerKind": "Network", "worker count": 1}
 ```
 
-To recompile, kill the process with ++ctrl+c++ and re-run it.
+The manager will start all controllers and begin watching for ORC resources. Use ++ctrl+c++ to stop the manager.
 
-## Create an example ORC resource
+Re-run the same command to recompile after you've made changes to the source code.
 
-### Create OpenStack credentials
+## Running tests
 
-Create a `clouds.yaml` file in `examples/local-config`. The name of the cloud in this clouds.yaml must be `openstack`.
+At this point, you're ready to run both the [unit tests](/development/writing-tests/#running-tests) and the [end-to-end tests](/development/writing-tests/#running-tests_1).
 
-This file is in both `.gitignore` and `.dockerignore`, so should not be accidentally added to the git repo or a container build.
-
-We will create an appropriately formatted secret containing these credentials in the next step.
-
-Note that we intentionally create credentials separately from other modules.
-This allows us to delete an entire example kustomize module without also
-deleting the credentials, which would prevent the deletion from completing.
-
-### Define an external network to use
-
-Create a `external-network-filter.yaml` file in `examples/local-config`. This
-must contain a network filter which uniquely identifies an external network to
-use in the current cloud. `external-network-filter.yaml.example` is provided as
-a template.
-
-### Initialise the kustomize environment and load OpenStack credentials
-
-In the examples directory, run:
-```bash
-$ make
-echo "$KUSTOMIZATION" > components/dev-settings/kustomization.yaml
-kubectl apply -k apply/local-config --server-side
-secret/mbooth-cloud-config-g4ckbm986f serverside-applied
-network.openstack.k-orc.cloud/mbooth-external-network serverside-applied
-subnet.openstack.k-orc.cloud/mbooth-external-subnet-ipv4 serverside-applied
-```
-
-This did a few things. Firstly, it generated the `dev-settings` kustomize component, which adds the current user's username as a `namePrefix`. The purpose of this is to avoid naming conflicts between developers when generating resources in shared clouds, and also to identify culprits if the resources are not cleaned up.
-
-Secondly, it initialises local configuration, including:
-- a secret containing the clouds.yaml we defined above
-- network and subnet objects referencing the external network we referenced
-  above
-
-It will display an error if you have not created the required local
-configuraiton.
-
-Note that failing to initialise the kustomize environment will result in an error like the following when attempting to generate one of the example modules:
-```
-Error: accumulating components: accumulateDirectory: "couldn't make target for path '.../openstack-resource-controller/examples/components/dev-settings': unable to find one of 'kustomization.yaml', 'kustomization.yml' or 'Kustomization' in directory '.../openstack-resource-controller/examples/components/dev-settings'"
-```
-
-### Create an ORC resource
-
-To generate the `managed-network` example:
-```bash
-$ cd examples/apply/managed-network
-$ kubectl apply -k . --server-side
-network.openstack.k-orc.cloud/mbooth-orc-managed-network serverside-applied
-```
-
-NOTE: This will not create the required secret! To do this, see the section
-above on creating credentials.
-
-To cleanup the `managed-network` example:
-```bash
-$ kubectl delete -k .
+```sh
+# Run the unit tests
+$ make test
+# Run the end-to-end tests
+$ make test-e2e
 ```
