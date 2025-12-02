@@ -292,14 +292,14 @@ We use environment variables to configure how the tests run.
 
 | Variable      | Description | Default |
 | ----------- | ----------- |----------- |
-| `E2E_OSCLOUDS` | Path to a clouds.yaml to use for e2e tests | /etc/openstack/clouds.yaml |
-| `E2E_CACERT`   | Path to a cacert file to use to connect to OpenStack | |
-| `E2E_OPENSTACK_CLOUD_NAME` | Name of the openstack credentials to use | devstack |
-| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Name of the openstack admin credentials to use | devstack-admin-demo |
-| `E2E_EXTERNAL_NETWORK_NAME` | Name of the external network to use | public |
-| `E2E_KUTTL_DIR` | Run kuttl tests from a specific directory |  |
-| `E2E_KUTTL_TEST` | Run a specific kuttl test |  |
-| `E2E_KUTTL_FLAVOR` | Flavor name to use for tests | m1.tiny |
+| `E2E_OSCLOUDS` | Path to clouds.yaml | `/etc/openstack/clouds.yaml` |
+| `E2E_CACERT`   | Path to a CA certificate (if needed) | |
+| `E2E_OPENSTACK_CLOUD_NAME` | Cloud name for regular credentials | `devstack` |
+| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Cloud name for admin credentials | `devstack-admin-demo` |
+| `E2E_EXTERNAL_NETWORK_NAME` | Name of the external network to use | `public` |
+| `E2E_KUTTL_DIR` | Run tests from specific directory | |
+| `E2E_KUTTL_TEST` | Run a specific kuttl test | |
+| `E2E_KUTTL_FLAVOR` | Flavor name to use for tests | `m1.tiny` |
 
 For example, to run the `import-dependency` test from the `subnet` controller:
 
