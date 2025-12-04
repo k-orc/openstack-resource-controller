@@ -15,13 +15,16 @@ Follow the [official installation instructions](https://kind.sigs.k8s.io/docs/us
 Create a default kind cluster:
 
 ```bash
-$ kind create cluster
+kind create cluster
 ```
 
 Verify the cluster is running:
 
 ```bash
-$ kubectl get nodes
+kubectl get nodes
+```
+
+```
 NAME                 STATUS   ROLES           AGE     VERSION
 kind-control-plane   Ready    control-plane   1m      v1.30.0
 ```
@@ -48,13 +51,16 @@ After DevStack installation, locate your `clouds.yaml` file (typically at `/etc/
 Install the ORC Custom Resource Definitions into your cluster:
 
 ```bash
-$ kubectl apply -k config/crd --server-side
+kubectl apply -k config/crd --server-side
 ```
 
 Verify the CRDs are installed:
 
 ```bash
-$ kubectl get crds | grep openstack
+kubectl get crds | grep openstack
+```
+
+```
 flavors.openstack.k-orc.cloud         2024-11-11T12:00:00Z
 images.openstack.k-orc.cloud          2024-11-11T12:00:00Z
 networks.openstack.k-orc.cloud        2024-11-11T12:00:00Z
@@ -68,7 +74,7 @@ Whenever you make changes to the API, you'll need to re-generate the CRDs with `
 Run the ORC manager directly from source:
 
 ```bash
-$ go run ./cmd/manager -zap-log-level 5
+go run ./cmd/manager -zap-log-level 5
 ```
 
 The manager will start all controllers and begin watching for ORC resources. Use ++ctrl+c++ to stop the manager.
@@ -79,9 +85,9 @@ Re-run the same command to recompile after you've made changes to the source cod
 
 At this point, you're ready to run both the [unit tests](/development/writing-tests/#running-tests) and the [end-to-end tests](/development/writing-tests/#running-tests_1).
 
-```sh
+```bash
 # Run the unit tests
-$ make test
+make test
 # Run the end-to-end tests
-$ make test-e2e
+make test-e2e
 ```

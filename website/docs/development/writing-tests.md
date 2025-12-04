@@ -27,7 +27,7 @@ a single controller, should live in the controller's directory.
 You can run all with:
 
 ```bash
-$ make test
+make test
 ```
 
 You can also specify which controller do you want to test using the `TEST_PATHS`
@@ -36,7 +36,7 @@ can specify modules that you want to test by passing the package's path,
 separated by a blank space, for example:
 
 ```bash
-$ TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
+TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
 ```
 
 ## E2E tests

@@ -56,7 +56,7 @@ See `examples/local-config/external-network-filter.yaml.example` as a template.
 From the `examples/` directory, run:
 
 ```bash
-$ make
+make
 ```
 
 This performs two setup tasks:
@@ -90,16 +90,13 @@ subnet.openstack.k-orc.cloud/jdoe-external-subnet-ipv4 serverside-applied
 The `examples/apply/` directory contains various example configurations. To create a managed network:
 
 ```bash
-$ kubectl apply -k examples/apply/managed-network --server-side
-network.openstack.k-orc.cloud/jdoe-orc-managed-network serverside-applied
+kubectl apply -k examples/apply/managed-network --server-side
 ```
 
-Watch the resource status:
+See the resource being created with:
 
 ```bash
-$ kubectl get network -w
-NAME                       AVAILABLE   MESSAGE   ID                                     AGE
-jdoe-orc-managed-network   True                  a1b2c3d4-e5f6-7890-abcd-ef1234567890   30s
+kubectl get network -w
 ```
 
 ## Clean up
@@ -107,7 +104,7 @@ jdoe-orc-managed-network   True                  a1b2c3d4-e5f6-7890-abcd-ef12345
 Delete the example resources:
 
 ```bash
-$ kubectl delete -k examples/apply/managed-network
+kubectl delete -k examples/apply/managed-network
 ```
 
 !!! tip "Credentials persist"
