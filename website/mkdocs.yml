@@ -4,8 +4,12 @@ site_name: openstack-resource-controller
 site_url: https://k-orc.cloud/
 nav:
   - Home: index.md
-  - Getting started: getting-started.md
-  - Reference: crd-reference.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quick Start: getting-started.md
+  - User Guide: user-guide/index.md
+  - CRD Reference: crd-reference.md
+  - Troubleshooting: troubleshooting.md
   - Local development quickstart: development/quickstart.md
   - Developing controllers:
     - development/index.md
@@ -39,6 +43,10 @@ theme:
     - navigation.footer
     - navigation.indexes
     - navigation.expand
+    - navigation.sections
+    - content.code.copy
+    - search.highlight
+    - search.suggest
 plugins:
   - search:
   - minify:
@@ -53,6 +61,11 @@ plugins:
         'getting_started.md': 'getting-started.md'
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.details
   - pymdownx.keys
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
