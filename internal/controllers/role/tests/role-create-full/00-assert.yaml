@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-create-full
+status:
+  resource:
+    name: role-create-full-override
+    description: Role from "create full" test
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Role
+      name: role-create-full
+      ref: role
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: role-create-full
+      ref: domain
+assertAll:
+    - celExpr: "role.status.id != ''"
+    - celExpr: "role.status.resource.domainID == domain.status.id"
+

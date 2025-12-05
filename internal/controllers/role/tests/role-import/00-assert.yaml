@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-import
+status:
+  conditions:
+    - type: Available
+      status: "False"
+      reason: Progressing
+      message: Waiting for Domain/role-import-external to be ready
+    - type: Progressing
+      status: "True"
+      reason: Progressing
+      message: Waiting for Domain/role-import-external to be ready
+

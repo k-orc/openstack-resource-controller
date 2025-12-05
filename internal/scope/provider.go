@@ -172,6 +172,9 @@ func (s *providerScope) NewServiceClient() (clients.ServiceClient, error) {
 func (s *providerScope) NewKeyPairClient() (clients.KeyPairClient, error) {
 	return clients.NewKeyPairClient(s.providerClient, s.providerClientOpts)
 }
+func (s *providerScope) NewRoleClient() (clients.RoleClient, error) {
+	return clients.NewRoleClient(s.providerClient, s.providerClientOpts)
+}
 
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	client, err := openstack.NewIdentityV3(s.providerClient, gophercloud.EndpointOpts{})
