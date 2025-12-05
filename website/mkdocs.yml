@@ -14,8 +14,8 @@ nav:
     - Development Quickstart: development/quickstart.md
     - Running Examples: development/running-examples.md
     - Developing Controllers:
-      - development/index.md
-      - Generating Scaffolding: development/scaffolding.md
+      - Overview: development/overview.md
+      - Scaffolding a New Controller: development/scaffolding.md
       - Writing an API: development/api-contracts.md
       - Controller Design: development/controller-design.md
       - Controller Initialisation: development/controller-init.md
