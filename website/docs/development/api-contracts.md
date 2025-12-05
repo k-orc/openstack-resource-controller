@@ -52,7 +52,7 @@ Note that although we don't validate the content of status fields, we must still
 The CRDs are automatically generated from the Go API. To generate them, run:
 
 ```bash
-$ make generate
+make generate
 ```
 
 However, note that this will not add a new CRD to the list of CRDs to load. This must be done manually by adding the new CRD to the list in `config/crd/kustomization.yaml`.
@@ -77,7 +77,7 @@ There are a number of artifacts which are automatically generated from the API. 
 Every time you make a change to the API you should ensure these are up to date by running:
 
 ```
-$ make generate
+make generate
 ```
 
 ## General API guidelines
