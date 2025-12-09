@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-update
+spec:
+  resource:
+    name: group-update-updated
+    description: group-update-updated
+    # TODO(scaffolding): update all mutable fields
