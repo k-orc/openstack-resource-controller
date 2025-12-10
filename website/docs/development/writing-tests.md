@@ -78,10 +78,38 @@ leftover ORC objects, and respective OpenStack resources, your test has
 created.
 
 However, if you have created OpenStack resources outside of ORC as part of the
-test, you MUST clean them to avoid leaking resources. Keep in mind that if the
+test, you **MUST** clean them to avoid leaking resources. Keep in mind that if the
 test fails before it had a chance to manually clean the resources, you would
 still have a leak. To counter this, only create OpenStack resources
 externally when it is absolutely necessary, and avoid writing tests that fail.
+
+#### Use of kuttl matchers vs CEL expressions
+
+Whenever possible, prefer kuttl matchers over CEL expressions when validating objects. This makes it easier to read.
+
+```yaml
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-create-full
+status:
+  resource:
+    # Good - a simple matcher, easy to read
+    name: volume-create-full-override
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volume-create-full
+      ref: volume
+assertAll:
+    # Bad - reserve CEL expressions for validations where kuttl matcher won't fit
+    - celExpr: "volume.status.name == 'volume-create-full-override'"
+    # Good - there's no equivalent kuttl matcher
+    - celExpr: "volume.status.id != ''"
+```
 
 ### Testing patterns
 
