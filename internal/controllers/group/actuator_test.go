@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   groups.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   groups.UpdateOpts{Name: "updated"},
 			expectChange: true,
 		},
 	}
@@ -53,10 +53,10 @@ func TestNeedsUpdate(t *testing.T) {
 }
 
 func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+	ptrToName := ptr.To[orcv1alpha1.KeystoneName]
 	testCases := []struct {
 		name          string
-		newValue      *orcv1alpha1.OpenStackName
+		newValue      *orcv1alpha1.KeystoneName
 		existingValue string
 		expectChange  bool
 	}{

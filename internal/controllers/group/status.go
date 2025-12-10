@@ -53,9 +53,6 @@ func (groupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		WithDomainID(osResource.DomainID).
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the GroupResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}

@@ -24,6 +24,8 @@ type FlavorExpansion interface{}
 
 type FloatingIPExpansion interface{}
 
+type GroupExpansion interface{}
+
 type ImageExpansion interface{}
 
 type KeyPairExpansion interface{}

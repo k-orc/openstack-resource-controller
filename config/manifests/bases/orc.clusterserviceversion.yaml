@@ -34,10 +34,20 @@ spec:
       kind: FloatingIP
       name: floatingips.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Group is the Schema for an ORC resource.
+      displayName: Group
+      kind: Group
+      name: groups.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Image is the Schema for an ORC resource.
       displayName: Image
       kind: Image
       name: images.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: KeyPair is the Schema for an ORC resource.
+      displayName: Key Pair
+      kind: KeyPair
+      name: keypairs.openstack.k-orc.cloud
       version: v1alpha1
     - description: Network is the Schema for an ORC resource.
       displayName: Network

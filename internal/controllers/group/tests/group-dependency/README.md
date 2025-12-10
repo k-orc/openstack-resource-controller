@@ -6,13 +6,17 @@ Create Groups referencing non-existing resources. Each Group is dependent on oth
 
 ## Step 01
 
-Create the missing dependencies and make and verify all the Groups are available.
+Create the missing dependencies and verify all the Groups are available.
 
 ## Step 02
 
-Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+Disable the domain dependency to allow KUTTL to cleanup resources without any issues.
 
 ## Step 03
+
+Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+
+## Step 04
 
 Delete the Groups and validate that all resources are gone.
 

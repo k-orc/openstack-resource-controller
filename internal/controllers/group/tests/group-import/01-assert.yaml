@@ -16,7 +16,7 @@ status:
   resource:
     name: group-import-external-not-this-one
     description: Group group-import-external from "group-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Group

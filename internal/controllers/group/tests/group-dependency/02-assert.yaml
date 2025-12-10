@@ -11,7 +11,4 @@ resourceRefs:
       name: group-dependency
       ref: secret
 assertAll:
-    - celExpr: "domain.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/group' in domain.metadata.finalizers"
-    - celExpr: "secret.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/group' in secret.metadata.finalizers"
+    - celExpr: "domain.status.resource.enabled == false"

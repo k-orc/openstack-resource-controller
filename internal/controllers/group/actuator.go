@@ -18,6 +18,7 @@ package group
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/groups"
@@ -71,22 +72,15 @@ func (actuator groupActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := groups.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListGroups(ctx, listOpts), true
 }
 
 func (actuator groupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+
 	var reconcileStatus progress.ReconcileStatus
 
 	domain := &orcv1alpha1.Domain{}
@@ -113,10 +107,8 @@ func (actuator groupActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	}
 
 	listOpts := groups.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		Domain:  ptr.Deref(domain.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:     string(ptr.Deref(filter.Name, "")),
+		DomainID: ptr.Deref(domain.Status.ID, ""),
 	}
 
 	return actuator.osClient.ListGroups(ctx, listOpts), nil
@@ -150,8 +142,7 @@ func (actuator groupActuator) CreateResource(ctx context.Context, obj orcObjectP
 	createOpts := groups.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		DomainID:  domainID,
-		// TODO(scaffolding): Add more fields
+		DomainID:    domainID,
 	}
 
 	osResource, err := actuator.osClient.CreateGroup(ctx, createOpts)
@@ -183,8 +174,6 @@ func (actuator groupActuator) updateResource(ctx context.Context, obj orcObjectP
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -227,7 +216,7 @@ func needsUpdate(updateOpts groups.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *groups.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.Name = name
 	}
 }
 

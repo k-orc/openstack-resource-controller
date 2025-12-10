@@ -4,6 +4,7 @@ resources:
 - openstack_v1alpha1_domain.yaml
 - openstack_v1alpha1_flavor.yaml
 - openstack_v1alpha1_floatingip.yaml
+- openstack_v1alpha1_group.yaml
 - openstack_v1alpha1_image.yaml
 - openstack_v1alpha1_keypair.yaml
 - openstack_v1alpha1_network.yaml

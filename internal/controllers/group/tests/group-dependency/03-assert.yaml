@@ -1,9 +1,17 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-# Dependencies that were prevented deletion before should now be gone
-- script: "! kubectl get domain group-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get secret group-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: group-dependency
+      ref: domain
+    - apiVersion: v1
+      kind: Secret
+      name: group-dependency
+      ref: secret
+assertAll:
+    - celExpr: "domain.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/group' in domain.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/group' in secret.metadata.finalizers"

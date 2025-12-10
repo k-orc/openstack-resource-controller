@@ -40,6 +40,10 @@ func (c *FakeOpenstackV1alpha1) FloatingIPs(namespace string) v1alpha1.FloatingI
 	return newFakeFloatingIPs(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Groups(namespace string) v1alpha1.GroupInterface {
+	return newFakeGroups(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Images(namespace string) v1alpha1.ImageInterface {
 	return newFakeImages(c, namespace)
 }

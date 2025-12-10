@@ -30,6 +30,8 @@ type Interface interface {
 	Flavors() FlavorInformer
 	// FloatingIPs returns a FloatingIPInformer.
 	FloatingIPs() FloatingIPInformer
+	// Groups returns a GroupInformer.
+	Groups() GroupInformer
 	// Images returns a ImageInformer.
 	Images() ImageInformer
 	// KeyPairs returns a KeyPairInformer.
@@ -84,6 +86,11 @@ func (v *version) Flavors() FlavorInformer {
 // FloatingIPs returns a FloatingIPInformer.
 func (v *version) FloatingIPs() FloatingIPInformer {
 	return &floatingIPInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Groups returns a GroupInformer.
+func (v *version) Groups() GroupInformer {
+	return &groupInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Images returns a ImageInformer.

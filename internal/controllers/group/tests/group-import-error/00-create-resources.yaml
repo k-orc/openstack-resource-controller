@@ -1,17 +1,27 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Group
 metadata:
   name: group-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Group from "import error" test
-    # TODO(scaffolding): add any required field
+    domainRef: group-import-error
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Group
@@ -19,10 +29,9 @@ metadata:
   name: group-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Group from "import error" test
-    # TODO(scaffolding): add any required field
+    domainRef: group-import-error

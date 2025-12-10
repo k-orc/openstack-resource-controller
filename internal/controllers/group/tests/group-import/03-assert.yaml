@@ -4,24 +4,19 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Group
-      name: group-import-dependency
+      name: group-import-external
       ref: group1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Group
-      name: group-import-dependency-not-this-one
+      name: group-import-external-not-this-one
       ref: group2
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Domain
-      name: group-import-dependency
-      ref: domain
 assertAll:
     - celExpr: "group1.status.id != group2.status.id"
-    - celExpr: "group1.status.resource.domainID == domain.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Group
 metadata:
-  name: group-import-dependency
+  name: group-import
 status:
   conditions:
     - type: Available
@@ -32,3 +27,4 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+

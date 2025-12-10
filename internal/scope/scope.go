@@ -50,6 +50,7 @@ type Factory interface {
 type Scope interface {
 	NewComputeClient() (osclients.ComputeClient, error)
 	NewDomainClient() (osclients.DomainClient, error)
+	NewGroupClient() (osclients.GroupClient, error)
 	NewIdentityClient() (osclients.IdentityClient, error)
 	NewImageClient() (osclients.ImageClient, error)
 	NewKeyPairClient() (osclients.KeyPairClient, error)
