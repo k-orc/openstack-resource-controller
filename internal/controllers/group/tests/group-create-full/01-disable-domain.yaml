@@ -1,0 +1,7 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-create-full
+spec:
+  resource:
+    enabled: false

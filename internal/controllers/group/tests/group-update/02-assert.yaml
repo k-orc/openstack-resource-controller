@@ -16,7 +16,6 @@ metadata:
 status:
   resource:
     name: group-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
   conditions:
   - type: Available
     status: "True"

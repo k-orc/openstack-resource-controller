@@ -6,6 +6,7 @@ resources:
 - bases/openstack.k-orc.cloud_domains.yaml
 - bases/openstack.k-orc.cloud_flavors.yaml
 - bases/openstack.k-orc.cloud_floatingips.yaml
+- bases/openstack.k-orc.cloud_groups.yaml
 - bases/openstack.k-orc.cloud_images.yaml
 - bases/openstack.k-orc.cloud_keypairs.yaml
 - bases/openstack.k-orc.cloud_networks.yaml

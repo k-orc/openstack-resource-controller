@@ -20,6 +20,7 @@ rules:
   - domains
   - flavors
   - floatingips
+  - groups
   - images
   - keypairs
   - networks
@@ -48,6 +49,7 @@ rules:
   - domains/status
   - flavors/status
   - floatingips/status
+  - groups/status
   - images/status
   - keypairs/status
   - networks/status

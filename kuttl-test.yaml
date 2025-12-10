@@ -5,6 +5,7 @@ testDirs:
 - ./internal/controllers/domain/tests/
 - ./internal/controllers/flavor/tests/
 - ./internal/controllers/floatingip/tests/
+- ./internal/controllers/group/tests/
 - ./internal/controllers/image/tests/
 - ./internal/controllers/keypair/tests/
 - ./internal/controllers/network/tests/

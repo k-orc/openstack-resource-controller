@@ -27,7 +27,4 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
-  resource:
-    name: group-import-external
-    description: Group group-import-external from "group-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+

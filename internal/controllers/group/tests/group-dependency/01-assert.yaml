@@ -28,3 +28,17 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Group
+      name: group-dependency-no-domain
+      ref: group
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: group-dependency
+      ref: domain
+assertAll:
+    - celExpr: "group.status.resource.domainID == domain.status.id"

@@ -70,6 +70,7 @@ kubectl delete -f $ORC_RELEASE
 | domain                      |         |    ✔    |     ✔    |
 | flavor                      |         |    ✔    |     ✔    |
 | floating ip                 |         |    ◐    |     ◐    |
+| group                       |         |    ✔    |     ✔    |
 | image                       |    ✔    |    ✔    |     ✔    |
 | keypair                     |         |    ◐    |     ◐    |
 | network                     |         |    ◐    |     ◐    |
@@ -83,6 +84,8 @@ kubectl delete -f $ORC_RELEASE
 | subnet                      |         |    ◐    |     ◐    |
 | volume                      |         |    ◐    |     ◐    |
 | volume type                 |         |    ◐    |     ◐    |
+
+
 
 ✔: mostly implemented
 

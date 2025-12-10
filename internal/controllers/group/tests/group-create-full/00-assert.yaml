@@ -7,7 +7,6 @@ status:
   resource:
     name: group-create-full-override
     description: Group from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +29,4 @@ resourceRefs:
 assertAll:
     - celExpr: "group.status.id != ''"
     - celExpr: "group.status.resource.domainID == domain.status.id"
-    # TODO(scaffolding): Add more checks
+

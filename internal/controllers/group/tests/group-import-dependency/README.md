@@ -24,6 +24,10 @@ were imported resources and we only deleted the ORC representation of it.
 
 Delete the Group and validate that all resources are gone.
 
+## Step 05
+
+Disable the domain dependencies so KUTTL can clean the resources without failing.
+
 ## Reference
 
 https://k-orc.cloud/development/writing-tests/#import-dependency

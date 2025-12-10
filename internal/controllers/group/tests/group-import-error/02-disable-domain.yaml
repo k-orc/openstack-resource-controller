@@ -1,0 +1,8 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-import-error
+spec:
+  resource:
+    enabled: false
