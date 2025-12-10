@@ -9,7 +9,7 @@ All ORC objects publish a Progressing condition. This condition has a strict def
 * The object status did not yet reflect the desired spec.
 * The controller expects the object to be reconciled again.
 
-False means:
+`False` means:
 
 * The object will not be reconciled again unless the spec changes.
 
@@ -20,16 +20,16 @@ Strict adherence to this definition enables some important use cases:
 
 In particular, the generic controller's reconcile loop filters objects with an up-to-date Progressing status of False. This means that if your controller exits a reconcile without correctly setting the Progressing condition it may result in the object never successfully reconciling.
 
-### `ReconcileStatus`
+## ReconcileStatus
 
 When a reconcile completes, we should have enough context to know:
 
 * If we need to be reconciled again
 * If so, whether we expect it to be:
-  * Event triggered: on creation/update of another kubernetes object
-  * Polling: we schedule another reconcile after a particular amount of time, for example because we're waiting on OpenStack
-  * Immediate: we schedule another reconcile immediately after this one finishes, for example to force a refresh of status
-  * With exponential backoff due to an error
+    * Event triggered: on creation/update of another kubernetes object
+    * Polling: we schedule another reconcile after a particular amount of time, for example because we're waiting on OpenStack
+    * Immediate: we schedule another reconcile immediately after this one finishes, for example to force a refresh of status
+    * With exponential backoff due to an error
 * If we should never reconcile this spec again because it is invalid
 
 This is handled internally by `ReconcileStatus`. Most methods in the actuator interface return a `ReconcileStatus` in place of an error.
@@ -48,19 +48,19 @@ As noted above, failure to return a correct `ReconcileStatus` from an actuator m
     reconcileStatus = reconcileStatus.WithError(err)
     ```
 
-Refer to [the `ReconcileStatus documentation`](../godoc/reconcile-status/) for details of available methods.
+Refer to [the `ReconcileStatus documentation`](godoc/reconcile-status.md) for details of available methods.
 
-#### Transient and Terminal errors
+## Transient and Terminal errors
 
-Controllers will perform many operations which can fail. We split these errors into transient and terminal errors. A transient error is one which may eventually resolve itself without the object spec being updated. A terminal error is one which we don't expect to ever succeed unless the object spec is updated.
+Controllers will perform many operations which can fail. We split these errors into transient and terminal errors.
 
-Example transient errors:
+A **transient error** is one which may eventually resolve itself without the object spec being updated. Example transient errors:
 
 * Failure to contact an API endpoint
 * An API call returned a 5xx (internal error)
 * A kubernetes read or write operation failed for any reason
 
-Example terminal errors:
+A **terminal error** is one which we don't expect to ever succeed unless the object spec is updated. Example terminal errors:
 
 * The spec is invalid
 * OpenStack returned a non-retryable status, e.g. invalid request when creating a resource
