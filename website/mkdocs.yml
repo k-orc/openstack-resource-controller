@@ -16,14 +16,14 @@ nav:
     - Developing Controllers:
       - Overview: development/overview.md
       - Scaffolding a New Controller: development/scaffolding.md
-      - Writing an API: development/api-contracts.md
-      - Controller Design: development/controller-design.md
+      - API Design: development/api-design.md
       - Controller Initialisation: development/controller-init.md
       - Resource Interfaces: development/interfaces.md
+      - Controller Implementation: development/controller-implementation.md
       - Writing Tests: development/writing-tests.md
-      - Design Decisions: development/design-decisions.md
-      - Coding Conventions: development/coding-conventions.md
     - Reference:
+      - Architecture: development/architecture.md
+      - Coding Standards: development/coding-standards.md
       - Interfaces: development/godoc/generic-interfaces.md
       - ReconcileStatus: development/godoc/reconcile-status.md
   - Changelog: changelog.md
