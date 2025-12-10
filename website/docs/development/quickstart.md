@@ -83,7 +83,7 @@ Re-run the same command to recompile after you've made changes to the source cod
 
 ## Running tests
 
-At this point, you're ready to run both the [unit tests](/development/writing-tests/#running-tests) and the [end-to-end tests](/development/writing-tests/#running-tests_1).
+At this point, you're ready to run both the [unit tests](writing-tests.md#running-tests) and the [end-to-end tests](writing-tests.md#running-tests_1).
 
 ```bash
 # Run the unit tests
