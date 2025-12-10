@@ -40,7 +40,7 @@ EOF
 )"
 ```
 
-This step is important as it makes it a lot easier to review your changes. Reviewers can skip the scaffolding commit (it's generated code) and focus on your actual implementation changes. Also, having the commit message document exactly how the scaffolding was generated allows reproducibility.
+This step is important as it makes it a lot easier to review your changes. Reviewers can skip the scaffolding commit (it's generated code) and focus on your actual implementation changes. Also, having the commit message document exactly how the scaffolding was generated helps ensure reproducibility.
 
 ## Generated files
 
