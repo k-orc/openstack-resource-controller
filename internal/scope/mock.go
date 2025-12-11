@@ -35,39 +35,39 @@ import (
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
 	ComputeClient    *mock.MockComputeClient
+	DomainClient     *mock.MockDomainClient
+	IdentityClient   *mock.MockIdentityClient
+	ImageClient      *mock.MockImageClient
 	KeyPairClient    *mock.MockKeyPairClient
 	NetworkClient    *mock.MockNetworkClient
-	ImageClient      *mock.MockImageClient
-	IdentityClient   *mock.MockIdentityClient
+	ServiceClient    *mock.MockServiceClient
 	VolumeClient     *mock.MockVolumeClient
 	VolumeTypeClient *mock.MockVolumeTypeClient
-	DomainClient     *mock.MockDomainClient
-	ServiceClient    *mock.MockServiceClient
 
 	clientScopeCreateError error
 }
 
 func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	computeClient := mock.NewMockComputeClient(mockCtrl)
+	domainClient := mock.NewMockDomainClient(mockCtrl)
+	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
-	identityClient := mock.NewMockIdentityClient(mockCtrl)
+	serviceClient := mock.NewMockServiceClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
-	domainClient := mock.NewMockDomainClient(mockCtrl)
-	serviceClient := mock.NewMockServiceClient(mockCtrl)
 
 	return &MockScopeFactory{
 		ComputeClient:    computeClient,
+		DomainClient:     domainClient,
+		IdentityClient:   identityClient,
 		ImageClient:      imageClient,
 		KeyPairClient:    keypairClient,
 		NetworkClient:    networkClient,
-		IdentityClient:   identityClient,
+		ServiceClient:    serviceClient,
 		VolumeClient:     volumeClient,
 		VolumeTypeClient: volumetypeClient,
-		DomainClient:     domainClient,
-		ServiceClient:    serviceClient,
 	}
 }
 

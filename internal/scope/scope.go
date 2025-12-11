@@ -49,15 +49,15 @@ type Factory interface {
 // Scope contains arguments common to most operations.
 type Scope interface {
 	NewComputeClient() (osclients.ComputeClient, error)
-	NewImageClient() (osclients.ImageClient, error)
-	NewNetworkClient() (osclients.NetworkClient, error)
+	NewDomainClient() (osclients.DomainClient, error)
 	NewIdentityClient() (osclients.IdentityClient, error)
+	NewImageClient() (osclients.ImageClient, error)
+	NewKeyPairClient() (osclients.KeyPairClient, error)
+	NewNetworkClient() (osclients.NetworkClient, error)
+	NewServiceClient() (osclients.ServiceClient, error)
 	NewVolumeClient() (osclients.VolumeClient, error)
 	NewVolumeTypeClient() (osclients.VolumeTypeClient, error)
-	NewDomainClient() (osclients.DomainClient, error)
-	NewServiceClient() (osclients.ServiceClient, error)
 	ExtractToken() (*tokens.Token, error)
-	NewKeyPairClient() (osclients.KeyPairClient, error)
 }
 
 // WithLogger extends Scope with a logger.
