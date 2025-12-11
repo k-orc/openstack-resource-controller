@@ -147,7 +147,7 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, log 
 			r.updateStatus(ctx, routerInterface, osResource, reconcileStatus))
 
 		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); !needsReschedule && osResource != nil {
-			log.V(logging.Status).Info("Router interface is available")
+			log.V(logging.Verbose).Info("Router interface is available")
 		}
 
 		// Don't return a terminal error because we don't aggregate them
