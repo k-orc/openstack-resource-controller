@@ -83,7 +83,7 @@ func serverToVolumeMapFunc(ctx context.Context, k8sClient client.Client) handler
 	return func(ctx context.Context, obj client.Object) []reconcile.Request {
 		server, ok := obj.(*orcv1alpha1.Server)
 		if !ok {
-			log.Info("serverToVolumeMapFunc got unexpected object type",
+			log.V(logging.Debug).Info("serverToVolumeMapFunc got unexpected object type",
 				"got", fmt.Sprintf("%T", obj),
 				"expected", fmt.Sprintf("%T", &orcv1alpha1.Server{}))
 			return nil

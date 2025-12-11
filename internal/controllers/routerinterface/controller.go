@@ -31,12 +31,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
-
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 )
 
 const (
@@ -116,7 +116,7 @@ func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Conte
 				log := ctrl.LoggerFrom(ctx).WithValues("watch", "RouterInterface", "name", obj.GetName(), "namespace", obj.GetNamespace())
 				routerInterface, ok := obj.(*orcv1alpha1.RouterInterface)
 				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
+					log.V(logging.Debug).Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
 					return nil
 				}
 				return []reconcile.Request{
@@ -130,7 +130,7 @@ func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Conte
 
 				subnet, ok := obj.(*orcv1alpha1.Subnet)
 				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
+					log.V(logging.Debug).Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
 					return nil
 				}
 
