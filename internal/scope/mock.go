@@ -35,37 +35,39 @@ import (
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
 	ComputeClient    *mock.MockComputeClient
-	KeyPairClient    osclients.KeyPairClient
-	NetworkClient    *mock.MockNetworkClient
-	ImageClient      *mock.MockImageClient
+	DomainClient     *mock.MockDomainClient
 	IdentityClient   *mock.MockIdentityClient
+	ImageClient      *mock.MockImageClient
+	KeyPairClient    *mock.MockKeyPairClient
+	NetworkClient    *mock.MockNetworkClient
+	ServiceClient    *mock.MockServiceClient
 	VolumeClient     *mock.MockVolumeClient
 	VolumeTypeClient *mock.MockVolumeTypeClient
-	DomainClient     *mock.MockDomainClient
-	ServiceClient    *mock.MockServiceClient
 
 	clientScopeCreateError error
 }
 
 func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	computeClient := mock.NewMockComputeClient(mockCtrl)
-	imageClient := mock.NewMockImageClient(mockCtrl)
-	networkClient := mock.NewMockNetworkClient(mockCtrl)
+	domainClient := mock.NewMockDomainClient(mockCtrl)
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
+	imageClient := mock.NewMockImageClient(mockCtrl)
+	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
+	networkClient := mock.NewMockNetworkClient(mockCtrl)
+	serviceClient := mock.NewMockServiceClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
-	domainClient := mock.NewMockDomainClient(mockCtrl)
-	serviceClient := mock.NewMockServiceClient(mockCtrl)
 
 	return &MockScopeFactory{
 		ComputeClient:    computeClient,
-		ImageClient:      imageClient,
-		NetworkClient:    networkClient,
+		DomainClient:     domainClient,
 		IdentityClient:   identityClient,
+		ImageClient:      imageClient,
+		KeyPairClient:    keypairClient,
+		NetworkClient:    networkClient,
+		ServiceClient:    serviceClient,
 		VolumeClient:     volumeClient,
 		VolumeTypeClient: volumetypeClient,
-		DomainClient:     domainClient,
-		ServiceClient:    serviceClient,
 	}
 }
 
