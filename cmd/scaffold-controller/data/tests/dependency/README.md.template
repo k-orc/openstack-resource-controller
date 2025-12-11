@@ -6,7 +6,7 @@ Create {{ .Kind }}s referencing non-existing resources. Each {{ .Kind }} is depe
 
 ## Step 01
 
-Create the missing dependencies and make and verify all the {{ .Kind }}s are available.
+Create the missing dependencies and verify all the {{ .Kind }}s are available.
 
 ## Step 02
 
