@@ -156,6 +156,9 @@ var resources []templateFields = []templateFields{
 		Name:         "KeyPair",
 		UsesNameAsID: true, // Keypairs uses name as ID, not UUID
 	},
+	{
+		Name: "Group",
+	},
 }
 
 // These resources won't be generated

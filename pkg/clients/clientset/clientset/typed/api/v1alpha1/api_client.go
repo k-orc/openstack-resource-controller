@@ -31,6 +31,7 @@ type OpenstackV1alpha1Interface interface {
 	DomainsGetter
 	FlavorsGetter
 	FloatingIPsGetter
+	GroupsGetter
 	ImagesGetter
 	KeyPairsGetter
 	NetworksGetter
@@ -62,6 +63,10 @@ func (c *OpenstackV1alpha1Client) Flavors(namespace string) FlavorInterface {
 
 func (c *OpenstackV1alpha1Client) FloatingIPs(namespace string) FloatingIPInterface {
 	return newFloatingIPs(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Groups(namespace string) GroupInterface {
+	return newGroups(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {

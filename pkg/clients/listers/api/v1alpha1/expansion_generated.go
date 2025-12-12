@@ -42,6 +42,14 @@ type FloatingIPListerExpansion interface{}
 // FloatingIPNamespaceLister.
 type FloatingIPNamespaceListerExpansion interface{}
 
+// GroupListerExpansion allows custom methods to be added to
+// GroupLister.
+type GroupListerExpansion interface{}
+
+// GroupNamespaceListerExpansion allows custom methods to be added to
+// GroupNamespaceLister.
+type GroupNamespaceListerExpansion interface{}
+
 // ImageListerExpansion allows custom methods to be added to
 // ImageLister.
 type ImageListerExpansion interface{}
