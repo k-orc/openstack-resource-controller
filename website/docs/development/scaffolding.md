@@ -1,50 +1,199 @@
-# Scaffolding
+# Scaffolding a new controller
 
-The first step typically in writing a new controller is to generate the scaffolding for it. The scaffolding covers functionality which is common to all controllers. Its purpose is not only to reduce the boilerplate required to write a new controller, but also to guarantee consistency of behaviour across APIs.
+The first step in writing a new controller is to generate the scaffolding. ORC provides an interactive scaffolding tool that generates most of the boilerplate code required for a new controller.
 
-!!! note
+## Running the scaffolding tool
 
-    While it is possible to write this code manually, any controller requiring this is potentially stretching assumptions made throughout the project. If this is required, consider if changes can be made such that it is not required, or if further design work is required in the scaffolding or generic controller code.
+To scaffold a new controller, run:
 
-The first step is to add the new resource to `allResources` in `cmd/resource-generator/main.go` and run:
-
-```shell
-make generate-resources
+```bash
+go run ./cmd/scaffold-controller
 ```
 
-This will generate 3 files for you:
+By default, the tool runs interactively, prompting you for each required value. For automation or reproducibility, use non-interactive mode with flags:
 
-* `api/<version>/zz_generated.<resource>-resource.go`
-* `internal/controllers/<resource>/zz_generated.adapter.go`
-* `internal/controllers/<resource>/zz_generated.controller.go`
+```bash
+go run ./cmd/scaffold-controller -interactive=false \
+    -kind=VolumeBackup \
+    -gophercloud-client=NewBlockStorageV3 \
+    -gophercloud-module=github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/backups \
+    ...
+```
+
+After the scaffolding tool returned successfully, generate the files and commit your changes:
+
+```bash
+# Run code generation
+make generate
+
+# Commit the scaffolding output with the command as the message
+git add .
+git commit -m "$(cat <<'EOF'
+Scaffolding for the VolumeBackup controller
+
+$ go run ./cmd/scaffold-controller -interactive=false \
+    -kind=VolumeBackup \
+    -gophercloud-client=NewBlockStorageV3 \
+    -gophercloud-module=github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/backups \
+    ...
+EOF
+)"
+```
+
+This step is important as it makes it a lot easier to review your changes. Reviewers can skip the scaffolding commit (it's generated code) and focus on your actual implementation changes. Also, having the commit message document exactly how the scaffolding was generated helps ensure reproducibility.
+
+## Generated files
+
+The scaffolding tool generates the following files:
+
+### API types
+
+- `api/v1alpha1/<kind>_types.go` - API type definitions with TODO markers
+
+### Controller implementation
+
+- `internal/controllers/<kind>/actuator.go` - Actuator implementation stubs
+- `internal/controllers/<kind>/controller.go` - Controller setup and registration
+- `internal/controllers/<kind>/status.go` - Status writer implementation
+
+### OpenStack client
+
+- `internal/osclients/<kind>.go` - OpenStack client wrapper
+
+### Tests
+
+- `internal/controllers/<kind>/tests/<kind>-create-minimal/` - Minimal creation test
+- `internal/controllers/<kind>/tests/<kind>-create-full/` - Full creation test
+- `internal/controllers/<kind>/tests/<kind>-import/` - Import test
+- `internal/controllers/<kind>/tests/<kind>-import-error/` - Import error test
+- `internal/controllers/<kind>/tests/<kind>-update/` - Mutability test
+- Additional test directories based on dependencies
+
+### Samples
+
+- `config/samples/openstack_v1alpha1_<kind>.yaml` - Example resource manifest
+
+## Post-scaffolding steps
+
+After the scaffolding tool completes, you need to perform several manual integration steps:
+
+### Register with the resource generator
+
+Add the new resource to `cmd/resource-generator/main.go`:
+
+```go
+var resources []templateFields = []templateFields{
+    // ... existing resources ...
+    {
+        Name: "YourResource",
+    },
+}
+```
+
+Then regenerate the supporting code:
+
+```bash
+make generate
+```
+
+This generates additional files:
+
+- `api/v1alpha1/zz_generated.<kind>-resource.go` - Generated API helpers
+- `internal/controllers/<kind>/zz_generated.adapter.go` - Generated adapter
+- `internal/controllers/<kind>/zz_generated.controller.go` - Generated controller wrapper
+
+This generator covers functionality common to all controllers. Its purpose is not only to reduce boilerplate, but also to guarantee consistency of behaviour across APIs.
 
 !!! note
 
-    These files are generated using a very simplistic text templating system in `cmd/resource-generator`. If you are wondering why we didn't use generics, which are widely used throughout the rest of the code, it's because `controller-gen`, which generates CRDs from the API, doesn't yet support them. Consequently we generate manually what generics would have generated implicitly. This code may be rewritten in the future if `controller-gen` gains support for generics.
+    While it is possible to write this code manually, any controller requiring this potentially stretches assumptions made throughout the project. If this is required, consider whether changes can be made to avoid it, or whether further design work is needed in the scaffolding or generic controller code.
 
-The code will not compile at this point, as the generated code will refer to code you have not yet written. You will also have to write the following, covered in more detail in subsequent sections of this documentation:
+### Add the OpenStack client to scope
 
-## [The API](api-contracts.md)
+Update three files in `internal/scope/`:
 
-This is typically principally defined in:
+- `scope.go`, add the client interface:
+```go
+type Scope interface {
+    // ... existing methods ...
+    NewYourResourceClient() (osclients.YourResourceClient, error)
+}
+```
 
-* `api/v1alpha1/<resourcename>_types.go`
+- `provider.go`, implement the client constructor:
+```go
+func (s *providerScope) NewYourResourceClient() (osclients.YourResourceClient, error) {
+    return osclients.NewYourResourceClient(s.provider)
+}
+```
 
-## [Controller initialisation](controller-init.md)
+- `mock.go`, add mock support:
+```go
+type MockScopeFactory struct {
+	// ... existing clients ...
+	YourResourceClient *mock.MockYourResourceClient
+}
 
-These are typically defined in:
+func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
+	// ... existing clients ...
+	yourResourceClient := mock.NewMockServiceClient(mockCtrl)
 
-* `internal/controllers/<resource>/controller.go`
-* `internal/controllers/<resource>/reconcile.go`
+	return &MockScopeFactory{
+		// ... existing clients ...
+		YourResourceClient: yourResourceClient,
+	}
+}
 
-## [The actuator](interfaces.md#actuator)
+func (s *mockScope) NewYourResourceClient() (osclients.YourResourceClient, error) {
+    return s.yourResourceClient, nil
+}
+```
 
-This is typically defined in:
+### Register the controller
 
-* `internal/controllers/<resource>/actuator.go`
+Add the controller to `cmd/manager/main.go`:
 
-## [The status writer](interfaces.md#resourcestatuswriter)
+```go
+import (
+    // ... existing imports ...
+    yourresourcecontroller "github.com/k-orc/openstack-resource-controller/internal/controllers/yourresource"
+)
 
-This is typically defined in:
+// In the controllers slice:
+controllers := []interfaces.Controller{
+    // ... existing controllers ...
+    yourresourcecontroller.New(scopeFactory),
+}
+```
 
-* `internal/controllers/<resource>/status.go`
+### Implement the TODOs
+
+Search the generated code for `TODO(scaffolding)` markers and implement each one:
+
+```bash
+grep -r "TODO(scaffolding)" api/ internal/controllers/<kind>/
+```
+
+Key areas requiring implementation:
+
+- [API types](api-contracts.md): Define `Filter`, `ResourceSpec`, and `ResourceStatus` structs
+- [Actuator](interfaces.md#actuator): Implement `CreateResource`, `DeleteResource`, and optionally `GetResourceReconcilers`
+- [Status writer](interfaces.md#resourcestatuswriter): Implement `ResourceAvailableStatus` and `ApplyResourceStatus`
+- [Tests](writing-tests.md): Ensure the tests for your controller are complete
+
+!!! note
+
+    There is a high chance that the API for the resource you're working on differs from the stub the scaffolding tool created. For example, some resources don't have name, id, or description. If that's the case, adapt the generated code to match your resource.
+
+### Generate the OLM bundle
+
+After implementation is complete:
+
+```bash
+make generate-bundle
+```
+
+### Update documentation
+
+- Add the new controller to the README.md
+- Update any relevant user documentation

@@ -27,7 +27,7 @@ a single controller, should live in the controller's directory.
 You can run all with:
 
 ```bash
-$ make test
+make test
 ```
 
 You can also specify which controller do you want to test using the `TEST_PATHS`
@@ -36,7 +36,7 @@ can specify modules that you want to test by passing the package's path,
 separated by a blank space, for example:
 
 ```bash
-$ TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
+TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
 ```
 
 ## E2E tests
@@ -78,10 +78,38 @@ leftover ORC objects, and respective OpenStack resources, your test has
 created.
 
 However, if you have created OpenStack resources outside of ORC as part of the
-test, you MUST clean them to avoid leaking resources. Keep in mind that if the
+test, you **MUST** clean them to avoid leaking resources. Keep in mind that if the
 test fails before it had a chance to manually clean the resources, you would
 still have a leak. To counter this, only create OpenStack resources
 externally when it is absolutely necessary, and avoid writing tests that fail.
+
+#### Use of kuttl matchers vs CEL expressions
+
+Whenever possible, prefer kuttl matchers over CEL expressions when validating objects. This makes it easier to read.
+
+```yaml
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-create-full
+status:
+  resource:
+    # Good - a simple matcher, easy to read
+    name: volume-create-full-override
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volume-create-full
+      ref: volume
+assertAll:
+    # Bad - reserve CEL expressions for validations where kuttl matcher won't fit
+    - celExpr: "volume.status.name == 'volume-create-full-override'"
+    # Good - there's no equivalent kuttl matcher
+    - celExpr: "volume.status.id != ''"
+```
 
 ### Testing patterns
 
@@ -292,14 +320,14 @@ We use environment variables to configure how the tests run.
 
 | Variable      | Description | Default |
 | ----------- | ----------- |----------- |
-| `E2E_OSCLOUDS` | Path to a clouds.yaml to use for e2e tests | /etc/openstack/clouds.yaml |
-| `E2E_CACERT`   | Path to a cacert file to use to connect to OpenStack | |
-| `E2E_OPENSTACK_CLOUD_NAME` | Name of the openstack credentials to use | devstack |
-| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Name of the openstack admin credentials to use | devstack-admin-demo |
-| `E2E_EXTERNAL_NETWORK_NAME` | Name of the external network to use | public |
-| `E2E_KUTTL_DIR` | Run kuttl tests from a specific directory |  |
-| `E2E_KUTTL_TEST` | Run a specific kuttl test |  |
-| `E2E_KUTTL_FLAVOR` | Flavor name to use for tests | m1.tiny |
+| `E2E_OSCLOUDS` | Path to clouds.yaml | `/etc/openstack/clouds.yaml` |
+| `E2E_CACERT`   | Path to a CA certificate (if needed) | |
+| `E2E_OPENSTACK_CLOUD_NAME` | Cloud name for regular credentials | `devstack` |
+| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Cloud name for admin credentials | `devstack-admin-demo` |
+| `E2E_EXTERNAL_NETWORK_NAME` | Name of the external network to use | `public` |
+| `E2E_KUTTL_DIR` | Run tests from specific directory | |
+| `E2E_KUTTL_TEST` | Run a specific kuttl test | |
+| `E2E_KUTTL_FLAVOR` | Flavor name to use for tests | `m1.tiny` |
 
 For example, to run the `import-dependency` test from the `subnet` controller:
 

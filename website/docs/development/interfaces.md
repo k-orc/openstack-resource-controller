@@ -31,7 +31,7 @@ Another point worth emphasising is that although `CreateResource` and `DeleteRes
 
 The reason for this is idempotency. If the resource does not exist, we do call `CreateResource`. If the resource does exist, we do not call `CreateResource`. This means that if any action after resource creation fails, it will never be retried. The same is true for `DeleteResource`: we stop calling `DeleteResource` when we observe that the OpenStack resource is no longer present. Therefore any action after the Delete API call may never be retried.
 
-For the same reason, it is also important to remember that both `CreateResource` and `DeleteResource` may be called many times until they finally succeed. Therefore any actions prior to resource creation must be idempotent. If `CreateResource` takes any state-changing action prior to resource creation, calling `CreateResource` again must not do it again.
+For the same reason, it is also important to remember that both `CreateResource` and `DeleteResource` may be called many times until they finally succeed. Therefore any actions prior to resource creation must be idempotent. If `CreateResource` performs any state-changing action before the resource is created, calling `CreateResource` again must repeat that action.
 
 ### ReconcileResourceActuator
 

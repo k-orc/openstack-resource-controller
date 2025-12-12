@@ -10,19 +10,22 @@ nav:
   - User Guide: user-guide/index.md
   - CRD Reference: crd-reference.md
   - Troubleshooting: troubleshooting.md
-  - Local development quickstart: development/quickstart.md
-  - Developing controllers:
-    - development/index.md
-    - Generating scaffolding: development/scaffolding.md
-    - Writing an API: development/api-contracts.md
-    - Controller design considerations: development/controller-design.md
-    - Controller initialisation: development/controller-init.md
-    - Resource-specific interfaces: development/interfaces.md
-    - Writing tests: development/writing-tests.md
-    - General design considerations: development/design-decisions.md
-    - Coding conventions: development/coding-conventions.md
-    - Interface reference: development/godoc/generic-interfaces.md
-    - ReconcileStatus reference: development/godoc/reconcile-status.md
+  - Contributing:
+    - Development Quickstart: development/quickstart.md
+    - Running Examples: development/running-examples.md
+    - Developing Controllers:
+      - Overview: development/overview.md
+      - Scaffolding a New Controller: development/scaffolding.md
+      - API Design: development/api-design.md
+      - Controller Initialisation: development/controller-init.md
+      - Resource Interfaces: development/interfaces.md
+      - Controller Implementation: development/controller-implementation.md
+      - Writing Tests: development/writing-tests.md
+    - Reference:
+      - Architecture: development/architecture.md
+      - Coding Standards: development/coding-standards.md
+      - Interfaces: development/godoc/generic-interfaces.md
+      - ReconcileStatus: development/godoc/reconcile-status.md
   - Changelog: changelog.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:
