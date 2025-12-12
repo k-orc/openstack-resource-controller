@@ -4,7 +4,7 @@
 
 Create a minimal {{ .Kind }}, that sets only the required fields, and verify that the observed state corresponds to the spec.
 
-Also validate that the OpenStack resource uses the name of the ORC object when it is not specified.
+Also validate that the OpenStack resource uses the name of the ORC object when no name is explicitly specified.
 
 ## Step 01
 
