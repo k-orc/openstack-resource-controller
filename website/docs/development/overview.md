@@ -44,9 +44,9 @@ See the [local development quickstart](quickstart.md) for setting up your enviro
 
 ## Reference documentation
 
-- [Controller design patterns](controller-design.md) - Conditions, errors, and dependency management
-- [General design decisions](design-decisions.md) - Architectural decisions and rationale
-- [Coding conventions](coding-conventions.md) - Code style and patterns
+- [Controller implementation](controller-implementation.md) - Conditions, errors, and dependency management
+- [Architecture](architecture.md) - Architectural decisions and rationale
+- [Coding Standards](coding-standards.md) - Code style and patterns
 
 ### Generated documentation
 

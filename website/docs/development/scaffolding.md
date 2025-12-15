@@ -176,7 +176,7 @@ grep -r "TODO(scaffolding)" api/ internal/controllers/<kind>/
 
 Key areas requiring implementation:
 
-- [API types](api-contracts.md): Define `Filter`, `ResourceSpec`, and `ResourceStatus` structs
+- [API types](api-design.md): Define `Filter`, `ResourceSpec`, and `ResourceStatus` structs
 - [Actuator](interfaces.md#actuator): Implement `CreateResource`, `DeleteResource`, and optionally `GetResourceReconcilers`
 - [Status writer](interfaces.md#resourcestatuswriter): Implement `ResourceAvailableStatus` and `ApplyResourceStatus`
 - [Tests](writing-tests.md): Ensure the tests for your controller are complete
