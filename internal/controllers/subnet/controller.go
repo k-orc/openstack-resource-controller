@@ -32,6 +32,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
@@ -168,7 +169,7 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 				log := log.WithValues("watch", "RouterInterface", "name", obj.GetName(), "namespace", obj.GetNamespace())
 				routerInterface, ok := obj.(*orcv1alpha1.RouterInterface)
 				if !ok {
-					log.Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
+					log.V(logging.Debug).Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
 					return nil
 				}
 				subnetRef := routerInterface.Spec.SubnetRef
