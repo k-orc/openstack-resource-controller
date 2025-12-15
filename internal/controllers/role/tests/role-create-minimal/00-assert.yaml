@@ -6,7 +6,6 @@ metadata:
 status:
   resource:
     name: role-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +23,5 @@ resourceRefs:
       ref: role
 assertAll:
     - celExpr: "role.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(role.status.resource.description)"
+    - celExpr: "role.status.resource.domainID == ''"

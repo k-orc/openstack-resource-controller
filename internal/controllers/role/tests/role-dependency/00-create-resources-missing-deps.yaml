@@ -1,4 +1,3 @@
-
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
@@ -6,13 +5,11 @@ metadata:
   name: role-dependency-no-domain
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     domainRef: role-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
@@ -20,9 +17,7 @@ metadata:
   name: role-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: role-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}

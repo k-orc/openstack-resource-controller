@@ -11,16 +11,24 @@ Create a Role matching the import filter, except for referenced resources, and v
 
 ## Step 02
 
+Disable the first domain dependency so it can be deleted without issue by KUTTL during cleanup.
+
+## Step 03
+
 Create the referenced resources and a Role matching the import filters.
 
 Verify that the observed status on the imported Role corresponds to the spec of the created Role.
 
-## Step 03
+## Step 04
+
+Disable the second domain dependency so it can be deleted without issue by KUTTL during cleanup.
+
+## Step 05
 
 Delete the referenced resources and check that ORC does not prevent deletion. The OpenStack resources still exist because they
 were imported resources and we only deleted the ORC representation of it.
 
-## Step 04
+## Step 06
 
 Delete the Role and validate that all resources are gone.
 

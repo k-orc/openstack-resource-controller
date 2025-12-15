@@ -21,7 +21,7 @@ type RoleResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *KeystoneName `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
@@ -33,14 +33,6 @@ type RoleResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
 }
 
 // RoleFilter defines an existing resource by its properties
@@ -48,21 +40,11 @@ type RoleResourceSpec struct {
 type RoleFilter struct {
 	// name of the existing resource
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
+	Name *KeystoneName `json:"name,omitempty"`
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles
 }
 
 // RoleResourceStatus represents the observed state of the resource.
@@ -81,8 +63,4 @@ type RoleResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Role structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles
 }

@@ -177,6 +177,10 @@ func (s *providerScope) NewGroupClient() (clients.GroupClient, error) {
 	return clients.NewGroupClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewRoleClient() (clients.RoleClient, error) {
+	return clients.NewRoleClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	client, err := openstack.NewIdentityV3(s.providerClient, gophercloud.EndpointOpts{})
 	if err != nil {

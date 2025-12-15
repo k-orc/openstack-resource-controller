@@ -90,6 +90,14 @@ type ProjectListerExpansion interface{}
 // ProjectNamespaceLister.
 type ProjectNamespaceListerExpansion interface{}
 
+// RoleListerExpansion allows custom methods to be added to
+// RoleLister.
+type RoleListerExpansion interface{}
+
+// RoleNamespaceListerExpansion allows custom methods to be added to
+// RoleNamespaceLister.
+type RoleNamespaceListerExpansion interface{}
+
 // RouterListerExpansion allows custom methods to be added to
 // RouterLister.
 type RouterListerExpansion interface{}

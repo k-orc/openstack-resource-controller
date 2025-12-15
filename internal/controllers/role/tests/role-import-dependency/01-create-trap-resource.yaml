@@ -5,11 +5,9 @@ metadata:
   name: role-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 # This `role-import-dependency-not-this-one` should not be picked by the import filter
@@ -19,10 +17,8 @@ metadata:
   name: role-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     domainRef: role-import-dependency-not-this-one
-    # TODO(scaffolding): Add the necessary fields to create the resource

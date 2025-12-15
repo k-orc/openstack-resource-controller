@@ -212,6 +212,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProjectStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Role"):
+		return &apiv1alpha1.RoleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleFilter"):
+		return &apiv1alpha1.RoleFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleImport"):
+		return &apiv1alpha1.RoleImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleResourceSpec"):
+		return &apiv1alpha1.RoleResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleResourceStatus"):
+		return &apiv1alpha1.RoleResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleSpec"):
+		return &apiv1alpha1.RoleSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleStatus"):
+		return &apiv1alpha1.RoleStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Router"):
 		return &apiv1alpha1.RouterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RouterFilter"):

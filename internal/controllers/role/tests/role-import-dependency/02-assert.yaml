@@ -32,3 +32,6 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+  resource:
+    name: role-import-dependency-external
+

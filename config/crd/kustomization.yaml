@@ -12,6 +12,7 @@ resources:
 - bases/openstack.k-orc.cloud_networks.yaml
 - bases/openstack.k-orc.cloud_ports.yaml
 - bases/openstack.k-orc.cloud_projects.yaml
+- bases/openstack.k-orc.cloud_roles.yaml
 - bases/openstack.k-orc.cloud_routers.yaml
 - bases/openstack.k-orc.cloud_routerinterfaces.yaml
 - bases/openstack.k-orc.cloud_securitygroups.yaml
