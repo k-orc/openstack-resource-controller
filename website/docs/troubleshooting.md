@@ -211,7 +211,7 @@ kubectl logs -n orc-system deployment/orc-controller-manager --previous
 
 - Invalid configuration flags
 - Cannot connect to Kubernetes API
-- Memory limits too low ([increase in deployment](/installation/#resource-limits))
+- Memory limits too low ([increase in deployment](installation.md#resource-limits))
 
 ## OpenStack-Specific Issues
 
