@@ -328,6 +328,7 @@ We use environment variables to configure how the tests run.
 | `E2E_KUTTL_DIR` | Run tests from specific directory | |
 | `E2E_KUTTL_TEST` | Run a specific kuttl test | |
 | `E2E_KUTTL_FLAVOR` | Flavor name to use for tests | `m1.tiny` |
+| `E2E_KUTTL_TIMEOUT` | Override default timeout for tests | |
 
 For example, to run the `import-dependency` test from the `subnet` controller:
 
