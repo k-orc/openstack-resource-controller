@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-${{ matrix.ubuntu_version }}
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.0.1
 
     - name: Deploy devstack
       uses: gophercloud/devstack-action@60ca1042045c0c9e3e001c64575d381654ffcba1
@@ -66,7 +66,7 @@ jobs:
 
     - name: Upload logs artifacts on failure
       if: failure()
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: e2e-${{ matrix.name }}-${{ github.run_id }}
         path: /tmp/artifacts/*
