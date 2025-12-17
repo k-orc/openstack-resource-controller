@@ -95,6 +95,11 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      adminStateUp:
+                        description: |-
+                          adminStateUp is the administrative state of the port,
+                          which is up (true) or down (false).
+                        type: boolean
                       description:
                         description: description of the existing resource
                         maxLength: 255
@@ -251,6 +256,12 @@ spec:
                     x-kubernetes-validations:
                     - message: addresses is immutable
                       rule: self == oldSelf
+                  adminStateUp:
+                    default: true
+                    description: |-
+                      adminStateUp is the administrative state of the port,
+                      which is up (true) or down (false). The default value is true.
+                    type: boolean
                   allowedAddressPairs:
                     description: allowedAddressPairs are allowed addresses associated
                       with this port.

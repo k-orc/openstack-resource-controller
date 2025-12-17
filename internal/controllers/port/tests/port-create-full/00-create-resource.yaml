@@ -69,6 +69,7 @@ spec:
   resource:
     name: port-create-full-override
     description: Port from "create full" test
+    adminStateUp: false
     networkRef: port-create-full
     allowedAddressPairs:
       - ip: "192.168.122.14"

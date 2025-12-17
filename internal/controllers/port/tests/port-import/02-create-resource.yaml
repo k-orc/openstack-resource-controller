@@ -11,5 +11,6 @@ spec:
   resource:
     networkRef: port-import
     description: Port from "port-import" test
+    adminStateUp: false
     tags:
       - tag1

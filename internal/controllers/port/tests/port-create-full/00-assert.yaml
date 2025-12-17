@@ -7,7 +7,7 @@ status:
   resource:
     name: port-create-full-override
     description: Port from "create full" test
-    adminStateUp: true
+    adminStateUp: false
     allowedAddressPairs:
       - ip: 192.168.122.14
         mac: 92:42:9c:13:98:82

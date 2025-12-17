@@ -31,6 +31,7 @@ type PortResourceSpecApplyConfiguration struct {
 	Tags                []apiv1alpha1.NeutronTag               `json:"tags,omitempty"`
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
+	AdminStateUp        *bool                                  `json:"adminStateUp,omitempty"`
 	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
 	VNICType            *string                                `json:"vnicType,omitempty"`
 	PortSecurity        *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
@@ -100,6 +101,14 @@ func (b *PortResourceSpecApplyConfiguration) WithAddresses(values ...*AddressApp
 		}
 		b.Addresses = append(b.Addresses, *values[i])
 	}
+	return b
+}
+
+// WithAdminStateUp sets the AdminStateUp field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AdminStateUp field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithAdminStateUp(value bool) *PortResourceSpecApplyConfiguration {
+	b.AdminStateUp = &value
 	return b
 }
 

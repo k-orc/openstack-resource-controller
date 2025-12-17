@@ -407,3 +407,31 @@ func TestHandlePortSecurityUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleAdminStateUpUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Enabled when already enabled", newValue: ptr.To(true), existingValue: true, expectChange: false},
+		{name: "Enabled when was disabled", newValue: ptr.To(true), existingValue: false, expectChange: true},
+		{name: "Keep the existing value if newValue is not set", newValue: nil, existingValue: true, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.PortResourceSpec{AdminStateUp: tt.newValue}
+			osResource := &osclients.PortExt{Port: ports.Port{AdminStateUp: tt.existingValue}}
+			updateOpts := &ports.UpdateOpts{}
+
+			handleAdminStateUpUpdate(updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, got)
+			}
+		})
+	}
+}
