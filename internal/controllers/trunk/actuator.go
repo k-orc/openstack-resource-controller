@@ -18,7 +18,6 @@ package trunk
 
 import (
 	"context"
-	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
@@ -32,24 +31,22 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
+// OpenStack resource types
 type (
 	osResourceT = trunks.Trunk
 
-	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
-	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
-	trunkIterator             = iter.Seq2[*osResourceT, error]
+	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type trunkActuator struct {
-	osClient  osclients.NetworkClient
+	osClient  osclients.TrunkClient
 	k8sClient client.Client
 }
 
@@ -61,35 +58,35 @@ func (trunkActuator) GetResourceID(osResource *osResourceT) string {
 }
 
 func (actuator trunkActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	trunk, err := actuator.osClient.GetTrunk(ctx, id)
+	resource, err := actuator.osClient.GetTrunk(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
-	return trunk, nil
+	return resource, nil
 }
 
-func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Trunk) (trunkIterator, bool) {
-	if obj.Spec.Resource == nil {
+func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
+	resourceSpec := orcObject.Spec.Resource
+	if resourceSpec == nil {
 		return nil, false
 	}
 
-	listOpts := trunks.ListOpts{Name: getResourceName(obj)}
-	trunks, err := actuator.osClient.ListTrunk(ctx, listOpts)
-	if err != nil {
-		return func(yield func(*osResourceT, error) bool) {
-			yield(nil, err)
-		}, true
+	// TODO(scaffolding) If you need to filter resources on fields that the List() function
+	// of gophercloud does not support, it's possible to perform client-side filtering.
+	// Check osclients.ResourceFilter
+
+	listOpts := trunks.ListOpts{
+		Name:        getResourceName(orcObject),
+		Description: ptr.Deref(resourceSpec.Description, ""),
 	}
-	return func(yield func(*osResourceT, error) bool) {
-		for i := range trunks {
-			if !yield(&trunks[i], nil) {
-				return
-			}
-		}
-	}, true
+
+	return actuator.osClient.ListTrunks(ctx, listOpts), true
 }
 
 func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+	// TODO(scaffolding) If you need to filter resources on fields that the List() function
+	// of gophercloud does not support, it's possible to perform client-side filtering.
+	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	port := &orcv1alpha1.Port{}
@@ -135,52 +132,36 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	}
 
 	listOpts := trunks.ListOpts{
-		Name:      string(ptr.Deref(filter.Name, "")),
+		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		PortID:    ptr.Deref(port.Status.ID, ""),
-		ProjectID: ptr.Deref(project.Status.ID, ""),
-		Tags:      tags.Join(filter.Tags),
-		TagsAny:   tags.Join(filter.TagsAny),
-		NotTags:   tags.Join(filter.NotTags),
-		NotTagsAny: tags.Join(filter.NotTagsAny),
+		Port:  ptr.Deref(port.Status.ID, ""),
+		Project:  ptr.Deref(project.Status.ID, ""),
+		// TODO(scaffolding): Add more import filters
 	}
 
-	trunksList, err := actuator.osClient.ListTrunk(ctx, listOpts)
-	if err != nil {
-		return func(yield func(*osResourceT, error) bool) {
-			yield(nil, err)
-		}, nil
-	}
-	return func(yield func(*osResourceT, error) bool) {
-		for i := range trunksList {
-			if !yield(&trunksList[i], nil) {
-				return
-			}
-		}
-	}, nil
+	return actuator.osClient.ListTrunks(ctx, listOpts), nil
 }
 
-func (actuator trunkActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Trunk) (*osResourceT, progress.ReconcileStatus) {
+func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
+
 	if resource == nil {
 		// Should have been caught by API validation
-		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+	var reconcileStatus progress.ReconcileStatus
 
-	// Fetch all dependencies and ensure they have our finalizer
-	port, portDepRS := portDependency.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
-	)
-	portMap, subportDepRS := subportDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
-	)
-	reconcileStatus := progress.NewReconcileStatus().
-		WithReconcileStatus(portDepRS).
-		WithReconcileStatus(subportDepRS)
+	var portID string
+        port, portDepRS := portDependency.GetDependency(
+                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
+                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+                },
+        )
+        reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
+        if port != nil {
+                portID = ptr.Deref(port.Status.ID, "")
+        }
 
 	var projectID string
 	if resource.ProjectRef != nil {
@@ -194,41 +175,21 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj *orcv1alph
 			projectID = ptr.Deref(project.Status.ID, "")
 		}
 	}
-
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
-
 	createOpts := trunks.CreateOpts{
-		PortID:       *port.Status.ID,
-		Name:         getResourceName(obj),
-		Description:  string(ptr.Deref(resource.Description, "")),
-		AdminStateUp: resource.AdminStateUp,
-		ProjectID:    projectID,
-	}
-
-	// Convert subports from spec to OpenStack format
-	if len(resource.Subports) > 0 {
-		createOpts.Subports = make([]trunks.Subport, len(resource.Subports))
-		for i := range resource.Subports {
-			portName := string(resource.Subports[i].PortRef)
-			subportPort, ok := portMap[portName]
-			if !ok {
-				// Programming error
-				return nil, progress.WrapError(fmt.Errorf("subport port %s was not returned by GetDependencies", portName))
-			}
-			createOpts.Subports[i] = trunks.Subport{
-				PortID:           *subportPort.Status.ID,
-				SegmentationType: resource.Subports[i].SegmentationType,
-				SegmentationID:   int(resource.Subports[i].SegmentationID),
-			}
-		}
+		Name:        getResourceName(obj),
+		Description: ptr.Deref(resource.Description, ""),
+		PortID:  portID,
+		ProjectID:  projectID,
+		// TODO(scaffolding): Add more fields
 	}
 
 	osResource, err := actuator.osClient.CreateTrunk(ctx, createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
-		if orcerrors.IsConflict(err) {
+		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
 		return nil, progress.WrapError(err)
@@ -237,59 +198,37 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj *orcv1alph
 	return osResource, nil
 }
 
-func (actuator trunkActuator) DeleteResource(ctx context.Context, _ *orcv1alpha1.Trunk, osResource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteTrunk(ctx, osResource.ID))
-}
-
-var _ reconcileResourceActuator = trunkActuator{}
-
-func (actuator trunkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "trunks", osResource.ID)),
-		actuator.updateResource,
-		actuator.reconcileSubports,
-	}, nil
+func (actuator trunkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteTrunk(ctx, resource.ID))
 }
 
 func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
 	if resource == nil {
+		// Should have been caught by API validation
 		return progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	var updateOpts trunks.UpdateOpts
-	needsUpdate := false
+	updateOpts := trunks.UpdateOpts{}
 
-	// Handle name update
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-		needsUpdate = true
+	handleNameUpdate(&updateOpts, obj, osResource)
+	handleDescriptionUpdate(&updateOpts, resource, osResource)
+
+	// TODO(scaffolding): add handler for all fields supporting mutability
+
+	needsUpdate, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
 	}
-
-	// Handle description update
-	description := string(ptr.Deref(resource.Description, ""))
-	if osResource.Description != description {
-		updateOpts.Description = &description
-		needsUpdate = true
-	}
-
-	// Handle adminStateUp update
-	if resource.AdminStateUp != nil && *resource.AdminStateUp != osResource.AdminStateUp {
-		updateOpts.AdminStateUp = resource.AdminStateUp
-		needsUpdate = true
-	}
-
 	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	updateOpts.RevisionNumber = &osResource.RevisionNumber
-
-	_, err := actuator.osClient.UpdateTrunk(ctx, osResource.ID, updateOpts)
+	_, err = actuator.osClient.UpdateTrunk(ctx, osResource.ID, updateOpts)
 
 	// We should require the spec to be updated before retrying an update which returned a conflict
 	if orcerrors.IsConflict(err) {
@@ -300,148 +239,49 @@ func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectP
 		return progress.WrapError(err)
 	}
 
-	// Refresh is needed to get the updated resource state from OpenStack after modifications.
-	// This ensures the status accurately reflects the current state before the next reconciliation cycle.
 	return progress.NeedsRefresh()
 }
 
-// reconcileSubports ensures the trunk's subports match the desired state from the spec.
-// It handles adding new subports, removing deleted ones, and updating existing subports.
-// Note: OpenStack trunk API does not support in-place updates of subport segmentation,
-// so changes require removing and re-adding the subport, which may cause brief network interruption.
-func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		return nil
-	}
-
-	// Get current subports from OpenStack
-	currentSubports, err := actuator.osClient.ListTrunkSubports(ctx, osResource.ID)
+func needsUpdate(updateOpts trunks.UpdateOpts) (bool, error) {
+	updateOptsMap, err := updateOpts.ToTrunkUpdateMap()
 	if err != nil {
-		return progress.WrapError(fmt.Errorf("failed to list trunk subports: %w", err))
+		return false, err
 	}
 
-	// Get desired subports from spec
-	portMap, subportDepRS := subportDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
-	)
-	if needsReschedule, _ := subportDepRS.NeedsReschedule(); needsReschedule {
-		return subportDepRS
+	updateMap, ok := updateOptsMap["trunk"].(map[string]any)
+	if !ok {
+		updateMap = make(map[string]any)
 	}
 
-	desiredSubports := make([]trunks.Subport, 0, len(resource.Subports))
-	for i := range resource.Subports {
-		portName := string(resource.Subports[i].PortRef)
-		subportPort, ok := portMap[portName]
-		if !ok {
-			// Port not ready yet, will be retried
-			log.V(logging.Debug).Info("Skipping subport: port not ready", "portRef", portName)
-			continue
-		}
-		desiredSubports = append(desiredSubports, trunks.Subport{
-			PortID:           *subportPort.Status.ID,
-			SegmentationType: resource.Subports[i].SegmentationType,
-			SegmentationID:   int(resource.Subports[i].SegmentationID),
-		})
-	}
-
-	// Build maps for comparison (keyed by PortID for efficient lookup)
-	currentMap := buildSubportMap(currentSubports)
-	desiredMap := buildSubportMap(desiredSubports)
-
-	// Find subports to add
-	// Note: OpenStack trunk API does not support in-place updates of subport segmentation.
-	// When segmentation type or ID changes, we must remove the old subport and add it back
-	// with the new segmentation. This may cause a brief network interruption for that subport.
-	toAdd := []trunks.Subport{}
-	for portID, desired := range desiredMap {
-		if current, exists := currentMap[portID]; !exists {
-			toAdd = append(toAdd, desired)
-		} else if subportNeedsUpdate(current, desired) {
-			// Subport exists but with different segmentation, need to remove and re-add
-			// First remove the old one
-			removeOpts := trunks.RemoveSubportsOpts{
-				Subports: []trunks.RemoveSubport{{PortID: portID}},
-			}
-			if err := actuator.osClient.RemoveSubports(ctx, osResource.ID, removeOpts); err != nil {
-				return progress.WrapError(fmt.Errorf("failed to remove subport %s: %w", portID, err))
-			}
-			toAdd = append(toAdd, desired)
-		}
-	}
-
-	// Find subports to remove
-	toRemove := []trunks.RemoveSubport{}
-	for portID := range currentMap {
-		if _, exists := desiredMap[portID]; !exists {
-			toRemove = append(toRemove, trunks.RemoveSubport{PortID: portID})
-		}
-	}
-
-	// Apply changes
-	if len(toRemove) > 0 {
-		removeOpts := trunks.RemoveSubportsOpts{Subports: toRemove}
-		if err := actuator.osClient.RemoveSubports(ctx, osResource.ID, removeOpts); err != nil {
-			return progress.WrapError(fmt.Errorf("failed to remove subports: %w", err))
-		}
-		log.V(logging.Debug).Info("Removed subports", "count", len(toRemove))
-	}
-
-	if len(toAdd) > 0 {
-		addOpts := trunks.AddSubportsOpts{Subports: toAdd}
-		if _, err := actuator.osClient.AddSubports(ctx, osResource.ID, addOpts); err != nil {
-			return progress.WrapError(fmt.Errorf("failed to add subports: %w", err))
-		}
-		log.V(logging.Debug).Info("Added subports", "count", len(toAdd))
-	}
-
-	if len(toAdd) > 0 || len(toRemove) > 0 {
-		// Refresh is needed to get the updated subport list from OpenStack after modifications.
-		// This ensures the status accurately reflects the current state before the next reconciliation.
-		return progress.NeedsRefresh()
-	}
-
-	return nil
+	return len(updateMap) > 0, nil
 }
 
-// buildSubportMap creates a map of subports keyed by PortID for efficient comparison.
-func buildSubportMap(subports []trunks.Subport) map[string]trunks.Subport {
-	result := make(map[string]trunks.Subport, len(subports))
-	for _, subport := range subports {
-		result[subport.PortID] = subport
+func handleNameUpdate(updateOpts *trunks.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = &name
 	}
-	return result
 }
 
-// subportNeedsUpdate checks if a subport needs to be updated by comparing segmentation parameters.
-// OpenStack trunk API does not support in-place updates, so any change requires remove+re-add.
-func subportNeedsUpdate(current, desired trunks.Subport) bool {
-	return current.SegmentationType != desired.SegmentationType || current.SegmentationID != desired.SegmentationID
+func handleDescriptionUpdate(updateOpts *trunks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := ptr.Deref(resource.Description, "")
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func (actuator trunkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+	return []resourceReconciler{
+		actuator.updateResource,
+	}, nil
 }
 
 type trunkHelperFactory struct{}
 
 var _ helperFactory = trunkHelperFactory{}
 
-func (trunkHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
-	return trunkAdapter{obj}
-}
-
-func (trunkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
-	return newActuator(ctx, controller, orcObject)
-}
-
-func (trunkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
-	return newActuator(ctx, controller, orcObject)
-}
-
-func newActuator(ctx context.Context, controller interfaces.ResourceController, orcObject *orcv1alpha1.Trunk) (trunkActuator, progress.ReconcileStatus) {
-	if orcObject == nil {
-		return trunkActuator{}, progress.WrapError(fmt.Errorf("orcObject may not be nil"))
-	}
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Trunk, controller interfaces.ResourceController) (trunkActuator, progress.ReconcileStatus) {
+	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
 	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
@@ -449,12 +289,11 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 		return trunkActuator{}, reconcileStatus
 	}
 
-	log := ctrl.LoggerFrom(ctx)
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return trunkActuator{}, progress.WrapError(err)
 	}
-	osClient, err := clientScope.NewNetworkClient()
+	osClient, err := clientScope.NewTrunkClient()
 	if err != nil {
 		return trunkActuator{}, progress.WrapError(err)
 	}
@@ -465,3 +304,14 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 	}, nil
 }
 
+func (trunkHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
+	return trunkAdapter{obj}
+}
+
+func (trunkHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
+}
+
+func (trunkHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+	return newActuator(ctx, orcObject, controller)
+}

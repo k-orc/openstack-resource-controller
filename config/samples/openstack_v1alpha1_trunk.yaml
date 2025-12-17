@@ -1,26 +1,14 @@
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
 metadata:
   name: trunk-sample
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: trunk-sample
     description: Sample Trunk
-    portRef: port-sample
-    tags:
-      - tag1
-      - tag2
-    adminStateUp: true
-    subports:
-      - portRef: port-sample-subport1
-        segmentationType: vlan
-        segmentationID: 100
-      - portRef: port-sample-subport2
-        segmentationType: vlan
-        segmentationID: 200
-    projectRef: project-sample
-
+    # TODO(scaffolding): Add all fields the resource supports

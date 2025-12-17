@@ -9,4 +9,3 @@ resourceRefs:
 assertAll:
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/trunk' in secret.metadata.finalizers"
-

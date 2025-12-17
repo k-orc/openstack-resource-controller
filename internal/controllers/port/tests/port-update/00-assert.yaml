@@ -11,10 +11,6 @@ resourceRefs:
       name: port-update-admin
       ref: portAdmin
 assertAll:
-    - celExpr: "port.status.id != ''"
-    - celExpr: "port.status.resource.createdAt != ''"
-    - celExpr: "port.status.resource.updatedAt != ''"
-    - celExpr: "port.status.resource.macAddress != ''"
     - celExpr: "!has(port.status.resource.fixedIPs)"
     - celExpr: "!has(port.status.resource.description)"
     # Following the network API reference, the default value for

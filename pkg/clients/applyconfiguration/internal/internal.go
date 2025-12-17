@@ -2903,33 +2903,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceStatus
-- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subport
-  map:
-    fields:
-    - name: portRef
-      type:
-        scalar: string
-      default: ""
-    - name: segmentationID
-      type:
-        scalar: numeric
-      default: 0
-    - name: segmentationType
-      type:
-        scalar: string
-      default: ""
-- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubportStatus
-  map:
-    fields:
-    - name: portID
-      type:
-        scalar: string
-    - name: segmentationID
-      type:
-        scalar: numeric
-    - name: segmentationType
-      type:
-        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Trunk
   map:
     fields:
@@ -2960,36 +2933,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
-    - name: notTags
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: associative
-    - name: notTagsAny
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: associative
     - name: portRef
       type:
         scalar: string
     - name: projectRef
       type:
         scalar: string
-    - name: tags
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: associative
-    - name: tagsAny
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkImport
   map:
     fields:
@@ -3002,9 +2951,6 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceSpec
   map:
     fields:
-    - name: adminStateUp
-      type:
-        scalar: boolean
     - name: description
       type:
         scalar: string
@@ -3014,31 +2960,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portRef
       type:
         scalar: string
-      default: ""
     - name: projectRef
       type:
         scalar: string
-    - name: subports
-      type:
-        list:
-          elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subport
-          elementRelationship: atomic
-    - name: tags
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceStatus
   map:
     fields:
-    - name: adminStateUp
-      type:
-        scalar: boolean
-    - name: createdAt
-      type:
-        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: description
       type:
         scalar: string
@@ -3051,27 +2978,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectID
       type:
         scalar: string
-    - name: revisionNumber
-      type:
-        scalar: numeric
-    - name: status
-      type:
-        scalar: string
-    - name: subports
-      type:
-        list:
-          elementType:
-            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubportStatus
-          elementRelationship: atomic
-    - name: tags
-      type:
-        list:
-          elementType:
-            scalar: string
-          elementRelationship: atomic
-    - name: updatedAt
-      type:
-        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkSpec
   map:
     fields:

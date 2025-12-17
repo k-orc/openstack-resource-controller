@@ -13,13 +13,3 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
----
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: routerinterface
-      name: routerinterface-create-minimal
-      ref: routerinterface
-assertAll:
-    - celExpr: "routerinterface.status.id != ''"

@@ -18,22 +18,13 @@ limitations under the License.
 
 package v1alpha1
 
-import (
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
 // TrunkResourceStatusApplyConfiguration represents a declarative configuration of the TrunkResourceStatus type for use
 // with apply.
 type TrunkResourceStatusApplyConfiguration struct {
-	Name                                    *string                           `json:"name,omitempty"`
-	Description                             *string                           `json:"description,omitempty"`
-	PortID                                  *string                           `json:"portID,omitempty"`
-	ProjectID                               *string                           `json:"projectID,omitempty"`
-	Status                                  *string                           `json:"status,omitempty"`
-	Tags                                    []string                          `json:"tags,omitempty"`
-	AdminStateUp                            *bool                             `json:"adminStateUp,omitempty"`
-	Subports                                []SubportStatusApplyConfiguration `json:"subports,omitempty"`
-	NeutronStatusMetadataApplyConfiguration `json:",inline"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	PortID      *string `json:"portID,omitempty"`
+	ProjectID   *string `json:"projectID,omitempty"`
 }
 
 // TrunkResourceStatusApplyConfiguration constructs a declarative configuration of the TrunkResourceStatus type for use with
@@ -71,68 +62,5 @@ func (b *TrunkResourceStatusApplyConfiguration) WithPortID(value string) *TrunkR
 // If called multiple times, the ProjectID field is set to the value of the last call.
 func (b *TrunkResourceStatusApplyConfiguration) WithProjectID(value string) *TrunkResourceStatusApplyConfiguration {
 	b.ProjectID = &value
-	return b
-}
-
-// WithStatus sets the Status field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Status field is set to the value of the last call.
-func (b *TrunkResourceStatusApplyConfiguration) WithStatus(value string) *TrunkResourceStatusApplyConfiguration {
-	b.Status = &value
-	return b
-}
-
-// WithTags adds the given value to the Tags field in the declarative configuration
-// and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the Tags field.
-func (b *TrunkResourceStatusApplyConfiguration) WithTags(values ...string) *TrunkResourceStatusApplyConfiguration {
-	for i := range values {
-		b.Tags = append(b.Tags, values[i])
-	}
-	return b
-}
-
-// WithAdminStateUp sets the AdminStateUp field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the AdminStateUp field is set to the value of the last call.
-func (b *TrunkResourceStatusApplyConfiguration) WithAdminStateUp(value bool) *TrunkResourceStatusApplyConfiguration {
-	b.AdminStateUp = &value
-	return b
-}
-
-// WithSubports adds the given value to the Subports field in the declarative configuration
-// and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the Subports field.
-func (b *TrunkResourceStatusApplyConfiguration) WithSubports(values ...*SubportStatusApplyConfiguration) *TrunkResourceStatusApplyConfiguration {
-	for i := range values {
-		if values[i] == nil {
-			panic("nil value passed to WithSubports")
-		}
-		b.Subports = append(b.Subports, *values[i])
-	}
-	return b
-}
-
-// WithCreatedAt sets the CreatedAt field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the CreatedAt field is set to the value of the last call.
-func (b *TrunkResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *TrunkResourceStatusApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
-	return b
-}
-
-// WithUpdatedAt sets the UpdatedAt field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the UpdatedAt field is set to the value of the last call.
-func (b *TrunkResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *TrunkResourceStatusApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
-	return b
-}
-
-// WithRevisionNumber sets the RevisionNumber field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the RevisionNumber field is set to the value of the last call.
-func (b *TrunkResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *TrunkResourceStatusApplyConfiguration {
-	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

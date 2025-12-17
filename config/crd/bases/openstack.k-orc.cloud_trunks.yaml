@@ -102,76 +102,18 @@ spec:
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
-                      notTags:
-                        description: |-
-                          notTags is a list of tags to filter by. If specified, resources which
-                          contain all of the given tags will be excluded from the result.
-                        items:
-                          description: |-
-                            NeutronTag represents a tag on a Neutron resource.
-                            It may not be empty and may not contain commas.
-                          maxLength: 255
-                          minLength: 1
-                          type: string
-                        maxItems: 64
-                        type: array
-                        x-kubernetes-list-type: set
-                      notTagsAny:
-                        description: |-
-                          notTagsAny is a list of tags to filter by. If specified, resources
-                          which contain any of the given tags will be excluded from the result.
-                        items:
-                          description: |-
-                            NeutronTag represents a tag on a Neutron resource.
-                            It may not be empty and may not contain commas.
-                          maxLength: 255
-                          minLength: 1
-                          type: string
-                        maxItems: 64
-                        type: array
-                        x-kubernetes-list-type: set
                       portRef:
                         description: portRef is a reference to the ORC Port which
-                          this trunk is associated with.
+                          this resource is associated with.
                         maxLength: 253
                         minLength: 1
                         type: string
                       projectRef:
-                        description: |-
-                          projectRef is a reference to the ORC Project this resource is associated with.
-                          Typically, only used by admin.
+                        description: projectRef is a reference to the ORC Project
+                          which this resource is associated with.
                         maxLength: 253
                         minLength: 1
                         type: string
-                      tags:
-                        description: |-
-                          tags is a list of tags to filter by. If specified, the resource must
-                          have all of the tags specified to be included in the result.
-                        items:
-                          description: |-
-                            NeutronTag represents a tag on a Neutron resource.
-                            It may not be empty and may not contain commas.
-                          maxLength: 255
-                          minLength: 1
-                          type: string
-                        maxItems: 64
-                        type: array
-                        x-kubernetes-list-type: set
-                      tagsAny:
-                        description: |-
-                          tagsAny is a list of tags to filter by. If specified, the resource
-                          must have at least one of the tags specified to be included in the
-                          result.
-                        items:
-                          description: |-
-                            NeutronTag represents a tag on a Neutron resource.
-                            It may not be empty and may not contain commas.
-                          maxLength: 255
-                          minLength: 1
-                          type: string
-                        maxItems: 64
-                        type: array
-                        x-kubernetes-list-type: set
                     type: object
                   id:
                     description: |-
@@ -219,10 +161,6 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
-                  adminStateUp:
-                    description: adminStateUp is the administrative state of the trunk,
-                      which is up (true) or down (false).
-                    type: boolean
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -230,78 +168,34 @@ spec:
                     minLength: 1
                     type: string
                   name:
-                    description: name is a human-readable name of the trunk. If not
-                      set, the object's name will be used.
+                    description: |-
+                      name will be the name of the created resource. If not specified, the
+                      name of the ORC object will be used.
                     maxLength: 255
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
                   portRef:
-                    description: portRef is a reference to the ORC Port which will
-                      be used as the parent port for this trunk.
+                    description: portRef is a reference to the ORC Port which this
+                      resource is associated with.
                     maxLength: 253
                     minLength: 1
                     type: string
+                    x-kubernetes-validations:
+                    - message: portRef is immutable
+                      rule: self == oldSelf
                   projectRef:
-                    description: |-
-                      projectRef is a reference to the ORC Project this resource is associated with.
-                      Typically, only used by admin.
+                    description: projectRef is a reference to the ORC Project which
+                      this resource is associated with.
                     maxLength: 253
                     minLength: 1
                     type: string
                     x-kubernetes-validations:
                     - message: projectRef is immutable
                       rule: self == oldSelf
-                  subports:
-                    description: subports are the subports that will be attached to
-                      this trunk.
-                    items:
-                      description: Subport represents a subport that will be attached
-                        to a trunk.
-                      properties:
-                        portRef:
-                          description: portRef is a reference to the ORC Port which
-                            will be used as a subport.
-                          maxLength: 253
-                          minLength: 1
-                          type: string
-                        segmentationID:
-                          description: segmentationID is the segmentation identifier
-                            (e.g., VLAN ID).
-                          format: int32
-                          type: integer
-                        segmentationType:
-                          description: segmentationType is the type of segmentation
-                            to use (e.g., "vlan").
-                          maxLength: 64
-                          type: string
-                      required:
-                      - portRef
-                      - segmentationID
-                      - segmentationType
-                      type: object
-                    maxItems: 128
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  tags:
-                    description: tags is a list of tags which will be applied to the
-                      trunk.
-                    items:
-                      description: |-
-                        NeutronTag represents a tag on a Neutron resource.
-                        It may not be empty and may not contain commas.
-                      maxLength: 255
-                      minLength: 1
-                      type: string
-                    maxItems: 64
-                    type: array
-                    x-kubernetes-list-type: set
                 required:
                 - portRef
                 type: object
-                x-kubernetes-validations:
-                - message: portRef is immutable
-                  rule: self == oldSelf
             required:
             - cloudCredentialsRef
             type: object
@@ -404,77 +298,25 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
-                  adminStateUp:
-                    description: |-
-                      adminStateUp is the administrative state of the trunk,
-                      which is up (true) or down (false).
-                    type: boolean
-                  createdAt:
-                    description: createdAt shows the date and time when the resource
-                      was created. The date and time stamp format is ISO 8601
-                    format: date-time
-                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 1024
                     type: string
                   name:
-                    description: name is the human-readable name of the resource.
-                      Might not be unique.
+                    description: name is a Human-readable name for the resource. Might
+                      not be unique.
                     maxLength: 1024
                     type: string
                   portID:
-                    description: portID is the ID of the parent port.
+                    description: portID is the ID of the Port to which the resource
+                      is associated.
                     maxLength: 1024
                     type: string
                   projectID:
-                    description: projectID is the project owner of the resource.
+                    description: projectID is the ID of the Project to which the resource
+                      is associated.
                     maxLength: 1024
-                    type: string
-                  revisionNumber:
-                    description: revisionNumber optionally set via extensions/standard-attr-revisions
-                    format: int64
-                    type: integer
-                  status:
-                    description: status indicates the current status of the resource.
-                    maxLength: 1024
-                    type: string
-                  subports:
-                    description: subports is a list of subports attached to this trunk.
-                    items:
-                      description: SubportStatus represents the observed state of
-                        a subport.
-                      properties:
-                        portID:
-                          description: portID is the ID of the port used as a subport.
-                          maxLength: 1024
-                          type: string
-                        segmentationID:
-                          description: segmentationID is the segmentation identifier.
-                          format: int32
-                          type: integer
-                        segmentationType:
-                          description: segmentationType is the type of segmentation
-                            used.
-                          maxLength: 1024
-                          type: string
-                      type: object
-                    maxItems: 128
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  tags:
-                    description: tags is the list of tags on the resource.
-                    items:
-                      maxLength: 1024
-                      type: string
-                    maxItems: 64
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  updatedAt:
-                    description: updatedAt shows the date and time when the resource
-                      was updated. The date and time stamp format is ISO 8601
-                    format: date-time
                     type: string
                 type: object
             type: object

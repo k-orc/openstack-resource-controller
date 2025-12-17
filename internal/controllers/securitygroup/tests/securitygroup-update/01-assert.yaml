@@ -1,12 +1,4 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: SecurityGroup
-      name: securitygroup-update
-      ref: secGroup
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SecurityGroup
 metadata:

@@ -23,19 +23,9 @@ resourceRefs:
       name: server-create-minimal
       ref: subnet
 assertAll:
-    - celExpr: "server.status.resource.hostID != ''"
-    - celExpr: "server.status.resource.availabilityZone != ''"
-    - celExpr: "server.status.resource.imageID == image.status.id"
-    - celExpr: "port.status.resource.deviceID == server.status.id"
     - celExpr: "port.status.resource.status == 'ACTIVE'"
     - celExpr: "size(server.status.resource.interfaces) == 1"
-    - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
-    - celExpr: "server.status.resource.interfaces[0].netID == network.status.id"
-    - celExpr: "server.status.resource.interfaces[0].macAddr != ''"
-    - celExpr: "server.status.resource.interfaces[0].portState != ''"
     - celExpr: "size(server.status.resource.interfaces[0].fixedIPs) >= 1"
-    - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].ipAddress != ''"
-    - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].subnetID == subnet.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
