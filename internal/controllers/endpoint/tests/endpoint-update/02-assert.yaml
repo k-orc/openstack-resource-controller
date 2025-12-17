@@ -6,8 +6,12 @@ resourceRefs:
       kind: Endpoint
       name: endpoint-update
       ref: endpoint
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: endpoint-update
+      ref: service
 assertAll:
-    - celExpr: "!has(endpoint.status.resource.description)"
+    - celExpr: "endpoint.status.resource.serviceID == service.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -16,7 +20,9 @@ metadata:
 status:
   resource:
     name: endpoint-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    interface: internal
+    url: http://example.com
+    #enabled: true
   conditions:
   - type: Available
     status: "True"

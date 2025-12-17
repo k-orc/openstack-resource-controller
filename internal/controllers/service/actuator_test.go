@@ -146,7 +146,7 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 	}{
 		{name: "Identical", newValue: ptr.To("same-description"), existingValue: "same-description", expectChange: false},
 		{name: "Different", newValue: ptr.To("new-description"), existingValue: "same-description", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "description", expectChange: true},
+		{name: "No value provided, existing is keept", newValue: nil, existingValue: "description", expectChange: true},
 	}
 
 	for _, tt := range testCases {

@@ -5,12 +5,11 @@ metadata:
   name: endpoint-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    type: endpoint-test
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -18,12 +17,14 @@ metadata:
   name: endpoint-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: endpoint-create-full-override
-    description: Endpoint from "create full" test
     serviceRef: endpoint-create-full
-    # TODO(scaffolding): Add all fields the resource supports
+    interface: internal
+    url: https://example.com
+    # TODO(winiciusallan): make this field available after
+    # the next gophercloud minor.
+    #enabled: false

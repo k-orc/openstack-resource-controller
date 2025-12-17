@@ -23,46 +23,43 @@ type EndpointResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// enabled indicates whether the endpoint is enabled or not.
+	// +kubebuilder:default:=true
 	// +optional
-	Description *string `json:"description,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// interface indicates the visibility of the endpoint.
+	// +kubebuilder:validation:Enum:=admin;internal;public
+	// +required
+	Interface string `json:"interface,omitempty"`
+
+	// url is the endpoint URL.
+	// +kubebuilder:validation:MaxLength=1024
+	// +required
+	URL string `json:"url"`
 
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
 	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/endpoints
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
 }
 
 // EndpointFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type EndpointFilter struct {
-	// name of the existing resource
+	// interface of the existing endpoint.
+	// +kubebuilder:validation:Enum:=admin;internal;public
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
+	Interface string `json:"interface,omitempty"`
 
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/endpoints
+	// url is the URL of the existing endpoint.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	URL string `json:"url,omitempty"`
 }
 
 // EndpointResourceStatus represents the observed state of the resource.
@@ -72,17 +69,22 @@ type EndpointResourceStatus struct {
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
+	// enabled indicates whether the endpoint is enabled or not.
+	// +optional
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// interface indicates the visibility of the endpoint.
+	// +kubebuilder:validation:Enum:=admin;internal;public
+	// +optional
+	Interface string `json:"interface,omitempty"`
+
+	// url is the endpoint URL.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	URL string `json:"url,omitempty"`
 
 	// serviceID is the ID of the Service to which the resource is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ServiceID string `json:"serviceID,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Endpoint structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/endpoints
 }

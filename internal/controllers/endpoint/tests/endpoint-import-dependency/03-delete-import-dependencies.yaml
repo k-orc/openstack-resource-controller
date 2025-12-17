@@ -3,5 +3,5 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
   # We should be able to delete the import dependencies
-  - command: kubectl delete service endpoint-import-dependency
+  - command: kubectl delete services.openstack.k-orc.cloud endpoint-import-dependency
     namespaced: true

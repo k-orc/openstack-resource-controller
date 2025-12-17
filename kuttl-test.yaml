@@ -3,6 +3,7 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
 - ./internal/controllers/domain/tests/
+- ./internal/controllers/endpoint/tests/
 - ./internal/controllers/flavor/tests/
 - ./internal/controllers/floatingip/tests/
 - ./internal/controllers/group/tests/

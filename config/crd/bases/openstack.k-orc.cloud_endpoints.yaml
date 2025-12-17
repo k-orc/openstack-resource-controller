@@ -93,15 +93,20 @@ spec:
                     properties:
                       interface:
                         description: interface of the existing endpoint.
+                        enum:
+                        - admin
+                        - internal
+                        - public
                         type: string
                       serviceRef:
-                        description: serviceRef is a reference to which the endpoint
-                          belongs.
+                        description: serviceRef is a reference to the ORC Service
+                          which this resource is associated with.
                         maxLength: 253
                         minLength: 1
                         type: string
                       url:
                         description: url is the URL of the existing endpoint.
+                        maxLength: 1024
                         type: string
                     type: object
                   id:
@@ -181,6 +186,7 @@ spec:
                       rule: self == oldSelf
                   url:
                     description: url is the endpoint URL.
+                    maxLength: 1024
                     type: string
                 required:
                 - interface
@@ -312,6 +318,7 @@ spec:
                     type: string
                   url:
                     description: url is the endpoint URL.
+                    maxLength: 1024
                     type: string
                 type: object
             type: object

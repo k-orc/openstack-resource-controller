@@ -6,8 +6,9 @@ metadata:
 status:
   resource:
     name: endpoint-create-full-override
-    description: Endpoint from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    interface: internal
+    url: https://example.com
+    #enabled: false
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +31,3 @@ resourceRefs:
 assertAll:
     - celExpr: "endpoint.status.id != ''"
     - celExpr: "endpoint.status.resource.serviceID == service.status.id"
-    # TODO(scaffolding): Add more checks

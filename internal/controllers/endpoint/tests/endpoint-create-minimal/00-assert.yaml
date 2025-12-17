@@ -6,7 +6,9 @@ metadata:
 status:
   resource:
     name: endpoint-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    url: http://example.com
+    interface: internal
+    enabled: true
   conditions:
   - type: Available
     status: "True"
@@ -29,4 +31,3 @@ resourceRefs:
 assertAll:
     - celExpr: "endpoint.status.id != ''"
     - celExpr: "endpoint.status.resource.serviceID == service.status.id"
-    # TODO(scaffolding): Add more checks
