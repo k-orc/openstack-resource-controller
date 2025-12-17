@@ -62,6 +62,11 @@ plugins:
   - redirects:
       redirect_maps:
         'getting_started.md': 'getting-started.md'
+        'development/index.md': 'development/overview.md'
+        'development/controller-design.md': 'development/controller-implementation.md'
+        'development/design-decisions.md': 'development/architecture.md'
+        'development/coding-convention.md': 'development/coding-standards.md'
+        'development/api-contracts.md': 'development/api-design.md'
 markdown_extensions:
   - admonition
   - attr_list
