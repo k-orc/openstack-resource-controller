@@ -10,6 +10,7 @@ resources:
 - openstack_v1alpha1_network.yaml
 - openstack_v1alpha1_port.yaml
 - openstack_v1alpha1_project.yaml
+- openstack_v1alpha1_role.yaml
 - openstack_v1alpha1_router.yaml
 - openstack_v1alpha1_routerinterface.yaml
 - openstack_v1alpha1_securitygroup.yaml

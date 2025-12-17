@@ -64,6 +64,11 @@ spec:
       kind: Project
       name: projects.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Role is the Schema for an ORC resource.
+      displayName: Role
+      kind: Role
+      name: roles.openstack.k-orc.cloud
+      version: v1alpha1
     - description: RouterInterface is the Schema for an ORC resource.
       displayName: Router Interface
       kind: RouterInterface

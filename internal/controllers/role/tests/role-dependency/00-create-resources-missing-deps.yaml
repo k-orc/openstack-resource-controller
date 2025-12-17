@@ -1,0 +1,23 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-dependency-no-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: role-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: role-dependency
+  managementPolicy: managed
+  resource: {}

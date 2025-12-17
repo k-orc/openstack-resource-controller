@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: role-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Domain/role-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Domain/role-import-dependency to be ready
+      status: "True"
+      reason: Progressing
