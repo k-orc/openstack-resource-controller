@@ -58,6 +58,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.DomainSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("DomainStatus"):
 		return &apiv1alpha1.DomainStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Endpoint"):
+		return &apiv1alpha1.EndpointApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("EndpointFilter"):
+		return &apiv1alpha1.EndpointFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("EndpointImport"):
+		return &apiv1alpha1.EndpointImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("EndpointResourceSpec"):
+		return &apiv1alpha1.EndpointResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("EndpointResourceStatus"):
+		return &apiv1alpha1.EndpointResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("EndpointSpec"):
+		return &apiv1alpha1.EndpointSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("EndpointStatus"):
+		return &apiv1alpha1.EndpointStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ExternalGateway"):
 		return &apiv1alpha1.ExternalGatewayApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ExternalGatewayStatus"):

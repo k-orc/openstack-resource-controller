@@ -10,6 +10,10 @@ resourceRefs:
       kind: Endpoint
       name: endpoint-import-external-not-this-one
       ref: endpoint2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: endpoint-import
+      ref: service
 assertAll:
     - celExpr: "endpoint1.status.id != endpoint2.status.id"
 ---
@@ -28,6 +32,6 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: endpoint-import-external
-    description: Endpoint endpoint-import-external from "endpoint-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    interface: internal
+    url: http://example.com
+    enabled: false

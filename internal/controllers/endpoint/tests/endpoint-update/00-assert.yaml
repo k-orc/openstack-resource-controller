@@ -1,22 +1,13 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Endpoint
-      name: endpoint-update
-      ref: endpoint
-assertAll:
-    - celExpr: "!has(endpoint.status.resource.description)"
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
 metadata:
   name: endpoint-update
 status:
   resource:
-    name: endpoint-update
-    # TODO(scaffolding): Add matches for more fields
+    interface: internal
+    url: http://example.com
+    enabled: false
   conditions:
   - type: Available
     status: "True"
@@ -24,3 +15,19 @@ status:
   - type: Progressing
     status: "False"
     reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Endpoint
+      name: endpoint-update
+      ref: endpoint
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: endpoint-update
+      ref: service
+assertAll:
+    - celExpr: "endpoint.status.resource.serviceID == service.status.id"
+    - celExpr: "!has(endpoint.status.resource.name)"
+    - celExpr: "!has(endpoint.status.resource.description)"

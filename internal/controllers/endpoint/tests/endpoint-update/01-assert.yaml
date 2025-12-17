@@ -5,9 +5,9 @@ metadata:
   name: endpoint-update
 status:
   resource:
-    name: endpoint-update-updated
-    description: endpoint-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    interface: public
+    url: http://example.com/updated
+    enabled: true
   conditions:
   - type: Available
     status: "True"

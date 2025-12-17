@@ -5,9 +5,10 @@ metadata:
   name: endpoint-import-error
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      description: Endpoint from "import error" test
+      serviceRef: endpoint-import-error
+      interface: internal

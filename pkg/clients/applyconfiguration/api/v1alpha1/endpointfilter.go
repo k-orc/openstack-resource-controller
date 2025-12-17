@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import (
 // EndpointFilterApplyConfiguration represents a declarative configuration of the EndpointFilter type for use
 // with apply.
 type EndpointFilterApplyConfiguration struct {
-	ServiceRef *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
 	Interface  *string                        `json:"interface,omitempty"`
+	ServiceRef *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
 	URL        *string                        `json:"url,omitempty"`
 }
 
@@ -36,19 +36,19 @@ func EndpointFilter() *EndpointFilterApplyConfiguration {
 	return &EndpointFilterApplyConfiguration{}
 }
 
-// WithServiceRef sets the ServiceRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ServiceRef field is set to the value of the last call.
-func (b *EndpointFilterApplyConfiguration) WithServiceRef(value apiv1alpha1.KubernetesNameRef) *EndpointFilterApplyConfiguration {
-	b.ServiceRef = &value
-	return b
-}
-
 // WithInterface sets the Interface field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Interface field is set to the value of the last call.
 func (b *EndpointFilterApplyConfiguration) WithInterface(value string) *EndpointFilterApplyConfiguration {
 	b.Interface = &value
+	return b
+}
+
+// WithServiceRef sets the ServiceRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ServiceRef field is set to the value of the last call.
+func (b *EndpointFilterApplyConfiguration) WithServiceRef(value apiv1alpha1.KubernetesNameRef) *EndpointFilterApplyConfiguration {
+	b.ServiceRef = &value
 	return b
 }
 

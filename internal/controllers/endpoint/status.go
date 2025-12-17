@@ -51,10 +51,9 @@ func (endpointStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Endpo
 func (endpointStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.EndpointResourceStatus().
 		WithServiceID(osResource.ServiceID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the EndpointResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithEnabled(osResource.Enabled).
+		WithInterface(string(osResource.Availability)).
+		WithURL(osResource.URL)
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)

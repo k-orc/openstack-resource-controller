@@ -18,6 +18,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - domains
+  - endpoints
   - flavors
   - floatingips
   - groups
@@ -49,6 +50,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - domains/status
+  - endpoints/status
   - flavors/status
   - floatingips/status
   - groups/status

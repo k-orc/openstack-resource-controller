@@ -5,6 +5,6 @@ metadata:
   name: endpoint-update
 spec:
   resource:
-    name: endpoint-update-updated
-    description: endpoint-update-updated
-    # TODO(scaffolding): update all mutable fields
+    interface: public
+    url: http://example.com/updated
+    enabled: true

@@ -26,6 +26,8 @@ import (
 type Interface interface {
 	// Domains returns a DomainInformer.
 	Domains() DomainInformer
+	// Endpoints returns a EndpointInformer.
+	Endpoints() EndpointInformer
 	// Flavors returns a FlavorInformer.
 	Flavors() FlavorInformer
 	// FloatingIPs returns a FloatingIPInformer.
@@ -80,6 +82,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // Domains returns a DomainInformer.
 func (v *version) Domains() DomainInformer {
 	return &domainInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Endpoints returns a EndpointInformer.
+func (v *version) Endpoints() EndpointInformer {
+	return &endpointInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Flavors returns a FlavorInformer.
