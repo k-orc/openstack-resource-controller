@@ -182,6 +182,12 @@ func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create new identity service client: %w", err)
 	}
+
+	// allows to validate a token derived from application credentials
+	client.MoreHeaders = map[string]string{
+		"OpenStack-Identity-Access-Rules": "1.0",
+	}
+
 	return tokens.Get(context.TODO(), client, s.providerClient.Token()).ExtractToken()
 }
 
