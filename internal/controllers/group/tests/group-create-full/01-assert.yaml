@@ -1,0 +1,10 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: group-create-full
+      ref: domain
+assertAll:
+    - celExpr: "domain.status.resource.enabled == false"

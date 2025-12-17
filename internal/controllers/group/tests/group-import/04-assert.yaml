@@ -1,0 +1,15 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: group-import-external
+      ref: domain1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: group-import-external-not-this-one
+      ref: domain2
+assertAll:
+    - celExpr: "domain1.status.resource.enabled == false"
+    - celExpr: "domain1.status.resource.enabled == false"

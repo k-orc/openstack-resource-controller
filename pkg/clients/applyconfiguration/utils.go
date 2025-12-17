@@ -98,6 +98,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.FloatingIPSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("FloatingIPStatus"):
 		return &apiv1alpha1.FloatingIPStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Group"):
+		return &apiv1alpha1.GroupApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("GroupFilter"):
+		return &apiv1alpha1.GroupFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("GroupImport"):
+		return &apiv1alpha1.GroupImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("GroupResourceSpec"):
+		return &apiv1alpha1.GroupResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("GroupResourceStatus"):
+		return &apiv1alpha1.GroupResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("GroupSpec"):
+		return &apiv1alpha1.GroupSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("GroupStatus"):
+		return &apiv1alpha1.GroupStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HostRoute"):
 		return &apiv1alpha1.HostRouteApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HostRouteStatus"):

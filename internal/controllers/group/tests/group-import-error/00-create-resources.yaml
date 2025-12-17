@@ -1,0 +1,37 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Group from "import error" test
+    domainRef: group-import-error
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Group from "import error" test
+    domainRef: group-import-error

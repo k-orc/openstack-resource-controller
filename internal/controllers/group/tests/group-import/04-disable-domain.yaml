@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-import-external
+spec:
+  resource:
+    enabled: false
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-import-external-not-this-one
+spec:
+  resource:
+    enabled: false

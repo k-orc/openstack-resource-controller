@@ -36,6 +36,7 @@ import (
 type MockScopeFactory struct {
 	ComputeClient    *mock.MockComputeClient
 	DomainClient     *mock.MockDomainClient
+	GroupClient      *mock.MockGroupClient
 	IdentityClient   *mock.MockIdentityClient
 	ImageClient      *mock.MockImageClient
 	KeyPairClient    *mock.MockKeyPairClient
@@ -50,6 +51,7 @@ type MockScopeFactory struct {
 func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	computeClient := mock.NewMockComputeClient(mockCtrl)
 	domainClient := mock.NewMockDomainClient(mockCtrl)
+	groupClient := mock.NewMockGroupClient(mockCtrl)
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
@@ -61,6 +63,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	return &MockScopeFactory{
 		ComputeClient:    computeClient,
 		DomainClient:     domainClient,
+		GroupClient:      groupClient,
 		IdentityClient:   identityClient,
 		ImageClient:      imageClient,
 		KeyPairClient:    keypairClient,
@@ -116,6 +119,10 @@ func (f *MockScopeFactory) NewServiceClient() (osclients.ServiceClient, error) {
 
 func (f *MockScopeFactory) NewKeyPairClient() (osclients.KeyPairClient, error) {
 	return f.KeyPairClient, nil
+}
+
+func (f *MockScopeFactory) NewGroupClient() (osclients.GroupClient, error) {
+	return f.GroupClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

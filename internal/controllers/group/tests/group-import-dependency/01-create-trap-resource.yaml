@@ -1,0 +1,24 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: group-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# This `group-import-dependency-not-this-one` should not be picked by the import filter
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: group-import-dependency-not-this-one

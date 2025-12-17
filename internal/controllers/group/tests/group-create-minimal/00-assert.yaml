@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-create-minimal
+status:
+  resource:
+    name: group-create-minimal
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Group
+      name: group-create-minimal
+      ref: group
+assertAll:
+    - celExpr: "group.status.id != ''"
+    - celExpr: "!has(group.status.resource.description)"
+    - celExpr: "group.status.resource.domainID == 'default'"
+  

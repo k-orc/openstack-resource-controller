@@ -1,0 +1,7 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We should be able to delete the import dependencies
+  - command: kubectl delete domain group-import-dependency
+    namespaced: true
