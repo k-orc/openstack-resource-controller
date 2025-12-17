@@ -36,6 +36,11 @@ type PortFilter struct {
 	// +optional
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
+	// adminStateUp is the administrative state of the port,
+	// which is up (true) or down (false).
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -125,6 +130,12 @@ type PortResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="addresses is immutable"
 	Addresses []Address `json:"addresses,omitempty"`
+
+	// adminStateUp is the administrative state of the port,
+	// which is up (true) or down (false). The default value is true.
+	// +kubebuilder:default:=true
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// securityGroupRefs are the names of the security groups associated
 	// with this port.

@@ -29,6 +29,7 @@ type PortFilterApplyConfiguration struct {
 	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
 	NetworkRef                            *apiv1alpha1.KubernetesNameRef  `json:"networkRef,omitempty"`
 	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
+	AdminStateUp                          *bool                           `json:"adminStateUp,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -67,6 +68,14 @@ func (b *PortFilterApplyConfiguration) WithNetworkRef(value apiv1alpha1.Kubernet
 // If called multiple times, the ProjectRef field is set to the value of the last call.
 func (b *PortFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *PortFilterApplyConfiguration {
 	b.ProjectRef = &value
+	return b
+}
+
+// WithAdminStateUp sets the AdminStateUp field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AdminStateUp field is set to the value of the last call.
+func (b *PortFilterApplyConfiguration) WithAdminStateUp(value bool) *PortFilterApplyConfiguration {
+	b.AdminStateUp = &value
 	return b
 }
 
