@@ -30,7 +30,7 @@ We welcome contributions of all kinds! Whether you’re fixing bugs, adding new 
 * Fork the repository.
 * Create a new branch for your changes.
 * Setup a [local development environment](https://k-orc.cloud/development/quickstart/).
-* Read the [developers guide](https://k-orc.cloud/development/).
+* Read the [developers guide](https://k-orc.cloud/development/overview/).
 * Make your changes and test thoroughly.
 * Submit a pull request with a clear description of your changes.
 
