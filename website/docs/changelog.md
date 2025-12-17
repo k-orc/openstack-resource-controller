@@ -1,5 +1,34 @@
 # Changelog
 
+## v2.4 - December 17, 2025
+
+### New controllers
+
+- Keypair: Manage Nova SSH keypairs
+- Domain: Manage Keystone identity domains
+- Group: Manage Keystone identity groups
+- Role: Manage Keystone identity roles
+- Service: Manage Keystone identity services
+
+### New features
+
+- Server: Added ability to specify SSH keypair
+- Volume: Added support for availability zone
+
+### Bug fixes
+
+- Allow to use application credentials with access rules (Fixes [#596](https://github.com/k-orc/openstack-resource-controller/issues/596))
+- Fix actuator errors going silently (Fixes [#587](https://github.com/k-orc/openstack-resource-controller/issues/587))
+- Improve error message when cloud credentials can't be found in secret (Fixes [#589](https://github.com/k-orc/openstack-resource-controller/issues/589))
+
+### Infrastructure improvements
+
+- Go: Bumped to version 1.24.11
+- Bumped dependencies, most notably k8s libs to v0.34, controller-runtime to v0.22.4, and gophercloud to v2.9.0.
+- Added timeout environment variable for kuttl tests
+- Logging: Added log levels to more messages
+- Documentation: Major improvements to user and developer docs
+
 ## v2.3 - November 7, 2025
 
 ### New controllers
