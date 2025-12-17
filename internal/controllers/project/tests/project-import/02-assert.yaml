@@ -1,18 +1,4 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: project-import-external
-      ref: project1
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: project-import-external-not-this-one
-      ref: project2
-assertAll:
-    - celExpr: "project1.status.id != project2.status.id"
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:

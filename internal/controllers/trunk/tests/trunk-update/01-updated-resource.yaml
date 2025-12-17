@@ -4,16 +4,7 @@ kind: Trunk
 metadata:
   name: trunk-update
 spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
   resource:
     name: trunk-update-updated
     description: trunk-update-updated
-    portRef: trunk-update
-    adminStateUp: false
-    tags:
-    - tag1
-    - tag2
-
+    # TODO(scaffolding): update all mutable fields

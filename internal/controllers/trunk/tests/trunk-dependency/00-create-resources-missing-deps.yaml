@@ -1,0 +1,56 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-dependency
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-dependency-no-port
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    portRef: trunk-dependency-pending
+    # TODO(scaffolding): Add the necessary fields to create the resource
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    portRef: trunk-dependency
+    projectRef: trunk-dependency
+    # TODO(scaffolding): Add the necessary fields to create the resource
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: trunk-dependency
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource:
+    portRef: trunk-dependency

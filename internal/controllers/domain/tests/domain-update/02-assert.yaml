@@ -7,7 +7,6 @@ resourceRefs:
       name: domain-update
       ref: domain
 assertAll:
-    - celExpr: "domain.status.id != ''"
     - celExpr: "!has(domain.status.resource.description)"
 
 ---

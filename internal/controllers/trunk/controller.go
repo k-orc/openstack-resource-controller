@@ -25,97 +25,77 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 )
-
-// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=trunks,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=trunks/status,verbs=get;update;patch
 
 const controllerName = "trunk"
 
-var (
-	portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
-		"spec.resource.portRef",
-		func(trunk *orcv1alpha1.Trunk) []string {
-			resource := trunk.Spec.Resource
-			if resource == nil {
-				return nil
-			}
-			return []string{string(resource.PortRef)}
-		},
-		finalizer, externalObjectFieldOwner,
-	)
-
-	portImportDependency = dependency.NewDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
-		"spec.import.filter.portRef",
-		func(trunk *orcv1alpha1.Trunk) []string {
-			resource := trunk.Spec.Import
-			if resource == nil || resource.Filter == nil || resource.Filter.PortRef == nil {
-				return nil
-			}
-			return []string{string(*resource.Filter.PortRef)}
-		},
-	)
-
-	subportDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
-		"spec.resource.subports[].portRef",
-		func(trunk *orcv1alpha1.Trunk) []string {
-			if trunk.Spec.Resource == nil {
-				return nil
-			}
-			ports := make([]string, len(trunk.Spec.Resource.Subports))
-			for i := range trunk.Spec.Resource.Subports {
-				ports[i] = string(trunk.Spec.Resource.Subports[i].PortRef)
-			}
-			return ports
-		},
-		finalizer, externalObjectFieldOwner,
-		dependency.OverrideDependencyName("subport"),
-	)
-
-	projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Project](
-		"spec.resource.projectRef",
-		func(trunk *orcv1alpha1.Trunk) []string {
-			resource := trunk.Spec.Resource
-			if resource == nil || resource.ProjectRef == nil {
-				return nil
-			}
-			return []string{string(*resource.ProjectRef)}
-		},
-		finalizer, externalObjectFieldOwner,
-	)
-
-	projectImportDependency = dependency.NewDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Project](
-		"spec.import.filter.projectRef",
-		func(trunk *orcv1alpha1.Trunk) []string {
-			resource := trunk.Spec.Import
-			if resource == nil || resource.Filter == nil || resource.Filter.ProjectRef == nil {
-				return nil
-			}
-			return []string{string(*resource.Filter.ProjectRef)}
-		},
-	)
-)
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=trunks,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=trunks/status,verbs=get;update;patch
 
 type trunkReconcilerConstructor struct {
 	scopeFactory scope.Factory
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return trunkReconcilerConstructor{
-		scopeFactory: scopeFactory,
-	}
+	return trunkReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (trunkReconcilerConstructor) GetName() string {
 	return controllerName
 }
+
+var portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
+	"spec.resource.portRef",
+	func(trunk *orcv1alpha1.Trunk) []string {
+		resource := trunk.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+		return []string{string(resource.PortRef)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
+var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Project](
+	"spec.resource.projectRef",
+	func(trunk *orcv1alpha1.Trunk) []string {
+		resource := trunk.Spec.Resource
+		if resource == nil || resource.ProjectRef == nil {
+			return nil
+		}
+		return []string{string(*resource.ProjectRef)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
+var portImportDependency = dependency.NewDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
+	"spec.import.filter.portRef",
+	func(trunk *orcv1alpha1.Trunk) []string {
+		resource := trunk.Spec.Import
+		if resource == nil || resource.Filter == nil || resource.Filter.PortRef == nil {
+			return nil
+		}
+		return []string{string(*resource.Filter.PortRef)}
+	},
+)
+
+var projectImportDependency = dependency.NewDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Project](
+	"spec.import.filter.projectRef",
+	func(trunk *orcv1alpha1.Trunk) []string {
+		resource := trunk.Spec.Import
+		if resource == nil || resource.Filter == nil || resource.Filter.ProjectRef == nil {
+			return nil
+		}
+		return []string{string(*resource.Filter.ProjectRef)}
+	},
+)
 
 // SetupWithManager sets up the controller with the Manager.
 func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
@@ -127,17 +107,12 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		return err
 	}
 
-	portImportWatchEventHandler, err := portImportDependency.WatchEventHandler(log, k8sClient)
-	if err != nil {
-		return err
-	}
-
-	subportWatchEventHandler, err := subportDependency.WatchEventHandler(log, k8sClient)
-	if err != nil {
-		return err
-	}
-
 	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	portImportWatchEventHandler, err := portImportDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
 	}
@@ -149,30 +124,26 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
-		For(&orcv1alpha1.Trunk{}).
 		Watches(&orcv1alpha1.Port{}, portWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
-		).
-		// A second watch is necessary because we need a different handler that omits deletion guards
-		Watches(&orcv1alpha1.Port{}, portImportWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
-		).
-		Watches(&orcv1alpha1.Port{}, subportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
 		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Port{}, portImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
-		)
+		).
+		For(&orcv1alpha1.Trunk{})
 
 	if err := errors.Join(
 		portDependency.AddToManager(ctx, mgr),
-		portImportDependency.AddToManager(ctx, mgr),
-		subportDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
+		portImportDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
@@ -183,4 +154,3 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, trunkHelperFactory{}, trunkStatusWriter{})
 	return builder.Complete(&r)
 }
-

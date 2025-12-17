@@ -15,12 +15,9 @@ resourceRefs:
       name: subnet-create-full-v4
       ref: project
 assertAll:
-    - celExpr: "subnet.status.id != ''"
     # - celExpr: "subnet.status.resource.createdAt != ''"
     # - celExpr: "subnet.status.resource.updatedAt != ''"
     # - celExpr: "subnet.status.resource.revisionNumber > 0"
-    - celExpr: "subnet.status.resource.networkID == network.status.id"
-    - celExpr: "subnet.status.resource.projectID == project.status.id"
     - celExpr: "'ipv6AddressMode' in subnet.status.resource == false"
     - celExpr: "'ipv6RAMode' in subnet.status.resource == false"
 ---

@@ -20,28 +20,24 @@ import (
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
-const (
-	TrunkStatusActive = "ACTIVE"
-	TrunkStatusDown   = "DOWN"
-)
-
-type objectApplyPT = *orcapplyconfigv1alpha1.TrunkApplyConfiguration
-type statusApplyPT = *orcapplyconfigv1alpha1.TrunkStatusApplyConfiguration
-
 type trunkStatusWriter struct{}
 
-var _ interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT] = trunkStatusWriter{}
+type objectApplyT = orcapplyconfigv1alpha1.TrunkApplyConfiguration
+type statusApplyT = orcapplyconfigv1alpha1.TrunkStatusApplyConfiguration
 
-func (trunkStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.Trunk, *osResourceT, *objectApplyT, *statusApplyT] = trunkStatusWriter{}
+
+func (trunkStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
 	return orcapplyconfigv1alpha1.Trunk(name, namespace)
 }
 
-func (trunkStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
+func (trunkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Trunk, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
@@ -49,42 +45,21 @@ func (trunkStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResour
 			return metav1.ConditionUnknown, nil
 		}
 	}
-
-	// Both active and down trunks are Available
-	if osResource.Status == TrunkStatusActive || osResource.Status == TrunkStatusDown {
-		return metav1.ConditionTrue, nil
-	}
-	return metav1.ConditionFalse, nil
+	return metav1.ConditionTrue, nil
 }
 
-func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
+func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.TrunkResourceStatus().
-		WithName(osResource.Name).
-		WithAdminStateUp(osResource.AdminStateUp).
-		WithStatus(osResource.Status).
-		WithProjectID(osResource.ProjectID).
 		WithPortID(osResource.PortID).
-		WithTags(osResource.Tags...).
-		WithRevisionNumber(int64(osResource.RevisionNumber)).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
-		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+		WithProjectID(osResource.ProjectID).
+		WithName(osResource.Name)
+
+	// TODO(scaffolding): add all of the fields supported in the TrunkResourceStatus struct
+	// If a zero-value isn't expected in the response, place it behind a conditional
 
 	if osResource.Description != "" {
-		resourceStatus = resourceStatus.WithDescription(osResource.Description)
-	}
-
-	if len(osResource.Subports) > 0 {
-		subports := make([]*orcapplyconfigv1alpha1.SubportStatusApplyConfiguration, len(osResource.Subports))
-		for i := range osResource.Subports {
-			subportStatus := orcapplyconfigv1alpha1.SubportStatus().
-				WithPortID(osResource.Subports[i].PortID).
-				WithSegmentationType(osResource.Subports[i].SegmentationType).
-				WithSegmentationID(int32(osResource.Subports[i].SegmentationID))
-			subports[i] = subportStatus
-		}
-		resourceStatus.WithSubports(subports...)
+		resourceStatus.WithDescription(osResource.Description)
 	}
 
 	statusApply.WithResource(resourceStatus)
 }
-

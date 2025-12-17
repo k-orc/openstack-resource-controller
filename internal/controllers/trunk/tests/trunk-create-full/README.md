@@ -1,18 +1,11 @@
-# Create a trunk with all options
+# Create a Trunk with all the options
 
 ## Step 00
 
-Create a trunk with all fields set:
-- Custom name
-- Description
-- Admin state
-- Tags
-- Subports with VLAN segmentation
-- Project reference
+Create a Trunk using all available fields, and verify that the observed state corresponds to the spec.
 
-Verify that all fields are correctly reflected in the observed state.
+Also validate that the OpenStack resource uses the name from the spec when it is specified.
 
 ## Reference
 
 https://k-orc.cloud/development/writing-tests/#create-full
-

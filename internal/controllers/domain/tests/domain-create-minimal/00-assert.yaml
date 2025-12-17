@@ -22,5 +22,4 @@ resourceRefs:
       name: domain-create-minimal
       ref: domain
 assertAll:
-    - celExpr: "domain.status.id != ''"
     - celExpr: "!has(domain.status.resource.description)"

@@ -336,10 +336,6 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SubnetSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetStatus"):
 		return &apiv1alpha1.SubnetStatusApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("Subport"):
-		return &apiv1alpha1.SubportApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("SubportStatus"):
-		return &apiv1alpha1.SubportStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Trunk"):
 		return &apiv1alpha1.TrunkApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("TrunkFilter"):

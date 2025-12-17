@@ -199,8 +199,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref),
-		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subport":                        schema_openstack_resource_controller_v2_api_v1alpha1_Subport(ref),
-		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubportStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubportStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Trunk":                          schema_openstack_resource_controller_v2_api_v1alpha1_Trunk(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkFilter":                    schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkImport":                    schema_openstack_resource_controller_v2_api_v1alpha1_TrunkImport(ref),
@@ -9628,78 +9626,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref commo
 	}
 }
 
-func schema_openstack_resource_controller_v2_api_v1alpha1_Subport(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "Subport represents a subport that will be attached to a trunk.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"portRef": {
-						SchemaProps: spec.SchemaProps{
-							Description: "portRef is a reference to the ORC Port which will be used as a subport.",
-							Default:     "",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"segmentationType": {
-						SchemaProps: spec.SchemaProps{
-							Description: "segmentationType is the type of segmentation to use (e.g., \"vlan\").",
-							Default:     "",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"segmentationID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "segmentationID is the segmentation identifier (e.g., VLAN ID).",
-							Default:     0,
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
-				},
-				Required: []string{"portRef", "segmentationType", "segmentationID"},
-			},
-		},
-	}
-}
-
-func schema_openstack_resource_controller_v2_api_v1alpha1_SubportStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "SubportStatus represents the observed state of a subport.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"portID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "portID is the ID of the port used as a subport.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"segmentationType": {
-						SchemaProps: spec.SchemaProps{
-							Description: "segmentationType is the type of segmentation used.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"segmentationID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "segmentationID is the segmentation identifier.",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
-				},
-			},
-		},
-	}
-}
-
 func schema_openstack_resource_controller_v2_api_v1alpha1_Trunk(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -9754,7 +9680,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref common
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "TrunkFilter specifies a filter to select a trunk. At least one parameter must be specified.",
+				Description: "TrunkFilter defines an existing resource by its properties",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"name": {
@@ -9773,96 +9699,16 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref common
 					},
 					"portRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "portRef is a reference to the ORC Port which this trunk is associated with.",
+							Description: "portRef is a reference to the ORC Port which this resource is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
-						},
-					},
-					"tags": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
-						},
-					},
-					"tagsAny": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
-						},
-					},
-					"notTags": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
-						},
-					},
-					"notTagsAny": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
 						},
 					},
 				},
@@ -9954,11 +9800,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref 
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
+				Description: "TrunkResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is a human-readable name of the trunk. If not set, the object's name will be used.",
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9972,61 +9819,14 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref 
 					},
 					"portRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "portRef is a reference to the ORC Port which will be used as the parent port for this trunk.",
-							Default:     "",
+							Description: "portRef is a reference to the ORC Port which this resource is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"tags": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "set",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "tags is a list of tags which will be applied to the trunk.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
-						},
-					},
-					"adminStateUp": {
-						SchemaProps: spec.SchemaProps{
-							Description: "adminStateUp is the administrative state of the trunk, which is up (true) or down (false).",
-							Type:        []string{"boolean"},
-							Format:      "",
-						},
-					},
-					"subports": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "atomic",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "subports are the subports that will be attached to this trunk.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subport"),
-									},
-								},
-							},
-						},
-					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -10035,8 +9835,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref 
 				Required: []string{"portRef"},
 			},
 		},
-		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subport"},
 	}
 }
 
@@ -10044,11 +9842,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceStatus(re
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
+				Description: "TrunkResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the human-readable name of the resource. Might not be unique.",
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -10062,95 +9861,21 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceStatus(re
 					},
 					"portID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "portID is the ID of the parent port.",
+							Description: "portID is the ID of the Port to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectID is the project owner of the resource.",
+							Description: "projectID is the ID of the Project to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "status indicates the current status of the resource.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"tags": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "atomic",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "tags is the list of tags on the resource.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: "",
-										Type:    []string{"string"},
-										Format:  "",
-									},
-								},
-							},
-						},
-					},
-					"adminStateUp": {
-						SchemaProps: spec.SchemaProps{
-							Description: "adminStateUp is the administrative state of the trunk, which is up (true) or down (false).",
-							Type:        []string{"boolean"},
-							Format:      "",
-						},
-					},
-					"subports": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-list-type": "atomic",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "subports is a list of subports attached to this trunk.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubportStatus"),
-									},
-								},
-							},
-						},
-					},
-					"createdAt": {
-						SchemaProps: spec.SchemaProps{
-							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-					"updatedAt": {
-						SchemaProps: spec.SchemaProps{
-							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-					"revisionNumber": {
-						SchemaProps: spec.SchemaProps{
-							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
-							Type:        []string{"integer"},
-							Format:      "int64",
 						},
 					},
 				},
 			},
 		},
-		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubportStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
