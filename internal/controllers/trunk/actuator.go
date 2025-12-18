@@ -19,6 +19,7 @@ package trunk
 import (
 	"context"
 	"iter"
+	"fmt"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
 	corev1 "k8s.io/api/core/v1"
@@ -134,8 +135,8 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	listOpts := trunks.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
 		Description: string(ptr.Deref(filter.Description, "")),
-		Port:  ptr.Deref(port.Status.ID, ""),
-		Project:  ptr.Deref(project.Status.ID, ""),
+		PortID:    ptr.Deref(port.Status.ID, ""),
+		ProjectID: ptr.Deref(project.Status.ID, ""),
 		// TODO(scaffolding): Add more import filters
 	}
 

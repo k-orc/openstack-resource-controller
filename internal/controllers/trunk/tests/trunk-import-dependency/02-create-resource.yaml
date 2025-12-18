@@ -1,16 +1,30 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
+kind: Network
 metadata:
   name: trunk-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    projectRef: trunk-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: trunk-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    cidr: 192.168.164.0/24
+    ipVersion: 4
+    networkRef: trunk-import-dependency-external
+    projectRef: trunk-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -19,11 +33,13 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: trunk-import-dependency-external
+    projectRef: trunk-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
@@ -32,7 +48,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   # TODO(scaffolding): Add the necessary fields to create the resource
@@ -49,7 +65,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    portRef: trunk-import-dependency-external
     portRef: trunk-import-dependency-external
     projectRef: trunk-import-dependency-external
     # TODO(scaffolding): Add the necessary fields to create the resource

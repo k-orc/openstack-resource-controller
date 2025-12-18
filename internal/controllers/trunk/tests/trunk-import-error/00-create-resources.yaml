@@ -1,8 +1,34 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
+kind: Network
 metadata:
   name: trunk-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-import-error
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: trunk-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    cidr: 192.168.161.0/24
+    ipVersion: 4
+    networkRef: trunk-import-error
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-import-error-1
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
@@ -10,7 +36,22 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: trunk-import-error
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-import-error-2
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource:
+    networkRef: trunk-import-error
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -24,7 +65,7 @@ spec:
   managementPolicy: managed
   resource:
     description: Trunk from "import error" test
-    portRef: trunk-import-error
+    portRef: trunk-import-error-1
     # TODO(scaffolding): add any required field
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -39,5 +80,5 @@ spec:
   managementPolicy: managed
   resource:
     description: Trunk from "import error" test
-    portRef: trunk-import-error
+    portRef: trunk-import-error-2
     # TODO(scaffolding): add any required field
