@@ -2377,6 +2377,11 @@ func (in *PortFilter) DeepCopyInto(out *PortFilter) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
+	}
 	in.FilterByNeutronTags.DeepCopyInto(&out.FilterByNeutronTags)
 }
 
@@ -2508,6 +2513,11 @@ func (in *PortResourceSpec) DeepCopyInto(out *PortResourceSpec) {
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
+	}
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
 	}
 	if in.SecurityGroupRefs != nil {
 		in, out := &in.SecurityGroupRefs, &out.SecurityGroupRefs

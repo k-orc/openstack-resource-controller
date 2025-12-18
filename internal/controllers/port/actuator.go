@@ -132,14 +132,15 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 	}
 
 	listOpts := ports.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		NetworkID:   ptr.Deref(network.Status.ID, ""),
-		ProjectID:   ptr.Deref(project.Status.ID, ""),
-		Tags:        tags.Join(filter.Tags),
-		TagsAny:     tags.Join(filter.TagsAny),
-		NotTags:     tags.Join(filter.NotTags),
-		NotTagsAny:  tags.Join(filter.NotTagsAny),
+		Name:         string(ptr.Deref(filter.Name, "")),
+		Description:  string(ptr.Deref(filter.Description, "")),
+		NetworkID:    ptr.Deref(network.Status.ID, ""),
+		ProjectID:    ptr.Deref(project.Status.ID, ""),
+		Tags:         tags.Join(filter.Tags),
+		TagsAny:      tags.Join(filter.TagsAny),
+		NotTags:      tags.Join(filter.NotTags),
+		NotTagsAny:   tags.Join(filter.NotTagsAny),
+		AdminStateUp: filter.AdminStateUp,
 	}
 
 	return actuator.osClient.ListPort(ctx, listOpts), nil
@@ -191,10 +192,11 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	createOpts := ports.CreateOpts{
-		NetworkID:   *network.Status.ID,
-		Name:        getResourceName(obj),
-		Description: string(ptr.Deref(resource.Description, "")),
-		ProjectID:   projectID,
+		NetworkID:    *network.Status.ID,
+		Name:         getResourceName(obj),
+		Description:  string(ptr.Deref(resource.Description, "")),
+		ProjectID:    projectID,
+		AdminStateUp: resource.AdminStateUp,
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
@@ -361,6 +363,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 		handleDescriptionUpdate(baseUpdateOpts, resource, osResource)
 		handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource)
 		handleSecurityGroupRefsUpdate(baseUpdateOpts, resource, osResource, secGroupMap)
+		handleAdminStateUpUpdate(baseUpdateOpts, resource, osResource)
 		updateOpts = baseUpdateOpts
 	}
 
@@ -525,6 +528,15 @@ func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *reso
 	}
 
 	return updateOpts
+}
+
+func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResouce *osResourceT) {
+	adminStateUp := resource.AdminStateUp
+	if adminStateUp != nil {
+		if *adminStateUp != osResouce.AdminStateUp {
+			updateOpts.AdminStateUp = adminStateUp
+		}
+	}
 }
 
 type portHelperFactory struct{}

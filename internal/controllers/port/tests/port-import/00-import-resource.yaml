@@ -12,5 +12,6 @@ spec:
     filter:
       name: port-import-external
       description: Port from "port-import" test
+      adminStateUp: false
       tags:
         - tag1

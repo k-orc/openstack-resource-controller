@@ -1238,6 +1238,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortFilter
   map:
     fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
     - name: description
       type:
         scalar: string
@@ -1315,6 +1318,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Address
           elementRelationship: atomic
+    - name: adminStateUp
+      type:
+        scalar: boolean
     - name: allowedAddressPairs
       type:
         list:

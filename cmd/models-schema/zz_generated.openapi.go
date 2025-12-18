@@ -4533,6 +4533,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref common.
 							Format:      "",
 						},
 					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the port, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -4838,6 +4845,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 									},
 								},
 							},
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the port, which is up (true) or down (false). The default value is true.",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"securityGroupRefs": {
