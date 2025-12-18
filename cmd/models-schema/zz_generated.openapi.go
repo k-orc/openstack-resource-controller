@@ -4540,6 +4540,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref common.
 							Format:      "",
 						},
 					},
+					"macAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "macAddress is the MAC address of the port.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -4891,6 +4898,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"macAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "macAddress is the MAC address of the port.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

@@ -30,6 +30,7 @@ type PortFilterApplyConfiguration struct {
 	NetworkRef                            *apiv1alpha1.KubernetesNameRef  `json:"networkRef,omitempty"`
 	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
 	AdminStateUp                          *bool                           `json:"adminStateUp,omitempty"`
+	MACAddress                            *string                         `json:"macAddress,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
@@ -76,6 +77,14 @@ func (b *PortFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.Kubernet
 // If called multiple times, the AdminStateUp field is set to the value of the last call.
 func (b *PortFilterApplyConfiguration) WithAdminStateUp(value bool) *PortFilterApplyConfiguration {
 	b.AdminStateUp = &value
+	return b
+}
+
+// WithMACAddress sets the MACAddress field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MACAddress field is set to the value of the last call.
+func (b *PortFilterApplyConfiguration) WithMACAddress(value string) *PortFilterApplyConfiguration {
+	b.MACAddress = &value
 	return b
 }
 

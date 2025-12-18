@@ -141,6 +141,7 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 		NotTags:      tags.Join(filter.NotTags),
 		NotTagsAny:   tags.Join(filter.NotTagsAny),
 		AdminStateUp: filter.AdminStateUp,
+		MACAddress:   filter.MACAddress,
 	}
 
 	return actuator.osClient.ListPort(ctx, listOpts), nil
@@ -197,6 +198,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		Description:  string(ptr.Deref(resource.Description, "")),
 		ProjectID:    projectID,
 		AdminStateUp: resource.AdminStateUp,
+		MACAddress:   resource.MACAddress,
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {

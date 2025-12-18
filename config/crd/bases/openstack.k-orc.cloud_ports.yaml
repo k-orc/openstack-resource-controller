@@ -105,6 +105,10 @@ spec:
                         maxLength: 255
                         minLength: 1
                         type: string
+                      macAddress:
+                        description: macAddress is the MAC address of the port.
+                        maxLength: 32
+                        type: string
                       name:
                         description: name of the existing resource
                         maxLength: 255
@@ -293,6 +297,10 @@ spec:
                       resource.
                     maxLength: 255
                     minLength: 1
+                    type: string
+                  macAddress:
+                    description: macAddress is the MAC address of the port.
+                    maxLength: 32
                     type: string
                   name:
                     description: name is a human-readable name of the port. If not
