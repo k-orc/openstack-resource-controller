@@ -10,7 +10,8 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: trunk-import
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
