@@ -73,7 +73,8 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		WithRevisionNumber(int64(osResource.RevisionNumber)).
 		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
 		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt)).
-		WithAdminStateUp(osResource.AdminStateUp)
+		WithAdminStateUp(osResource.AdminStateUp).
+		WithMACAddress(osResource.MACAddress)
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)

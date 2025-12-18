@@ -41,6 +41,11 @@ type PortFilter struct {
 	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
+	// macAddress is the MAC address of the port.
+	// +kubebuilder:validation:MaxLength=32
+	// +optional
+	MACAddress string `json:"macAddress,omitempty"`
+
 	FilterByNeutronTags `json:",inline"`
 }
 
@@ -170,6 +175,11 @@ type PortResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
+	// macAddress is the MAC address of the port.
+	// +kubebuilder:validation:MaxLength=32
+	// +optional
+	MACAddress string `json:"macAddress,omitempty"`
 }
 
 type PortResourceStatus struct {

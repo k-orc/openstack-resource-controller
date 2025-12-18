@@ -2070,6 +2070,7 @@ _Appears in:_
 | `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this port is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the port,<br />which is up (true) or down (false). |  |  |
+| `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -2169,6 +2170,7 @@ _Appears in:_
 | `vnicType` _string_ | vnicType specifies the type of vNIC which this port should be<br />attached to. This is used to determine which mechanism driver(s) to<br />be used to bind the port. The valid values are normal, macvtap,<br />direct, baremetal, direct-physical, virtio-forwarder, smart-nic and<br />remote-managed, although these values will not be validated in this<br />API to ensure compatibility with future neutron changes or custom<br />implementations. What type of vNIC is actually available depends on<br />deployments. If not specified, the Neutron default value is used. |  | MaxLength: 64 <br /> |
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br /> |
 
 
 #### PortResourceStatus
