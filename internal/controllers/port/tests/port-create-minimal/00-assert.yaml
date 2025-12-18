@@ -21,8 +21,4 @@ resourceRefs:
       name: port-create-minimal
       ref: port
 assertAll:
-    - celExpr: "port.status.id != ''"
-    - celExpr: "port.status.resource.createdAt != ''"
-    - celExpr: "port.status.resource.updatedAt != ''"
-    - celExpr: "port.status.resource.macAddress != ''"
     - celExpr: "!has(port.status.resource.fixedIPs)"

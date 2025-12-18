@@ -1,0 +1,38 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-create-full
+status:
+  resource:
+    name: trunk-create-full-override
+    description: Trunk from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Trunk
+      name: trunk-create-full
+      ref: trunk
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-create-full
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: trunk-create-full
+      ref: project
+assertAll:
+    - celExpr: "trunk.status.id != ''"
+    - celExpr: "trunk.status.resource.portID == port.status.id"
+    - celExpr: "trunk.status.resource.projectID == project.status.id"
+    # TODO(scaffolding): Add more checks

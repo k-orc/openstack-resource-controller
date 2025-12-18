@@ -1,0 +1,8 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get port trunk-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get project trunk-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
