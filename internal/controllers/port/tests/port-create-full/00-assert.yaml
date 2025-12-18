@@ -15,6 +15,7 @@ status:
     propagateUplinkStatus: false
     status: DOWN
     vnicType: direct
+    macAddress: fa:16:3e:23:fd:d7
     tags:
       - tag1
 ---
@@ -41,7 +42,6 @@ assertAll:
     - celExpr: "port.status.id != ''"
     - celExpr: "port.status.resource.createdAt != ''"
     - celExpr: "port.status.resource.updatedAt != ''"
-    - celExpr: "port.status.resource.macAddress != ''"
     - celExpr: "port.status.resource.revisionNumber > 0"
     - celExpr: "port.status.resource.fixedIPs[0].subnetID == subnet.status.id"
     - celExpr: "port.status.resource.fixedIPs[0].ip == '192.168.155.122'"

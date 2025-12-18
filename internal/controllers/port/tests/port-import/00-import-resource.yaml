@@ -13,5 +13,6 @@ spec:
       name: port-import-external
       description: Port from "port-import" test
       adminStateUp: false
+      macAddress: fa:16:3e:23:fd:d7
       tags:
         - tag1
