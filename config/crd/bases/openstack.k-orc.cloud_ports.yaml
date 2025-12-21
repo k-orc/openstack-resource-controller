@@ -325,6 +325,31 @@ spec:
                     x-kubernetes-validations:
                     - message: portSecurity cannot be changed to Inherit
                       rule: '!(oldSelf != ''Inherit'' && self == ''Inherit'')'
+                  profile:
+                    description: |-
+                      profile is a set of key-value pairs that enable the host to pass
+                      and receive information to the networking backend about the VIF port.
+                      We intentionally don't expose it as a map with free-form values
+                      to enforce Neutron supported values.
+                    properties:
+                      capabilities:
+                        description: |-
+                          capabilities is a list of values that describe capabilities to
+                          be enabled and used by OVS. In principle, the main usage is for
+                          enabling OVS hardware offload.
+                        items:
+                          maxLength: 64
+                          type: string
+                        maxItems: 10
+                        type: array
+                        x-kubernetes-list-type: set
+                      trustedVF:
+                        description: |-
+                          trustedVF indicates whether the VF for the port will become
+                          trusted by physical function to perform some privileged
+                          operations.
+                        type: boolean
+                    type: object
                   projectRef:
                     description: |-
                       projectRef is a reference to the ORC Project this resource is associated with.
@@ -570,6 +595,31 @@ spec:
                     description: portSecurityEnabled indicates whether port security
                       is enabled or not.
                     type: boolean
+                  profile:
+                    description: |-
+                      profile is a set of key-value pairs that enable the host to pass
+                      and receive information to the networking backend about the VIF port.
+                      We intentionally don't expose it as a map with free-form values
+                      to enforce Neutron supported values.
+                    properties:
+                      capabilities:
+                        description: |-
+                          capabilities is a list of values that describe capabilities to
+                          be enabled and used by OVS. In principle, the main usage is for
+                          enabling OVS hardware offload.
+                        items:
+                          maxLength: 64
+                          type: string
+                        maxItems: 10
+                        type: array
+                        x-kubernetes-list-type: set
+                      trustedVF:
+                        description: |-
+                          trustedVF indicates whether the VF for the port will become
+                          trusted by physical function to perform some privileged
+                          operations.
+                        type: boolean
+                    type: object
                   projectID:
                     description: projectID is the project owner of the resource.
                     maxLength: 1024

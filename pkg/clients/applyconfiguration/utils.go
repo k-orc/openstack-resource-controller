@@ -42,6 +42,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.AllowedAddressPairApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("AllowedAddressPairStatus"):
 		return &apiv1alpha1.AllowedAddressPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("BindingProfile"):
+		return &apiv1alpha1.BindingProfileApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("CloudCredentialsReference"):
 		return &apiv1alpha1.CloudCredentialsReferenceApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Domain"):

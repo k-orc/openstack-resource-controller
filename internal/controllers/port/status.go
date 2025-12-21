@@ -104,5 +104,23 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		resourceStatus.WithFixedIPs(fixedIPs...)
 	}
 
+	if osResource.Profile != nil {
+		profileStatus := orcapplyconfigv1alpha1.BindingProfile()
+		if trusted, ok := osResource.Profile["trusted"]; ok {
+			profileStatus.WithTrustedVF(trusted.(bool))
+		}
+
+		if capabilities, ok := osResource.Profile["capabilities"]; ok {
+			capStatus := make([]string, 0, len(capabilities.([]any)))
+			for _, e := range capabilities.([]any) {
+				capStatus = append(capStatus, e.(string))
+			}
+
+			profileStatus.WithCapabilities(capStatus...)
+		}
+
+		resourceStatus.WithProfile(profileStatus)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

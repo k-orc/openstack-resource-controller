@@ -84,6 +84,18 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: mac
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.BindingProfile
+  map:
+    fields:
+    - name: capabilities
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: trustedVF
+      type:
+        scalar: boolean
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
   map:
     fields:
@@ -1339,6 +1351,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portSecurity
       type:
         scalar: string
+    - name: profile
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.BindingProfile
     - name: projectRef
       type:
         scalar: string
@@ -1399,6 +1414,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portSecurityEnabled
       type:
         scalar: boolean
+    - name: profile
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.BindingProfile
     - name: projectID
       type:
         scalar: string

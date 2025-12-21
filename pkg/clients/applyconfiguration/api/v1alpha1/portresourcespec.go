@@ -32,6 +32,7 @@ type PortResourceSpecApplyConfiguration struct {
 	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
 	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
 	AdminStateUp        *bool                                  `json:"adminStateUp,omitempty"`
+	Profile             *BindingProfileApplyConfiguration      `json:"profile,omitempty"`
 	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
 	VNICType            *string                                `json:"vnicType,omitempty"`
 	PortSecurity        *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
@@ -109,6 +110,14 @@ func (b *PortResourceSpecApplyConfiguration) WithAddresses(values ...*AddressApp
 // If called multiple times, the AdminStateUp field is set to the value of the last call.
 func (b *PortResourceSpecApplyConfiguration) WithAdminStateUp(value bool) *PortResourceSpecApplyConfiguration {
 	b.AdminStateUp = &value
+	return b
+}
+
+// WithProfile sets the Profile field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Profile field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithProfile(value *BindingProfileApplyConfiguration) *PortResourceSpecApplyConfiguration {
+	b.Profile = value
 	return b
 }
 

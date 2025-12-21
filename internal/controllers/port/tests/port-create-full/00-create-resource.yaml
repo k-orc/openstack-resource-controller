@@ -84,3 +84,7 @@ spec:
     portSecurity: Enabled
     vnicType: direct
     projectRef: port-create-full
+    profile:
+      trustedVF: false
+      capabilities:
+        - "switchdev"

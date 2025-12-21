@@ -40,6 +40,7 @@ type PortResourceStatusApplyConfiguration struct {
 	SecurityGroups                          []string                                     `json:"securityGroups,omitempty"`
 	PropagateUplinkStatus                   *bool                                        `json:"propagateUplinkStatus,omitempty"`
 	VNICType                                *string                                      `json:"vnicType,omitempty"`
+	Profile                                 *BindingProfileApplyConfiguration            `json:"profile,omitempty"`
 	PortSecurityEnabled                     *bool                                        `json:"portSecurityEnabled,omitempty"`
 	NeutronStatusMetadataApplyConfiguration `json:",inline"`
 }
@@ -181,6 +182,14 @@ func (b *PortResourceStatusApplyConfiguration) WithPropagateUplinkStatus(value b
 // If called multiple times, the VNICType field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithVNICType(value string) *PortResourceStatusApplyConfiguration {
 	b.VNICType = &value
+	return b
+}
+
+// WithProfile sets the Profile field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Profile field is set to the value of the last call.
+func (b *PortResourceStatusApplyConfiguration) WithProfile(value *BindingProfileApplyConfiguration) *PortResourceStatusApplyConfiguration {
+	b.Profile = value
 	return b
 }
 

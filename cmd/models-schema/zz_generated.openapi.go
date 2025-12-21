@@ -35,6 +35,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPoolStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPoolStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair":             schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPair(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPairStatus":       schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.BindingProfile":                 schema_openstack_resource_controller_v2_api_v1alpha1_BindingProfile(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference":      schema_openstack_resource_controller_v2_api_v1alpha1_CloudCredentialsReference(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Domain":                         schema_openstack_resource_controller_v2_api_v1alpha1_Domain(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_DomainFilter(ref),
@@ -638,6 +639,45 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPairStat
 							Description: "mac contains a MAC address which a server connected to the port can send packets with.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_BindingProfile(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"trustedVF": {
+						SchemaProps: spec.SchemaProps{
+							Description: "trustedVF indicates whether the VF for the port will become trusted by physical function to perform some privileged operations.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"capabilities": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "capabilities is a list of values that describe capabilities to be enabled and used by OVS. In principle, the main usage is for enabling OVS hardware offload.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -4854,6 +4894,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							Format:      "",
 						},
 					},
+					"profile": {
+						SchemaProps: spec.SchemaProps{
+							Description: "profile is a set of key-value pairs that enable the host to pass and receive information to the networking backend about the VIF port. We intentionally don't expose it as a map with free-form values to enforce Neutron supported values.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.BindingProfile"),
+						},
+					},
 					"securityGroupRefs": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -4900,7 +4946,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.BindingProfile"},
 	}
 }
 
@@ -5065,6 +5111,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref
 							Format:      "",
 						},
 					},
+					"profile": {
+						SchemaProps: spec.SchemaProps{
+							Description: "profile is a set of key-value pairs that enable the host to pass and receive information to the networking backend about the VIF port. We intentionally don't expose it as a map with free-form values to enforce Neutron supported values.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.BindingProfile"),
+						},
+					},
 					"portSecurityEnabled": {
 						SchemaProps: spec.SchemaProps{
 							Description: "portSecurityEnabled indicates whether port security is enabled or not.",
@@ -5095,7 +5147,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPairStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPairStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.BindingProfile", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
