@@ -1616,6 +1616,7 @@ _Appears in:_
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -1634,6 +1635,12 @@ _Appears in:_
 - [SubnetResourceSpec](#subnetresourcespec)
 - [UserDataSpec](#userdataspec)
 - [VolumeResourceSpec](#volumeresourcespec)
+
+
+
+
+
+
 
 
 
@@ -2009,6 +2016,8 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)

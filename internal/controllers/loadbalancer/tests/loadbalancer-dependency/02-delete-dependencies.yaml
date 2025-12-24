@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We expect the deletion to hang due to the finalizer, so use --wait=false
+  - command: kubectl delete subnet loadbalancer-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete network loadbalancer-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete port loadbalancer-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete flavor loadbalancer-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete project loadbalancer-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete secret loadbalancer-dependency --wait=false
+    namespaced: true
