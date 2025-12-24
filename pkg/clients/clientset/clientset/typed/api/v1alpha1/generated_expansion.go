@@ -20,6 +20,8 @@ package v1alpha1
 
 type DomainExpansion interface{}
 
+type EndpointExpansion interface{}
+
 type FlavorExpansion interface{}
 
 type FloatingIPExpansion interface{}
