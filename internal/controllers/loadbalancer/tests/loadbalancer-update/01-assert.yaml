@@ -7,7 +7,9 @@ status:
   resource:
     name: loadbalancer-update-updated
     description: loadbalancer-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    adminStateUp: false
+    tags:
+    - updated-tag
   conditions:
   - type: Available
     status: "True"

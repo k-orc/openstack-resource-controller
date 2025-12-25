@@ -1,13 +1,15 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
+timeout: 600
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LoadBalancer
       name: loadbalancer-update
       ref: loadbalancer
 assertAll:
-    - celExpr: "!has(loadbalancer.status.resource.description)"
+    - celExpr: "loadbalancer.status.resource.description == ''"
+    - celExpr: "!has(loadbalancer.status.resource.tags)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -16,7 +18,6 @@ metadata:
 status:
   resource:
     name: loadbalancer-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
   conditions:
   - type: Available
     status: "True"

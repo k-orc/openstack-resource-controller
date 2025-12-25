@@ -1,4 +1,29 @@
-
+---
+# Create network/subnet infrastructure for tests that need existing subnet
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: loadbalancer-dependency-infra
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: loadbalancer-dependency-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: loadbalancer-dependency-infra
+    ipVersion: 4
+    cidr: 10.0.99.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -6,13 +31,11 @@ metadata:
   name: loadbalancer-dependency-no-subnet
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    subnetRef: loadbalancer-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    vipSubnetRef: loadbalancer-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -20,13 +43,11 @@ metadata:
   name: loadbalancer-dependency-no-network
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: loadbalancer-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    vipNetworkRef: loadbalancer-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -34,27 +55,11 @@ metadata:
   name: loadbalancer-dependency-no-port
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    portRef: loadbalancer-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: LoadBalancer
-metadata:
-  name: loadbalancer-dependency-no-flavor
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    flavorRef: loadbalancer-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    vipPortRef: loadbalancer-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -62,13 +67,13 @@ metadata:
   name: loadbalancer-dependency-no-project
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    # using openstack-admin to create the LB in another project
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    vipSubnetRef: loadbalancer-dependency-subnet
     projectRef: loadbalancer-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -76,9 +81,8 @@ metadata:
   name: loadbalancer-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: loadbalancer-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    vipSubnetRef: loadbalancer-dependency-subnet
