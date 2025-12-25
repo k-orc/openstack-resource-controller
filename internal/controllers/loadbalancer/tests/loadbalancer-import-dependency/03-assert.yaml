@@ -2,11 +2,11 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 commands:
-- script: "! kubectl get vipnetwork loadbalancer-import-dependency --namespace $NAMESPACE"
+- script: "! kubectl get network loadbalancer-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true
 - script: "! kubectl get project loadbalancer-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get vipsubnet loadbalancer-import-dependency --namespace $NAMESPACE"
+- script: "! kubectl get subnet loadbalancer-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get vipport loadbalancer-import-dependency --namespace $NAMESPACE"
+- script: "! kubectl get port loadbalancer-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true

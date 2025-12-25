@@ -7,7 +7,11 @@ status:
   resource:
     name: loadbalancer-create-full-override
     description: LoadBalancer from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    adminStateUp: true
+    provisioningStatus: ACTIVE
+    tags:
+    - tag1
+    - tag2
   conditions:
   - type: Available
     status: "True"
@@ -36,18 +40,14 @@ resourceRefs:
       name: loadbalancer-create-full
       ref: port
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Flavor
-      name: loadbalancer-create-full
-      ref: flavor
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Project
       name: loadbalancer-create-full
       ref: project
 assertAll:
+    # Dynamic checks that require CEL - cross-resource comparisons
     - celExpr: "loadbalancer.status.id != ''"
-    - celExpr: "loadbalancer.status.resource.subnetID == subnet.status.id"
-    - celExpr: "loadbalancer.status.resource.networkID == network.status.id"
-    - celExpr: "loadbalancer.status.resource.portID == port.status.id"
-    - celExpr: "loadbalancer.status.resource.flavorID == flavor.status.id"
+    - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
+    - celExpr: "loadbalancer.status.resource.vipNetworkID == network.status.id"
+    - celExpr: "loadbalancer.status.resource.vipPortID == port.status.id"
     - celExpr: "loadbalancer.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "loadbalancer.status.resource.vipAddress != ''"
