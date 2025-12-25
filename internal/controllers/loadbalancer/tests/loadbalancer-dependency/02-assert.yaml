@@ -1,0 +1,41 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-dependency
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-dependency-subnet
+      ref: subnet2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: loadbalancer-dependency
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: loadbalancer-dependency
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: loadbalancer-dependency
+      ref: project
+    - apiVersion: v1
+      kind: Secret
+      name: loadbalancer-dependency
+      ref: secret
+assertAll:
+    - celExpr: "subnet.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/loadbalancer' in subnet.metadata.finalizers"
+    - celExpr: "subnet2.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/loadbalancer' in subnet2.metadata.finalizers"
+    - celExpr: "network.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/loadbalancer' in network.metadata.finalizers"
+    - celExpr: "port.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/loadbalancer' in port.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/loadbalancer' in project.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/loadbalancer' in secret.metadata.finalizers"

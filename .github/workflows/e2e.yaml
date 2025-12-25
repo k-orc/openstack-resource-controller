@@ -36,7 +36,10 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server"
+        enabled_services: "openstack-cli-server,octavia,o-api,o-cw,o-hm,o-hk"
+        conf_overrides: |
+          enable_plugin octavia https://github.com/openstack/octavia ${{ matrix.openstack_version }}
+          enable_plugin ovn-octavia-provider https://github.com/openstack/ovn-octavia-provider ${{ matrix.openstack_version }}
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab
