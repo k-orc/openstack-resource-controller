@@ -63,7 +63,7 @@ func (c loadbalancerClient) CreateLoadBalancer(ctx context.Context, opts loadbal
 }
 
 func (c loadbalancerClient) DeleteLoadBalancer(ctx context.Context, resourceID string) error {
-	return loadbalancers.Delete(ctx, c.client, resourceID).ExtractErr()
+	return loadbalancers.Delete(ctx, c.client, resourceID, nil).ExtractErr()
 }
 
 func (c loadbalancerClient) GetLoadBalancer(ctx context.Context, resourceID string) (*loadbalancers.LoadBalancer, error) {

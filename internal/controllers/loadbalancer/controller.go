@@ -55,10 +55,10 @@ var subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBa
 	"spec.resource.subnetRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.SubnetRef == nil {
+		if resource == nil || resource.VipSubnetRef == nil {
 			return nil
 		}
-		return []string{string(*resource.SubnetRef)}
+		return []string{string(*resource.VipSubnetRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
@@ -67,10 +67,10 @@ var networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadB
 	"spec.resource.networkRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.NetworkRef == nil {
+		if resource == nil || resource.VipNetworkRef == nil {
 			return nil
 		}
-		return []string{string(*resource.NetworkRef)}
+		return []string{string(*resource.VipNetworkRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
@@ -79,10 +79,10 @@ var portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBala
 	"spec.resource.portRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.PortRef == nil {
+		if resource == nil || resource.VipPortRef == nil {
 			return nil
 		}
-		return []string{string(*resource.PortRef)}
+		return []string{string(*resource.VipPortRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
@@ -111,7 +111,7 @@ var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadB
 	finalizer, externalObjectFieldOwner,
 )
 
-var vipNetworkImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.VipNetwork](
+var vipNetworkImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Network](
 	"spec.import.filter.vipNetworkRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Import
@@ -133,7 +133,7 @@ var projectImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancer
 	},
 )
 
-var vipSubnetImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.VipSubnet](
+var vipSubnetImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Subnet](
 	"spec.import.filter.vipSubnetRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Import
@@ -144,7 +144,7 @@ var vipSubnetImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalanc
 	},
 )
 
-var vipPortImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.VipPort](
+var vipPortImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Port](
 	"spec.import.filter.vipPortRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Import
@@ -223,20 +223,20 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
-		Watches(&orcv1alpha1.VipNetwork{}, vipNetworkImportWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.VipNetwork{})),
+		Watches(&orcv1alpha1.Network{}, vipNetworkImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Network{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
-		Watches(&orcv1alpha1.VipSubnet{}, vipSubnetImportWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.VipSubnet{})),
+		Watches(&orcv1alpha1.Subnet{}, vipSubnetImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
-		Watches(&orcv1alpha1.VipPort{}, vipPortImportWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.VipPort{})),
+		Watches(&orcv1alpha1.Port{}, vipPortImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
 		For(&orcv1alpha1.LoadBalancer{})
 

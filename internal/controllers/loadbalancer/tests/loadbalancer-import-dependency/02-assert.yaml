@@ -11,27 +11,27 @@ resourceRefs:
       name: loadbalancer-import-dependency-not-this-one
       ref: loadbalancer2
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: VipNetwork
+      kind: Network
       name: loadbalancer-import-dependency
-      ref: vipNetwork
+      ref: network
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Project
       name: loadbalancer-import-dependency
       ref: project
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: VipSubnet
+      kind: Subnet
       name: loadbalancer-import-dependency
-      ref: vipSubnet
+      ref: subnet
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: VipPort
+      kind: Port
       name: loadbalancer-import-dependency
-      ref: vipPort
+      ref: port
 assertAll:
     - celExpr: "loadbalancer1.status.id != loadbalancer2.status.id"
-    - celExpr: "loadbalancer1.status.resource.vipNetworkID == vipNetwork.status.id"
+    - celExpr: "loadbalancer1.status.resource.vipNetworkID == network.status.id"
     - celExpr: "loadbalancer1.status.resource.projectID == project.status.id"
-    - celExpr: "loadbalancer1.status.resource.vipSubnetID == vipSubnet.status.id"
-    - celExpr: "loadbalancer1.status.resource.vipPortID == vipPort.status.id"
+    - celExpr: "loadbalancer1.status.resource.vipSubnetID == subnet.status.id"
+    - celExpr: "loadbalancer1.status.resource.vipPortID == port.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer

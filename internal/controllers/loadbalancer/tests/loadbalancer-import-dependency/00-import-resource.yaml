@@ -1,16 +1,17 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VipNetwork
+kind: Network
 metadata:
   name: loadbalancer-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
       name: loadbalancer-import-dependency-external
+      projectRef: loadbalancer-import-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
@@ -18,7 +19,7 @@ metadata:
   name: loadbalancer-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
@@ -26,30 +27,32 @@ spec:
       name: loadbalancer-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VipSubnet
+kind: Subnet
 metadata:
   name: loadbalancer-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
       name: loadbalancer-import-dependency-external
+      projectRef: loadbalancer-import-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VipPort
+kind: Port
 metadata:
   name: loadbalancer-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
       name: loadbalancer-import-dependency-external
+      projectRef: loadbalancer-import-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -57,7 +60,7 @@ metadata:
   name: loadbalancer-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:

@@ -1,55 +1,57 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VipNetwork
-metadata:
-  name: loadbalancer-import-dependency-external
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
   name: loadbalancer-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VipSubnet
+kind: Network
 metadata:
   name: loadbalancer-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    projectRef: loadbalancer-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VipPort
+kind: Subnet
 metadata:
   name: loadbalancer-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: loadbalancer-import-dependency-external
+    projectRef: loadbalancer-import-dependency-external
+    ipVersion: 4
+    cidr: 10.201.0.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: loadbalancer-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: loadbalancer-import-dependency-external
+    projectRef: loadbalancer-import-dependency-external
+    addresses:
+      - subnetRef: loadbalancer-import-dependency-external
+        ip: 10.201.0.10
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -57,13 +59,10 @@ metadata:
   name: loadbalancer-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    vipNetworkRef: loadbalancer-import-dependency-external
-    projectRef: loadbalancer-import-dependency-external
-    vipSubnetRef: loadbalancer-import-dependency-external
     vipPortRef: loadbalancer-import-dependency-external
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    vipSubnetRef: loadbalancer-import-dependency-external
+    projectRef: loadbalancer-import-dependency-external
