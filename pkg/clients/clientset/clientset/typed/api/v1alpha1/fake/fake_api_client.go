@@ -56,6 +56,10 @@ func (c *FakeOpenstackV1alpha1) KeyPairs(namespace string) v1alpha1.KeyPairInter
 	return newFakeKeyPairs(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) LoadBalancers(namespace string) v1alpha1.LoadBalancerInterface {
+	return newFakeLoadBalancers(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Networks(namespace string) v1alpha1.NetworkInterface {
 	return newFakeNetworks(c, namespace)
 }

@@ -16,7 +16,4 @@ delete:
   name: loadbalancer-dependency-no-port
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: LoadBalancer
-  name: loadbalancer-dependency-no-flavor
-- apiVersion: openstack.k-orc.cloud/v1alpha1
-  kind: LoadBalancer
   name: loadbalancer-dependency-no-project

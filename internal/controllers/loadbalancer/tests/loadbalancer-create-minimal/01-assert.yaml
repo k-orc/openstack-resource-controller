@@ -1,6 +1,7 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
+timeout: 60
 resourceRefs:
     - apiVersion: v1
       kind: Secret

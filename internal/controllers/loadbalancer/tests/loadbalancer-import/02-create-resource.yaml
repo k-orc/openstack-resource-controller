@@ -5,10 +5,14 @@ metadata:
   name: loadbalancer-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    vipSubnetRef: loadbalancer-import
     description: LoadBalancer loadbalancer-import-external from "loadbalancer-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    provider: amphora
+    vipAddress: 10.0.0.100
+    tags:
+      - import-test
+      - external-lb
