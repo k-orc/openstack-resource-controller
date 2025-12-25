@@ -19,6 +19,8 @@ package loadbalancer
 import (
 	"context"
 	"iter"
+	"slices"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/loadbalancers"
 	corev1 "k8s.io/api/core/v1"
@@ -33,6 +35,14 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+)
+
+const (
+	// The frequency to poll when waiting for the load balancer to become ACTIVE
+	loadbalancerActivePollingPeriod = 15 * time.Second
+
+	// The frequency to poll when waiting for the load balancer to be deleted
+	loadbalancerDeletingPollingPeriod = 15 * time.Second
 )
 
 // OpenStack resource types
@@ -71,49 +81,41 @@ func (actuator loadbalancerActuator) ListOSResourcesForAdoption(ctx context.Cont
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := loadbalancers.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListLoadBalancers(ctx, listOpts), true
 }
 
 func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
-	vipNetwork, rs := dependency.FetchDependency(
+	vipNetwork, rs := dependency.FetchDependency[*orcv1alpha1.Network, orcv1alpha1.Network](
 		ctx, actuator.k8sClient, obj.Namespace,
-		filter.VipNetworkRef, "VipNetwork",
-		func(dep *orcv1alpha1.VipNetwork) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		filter.VipNetworkRef, "Network",
+		func(n *orcv1alpha1.Network) bool { return orcv1alpha1.IsAvailable(n) && n.Status.ID != nil },
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	project, rs := dependency.FetchDependency(
+	project, rs := dependency.FetchDependency[*orcv1alpha1.Project, orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		func(n *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(n) && n.Status.ID != nil },
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	vipSubnet, rs := dependency.FetchDependency(
+	vipSubnet, rs := dependency.FetchDependency[*orcv1alpha1.Subnet, orcv1alpha1.Subnet](
 		ctx, actuator.k8sClient, obj.Namespace,
-		filter.VipSubnetRef, "VipSubnet",
-		func(dep *orcv1alpha1.VipSubnet) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		filter.VipSubnetRef, "Subnet",
+		func(n *orcv1alpha1.Subnet) bool { return orcv1alpha1.IsAvailable(n) && n.Status.ID != nil },
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	vipPort, rs := dependency.FetchDependency(
+	vipPort, rs := dependency.FetchDependency[*orcv1alpha1.Port, orcv1alpha1.Port](
 		ctx, actuator.k8sClient, obj.Namespace,
-		filter.VipPortRef, "VipPort",
-		func(dep *orcv1alpha1.VipPort) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		filter.VipPortRef, "Port",
+		func(n *orcv1alpha1.Port) bool { return orcv1alpha1.IsAvailable(n) && n.Status.ID != nil },
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -122,13 +124,15 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 	}
 
 	listOpts := loadbalancers.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		VipNetworkID:  ptr.Deref(vipNetwork.Status.ID, ""),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
-		VipSubnetID:  ptr.Deref(vipSubnet.Status.ID, ""),
-		VipPortID:  ptr.Deref(vipPort.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:             string(ptr.Deref(filter.Name, "")),
+		Description:      ptr.Deref(filter.Description, ""),
+		AvailabilityZone: filter.AvailabilityZone,
+		Provider:         filter.Provider,
+		VipAddress:       filter.VipAddress,
+		VipNetworkID:     ptr.Deref(vipNetwork.Status.ID, ""),
+		ProjectID:        ptr.Deref(project.Status.ID, ""),
+		VipSubnetID:      ptr.Deref(vipSubnet.Status.ID, ""),
+		VipPortID:        ptr.Deref(vipPort.Status.ID, ""),
 	}
 
 	return actuator.osClient.ListLoadBalancers(ctx, listOpts), reconcileStatus
@@ -144,8 +148,8 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 	}
 	var reconcileStatus progress.ReconcileStatus
 
-	var subnetID string
-	if resource.SubnetRef != nil {
+	var vipSubnetID string
+	if resource.VipSubnetRef != nil {
 		subnet, subnetDepRS := subnetDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Subnet) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -153,12 +157,12 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subnetDepRS)
 		if subnet != nil {
-			subnetID = ptr.Deref(subnet.Status.ID, "")
+			vipSubnetID = ptr.Deref(subnet.Status.ID, "")
 		}
 	}
 
-	var networkID string
-	if resource.NetworkRef != nil {
+	var vipNetworkID string
+	if resource.VipNetworkRef != nil {
 		network, networkDepRS := networkDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -166,12 +170,12 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(networkDepRS)
 		if network != nil {
-			networkID = ptr.Deref(network.Status.ID, "")
+			vipNetworkID = ptr.Deref(network.Status.ID, "")
 		}
 	}
 
-	var portID string
-	if resource.PortRef != nil {
+	var vipPortID string
+	if resource.VipPortRef != nil {
 		port, portDepRS := portDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -179,7 +183,7 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
 		if port != nil {
-			portID = ptr.Deref(port.Status.ID, "")
+			vipPortID = ptr.Deref(port.Status.ID, "")
 		}
 	}
 
@@ -211,15 +215,27 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
+	tags := make([]string, len(resource.Tags))
+	for i := range resource.Tags {
+		tags[i] = string(resource.Tags[i])
+	}
+	// Sort tags before creation to simplify comparisons
+	slices.Sort(tags)
+
 	createOpts := loadbalancers.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		SubnetID:  subnetID,
-		NetworkID:  networkID,
-		PortID:  portID,
-		FlavorID:  flavorID,
-		ProjectID:  projectID,
-		// TODO(scaffolding): Add more fields
+		Name:             getResourceName(obj),
+		Description:      ptr.Deref(resource.Description, ""),
+		VipSubnetID:      vipSubnetID,
+		VipNetworkID:     vipNetworkID,
+		VipPortID:        vipPortID,
+		FlavorID:         flavorID,
+		ProjectID:        projectID,
+		AdminStateUp:     resource.AdminStateUp,
+		AvailabilityZone: resource.AvailabilityZone,
+		Provider:         resource.Provider,
+		VipAddress:       string(ptr.Deref(resource.VipAddress, "")),
+		Tags:             tags,
 	}
 
 	osResource, err := actuator.osClient.CreateLoadBalancer(ctx, createOpts)
@@ -235,7 +251,21 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 }
 
 func (actuator loadbalancerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteLoadBalancer(ctx, resource.ID))
+	switch resource.ProvisioningStatus {
+	case orcv1alpha1.LoadbalancerProvisioningStatusPendingDelete:
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerDeletingPollingPeriod)
+	case orcv1alpha1.LoadbalancerProvisioningStatusPendingCreate, orcv1alpha1.LoadbalancerProvisioningStatusPendingUpdate:
+		// We can't delete a loadbalancer that's in a pending state, so we need to wait for it to become ACTIVE
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerActivePollingPeriod)
+	}
+
+	err := actuator.osClient.DeleteLoadBalancer(ctx, resource.ID)
+	// 409 Conflict means the loadbalancer is already in PENDING_DELETE state.
+	// Treat this as success and let the controller poll for deletion completion.
+	if orcerrors.IsConflict(err) {
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerDeletingPollingPeriod)
+	}
+	return progress.WrapError(err)
 }
 
 func (actuator loadbalancerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
@@ -251,8 +281,8 @@ func (actuator loadbalancerActuator) updateResource(ctx context.Context, obj orc
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleAdminStateUpdate(&updateOpts, resource, osResource)
+	handleTagsUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -284,7 +314,7 @@ func needsUpdate(updateOpts loadbalancers.UpdateOpts) (bool, error) {
 		return false, err
 	}
 
-	updateMap, ok := updateOptsMap["load_balancer"].(map[string]any)
+	updateMap, ok := updateOptsMap["loadbalancer"].(map[string]any)
 	if !ok {
 		updateMap = make(map[string]any)
 	}
@@ -303,6 +333,28 @@ func handleDescriptionUpdate(updateOpts *loadbalancers.UpdateOpts, resource *res
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleAdminStateUpdate(updateOpts *loadbalancers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default to true if not specified (OpenStack default)
+	adminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != adminStateUp {
+		updateOpts.AdminStateUp = &adminStateUp
+	}
+}
+
+func handleTagsUpdate(updateOpts *loadbalancers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	desiredTags := make([]string, len(resource.Tags))
+	for i, tag := range resource.Tags {
+		desiredTags[i] = string(tag)
+	}
+
+	slices.Sort(desiredTags)
+	slices.Sort(osResource.Tags)
+
+	if !slices.Equal(desiredTags, osResource.Tags) {
+		updateOpts.Tags = &desiredTags
 	}
 }
 

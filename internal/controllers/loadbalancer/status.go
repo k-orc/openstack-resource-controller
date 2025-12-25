@@ -41,28 +41,37 @@ func (loadbalancerStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.L
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
-		} else {
-			return metav1.ConditionUnknown, nil
 		}
+		return metav1.ConditionUnknown, nil
 	}
-	return metav1.ConditionTrue, nil
+
+	switch osResource.ProvisioningStatus {
+	case "ACTIVE":
+		return metav1.ConditionTrue, nil
+	case "ERROR":
+		return metav1.ConditionFalse, nil
+	default:
+		// PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, loadbalancerActivePollingPeriod)
+	}
 }
 
 func (loadbalancerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.LoadBalancerResourceStatus().
-		WithSubnetID(osResource.SubnetID).
-		WithNetworkID(osResource.NetworkID).
-		WithPortID(osResource.PortID).
+		WithName(osResource.Name).
+		WithDescription(osResource.Description).
+		WithVipSubnetID(osResource.VipSubnetID).
+		WithVipNetworkID(osResource.VipNetworkID).
+		WithVipPortID(osResource.VipPortID).
+		WithVipAddress(osResource.VipAddress).
 		WithFlavorID(osResource.FlavorID).
 		WithProjectID(osResource.ProjectID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the LoadBalancerResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
-	}
+		WithAdminStateUp(osResource.AdminStateUp).
+		WithProvider(osResource.Provider).
+		WithAvailabilityZone(osResource.AvailabilityZone).
+		WithProvisioningStatus(osResource.ProvisioningStatus).
+		WithOperatingStatus(osResource.OperatingStatus).
+		WithTags(osResource.Tags...)
 
 	statusApply.WithResource(resourceStatus)
 }

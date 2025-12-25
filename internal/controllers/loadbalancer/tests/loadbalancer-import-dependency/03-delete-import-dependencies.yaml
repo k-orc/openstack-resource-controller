@@ -3,11 +3,11 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
   # We should be able to delete the import dependencies
-  - command: kubectl delete vipnetwork loadbalancer-import-dependency
+  - command: kubectl delete network loadbalancer-import-dependency
     namespaced: true
   - command: kubectl delete project loadbalancer-import-dependency
     namespaced: true
-  - command: kubectl delete vipsubnet loadbalancer-import-dependency
+  - command: kubectl delete subnet loadbalancer-import-dependency
     namespaced: true
-  - command: kubectl delete vipport loadbalancer-import-dependency
+  - command: kubectl delete port loadbalancer-import-dependency
     namespaced: true

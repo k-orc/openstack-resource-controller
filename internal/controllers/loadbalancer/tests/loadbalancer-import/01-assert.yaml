@@ -6,17 +6,14 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: OpenStack resource is available
       status: "True"
       reason: Success
     - type: Progressing
-      message: OpenStack resource is up to date
       status: "False"
       reason: Success
   resource:
     name: loadbalancer-import-external-not-this-one
     description: LoadBalancer loadbalancer-import-external from "loadbalancer-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer

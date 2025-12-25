@@ -1,15 +1,13 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
+kind: Project
 metadata:
   name: loadbalancer-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -18,12 +16,24 @@ metadata:
   name: loadbalancer-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: loadbalancer-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: loadbalancer-create-full
+    ipVersion: 4
+    cidr: 10.0.0.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -31,38 +41,14 @@ metadata:
   name: loadbalancer-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Flavor
-metadata:
-  name: loadbalancer-create-full
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: loadbalancer-create-full
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: loadbalancer-create-full
+    addresses:
+      - subnetRef: loadbalancer-create-full
+        ip: 10.0.0.10
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -70,16 +56,18 @@ metadata:
   name: loadbalancer-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    # using openstack-admin to create the LB in another project
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: loadbalancer-create-full-override
     description: LoadBalancer from "create full" test
-    subnetRef: loadbalancer-create-full
-    networkRef: loadbalancer-create-full
-    portRef: loadbalancer-create-full
-    flavorRef: loadbalancer-create-full
+    vipSubnetRef: loadbalancer-create-full
+    vipNetworkRef: loadbalancer-create-full
+    vipPortRef: loadbalancer-create-full
     projectRef: loadbalancer-create-full
-    # TODO(scaffolding): Add all fields the resource supports
+    adminStateUp: true
+    tags:
+      - tag1
+      - tag2
