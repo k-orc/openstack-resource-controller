@@ -5,10 +5,20 @@ metadata:
   name: loadbalancer-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: my-loadbalancer
     description: Sample LoadBalancer
-    # TODO(scaffolding): Add all fields the resource supports
+    vipSubnetRef: loadbalancer-sample-subnet
+    vipNetworkRef: loadbalancer-sample-network
+    vipPortRef: loadbalancer-sample-port
+    vipAddress: 10.0.0.100
+    projectRef: loadbalancer-sample-project
+    adminStateUp: true
+    availabilityZone: nova
+    provider: amphora
+    tags:
+      - environment:production
+      - team:platform

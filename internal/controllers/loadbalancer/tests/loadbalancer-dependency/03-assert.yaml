@@ -5,11 +5,11 @@ commands:
 # Dependencies that were prevented deletion before should now be gone
 - script: "! kubectl get subnet loadbalancer-dependency --namespace $NAMESPACE"
   skipLogOutput: true
+- script: "! kubectl get subnet loadbalancer-dependency-subnet --namespace $NAMESPACE"
+  skipLogOutput: true
 - script: "! kubectl get network loadbalancer-dependency --namespace $NAMESPACE"
   skipLogOutput: true
 - script: "! kubectl get port loadbalancer-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get flavor loadbalancer-dependency --namespace $NAMESPACE"
   skipLogOutput: true
 - script: "! kubectl get project loadbalancer-dependency --namespace $NAMESPACE"
   skipLogOutput: true

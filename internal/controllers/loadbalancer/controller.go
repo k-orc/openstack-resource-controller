@@ -55,10 +55,10 @@ var subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBa
 	"spec.resource.subnetRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.SubnetRef == nil {
+		if resource == nil || resource.VipSubnetRef == nil {
 			return nil
 		}
-		return []string{string(*resource.SubnetRef)}
+		return []string{string(*resource.VipSubnetRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
@@ -67,10 +67,10 @@ var networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadB
 	"spec.resource.networkRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.NetworkRef == nil {
+		if resource == nil || resource.VipNetworkRef == nil {
 			return nil
 		}
-		return []string{string(*resource.NetworkRef)}
+		return []string{string(*resource.VipNetworkRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
@@ -79,10 +79,10 @@ var portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LoadBala
 	"spec.resource.portRef",
 	func(loadbalancer *orcv1alpha1.LoadBalancer) []string {
 		resource := loadbalancer.Spec.Resource
-		if resource == nil || resource.PortRef == nil {
+		if resource == nil || resource.VipPortRef == nil {
 			return nil
 		}
-		return []string{string(*resource.PortRef)}
+		return []string{string(*resource.VipPortRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )

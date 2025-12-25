@@ -55,7 +55,7 @@ func FetchDependency[TP DependencyType[T], T any](
 		if apierrors.IsNotFound(err) {
 			return nil, progress.NewReconcileStatus().WaitingOnObject(kind, string(*name), progress.WaitingOnCreation)
 		}
-		return nil, progress.WrapError(fmt.Errorf("fetching %s %s: %w", kind, name, err))
+		return nil, progress.WrapError(fmt.Errorf("fetching %s %s: %w", kind, string(*name), err))
 	}
 
 	if !isReady(obj) {
