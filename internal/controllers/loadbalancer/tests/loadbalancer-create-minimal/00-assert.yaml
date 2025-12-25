@@ -6,7 +6,7 @@ metadata:
 status:
   resource:
     name: loadbalancer-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    provisioningStatus: ACTIVE
   conditions:
   - type: Available
     status: "True"
@@ -22,6 +22,12 @@ resourceRefs:
       kind: LoadBalancer
       name: loadbalancer-create-minimal
       ref: loadbalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-create-minimal
+      ref: subnet
 assertAll:
+    # Dynamic checks that require CEL - cross-resource comparisons and non-empty checks
     - celExpr: "loadbalancer.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
+    - celExpr: "loadbalancer.status.resource.vipAddress != ''"

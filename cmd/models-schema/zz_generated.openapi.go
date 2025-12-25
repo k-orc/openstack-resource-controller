@@ -109,9 +109,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancer":                   schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancer(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerFilter":             schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerImport":             schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerList":               schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerList(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerResourceSpec":       schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerResourceStatus":     schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions":                 schema_openstack_resource_controller_v2_api_v1alpha1_ManagedOptions(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Network":                        schema_openstack_resource_controller_v2_api_v1alpha1_Network(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkFilter":                  schema_openstack_resource_controller_v2_api_v1alpha1_NetworkFilter(ref),
@@ -4178,6 +4183,57 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref comm
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancer(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancer is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -4199,37 +4255,217 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerFilter(ref
 							Format:      "",
 						},
 					},
-					"vipNetworkRef": {
-						SchemaProps: spec.SchemaProps{
-							Description: "vipNetworkRef is a reference to the ORC VipNetwork which this resource is associated with.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"vipSubnetRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "vipSubnetRef is a reference to the ORC VipSubnet which this resource is associated with.",
+							Description: "vipSubnetRef filters by the subnet on which the load balancer's address is allocated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipNetworkRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipNetworkRef filters by the network on which the load balancer's address is allocated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"vipPortRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "vipPortRef is a reference to the ORC VipPort which this resource is associated with.",
+							Description: "vipPortRef filters by the neutron port used for the VIP.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone in which to create the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider filters by the name of the load balancer provider.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress filters by the IP address of the load balancer's VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
 			},
 		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerList contains a list of LoadBalancer.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of LoadBalancer.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancer"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancer", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
@@ -4254,23 +4490,23 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerResourceSp
 							Format:      "",
 						},
 					},
-					"subnetRef": {
+					"vipSubnetRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "subnetRef is a reference to the ORC Subnet which this resource is associated with.",
+							Description: "vipSubnetRef is the subnet on which to allocate the load balancer's address.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"networkRef": {
+					"vipNetworkRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "networkRef is a reference to the ORC Network which this resource is associated with.",
+							Description: "vipNetworkRef is the network on which to allocate the load balancer's address.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"portRef": {
+					"vipPortRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "portRef is a reference to the ORC Port which this resource is associated with.",
+							Description: "vipPortRef is a reference to a neutron port to use for the VIP. If the port has more than one subnet you must specify either vipSubnetRef or vipAddress to clarify which address should be used for the VIP.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4287,6 +4523,54 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerResourceSp
 							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the load balancer, which is up (true) or down (false)",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone in which to create the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider is the name of the load balancer provider.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress is the specific IP address to use for the VIP (optional). If not specified, one is allocated automatically from the subnet.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the load balancer.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -4316,23 +4600,23 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerResourceSt
 							Format:      "",
 						},
 					},
-					"subnetID": {
+					"vipSubnetID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "subnetID is the ID of the Subnet to which the resource is associated.",
+							Description: "vipSubnetID is the ID of the Subnet to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"networkID": {
+					"vipNetworkID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "networkID is the ID of the Network to which the resource is associated.",
+							Description: "vipNetworkID is the ID of the Network to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"portID": {
+					"vipPortID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "portID is the ID of the Port to which the resource is associated.",
+							Description: "vipPortID is the ID of the Port to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4351,9 +4635,171 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerResourceSt
 							Format:      "",
 						},
 					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the load balancer, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone where the load balancer is located.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the load balancer. This value is ACTIVE, PENDING_CREATE or ERROR.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the load balancer, such as ONLINE or OFFLINE.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider is the name of the load balancer provider.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress is the IP address of the load balancer's VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LoadBalancerStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerResourceStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LoadBalancerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 

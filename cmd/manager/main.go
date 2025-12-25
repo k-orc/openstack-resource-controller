@@ -35,6 +35,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/group"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/keypair"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/loadbalancer"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
@@ -130,6 +131,7 @@ func main() {
 		keypair.New(scopeFactory),
 		group.New(scopeFactory),
 		role.New(scopeFactory),
+		loadbalancer.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

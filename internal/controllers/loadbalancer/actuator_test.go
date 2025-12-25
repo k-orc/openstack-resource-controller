@@ -117,3 +117,69 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 
 	}
 }
+
+func TestHandleAdminStateUpdate(t *testing.T) {
+	ptrToBool := ptr.To[bool]
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical true", newValue: ptrToBool(true), existingValue: true, expectChange: false},
+		{name: "Identical false", newValue: ptrToBool(false), existingValue: false, expectChange: false},
+		{name: "Different true to false", newValue: ptrToBool(false), existingValue: true, expectChange: true},
+		{name: "Different false to true", newValue: ptrToBool(true), existingValue: false, expectChange: true},
+		{name: "No value provided, existing is set to false", newValue: nil, existingValue: false, expectChange: true},
+		{name: "No value provided, existing is default (true)", newValue: nil, existingValue: true, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.LoadBalancerResourceSpec{AdminStateUp: tt.newValue}
+			osResource := &osResourceT{AdminStateUp: tt.existingValue}
+
+			updateOpts := loadbalancers.UpdateOpts{}
+			handleAdminStateUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleTagsUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      []orcv1alpha1.LoadBalancerTag
+		existingValue []string
+		expectChange  bool
+	}{
+		{name: "Identical empty", newValue: nil, existingValue: nil, expectChange: false},
+		{name: "Identical single", newValue: []orcv1alpha1.LoadBalancerTag{"tag1"}, existingValue: []string{"tag1"}, expectChange: false},
+		{name: "Identical multiple", newValue: []orcv1alpha1.LoadBalancerTag{"tag1", "tag2"}, existingValue: []string{"tag1", "tag2"}, expectChange: false},
+		{name: "Identical different order", newValue: []orcv1alpha1.LoadBalancerTag{"tag2", "tag1"}, existingValue: []string{"tag1", "tag2"}, expectChange: false},
+		{name: "Different add tag", newValue: []orcv1alpha1.LoadBalancerTag{"tag1", "tag2"}, existingValue: []string{"tag1"}, expectChange: true},
+		{name: "Different remove tag", newValue: []orcv1alpha1.LoadBalancerTag{"tag1"}, existingValue: []string{"tag1", "tag2"}, expectChange: true},
+		{name: "Different replace tag", newValue: []orcv1alpha1.LoadBalancerTag{"tag1", "tag3"}, existingValue: []string{"tag1", "tag2"}, expectChange: true},
+		{name: "Add tags to empty", newValue: []orcv1alpha1.LoadBalancerTag{"tag1"}, existingValue: nil, expectChange: true},
+		{name: "Remove all tags", newValue: nil, existingValue: []string{"tag1"}, expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.LoadBalancerResourceSpec{Tags: tt.newValue}
+			osResource := &osResourceT{Tags: tt.existingValue}
+
+			updateOpts := loadbalancers.UpdateOpts{}
+			handleTagsUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
