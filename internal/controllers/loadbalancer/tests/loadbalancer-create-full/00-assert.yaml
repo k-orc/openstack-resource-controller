@@ -1,0 +1,53 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-create-full
+status:
+  resource:
+    name: loadbalancer-create-full-override
+    description: LoadBalancer from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-create-full
+      ref: loadbalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-create-full
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: loadbalancer-create-full
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: loadbalancer-create-full
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: loadbalancer-create-full
+      ref: flavor
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: loadbalancer-create-full
+      ref: project
+assertAll:
+    - celExpr: "loadbalancer.status.id != ''"
+    - celExpr: "loadbalancer.status.resource.subnetID == subnet.status.id"
+    - celExpr: "loadbalancer.status.resource.networkID == network.status.id"
+    - celExpr: "loadbalancer.status.resource.portID == port.status.id"
+    - celExpr: "loadbalancer.status.resource.flavorID == flavor.status.id"
+    - celExpr: "loadbalancer.status.resource.projectID == project.status.id"
+    # TODO(scaffolding): Add more checks

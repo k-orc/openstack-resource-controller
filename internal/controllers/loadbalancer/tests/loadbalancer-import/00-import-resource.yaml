@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: loadbalancer-import-external
+      description: LoadBalancer loadbalancer-import-external from "loadbalancer-import" test
+      # TODO(scaffolding): Add all fields supported by the filter
