@@ -1,0 +1,68 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VipNetwork
+metadata:
+  name: loadbalancer-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: loadbalancer-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: loadbalancer-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: loadbalancer-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VipSubnet
+metadata:
+  name: loadbalancer-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: loadbalancer-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VipPort
+metadata:
+  name: loadbalancer-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: loadbalancer-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      vipNetworkRef: loadbalancer-import-dependency
+      projectRef: loadbalancer-import-dependency
+      vipSubnetRef: loadbalancer-import-dependency
+      vipPortRef: loadbalancer-import-dependency
