@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-update
+spec:
+  resource:
+    name: listener-update-updated
+    description: listener-update-updated
+    # TODO(scaffolding): update all mutable fields
