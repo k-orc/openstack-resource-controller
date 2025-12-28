@@ -160,6 +160,22 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
 		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Listener"):
+		return &apiv1alpha1.ListenerApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerFilter"):
+		return &apiv1alpha1.ListenerFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerHSTS"):
+		return &apiv1alpha1.ListenerHSTSApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerImport"):
+		return &apiv1alpha1.ListenerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerResourceSpec"):
+		return &apiv1alpha1.ListenerResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerResourceStatus"):
+		return &apiv1alpha1.ListenerResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerSpec"):
+		return &apiv1alpha1.ListenerSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerStatus"):
+		return &apiv1alpha1.ListenerStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancer"):
 		return &apiv1alpha1.LoadBalancerApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerFilter"):

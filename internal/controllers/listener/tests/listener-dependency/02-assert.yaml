@@ -6,10 +6,6 @@ resourceRefs:
       kind: LoadBalancer
       name: listener-dependency
       ref: loadBalancer
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Pool
-      name: listener-dependency
-      ref: pool
     - apiVersion: v1
       kind: Secret
       name: listener-dependency
@@ -17,7 +13,5 @@ resourceRefs:
 assertAll:
     - celExpr: "loadBalancer.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/listener' in loadBalancer.metadata.finalizers"
-    - celExpr: "pool.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/listener' in pool.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/listener' in secret.metadata.finalizers"

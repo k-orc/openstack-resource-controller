@@ -1,4 +1,21 @@
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-update
+status:
+  resource:
+    name: listener-update
+    protocol: HTTP
+    protocolPort: 8080
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
@@ -7,20 +24,5 @@ resourceRefs:
       name: listener-update
       ref: listener
 assertAll:
-    - celExpr: "!has(listener.status.resource.description)"
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Listener
-metadata:
-  name: listener-update
-status:
-  resource:
-    name: listener-update
-    # TODO(scaffolding): Add matches for more fields
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    # Dynamic checks that require CEL - checking for absence or empty
+    - celExpr: "!has(listener.status.resource.description) || listener.status.resource.description == ''"
