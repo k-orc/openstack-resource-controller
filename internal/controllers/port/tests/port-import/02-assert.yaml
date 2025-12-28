@@ -1,4 +1,18 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: port-import-external
+      ref: port1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: port-import-external-not-this-one
+      ref: port2
+assertAll:
+    - celExpr: "port1.status.id != port2.status.id"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:

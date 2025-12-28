@@ -6,7 +6,7 @@ Create Trunks referencing non-existing resources. Each Trunk is dependent on oth
 
 ## Step 01
 
-Create the missing dependencies and make and verify all the Trunks are available.
+Create the missing dependencies and verify all the Trunks are available.
 
 ## Step 02
 

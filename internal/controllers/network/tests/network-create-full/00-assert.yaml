@@ -31,4 +31,8 @@ resourceRefs:
       name: network-create-full
       ref: project
 assertAll:
+    - celExpr: "network.status.id != ''"
+    - celExpr: "network.status.resource.createdAt != ''"
+    - celExpr: "network.status.resource.updatedAt != ''"
     - celExpr: "network.status.resource.revisionNumber > 0"
+    - celExpr: "network.status.resource.projectID == project.status.id"

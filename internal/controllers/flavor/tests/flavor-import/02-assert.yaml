@@ -1,4 +1,18 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: flavor-import-external
+      ref: flavor1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: flavor-import-external-not-this-one
+      ref: flavor2
+assertAll:
+    - celExpr: "flavor1.status.id != flavor2.status.id"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Flavor
 metadata:

@@ -11,6 +11,8 @@ resourceRefs:
       name: floatingip-update
       ref: network
 assertAll:
+    - celExpr: "floatingIP.status.resource.floatingNetworkID == network.status.id"
+    - celExpr: "floatingIP.status.resource.floatingIP != ''"
     - celExpr: "!has(floatingIP.status.resource.tags)"
     - celExpr: "!has(floatingIP.status.resource.description)"
 ---

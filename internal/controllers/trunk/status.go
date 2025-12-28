@@ -54,8 +54,13 @@ func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		WithProjectID(osResource.ProjectID).
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the TrunkResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if len(osResource.Tags) > 0 {
+		resourceStatus.WithTags(osResource.Tags...)
+	}
+
+	if len(osResource.Subports) > 0 {
+		resourceStatus.WithSubports(osResource.Subports...)
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)

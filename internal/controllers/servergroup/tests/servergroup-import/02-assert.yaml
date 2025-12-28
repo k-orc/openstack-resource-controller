@@ -1,4 +1,18 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ServerGroup
+      name: servergroup-import-external
+      ref: sg1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ServerGroup
+      name: servergroup-import-external-not-this-one
+      ref: sg2
+assertAll:
+    - celExpr: "sg1.status.id != sg2.status.id"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ServerGroup
 metadata:

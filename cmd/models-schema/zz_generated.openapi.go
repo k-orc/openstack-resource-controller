@@ -209,6 +209,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSpec":                      schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkStatus":                    schema_openstack_resource_controller_v2_api_v1alpha1_TrunkStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume":                         schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus(ref),
@@ -9834,6 +9836,100 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref common
 							Format:      "",
 						},
 					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status indicates whether the trunk is currently operational. Possible values include `ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the trunk.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -9954,10 +10050,58 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref 
 							Format:      "",
 						},
 					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the trunk. If false (down), the trunk does not forward packets.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"subports": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "subports is the list of ports to attach to the trunk.\n\nNOTE: ORC currently does not implement reconcile logic for subport updates (Neutron uses dedicated add/remove subport APIs). This field is immutable until that behavior is implemented in the controller.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportSpec"),
+									},
+								},
+							},
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of Neutron tags to apply to the trunk.\n\nNOTE: ORC does not currently reconcile tag updates for Trunk.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 				Required: []string{"portRef"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportSpec"},
 	}
 }
 
@@ -9996,9 +10140,90 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceStatus(re
 							Format:      "",
 						},
 					},
+					"tenantID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tenantID is the project owner of the trunk (alias of projectID in some deployments).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status indicates whether the trunk is currently operational.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"revisionNumber": {
+						SchemaProps: spec.SchemaProps{
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the trunk.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"subports": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "subports is a list of ports associated with the trunk.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportStatus"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -10099,6 +10324,78 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkStatus(ref common
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TrunkSubportSpec represents a subport to attach to a trunk. It maps to gophercloud's trunks.Subport.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"portRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portRef is a reference to the ORC Port that will be attached as a subport.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"segmentationID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "segmentationID is the segmentation ID for the subport (e.g. VLAN ID).",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"segmentationType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "segmentationType is the segmentation type for the subport (e.g. vlan).",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"portRef", "segmentationID", "segmentationType"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TrunkSubportStatus represents an attached subport on a trunk. It maps to gophercloud's trunks.Subport.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"portID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portID is the OpenStack ID of the Port attached as a subport.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"segmentationID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "segmentationID is the segmentation ID for the subport (e.g. VLAN ID).",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"segmentationType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "segmentationType is the segmentation type for the subport (e.g. vlan).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 

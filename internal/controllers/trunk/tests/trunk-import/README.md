@@ -2,16 +2,16 @@
 
 ## Step 00
 
-Import a trunk, matching all of the available filter's fields, and verify it is waiting for the external resource to be created.
+Import a trunk that matches all fields in the filter, and verify it is waiting for the external resource to be created.
 
 ## Step 01
 
-Create a trunk which name is a superstring of the one specified in the import filter, and otherwise matching the filter, and verify that it's not being imported.
+Create a trunk whose name is a superstring of the one specified in the import filter, otherwise matching the filter, and verify that it's not being imported.
 
 ## Step 02
 
 Create a trunk matching the filter and verify that the observed status on the imported trunk corresponds to the spec of the created trunk.
-Also verify that the created trunk didn't adopt the one which name is a superstring of it.
+Also, confirm that it does not adopt any trunk whose name is a superstring of its own.
 
 ## Reference
 

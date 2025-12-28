@@ -27,5 +27,11 @@ resourceRefs:
       name: volume-create-minimal
       ref: volume
 assertAll:
+    - celExpr: "volume.status.id != ''"
+    - celExpr: "volume.status.resource.tenantID != ''"
+    - celExpr: "volume.status.resource.userID != ''"
+    - celExpr: "volume.status.resource.volumeType != ''"
+    - celExpr: "volume.status.resource.createdAt != ''"
+    - celExpr: "volume.status.resource.updatedAt != ''"
     - celExpr: "!has(volume.status.resource.description)"
     - celExpr: "!has(volume.status.resource.metadata)"

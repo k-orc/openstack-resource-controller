@@ -10,7 +10,7 @@ Update all mutable fields.
 
 ## Step 02
 
-Revert the resource to its original value and verify the resulting object is similar to when if was first created.
+Revert the resource to its original value and verify that the resulting object matches its state when first created.
 
 ## Reference
 

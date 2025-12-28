@@ -30,6 +30,7 @@ spec:
     networkRef: trunk-update
     cidr: 192.168.158.0/24
     ipVersion: 4
+    enableDHCP: false
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -42,4 +43,5 @@ spec:
   managementPolicy: managed
   resource:
     networkRef: trunk-update
-  
+    addresses:
+    - subnetRef: trunk-update

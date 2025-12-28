@@ -1,0 +1,15 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Trunk
+    name: trunk-update
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Port
+    name: trunk-update
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Subnet
+    name: trunk-update
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Network
+    name: trunk-update

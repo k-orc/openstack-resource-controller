@@ -25,10 +25,13 @@ import (
 // TrunkFilterApplyConfiguration represents a declarative configuration of the TrunkFilter type for use
 // with apply.
 type TrunkFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	PortRef     *apiv1alpha1.KubernetesNameRef `json:"portRef,omitempty"`
-	ProjectRef  *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
+	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
+	PortRef                               *apiv1alpha1.KubernetesNameRef  `json:"portRef,omitempty"`
+	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
+	Status                                *string                         `json:"status,omitempty"`
+	AdminStateUp                          *bool                           `json:"adminStateUp,omitempty"`
+	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
 // TrunkFilterApplyConfiguration constructs a declarative configuration of the TrunkFilter type for use with
@@ -48,7 +51,7 @@ func (b *TrunkFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *TrunkFilterApplyConfiguration) WithDescription(value string) *TrunkFilterApplyConfiguration {
+func (b *TrunkFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *TrunkFilterApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -66,5 +69,61 @@ func (b *TrunkFilterApplyConfiguration) WithPortRef(value apiv1alpha1.Kubernetes
 // If called multiple times, the ProjectRef field is set to the value of the last call.
 func (b *TrunkFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *TrunkFilterApplyConfiguration {
 	b.ProjectRef = &value
+	return b
+}
+
+// WithStatus sets the Status field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Status field is set to the value of the last call.
+func (b *TrunkFilterApplyConfiguration) WithStatus(value string) *TrunkFilterApplyConfiguration {
+	b.Status = &value
+	return b
+}
+
+// WithAdminStateUp sets the AdminStateUp field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AdminStateUp field is set to the value of the last call.
+func (b *TrunkFilterApplyConfiguration) WithAdminStateUp(value bool) *TrunkFilterApplyConfiguration {
+	b.AdminStateUp = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *TrunkFilterApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *TrunkFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.Tags = append(b.FilterByNeutronTagsApplyConfiguration.Tags, values[i])
+	}
+	return b
+}
+
+// WithTagsAny adds the given value to the TagsAny field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the TagsAny field.
+func (b *TrunkFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.NeutronTag) *TrunkFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.TagsAny = append(b.FilterByNeutronTagsApplyConfiguration.TagsAny, values[i])
+	}
+	return b
+}
+
+// WithNotTags adds the given value to the NotTags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the NotTags field.
+func (b *TrunkFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.NeutronTag) *TrunkFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.NotTags = append(b.FilterByNeutronTagsApplyConfiguration.NotTags, values[i])
+	}
+	return b
+}
+
+// WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the NotTagsAny field.
+func (b *TrunkFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.NeutronTag) *TrunkFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.NotTagsAny = append(b.FilterByNeutronTagsApplyConfiguration.NotTagsAny, values[i])
+	}
 	return b
 }

@@ -2927,18 +2927,48 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkFilter
   map:
     fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
     - name: description
       type:
         scalar: string
     - name: name
       type:
         scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: portRef
       type:
         scalar: string
     - name: projectRef
       type:
         scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkImport
   map:
     fields:
@@ -2951,6 +2981,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceSpec
   map:
     fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
     - name: description
       type:
         scalar: string
@@ -2963,9 +2996,27 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: subports
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkSubportSpec
+          elementRelationship: atomic
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceStatus
   map:
     fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: description
       type:
         scalar: string
@@ -2978,6 +3029,30 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectID
       type:
         scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: status
+      type:
+        scalar: string
+    - name: subports
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkSubportStatus
+          elementRelationship: atomic
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: tenantID
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkSpec
   map:
     fields:
@@ -3014,6 +3089,33 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkSubportSpec
+  map:
+    fields:
+    - name: portRef
+      type:
+        scalar: string
+      default: ""
+    - name: segmentationID
+      type:
+        scalar: numeric
+      default: 0
+    - name: segmentationType
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkSubportStatus
+  map:
+    fields:
+    - name: portID
+      type:
+        scalar: string
+    - name: segmentationID
+      type:
+        scalar: numeric
+    - name: segmentationType
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserDataSpec
   map:
     fields:
