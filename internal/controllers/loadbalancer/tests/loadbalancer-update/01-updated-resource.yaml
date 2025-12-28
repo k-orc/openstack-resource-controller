@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-update
+spec:
+  resource:
+    name: loadbalancer-update-updated
+    description: loadbalancer-update-updated
+    # TODO(scaffolding): update all mutable fields
