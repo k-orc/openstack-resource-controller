@@ -1782,6 +1782,8 @@ _Appears in:_
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
 - [HostID](#hostid)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -1805,6 +1807,12 @@ _Appears in:_
 - [UserFilter](#userfilter)
 - [UserResourceSpec](#userresourcespec)
 - [VolumeResourceSpec](#volumeresourcespec)
+
+
+
+
+
+
 
 
 
@@ -2191,6 +2199,8 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
