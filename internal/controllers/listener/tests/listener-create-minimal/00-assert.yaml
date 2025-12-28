@@ -4,9 +4,6 @@ kind: Listener
 metadata:
   name: listener-create-minimal
 status:
-  resource:
-    name: listener-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -28,5 +25,8 @@ resourceRefs:
       ref: loadBalancer
 assertAll:
     - celExpr: "listener.status.id != ''"
+    - celExpr: "listener.status.resource.name == 'listener-create-minimal'"
     - celExpr: "listener.status.resource.loadBalancerID == loadBalancer.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "listener.status.resource.protocol == 'HTTP'"
+    - celExpr: "listener.status.resource.protocolPort == 80"
+    - celExpr: "listener.status.resource.provisioningStatus == 'ACTIVE'"

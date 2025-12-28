@@ -16,6 +16,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Group](#group)
 - [Image](#image)
 - [KeyPair](#keypair)
+- [Listener](#listener)
 - [LoadBalancer](#loadbalancer)
 - [Network](#network)
 - [Port](#port)
@@ -170,6 +171,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [ListenerSpec](#listenerspec)
 - [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
@@ -1644,9 +1646,253 @@ _Appears in:_
 
 
 
+#### Listener
 
 
 
+Listener is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Listener` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[ListenerSpec](#listenerspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ListenerStatus](#listenerstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### ListenerClientAuthentication
+
+_Underlying type:_ _string_
+
+ListenerClientAuthentication represents TLS client authentication mode.
+
+_Validation:_
+- Enum: [NONE OPTIONAL MANDATORY]
+
+_Appears in:_
+- [ListenerResourceSpec](#listenerresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `NONE` |  |
+| `OPTIONAL` |  |
+| `MANDATORY` |  |
+
+
+#### ListenerFilter
+
+
+
+ListenerFilter defines an existing resource by its properties.
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ListenerImport](#listenerimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description of the existing resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `loadBalancerRef` _[KubernetesNameRef](#kubernetesnameref)_ | loadBalancerRef filters by the LoadBalancer this listener belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `protocol` _[ListenerProtocol](#listenerprotocol)_ | protocol filters by the protocol used by the listener. |  | Enum: [HTTP HTTPS SCTP PROMETHEUS TCP TERMINATED_HTTPS UDP] <br /> |
+| `protocolPort` _integer_ | protocolPort filters by the port used by the listener. |  | Maximum: 65535 <br />Minimum: 1 <br /> |
+| `tags` _[ListenerTag](#listenertag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[ListenerTag](#listenertag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[ListenerTag](#listenertag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[ListenerTag](#listenertag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ListenerHSTS
+
+
+
+ListenerHSTS represents HTTP Strict Transport Security configuration.
+
+
+
+_Appears in:_
+- [ListenerResourceSpec](#listenerresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `maxAge` _integer_ | maxAge is the maximum time in seconds that the browser should remember<br />that this site is only to be accessed using HTTPS. |  | Minimum: 0 <br /> |
+| `includeSubDomains` _boolean_ | includeSubDomains specifies whether this rule applies to all subdomains. |  |  |
+| `preload` _boolean_ | preload specifies whether the domain should be included in browsers' preload list. |  |  |
+
+
+#### ListenerImport
+
+
+
+ListenerImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ListenerSpec](#listenerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br /> |
+| `filter` _[ListenerFilter](#listenerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### ListenerProtocol
+
+_Underlying type:_ _string_
+
+ListenerProtocol represents the protocol used by a listener.
+
+_Validation:_
+- Enum: [HTTP HTTPS SCTP PROMETHEUS TCP TERMINATED_HTTPS UDP]
+
+_Appears in:_
+- [ListenerFilter](#listenerfilter)
+- [ListenerResourceSpec](#listenerresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `HTTP` |  |
+| `HTTPS` |  |
+| `SCTP` |  |
+| `PROMETHEUS` |  |
+| `TCP` |  |
+| `TERMINATED_HTTPS` |  |
+| `UDP` |  |
+
+
+#### ListenerResourceSpec
+
+
+
+ListenerResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ListenerSpec](#listenerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `loadBalancerRef` _[KubernetesNameRef](#kubernetesnameref)_ | loadBalancerRef is a reference to the LoadBalancer this listener belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `protocol` _[ListenerProtocol](#listenerprotocol)_ | protocol is the protocol the listener will use. |  | Enum: [HTTP HTTPS SCTP PROMETHEUS TCP TERMINATED_HTTPS UDP] <br /> |
+| `protocolPort` _integer_ | protocolPort is the port on which the listener will accept connections. |  | Maximum: 65535 <br />Minimum: 1 <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the listener, which is up (true) or down (false). |  |  |
+| `connectionLimit` _integer_ | connectionLimit is the maximum number of connections permitted for this listener.<br />Default value is -1 which represents infinite connections. |  | Minimum: -1 <br /> |
+| `defaultTLSContainerRef` _string_ | defaultTLSContainerRef is a reference to a secret containing a PKCS12 format<br />certificate/key bundle for TERMINATED_HTTPS listeners. |  | MaxLength: 255 <br /> |
+| `sniContainerRefs` _string array_ | sniContainerRefs is a list of references to secrets containing PKCS12 format<br />certificate/key bundles for TERMINATED_HTTPS listeners using SNI. |  | MaxItems: 25 <br />items:MaxLength: 255 <br /> |
+| `defaultPoolRef` _[KubernetesNameRef](#kubernetesnameref)_ | defaultPoolRef is a reference to the default Pool for this listener. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of optional headers to insert into the request<br />before it is sent to the backend member. |  |  |
+| `timeoutClientData` _integer_ | timeoutClientData is the frontend client inactivity timeout in milliseconds. |  | Minimum: 0 <br /> |
+| `timeoutMemberConnect` _integer_ | timeoutMemberConnect is the backend member connection timeout in milliseconds. |  | Minimum: 0 <br /> |
+| `timeoutMemberData` _integer_ | timeoutMemberData is the backend member inactivity timeout in milliseconds. |  | Minimum: 0 <br /> |
+| `timeoutTCPInspect` _integer_ | timeoutTCPInspect is the time in milliseconds to wait for additional TCP packets<br />for content inspection. |  | Minimum: 0 <br /> |
+| `allowedCIDRs` _string array_ | allowedCIDRs is a list of IPv4/IPv6 CIDRs that are permitted to connect to this listener. |  | MaxItems: 256 <br />items:MaxLength: 64 <br /> |
+| `tlsCiphers` _string_ | tlsCiphers is a colon-separated list of ciphers for TLS-terminated listeners. |  | MaxLength: 2048 <br /> |
+| `tlsVersions` _string array_ | tlsVersions is a list of TLS protocol versions to be used by the listener. |  | MaxItems: 10 <br />items:MaxLength: 32 <br /> |
+| `alpnProtocols` _string array_ | alpnProtocols is a list of ALPN protocols for TLS-enabled listeners. |  | MaxItems: 10 <br />items:MaxLength: 32 <br /> |
+| `clientAuthentication` _[ListenerClientAuthentication](#listenerclientauthentication)_ | clientAuthentication is the TLS client authentication mode. |  | Enum: [NONE OPTIONAL MANDATORY] <br /> |
+| `clientCATLSContainerRef` _string_ | clientCATLSContainerRef is a reference to a secret containing the CA certificate<br />for client authentication. |  | MaxLength: 255 <br /> |
+| `clientCRLContainerRef` _string_ | clientCRLContainerRef is a reference to a secret containing the CA revocation list<br />for client authentication. |  | MaxLength: 255 <br /> |
+| `hsts` _[ListenerHSTS](#listenerhsts)_ | hsts is the HTTP Strict Transport Security configuration. |  |  |
+| `tags` _[ListenerTag](#listenertag) array_ | tags is a list of tags which will be applied to the listener. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ListenerResourceStatus
+
+
+
+ListenerResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ListenerStatus](#listenerstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a human-readable name for the resource. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `loadBalancerID` _string_ | loadBalancerID is the ID of the LoadBalancer this listener belongs to. |  | MaxLength: 1024 <br /> |
+| `protocol` _string_ | protocol is the protocol used by the listener. |  | MaxLength: 64 <br /> |
+| `protocolPort` _integer_ | protocolPort is the port used by the listener. |  |  |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the listener,<br />which is up (true) or down (false). |  |  |
+| `connectionLimit` _integer_ | connectionLimit is the maximum number of connections permitted for this listener. |  |  |
+| `defaultPoolID` _string_ | defaultPoolID is the ID of the default pool for this listener. |  | MaxLength: 1024 <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the listener. |  | MaxLength: 1024 <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the listener. |  | MaxLength: 1024 <br /> |
+| `allowedCIDRs` _string array_ | allowedCIDRs is the list of CIDRs permitted to connect to this listener. |  | MaxItems: 256 <br />items:MaxLength: 64 <br /> |
+| `timeoutClientData` _integer_ | timeoutClientData is the frontend client inactivity timeout in milliseconds. |  |  |
+| `timeoutMemberConnect` _integer_ | timeoutMemberConnect is the backend member connection timeout in milliseconds. |  |  |
+| `timeoutMemberData` _integer_ | timeoutMemberData is the backend member inactivity timeout in milliseconds. |  |  |
+| `timeoutTCPInspect` _integer_ | timeoutTCPInspect is the time to wait for additional TCP packets in milliseconds. |  |  |
+| `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of headers inserted into the request. |  |  |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br /> |
+
+
+#### ListenerSpec
+
+
+
+ListenerSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Listener](#listener)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ListenerImport](#listenerimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[ListenerResourceSpec](#listenerresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### ListenerStatus
+
+
+
+ListenerStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Listener](#listener)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
+| `resource` _[ListenerResourceStatus](#listenerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
+#### ListenerTag
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [ListenerFilter](#listenerfilter)
+- [ListenerResourceSpec](#listenerresourcespec)
 
 
 
@@ -1873,6 +2119,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [ListenerSpec](#listenerspec)
 - [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
@@ -1908,6 +2155,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [ListenerSpec](#listenerspec)
 - [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)

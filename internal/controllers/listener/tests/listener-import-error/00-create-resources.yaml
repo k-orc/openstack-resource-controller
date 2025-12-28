@@ -1,16 +1,40 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: listener-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: listener-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: listener-import-error
+    ipVersion: 4
+    cidr: 10.0.7.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
 metadata:
   name: listener-import-error
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    vipSubnetRef: listener-import-error
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener
@@ -18,14 +42,14 @@ metadata:
   name: listener-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Listener from "import error" test
+    name: listener-import-error-match
     loadBalancerRef: listener-import-error
-    # TODO(scaffolding): add any required field
+    protocol: HTTP
+    protocolPort: 80
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener
@@ -33,11 +57,11 @@ metadata:
   name: listener-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Listener from "import error" test
+    name: listener-import-error-match
     loadBalancerRef: listener-import-error
-    # TODO(scaffolding): add any required field
+    protocol: HTTP
+    protocolPort: 81

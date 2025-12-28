@@ -4,10 +4,6 @@ kind: Listener
 metadata:
   name: listener-create-full
 status:
-  resource:
-    name: listener-create-full-override
-    description: Listener from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -27,12 +23,12 @@ resourceRefs:
       kind: LoadBalancer
       name: listener-create-full
       ref: loadBalancer
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Pool
-      name: listener-create-full
-      ref: pool
 assertAll:
     - celExpr: "listener.status.id != ''"
+    - celExpr: "listener.status.resource.name == 'listener-create-full-override'"
+    - celExpr: "listener.status.resource.description == 'Listener from create full test'"
     - celExpr: "listener.status.resource.loadBalancerID == loadBalancer.status.id"
-    - celExpr: "listener.status.resource.poolID == pool.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "listener.status.resource.protocol == 'HTTPS'"
+    - celExpr: "listener.status.resource.protocolPort == 443"
+    - celExpr: "listener.status.resource.connectionLimit == 1000"
+    - celExpr: "listener.status.resource.provisioningStatus == 'ACTIVE'"

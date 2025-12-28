@@ -29,5 +29,3 @@ status:
       reason: Success
   resource:
     name: listener-import-external
-    description: Listener listener-import-external from "listener-import" test
-    # TODO(scaffolding): Add all fields the resource supports

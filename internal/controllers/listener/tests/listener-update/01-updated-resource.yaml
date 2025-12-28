@@ -7,4 +7,6 @@ spec:
   resource:
     name: listener-update-updated
     description: listener-update-updated
-    # TODO(scaffolding): update all mutable fields
+    adminStateUp: false
+    tags:
+      - "updated"

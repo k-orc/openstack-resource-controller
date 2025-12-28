@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: Listener from "import error" test
+      name: listener-import-error-match

@@ -63,18 +63,6 @@ var loadBalancerDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.
 	finalizer, externalObjectFieldOwner,
 )
 
-var poolDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ListenerList, *orcv1alpha1.Pool](
-	"spec.resource.poolRef",
-	func(listener *orcv1alpha1.Listener) []string {
-		resource := listener.Spec.Resource
-		if resource == nil || resource.PoolRef == nil {
-			return nil
-		}
-		return []string{string(*resource.PoolRef)}
-	},
-	finalizer, externalObjectFieldOwner,
-)
-
 var loadBalancerImportDependency = dependency.NewDependency[*orcv1alpha1.ListenerList, *orcv1alpha1.LoadBalancer](
 	"spec.import.filter.loadBalancerRef",
 	func(listener *orcv1alpha1.Listener) []string {
@@ -96,11 +84,6 @@ func (c listenerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr
 		return err
 	}
 
-	poolWatchEventHandler, err := poolDependency.WatchEventHandler(log, k8sClient)
-	if err != nil {
-		return err
-	}
-
 	loadBalancerImportWatchEventHandler, err := loadBalancerImportDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -111,9 +94,6 @@ func (c listenerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr
 		Watches(&orcv1alpha1.LoadBalancer{}, loadBalancerWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.LoadBalancer{})),
 		).
-		Watches(&orcv1alpha1.Pool{}, poolWatchEventHandler,
-			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Pool{})),
-		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.LoadBalancer{}, loadBalancerImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.LoadBalancer{})),
@@ -122,7 +102,6 @@ func (c listenerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr
 
 	if err := errors.Join(
 		loadBalancerDependency.AddToManager(ctx, mgr),
-		poolDependency.AddToManager(ctx, mgr),
 		loadBalancerImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),

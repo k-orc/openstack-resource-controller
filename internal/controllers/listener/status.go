@@ -25,11 +25,15 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const ListenerStatusAvailable = "available"
-const ListenerStatusInUse     = "in-use"
-const ListenerStatusDeleting  = "deleting"
+
+// Octavia provisioning status values
+const (
+	ListenerProvisioningStatusActive        = "ACTIVE"
+	ListenerProvisioningStatusError         = "ERROR"
+	ListenerProvisioningStatusPendingCreate = "PENDING_CREATE"
+	ListenerProvisioningStatusPendingUpdate = "PENDING_UPDATE"
+	ListenerProvisioningStatusPendingDelete = "PENDING_DELETE"
+)
 
 type listenerStatusWriter struct{}
 
@@ -46,31 +50,58 @@ func (listenerStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Liste
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
-		} else {
-			return metav1.ConditionUnknown, nil
 		}
+		return metav1.ConditionUnknown, nil
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
 
-	if osResource.Status == ListenerStatusAvailable || osResource.Status == ListenerStatusInUse {
+	switch osResource.ProvisioningStatus {
+	case ListenerProvisioningStatusActive:
 		return metav1.ConditionTrue, nil
+	case ListenerProvisioningStatusError:
+		return metav1.ConditionFalse, nil
+	default:
+		// PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerAvailablePollingPeriod)
 	}
-
-	// Otherwise we should continue to poll
-	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerAvailablePollingPeriod)
 }
 
 func (listenerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.ListenerResourceStatus().
-		WithLoadBalancerID(osResource.LoadBalancerID).
-		WithPoolID(osResource.PoolID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the ListenerResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithProtocol(osResource.Protocol).
+		WithProtocolPort(int32(osResource.ProtocolPort)).
+		WithAdminStateUp(osResource.AdminStateUp).
+		WithConnectionLimit(int32(osResource.ConnLimit)).
+		WithProvisioningStatus(osResource.ProvisioningStatus).
+		WithOperatingStatus(osResource.OperatingStatus).
+		WithTimeoutClientData(int32(osResource.TimeoutClientData)).
+		WithTimeoutMemberConnect(int32(osResource.TimeoutMemberConnect)).
+		WithTimeoutMemberData(int32(osResource.TimeoutMemberData)).
+		WithTimeoutTCPInspect(int32(osResource.TimeoutTCPInspect))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.DefaultPoolID != "" {
+		resourceStatus.WithDefaultPoolID(osResource.DefaultPoolID)
+	}
+
+	// Get the first loadbalancer ID if available
+	if len(osResource.Loadbalancers) > 0 {
+		resourceStatus.WithLoadBalancerID(osResource.Loadbalancers[0].ID)
+	}
+
+	if len(osResource.AllowedCIDRs) > 0 {
+		resourceStatus.WithAllowedCIDRs(osResource.AllowedCIDRs...)
+	}
+
+	if osResource.InsertHeaders != nil {
+		resourceStatus.WithInsertHeaders(osResource.InsertHeaders)
+	}
+
+	if len(osResource.Tags) > 0 {
+		resourceStatus.WithTags(osResource.Tags...)
 	}
 
 	statusApply.WithResource(resourceStatus)

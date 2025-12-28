@@ -7,7 +7,6 @@ status:
   resource:
     name: listener-update-updated
     description: listener-update-updated
-    # TODO(scaffolding): match all fields that were modified
   conditions:
   - type: Available
     status: "True"

@@ -15,8 +15,6 @@ status:
       reason: Success
   resource:
     name: listener-import-external-not-this-one
-    description: Listener listener-import-external from "listener-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener

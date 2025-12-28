@@ -1,16 +1,40 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: listener-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: listener-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: listener-dependency
+    ipVersion: 4
+    cidr: 10.0.3.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
 metadata:
   name: listener-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    vipSubnetRef: listener-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener
@@ -18,28 +42,13 @@ metadata:
   name: listener-dependency-no-loadbalancer
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     loadBalancerRef: listener-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Listener
-metadata:
-  name: listener-dependency-no-pool
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    loadBalancerRef: listener-dependency
-    poolRef: listener-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    protocol: HTTP
+    protocolPort: 80
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener
@@ -47,10 +56,10 @@ metadata:
   name: listener-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: listener-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
     loadBalancerRef: listener-dependency
+    protocol: HTTP
+    protocolPort: 81

@@ -40,6 +40,7 @@ type MockScopeFactory struct {
 	IdentityClient     *mock.MockIdentityClient
 	ImageClient        *mock.MockImageClient
 	KeyPairClient      *mock.MockKeyPairClient
+	ListenerClient     *mock.MockListenerClient
 	LoadBalancerClient *mock.MockLoadBalancerClient
 	NetworkClient      *mock.MockNetworkClient
 	RoleClient         *mock.MockRoleClient
@@ -57,6 +58,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
+	listenerClient := mock.NewMockListenerClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	roleClient := mock.NewMockRoleClient(mockCtrl)
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
@@ -71,6 +73,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		IdentityClient:     identityClient,
 		ImageClient:        imageClient,
 		KeyPairClient:      keypairClient,
+		ListenerClient:     listenerClient,
 		LoadBalancerClient: loadBalancerClient,
 		NetworkClient:      networkClient,
 		RoleClient:         roleClient,
@@ -133,6 +136,10 @@ func (f *MockScopeFactory) NewGroupClient() (osclients.GroupClient, error) {
 
 func (f *MockScopeFactory) NewRoleClient() (osclients.RoleClient, error) {
 	return f.RoleClient, nil
+}
+
+func (f *MockScopeFactory) NewListenerClient() (osclients.ListenerClient, error) {
+	return f.ListenerClient, nil
 }
 
 func (f *MockScopeFactory) NewLoadBalancerClient() (osclients.LoadBalancerClient, error) {
