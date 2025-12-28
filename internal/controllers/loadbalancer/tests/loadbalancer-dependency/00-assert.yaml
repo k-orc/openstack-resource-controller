@@ -1,0 +1,90 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-subnet
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Subnet/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Subnet/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-network
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Network/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Network/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-port
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Port/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Port/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-flavor
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Flavor/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Flavor/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing
