@@ -45,8 +45,10 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
 // The frequency to poll when waiting for the resource to become available
 const listenerAvailablePollingPeriod = 15 * time.Second
+
 // The frequency to poll when waiting for the resource to be deleted
 const listenerDeletingPollingPeriod = 15 * time.Second
 
@@ -76,22 +78,16 @@ func (actuator listenerActuator) ListOSResourcesForAdoption(ctx context.Context,
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := listeners.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name:         getResourceName(orcObject),
+		Protocol:     string(resourceSpec.Protocol),
+		ProtocolPort: int(resourceSpec.ProtocolPort),
 	}
 
 	return actuator.osClient.ListListeners(ctx, listOpts), true
 }
 
 func (actuator listenerActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	loadBalancer, rs := dependency.FetchDependency[*orcv1alpha1.LoadBalancer, orcv1alpha1.LoadBalancer](
@@ -106,10 +102,8 @@ func (actuator listenerActuator) ListOSResourcesForImport(ctx context.Context, o
 	}
 
 	listOpts := listeners.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		LoadBalancerID:  ptr.Deref(loadBalancer.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:           string(ptr.Deref(filter.Name, "")),
+		LoadbalancerID: ptr.Deref(loadBalancer.Status.ID, ""),
 	}
 
 	return actuator.osClient.ListListeners(ctx, listOpts), reconcileStatus
@@ -126,42 +120,74 @@ func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObje
 	var reconcileStatus progress.ReconcileStatus
 
 	var loadBalancerID string
-        loadBalancer, loadBalancerDepRS := loadBalancerDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.LoadBalancer) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(loadBalancerDepRS)
-        if loadBalancer != nil {
-                loadBalancerID = ptr.Deref(loadBalancer.Status.ID, "")
-        }
-
-	var poolID string
-	if resource.PoolRef != nil {
-		pool, poolDepRS := poolDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Pool) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
-		)
-		reconcileStatus = reconcileStatus.WithReconcileStatus(poolDepRS)
-		if pool != nil {
-			poolID = ptr.Deref(pool.Status.ID, "")
-		}
+	loadBalancer, loadBalancerDepRS := loadBalancerDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.LoadBalancer) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(loadBalancerDepRS)
+	if loadBalancer != nil {
+		loadBalancerID = ptr.Deref(loadBalancer.Status.ID, "")
 	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
 	createOpts := listeners.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		LoadBalancerID:  loadBalancerID,
-		PoolID:  poolID,
-		// TODO(scaffolding): Add more fields
+		Name:                   getResourceName(obj),
+		Description:            ptr.Deref(resource.Description, ""),
+		LoadbalancerID:         loadBalancerID,
+		Protocol:               listeners.Protocol(resource.Protocol),
+		ProtocolPort:           int(resource.ProtocolPort),
+		AdminStateUp:           resource.AdminStateUp,
+		DefaultTlsContainerRef: ptr.Deref(resource.DefaultTLSContainerRef, ""),
+	}
+
+	if resource.ConnectionLimit != nil {
+		connLimit := int(*resource.ConnectionLimit)
+		createOpts.ConnLimit = &connLimit
+	}
+	if resource.TimeoutClientData != nil {
+		timeout := int(*resource.TimeoutClientData)
+		createOpts.TimeoutClientData = &timeout
+	}
+	if resource.TimeoutMemberConnect != nil {
+		timeout := int(*resource.TimeoutMemberConnect)
+		createOpts.TimeoutMemberConnect = &timeout
+	}
+	if resource.TimeoutMemberData != nil {
+		timeout := int(*resource.TimeoutMemberData)
+		createOpts.TimeoutMemberData = &timeout
+	}
+	if resource.TimeoutTCPInspect != nil {
+		timeout := int(*resource.TimeoutTCPInspect)
+		createOpts.TimeoutTCPInspect = &timeout
+	}
+
+	if len(resource.Tags) > 0 {
+		tags := make([]string, len(resource.Tags))
+		for i := range resource.Tags {
+			tags[i] = string(resource.Tags[i])
+		}
+		createOpts.Tags = tags
+	}
+
+	if len(resource.AllowedCIDRs) > 0 {
+		createOpts.AllowedCIDRs = resource.AllowedCIDRs
+	}
+
+	if resource.InsertHeaders != nil {
+		createOpts.InsertHeaders = resource.InsertHeaders
 	}
 
 	osResource, err := actuator.osClient.CreateListener(ctx, createOpts)
 	if err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
+		// 409 Conflict typically means the LoadBalancer is in a pending state (immutable).
+		// Wait for it to become available and retry.
+		if orcerrors.IsConflict(err) {
+			return nil, progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerAvailablePollingPeriod)
+		}
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
@@ -172,10 +198,22 @@ func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObje
 }
 
 func (actuator listenerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	if resource.Status == ListenerStatusDeleting {
+	switch resource.ProvisioningStatus {
+	case ListenerProvisioningStatusPendingDelete:
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerDeletingPollingPeriod)
+	case ListenerProvisioningStatusPendingCreate, ListenerProvisioningStatusPendingUpdate:
+		// We can't delete a loadbalancer that's in a pending state, so we need to wait for it to become ACTIVE
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerDeletingPollingPeriod)
 	}
-	return progress.WrapError(actuator.osClient.DeleteListener(ctx, resource.ID))
+
+	err := actuator.osClient.DeleteListener(ctx, resource.ID)
+	// 409 Conflict means the loadbalancer is already in PENDING_DELETE state.
+	// Treat this as success and let the controller poll for deletion completion.
+	if orcerrors.IsConflict(err) {
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerDeletingPollingPeriod)
+	}
+
+	return progress.WrapError(err)
 }
 
 func (actuator listenerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
@@ -191,8 +229,6 @@ func (actuator listenerActuator) updateResource(ctx context.Context, obj orcObje
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {

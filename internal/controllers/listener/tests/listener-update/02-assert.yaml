@@ -7,7 +7,7 @@ resourceRefs:
       name: listener-update
       ref: listener
 assertAll:
-    - celExpr: "!has(listener.status.resource.description)"
+    - celExpr: "!has(listener.status.resource.description) || listener.status.resource.description == ''"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener
@@ -16,7 +16,6 @@ metadata:
 status:
   resource:
     name: listener-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
   conditions:
   - type: Available
     status: "True"

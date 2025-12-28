@@ -1,16 +1,28 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: LoadBalancer
+kind: Network
 metadata:
   name: listener-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: listener-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: listener-import-dependency-not-this-one
+    ipVersion: 4
+    cidr: 10.0.8.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LoadBalancer
@@ -18,12 +30,11 @@ metadata:
   name: listener-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    vipSubnetRef: listener-import-dependency-not-this-one
 ---
 # This `listener-import-dependency-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -32,11 +43,10 @@ metadata:
   name: listener-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     loadBalancerRef: listener-import-dependency-not-this-one
-    loadBalancerRef: listener-import-dependency-not-this-one
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    protocol: HTTP
+    protocolPort: 80

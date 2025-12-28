@@ -36,6 +36,8 @@ type Interface interface {
 	Images() ImageInformer
 	// KeyPairs returns a KeyPairInformer.
 	KeyPairs() KeyPairInformer
+	// Listeners returns a ListenerInformer.
+	Listeners() ListenerInformer
 	// LoadBalancers returns a LoadBalancerInformer.
 	LoadBalancers() LoadBalancerInformer
 	// Networks returns a NetworkInformer.
@@ -105,6 +107,11 @@ func (v *version) Images() ImageInformer {
 // KeyPairs returns a KeyPairInformer.
 func (v *version) KeyPairs() KeyPairInformer {
 	return &keyPairInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Listeners returns a ListenerInformer.
+func (v *version) Listeners() ListenerInformer {
+	return &listenerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // LoadBalancers returns a LoadBalancerInformer.

@@ -8,6 +8,3 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Listener
   name: listener-dependency-no-loadbalancer
-- apiVersion: openstack.k-orc.cloud/v1alpha1
-  kind: Listener
-  name: listener-dependency-no-pool
