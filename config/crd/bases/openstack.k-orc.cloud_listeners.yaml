@@ -1,0 +1,632 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
+  name: listeners.openstack.k-orc.cloud
+spec:
+  group: openstack.k-orc.cloud
+  names:
+    categories:
+    - openstack
+    kind: Listener
+    listKind: ListenerList
+    plural: listeners
+    singular: listener
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Resource ID
+      jsonPath: .status.id
+      name: ID
+      type: string
+    - description: Availability status of resource
+      jsonPath: .status.conditions[?(@.type=='Available')].status
+      name: Available
+      type: string
+    - description: Message describing current progress status
+      jsonPath: .status.conditions[?(@.type=='Progressing')].message
+      name: Message
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Listener is the Schema for an ORC resource.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: spec specifies the desired state of the resource.
+            properties:
+              cloudCredentialsRef:
+                description: cloudCredentialsRef points to a secret containing OpenStack
+                  credentials
+                properties:
+                  cloudName:
+                    description: cloudName specifies the name of the entry in the
+                      clouds.yaml file to use.
+                    maxLength: 256
+                    minLength: 1
+                    type: string
+                  secretName:
+                    description: |-
+                      secretName is the name of a secret in the same namespace as the resource being provisioned.
+                      The secret must contain a key named `clouds.yaml` which contains an OpenStack clouds.yaml file.
+                      The secret may optionally contain a key named `cacert` containing a PEM-encoded CA certificate.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                required:
+                - cloudName
+                - secretName
+                type: object
+              import:
+                description: |-
+                  import refers to an existing OpenStack resource which will be imported instead of
+                  creating a new one.
+                maxProperties: 1
+                minProperties: 1
+                properties:
+                  filter:
+                    description: |-
+                      filter contains a resource query which is expected to return a single
+                      result. The controller will continue to retry if filter returns no
+                      results. If filter returns multiple results the controller will set an
+                      error state and will not continue to retry.
+                    minProperties: 1
+                    properties:
+                      description:
+                        description: description of the existing resource.
+                        maxLength: 255
+                        minLength: 1
+                        type: string
+                      loadBalancerRef:
+                        description: loadBalancerRef filters by the LoadBalancer this
+                          listener belongs to.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                      name:
+                        description: name of the existing resource.
+                        maxLength: 255
+                        minLength: 1
+                        pattern: ^[^,]+$
+                        type: string
+                      notTags:
+                        description: |-
+                          notTags is a list of tags to filter by. If specified, resources which
+                          contain all of the given tags will be excluded from the result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      notTagsAny:
+                        description: |-
+                          notTagsAny is a list of tags to filter by. If specified, resources
+                          which contain any of the given tags will be excluded from the result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      protocol:
+                        description: protocol filters by the protocol used by the
+                          listener.
+                        enum:
+                        - HTTP
+                        - HTTPS
+                        - SCTP
+                        - PROMETHEUS
+                        - TCP
+                        - TERMINATED_HTTPS
+                        - UDP
+                        type: string
+                      protocolPort:
+                        description: protocolPort filters by the port used by the
+                          listener.
+                        format: int32
+                        maximum: 65535
+                        minimum: 1
+                        type: integer
+                      tags:
+                        description: |-
+                          tags is a list of tags to filter by. If specified, the resource must
+                          have all of the tags specified to be included in the result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      tagsAny:
+                        description: |-
+                          tagsAny is a list of tags to filter by. If specified, the resource
+                          must have at least one of the tags specified to be included in the
+                          result.
+                        items:
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                    type: object
+                  id:
+                    description: |-
+                      id contains the unique identifier of an existing OpenStack resource. Note
+                      that when specifying an import by ID, the resource MUST already exist.
+                      The ORC object will enter an error state if the resource does not exist.
+                    format: uuid
+                    type: string
+                type: object
+              managedOptions:
+                description: managedOptions specifies options which may be applied
+                  to managed objects.
+                properties:
+                  onDelete:
+                    default: delete
+                    description: |-
+                      onDelete specifies the behaviour of the controller when the ORC
+                      object is deleted. Options are `delete` - delete the OpenStack resource;
+                      `detach` - do not delete the OpenStack resource. If not specified, the
+                      default is `delete`.
+                    enum:
+                    - delete
+                    - detach
+                    type: string
+                type: object
+              managementPolicy:
+                default: managed
+                description: |-
+                  managementPolicy defines how ORC will treat the object. Valid values are
+                  `managed`: ORC will create, update, and delete the resource; `unmanaged`:
+                  ORC will import an existing resource, and will not apply updates to it or
+                  delete it.
+                enum:
+                - managed
+                - unmanaged
+                type: string
+                x-kubernetes-validations:
+                - message: managementPolicy is immutable
+                  rule: self == oldSelf
+              resource:
+                description: |-
+                  resource specifies the desired state of the resource.
+
+                  resource may not be specified if the management policy is `unmanaged`.
+
+                  resource must be specified if the management policy is `managed`.
+                properties:
+                  adminStateUp:
+                    description: adminStateUp is the administrative state of the listener,
+                      which is up (true) or down (false).
+                    type: boolean
+                  allowedCIDRs:
+                    description: allowedCIDRs is a list of IPv4/IPv6 CIDRs that are
+                      permitted to connect to this listener.
+                    items:
+                      maxLength: 64
+                      type: string
+                    maxItems: 256
+                    type: array
+                    x-kubernetes-list-type: set
+                  alpnProtocols:
+                    description: alpnProtocols is a list of ALPN protocols for TLS-enabled
+                      listeners.
+                    items:
+                      maxLength: 32
+                      type: string
+                    maxItems: 10
+                    type: array
+                    x-kubernetes-list-type: set
+                  clientAuthentication:
+                    description: clientAuthentication is the TLS client authentication
+                      mode.
+                    enum:
+                    - NONE
+                    - OPTIONAL
+                    - MANDATORY
+                    type: string
+                    x-kubernetes-validations:
+                    - message: clientAuthentication is immutable
+                      rule: self == oldSelf
+                  clientCATLSContainerRef:
+                    description: |-
+                      clientCATLSContainerRef is a reference to a secret containing the CA certificate
+                      for client authentication.
+                    maxLength: 255
+                    type: string
+                    x-kubernetes-validations:
+                    - message: clientCATLSContainerRef is immutable
+                      rule: self == oldSelf
+                  clientCRLContainerRef:
+                    description: |-
+                      clientCRLContainerRef is a reference to a secret containing the CA revocation list
+                      for client authentication.
+                    maxLength: 255
+                    type: string
+                    x-kubernetes-validations:
+                    - message: clientCRLContainerRef is immutable
+                      rule: self == oldSelf
+                  connectionLimit:
+                    description: |-
+                      connectionLimit is the maximum number of connections permitted for this listener.
+                      Default value is -1 which represents infinite connections.
+                    format: int32
+                    minimum: -1
+                    type: integer
+                  defaultPoolRef:
+                    description: defaultPoolRef is a reference to the default Pool
+                      for this listener.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: defaultPoolRef is immutable
+                      rule: self == oldSelf
+                  defaultTLSContainerRef:
+                    description: |-
+                      defaultTLSContainerRef is a reference to a secret containing a PKCS12 format
+                      certificate/key bundle for TERMINATED_HTTPS listeners.
+                    maxLength: 255
+                    type: string
+                    x-kubernetes-validations:
+                    - message: defaultTLSContainerRef is immutable
+                      rule: self == oldSelf
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
+                  hsts:
+                    description: hsts is the HTTP Strict Transport Security configuration.
+                    properties:
+                      includeSubDomains:
+                        description: includeSubDomains specifies whether this rule
+                          applies to all subdomains.
+                        type: boolean
+                      maxAge:
+                        description: |-
+                          maxAge is the maximum time in seconds that the browser should remember
+                          that this site is only to be accessed using HTTPS.
+                        format: int32
+                        minimum: 0
+                        type: integer
+                      preload:
+                        description: preload specifies whether the domain should be
+                          included in browsers' preload list.
+                        type: boolean
+                    type: object
+                  insertHeaders:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      insertHeaders is a dictionary of optional headers to insert into the request
+                      before it is sent to the backend member.
+                    type: object
+                  loadBalancerRef:
+                    description: loadBalancerRef is a reference to the LoadBalancer
+                      this listener belongs to.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: loadBalancerRef is immutable
+                      rule: self == oldSelf
+                  name:
+                    description: |-
+                      name will be the name of the created resource. If not specified, the
+                      name of the ORC object will be used.
+                    maxLength: 255
+                    minLength: 1
+                    pattern: ^[^,]+$
+                    type: string
+                  protocol:
+                    description: protocol is the protocol the listener will use.
+                    enum:
+                    - HTTP
+                    - HTTPS
+                    - SCTP
+                    - PROMETHEUS
+                    - TCP
+                    - TERMINATED_HTTPS
+                    - UDP
+                    type: string
+                    x-kubernetes-validations:
+                    - message: protocol is immutable
+                      rule: self == oldSelf
+                  protocolPort:
+                    description: protocolPort is the port on which the listener will
+                      accept connections.
+                    format: int32
+                    maximum: 65535
+                    minimum: 1
+                    type: integer
+                    x-kubernetes-validations:
+                    - message: protocolPort is immutable
+                      rule: self == oldSelf
+                  sniContainerRefs:
+                    description: |-
+                      sniContainerRefs is a list of references to secrets containing PKCS12 format
+                      certificate/key bundles for TERMINATED_HTTPS listeners using SNI.
+                    items:
+                      maxLength: 255
+                      type: string
+                    maxItems: 25
+                    type: array
+                    x-kubernetes-list-type: set
+                  tags:
+                    description: tags is a list of tags which will be applied to the
+                      listener.
+                    items:
+                      maxLength: 255
+                      minLength: 1
+                      type: string
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: set
+                  timeoutClientData:
+                    description: timeoutClientData is the frontend client inactivity
+                      timeout in milliseconds.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                  timeoutMemberConnect:
+                    description: timeoutMemberConnect is the backend member connection
+                      timeout in milliseconds.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                  timeoutMemberData:
+                    description: timeoutMemberData is the backend member inactivity
+                      timeout in milliseconds.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                  timeoutTCPInspect:
+                    description: |-
+                      timeoutTCPInspect is the time in milliseconds to wait for additional TCP packets
+                      for content inspection.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                  tlsCiphers:
+                    description: tlsCiphers is a colon-separated list of ciphers for
+                      TLS-terminated listeners.
+                    maxLength: 2048
+                    type: string
+                  tlsVersions:
+                    description: tlsVersions is a list of TLS protocol versions to
+                      be used by the listener.
+                    items:
+                      maxLength: 32
+                      type: string
+                    maxItems: 10
+                    type: array
+                    x-kubernetes-list-type: set
+                required:
+                - loadBalancerRef
+                - protocol
+                - protocolPort
+                type: object
+            required:
+            - cloudCredentialsRef
+            type: object
+            x-kubernetes-validations:
+            - message: resource must be specified when policy is managed
+              rule: 'self.managementPolicy == ''managed'' ? has(self.resource) : true'
+            - message: import may not be specified when policy is managed
+              rule: 'self.managementPolicy == ''managed'' ? !has(self.__import__)
+                : true'
+            - message: resource may not be specified when policy is unmanaged
+              rule: 'self.managementPolicy == ''unmanaged'' ? !has(self.resource)
+                : true'
+            - message: import must be specified when policy is unmanaged
+              rule: 'self.managementPolicy == ''unmanaged'' ? has(self.__import__)
+                : true'
+            - message: managedOptions may only be provided when policy is managed
+              rule: 'has(self.managedOptions) ? self.managementPolicy == ''managed''
+                : true'
+          status:
+            description: status defines the observed state of the resource.
+            properties:
+              conditions:
+                description: |-
+                  conditions represents the observed status of the object.
+                  Known .status.conditions.type are: "Available", "Progressing"
+
+                  Available represents the availability of the OpenStack resource. If it is
+                  true then the resource is ready for use.
+
+                  Progressing indicates whether the controller is still attempting to
+                  reconcile the current state of the OpenStack resource to the desired
+                  state. Progressing will be False either because the desired state has
+                  been achieved, or because some terminal error prevents it from ever being
+                  achieved and the controller is no longer attempting to reconcile. If
+                  Progressing is True, an observer waiting on the resource should continue
+                  to wait.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                maxItems: 32
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              id:
+                description: id is the unique identifier of the OpenStack resource.
+                type: string
+              resource:
+                description: resource contains the observed state of the OpenStack
+                  resource.
+                properties:
+                  adminStateUp:
+                    description: |-
+                      adminStateUp is the administrative state of the listener,
+                      which is up (true) or down (false).
+                    type: boolean
+                  allowedCIDRs:
+                    description: allowedCIDRs is the list of CIDRs permitted to connect
+                      to this listener.
+                    items:
+                      maxLength: 64
+                      type: string
+                    maxItems: 256
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  connectionLimit:
+                    description: connectionLimit is the maximum number of connections
+                      permitted for this listener.
+                    format: int32
+                    type: integer
+                  defaultPoolID:
+                    description: defaultPoolID is the ID of the default pool for this
+                      listener.
+                    maxLength: 1024
+                    type: string
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 1024
+                    type: string
+                  insertHeaders:
+                    additionalProperties:
+                      type: string
+                    description: insertHeaders is a dictionary of headers inserted
+                      into the request.
+                    type: object
+                  loadBalancerID:
+                    description: loadBalancerID is the ID of the LoadBalancer this
+                      listener belongs to.
+                    maxLength: 1024
+                    type: string
+                  name:
+                    description: name is a human-readable name for the resource.
+                    maxLength: 1024
+                    type: string
+                  operatingStatus:
+                    description: operatingStatus is the operating status of the listener.
+                    maxLength: 1024
+                    type: string
+                  protocol:
+                    description: protocol is the protocol used by the listener.
+                    maxLength: 64
+                    type: string
+                  protocolPort:
+                    description: protocolPort is the port used by the listener.
+                    format: int32
+                    type: integer
+                  provisioningStatus:
+                    description: provisioningStatus is the provisioning status of
+                      the listener.
+                    maxLength: 1024
+                    type: string
+                  tags:
+                    description: tags is the list of tags on the resource.
+                    items:
+                      maxLength: 255
+                      type: string
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  timeoutClientData:
+                    description: timeoutClientData is the frontend client inactivity
+                      timeout in milliseconds.
+                    format: int32
+                    type: integer
+                  timeoutMemberConnect:
+                    description: timeoutMemberConnect is the backend member connection
+                      timeout in milliseconds.
+                    format: int32
+                    type: integer
+                  timeoutMemberData:
+                    description: timeoutMemberData is the backend member inactivity
+                      timeout in milliseconds.
+                    format: int32
+                    type: integer
+                  timeoutTCPInspect:
+                    description: timeoutTCPInspect is the time to wait for additional
+                      TCP packets in milliseconds.
+                    format: int32
+                    type: integer
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -66,6 +66,14 @@ type KeyPairListerExpansion interface{}
 // KeyPairNamespaceLister.
 type KeyPairNamespaceListerExpansion interface{}
 
+// ListenerListerExpansion allows custom methods to be added to
+// ListenerLister.
+type ListenerListerExpansion interface{}
+
+// ListenerNamespaceListerExpansion allows custom methods to be added to
+// ListenerNamespaceLister.
+type ListenerNamespaceListerExpansion interface{}
+
 // LoadBalancerListerExpansion allows custom methods to be added to
 // LoadBalancerLister.
 type LoadBalancerListerExpansion interface{}
