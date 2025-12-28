@@ -7,7 +7,6 @@ status:
   resource:
     name: trunk-update-updated
     description: trunk-update-updated
-    # TODO(scaffolding): match all fields that were modified
   conditions:
   - type: Available
     status: "True"

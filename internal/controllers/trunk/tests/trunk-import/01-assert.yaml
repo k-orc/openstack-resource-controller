@@ -15,8 +15,7 @@ status:
       reason: Success
   resource:
     name: trunk-import-external-not-this-one
-    description: Trunk trunk-import-external from "trunk-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    description: Trunk trunk-import-external-not-this-one from "trunk-import" test
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -25,10 +24,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for OpenStack resource to be created externally
+      message: Waiting for Port/trunk-import to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for OpenStack resource to be created externally
+      message: Waiting for Port/trunk-import to be created
       status: "True"
       reason: Progressing

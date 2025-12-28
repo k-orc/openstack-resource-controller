@@ -350,6 +350,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.TrunkSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("TrunkStatus"):
 		return &apiv1alpha1.TrunkStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkSubportSpec"):
+		return &apiv1alpha1.TrunkSubportSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkSubportStatus"):
+		return &apiv1alpha1.TrunkSubportStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("UserDataSpec"):
 		return &apiv1alpha1.UserDataSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Volume"):

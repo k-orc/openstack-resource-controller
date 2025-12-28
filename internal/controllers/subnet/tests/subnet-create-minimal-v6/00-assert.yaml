@@ -11,6 +11,7 @@ resourceRefs:
       name: subnet-create-minimal-v6
       ref: network
 assertAll:
+    - celExpr: "subnet.status.resource.networkID == network.status.id"
     - celExpr: "'description' in subnet.status.resource == false"
     - celExpr: "'ipv6AddressMode' in subnet.status.resource == false"
     - celExpr: "'ipv6RAMode' in subnet.status.resource == false"

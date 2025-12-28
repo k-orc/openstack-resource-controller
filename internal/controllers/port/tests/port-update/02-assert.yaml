@@ -7,6 +7,10 @@ resourceRefs:
       name: port-update
       ref: port
 assertAll:
+    - celExpr: "port.status.id != ''"
+    - celExpr: "port.status.resource.createdAt != ''"
+    - celExpr: "port.status.resource.updatedAt != ''"
+    - celExpr: "port.status.resource.macAddress != ''"
     - celExpr: "!has(port.status.resource.fixedIPs)"
     - celExpr: "!has(port.status.resource.description)"
     - celExpr: "!has(port.status.resource.securityGroups)"

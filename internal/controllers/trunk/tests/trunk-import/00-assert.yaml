@@ -6,10 +6,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for OpenStack resource to be created externally
+      message: Waiting for Port/trunk-import to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for OpenStack resource to be created externally
+      message: Waiting for Port/trunk-import to be created
       status: "True"
       reason: Progressing

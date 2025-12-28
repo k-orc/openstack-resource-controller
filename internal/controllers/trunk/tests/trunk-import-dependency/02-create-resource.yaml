@@ -1,45 +1,17 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
-metadata:
-  name: trunk-import-dependency-external
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack-admin
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    projectRef: trunk-import-dependency-external
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
-metadata:
-  name: trunk-import-dependency-external
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack-admin
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    cidr: 192.168.164.0/24
-    ipVersion: 4
-    networkRef: trunk-import-dependency-external
-    projectRef: trunk-import-dependency-external
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
   name: trunk-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
-    networkRef: trunk-import-dependency-external
-    projectRef: trunk-import-dependency-external
+    networkRef: trunk-import-dependency
+    addresses:
+    - subnetRef: trunk-import-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
@@ -47,12 +19,11 @@ metadata:
   name: trunk-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: trunk-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -60,11 +31,10 @@ metadata:
   name: trunk-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     portRef: trunk-import-dependency-external
     projectRef: trunk-import-dependency-external
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    description: Trunk trunk-import-dependency-external from "trunk-import-dependency" test

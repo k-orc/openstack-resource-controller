@@ -421,6 +421,7 @@ _Appears in:_
 - [RouterFilter](#routerfilter)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SubnetFilter](#subnetfilter)
+- [TrunkFilter](#trunkfilter)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1636,6 +1637,7 @@ _Appears in:_
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
+- [TrunkSubportSpec](#trunksubportspec)
 - [UserDataSpec](#userdataspec)
 - [VolumeResourceSpec](#volumeresourcespec)
 
@@ -1924,6 +1926,8 @@ _Appears in:_
 - [SecurityGroupRule](#securitygrouprule)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
+- [TrunkFilter](#trunkfilter)
+- [TrunkResourceSpec](#trunkresourcespec)
 
 
 
@@ -1941,6 +1945,7 @@ _Appears in:_
 - [PortResourceStatus](#portresourcestatus)
 - [SecurityGroupResourceStatus](#securitygroupresourcestatus)
 - [SubnetResourceStatus](#subnetresourcestatus)
+- [TrunkResourceStatus](#trunkresourcestatus)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -1974,6 +1979,8 @@ _Appears in:_
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
+- [TrunkFilter](#trunkfilter)
+- [TrunkResourceSpec](#trunkresourcespec)
 
 
 
@@ -3823,9 +3830,15 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `status` _string_ | status indicates whether the trunk is currently operational. Possible values include<br />`ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values. |  |  |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the trunk. |  |  |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### TrunkImport
@@ -3862,9 +3875,12 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />XValidation: rule="self == oldSelf",message="portRef is immutable" <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />XValidation: rule="self == oldSelf",message="projectRef is immutable" <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the trunk. If false (down),<br />the trunk does not forward packets. |  |  |
+| `subports` _[TrunkSubportSpec](#trunksubportspec) array_ | subports is the list of ports to attach to the trunk.<br />NOTE: ORC currently does not implement reconcile logic for subport updates<br />(Neutron uses dedicated add/remove subport APIs). This field is immutable<br />until that behavior is implemented in the controller. |  | MaxItems: 1024 <br />ListType: atomic <br />XValidation: rule="self == oldSelf",message="subports is immutable" <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of Neutron tags to apply to the trunk.<br />NOTE: ORC does not currently reconcile tag updates for Trunk. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br />XValidation: rule="self == oldSelf",message="tags is immutable" <br /> |
 
 
 #### TrunkResourceStatus
@@ -3884,6 +3900,14 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
 | `portID` _string_ | portID is the ID of the Port to which the resource is associated. |  | MaxLength: 1024 <br /> |
 | `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br /> |
+| `tenantID` _string_ | tenantID is the project owner of the trunk (alias of projectID in some deployments). |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status indicates whether the trunk is currently operational. |  | MaxLength: 1024 <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />ListType: atomic <br />items:MaxLength: 1024 <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
+| `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the trunk. |  |  |
+| `subports` _[TrunkSubportStatus](#trunksubportstatus) array_ | subports is a list of ports associated with the trunk. |  | MaxItems: 1024 <br />ListType: atomic <br /> |
 
 
 #### TrunkSpec
@@ -3901,7 +3925,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `import` _[TrunkImport](#trunkimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `resource` _[TrunkResourceSpec](#trunkresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
-| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />XValidation: rule="self == oldSelf",message="managementPolicy is immutable" <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
 
@@ -3919,9 +3943,47 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />ListType: map <br />ListMapKey: type <br />PatchStrategy: merge <br />PatchMergeKey: type <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[TrunkResourceStatus](#trunkresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
+#### TrunkSubportSpec
+
+
+
+TrunkSubportSpec represents a subport to attach to a trunk.
+It maps to gophercloud's trunks.Subport.
+
+
+
+_Appears in:_
+- [TrunkResourceSpec](#trunkresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port that will be attached as a subport. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `segmentationID` _integer_ | segmentationID is the segmentation ID for the subport (e.g. VLAN ID). |  | Maximum: 4094 <br />Minimum: 1 <br /> |
+| `segmentationType` _string_ | segmentationType is the segmentation type for the subport (e.g. vlan). |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### TrunkSubportStatus
+
+
+
+TrunkSubportStatus represents an attached subport on a trunk.
+It maps to gophercloud's trunks.Subport.
+
+
+
+_Appears in:_
+- [TrunkResourceStatus](#trunkresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `portID` _string_ | portID is the OpenStack ID of the Port attached as a subport. |  | MaxLength: 1024 <br /> |
+| `segmentationID` _integer_ | segmentationID is the segmentation ID for the subport (e.g. VLAN ID). |  |  |
+| `segmentationType` _string_ | segmentationType is the segmentation type for the subport (e.g. vlan). |  | MaxLength: 1024 <br /> |
 
 
 

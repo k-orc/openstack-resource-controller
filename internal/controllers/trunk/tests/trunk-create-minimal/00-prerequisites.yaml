@@ -41,4 +41,6 @@ spec:
   managementPolicy: managed
   resource:
     networkRef: trunk-create-minimal
+    addresses:
+    - subnetRef: trunk-create-minimal
 

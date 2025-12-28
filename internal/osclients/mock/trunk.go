@@ -129,5 +129,3 @@ func (mr *MockTrunkClientMockRecorder) UpdateTrunk(ctx, id, opts any) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTrunk", reflect.TypeOf((*MockTrunkClient)(nil).UpdateTrunk), ctx, id, opts)
 }
-
-

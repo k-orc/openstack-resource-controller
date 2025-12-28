@@ -91,6 +91,10 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      adminStateUp:
+                        description: adminStateUp is the administrative state of the
+                          trunk.
+                        type: boolean
                       description:
                         description: description of the existing resource
                         maxLength: 255
@@ -102,6 +106,34 @@ spec:
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
+                      notTags:
+                        description: |-
+                          notTags is a list of tags to filter by. If specified, resources which
+                          contain all of the given tags will be excluded from the result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      notTagsAny:
+                        description: |-
+                          notTagsAny is a list of tags to filter by. If specified, resources
+                          which contain any of the given tags will be excluded from the result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
                       portRef:
                         description: portRef is a reference to the ORC Port which
                           this resource is associated with.
@@ -114,6 +146,40 @@ spec:
                         maxLength: 253
                         minLength: 1
                         type: string
+                      status:
+                        description: |-
+                          status indicates whether the trunk is currently operational. Possible values include
+                          `ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values.
+                        type: string
+                      tags:
+                        description: |-
+                          tags is a list of tags to filter by. If specified, the resource must
+                          have all of the tags specified to be included in the result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      tagsAny:
+                        description: |-
+                          tagsAny is a list of tags to filter by. If specified, the resource
+                          must have at least one of the tags specified to be included in the
+                          result.
+                        items:
+                          description: |-
+                            NeutronTag represents a tag on a Neutron resource.
+                            It may not be empty and may not contain commas.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
                     type: object
                   id:
                     description: |-
@@ -161,6 +227,11 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  adminStateUp:
+                    description: |-
+                      adminStateUp is the administrative state of the trunk. If false (down),
+                      the trunk does not forward packets.
+                    type: boolean
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -192,6 +263,66 @@ spec:
                     type: string
                     x-kubernetes-validations:
                     - message: projectRef is immutable
+                      rule: self == oldSelf
+                  subports:
+                    description: |-
+                      subports is the list of ports to attach to the trunk.
+
+                      NOTE: ORC currently does not implement reconcile logic for subport updates
+                      (Neutron uses dedicated add/remove subport APIs). This field is immutable
+                      until that behavior is implemented in the controller.
+                    items:
+                      description: |-
+                        TrunkSubportSpec represents a subport to attach to a trunk.
+                        It maps to gophercloud's trunks.Subport.
+                      properties:
+                        portRef:
+                          description: portRef is a reference to the ORC Port that
+                            will be attached as a subport.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        segmentationID:
+                          description: segmentationID is the segmentation ID for the
+                            subport (e.g. VLAN ID).
+                          format: int32
+                          maximum: 4094
+                          minimum: 1
+                          type: integer
+                        segmentationType:
+                          description: segmentationType is the segmentation type for
+                            the subport (e.g. vlan).
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                      required:
+                      - portRef
+                      - segmentationID
+                      - segmentationType
+                      type: object
+                    maxItems: 1024
+                    type: array
+                    x-kubernetes-list-type: atomic
+                    x-kubernetes-validations:
+                    - message: subports is immutable
+                      rule: self == oldSelf
+                  tags:
+                    description: |-
+                      tags is a list of Neutron tags to apply to the trunk.
+
+                      NOTE: ORC does not currently reconcile tag updates for Trunk.
+                    items:
+                      description: |-
+                        NeutronTag represents a tag on a Neutron resource.
+                        It may not be empty and may not contain commas.
+                      maxLength: 255
+                      minLength: 1
+                      type: string
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: set
+                    x-kubernetes-validations:
+                    - message: tags is immutable
                       rule: self == oldSelf
                 required:
                 - portRef
@@ -298,6 +429,14 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  adminStateUp:
+                    description: adminStateUp is the administrative state of the trunk.
+                    type: boolean
+                  createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created. The date and time stamp format is ISO 8601
+                    format: date-time
+                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -317,6 +456,58 @@ spec:
                     description: projectID is the ID of the Project to which the resource
                       is associated.
                     maxLength: 1024
+                    type: string
+                  revisionNumber:
+                    description: revisionNumber optionally set via extensions/standard-attr-revisions
+                    format: int64
+                    type: integer
+                  status:
+                    description: status indicates whether the trunk is currently operational.
+                    maxLength: 1024
+                    type: string
+                  subports:
+                    description: subports is a list of ports associated with the trunk.
+                    items:
+                      description: |-
+                        TrunkSubportStatus represents an attached subport on a trunk.
+                        It maps to gophercloud's trunks.Subport.
+                      properties:
+                        portID:
+                          description: portID is the OpenStack ID of the Port attached
+                            as a subport.
+                          maxLength: 1024
+                          type: string
+                        segmentationID:
+                          description: segmentationID is the segmentation ID for the
+                            subport (e.g. VLAN ID).
+                          format: int32
+                          type: integer
+                        segmentationType:
+                          description: segmentationType is the segmentation type for
+                            the subport (e.g. vlan).
+                          maxLength: 1024
+                          type: string
+                      type: object
+                    maxItems: 1024
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  tags:
+                    description: tags is the list of tags on the resource.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  tenantID:
+                    description: tenantID is the project owner of the trunk (alias
+                      of projectID in some deployments).
+                    maxLength: 1024
+                    type: string
+                  updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated. The date and time stamp format is ISO 8601
+                    format: date-time
                     type: string
                 type: object
             type: object

@@ -11,6 +11,7 @@ resourceRefs:
       name: subnet-update
       ref: network
 assertAll:
+    - celExpr: "subnet.status.resource.networkID == network.status.id"
     - celExpr: "!has(subnet.status.resource.description)"
     - celExpr: "!has(subnet.status.resource.tags)"
     - celExpr: "!has(subnet.status.resource.hostRoutes)"
