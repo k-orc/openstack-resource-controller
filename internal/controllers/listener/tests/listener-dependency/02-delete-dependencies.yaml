@@ -1,0 +1,11 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # We expect the deletion to hang due to the finalizer, so use --wait=false
+  - command: kubectl delete loadbalancer listener-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete pool listener-dependency --wait=false
+    namespaced: true
+  - command: kubectl delete secret listener-dependency --wait=false
+    namespaced: true
