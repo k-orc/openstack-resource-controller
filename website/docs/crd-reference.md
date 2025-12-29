@@ -3833,7 +3833,7 @@ _Appears in:_
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
-| `status` _string_ | status indicates whether the trunk is currently operational. Possible values include<br />`ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values. |  |  |
+| `status` _string_ | status indicates whether the trunk is currently operational. Possible values include<br />`ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values. |  | MaxLength: 1024 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the trunk. |  |  |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
@@ -3880,7 +3880,7 @@ _Appears in:_
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />XValidation: rule="self == oldSelf",message="projectRef is immutable" <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the trunk. If false (down),<br />the trunk does not forward packets. |  |  |
 | `subports` _[TrunkSubportSpec](#trunksubportspec) array_ | subports is the list of ports to attach to the trunk.<br />NOTE: ORC currently does not implement reconcile logic for subport updates<br />(Neutron uses dedicated add/remove subport APIs). This field is immutable<br />until that behavior is implemented in the controller. |  | MaxItems: 1024 <br />ListType: atomic <br />XValidation: rule="self == oldSelf",message="subports is immutable" <br /> |
-| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of Neutron tags to apply to the trunk.<br />NOTE: ORC does not currently reconcile tag updates for Trunk. |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br />XValidation: rule="self == oldSelf",message="tags is immutable" <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of Neutron tags to apply to the trunk.<br />NOTE: ORC reconciles tags using Neutron's standard attribute-tags API (replace-all). |  | MaxItems: 64 <br />ListType: set <br />MaxLength: 255 <br />MinLength: 1 <br /> |
 
 
 #### TrunkResourceStatus
@@ -3964,7 +3964,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef is a reference to the ORC Port that will be attached as a subport. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `segmentationID` _integer_ | segmentationID is the segmentation ID for the subport (e.g. VLAN ID). |  | Maximum: 4094 <br />Minimum: 1 <br /> |
-| `segmentationType` _string_ | segmentationType is the segmentation type for the subport (e.g. vlan). |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `segmentationType` _string_ | segmentationType is the segmentation type for the subport (e.g. vlan). |  | Enum: inherit, vlan <br />MaxLength: 32 <br />MinLength: 1 <br /> |
 
 
 #### TrunkSubportStatus

@@ -7,3 +7,5 @@ spec:
   resource:
     name: trunk-update-updated
     description: trunk-update-updated
+    tags:
+    - trunk-update-updated

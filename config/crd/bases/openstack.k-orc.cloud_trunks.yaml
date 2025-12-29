@@ -150,6 +150,7 @@ spec:
                         description: |-
                           status indicates whether the trunk is currently operational. Possible values include
                           `ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values.
+                        maxLength: 1024
                         type: string
                       tags:
                         description: |-
@@ -292,7 +293,10 @@ spec:
                         segmentationType:
                           description: segmentationType is the segmentation type for
                             the subport (e.g. vlan).
-                          maxLength: 255
+                          enum:
+                          - inherit
+                          - vlan
+                          maxLength: 32
                           minLength: 1
                           type: string
                       required:
@@ -310,7 +314,7 @@ spec:
                     description: |-
                       tags is a list of Neutron tags to apply to the trunk.
 
-                      NOTE: ORC does not currently reconcile tag updates for Trunk.
+                      NOTE: ORC reconciles tags using Neutron's standard attribute-tags API (replace-all).
                     items:
                       description: |-
                         NeutronTag represents a tag on a Neutron resource.
@@ -321,9 +325,6 @@ spec:
                     maxItems: 64
                     type: array
                     x-kubernetes-list-type: set
-                    x-kubernetes-validations:
-                    - message: tags is immutable
-                      rule: self == oldSelf
                 required:
                 - portRef
                 type: object

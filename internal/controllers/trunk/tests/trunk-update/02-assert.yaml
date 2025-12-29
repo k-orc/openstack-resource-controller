@@ -8,6 +8,8 @@ resourceRefs:
       ref: trunk
 assertAll:
     - celExpr: "!has(trunk.status.resource.description)"
+    - celExpr: "trunk.status.resource.tags.size() == 1"
+    - celExpr: "trunk.status.resource.tags[0] == 'trunk-update-initial'"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -16,6 +18,8 @@ metadata:
 status:
   resource:
     name: trunk-update
+    tags:
+    - trunk-update-initial
   conditions:
   - type: Available
     status: "True"
