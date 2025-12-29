@@ -1,0 +1,34 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-create-full
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: listener-create-full
+      ref: listener
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: listener-create-full
+      ref: loadBalancer
+assertAll:
+    - celExpr: "listener.status.id != ''"
+    - celExpr: "listener.status.resource.name == 'listener-create-full-override'"
+    - celExpr: "listener.status.resource.description == 'Listener from create full test'"
+    - celExpr: "listener.status.resource.loadBalancerID == loadBalancer.status.id"
+    - celExpr: "listener.status.resource.protocol == 'HTTPS'"
+    - celExpr: "listener.status.resource.protocolPort == 443"
+    - celExpr: "listener.status.resource.connectionLimit == 1000"
+    - celExpr: "listener.status.resource.provisioningStatus == 'ACTIVE'"
