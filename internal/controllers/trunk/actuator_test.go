@@ -40,6 +40,16 @@ func TestNeedsUpdate(t *testing.T) {
 			updateOpts:   trunks.UpdateOpts{Name: ptr.To("updated")},
 			expectChange: true,
 		},
+		{
+			name:         "RevisionNumber only should not require update",
+			updateOpts:   trunks.UpdateOpts{RevisionNumber: ptr.To(10)},
+			expectChange: false,
+		},
+		{
+			name:         "Name + RevisionNumber should require update",
+			updateOpts:   trunks.UpdateOpts{Name: ptr.To("updated"), RevisionNumber: ptr.To(10)},
+			expectChange: true,
+		},
 	}
 
 	for _, tt := range testCases {
@@ -88,10 +98,10 @@ func TestHandleNameUpdate(t *testing.T) {
 }
 
 func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+	ptrToDescription := ptr.To[orcv1alpha1.NeutronDescription]
 	testCases := []struct {
 		name          string
-		newValue      *string
+		newValue      *orcv1alpha1.NeutronDescription
 		existingValue string
 		expectChange  bool
 	}{
@@ -115,5 +125,37 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			}
 		})
 
+	}
+}
+
+func TestHandleAdminStateUpUpdate(t *testing.T) {
+	ptrToBool := ptr.To[bool]
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical true", newValue: ptrToBool(true), existingValue: true, expectChange: false},
+		{name: "Identical false", newValue: ptrToBool(false), existingValue: false, expectChange: false},
+		{name: "Different (true -> false)", newValue: ptrToBool(false), existingValue: true, expectChange: true},
+		{name: "Different (false -> true)", newValue: ptrToBool(true), existingValue: false, expectChange: true},
+		{name: "Nil means default true (existing true)", newValue: nil, existingValue: true, expectChange: false},
+		{name: "Nil means default true (existing false)", newValue: nil, existingValue: false, expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.TrunkResourceSpec{AdminStateUp: tt.newValue}
+			osResource := &osResourceT{AdminStateUp: tt.existingValue}
+
+			updateOpts := trunks.UpdateOpts{}
+			handleAdminStateUpUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
 	}
 }

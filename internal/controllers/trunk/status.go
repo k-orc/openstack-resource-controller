@@ -54,12 +54,33 @@ func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		WithProjectID(osResource.ProjectID).
 		WithName(osResource.Name)
 
+	if osResource.Status != "" {
+		resourceStatus.WithStatus(osResource.Status)
+	}
+
+	// Always present on the OS resource.
+	resourceStatus.WithAdminStateUp(osResource.AdminStateUp)
+
+	if osResource.TenantID != "" {
+		resourceStatus.WithTenantID(osResource.TenantID)
+	}
+
 	if len(osResource.Tags) > 0 {
 		resourceStatus.WithTags(osResource.Tags...)
 	}
 
 	if len(osResource.Subports) > 0 {
-		resourceStatus.WithSubports(osResource.Subports...)
+		subports := make([]*orcapplyconfigv1alpha1.TrunkSubportStatusApplyConfiguration, 0, len(osResource.Subports))
+		for i := range osResource.Subports {
+			sp := osResource.Subports[i]
+			subports = append(subports,
+				orcapplyconfigv1alpha1.TrunkSubportStatus().
+					WithPortID(sp.PortID).
+					WithSegmentationID(int32(sp.SegmentationID)).
+					WithSegmentationType(sp.SegmentationType),
+			)
+		}
+		resourceStatus.WithSubports(subports...)
 	}
 
 	if osResource.Description != "" {

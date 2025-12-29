@@ -34,6 +34,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
 // OpenStack resource types
@@ -47,8 +48,9 @@ type (
 )
 
 type trunkActuator struct {
-	osClient  osclients.TrunkClient
-	k8sClient client.Client
+	osClient      osclients.TrunkClient
+	networkClient osclients.NetworkClient
+	k8sClient     client.Client
 }
 
 var _ createResourceActuator = trunkActuator{}
@@ -72,22 +74,15 @@ func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := trunks.ListOpts{
 		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Description: string(ptr.Deref(resourceSpec.Description, "")),
 	}
 
 	return actuator.osClient.ListTrunks(ctx, listOpts), true
 }
 
 func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	port := &orcv1alpha1.Port{}
@@ -137,7 +132,14 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		Description: string(ptr.Deref(filter.Description, "")),
 		PortID:    ptr.Deref(port.Status.ID, ""),
 		ProjectID: ptr.Deref(project.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		AdminStateUp: filter.AdminStateUp,
+		Tags:         tags.Join(filter.Tags),
+		TagsAny:      tags.Join(filter.TagsAny),
+		NotTags:      tags.Join(filter.NotTags),
+		NotTagsAny:   tags.Join(filter.NotTagsAny),
+	}
+	if filter.Status != nil {
+		listOpts.Status = *filter.Status
 	}
 
 	return actuator.osClient.ListTrunks(ctx, listOpts), nil
@@ -154,15 +156,15 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 	var reconcileStatus progress.ReconcileStatus
 
 	var portID string
-        port, portDepRS := portDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
-        if port != nil {
-                portID = ptr.Deref(port.Status.ID, "")
-        }
+	port, portDepRS := portDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
+	if port != nil {
+		portID = ptr.Deref(port.Status.ID, "")
+	}
 
 	var projectID string
 	if resource.ProjectRef != nil {
@@ -181,10 +183,10 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 	}
 	createOpts := trunks.CreateOpts{
 		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
+		Description: string(ptr.Deref(resource.Description, "")),
 		PortID:  portID,
 		ProjectID:  projectID,
-		// TODO(scaffolding): Add more fields
+		AdminStateUp: resource.AdminStateUp,
 	}
 
 	osResource, err := actuator.osClient.CreateTrunk(ctx, createOpts)
@@ -216,8 +218,7 @@ func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectP
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleAdminStateUpUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -265,14 +266,23 @@ func handleNameUpdate(updateOpts *trunks.UpdateOpts, obj orcObjectPT, osResource
 }
 
 func handleDescriptionUpdate(updateOpts *trunks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
+	description := string(ptr.Deref(resource.Description, ""))
 	if osResource.Description != description {
 		updateOpts.Description = &description
 	}
 }
 
+func handleAdminStateUpUpdate(updateOpts *trunks.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	adminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != adminStateUp {
+		updateOpts.AdminStateUp = &adminStateUp
+	}
+}
+
 func (actuator trunkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.networkClient, "trunks", osResource.ID)),
 		actuator.updateResource,
 	}, nil
 }
@@ -298,10 +308,15 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Trunk, controller i
 	if err != nil {
 		return trunkActuator{}, progress.WrapError(err)
 	}
+	networkClient, err := clientScope.NewNetworkClient()
+	if err != nil {
+		return trunkActuator{}, progress.WrapError(err)
+	}
 
 	return trunkActuator{
-		osClient:  osClient,
-		k8sClient: controller.GetK8sClient(),
+		osClient:      osClient,
+		networkClient: networkClient,
+		k8sClient:     controller.GetK8sClient(),
 	}, nil
 }
 

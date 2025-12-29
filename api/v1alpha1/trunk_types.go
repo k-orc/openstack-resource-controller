@@ -31,7 +31,8 @@ type TrunkSubportSpec struct {
 	// segmentationType is the segmentation type for the subport (e.g. vlan).
 	// +required
 	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:MaxLength:=32
+	// +kubebuilder:validation:Enum:=inherit;vlan
 	SegmentationType string `json:"segmentationType"`
 }
 
@@ -91,12 +92,9 @@ type TrunkResourceSpec struct {
 	Subports []TrunkSubportSpec `json:"subports,omitempty"`
 
 	// tags is a list of Neutron tags to apply to the trunk.
-	//
-	// NOTE: ORC does not currently reconcile tag updates for Trunk.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="tags is immutable"
 	Tags []NeutronTag `json:"tags,omitempty"`
 }
 
@@ -122,6 +120,7 @@ type TrunkFilter struct {
 	// status indicates whether the trunk is currently operational. Possible values include
 	// `ACTIVE', `DOWN', `BUILD', `DEGRADED' or `ERROR'. Plug-ins might define additional values.
 	// +optional
+	// +kubebuilder:validation:MaxLength:=1024
 	Status *string `json:"status,omitempty"`
 
 	// adminStateUp is the administrative state of the trunk.
