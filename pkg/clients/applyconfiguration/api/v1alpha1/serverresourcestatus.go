@@ -30,6 +30,7 @@ type ServerResourceStatusApplyConfiguration struct {
 	Volumes          []ServerVolumeStatusApplyConfiguration    `json:"volumes,omitempty"`
 	Interfaces       []ServerInterfaceStatusApplyConfiguration `json:"interfaces,omitempty"`
 	Tags             []string                                  `json:"tags,omitempty"`
+	Metadata         []ServerMetadataStatusApplyConfiguration  `json:"metadata,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
@@ -120,6 +121,19 @@ func (b *ServerResourceStatusApplyConfiguration) WithInterfaces(values ...*Serve
 func (b *ServerResourceStatusApplyConfiguration) WithTags(values ...string) *ServerResourceStatusApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
+	}
+	return b
+}
+
+// WithMetadata adds the given value to the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Metadata field.
+func (b *ServerResourceStatusApplyConfiguration) WithMetadata(values ...*ServerMetadataStatusApplyConfiguration) *ServerResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMetadata")
+		}
+		b.Metadata = append(b.Metadata, *values[i])
 	}
 	return b
 }

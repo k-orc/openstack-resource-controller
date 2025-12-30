@@ -35,6 +35,7 @@ type ServerResourceSpecApplyConfiguration struct {
 	AvailabilityZone *string                              `json:"availabilityZone,omitempty"`
 	KeypairRef       *apiv1alpha1.KubernetesNameRef       `json:"keypairRef,omitempty"`
 	Tags             []apiv1alpha1.ServerTag              `json:"tags,omitempty"`
+	Metadata         []ServerMetadataApplyConfiguration   `json:"metadata,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -131,6 +132,19 @@ func (b *ServerResourceSpecApplyConfiguration) WithKeypairRef(value apiv1alpha1.
 func (b *ServerResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.ServerTag) *ServerResourceSpecApplyConfiguration {
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
+	}
+	return b
+}
+
+// WithMetadata adds the given value to the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Metadata field.
+func (b *ServerResourceSpecApplyConfiguration) WithMetadata(values ...*ServerMetadataApplyConfiguration) *ServerResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMetadata")
+		}
+		b.Metadata = append(b.Metadata, *values[i])
 	}
 	return b
 }

@@ -231,6 +231,30 @@ spec:
                     x-kubernetes-validations:
                     - message: keypairRef is immutable
                       rule: self == oldSelf
+                  metadata:
+                    description: metadata is a list of metadata key-value pairs which
+                      will be set on the server.
+                    items:
+                      description: ServerMetadata represents a key-value pair for
+                        server metadata.
+                      properties:
+                        key:
+                          description: key is the metadata key.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        value:
+                          description: value is the metadata value.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                      required:
+                      - key
+                      - value
+                      type: object
+                    maxItems: 128
+                    type: array
+                    x-kubernetes-list-type: atomic
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -486,6 +510,25 @@ spec:
                           type: string
                       type: object
                     maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  metadata:
+                    description: metadata is the list of metadata key-value pairs
+                      on the resource.
+                    items:
+                      description: ServerMetadataStatus represents a key-value pair
+                        for server metadata in status.
+                      properties:
+                        key:
+                          description: key is the metadata key.
+                          maxLength: 255
+                          type: string
+                        value:
+                          description: value is the metadata value.
+                          maxLength: 255
+                          type: string
+                      type: object
+                    maxItems: 128
                     type: array
                     x-kubernetes-list-type: atomic
                   name:
