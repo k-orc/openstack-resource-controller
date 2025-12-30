@@ -33,6 +33,13 @@ type LBPoolClient interface {
 	DeleteLBPool(ctx context.Context, resourceID string) error
 	GetLBPool(ctx context.Context, resourceID string) (*pools.Pool, error)
 	UpdateLBPool(ctx context.Context, id string, opts pools.UpdateOptsBuilder) (*pools.Pool, error)
+
+	// Member operations
+	ListMembers(ctx context.Context, poolID string, opts pools.ListMembersOptsBuilder) iter.Seq2[*pools.Member, error]
+	GetMember(ctx context.Context, poolID, memberID string) (*pools.Member, error)
+	CreateMember(ctx context.Context, poolID string, opts pools.CreateMemberOptsBuilder) (*pools.Member, error)
+	UpdateMember(ctx context.Context, poolID, memberID string, opts pools.UpdateMemberOptsBuilder) (*pools.Member, error)
+	DeleteMember(ctx context.Context, poolID, memberID string) error
 }
 
 type lbpoolClient struct{ client *gophercloud.ServiceClient }
@@ -74,6 +81,29 @@ func (c lbpoolClient) UpdateLBPool(ctx context.Context, id string, opts pools.Up
 	return pools.Update(ctx, c.client, id, opts).Extract()
 }
 
+func (c lbpoolClient) ListMembers(ctx context.Context, poolID string, opts pools.ListMembersOptsBuilder) iter.Seq2[*pools.Member, error] {
+	pager := pools.ListMembers(c.client, poolID, opts)
+	return func(yield func(*pools.Member, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(pools.ExtractMembers, yield))
+	}
+}
+
+func (c lbpoolClient) GetMember(ctx context.Context, poolID, memberID string) (*pools.Member, error) {
+	return pools.GetMember(ctx, c.client, poolID, memberID).Extract()
+}
+
+func (c lbpoolClient) CreateMember(ctx context.Context, poolID string, opts pools.CreateMemberOptsBuilder) (*pools.Member, error) {
+	return pools.CreateMember(ctx, c.client, poolID, opts).Extract()
+}
+
+func (c lbpoolClient) UpdateMember(ctx context.Context, poolID, memberID string, opts pools.UpdateMemberOptsBuilder) (*pools.Member, error) {
+	return pools.UpdateMember(ctx, c.client, poolID, memberID, opts).Extract()
+}
+
+func (c lbpoolClient) DeleteMember(ctx context.Context, poolID, memberID string) error {
+	return pools.DeleteMember(ctx, c.client, poolID, memberID).ExtractErr()
+}
+
 type lbpoolErrorClient struct{ error }
 
 // NewLBPoolErrorClient returns a LBPoolClient in which every method returns the given error.
@@ -101,4 +131,26 @@ func (e lbpoolErrorClient) GetLBPool(_ context.Context, _ string) (*pools.Pool, 
 
 func (e lbpoolErrorClient) UpdateLBPool(_ context.Context, _ string, _ pools.UpdateOptsBuilder) (*pools.Pool, error) {
 	return nil, e.error
+}
+
+func (e lbpoolErrorClient) ListMembers(_ context.Context, _ string, _ pools.ListMembersOptsBuilder) iter.Seq2[*pools.Member, error] {
+	return func(yield func(*pools.Member, error) bool) {
+		yield(nil, e.error)
+	}
+}
+
+func (e lbpoolErrorClient) GetMember(_ context.Context, _, _ string) (*pools.Member, error) {
+	return nil, e.error
+}
+
+func (e lbpoolErrorClient) CreateMember(_ context.Context, _ string, _ pools.CreateMemberOptsBuilder) (*pools.Member, error) {
+	return nil, e.error
+}
+
+func (e lbpoolErrorClient) UpdateMember(_ context.Context, _, _ string, _ pools.UpdateMemberOptsBuilder) (*pools.Member, error) {
+	return nil, e.error
+}
+
+func (e lbpoolErrorClient) DeleteMember(_ context.Context, _, _ string) error {
+	return e.error
 }

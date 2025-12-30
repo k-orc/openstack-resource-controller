@@ -189,6 +189,10 @@ func (s *providerScope) NewLoadBalancerClient() (clients.LoadBalancerClient, err
 	return clients.NewLoadBalancerClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewLBPoolClient() (clients.LBPoolClient, error) {
+	return clients.NewLBPoolClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	client, err := openstack.NewIdentityV3(s.providerClient, gophercloud.EndpointOpts{})
 	if err != nil {

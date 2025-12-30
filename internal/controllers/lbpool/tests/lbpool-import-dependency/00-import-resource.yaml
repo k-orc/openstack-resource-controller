@@ -13,32 +13,6 @@ spec:
       name: lbpool-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Listener
-metadata:
-  name: lbpool-import-dependency
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: lbpool-import-dependency-external
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: lbpool-import-dependency
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: lbpool-import-dependency-external
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LBPool
 metadata:
   name: lbpool-import-dependency
@@ -50,5 +24,3 @@ spec:
   import:
     filter:
       loadBalancerRef: lbpool-import-dependency
-      listenerRef: lbpool-import-dependency
-      projectRef: lbpool-import-dependency

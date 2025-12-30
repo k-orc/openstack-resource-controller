@@ -4,9 +4,6 @@ kind: LBPool
 metadata:
   name: lbpool-create-minimal
 status:
-  resource:
-    name: lbpool-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -14,6 +11,11 @@ status:
   - type: Progressing
     status: "False"
     reason: Success
+  resource:
+    name: lbpool-create-minimal
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+    provisioningStatus: ACTIVE
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -22,6 +24,11 @@ resourceRefs:
       kind: LBPool
       name: lbpool-create-minimal
       ref: lbpool
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: lbpool-create-minimal
+      ref: loadBalancer
 assertAll:
+    # Dynamic checks that require CEL
     - celExpr: "lbpool.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "lbpool.status.resource.loadBalancerIDs.exists(id, id == loadBalancer.status.id)"

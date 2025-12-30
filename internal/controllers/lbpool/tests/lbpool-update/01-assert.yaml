@@ -7,7 +7,8 @@ status:
   resource:
     name: lbpool-update-updated
     description: lbpool-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    provisioningStatus: ACTIVE
+    adminStateUp: false
   conditions:
   - type: Available
     status: "True"
@@ -15,3 +16,20 @@ status:
   - type: Progressing
     status: "False"
     reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbpool-update
+      ref: lbpool
+assertAll:
+    # Dynamic checks that require CEL
+    - celExpr: "lbpool.status.resource.tags.exists(t, t == 'updated')"
+    # Member assertions - need CEL for exists() checks
+    - celExpr: "size(lbpool.status.resource.members) == 2"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-a' && m.address == '10.0.2.10' && m.protocolPort == 8080)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-b' && m.address == '10.0.2.11' && m.protocolPort == 8080)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-a' && m.weight == 10)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-b' && m.backup == true)"

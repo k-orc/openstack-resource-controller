@@ -1,4 +1,41 @@
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: lbpool-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: lbpool-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: lbpool-import-not-this-one
+    ipVersion: 4
+    cidr: 10.0.5.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: lbpool-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: lbpool-import-not-this-one
+---
 # This `lbpool-import-external-not-this-one` resource serves two purposes:
 # - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
 # - ensure that importing a resource which name is a substring of it will not pick this one.
@@ -8,10 +45,10 @@ metadata:
   name: lbpool-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: LBPool lbpool-import-external from "lbpool-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    loadBalancerRef: lbpool-import-external-not-this-one
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN

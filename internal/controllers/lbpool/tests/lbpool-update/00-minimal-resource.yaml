@@ -1,14 +1,52 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: lbpool-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: lbpool-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: lbpool-update
+    ipVersion: 4
+    cidr: 10.0.2.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: lbpool-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: lbpool-update
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LBPool
 metadata:
   name: lbpool-update
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created or updated
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
-  resource: {}
+  resource:
+    loadBalancerRef: lbpool-update
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+    adminStateUp: true

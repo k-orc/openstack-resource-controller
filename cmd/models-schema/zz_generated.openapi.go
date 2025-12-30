@@ -100,9 +100,17 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPool":                         schema_openstack_resource_controller_v2_api_v1alpha1_LBPool(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolImport":                   schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolList":                     schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolMemberSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolMemberSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolMemberStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolMemberStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSessionPersistence":       schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolSessionPersistence(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Listener":                       schema_openstack_resource_controller_v2_api_v1alpha1_Listener(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ListenerFilter":                 schema_openstack_resource_controller_v2_api_v1alpha1_ListenerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ListenerHSTS":                   schema_openstack_resource_controller_v2_api_v1alpha1_ListenerHSTS(ref),
@@ -3781,6 +3789,56 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref comm
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPool(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPool is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -3804,21 +3862,340 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolFilter(ref commo
 					},
 					"loadBalancerRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "loadBalancerRef is a reference to the ORC LoadBalancer which this resource is associated with.",
+							Description: "loadBalancerRef filters by the LoadBalancer this pool is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"listenerRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "listenerRef is a reference to the ORC Listener which this resource is associated with.",
+							Description: "listenerRef filters by the Listener this pool is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Description: "projectRef filters by the Project this pool is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"lbAlgorithm": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lbAlgorithm filters by the load balancing algorithm.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol filters by the protocol used by the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolList contains a list of LBPool.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of LBPool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPool"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPool", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolMemberSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolMemberSpec defines a member of an LB pool.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a human-readable name for the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"address": {
+						SchemaProps: spec.SchemaProps{
+							Description: "address is the IP address of the member to receive traffic.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort is the port on which the member application is listening.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"subnetRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetRef is a reference to the ORC Subnet where the member resides.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"weight": {
+						SchemaProps: spec.SchemaProps{
+							Description: "weight is the relative portion of traffic this member should receive. A member with weight 10 receives 5x the traffic of a member with weight 2. Default is 1.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"backup": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backup indicates whether this is a backup member. Backup members only receive traffic when all non-backup members are down.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the member (up=true, down=false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"address", "protocolPort"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolMemberStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolMemberStatus represents the observed state of a pool member.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the member in OpenStack.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the human-readable name for the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"address": {
+						SchemaProps: spec.SchemaProps{
+							Description: "address is the IP address of the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocolPort": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocolPort is the port on which the member is listening.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"subnetID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetID is the ID of the subnet the member is on.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"weight": {
+						SchemaProps: spec.SchemaProps{
+							Description: "weight is the weight of the member for load balancing.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"backup": {
+						SchemaProps: spec.SchemaProps{
+							Description: "backup indicates whether this is a backup member.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the member.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the member.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the member.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3850,16 +4227,30 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"lbAlgorithm": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lbAlgorithm is the load balancing algorithm used to distribute traffic to the pool's members.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"protocol": {
+						SchemaProps: spec.SchemaProps{
+							Description: "protocol is the protocol used by the pool and its members for traffic.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"loadBalancerRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "loadBalancerRef is a reference to the ORC LoadBalancer which this resource is associated with.",
+							Description: "loadBalancerRef is a reference to the ORC LoadBalancer which this pool is associated with. Either loadBalancerRef or listenerRef must be specified.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"listenerRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "listenerRef is a reference to the ORC Listener which this resource is associated with.",
+							Description: "listenerRef is a reference to the ORC Listener which this pool is associated with as the default pool. Either loadBalancerRef or listenerRef must be specified.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -3871,9 +4262,139 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the pool, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"sessionPersistence": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sessionPersistence is the session persistence configuration for the pool.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSessionPersistence"),
+						},
+					},
+					"tlsEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsEnabled enables backend re-encryption when set to true. Requires TERMINATED_HTTPS or HTTPS protocol on the listener.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tlsContainerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsContainerRef is a reference to a secret containing a PKCS12 format certificate/key bundle for backend re-encryption.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"caTLSContainerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "caTLSContainerRef is a reference to a secret containing the CA certificate for backend re-encryption.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"crlContainerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "crlContainerRef is a reference to a secret containing the CA revocation list for backend re-encryption.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is a colon-separated list of ciphers for backend TLS connections.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is a list of TLS protocol versions to be used for backend TLS connections.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is a list of ALPN protocols for backend TLS connections. Available protocols: h2, http/1.0, http/1.1.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the pool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"members": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "members is a list of backend members for this pool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolMemberSpec"),
+									},
+								},
+							},
+						},
+					},
 				},
+				Required: []string{"lbAlgorithm", "protocol"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolMemberSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSessionPersistence"},
 	}
 }
 
@@ -3898,30 +4419,348 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceStatus(r
 							Format:      "",
 						},
 					},
-					"loadBalancerID": {
+					"lbAlgorithm": {
 						SchemaProps: spec.SchemaProps{
-							Description: "loadBalancerID is the ID of the LoadBalancer to which the resource is associated.",
+							Description: "lbAlgorithm is the load balancing algorithm used by the pool.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"listenerID": {
+					"protocol": {
 						SchemaProps: spec.SchemaProps{
-							Description: "listenerID is the ID of the Listener to which the resource is associated.",
+							Description: "protocol is the protocol used by the pool.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"loadBalancerIDs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerIDs is the list of LoadBalancer IDs this pool is associated with.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"listenerIDs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerIDs is the list of Listener IDs this pool is associated with.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 					"projectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectID is the ID of the Project to which the resource is associated.",
+							Description: "projectID is the ID of the Project this pool is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp is the administrative state of the pool, which is up (true) or down (false).",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus is the provisioning status of the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus is the operating status of the pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"healthMonitorID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "healthMonitorID is the ID of the health monitor associated with this pool.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"members": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "members is the list of members in this pool with their details.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolMemberStatus"),
+									},
+								},
+							},
+						},
+					},
+					"sessionPersistence": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sessionPersistence is the session persistence configuration.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSessionPersistence"),
+						},
+					},
+					"tlsEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsEnabled indicates whether backend re-encryption is enabled.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tlsContainerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsContainerRef is the reference to the TLS container.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"caTLSContainerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "caTLSContainerRef is the reference to the CA TLS container.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"crlContainerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "crlContainerRef is the reference to the CRL container.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is the list of TLS ciphers for backend connections.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is the list of TLS versions for backend connections.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is the list of ALPN protocols for backend connections.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolMemberStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolSessionPersistence"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolSessionPersistence(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolSessionPersistence represents session persistence configuration for a pool.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the type of session persistence.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"cookieName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cookieName is the name of the cookie if persistence type is APP_COOKIE. Required when type is APP_COOKIE.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 
