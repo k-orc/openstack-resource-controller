@@ -1,0 +1,60 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/lbpool-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/lbpool-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-loadbalancer
+status:
+  conditions:
+    - type: Available
+      message: Waiting for LoadBalancer/lbpool-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for LoadBalancer/lbpool-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-listener
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Listener/lbpool-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Listener/lbpool-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/lbpool-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/lbpool-dependency to be created
+      status: "True"
+      reason: Progressing

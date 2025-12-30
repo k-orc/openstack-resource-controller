@@ -1,0 +1,10 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get loadbalancer lbpool-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get listener lbpool-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get project lbpool-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

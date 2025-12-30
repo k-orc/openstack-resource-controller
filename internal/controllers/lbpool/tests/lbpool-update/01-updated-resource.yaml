@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-update
+spec:
+  resource:
+    name: lbpool-update-updated
+    description: lbpool-update-updated
+    # TODO(scaffolding): update all mutable fields

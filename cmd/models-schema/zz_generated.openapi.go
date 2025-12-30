@@ -100,6 +100,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.LBPoolResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Listener":                       schema_openstack_resource_controller_v2_api_v1alpha1_Listener(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ListenerFilter":                 schema_openstack_resource_controller_v2_api_v1alpha1_ListenerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ListenerHSTS":                   schema_openstack_resource_controller_v2_api_v1alpha1_ListenerHSTS(ref),
@@ -3773,6 +3776,150 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref comm
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerRef is a reference to the ORC LoadBalancer which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"listenerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerRef is a reference to the ORC Listener which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerRef is a reference to the ORC LoadBalancer which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"listenerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerRef is a reference to the ORC Listener which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_LBPoolResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LBPoolResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"loadBalancerID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "loadBalancerID is the ID of the LoadBalancer to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"listenerID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "listenerID is the ID of the Listener to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the Project to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 

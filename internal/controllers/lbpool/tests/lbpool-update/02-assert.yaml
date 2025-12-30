@@ -1,0 +1,26 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbpool-update
+      ref: lbpool
+assertAll:
+    - celExpr: "!has(lbpool.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-update
+status:
+  resource:
+    name: lbpool-update
+    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
