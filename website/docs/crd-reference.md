@@ -133,6 +133,24 @@ _Appears in:_
 
 
 
+#### BindingProfile
+
+
+
+
+
+
+
+_Appears in:_
+- [PortResourceSpec](#portresourcespec)
+- [PortResourceStatus](#portresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `trustedVF` _boolean_ | trustedVF indicates whether the VF for the port will become<br />trusted by physical function to perform some privileged<br />operations. |  |  |
+| `capabilities` _string array_ | capabilities is a list of values that describe capabilities to<br />be enabled and used by OVS. In principle, the main usage is for<br />enabling OVS hardware offload. |  | MaxItems: 10 <br />items:MaxLength: 64 <br /> |
+
+
 #### CIDR
 
 _Underlying type:_ _string_
@@ -2165,6 +2183,7 @@ _Appears in:_
 | `allowedAddressPairs` _[AllowedAddressPair](#allowedaddresspair) array_ | allowedAddressPairs are allowed addresses associated with this port. |  | MaxItems: 128 <br /> |
 | `addresses` _[Address](#address) array_ | addresses are the IP addresses for the port. |  | MaxItems: 128 <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the port,<br />which is up (true) or down (false). The default value is true. | true |  |
+| `profile` _[BindingProfile](#bindingprofile)_ | profile is a set of key-value pairs that enable the host to pass<br />and receive information to the networking backend about the VIF port.<br />We intentionally don't expose it as a map with free-form values<br />to enforce Neutron supported values. |  |  |
 | `securityGroupRefs` _[OpenStackName](#openstackname) array_ | securityGroupRefs are the names of the security groups associated<br />with this port. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
 | `vnicType` _string_ | vnicType specifies the type of vNIC which this port should be<br />attached to. This is used to determine which mechanism driver(s) to<br />be used to bind the port. The valid values are normal, macvtap,<br />direct, baremetal, direct-physical, virtio-forwarder, smart-nic and<br />remote-managed, although these values will not be validated in this<br />API to ensure compatibility with future neutron changes or custom<br />implementations. What type of vNIC is actually available depends on<br />deployments. If not specified, the Neutron default value is used. |  | MaxLength: 64 <br /> |
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
@@ -2199,6 +2218,7 @@ _Appears in:_
 | `securityGroups` _string array_ | securityGroups contains the IDs of security groups applied to the port. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
+| `profile` _[BindingProfile](#bindingprofile)_ | profile is a set of key-value pairs that enable the host to pass<br />and receive information to the networking backend about the VIF port.<br />We intentionally don't expose it as a map with free-form values<br />to enforce Neutron supported values. |  |  |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |

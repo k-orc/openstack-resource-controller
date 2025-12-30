@@ -254,6 +254,11 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		VNICType:          resource.VNICType,
 	}
 
+	if resource.Profile != nil {
+		profile := bindingProfileToMap(resource.Profile)
+		portsBindingOpts.Profile = profile
+	}
+
 	portSecurityOpts := portsecurity.PortCreateOptsExt{
 		CreateOptsBuilder: portsBindingOpts,
 	}
@@ -502,6 +507,45 @@ func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resou
 			}
 		}
 	}
+
+	if resource.Profile != nil {
+		changed := false
+
+		profile := bindingProfileToMap(resource.Profile)
+		trusted := resource.Profile.TrustedVF
+		capabilities := resource.Profile.Capabilities
+		oscCapabilities, _ := osResource.Profile["capabilities"].([]any)
+
+		if trusted != nil {
+			if *trusted != osResource.Profile["trusted"] {
+				profile["trusted"] = *trusted
+				changed = true
+			}
+		}
+
+		if capabilities != nil {
+			if oscCapabilities == nil || len(capabilities) != len(oscCapabilities) {
+				profile["capabilities"] = capabilities
+				changed = true
+			} else {
+				for i, e := range capabilities {
+					if e != oscCapabilities[i].(string) {
+						profile["capabilities"] = capabilities
+						changed = true
+						break
+					}
+				}
+			}
+		}
+
+		if changed {
+			updateOpts = &portsbinding.UpdateOptsExt{
+				UpdateOptsBuilder: updateOpts,
+				Profile:           profile,
+			}
+		}
+	}
+
 	return updateOpts
 }
 
@@ -537,6 +581,19 @@ func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSp
 			updateOpts.AdminStateUp = adminStateUp
 		}
 	}
+}
+
+func bindingProfileToMap(bp *orcv1alpha1.BindingProfile) map[string]any {
+	profile := map[string]any{}
+	if bp.TrustedVF != nil {
+		profile["trusted"] = bp.TrustedVF
+	}
+
+	if bp.Capabilities != nil {
+		profile["capabilities"] = bp.Capabilities
+	}
+
+	return profile
 }
 
 type portHelperFactory struct{}

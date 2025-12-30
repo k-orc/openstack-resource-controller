@@ -96,6 +96,23 @@ type FixedIPStatus struct {
 	SubnetID string `json:"subnetID,omitempty"`
 }
 
+type BindingProfile struct {
+	// trustedVF indicates whether the VF for the port will become
+	// trusted by physical function to perform some privileged
+	// operations.
+	// +optional
+	TrustedVF *bool `json:"trustedVF,omitempty"`
+
+	// capabilities is a list of values that describe capabilities to
+	// be enabled and used by OVS. In principle, the main usage is for
+	// enabling OVS hardware offload.
+	// +kubebuilder:validation:MaxItems:=10
+	// +kubebuilder:validation:items:MaxLength:=64
+	// +listType=set
+	// +optional
+	Capabilities []string `json:"capabilities,omitempty"`
+}
+
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.securityGroupRefs) : true",message="securityGroupRefs must be empty when portSecurity is set to Disabled"
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.allowedAddressPairs) : true",message="allowedAddressPairs must be empty when portSecurity is set to Disabled"
 type PortResourceSpec struct {
@@ -136,6 +153,13 @@ type PortResourceSpec struct {
 	// +kubebuilder:default:=true
 	// +optional
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
+	// profile is a set of key-value pairs that enable the host to pass
+	// and receive information to the networking backend about the VIF port.
+	// We intentionally don't expose it as a map with free-form values
+	// to enforce Neutron supported values.
+	// +optional
+	Profile *BindingProfile `json:"profile,omitempty"`
 
 	// securityGroupRefs are the names of the security groups associated
 	// with this port.
@@ -257,6 +281,13 @@ type PortResourceStatus struct {
 	// +kubebuilder:validation:MaxLength:=64
 	// +optional
 	VNICType string `json:"vnicType,omitempty"`
+
+	// profile is a set of key-value pairs that enable the host to pass
+	// and receive information to the networking backend about the VIF port.
+	// We intentionally don't expose it as a map with free-form values
+	// to enforce Neutron supported values.
+	// +optional
+	Profile *BindingProfile `json:"profile,omitempty"`
 
 	// portSecurityEnabled indicates whether port security is enabled or not.
 	// +optional

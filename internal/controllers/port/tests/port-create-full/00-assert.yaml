@@ -17,6 +17,10 @@ status:
     vnicType: direct
     tags:
       - tag1
+    profile:
+      trustedVF: false
+      capabilities:
+        - "switchdev"
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -47,3 +51,4 @@ assertAll:
     - celExpr: "port.status.resource.fixedIPs[0].ip == '192.168.155.122'"
     - celExpr: "port.status.resource.securityGroups[0] == sg.status.id"
     - celExpr: "port.status.resource.projectID == project.status.id"
+    - celExpr: "port.status.resource.profile.capabilities.size() == 1"
