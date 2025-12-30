@@ -324,6 +324,21 @@ func (mr *MockComputeClientMockRecorder) ReplaceAllServerAttributesTags(ctx, res
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceAllServerAttributesTags", reflect.TypeOf((*MockComputeClient)(nil).ReplaceAllServerAttributesTags), ctx, resourceID, opts)
 }
 
+// ReplaceServerMetadata mocks base method.
+func (m *MockComputeClient) ReplaceServerMetadata(ctx context.Context, serverID string, opts servers.MetadataOpts) (map[string]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReplaceServerMetadata", ctx, serverID, opts)
+	ret0, _ := ret[0].(map[string]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReplaceServerMetadata indicates an expected call of ReplaceServerMetadata.
+func (mr *MockComputeClientMockRecorder) ReplaceServerMetadata(ctx, serverID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceServerMetadata", reflect.TypeOf((*MockComputeClient)(nil).ReplaceServerMetadata), ctx, serverID, opts)
+}
+
 // UpdateServer mocks base method.
 func (m *MockComputeClient) UpdateServer(ctx context.Context, id string, opts servers.UpdateOptsBuilder) (*servers.Server, error) {
 	m.ctrl.T.Helper()

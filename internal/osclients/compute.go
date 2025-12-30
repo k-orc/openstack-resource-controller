@@ -72,6 +72,7 @@ type ComputeClient interface {
 	DeleteAttachedInterface(ctx context.Context, serverID, portID string) error
 
 	ReplaceAllServerAttributesTags(ctx context.Context, resourceID string, opts tags.ReplaceAllOptsBuilder) ([]string, error)
+	ReplaceServerMetadata(ctx context.Context, serverID string, opts servers.MetadataOpts) (map[string]string, error)
 }
 
 type computeClient struct{ client *gophercloud.ServiceClient }
@@ -187,6 +188,10 @@ func (c computeClient) ReplaceAllServerAttributesTags(ctx context.Context, resou
 	return tags.ReplaceAll(ctx, c.client, resourceID, opts).Extract()
 }
 
+func (c computeClient) ReplaceServerMetadata(ctx context.Context, serverID string, opts servers.MetadataOpts) (map[string]string, error) {
+	return servers.ResetMetadata(ctx, c.client, serverID, opts).Extract()
+}
+
 type computeErrorClient struct{ error }
 
 // NewComputeErrorClient returns a ComputeClient in which every method returns the given error.
@@ -273,5 +278,9 @@ func (e computeErrorClient) DeleteAttachedInterface(_ context.Context, _, _ stri
 }
 
 func (e computeErrorClient) ReplaceAllServerAttributesTags(_ context.Context, _ string, _ tags.ReplaceAllOptsBuilder) ([]string, error) {
+	return nil, e.error
+}
+
+func (e computeErrorClient) ReplaceServerMetadata(_ context.Context, _ string, _ servers.MetadataOpts) (map[string]string, error) {
 	return nil, e.error
 }

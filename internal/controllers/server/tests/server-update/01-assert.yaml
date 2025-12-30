@@ -54,6 +54,11 @@ status:
     tags:
       - tag1
       - tag2
+    metadata:
+      - key: environment
+        value: staging
+      - key: team
+        value: platform
   conditions:
   - type: Available
     status: "True"
