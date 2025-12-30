@@ -31,12 +31,25 @@ jobs:
     steps:
     - uses: actions/checkout@v6.0.1
 
+    - name: Define additional Neutron policies
+      run: |
+        mkdir /tmp/neutron-policies
+        cat << EOF >> /tmp/neutron-policies/port-binding.yaml
+        ---
+        "create_port:binding:profile": "rule:member or rule:admin or rule:service_api"
+        "update_port:binding:profile": "rule:member or rule:admin or rule:service_api"
+        EOF
+
     - name: Deploy devstack
       uses: gophercloud/devstack-action@60ca1042045c0c9e3e001c64575d381654ffcba1
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
         enabled_services: "openstack-cli-server"
+        conf_overrides: |
+          [[post-config|\$NEUTRON_CONF]]
+          [oslo-policy]
+          policy_dirs = /tmp/neutron-policies
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab
