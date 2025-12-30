@@ -1,0 +1,29 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: lbpool-dependency
+      ref: loadBalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: lbpool-dependency
+      ref: listener
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: lbpool-dependency
+      ref: project
+    - apiVersion: v1
+      kind: Secret
+      name: lbpool-dependency
+      ref: secret
+assertAll:
+    - celExpr: "loadBalancer.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbpool' in loadBalancer.metadata.finalizers"
+    - celExpr: "listener.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbpool' in listener.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbpool' in project.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lbpool' in secret.metadata.finalizers"

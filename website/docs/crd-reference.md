@@ -1621,6 +1621,8 @@ _Appears in:_
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
 - [ListenerFilter](#listenerfilter)
 - [ListenerResourceSpec](#listenerresourcespec)
 - [LoadBalancerFilter](#loadbalancerfilter)
@@ -1643,6 +1645,12 @@ _Appears in:_
 - [SubnetResourceSpec](#subnetresourcespec)
 - [UserDataSpec](#userdataspec)
 - [VolumeResourceSpec](#volumeresourcespec)
+
+
+
+
+
+
 
 
 
@@ -2450,6 +2458,8 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
 - [ListenerFilter](#listenerfilter)
 - [ListenerResourceSpec](#listenerresourcespec)
 - [LoadBalancerFilter](#loadbalancerfilter)

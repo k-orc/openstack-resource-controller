@@ -1,0 +1,43 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-create-full
+status:
+  resource:
+    name: lbpool-create-full-override
+    description: LBPool from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LBPool
+      name: lbpool-create-full
+      ref: lbpool
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: lbpool-create-full
+      ref: loadBalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: lbpool-create-full
+      ref: listener
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: lbpool-create-full
+      ref: project
+assertAll:
+    - celExpr: "lbpool.status.id != ''"
+    - celExpr: "lbpool.status.resource.loadBalancerID == loadBalancer.status.id"
+    - celExpr: "lbpool.status.resource.listenerID == listener.status.id"
+    - celExpr: "lbpool.status.resource.projectID == project.status.id"
+    # TODO(scaffolding): Add more checks

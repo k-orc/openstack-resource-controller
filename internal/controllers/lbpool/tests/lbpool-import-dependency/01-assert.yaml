@@ -1,0 +1,36 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-import-dependency-not-this-one
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for LoadBalancer/lbpool-import-dependency to be ready
+        Waiting for Listener/lbpool-import-dependency to be ready
+        Waiting for Project/lbpool-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for LoadBalancer/lbpool-import-dependency to be ready
+        Waiting for Listener/lbpool-import-dependency to be ready
+        Waiting for Project/lbpool-import-dependency to be ready
+      status: "True"
+      reason: Progressing
