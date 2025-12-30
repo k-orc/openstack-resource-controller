@@ -120,6 +120,25 @@ var projectImportDependency = dependency.NewDependency[*orcv1alpha1.LBPoolList, 
 	},
 )
 
+// Member dependencies - for resolving member subnet references
+var subnetMemberDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LBPoolList, *orcv1alpha1.Subnet](
+	"spec.resource.members[*].subnetRef",
+	func(lbpool *orcv1alpha1.LBPool) []string {
+		resource := lbpool.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+		var refs []string
+		for _, member := range resource.Members {
+			if member.SubnetRef != nil {
+				refs = append(refs, string(*member.SubnetRef))
+			}
+		}
+		return refs
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c lbpoolReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -155,6 +174,11 @@ func (c lbpoolReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	subnetMemberWatchEventHandler, err := subnetMemberDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.LoadBalancer{}, loadBalancerWatchEventHandler,
@@ -178,6 +202,10 @@ func (c lbpoolReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
+		// Member subnet dependency
+		Watches(&orcv1alpha1.Subnet{}, subnetMemberWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
+		).
 		For(&orcv1alpha1.LBPool{})
 
 	if err := errors.Join(
@@ -187,6 +215,7 @@ func (c lbpoolReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		loadBalancerImportDependency.AddToManager(ctx, mgr),
 		listenerImportDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
+		subnetMemberDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

@@ -21,11 +21,11 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for LoadBalancer/lbpool-dependency to be created
+      message: Waiting for LoadBalancer/lbpool-dependency-pending to be created
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for LoadBalancer/lbpool-dependency to be created
+      message: Waiting for LoadBalancer/lbpool-dependency-pending to be created
       status: "True"
       reason: Progressing
 ---

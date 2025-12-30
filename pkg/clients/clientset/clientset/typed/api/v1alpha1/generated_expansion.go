@@ -30,6 +30,8 @@ type ImageExpansion interface{}
 
 type KeyPairExpansion interface{}
 
+type LBPoolExpansion interface{}
+
 type ListenerExpansion interface{}
 
 type LoadBalancerExpansion interface{}

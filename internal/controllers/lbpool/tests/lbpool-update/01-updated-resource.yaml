@@ -7,4 +7,15 @@ spec:
   resource:
     name: lbpool-update-updated
     description: lbpool-update-updated
-    # TODO(scaffolding): update all mutable fields
+    adminStateUp: false
+    tags:
+      - "updated"
+    members:
+      - name: member-a
+        address: 10.0.2.10
+        protocolPort: 8080
+        weight: 10
+      - name: member-b
+        address: 10.0.2.11
+        protocolPort: 8080
+        backup: true

@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: LBPool from "import error" test
+      name: lbpool-import-error-match

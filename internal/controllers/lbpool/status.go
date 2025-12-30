@@ -25,11 +25,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const PoolStatusAvailable = "available"
-const PoolStatusInUse     = "in-use"
-const PoolStatusDeleting  = "deleting"
 
 type lbpoolStatusWriter struct{}
 
@@ -50,10 +45,12 @@ func (lbpoolStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.LBPool,
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
 
-	if osResource.Status == PoolStatusAvailable || osResource.Status == PoolStatusInUse {
+	switch osResource.ProvisioningStatus {
+	case PoolProvisioningStatusActive:
 		return metav1.ConditionTrue, nil
+	case PoolProvisioningStatusError:
+		return metav1.ConditionFalse, nil
 	}
 
 	// Otherwise we should continue to poll
@@ -62,16 +59,99 @@ func (lbpoolStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.LBPool,
 
 func (lbpoolStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.LBPoolResourceStatus().
-		WithLoadBalancerID(osResource.LoadBalancerID).
-		WithListenerID(osResource.ListenerID).
+		WithName(osResource.Name).
+		WithLBAlgorithm(osResource.LBMethod).
+		WithProtocol(osResource.Protocol).
 		WithProjectID(osResource.ProjectID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the LBPoolResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithProvisioningStatus(osResource.ProvisioningStatus).
+		WithOperatingStatus(osResource.OperatingStatus).
+		WithAdminStateUp(osResource.AdminStateUp).
+		WithTLSEnabled(osResource.TLSEnabled)
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.MonitorID != "" {
+		resourceStatus.WithHealthMonitorID(osResource.MonitorID)
+	}
+
+	if osResource.TLSContainerRef != "" {
+		resourceStatus.WithTLSContainerRef(osResource.TLSContainerRef)
+	}
+
+	if osResource.CATLSContainerRef != "" {
+		resourceStatus.WithCATLSContainerRef(osResource.CATLSContainerRef)
+	}
+
+	if osResource.CRLContainerRef != "" {
+		resourceStatus.WithCRLContainerRef(osResource.CRLContainerRef)
+	}
+
+	if osResource.TLSCiphers != "" {
+		resourceStatus.WithTLSCiphers(osResource.TLSCiphers)
+	}
+
+	if len(osResource.TLSVersions) > 0 {
+		resourceStatus.WithTLSVersions(osResource.TLSVersions...)
+	}
+
+	if len(osResource.ALPNProtocols) > 0 {
+		resourceStatus.WithALPNProtocols(osResource.ALPNProtocols...)
+	}
+
+	if len(osResource.Tags) > 0 {
+		resourceStatus.WithTags(osResource.Tags...)
+	}
+
+	// Extract LoadBalancer IDs
+	if len(osResource.Loadbalancers) > 0 {
+		lbIDs := make([]string, len(osResource.Loadbalancers))
+		for i, lb := range osResource.Loadbalancers {
+			lbIDs[i] = lb.ID
+		}
+		resourceStatus.WithLoadBalancerIDs(lbIDs...)
+	}
+
+	// Extract Listener IDs
+	if len(osResource.Listeners) > 0 {
+		listenerIDs := make([]string, len(osResource.Listeners))
+		for i, listener := range osResource.Listeners {
+			listenerIDs[i] = listener.ID
+		}
+		resourceStatus.WithListenerIDs(listenerIDs...)
+	}
+
+	// Extract Member details
+	for i := range osResource.Members {
+		member := &osResource.Members[i]
+
+		memberStatus := orcapplyconfigv1alpha1.LBPoolMemberStatus().
+			WithID(member.ID).
+			WithAddress(member.Address).
+			WithProtocolPort(int32(member.ProtocolPort)).
+			WithWeight(int32(member.Weight)).
+			WithAdminStateUp(member.AdminStateUp).
+			WithBackup(member.Backup).
+			WithProvisioningStatus(member.ProvisioningStatus).
+			WithOperatingStatus(member.OperatingStatus)
+		if member.Name != "" {
+			memberStatus.WithName(member.Name)
+		}
+		if member.SubnetID != "" {
+			memberStatus.WithSubnetID(member.SubnetID)
+		}
+		resourceStatus.WithMembers(memberStatus)
+	}
+
+	// Session persistence
+	if osResource.Persistence.Type != "" {
+		sessionPersistence := orcapplyconfigv1alpha1.LBPoolSessionPersistence().
+			WithType(orcv1alpha1.LBPoolSessionPersistenceType(osResource.Persistence.Type))
+		if osResource.Persistence.CookieName != "" {
+			sessionPersistence.WithCookieName(osResource.Persistence.CookieName)
+		}
+		resourceStatus.WithSessionPersistence(sessionPersistence)
 	}
 
 	statusApply.WithResource(resourceStatus)

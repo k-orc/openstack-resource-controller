@@ -8,6 +8,7 @@ testDirs:
 - ./internal/controllers/group/tests/
 - ./internal/controllers/image/tests/
 - ./internal/controllers/keypair/tests/
+- ./internal/controllers/lbpool/tests/
 - ./internal/controllers/listener/tests/
 - ./internal/controllers/loadbalancer/tests/
 - ./internal/controllers/network/tests/

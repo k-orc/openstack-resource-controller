@@ -160,6 +160,26 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
 		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPool"):
+		return &apiv1alpha1.LBPoolApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolFilter"):
+		return &apiv1alpha1.LBPoolFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolImport"):
+		return &apiv1alpha1.LBPoolImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolMemberSpec"):
+		return &apiv1alpha1.LBPoolMemberSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolMemberStatus"):
+		return &apiv1alpha1.LBPoolMemberStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolResourceSpec"):
+		return &apiv1alpha1.LBPoolResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolResourceStatus"):
+		return &apiv1alpha1.LBPoolResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolSessionPersistence"):
+		return &apiv1alpha1.LBPoolSessionPersistenceApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolSpec"):
+		return &apiv1alpha1.LBPoolSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolStatus"):
+		return &apiv1alpha1.LBPoolStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Listener"):
 		return &apiv1alpha1.ListenerApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ListenerFilter"):

@@ -40,6 +40,7 @@ type MockScopeFactory struct {
 	IdentityClient     *mock.MockIdentityClient
 	ImageClient        *mock.MockImageClient
 	KeyPairClient      *mock.MockKeyPairClient
+	LBPoolClient       *mock.MockLBPoolClient
 	ListenerClient     *mock.MockListenerClient
 	LoadBalancerClient *mock.MockLoadBalancerClient
 	NetworkClient      *mock.MockNetworkClient
@@ -65,6 +66,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 	loadBalancerClient := mock.NewMockLoadBalancerClient(mockCtrl)
+	lbPoolClient := mock.NewMockLBPoolClient(mockCtrl)
 
 	return &MockScopeFactory{
 		ComputeClient:      computeClient,
@@ -80,6 +82,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		ServiceClient:      serviceClient,
 		VolumeClient:       volumeClient,
 		VolumeTypeClient:   volumetypeClient,
+		LBPoolClient:       lbPoolClient,
 	}
 }
 
@@ -144,6 +147,10 @@ func (f *MockScopeFactory) NewListenerClient() (osclients.ListenerClient, error)
 
 func (f *MockScopeFactory) NewLoadBalancerClient() (osclients.LoadBalancerClient, error) {
 	return f.LoadBalancerClient, nil
+}
+
+func (f *MockScopeFactory) NewLBPoolClient() (osclients.LBPoolClient, error) {
+	return f.LBPoolClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

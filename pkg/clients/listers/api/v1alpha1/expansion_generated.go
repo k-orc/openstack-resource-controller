@@ -66,6 +66,14 @@ type KeyPairListerExpansion interface{}
 // KeyPairNamespaceLister.
 type KeyPairNamespaceListerExpansion interface{}
 
+// LBPoolListerExpansion allows custom methods to be added to
+// LBPoolLister.
+type LBPoolListerExpansion interface{}
+
+// LBPoolNamespaceListerExpansion allows custom methods to be added to
+// LBPoolNamespaceLister.
+type LBPoolNamespaceListerExpansion interface{}
+
 // ListenerListerExpansion allows custom methods to be added to
 // ListenerLister.
 type ListenerListerExpansion interface{}

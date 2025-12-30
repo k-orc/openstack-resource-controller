@@ -102,8 +102,8 @@ func (actuator listenerActuator) ListOSResourcesForImport(ctx context.Context, o
 	}
 
 	listOpts := listeners.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		LoadbalancerID:  ptr.Deref(loadBalancer.Status.ID, ""),
+		Name:           string(ptr.Deref(filter.Name, "")),
+		LoadbalancerID: ptr.Deref(loadBalancer.Status.ID, ""),
 	}
 
 	return actuator.osClient.ListListeners(ctx, listOpts), reconcileStatus

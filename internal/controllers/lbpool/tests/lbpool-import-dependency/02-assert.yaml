@@ -14,19 +14,9 @@ resourceRefs:
       kind: LoadBalancer
       name: lbpool-import-dependency
       ref: loadBalancer
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Listener
-      name: lbpool-import-dependency
-      ref: listener
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: lbpool-import-dependency
-      ref: project
 assertAll:
     - celExpr: "lbpool1.status.id != lbpool2.status.id"
-    - celExpr: "lbpool1.status.resource.loadBalancerID == loadBalancer.status.id"
-    - celExpr: "lbpool1.status.resource.listenerID == listener.status.id"
-    - celExpr: "lbpool1.status.resource.projectID == project.status.id"
+    - celExpr: "loadBalancer.status.id in lbpool1.status.resource.loadBalancerIDs"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: LBPool

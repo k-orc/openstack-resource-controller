@@ -18,7 +18,9 @@ package lbpool
 
 import (
 	"context"
+	"fmt"
 	"iter"
+	"slices"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/pools"
@@ -45,10 +47,21 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
 // The frequency to poll when waiting for the resource to become available
 const lbpoolAvailablePollingPeriod = 15 * time.Second
+
 // The frequency to poll when waiting for the resource to be deleted
 const lbpoolDeletingPollingPeriod = 15 * time.Second
+
+// Provisioning status constants for LBPool
+const (
+	PoolProvisioningStatusActive        = "ACTIVE"
+	PoolProvisioningStatusError         = "ERROR"
+	PoolProvisioningStatusPendingCreate = "PENDING_CREATE"
+	PoolProvisioningStatusPendingUpdate = "PENDING_UPDATE"
+	PoolProvisioningStatusPendingDelete = "PENDING_DELETE"
+)
 
 type lbpoolActuator struct {
 	osClient  osclients.LBPoolClient
@@ -67,6 +80,17 @@ func (actuator lbpoolActuator) GetOSResourceByID(ctx context.Context, id string)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
+
+	members := make([]pools.Member, 0, len(resource.Members))
+	for _, memberId := range resource.Members {
+		member, err := actuator.osClient.GetMember(ctx, id, memberId.ID)
+		if err != nil {
+			return nil, progress.WrapError(err)
+		}
+		members = append(members, *member)
+	}
+	resource.Members = members
+
 	return resource, nil
 }
 
@@ -76,39 +100,26 @@ func (actuator lbpoolActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := pools.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name:     getResourceName(orcObject),
+		Protocol: string(resourceSpec.Protocol),
+		LBMethod: string(resourceSpec.LBAlgorithm),
 	}
 
 	return actuator.osClient.ListLBPools(ctx, listOpts), true
 }
 
 func (actuator lbpoolActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
-	loadBalancer, rs := dependency.FetchDependency[*orcv1alpha1.LoadBalancer, orcv1alpha1.LoadBalancer](
+	loadBalancer, rs := dependency.FetchDependency(
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.LoadBalancerRef, "LoadBalancer",
 		func(dep *orcv1alpha1.LoadBalancer) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	listener, rs := dependency.FetchDependency[*orcv1alpha1.Listener, orcv1alpha1.Listener](
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.ListenerRef, "Listener",
-		func(dep *orcv1alpha1.Listener) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
-
-	project, rs := dependency.FetchDependency[*orcv1alpha1.Project, orcv1alpha1.Project](
+	project, rs := dependency.FetchDependency(
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ProjectRef, "Project",
 		func(dep *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
@@ -120,12 +131,19 @@ func (actuator lbpoolActuator) ListOSResourcesForImport(ctx context.Context, obj
 	}
 
 	listOpts := pools.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		LoadBalancerID:  ptr.Deref(loadBalancer.Status.ID, ""),
-		ListenerID:  ptr.Deref(listener.Status.ID, ""),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:           string(ptr.Deref(filter.Name, "")),
+		LoadbalancerID: ptr.Deref(loadBalancer.Status.ID, ""),
+		ProjectID:      ptr.Deref(project.Status.ID, ""),
+		LBMethod:       string(ptr.Deref(filter.LBAlgorithm, "")),
+		Protocol:       string(ptr.Deref(filter.Protocol, "")),
+	}
+
+	if len(filter.Tags) > 0 {
+		tags := make([]string, len(filter.Tags))
+		for i := range filter.Tags {
+			tags[i] = string(filter.Tags[i])
+		}
+		listOpts.Tags = tags
 	}
 
 	return actuator.osClient.ListLBPools(ctx, listOpts), reconcileStatus
@@ -179,21 +197,62 @@ func (actuator lbpoolActuator) CreateResource(ctx context.Context, obj orcObject
 			projectID = ptr.Deref(project.Status.ID, "")
 		}
 	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
 	createOpts := pools.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		LoadBalancerID:  loadBalancerID,
-		ListenerID:  listenerID,
-		ProjectID:  projectID,
-		// TODO(scaffolding): Add more fields
+		Name:              getResourceName(obj),
+		Description:       ptr.Deref(resource.Description, ""),
+		LBMethod:          pools.LBMethod(resource.LBAlgorithm),
+		Protocol:          pools.Protocol(resource.Protocol),
+		LoadbalancerID:    loadBalancerID,
+		ListenerID:        listenerID,
+		ProjectID:         projectID,
+		AdminStateUp:      resource.AdminStateUp,
+		TLSEnabled:        ptr.Deref(resource.TLSEnabled, false),
+		TLSContainerRef:   ptr.Deref(resource.TLSContainerRef, ""),
+		CATLSContainerRef: ptr.Deref(resource.CATLSContainerRef, ""),
+		CRLContainerRef:   ptr.Deref(resource.CRLContainerRef, ""),
+		TLSCiphers:        ptr.Deref(resource.TLSCiphers, ""),
+	}
+
+	if resource.SessionPersistence != nil {
+		createOpts.Persistence = &pools.SessionPersistence{
+			Type:       string(resource.SessionPersistence.Type),
+			CookieName: ptr.Deref(resource.SessionPersistence.CookieName, ""),
+		}
+	}
+
+	if len(resource.TLSVersions) > 0 {
+		tlsVersions := make([]pools.TLSVersion, len(resource.TLSVersions))
+		for i := range resource.TLSVersions {
+			tlsVersions[i] = pools.TLSVersion(resource.TLSVersions[i])
+		}
+		createOpts.TLSVersions = tlsVersions
+	}
+
+	if len(resource.ALPNProtocols) > 0 {
+		createOpts.ALPNProtocols = resource.ALPNProtocols
+	}
+
+	if len(resource.Tags) > 0 {
+		tags := make([]string, len(resource.Tags))
+		for i := range resource.Tags {
+			tags[i] = string(resource.Tags[i])
+		}
+		createOpts.Tags = tags
 	}
 
 	osResource, err := actuator.osClient.CreateLBPool(ctx, createOpts)
 	if err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
+		// 409 Conflict typically means the LoadBalancer is in a pending state (immutable).
+		// Wait for it to become available and retry.
+		if orcerrors.IsConflict(err) {
+			return nil, progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolAvailablePollingPeriod)
+		}
+		// We should require the spec to be updated before retrying a create which returned a non-retryable error
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
@@ -204,10 +263,22 @@ func (actuator lbpoolActuator) CreateResource(ctx context.Context, obj orcObject
 }
 
 func (actuator lbpoolActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	if resource.Status == PoolStatusDeleting {
+	switch resource.ProvisioningStatus {
+	case PoolProvisioningStatusPendingDelete:
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolDeletingPollingPeriod)
+	case PoolProvisioningStatusPendingCreate, PoolProvisioningStatusPendingUpdate:
+		// We can't delete a pool that's in a pending state, so we need to wait for it to become ACTIVE
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolDeletingPollingPeriod)
 	}
-	return progress.WrapError(actuator.osClient.DeleteLBPool(ctx, resource.ID))
+
+	err := actuator.osClient.DeleteLBPool(ctx, resource.ID)
+	// 409 Conflict means the loadbalancer is already in PENDING_DELETE state.
+	// Treat this as success and let the controller poll for deletion completion.
+	if orcerrors.IsConflict(err) {
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolDeletingPollingPeriod)
+	}
+
+	return progress.WrapError(err)
 }
 
 func (actuator lbpoolActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
@@ -223,8 +294,13 @@ func (actuator lbpoolActuator) updateResource(ctx context.Context, obj orcObject
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleAdminStateUpUpdate(&updateOpts, resource, osResource)
+	handleSessionPersistenceUpdate(&updateOpts, resource, osResource)
+	handleTLSContainerRefUpdate(&updateOpts, resource, osResource)
+	handleTLSCiphersUpdate(&updateOpts, resource, osResource)
+	handleTLSVersionsUpdate(&updateOpts, resource, osResource)
+	handleALPNProtocolsUpdate(&updateOpts, resource, osResource)
+	handleTagsUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -238,9 +314,10 @@ func (actuator lbpoolActuator) updateResource(ctx context.Context, obj orcObject
 
 	_, err = actuator.osClient.UpdateLBPool(ctx, osResource.ID, updateOpts)
 
-	// We should require the spec to be updated before retrying an update which returned a conflict
+	// 409 Conflict typically means the LoadBalancer is in a pending state (immutable).
+	// Wait for it to become available and retry.
 	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolAvailablePollingPeriod)
 	}
 
 	if err != nil {
@@ -278,9 +355,273 @@ func handleDescriptionUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpe
 	}
 }
 
+func handleAdminStateUpUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if resource.AdminStateUp != nil && *resource.AdminStateUp != osResource.AdminStateUp {
+		updateOpts.AdminStateUp = resource.AdminStateUp
+	}
+}
+
+func handleSessionPersistenceUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Check if we need to clear session persistence
+	if resource.SessionPersistence == nil {
+		if osResource.Persistence.Type != "" {
+			// Clear session persistence by setting an empty struct
+			updateOpts.Persistence = &pools.SessionPersistence{}
+		}
+		return
+	}
+
+	// Check if session persistence needs to be updated
+	specPersistence := resource.SessionPersistence
+	osPersistence := osResource.Persistence
+
+	if string(specPersistence.Type) != osPersistence.Type ||
+		ptr.Deref(specPersistence.CookieName, "") != osPersistence.CookieName {
+		updateOpts.Persistence = &pools.SessionPersistence{
+			Type:       string(specPersistence.Type),
+			CookieName: ptr.Deref(specPersistence.CookieName, ""),
+		}
+	}
+}
+
+func handleTLSContainerRefUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	tlsContainerRef := ptr.Deref(resource.TLSContainerRef, "")
+	if osResource.TLSContainerRef != tlsContainerRef {
+		updateOpts.TLSContainerRef = &tlsContainerRef
+	}
+}
+
+func handleTLSCiphersUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	tlsCiphers := ptr.Deref(resource.TLSCiphers, "")
+	if osResource.TLSCiphers != tlsCiphers {
+		updateOpts.TLSCiphers = &tlsCiphers
+	}
+}
+
+func handleTLSVersionsUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	specVersions := resource.TLSVersions
+	osVersions := osResource.TLSVersions
+
+	if len(specVersions) == 0 && len(osVersions) == 0 {
+		return
+	}
+
+	// Compare slices
+	if !slices.Equal(specVersions, osVersions) {
+		tlsVersions := make([]pools.TLSVersion, len(specVersions))
+		for i := range specVersions {
+			tlsVersions[i] = pools.TLSVersion(specVersions[i])
+		}
+		updateOpts.TLSVersions = &tlsVersions
+	}
+}
+
+func handleALPNProtocolsUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	specProtocols := resource.ALPNProtocols
+	osProtocols := osResource.ALPNProtocols
+
+	if len(specProtocols) == 0 && len(osProtocols) == 0 {
+		return
+	}
+
+	if !slices.Equal(specProtocols, osProtocols) {
+		updateOpts.ALPNProtocols = &specProtocols
+	}
+}
+
+func handleTagsUpdate(updateOpts *pools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	desiredTags := make([]string, len(resource.Tags))
+	for i, tag := range resource.Tags {
+		desiredTags[i] = string(tag)
+	}
+
+	slices.Sort(desiredTags)
+	slices.Sort(osResource.Tags)
+
+	if !slices.Equal(desiredTags, osResource.Tags) {
+		updateOpts.Tags = &desiredTags
+	}
+}
+
+// createMember creates a new member in the pool.
+func (actuator lbpoolActuator) createMember(ctx context.Context, obj orcObjectPT, poolID string, memberSpec orcv1alpha1.LBPoolMemberSpec) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	subnet, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		memberSpec.SubnetRef, "Subnet",
+		func(dep *orcv1alpha1.Subnet) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+	)
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return rs
+	}
+
+	address := string(memberSpec.Address)
+	log.V(logging.Debug).Info("Creating member", "address", address, "port", memberSpec.ProtocolPort)
+
+	createOpts := pools.CreateMemberOpts{
+		Address:      address,
+		ProtocolPort: int(memberSpec.ProtocolPort),
+		Name:         ptr.Deref(memberSpec.Name, ""),
+		Weight:       ptr.To(int(ptr.Deref(memberSpec.Weight, 1))),
+		Backup:       memberSpec.Backup,
+		AdminStateUp: memberSpec.AdminStateUp,
+		SubnetID:     ptr.Deref(subnet.Status.ID, ""),
+	}
+
+	_, err := actuator.osClient.CreateMember(ctx, poolID, createOpts)
+	if err != nil {
+		if orcerrors.IsConflict(err) {
+			return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolAvailablePollingPeriod)
+		}
+		return progress.WrapError(err)
+	}
+
+	return nil
+}
+
+// updateMember updates an existing member if its spec differs from the current state.
+// Returns true if the member was updated.
+func (actuator lbpoolActuator) updateMember(ctx context.Context, poolID string, current *pools.Member, memberSpec orcv1alpha1.LBPoolMemberSpec) (bool, progress.ReconcileStatus) {
+	log := ctrl.LoggerFrom(ctx)
+
+	updateOpts := pools.UpdateMemberOpts{}
+	needsUpdate := false
+
+	desiredName := ptr.Deref(memberSpec.Name, "")
+	if current.Name != desiredName {
+		updateOpts.Name = &desiredName
+		needsUpdate = true
+	}
+
+	desiredWeight := int(ptr.Deref(memberSpec.Weight, 1))
+	if current.Weight != desiredWeight {
+		updateOpts.Weight = &desiredWeight
+		needsUpdate = true
+	}
+
+	desiredBackup := ptr.Deref(memberSpec.Backup, false)
+	if current.Backup != desiredBackup {
+		updateOpts.Backup = &desiredBackup
+		needsUpdate = true
+	}
+
+	desiredAdminStateUp := ptr.Deref(memberSpec.AdminStateUp, true)
+	if current.AdminStateUp != desiredAdminStateUp {
+		updateOpts.AdminStateUp = &desiredAdminStateUp
+		needsUpdate = true
+	}
+
+	if !needsUpdate {
+		return false, nil
+	}
+
+	log.V(logging.Debug).Info("Updating member", "memberID", current.ID)
+	_, err := actuator.osClient.UpdateMember(ctx, poolID, current.ID, updateOpts)
+	if err != nil {
+		if orcerrors.IsConflict(err) {
+			return false, progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolAvailablePollingPeriod)
+		}
+		return false, progress.WrapError(err)
+	}
+
+	return true, nil
+}
+
+// deleteMember deletes a member from the pool.
+func (actuator lbpoolActuator) deleteMember(ctx context.Context, poolID string, member *pools.Member) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	log.V(logging.Debug).Info("Deleting member", "memberID", member.ID)
+	err := actuator.osClient.DeleteMember(ctx, poolID, member.ID)
+	if err != nil {
+		if orcerrors.IsConflict(err) {
+			return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolAvailablePollingPeriod)
+		}
+		return progress.WrapError(err)
+	}
+
+	return nil
+}
+
+// reconcileMembers reconciles the pool members.
+func (actuator lbpoolActuator) reconcileMembers(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	// Check pool provisioning status - we can only modify members when pool is ACTIVE
+	if osResource.ProvisioningStatus != PoolProvisioningStatusActive {
+		log.V(logging.Debug).Info("Pool not in ACTIVE state, waiting before modifying members",
+			"status", osResource.ProvisioningStatus)
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbpoolAvailablePollingPeriod)
+	}
+
+	resource := obj.Spec.Resource
+	if resource == nil {
+		resource = &orcv1alpha1.LBPoolResourceSpec{}
+	}
+
+	// List existing members from OpenStack, keyed by address:port
+	currentMembers := make(map[string]*pools.Member)
+	for member, err := range actuator.osClient.ListMembers(ctx, osResource.ID, pools.ListMembersOpts{}) {
+		if err != nil {
+			return progress.WrapError(err)
+		}
+		key := fmt.Sprintf("%s:%d", member.Address, member.ProtocolPort)
+		currentMembers[key] = member
+	}
+
+	// Build desired members map keyed by address:port
+	desiredMemberMap := make(map[string]orcv1alpha1.LBPoolMemberSpec)
+	for _, m := range resource.Members {
+		key := fmt.Sprintf("%s:%d", m.Address, m.ProtocolPort)
+		desiredMemberMap[key] = m
+	}
+
+	// Create missing members
+	for _, memberSpec := range resource.Members {
+		memberKey := fmt.Sprintf("%s:%d", memberSpec.Address, memberSpec.ProtocolPort)
+		if _, exists := currentMembers[memberKey]; !exists {
+			if rs := actuator.createMember(ctx, obj, osResource.ID, memberSpec); rs != nil {
+				return rs
+			}
+			return progress.NeedsRefresh()
+		}
+	}
+
+	// Update existing members if changed
+	for key, current := range currentMembers {
+		memberSpec, exists := desiredMemberMap[key]
+		// Skip members marked for deletion
+		if !exists {
+			continue
+		}
+
+		updated, rs := actuator.updateMember(ctx, osResource.ID, current, memberSpec)
+		if rs != nil {
+			return rs
+		}
+		if updated {
+			return progress.NeedsRefresh()
+		}
+	}
+
+	// Delete extra members
+	for key, current := range currentMembers {
+		if _, exists := desiredMemberMap[key]; !exists {
+			if rs := actuator.deleteMember(ctx, osResource.ID, current); rs != nil {
+				return rs
+			}
+			return progress.NeedsRefresh()
+		}
+	}
+
+	return nil
+}
+
 func (actuator lbpoolActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.updateResource,
+		actuator.reconcileMembers,
 	}, nil
 }
 

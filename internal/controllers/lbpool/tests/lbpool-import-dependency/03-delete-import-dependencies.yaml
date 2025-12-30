@@ -5,7 +5,3 @@ commands:
   # We should be able to delete the import dependencies
   - command: kubectl delete loadbalancer lbpool-import-dependency
     namespaced: true
-  - command: kubectl delete listener lbpool-import-dependency
-    namespaced: true
-  - command: kubectl delete project lbpool-import-dependency
-    namespaced: true

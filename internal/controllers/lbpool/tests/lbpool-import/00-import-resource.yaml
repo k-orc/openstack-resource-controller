@@ -11,5 +11,3 @@ spec:
   import:
     filter:
       name: lbpool-import-external
-      description: LBPool lbpool-import-external from "lbpool-import" test
-      # TODO(scaffolding): Add all fields supported by the filter

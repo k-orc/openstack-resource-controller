@@ -4,10 +4,6 @@ kind: LBPool
 metadata:
   name: lbpool-create-full
 status:
-  resource:
-    name: lbpool-create-full-override
-    description: LBPool from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -15,6 +11,15 @@ status:
   - type: Progressing
     status: "False"
     reason: Success
+  resource:
+    name: lbpool-create-full-override
+    description: LBPool from create full test
+    protocol: HTTP
+    lbAlgorithm: LEAST_CONNECTIONS
+    provisioningStatus: ACTIVE
+    adminStateUp: true
+    sessionPersistence:
+      type: SOURCE_IP
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -27,17 +32,15 @@ resourceRefs:
       kind: LoadBalancer
       name: lbpool-create-full
       ref: loadBalancer
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Listener
-      name: lbpool-create-full
-      ref: listener
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: lbpool-create-full
-      ref: project
 assertAll:
+    # Dynamic checks that require CEL
     - celExpr: "lbpool.status.id != ''"
-    - celExpr: "lbpool.status.resource.loadBalancerID == loadBalancer.status.id"
-    - celExpr: "lbpool.status.resource.listenerID == listener.status.id"
-    - celExpr: "lbpool.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "lbpool.status.resource.loadBalancerIDs.exists(id, id == loadBalancer.status.id)"
+    - celExpr: "lbpool.status.resource.tags.exists(t, t == 'test')"
+    - celExpr: "lbpool.status.resource.tags.exists(t, t == 'lbpool')"
+    # Member assertions - need CEL for exists() checks
+    - celExpr: "size(lbpool.status.resource.members) == 2"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-1' && m.address == '10.0.1.10' && m.protocolPort == 80)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-2' && m.address == '10.0.1.11' && m.protocolPort == 80)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-1' && m.weight == 5)"
+    - celExpr: "lbpool.status.resource.members.exists(m, m.name == 'member-2' && m.backup == true)"
