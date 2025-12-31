@@ -2163,6 +2163,15 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerBootVolumeSpec
+  map:
+    fields:
+    - name: tag
+      type:
+        scalar: string
+    - name: volumeRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerFilter
   map:
     fields:
@@ -2379,6 +2388,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: bootVolume
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerBootVolumeSpec
     - name: configDrive
       type:
         scalar: boolean
