@@ -3027,6 +3027,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: imageRef
+      type:
+        scalar: string
     - name: metadata
       type:
         list:
@@ -3073,6 +3076,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: boolean
     - name: host
+      type:
+        scalar: string
+    - name: imageID
       type:
         scalar: string
     - name: metadata
