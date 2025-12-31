@@ -38,7 +38,7 @@ jobs:
         branch: ${{ matrix.openstack_version }}
         enabled_services: "openstack-cli-server"
         conf_overrides: |
-          [[post-config|$NOVA_CONF]]
+          [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
 
