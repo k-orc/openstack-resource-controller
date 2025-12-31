@@ -105,14 +105,14 @@ var (
 	// No deletion guard for server group, because server group can be safely deleted while
 	// referenced by a server
 	serverGroupDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.ServerGroup](
-		"spec.resource.serverGroupRef",
+		"spec.resource.schedulerHints.serverGroupRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
-			if resource == nil || resource.ServerGroupRef == nil {
+			if resource == nil || resource.SchedulerHints == nil || resource.SchedulerHints.ServerGroupRef == nil {
 				return nil
 			}
 
-			return []string{string(*resource.ServerGroupRef)}
+			return []string{string(*resource.SchedulerHints.ServerGroupRef)}
 		},
 	)
 

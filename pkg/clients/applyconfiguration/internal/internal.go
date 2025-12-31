@@ -2412,9 +2412,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
           elementRelationship: atomic
-    - name: serverGroupRef
+    - name: schedulerHints
       type:
-        scalar: string
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSchedulerHints
     - name: tags
       type:
         list:
@@ -2481,6 +2481,44 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
           elementRelationship: atomic
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSchedulerHints
+  map:
+    fields:
+    - name: additionalProperties
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: buildNearHostIP
+      type:
+        scalar: string
+    - name: differentCell
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: differentHostServerRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: query
+      type:
+        scalar: string
+    - name: sameHostServerRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: serverGroupRef
+      type:
+        scalar: string
+    - name: targetCell
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSpec
   map:
     fields:

@@ -40,8 +40,9 @@ spec:
     flavorRef: server-create-full
     ports:
       - portRef: server-create-full
-    serverGroupRef: server-create-full
     keypairRef: server-create-full
+    schedulerHints:
+      serverGroupRef: server-create-full
     volumes:
       - volumeRef: server-create-full
     availabilityZone: nova
