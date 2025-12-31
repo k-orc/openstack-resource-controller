@@ -8315,6 +8315,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							},
 						},
 					},
+					"configDrive": {
+						SchemaProps: spec.SchemaProps{
+							Description: "configDrive specifies whether to attach a config drive to the server. When true, configuration data will be available via a special drive instead of the metadata service.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"imageRef", "flavorRef", "ports"},
 			},
@@ -8461,6 +8468,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 									},
 								},
 							},
+						},
+					},
+					"configDrive": {
+						SchemaProps: spec.SchemaProps{
+							Description: "configDrive indicates whether the server was booted with a config drive.",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 				},
