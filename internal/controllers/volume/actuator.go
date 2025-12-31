@@ -165,6 +165,20 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 		}
 	}
 
+	// Resolve image dependency for bootable volumes
+	var imageID string
+	if resource.ImageRef != nil {
+		image, imageDepRS := imageDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Image) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(imageDepRS)
+		if image != nil {
+			imageID = ptr.Deref(image.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -181,6 +195,7 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 		Metadata:         metadata,
 		VolumeType:       volumetypeID,
 		AvailabilityZone: resource.AvailabilityZone,
+		ImageID:          imageID,
 	}
 
 	osResource, err := actuator.osClient.CreateVolume(ctx, createOpts)

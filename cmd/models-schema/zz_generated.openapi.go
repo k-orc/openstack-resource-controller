@@ -10193,6 +10193,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref
 							},
 						},
 					},
+					"imageRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "imageRef is a reference to an ORC Image. If specified, creates a bootable volume from this image. The volume size must be >= the image's min_disk requirement.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"size"},
 			},
@@ -10321,6 +10328,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(r
 						SchemaProps: spec.SchemaProps{
 							Description: "bootable indicates whether this is a bootable volume.",
 							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"imageID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "imageID is the ID of the image this volume was created from, if any.",
+							Type:        []string{"string"},
 							Format:      "",
 						},
 					},

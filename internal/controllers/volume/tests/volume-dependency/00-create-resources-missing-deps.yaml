@@ -23,3 +23,16 @@ spec:
   managementPolicy: managed
   resource:
     size: 1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-dependency-no-image
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    size: 1
+    imageRef: volume-dependency-missing-image

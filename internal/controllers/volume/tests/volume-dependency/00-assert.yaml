@@ -28,3 +28,18 @@ status:
       message: Waiting for VolumeType/volume-dependency to be created
       status: "True"
       reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-dependency-no-image
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Image/volume-dependency-missing-image to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Image/volume-dependency-missing-image to be created
+      status: "True"
+      reason: Progressing

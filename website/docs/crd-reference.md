@@ -3994,6 +3994,7 @@ _Appears in:_
 | `volumeTypeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the volume. |  | MaxLength: 255 <br /> |
 | `metadata` _[VolumeMetadata](#volumemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef is a reference to an ORC Image. If specified, creates a<br />bootable volume from this image. The volume size must be >= the<br />image's min_disk requirement. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
 #### VolumeResourceStatus
@@ -4022,6 +4023,7 @@ _Appears in:_
 | `metadata` _[VolumeMetadataStatus](#volumemetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
 | `userID` _string_ | userID is the ID of the user who created the volume. |  | MaxLength: 1024 <br /> |
 | `bootable` _boolean_ | bootable indicates whether this is a bootable volume. |  |  |
+| `imageID` _string_ | imageID is the ID of the image this volume was created from, if any. |  | MaxLength: 1024 <br /> |
 | `encrypted` _boolean_ | encrypted denotes if the volume is encrypted. |  |  |
 | `replicationStatus` _string_ | replicationStatus is the status of replication. |  | MaxLength: 1024 <br /> |
 | `consistencyGroupID` _string_ | consistencyGroupID is the consistency group ID. |  | MaxLength: 1024 <br /> |
