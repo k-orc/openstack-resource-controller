@@ -1,0 +1,30 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: server-boot-from-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-boot-from-volume
+    addresses:
+      - subnetRef: server-boot-from-volume
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-boot-from-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Note: No imageRef - booting from volume!
+    bootVolume:
+      volumeRef: server-boot-from-volume
+    flavorRef: server-boot-from-volume
+    ports:
+      - portRef: server-boot-from-volume

@@ -60,6 +60,20 @@ type ServerPortSpec struct {
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
+// ServerBootVolumeSpec defines the boot volume for boot-from-volume server creation.
+// When specified, the server boots from this volume instead of an image.
+type ServerBootVolumeSpec struct {
+	// volumeRef is a reference to a Volume object. The volume must be
+	// bootable (created from an image) and available before server creation.
+	// +required
+	VolumeRef KubernetesNameRef `json:"volumeRef,omitempty"`
+
+	// tag is the device tag applied to the volume.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Tag *string `json:"tag,omitempty"`
+}
+
 // +kubebuilder:validation:MinProperties:=1
 type ServerVolumeSpec struct {
 	// volumeRef is a reference to a Volume object. Server creation will wait for
@@ -122,6 +136,8 @@ type ServerInterfaceStatus struct {
 }
 
 // ServerResourceSpec contains the desired state of a server
+// +kubebuilder:validation:XValidation:rule="has(self.imageRef) || has(self.bootVolume)",message="either imageRef or bootVolume must be specified"
+// +kubebuilder:validation:XValidation:rule="!(has(self.imageRef) && has(self.bootVolume))",message="imageRef and bootVolume are mutually exclusive"
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -129,15 +145,22 @@ type ServerResourceSpec struct {
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// imageRef references the image to use for the server instance.
-	// NOTE: This is not required in case of boot from volume.
-	// +required
+	// This field is required unless bootVolume is specified for boot-from-volume.
+	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
-	ImageRef KubernetesNameRef `json:"imageRef,omitempty"`
+	ImageRef *KubernetesNameRef `json:"imageRef,omitempty"`
 
 	// flavorRef references the flavor to use for the server instance.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="flavorRef is immutable"
 	FlavorRef KubernetesNameRef `json:"flavorRef,omitempty"`
+
+	// bootVolume specifies a volume to boot from instead of an image.
+	// When specified, imageRef must be omitted. The volume must be
+	// bootable (created from an image using imageRef in the Volume spec).
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="bootVolume is immutable"
+	BootVolume *ServerBootVolumeSpec `json:"bootVolume,omitempty"`
 
 	// userData specifies data which will be made available to the server at
 	// boot time, either via the metadata service or a config drive. It is

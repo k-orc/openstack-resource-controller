@@ -244,15 +244,45 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 
 	reconcileStatus := progress.NewReconcileStatus()
 
-	var image *orcv1alpha1.Image
-	{
+	// Determine if we're booting from volume or image
+	bootFromVolume := resource.BootVolume != nil
+
+	var imageID string
+	if !bootFromVolume {
+		// Traditional boot from image
 		dep, imageReconcileStatus := imageDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(image *orcv1alpha1.Image) bool {
 				return orcv1alpha1.IsAvailable(image) && image.Status.ID != nil
 			},
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(imageReconcileStatus)
-		image = dep
+		if dep != nil && dep.Status.ID != nil {
+			imageID = *dep.Status.ID
+		}
+	}
+
+	// Resolve boot volume for boot-from-volume
+	var blockDevices []servers.BlockDevice
+	if bootFromVolume {
+		bootVolume, bvReconcileStatus := bootVolumeDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, func(volume *orcv1alpha1.Volume) bool {
+				return orcv1alpha1.IsAvailable(volume) && volume.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(bvReconcileStatus)
+
+		if bootVolume != nil && bootVolume.Status.ID != nil {
+			bd := servers.BlockDevice{
+				SourceType:      servers.SourceVolume,
+				DestinationType: servers.DestinationVolume,
+				UUID:            *bootVolume.Status.ID,
+				BootIndex:       0, // Always 0 for boot volume
+			}
+			if resource.BootVolume.Tag != nil {
+				bd.Tag = *resource.BootVolume.Tag
+			}
+			blockDevices = append(blockDevices, bd)
+		}
 	}
 
 	flavor, flavorReconcileStatus := dependency.FetchDependency(
@@ -336,7 +366,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 
 	serverCreateOpts := servers.CreateOpts{
 		Name:             getResourceName(obj),
-		ImageRef:         *image.Status.ID,
+		ImageRef:         imageID, // Empty string if boot-from-volume
 		FlavorRef:        *flavor.Status.ID,
 		Networks:         portList,
 		UserData:         userData,
@@ -344,6 +374,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		Metadata:         metadata,
 		AvailabilityZone: resource.AvailabilityZone,
 		ConfigDrive:      resource.ConfigDrive,
+		BlockDevice:      blockDevices, // Boot volume for BFV
 	}
 
 	/* keypairs.CreateOptsExt was merged into servers.CreateOpts in gopher cloud V3

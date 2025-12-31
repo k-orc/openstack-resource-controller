@@ -160,6 +160,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupSpec":              schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Server":                         schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBootVolumeSpec":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerBootVolumeSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroup":                    schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroup(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupFilter":              schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupFilter(ref),
@@ -7451,6 +7452,34 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref common.Refe
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerBootVolumeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerBootVolumeSpec defines the boot volume for boot-from-volume server creation. When specified, the server boots from this volume instead of an image.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"volumeRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeRef is a reference to a Volume object. The volume must be bootable (created from an image) and available before server creation.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tag": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tag is the device tag applied to the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"volumeRef"},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -8186,7 +8215,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 					},
 					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "imageRef references the image to use for the server instance. NOTE: This is not required in case of boot from volume.",
+							Description: "imageRef references the image to use for the server instance. This field is required unless bootVolume is specified for boot-from-volume.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8196,6 +8225,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							Description: "flavorRef references the flavor to use for the server instance.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"bootVolume": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bootVolume specifies a volume to boot from instead of an image. When specified, imageRef must be omitted. The volume must be bootable (created from an image using imageRef in the Volume spec).",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBootVolumeSpec"),
 						},
 					},
 					"userData": {
@@ -8309,11 +8344,11 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 						},
 					},
 				},
-				Required: []string{"imageRef", "flavorRef", "ports"},
+				Required: []string{"flavorRef", "ports"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSchedulerHints", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBootVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSchedulerHints", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
 	}
 }
 
