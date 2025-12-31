@@ -2163,6 +2163,15 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerBootVolumeSpec
+  map:
+    fields:
+    - name: tag
+      type:
+        scalar: string
+    - name: volumeRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerFilter
   map:
     fields:
@@ -2349,6 +2358,24 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portState
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadata
+  map:
+    fields:
+    - name: key
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadataStatus
+  map:
+    fields:
+    - name: key
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
   map:
     fields:
@@ -2361,6 +2388,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: bootVolume
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerBootVolumeSpec
+    - name: configDrive
+      type:
+        scalar: boolean
     - name: flavorRef
       type:
         scalar: string
@@ -2370,6 +2403,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: keypairRef
       type:
         scalar: string
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadata
+          elementRelationship: atomic
     - name: name
       type:
         scalar: string
@@ -2379,9 +2418,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
           elementRelationship: atomic
-    - name: serverGroupRef
+    - name: schedulerHints
       type:
-        scalar: string
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSchedulerHints
     - name: tags
       type:
         list:
@@ -2403,6 +2442,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: configDrive
+      type:
+        scalar: boolean
     - name: hostID
       type:
         scalar: string
@@ -2414,6 +2456,12 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerInterfaceStatus
+          elementRelationship: atomic
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadataStatus
           elementRelationship: atomic
     - name: name
       type:
@@ -2439,6 +2487,44 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerVolumeStatus
           elementRelationship: atomic
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSchedulerHints
+  map:
+    fields:
+    - name: additionalProperties
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: buildNearHostIP
+      type:
+        scalar: string
+    - name: differentCell
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: differentHostServerRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: query
+      type:
+        scalar: string
+    - name: sameHostServerRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: serverGroupRef
+      type:
+        scalar: string
+    - name: targetCell
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerSpec
   map:
     fields:
@@ -2953,6 +3039,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: imageRef
+      type:
+        scalar: string
     - name: metadata
       type:
         list:
@@ -2999,6 +3088,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: boolean
     - name: host
+      type:
+        scalar: string
+    - name: imageID
       type:
         scalar: string
     - name: metadata

@@ -160,6 +160,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupSpec":              schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Server":                         schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBootVolumeSpec":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerBootVolumeSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroup":                    schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroup(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupFilter":              schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupFilter(ref),
@@ -175,9 +176,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceFixedIP":         schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceFixedIP(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerList":                     schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata":                 schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadataStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadataStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec":                 schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSchedulerHints":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerSchedulerHints(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_ServerSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_ServerStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_ServerVolumeSpec(ref),
@@ -7434,6 +7438,34 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref common.Refe
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerBootVolumeSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerBootVolumeSpec defines the boot volume for boot-from-volume server creation. When specified, the server boots from this volume instead of an image.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"volumeRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeRef is a reference to a Volume object. The volume must be bootable (created from an image) and available before server creation.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tag": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tag is the device tag applied to the volume.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"volumeRef"},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -8079,6 +8111,61 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref common.
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerMetadata represents a key-value pair for server metadata.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"key": {
+						SchemaProps: spec.SchemaProps{
+							Description: "key is the metadata key.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the metadata value.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"key", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadataStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerMetadataStatus represents a key-value pair for server metadata in status.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"key": {
+						SchemaProps: spec.SchemaProps{
+							Description: "key is the metadata key.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the metadata value.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -8114,7 +8201,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 					},
 					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "imageRef references the image to use for the server instance. NOTE: This is not required in case of boot from volume.",
+							Description: "imageRef references the image to use for the server instance. This field is required unless bootVolume is specified for boot-from-volume.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8124,6 +8211,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							Description: "flavorRef references the flavor to use for the server instance.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"bootVolume": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bootVolume specifies a volume to boot from instead of an image. When specified, imageRef must be omitted. The volume must be bootable (created from an image using imageRef in the Volume spec).",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBootVolumeSpec"),
 						},
 					},
 					"userData": {
@@ -8170,13 +8263,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							},
 						},
 					},
-					"serverGroupRef": {
-						SchemaProps: spec.SchemaProps{
-							Description: "serverGroupRef is a reference to a ServerGroup object. The server will be created in the server group.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"availabilityZone": {
 						SchemaProps: spec.SchemaProps{
 							Description: "availabilityZone is the availability zone in which to create the server.",
@@ -8211,12 +8297,44 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							},
 						},
 					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata is a list of metadata key-value pairs which will be set on the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata"),
+									},
+								},
+							},
+						},
+					},
+					"configDrive": {
+						SchemaProps: spec.SchemaProps{
+							Description: "configDrive specifies whether to attach a config drive to the server. When true, configuration data will be available via a special drive instead of the metadata service.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"schedulerHints": {
+						SchemaProps: spec.SchemaProps{
+							Description: "schedulerHints provides hints to the Nova scheduler for server placement.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSchedulerHints"),
+						},
+					},
 				},
-				Required: []string{"imageRef", "flavorRef", "ports"},
+				Required: []string{"flavorRef", "ports"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBootVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerSchedulerHints", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
 	}
 }
 
@@ -8340,11 +8458,154 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 							},
 						},
 					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata is the list of metadata key-value pairs on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadataStatus"),
+									},
+								},
+							},
+						},
+					},
+					"configDrive": {
+						SchemaProps: spec.SchemaProps{
+							Description: "configDrive indicates whether the server was booted with a config drive.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadataStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerSchedulerHints(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerSchedulerHints provides hints to the Nova scheduler for server placement.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"serverGroupRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serverGroupRef is a reference to a ServerGroup object. The server will be scheduled on a host in the specified server group.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"differentHostServerRefs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "differentHostServerRefs is a list of references to Server objects. The server will be scheduled on a different host than all specified servers.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"sameHostServerRefs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "sameHostServerRefs is a list of references to Server objects. The server will be scheduled on the same host as all specified servers.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"query": {
+						SchemaProps: spec.SchemaProps{
+							Description: "query is a conditional statement that results in compute nodes able to host the server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"targetCell": {
+						SchemaProps: spec.SchemaProps{
+							Description: "targetCell is a cell name where the server will be placed.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"differentCell": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "differentCell is a list of cell names where the server should not be placed.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"buildNearHostIP": {
+						SchemaProps: spec.SchemaProps{
+							Description: "buildNearHostIP specifies a subnet of compute nodes to host the server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"additionalProperties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "additionalProperties is a map of arbitrary key/value pairs that are not validated by Nova.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -9953,6 +10214,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceSpec(ref
 							},
 						},
 					},
+					"imageRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "imageRef is a reference to an ORC Image. If specified, creates a bootable volume from this image. The volume size must be >= the image's min_disk requirement.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"size"},
 			},
@@ -10081,6 +10349,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeResourceStatus(r
 						SchemaProps: spec.SchemaProps{
 							Description: "bootable indicates whether this is a bootable volume.",
 							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"imageID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "imageID is the ID of the image this volume was created from, if any.",
+							Type:        []string{"string"},
 							Format:      "",
 						},
 					},

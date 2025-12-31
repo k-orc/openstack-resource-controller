@@ -1627,8 +1627,10 @@ _Appears in:_
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
+- [ServerBootVolumeSpec](#serverbootvolumespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
+- [ServerSchedulerHints](#serverschedulerhints)
 - [ServerVolumeSpec](#servervolumespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
@@ -3028,6 +3030,24 @@ Server is the Schema for an ORC resource.
 | `status` _[ServerStatus](#serverstatus)_ | status defines the observed state of the resource. |  |  |
 
 
+#### ServerBootVolumeSpec
+
+
+
+ServerBootVolumeSpec defines the boot volume for boot-from-volume server creation.
+When specified, the server boots from this volume instead of an image.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `volumeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeRef is a reference to a Volume object. The volume must be<br />bootable (created from an image) and available before server creation. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `tag` _string_ | tag is the device tag applied to the volume. |  | MaxLength: 255 <br /> |
+
+
 #### ServerFilter
 
 
@@ -3291,6 +3311,40 @@ _Appears in:_
 | `fixedIPs` _[ServerInterfaceFixedIP](#serverinterfacefixedip) array_ | fixedIPs is the list of fixed IP addresses assigned to the interface. |  | MaxItems: 32 <br /> |
 
 
+#### ServerMetadata
+
+
+
+ServerMetadata represents a key-value pair for server metadata.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the metadata key. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `value` _string_ | value is the metadata value. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ServerMetadataStatus
+
+
+
+ServerMetadataStatus represents a key-value pair for server metadata in status.
+
+
+
+_Appears in:_
+- [ServerResourceStatus](#serverresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the metadata key. |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the metadata value. |  | MaxLength: 255 <br /> |
+
+
 #### ServerPortSpec
 
 
@@ -3323,15 +3377,18 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />NOTE: This is not required in case of boot from volume. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />This field is required unless bootVolume is specified for boot-from-volume. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `bootVolume` _[ServerBootVolumeSpec](#serverbootvolumespec)_ | bootVolume specifies a volume to boot from instead of an image.<br />When specified, imageRef must be omitted. The volume must be<br />bootable (created from an image using imageRef in the Volume spec). |  |  |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 64 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
-| `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
 | `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `metadata` _[ServerMetadata](#servermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
+| `configDrive` _boolean_ | configDrive specifies whether to attach a config drive to the server.<br />When true, configuration data will be available via a special drive<br />instead of the metadata service. |  |  |
+| `schedulerHints` _[ServerSchedulerHints](#serverschedulerhints)_ | schedulerHints provides hints to the Nova scheduler for server placement. |  |  |
 
 
 #### ServerResourceStatus
@@ -3356,6 +3413,31 @@ _Appears in:_
 | `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 64 <br /> |
 | `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 50 <br />items:MaxLength: 1024 <br /> |
+| `metadata` _[ServerMetadataStatus](#servermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
+| `configDrive` _boolean_ | configDrive indicates whether the server was booted with a config drive. |  |  |
+
+
+#### ServerSchedulerHints
+
+
+
+ServerSchedulerHints provides hints to the Nova scheduler for server placement.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server will be<br />scheduled on a host in the specified server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `differentHostServerRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | differentHostServerRefs is a list of references to Server objects.<br />The server will be scheduled on a different host than all specified servers. |  | MaxItems: 64 <br />MaxLength: 253 <br />MinLength: 1 <br /> |
+| `sameHostServerRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | sameHostServerRefs is a list of references to Server objects.<br />The server will be scheduled on the same host as all specified servers. |  | MaxItems: 64 <br />MaxLength: 253 <br />MinLength: 1 <br /> |
+| `query` _string_ | query is a conditional statement that results in compute nodes<br />able to host the server. |  | MaxLength: 1024 <br /> |
+| `targetCell` _string_ | targetCell is a cell name where the server will be placed. |  | MaxLength: 255 <br /> |
+| `differentCell` _string array_ | differentCell is a list of cell names where the server should not<br />be placed. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
+| `buildNearHostIP` _string_ | buildNearHostIP specifies a subnet of compute nodes to host the server. |  | MaxLength: 255 <br /> |
+| `additionalProperties` _object (keys:string, values:string)_ | additionalProperties is a map of arbitrary key/value pairs that are<br />not validated by Nova. |  |  |
 
 
 #### ServerSpec
@@ -3930,6 +4012,7 @@ _Appears in:_
 | `volumeTypeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the volume. |  | MaxLength: 255 <br /> |
 | `metadata` _[VolumeMetadata](#volumemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef is a reference to an ORC Image. If specified, creates a<br />bootable volume from this image. The volume size must be >= the<br />image's min_disk requirement. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
 #### VolumeResourceStatus
@@ -3958,6 +4041,7 @@ _Appears in:_
 | `metadata` _[VolumeMetadataStatus](#volumemetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
 | `userID` _string_ | userID is the ID of the user who created the volume. |  | MaxLength: 1024 <br /> |
 | `bootable` _boolean_ | bootable indicates whether this is a bootable volume. |  |  |
+| `imageID` _string_ | imageID is the ID of the image this volume was created from, if any. |  | MaxLength: 1024 <br /> |
 | `encrypted` _boolean_ | encrypted denotes if the volume is encrypted. |  |  |
 | `replicationStatus` _string_ | replicationStatus is the status of replication. |  | MaxLength: 1024 <br /> |
 | `consistencyGroupID` _string_ | consistencyGroupID is the consistency group ID. |  | MaxLength: 1024 <br /> |

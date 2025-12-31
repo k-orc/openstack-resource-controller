@@ -1,0 +1,48 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: volume-create-bootable-image
+status:
+  resource:
+    status: active
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-create-bootable
+status:
+  resource:
+    name: volume-create-bootable
+    size: 1
+    status: available
+    bootable: true
+    encrypted: false
+    multiattach: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volume-create-bootable
+      ref: volume
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: volume-create-bootable-image
+      ref: image
+assertAll:
+    - celExpr: "volume.status.id != ''"
+    - celExpr: "volume.status.resource.tenantID != ''"
+    - celExpr: "volume.status.resource.userID != ''"
+    - celExpr: "volume.status.resource.volumeType != ''"
+    - celExpr: "volume.status.resource.createdAt != ''"
+    - celExpr: "volume.status.resource.updatedAt != ''"
+    - celExpr: "volume.status.resource.imageID == image.status.id"

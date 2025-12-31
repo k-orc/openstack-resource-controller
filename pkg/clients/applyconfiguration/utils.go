@@ -266,6 +266,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SecurityGroupStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Server"):
 		return &apiv1alpha1.ServerApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerBootVolumeSpec"):
+		return &apiv1alpha1.ServerBootVolumeSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerFilter"):
 		return &apiv1alpha1.ServerFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroup"):
@@ -292,12 +294,18 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerInterfaceFixedIPApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerInterfaceStatus"):
 		return &apiv1alpha1.ServerInterfaceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerMetadata"):
+		return &apiv1alpha1.ServerMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerMetadataStatus"):
+		return &apiv1alpha1.ServerMetadataStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerPortSpec"):
 		return &apiv1alpha1.ServerPortSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerResourceSpec"):
 		return &apiv1alpha1.ServerResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerResourceStatus"):
 		return &apiv1alpha1.ServerResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerSchedulerHints"):
+		return &apiv1alpha1.ServerSchedulerHintsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerSpec"):
 		return &apiv1alpha1.ServerSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerStatus"):

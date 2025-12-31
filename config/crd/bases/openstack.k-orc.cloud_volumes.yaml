@@ -173,6 +173,17 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
+                  imageRef:
+                    description: |-
+                      imageRef is a reference to an ORC Image. If specified, creates a
+                      bootable volume from this image. The volume size must be >= the
+                      image's min_disk requirement.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: imageRef is immutable
+                      rule: self == oldSelf
                   metadata:
                     description: |-
                       metadata key and value pairs to be associated with the volume.
@@ -387,6 +398,11 @@ spec:
                     type: boolean
                   host:
                     description: host is the identifier of the host holding the volume.
+                    maxLength: 1024
+                    type: string
+                  imageID:
+                    description: imageID is the ID of the image this volume was created
+                      from, if any.
                     maxLength: 1024
                     type: string
                   metadata:

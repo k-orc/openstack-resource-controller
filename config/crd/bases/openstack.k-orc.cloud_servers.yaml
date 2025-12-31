@@ -202,6 +202,38 @@ spec:
                     x-kubernetes-validations:
                     - message: availabilityZone is immutable
                       rule: self == oldSelf
+                  bootVolume:
+                    description: |-
+                      bootVolume specifies a volume to boot from instead of an image.
+                      When specified, imageRef must be omitted. The volume must be
+                      bootable (created from an image using imageRef in the Volume spec).
+                    properties:
+                      tag:
+                        description: tag is the device tag applied to the volume.
+                        maxLength: 255
+                        type: string
+                      volumeRef:
+                        description: |-
+                          volumeRef is a reference to a Volume object. The volume must be
+                          bootable (created from an image) and available before server creation.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                    required:
+                    - volumeRef
+                    type: object
+                    x-kubernetes-validations:
+                    - message: bootVolume is immutable
+                      rule: self == oldSelf
+                  configDrive:
+                    description: |-
+                      configDrive specifies whether to attach a config drive to the server.
+                      When true, configuration data will be available via a special drive
+                      instead of the metadata service.
+                    type: boolean
+                    x-kubernetes-validations:
+                    - message: configDrive is immutable
+                      rule: self == oldSelf
                   flavorRef:
                     description: flavorRef references the flavor to use for the server
                       instance.
@@ -214,7 +246,7 @@ spec:
                   imageRef:
                     description: |-
                       imageRef references the image to use for the server instance.
-                      NOTE: This is not required in case of boot from volume.
+                      This field is required unless bootVolume is specified for boot-from-volume.
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -231,6 +263,30 @@ spec:
                     x-kubernetes-validations:
                     - message: keypairRef is immutable
                       rule: self == oldSelf
+                  metadata:
+                    description: metadata is a list of metadata key-value pairs which
+                      will be set on the server.
+                    items:
+                      description: ServerMetadata represents a key-value pair for
+                        server metadata.
+                      properties:
+                        key:
+                          description: key is the metadata key.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        value:
+                          description: value is the metadata value.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                      required:
+                      - key
+                      - value
+                      type: object
+                    maxItems: 128
+                    type: array
+                    x-kubernetes-list-type: atomic
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -257,15 +313,75 @@ spec:
                     maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
-                  serverGroupRef:
-                    description: |-
-                      serverGroupRef is a reference to a ServerGroup object. The server
-                      will be created in the server group.
-                    maxLength: 253
-                    minLength: 1
-                    type: string
+                  schedulerHints:
+                    description: schedulerHints provides hints to the Nova scheduler
+                      for server placement.
+                    properties:
+                      additionalProperties:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          additionalProperties is a map of arbitrary key/value pairs that are
+                          not validated by Nova.
+                        type: object
+                      buildNearHostIP:
+                        description: buildNearHostIP specifies a subnet of compute
+                          nodes to host the server.
+                        maxLength: 255
+                        type: string
+                      differentCell:
+                        description: |-
+                          differentCell is a list of cell names where the server should not
+                          be placed.
+                        items:
+                          maxLength: 1024
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      differentHostServerRefs:
+                        description: |-
+                          differentHostServerRefs is a list of references to Server objects.
+                          The server will be scheduled on a different host than all specified servers.
+                        items:
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      query:
+                        description: |-
+                          query is a conditional statement that results in compute nodes
+                          able to host the server.
+                        maxLength: 1024
+                        type: string
+                      sameHostServerRefs:
+                        description: |-
+                          sameHostServerRefs is a list of references to Server objects.
+                          The server will be scheduled on the same host as all specified servers.
+                        items:
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      serverGroupRef:
+                        description: |-
+                          serverGroupRef is a reference to a ServerGroup object. The server will be
+                          scheduled on a host in the specified server group.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                      targetCell:
+                        description: targetCell is a cell name where the server will
+                          be placed.
+                        maxLength: 255
+                        type: string
+                    type: object
                     x-kubernetes-validations:
-                    - message: serverGroupRef is immutable
+                    - message: schedulerHints is immutable
                       rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the
@@ -321,9 +437,13 @@ spec:
                     x-kubernetes-list-type: atomic
                 required:
                 - flavorRef
-                - imageRef
                 - ports
                 type: object
+                x-kubernetes-validations:
+                - message: either imageRef or bootVolume must be specified
+                  rule: has(self.imageRef) || has(self.bootVolume)
+                - message: imageRef and bootVolume are mutually exclusive
+                  rule: '!(has(self.imageRef) && has(self.bootVolume))'
             required:
             - cloudCredentialsRef
             type: object
@@ -431,6 +551,10 @@ spec:
                       server is located.
                     maxLength: 1024
                     type: string
+                  configDrive:
+                    description: configDrive indicates whether the server was booted
+                      with a config drive.
+                    type: boolean
                   hostID:
                     description: hostID is the host where the server is located in
                       the cloud.
@@ -486,6 +610,25 @@ spec:
                           type: string
                       type: object
                     maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  metadata:
+                    description: metadata is the list of metadata key-value pairs
+                      on the resource.
+                    items:
+                      description: ServerMetadataStatus represents a key-value pair
+                        for server metadata in status.
+                      properties:
+                        key:
+                          description: key is the metadata key.
+                          maxLength: 255
+                          type: string
+                        value:
+                          description: value is the metadata value.
+                          maxLength: 255
+                          type: string
+                      type: object
+                    maxItems: 128
                     type: array
                     x-kubernetes-list-type: atomic
                   name:

@@ -4,46 +4,28 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Server
-      name: server-create-full
+      name: server-boot-from-volume
       ref: server
     - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Image
-      name: server-create-full
-      ref: image
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Port
-      name: server-create-full
-      ref: port
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: ServerGroup
-      name: server-create-full
-      ref: sg
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: KeyPair
-      name: server-create-full
-      ref: keypair
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Volume
-      name: server-create-full
+      name: server-boot-from-volume
       ref: volume
     - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-boot-from-volume
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Network
-      name: server-create-full
+      name: server-boot-from-volume
       ref: network
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Subnet
-      name: server-create-full
+      name: server-boot-from-volume
       ref: subnet
 assertAll:
     - celExpr: "server.status.resource.hostID != ''"
-    - celExpr: "server.status.resource.availabilityZone == 'nova'"
-    - celExpr: "server.status.resource.imageID == image.status.id"
-    - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
-    - celExpr: "server.status.resource.volumes[0].id == volume.status.id"
-    - celExpr: "volume.status.resource.attachments[0].attachmentID != ''"
-    - celExpr: "volume.status.resource.attachments[0].serverID == server.status.id"
-    - celExpr: "volume.status.resource.attachments[0].device != ''"
-    - celExpr: "volume.status.resource.attachments[0].attachedAt != ''"
+    - celExpr: "server.status.resource.availabilityZone != ''"
+    # Verify the server booted from volume (imageID may be empty for BFV servers)
     - celExpr: "port.status.resource.deviceID == server.status.id"
     - celExpr: "port.status.resource.status == 'ACTIVE'"
     - celExpr: "size(server.status.resource.interfaces) == 1"
@@ -54,21 +36,26 @@ assertAll:
     - celExpr: "size(server.status.resource.interfaces[0].fixedIPs) >= 1"
     - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].ipAddress != ''"
     - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].subnetID == subnet.status.id"
+    # Verify volume is bootable
+    - celExpr: "volume.status.resource.bootable == true"
+    # Verify volume is attached to the server
+    - celExpr: "size(volume.status.resource.attachments) == 1"
+    - celExpr: "volume.status.resource.attachments[0].serverID == server.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
 metadata:
-  name: server-create-full
+  name: server-boot-from-volume
 status:
   resource:
-    name: server-create-full-override
+    name: server-boot-from-volume
     status: ACTIVE
-    tags:
-      - tag1
-      - tag2
-    metadata:
-      - key: environment
-        value: test
-      - key: owner
-        value: kuttl
-    configDrive: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: server-boot-from-volume
+status:
+  resource:
+    bootable: true
+    status: in-use
