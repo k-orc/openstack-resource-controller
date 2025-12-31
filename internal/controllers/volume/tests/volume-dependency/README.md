@@ -10,11 +10,13 @@ Create the missing dependencies and make and verify all the Volumes are availabl
 
 ## Step 02
 
-Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+Delete all the dependencies and check:
+- VolumeType and Secret have finalizers preventing deletion (hard dependencies)
+- Image is deleted immediately (soft dependency - no finalizer)
 
 ## Step 03
 
-Delete the Volumes and validate that all resources are gone.
+Delete the Volumes and validate that VolumeType and Secret are now gone.
 
 ## Reference
 

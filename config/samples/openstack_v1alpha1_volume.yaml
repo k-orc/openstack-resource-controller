@@ -12,6 +12,7 @@ spec:
     description: Sample Volume
     size: 100
     volumeTypeRef: my-volume-type
+    imageRef: ubuntu-2404
     metadata:
       key1: value1
       key2: value2

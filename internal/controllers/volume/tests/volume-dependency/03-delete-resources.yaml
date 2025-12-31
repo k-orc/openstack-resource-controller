@@ -8,3 +8,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Volume
   name: volume-dependency-no-volumetype
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Volume
+  name: volume-dependency-no-image
