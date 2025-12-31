@@ -202,6 +202,15 @@ spec:
                     x-kubernetes-validations:
                     - message: availabilityZone is immutable
                       rule: self == oldSelf
+                  configDrive:
+                    description: |-
+                      configDrive specifies whether to attach a config drive to the server.
+                      When true, configuration data will be available via a special drive
+                      instead of the metadata service.
+                    type: boolean
+                    x-kubernetes-validations:
+                    - message: configDrive is immutable
+                      rule: self == oldSelf
                   flavorRef:
                     description: flavorRef references the flavor to use for the server
                       instance.
@@ -455,6 +464,10 @@ spec:
                       server is located.
                     maxLength: 1024
                     type: string
+                  configDrive:
+                    description: configDrive indicates whether the server was booted
+                      with a config drive.
+                    type: boolean
                   hostID:
                     description: hostID is the host where the server is located in
                       the cloud.

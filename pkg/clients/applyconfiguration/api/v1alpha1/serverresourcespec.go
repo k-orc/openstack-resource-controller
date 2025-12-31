@@ -36,6 +36,7 @@ type ServerResourceSpecApplyConfiguration struct {
 	KeypairRef       *apiv1alpha1.KubernetesNameRef       `json:"keypairRef,omitempty"`
 	Tags             []apiv1alpha1.ServerTag              `json:"tags,omitempty"`
 	Metadata         []ServerMetadataApplyConfiguration   `json:"metadata,omitempty"`
+	ConfigDrive      *bool                                `json:"configDrive,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -146,5 +147,13 @@ func (b *ServerResourceSpecApplyConfiguration) WithMetadata(values ...*ServerMet
 		}
 		b.Metadata = append(b.Metadata, *values[i])
 	}
+	return b
+}
+
+// WithConfigDrive sets the ConfigDrive field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ConfigDrive field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithConfigDrive(value bool) *ServerResourceSpecApplyConfiguration {
+	b.ConfigDrive = &value
 	return b
 }

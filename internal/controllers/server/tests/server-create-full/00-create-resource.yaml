@@ -53,3 +53,4 @@ spec:
         value: test
       - key: owner
         value: kuttl
+    configDrive: true
