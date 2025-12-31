@@ -1,0 +1,25 @@
+# Example of creating a server that boots from a Cinder volume instead of an image.
+# This is the boot-from-volume (BFV) pattern.
+#
+# Prerequisites:
+# - A bootable volume created from an image (see openstack_v1alpha1_volume_bootable.yaml)
+# - Network, subnet, and port resources
+# - A flavor
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-boot-from-volume-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    # Note: No imageRef - booting from volume instead
+    bootVolume:
+      volumeRef: bootable-volume-sample
+    flavorRef: server-sample
+    ports:
+      - portRef: server-sample
+    availabilityZone: nova

@@ -1,0 +1,61 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: server-boot-from-volume
+      ref: server
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: server-boot-from-volume
+      ref: volume
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-boot-from-volume
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: server-boot-from-volume
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: server-boot-from-volume
+      ref: subnet
+assertAll:
+    - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.availabilityZone != ''"
+    # Verify the server booted from volume (imageID may be empty for BFV servers)
+    - celExpr: "port.status.resource.deviceID == server.status.id"
+    - celExpr: "port.status.resource.status == 'ACTIVE'"
+    - celExpr: "size(server.status.resource.interfaces) == 1"
+    - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
+    - celExpr: "server.status.resource.interfaces[0].netID == network.status.id"
+    - celExpr: "server.status.resource.interfaces[0].macAddr != ''"
+    - celExpr: "server.status.resource.interfaces[0].portState != ''"
+    - celExpr: "size(server.status.resource.interfaces[0].fixedIPs) >= 1"
+    - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].ipAddress != ''"
+    - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].subnetID == subnet.status.id"
+    # Verify volume is bootable
+    - celExpr: "volume.status.resource.bootable == true"
+    # Verify volume is attached to the server
+    - celExpr: "size(volume.status.resource.attachments) == 1"
+    - celExpr: "volume.status.resource.attachments[0].serverID == server.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-boot-from-volume
+status:
+  resource:
+    name: server-boot-from-volume
+    status: ACTIVE
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: server-boot-from-volume
+status:
+  resource:
+    bootable: true
+    status: in-use

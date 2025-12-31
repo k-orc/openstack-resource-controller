@@ -202,6 +202,29 @@ spec:
                     x-kubernetes-validations:
                     - message: availabilityZone is immutable
                       rule: self == oldSelf
+                  bootVolume:
+                    description: |-
+                      bootVolume specifies a volume to boot from instead of an image.
+                      When specified, imageRef must be omitted. The volume must be
+                      bootable (created from an image using imageRef in the Volume spec).
+                    properties:
+                      tag:
+                        description: tag is the device tag applied to the volume.
+                        maxLength: 255
+                        type: string
+                      volumeRef:
+                        description: |-
+                          volumeRef is a reference to a Volume object. The volume must be
+                          bootable (created from an image) and available before server creation.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                    required:
+                    - volumeRef
+                    type: object
+                    x-kubernetes-validations:
+                    - message: bootVolume is immutable
+                      rule: self == oldSelf
                   configDrive:
                     description: |-
                       configDrive specifies whether to attach a config drive to the server.
@@ -223,7 +246,7 @@ spec:
                   imageRef:
                     description: |-
                       imageRef references the image to use for the server instance.
-                      NOTE: This is not required in case of boot from volume.
+                      This field is required unless bootVolume is specified for boot-from-volume.
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -354,9 +377,13 @@ spec:
                     x-kubernetes-list-type: atomic
                 required:
                 - flavorRef
-                - imageRef
                 - ports
                 type: object
+                x-kubernetes-validations:
+                - message: either imageRef or bootVolume must be specified
+                  rule: has(self.imageRef) || has(self.bootVolume)
+                - message: imageRef and bootVolume are mutually exclusive
+                  rule: '!(has(self.imageRef) && has(self.bootVolume))'
             required:
             - cloudCredentialsRef
             type: object

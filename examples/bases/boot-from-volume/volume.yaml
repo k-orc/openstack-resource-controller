@@ -1,0 +1,14 @@
+---
+# Bootable volume created from the cirros image
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: boot-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: cloud-config
+  managementPolicy: managed
+  resource:
+    size: 1
+    imageRef: cirros
