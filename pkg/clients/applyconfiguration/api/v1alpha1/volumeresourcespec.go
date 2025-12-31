@@ -31,6 +31,7 @@ type VolumeResourceSpecApplyConfiguration struct {
 	VolumeTypeRef    *apiv1alpha1.KubernetesNameRef     `json:"volumeTypeRef,omitempty"`
 	AvailabilityZone *string                            `json:"availabilityZone,omitempty"`
 	Metadata         []VolumeMetadataApplyConfiguration `json:"metadata,omitempty"`
+	ImageRef         *apiv1alpha1.KubernetesNameRef     `json:"imageRef,omitempty"`
 }
 
 // VolumeResourceSpecApplyConfiguration constructs a declarative configuration of the VolumeResourceSpec type for use with
@@ -89,5 +90,13 @@ func (b *VolumeResourceSpecApplyConfiguration) WithMetadata(values ...*VolumeMet
 		}
 		b.Metadata = append(b.Metadata, *values[i])
 	}
+	return b
+}
+
+// WithImageRef sets the ImageRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ImageRef field is set to the value of the last call.
+func (b *VolumeResourceSpecApplyConfiguration) WithImageRef(value apiv1alpha1.KubernetesNameRef) *VolumeResourceSpecApplyConfiguration {
+	b.ImageRef = &value
 	return b
 }

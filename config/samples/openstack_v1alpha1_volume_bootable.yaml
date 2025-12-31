@@ -1,0 +1,29 @@
+---
+# Example of creating a bootable volume from an image.
+# The volume can then be used as a boot device for a server.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: ubuntu-2404
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  import:
+    filter:
+      name: ubuntu-24.04-server
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: bootable-volume-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Bootable volume created from Ubuntu image
+    size: 50
+    imageRef: ubuntu-2404
+    volumeTypeRef: fast-ssd

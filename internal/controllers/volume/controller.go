@@ -74,6 +74,19 @@ var volumetypeDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.Vo
 	finalizer, externalObjectFieldOwner,
 )
 
+// No deletion guard for image, because images can be safely deleted while
+// referenced by a volume
+var imageDependency = dependency.NewDependency[*orcv1alpha1.VolumeList, *orcv1alpha1.Image](
+	"spec.resource.imageRef",
+	func(volume *orcv1alpha1.Volume) []string {
+		resource := volume.Spec.Resource
+		if resource == nil || resource.ImageRef == nil {
+			return nil
+		}
+		return []string{string(*resource.ImageRef)}
+	},
+)
+
 // serverToVolumeMapFunc creates a mapping function that reconciles volumes when:
 // - a volume ID appears in server status but the volume doesn't have attachment info for that server
 // - a volume has attachment info for a server, but the server no longer lists that volume
@@ -209,10 +222,18 @@ func (c volumeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	imageWatchEventHandler, err := imageDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.VolumeType{}, volumetypeWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.VolumeType{})),
+		).
+		Watches(&orcv1alpha1.Image{}, imageWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Image{})),
 		).
 		Watches(&orcv1alpha1.Server{}, handler.EnqueueRequestsFromMapFunc(serverToVolumeMapFunc(ctx, k8sClient)),
 			builder.WithPredicates(predicates.NewServerVolumesChanged(log)),
@@ -221,6 +242,7 @@ func (c volumeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 
 	if err := errors.Join(
 		volumetypeDependency.AddToManager(ctx, mgr),
+		imageDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {
