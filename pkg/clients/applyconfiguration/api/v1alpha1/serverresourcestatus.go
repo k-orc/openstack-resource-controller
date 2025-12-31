@@ -31,6 +31,7 @@ type ServerResourceStatusApplyConfiguration struct {
 	Interfaces       []ServerInterfaceStatusApplyConfiguration `json:"interfaces,omitempty"`
 	Tags             []string                                  `json:"tags,omitempty"`
 	Metadata         []ServerMetadataStatusApplyConfiguration  `json:"metadata,omitempty"`
+	ConfigDrive      *bool                                     `json:"configDrive,omitempty"`
 }
 
 // ServerResourceStatusApplyConfiguration constructs a declarative configuration of the ServerResourceStatus type for use with
@@ -135,5 +136,13 @@ func (b *ServerResourceStatusApplyConfiguration) WithMetadata(values ...*ServerM
 		}
 		b.Metadata = append(b.Metadata, *values[i])
 	}
+	return b
+}
+
+// WithConfigDrive sets the ConfigDrive field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ConfigDrive field is set to the value of the last call.
+func (b *ServerResourceStatusApplyConfiguration) WithConfigDrive(value bool) *ServerResourceStatusApplyConfiguration {
+	b.ConfigDrive = &value
 	return b
 }

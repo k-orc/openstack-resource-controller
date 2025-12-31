@@ -263,6 +263,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		Tags:             tags,
 		Metadata:         metadata,
 		AvailabilityZone: resource.AvailabilityZone,
+		ConfigDrive:      resource.ConfigDrive,
 	}
 
 	/* keypairs.CreateOptsExt was merged into servers.CreateOpts in gopher cloud V3

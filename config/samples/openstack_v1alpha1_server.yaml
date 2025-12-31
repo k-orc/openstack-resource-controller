@@ -25,3 +25,4 @@ spec:
         value: development
       - key: owner
         value: sample
+    configDrive: true

@@ -2385,6 +2385,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: configDrive
+      type:
+        scalar: boolean
     - name: flavorRef
       type:
         scalar: string
@@ -2433,6 +2436,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: configDrive
+      type:
+        scalar: boolean
     - name: hostID
       type:
         scalar: string

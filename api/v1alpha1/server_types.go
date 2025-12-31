@@ -187,6 +187,13 @@ type ServerResourceSpec struct {
 	// +listType=atomic
 	// +optional
 	Metadata []ServerMetadata `json:"metadata,omitempty"`
+
+	// configDrive specifies whether to attach a config drive to the server.
+	// When true, configuration data will be available via a special drive
+	// instead of the metadata service.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="configDrive is immutable"
+	ConfigDrive *bool `json:"configDrive,omitempty"`
 }
 
 // ServerMetadata represents a key-value pair for server metadata.
@@ -288,6 +295,10 @@ type ServerResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	Metadata []ServerMetadataStatus `json:"metadata,omitempty"`
+
+	// configDrive indicates whether the server was booted with a config drive.
+	// +optional
+	ConfigDrive bool `json:"configDrive,omitempty"`
 }
 
 // ServerMetadataStatus represents a key-value pair for server metadata in status.
