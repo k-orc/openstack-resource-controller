@@ -158,12 +158,6 @@ type ServerResourceSpec struct {
 	// +optional
 	Volumes []ServerVolumeSpec `json:"volumes,omitempty"`
 
-	// serverGroupRef is a reference to a ServerGroup object. The server
-	// will be created in the server group.
-	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serverGroupRef is immutable"
-	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
-
 	// availabilityZone is the availability zone in which to create the server.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
@@ -194,6 +188,62 @@ type ServerResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="configDrive is immutable"
 	ConfigDrive *bool `json:"configDrive,omitempty"`
+
+	// schedulerHints provides hints to the Nova scheduler for server placement.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="schedulerHints is immutable"
+	SchedulerHints *ServerSchedulerHints `json:"schedulerHints,omitempty"`
+}
+
+// ServerSchedulerHints provides hints to the Nova scheduler for server placement.
+type ServerSchedulerHints struct {
+	// serverGroupRef is a reference to a ServerGroup object. The server will be
+	// scheduled on a host in the specified server group.
+	// +optional
+	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
+
+	// differentHostServerRefs is a list of references to Server objects.
+	// The server will be scheduled on a different host than all specified servers.
+	// +listType=set
+	// +kubebuilder:validation:MaxItems:=64
+	// +optional
+	DifferentHostServerRefs []KubernetesNameRef `json:"differentHostServerRefs,omitempty"`
+
+	// sameHostServerRefs is a list of references to Server objects.
+	// The server will be scheduled on the same host as all specified servers.
+	// +listType=set
+	// +kubebuilder:validation:MaxItems:=64
+	// +optional
+	SameHostServerRefs []KubernetesNameRef `json:"sameHostServerRefs,omitempty"`
+
+	// query is a conditional statement that results in compute nodes
+	// able to host the server.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	Query *string `json:"query,omitempty"`
+
+	// targetCell is a cell name where the server will be placed.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	TargetCell *string `json:"targetCell,omitempty"`
+
+	// differentCell is a list of cell names where the server should not
+	// be placed.
+	// +listType=set
+	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:items:MaxLength=1024
+	// +optional
+	DifferentCell []string `json:"differentCell,omitempty"`
+
+	// buildNearHostIP specifies a subnet of compute nodes to host the server.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	BuildNearHostIP *string `json:"buildNearHostIP,omitempty"`
+
+	// additionalProperties is a map of arbitrary key/value pairs that are
+	// not validated by Nova.
+	// +optional
+	AdditionalProperties map[string]string `json:"additionalProperties,omitempty"`
 }
 
 // ServerMetadata represents a key-value pair for server metadata.

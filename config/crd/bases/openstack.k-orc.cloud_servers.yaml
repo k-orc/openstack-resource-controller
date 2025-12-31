@@ -290,15 +290,75 @@ spec:
                     maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
-                  serverGroupRef:
-                    description: |-
-                      serverGroupRef is a reference to a ServerGroup object. The server
-                      will be created in the server group.
-                    maxLength: 253
-                    minLength: 1
-                    type: string
+                  schedulerHints:
+                    description: schedulerHints provides hints to the Nova scheduler
+                      for server placement.
+                    properties:
+                      additionalProperties:
+                        additionalProperties:
+                          type: string
+                        description: |-
+                          additionalProperties is a map of arbitrary key/value pairs that are
+                          not validated by Nova.
+                        type: object
+                      buildNearHostIP:
+                        description: buildNearHostIP specifies a subnet of compute
+                          nodes to host the server.
+                        maxLength: 255
+                        type: string
+                      differentCell:
+                        description: |-
+                          differentCell is a list of cell names where the server should not
+                          be placed.
+                        items:
+                          maxLength: 1024
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      differentHostServerRefs:
+                        description: |-
+                          differentHostServerRefs is a list of references to Server objects.
+                          The server will be scheduled on a different host than all specified servers.
+                        items:
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      query:
+                        description: |-
+                          query is a conditional statement that results in compute nodes
+                          able to host the server.
+                        maxLength: 1024
+                        type: string
+                      sameHostServerRefs:
+                        description: |-
+                          sameHostServerRefs is a list of references to Server objects.
+                          The server will be scheduled on the same host as all specified servers.
+                        items:
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        maxItems: 64
+                        type: array
+                        x-kubernetes-list-type: set
+                      serverGroupRef:
+                        description: |-
+                          serverGroupRef is a reference to a ServerGroup object. The server will be
+                          scheduled on a host in the specified server group.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                      targetCell:
+                        description: targetCell is a cell name where the server will
+                          be placed.
+                        maxLength: 255
+                        type: string
+                    type: object
                     x-kubernetes-validations:
-                    - message: serverGroupRef is immutable
+                    - message: schedulerHints is immutable
                       rule: self == oldSelf
                   tags:
                     description: tags is a list of tags which will be applied to the

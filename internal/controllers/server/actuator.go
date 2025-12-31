@@ -178,13 +178,76 @@ func (actuator serverActuator) getFlavorHelper(ctx context.Context, obj *orcv1al
 	}, &orcv1alpha1.Flavor{})
 }
 
-func (actuator serverActuator) getServerGroupHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) (*orcv1alpha1.ServerGroup, progress.ReconcileStatus) {
-	if resource.ServerGroupRef == nil {
-		return &orcv1alpha1.ServerGroup{}, progress.NewReconcileStatus()
+func (actuator serverActuator) getSchedulerHintsHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) (servers.SchedulerHintOpts, progress.ReconcileStatus) {
+	hints := servers.SchedulerHintOpts{}
+
+	if resource.SchedulerHints == nil {
+		return hints, progress.NewReconcileStatus()
 	}
-	return getDependencyHelper(ctx, actuator.k8sClient, obj, string(*resource.ServerGroupRef), "ServerGroup", func(sg *orcv1alpha1.ServerGroup) bool {
-		return orcv1alpha1.IsAvailable(sg) && sg.Status.ID != nil
-	}, &orcv1alpha1.ServerGroup{})
+
+	schedHints := resource.SchedulerHints
+	reconcileStatus := progress.NewReconcileStatus()
+
+	// Resolve ServerGroupRef to server group ID
+	if schedHints.ServerGroupRef != nil {
+		sg, sgReconcileStatus := getDependencyHelper(ctx, actuator.k8sClient, obj, string(*schedHints.ServerGroupRef), "ServerGroup", func(sg *orcv1alpha1.ServerGroup) bool {
+			return orcv1alpha1.IsAvailable(sg) && sg.Status.ID != nil
+		}, &orcv1alpha1.ServerGroup{})
+		reconcileStatus = reconcileStatus.WithReconcileStatus(sgReconcileStatus)
+		if sg.Status.ID != nil {
+			hints.Group = *sg.Status.ID
+		}
+	}
+
+	// Resolve differentHostServerRefs to server IDs
+	if len(schedHints.DifferentHostServerRefs) > 0 {
+		differentHost := make([]string, 0, len(schedHints.DifferentHostServerRefs))
+		for _, ref := range schedHints.DifferentHostServerRefs {
+			server, serverReconcileStatus := getDependencyHelper(ctx, actuator.k8sClient, obj, string(ref), "Server", func(s *orcv1alpha1.Server) bool {
+				return s.Status.ID != nil
+			}, &orcv1alpha1.Server{})
+			reconcileStatus = reconcileStatus.WithReconcileStatus(serverReconcileStatus)
+			if server.Status.ID != nil {
+				differentHost = append(differentHost, *server.Status.ID)
+			}
+		}
+		hints.DifferentHost = differentHost
+	}
+
+	// Resolve sameHostServerRefs to server IDs
+	if len(schedHints.SameHostServerRefs) > 0 {
+		sameHost := make([]string, 0, len(schedHints.SameHostServerRefs))
+		for _, ref := range schedHints.SameHostServerRefs {
+			server, serverReconcileStatus := getDependencyHelper(ctx, actuator.k8sClient, obj, string(ref), "Server", func(s *orcv1alpha1.Server) bool {
+				return s.Status.ID != nil
+			}, &orcv1alpha1.Server{})
+			reconcileStatus = reconcileStatus.WithReconcileStatus(serverReconcileStatus)
+			if server.Status.ID != nil {
+				sameHost = append(sameHost, *server.Status.ID)
+			}
+		}
+		hints.SameHost = sameHost
+	}
+
+	if schedHints.Query != nil {
+		hints.Query = []any{*schedHints.Query}
+	}
+	if schedHints.TargetCell != nil {
+		hints.TargetCell = *schedHints.TargetCell
+	}
+	hints.DifferentCell = schedHints.DifferentCell
+	if schedHints.BuildNearHostIP != nil {
+		hints.BuildNearHostIP = *schedHints.BuildNearHostIP
+	}
+	if schedHints.AdditionalProperties != nil {
+		additionalProps := make(map[string]any, len(schedHints.AdditionalProperties))
+		for k, v := range schedHints.AdditionalProperties {
+			additionalProps[k] = v
+		}
+		hints.AdditionalProperties = additionalProps
+	}
+
+	return hints, reconcileStatus
 }
 
 func (actuator serverActuator) getKeypairHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) (*orcv1alpha1.KeyPair, progress.ReconcileStatus) {
@@ -265,8 +328,8 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		}
 	}
 
-	serverGroup, serverGroupReconcileStatus := actuator.getServerGroupHelper(ctx, obj, resource)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(serverGroupReconcileStatus)
+	schedulerHints, schedulerHintsReconcileStatus := actuator.getSchedulerHintsHelper(ctx, obj, resource)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(schedulerHintsReconcileStatus)
 
 	keypair, keypairReconcileStatus := actuator.getKeypairHelper(ctx, obj, resource)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(keypairReconcileStatus)
@@ -311,10 +374,6 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 			CreateOptsBuilder: serverCreateOpts,
 			KeyName:           keypair.Status.Resource.Name,
 		}
-	}
-
-	schedulerHints := servers.SchedulerHintOpts{
-		Group: ptr.Deref(serverGroup.Status.ID, ""),
 	}
 
 	server, err := actuator.osClient.CreateServer(ctx, createOpts, schedulerHints)
