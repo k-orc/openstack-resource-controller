@@ -9941,7 +9941,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref 
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "subports is the list of ports to attach to the trunk.\n\nNOTE: ORC currently does not implement reconcile logic for subport updates (Neutron uses dedicated add/remove subport APIs). This field is immutable until that behavior is implemented in the controller.",
+							Description: "subports is the list of ports to attach to the trunk.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -9960,7 +9960,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref 
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "tags is a list of Neutron tags to apply to the trunk.\n\nNOTE: ORC does not currently reconcile tag updates for Trunk.",
+							Description: "tags is a list of Neutron tags to apply to the trunk.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{

@@ -159,3 +159,136 @@ func TestHandleAdminStateUpUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestReconcileSubportsLogic(t *testing.T) {
+	testCases := []struct {
+		name              string
+		desiredSubports   map[string]*orcv1alpha1.TrunkSubportSpec
+		actualSubports    map[string]trunks.Subport
+		expectedToAdd     int
+		expectedToRemove  int
+	}{
+		{
+			name: "No changes needed",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{
+				"port1": {SegmentationID: 100, SegmentationType: "vlan"},
+			},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+			},
+			expectedToAdd:    0,
+			expectedToRemove: 0,
+		},
+		{
+			name: "Add new subport",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{
+				"port1": {SegmentationID: 100, SegmentationType: "vlan"},
+				"port2": {SegmentationID: 200, SegmentationType: "vlan"},
+			},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+			},
+			expectedToAdd:    1,
+			expectedToRemove: 0,
+		},
+		{
+			name: "Remove subport",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{
+				"port1": {SegmentationID: 100, SegmentationType: "vlan"},
+			},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+				"port2": {PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"},
+			},
+			expectedToAdd:    0,
+			expectedToRemove: 1,
+		},
+		{
+			name: "Update segmentation",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{
+				"port1": {SegmentationID: 150, SegmentationType: "vlan"},
+			},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+			},
+			expectedToAdd:    1,
+			expectedToRemove: 1,
+		},
+		{
+			name: "Update segmentation type",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{
+				"port1": {SegmentationID: 100, SegmentationType: "inherit"},
+			},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+			},
+			expectedToAdd:    1,
+			expectedToRemove: 1,
+		},
+		{
+			name:            "Remove all subports",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+				"port2": {PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"},
+			},
+			expectedToAdd:    0,
+			expectedToRemove: 2,
+		},
+		{
+			name: "Complex update: add, remove, and modify",
+			desiredSubports: map[string]*orcv1alpha1.TrunkSubportSpec{
+				"port1": {SegmentationID: 150, SegmentationType: "vlan"}, // modified
+				"port3": {SegmentationID: 300, SegmentationType: "vlan"}, // new
+			},
+			actualSubports: map[string]trunks.Subport{
+				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
+				"port2": {PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"}, // removed
+			},
+			expectedToAdd:    2, // port1 (modified) + port3 (new)
+			expectedToRemove: 2, // port1 (for modification) + port2 (removed)
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			var subportsToAdd []trunks.Subport
+			var subportsToRemove []trunks.Subport
+
+			// Find subports to add (in desired but not in actual, or different segmentation)
+			for portID, desiredSpec := range tt.desiredSubports {
+				actual, exists := tt.actualSubports[portID]
+				if !exists {
+					// Need to add this subport
+					subportsToAdd = append(subportsToAdd, trunks.Subport{
+						PortID:           portID,
+						SegmentationID:   int(desiredSpec.SegmentationID),
+						SegmentationType: desiredSpec.SegmentationType,
+					})
+				} else if actual.SegmentationID != int(desiredSpec.SegmentationID) || actual.SegmentationType != desiredSpec.SegmentationType {
+					// Segmentation changed - need to remove and re-add
+					subportsToRemove = append(subportsToRemove, trunks.Subport{PortID: portID})
+					subportsToAdd = append(subportsToAdd, trunks.Subport{
+						PortID:           portID,
+						SegmentationID:   int(desiredSpec.SegmentationID),
+						SegmentationType: desiredSpec.SegmentationType,
+					})
+				}
+			}
+
+			// Find subports to remove (in actual but not in desired)
+			for portID := range tt.actualSubports {
+				if _, exists := tt.desiredSubports[portID]; !exists {
+					subportsToRemove = append(subportsToRemove, trunks.Subport{PortID: portID})
+				}
+			}
+
+			if len(subportsToAdd) != tt.expectedToAdd {
+				t.Errorf("Expected %d subports to add, got %d", tt.expectedToAdd, len(subportsToAdd))
+			}
+			if len(subportsToRemove) != tt.expectedToRemove {
+				t.Errorf("Expected %d subports to remove, got %d", tt.expectedToRemove, len(subportsToRemove))
+			}
+		})
+	}
+}

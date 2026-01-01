@@ -81,12 +81,7 @@ type TrunkResourceSpec struct {
 	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// subports is the list of ports to attach to the trunk.
-	//
-	// NOTE: ORC currently does not implement reconcile logic for subport updates
-	// (Neutron uses dedicated add/remove subport APIs). This field is immutable
-	// until that behavior is implemented in the controller.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="subports is immutable"
 	// +kubebuilder:validation:MaxItems:=1024
 	// +listType=atomic
 	Subports []TrunkSubportSpec `json:"subports,omitempty"`

@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update-subports
+spec:
+  resource:
+    # Update: remove subport2, add subport3, change subport1 segmentation
+    subports:
+    - portRef: trunk-update-subports-subport1
+      segmentationID: 150
+      segmentationType: vlan
+    - portRef: trunk-update-subports-subport3
+      segmentationID: 300
+      segmentationType: vlan
+

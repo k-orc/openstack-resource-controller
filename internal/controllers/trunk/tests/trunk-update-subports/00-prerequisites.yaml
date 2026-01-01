@@ -1,85 +1,103 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic openstack-clouds --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
-  name: trunk-create-full
+  name: trunk-update-subports
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: trunk-create-full
+    name: trunk-update-subports
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
-  name: trunk-create-full
+  name: trunk-update-subports
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: trunk-create-full
+    networkRef: trunk-update-subports
+    cidr: 192.168.160.0/24
     ipVersion: 4
-    cidr: 192.168.158.0/24
+    enableDHCP: false
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: trunk-create-full
+  name: trunk-update-subports-parent
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: trunk-create-full
+    networkRef: trunk-update-subports
     addresses:
-    - subnetRef: trunk-create-full
+    - subnetRef: trunk-update-subports
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: trunk-create-full-subport1
+  name: trunk-update-subports-subport1
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: trunk-create-full
+    networkRef: trunk-update-subports
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: trunk-create-full-subport2
+  name: trunk-update-subports-subport2
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    networkRef: trunk-create-full
+    networkRef: trunk-update-subports
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-update-subports-subport3
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: trunk-update-subports
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
 metadata:
-  name: trunk-create-full
+  name: trunk-update-subports
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: trunk-create-full-override
-    description: Trunk from "create full" test
-    portRef: trunk-create-full
+    portRef: trunk-update-subports-parent
     subports:
-    - portRef: trunk-create-full-subport1
+    - portRef: trunk-update-subports-subport1
       segmentationID: 100
       segmentationType: vlan
-    - portRef: trunk-create-full-subport2
+    - portRef: trunk-update-subports-subport2
       segmentationID: 200
       segmentationType: vlan
+
