@@ -5,7 +5,7 @@ kind: TestStep
 commands:
   # We expect the deletion to hang due to the finalizer, so use --wait=false
 {{- range .AllCreateDependencies }}
-  - command: kubectl delete {{ . | lower }} {{ $packageName }}-dependency --wait=false
+  - command: kubectl delete {{ . | lower }}.openstack.k-orc.cloud {{ $packageName }}-dependency --wait=false
     namespaced: true
 {{- end }}
   - command: kubectl delete secret {{ $packageName }}-dependency --wait=false

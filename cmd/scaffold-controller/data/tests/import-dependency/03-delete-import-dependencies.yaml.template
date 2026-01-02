@@ -5,6 +5,6 @@ kind: TestStep
 commands:
   # We should be able to delete the import dependencies
 {{- range .ImportDependencies }}
-  - command: kubectl delete {{ . | lower }} {{ $packageName }}-import-dependency
+  - command: kubectl delete {{ . | lower }}.openstack.k-orc.cloud {{ $packageName }}-import-dependency
     namespaced: true
 {{- end }}
