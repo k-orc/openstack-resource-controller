@@ -2,5 +2,5 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 commands:
-- script: "! kubectl get {{ .PackageName }} {{ .PackageName }}-import-dependency --namespace $NAMESPACE"
+- script: "! kubectl get {{ .PackageName }}.openstack.k-orc.cloud {{ .PackageName }}-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true
