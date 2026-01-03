@@ -192,9 +192,12 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 			subports = make([]trunks.Subport, len(resource.Subports))
 			for i := range resource.Subports {
 				subportSpec := &resource.Subports[i]
-				port, ok := subportPortMap[string(subportSpec.PortRef)]
+				if subportSpec.PortRef == nil {
+					return nil, reconcileStatus.WithError(fmt.Errorf("subport number %d has nil portRef", i+1))
+				}
+				port, ok := subportPortMap[string(*subportSpec.PortRef)]
 				if !ok {
-					return nil, reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", subportSpec.PortRef))
+					return nil, reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", *subportSpec.PortRef))
 				}
 				subports[i] = trunks.Subport{
 					PortID:           ptr.Deref(port.Status.ID, ""),
@@ -332,13 +335,16 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 
 		for i := range resource.Subports {
 			subportSpec := &resource.Subports[i]
-			port, ok := subportPortMap[string(subportSpec.PortRef)]
+			if subportSpec.PortRef == nil {
+				return reconcileStatus.WithError(fmt.Errorf("subport at index %d has nil portRef", i))
+			}
+			port, ok := subportPortMap[string(*subportSpec.PortRef)]
 			if !ok {
-				return reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", subportSpec.PortRef))
+				return reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", *subportSpec.PortRef))
 			}
 			portID := ptr.Deref(port.Status.ID, "")
 			if portID == "" {
-				return reconcileStatus.WithError(fmt.Errorf("subport port %s does not have an ID", subportSpec.PortRef))
+				return reconcileStatus.WithError(fmt.Errorf("subport port %s does not have an ID", *subportSpec.PortRef))
 			}
 			desiredSubports[portID] = subportSpec
 		}
