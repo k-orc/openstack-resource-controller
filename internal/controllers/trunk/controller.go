@@ -55,10 +55,10 @@ var portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkLis
 	"spec.resource.portRef",
 	func(trunk *orcv1alpha1.Trunk) []string {
 		resource := trunk.Spec.Resource
-		if resource == nil {
+		if resource == nil || resource.PortRef == nil {
 			return nil
 		}
-		return []string{string(resource.PortRef)}
+		return []string{string(*resource.PortRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )
@@ -104,9 +104,14 @@ var subportPortDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.T
 		if resource == nil {
 			return nil
 		}
-		portRefs := make([]string, len(resource.Subports))
+		if len(resource.Subports) == 0 {
+			return nil
+		}
+		portRefs := make([]string, 0, len(resource.Subports))
 		for i := range resource.Subports {
-			portRefs[i] = string(resource.Subports[i].PortRef)
+			if resource.Subports[i].PortRef != nil {
+				portRefs = append(portRefs, string(*resource.Subports[i].PortRef))
+			}
 		}
 		return portRefs
 	},
