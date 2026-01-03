@@ -147,6 +147,9 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
+		Name: "Trunk",
+	},
+	{
 		Name: "Volume",
 	},
 	{

@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update
+status:
+  resource:
+    name: trunk-update-updated
+    description: trunk-update-updated
+    tags:
+    - trunk-update-updated
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

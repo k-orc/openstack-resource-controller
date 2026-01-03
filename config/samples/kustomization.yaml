@@ -18,6 +18,7 @@ resources:
 - openstack_v1alpha1_servergroup.yaml
 - openstack_v1alpha1_service.yaml
 - openstack_v1alpha1_subnet.yaml
+- openstack_v1alpha1_trunk.yaml
 - openstack_v1alpha1_volume.yaml
 - openstack_v1alpha1_volumetype.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

@@ -50,6 +50,9 @@ import (
 //go:generate mockgen -package mock -destination=service.go -source=../service.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock ServiceClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt service.go > _service.go && mv _service.go service.go"
 
+//go:generate mockgen -package mock -destination=trunk.go -source=../trunk.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock TrunkClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt trunk.go > _trunk.go && mv _trunk.go trunk.go"
+
 //go:generate mockgen -package mock -destination=volume.go -source=../volume.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock VolumeClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt volume.go > _volume.go && mv _volume.go volume.go"
 
