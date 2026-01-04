@@ -37,6 +37,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
@@ -86,43 +87,21 @@ func (actuator subnetActuator) ListOSResourcesForAdoption(ctx context.Context, o
 func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	network := &orcv1alpha1.Network{}
-	if filter.NetworkRef != "" {
-		networkKey := client.ObjectKey{Name: string(filter.NetworkRef), Namespace: obj.Namespace}
-		if err := actuator.k8sClient.Get(ctx, networkKey, network); err != nil {
-			if apierrors.IsNotFound(err) {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnCreation))
-			} else {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WrapError(fmt.Errorf("fetching network %s: %w", networkKey.Name, err)))
-			}
-		} else {
-			if !orcv1alpha1.IsAvailable(network) || network.Status.ID == nil {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WaitingOnObject("Network", networkKey.Name, progress.WaitingOnReady))
-			}
-		}
-	}
+	network, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace, &filter.NetworkRef, "Network",
+		func(dep *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	project := &orcv1alpha1.Project{}
-	if filter.ProjectRef != nil {
-		projectKey := client.ObjectKey{Name: string(*filter.ProjectRef), Namespace: obj.Namespace}
-		if err := actuator.k8sClient.Get(ctx, projectKey, project); err != nil {
-			if apierrors.IsNotFound(err) {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnCreation))
-			} else {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WrapError(fmt.Errorf("fetching project %s: %w", projectKey.Name, err)))
-			}
-		} else {
-			if !orcv1alpha1.IsAvailable(project) || project.Status.ID == nil {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WaitingOnObject("Project", projectKey.Name, progress.WaitingOnReady))
-			}
-		}
-	}
+	project, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
+		func(dep *orcv1alpha1.Project) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus

@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
@@ -46,7 +47,7 @@ func FetchDependency[TP DependencyType[T], T any](
 ) (TP, progress.ReconcileStatus) {
 	var obj TP = new(T)
 
-	if name == nil {
+	if ptr.Deref(name, "") == "" {
 		return obj, nil
 	}
 

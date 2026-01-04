@@ -29,7 +29,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -39,6 +38,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
@@ -150,69 +150,6 @@ func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj
 	return wrapServers(actuator.osClient.ListServers(ctx, listOpts)), nil
 }
 
-// getDependencyHelper is a generic helper for fetching and validating dependencies
-func getDependencyHelper[T client.Object](
-	ctx context.Context,
-	k8sClient client.Client,
-	obj *orcv1alpha1.Server,
-	name string,
-	kind string,
-	isReady func(T) bool,
-	dep T,
-) (T, progress.ReconcileStatus) {
-	objectKey := client.ObjectKey{Name: name, Namespace: obj.Namespace}
-	err := k8sClient.Get(ctx, objectKey, dep)
-	if apierrors.IsNotFound(err) {
-		return dep, progress.NewReconcileStatus().WaitingOnObject(kind, objectKey.Name, progress.WaitingOnCreation)
-	} else if err != nil {
-		return dep, progress.WrapError(fmt.Errorf("fetching %s %s: %w", kind, objectKey.Name, err))
-	} else if !isReady(dep) {
-		return dep, progress.NewReconcileStatus().WaitingOnObject(kind, objectKey.Name, progress.WaitingOnReady)
-	}
-	return dep, progress.NewReconcileStatus()
-}
-
-func (actuator serverActuator) getFlavorHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) (*orcv1alpha1.Flavor, progress.ReconcileStatus) {
-	return getDependencyHelper(ctx, actuator.k8sClient, obj, string(resource.FlavorRef), "Flavor", func(f *orcv1alpha1.Flavor) bool {
-		return orcv1alpha1.IsAvailable(f) && f.Status.ID != nil
-	}, &orcv1alpha1.Flavor{})
-}
-
-func (actuator serverActuator) getServerGroupHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) (*orcv1alpha1.ServerGroup, progress.ReconcileStatus) {
-	if resource.ServerGroupRef == nil {
-		return &orcv1alpha1.ServerGroup{}, progress.NewReconcileStatus()
-	}
-	return getDependencyHelper(ctx, actuator.k8sClient, obj, string(*resource.ServerGroupRef), "ServerGroup", func(sg *orcv1alpha1.ServerGroup) bool {
-		return orcv1alpha1.IsAvailable(sg) && sg.Status.ID != nil
-	}, &orcv1alpha1.ServerGroup{})
-}
-
-func (actuator serverActuator) getKeypairHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) (*orcv1alpha1.KeyPair, progress.ReconcileStatus) {
-	if resource.KeypairRef == nil {
-		return &orcv1alpha1.KeyPair{}, progress.NewReconcileStatus()
-	}
-	return getDependencyHelper(ctx, actuator.k8sClient, obj, string(*resource.KeypairRef), "KeyPair", func(kp *orcv1alpha1.KeyPair) bool {
-		return orcv1alpha1.IsAvailable(kp) && kp.Status.Resource != nil
-	}, &orcv1alpha1.KeyPair{})
-}
-
-func (actuator serverActuator) getUserDataHelper(ctx context.Context, obj *orcv1alpha1.Server, resource *orcv1alpha1.ServerResourceSpec) ([]byte, progress.ReconcileStatus) {
-	if resource.UserData == nil || resource.UserData.SecretRef == nil {
-		return nil, progress.NewReconcileStatus()
-	}
-	secret, reconcileStatus := getDependencyHelper(ctx, actuator.k8sClient, obj, string(*resource.UserData.SecretRef), "Secret", func(s *corev1.Secret) bool {
-		return true // Secrets don't have availability status
-	}, &corev1.Secret{})
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
-		return nil, reconcileStatus
-	}
-	userData, ok := secret.Data["value"]
-	if !ok {
-		return nil, progress.NewReconcileStatus().WithProgressMessage("User data secret does not contain \"value\" key")
-	}
-	return userData, progress.NewReconcileStatus()
-}
-
 func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
@@ -234,7 +171,11 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		image = dep
 	}
 
-	flavor, flavorReconcileStatus := actuator.getFlavorHelper(ctx, obj, resource)
+	flavor, flavorReconcileStatus := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		&resource.FlavorRef, "Flavor",
+		func(f *orcv1alpha1.Flavor) bool { return orcv1alpha1.IsAvailable(f) && f.Status.ID != nil },
+	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(flavorReconcileStatus)
 
 	portList := make([]servers.Network, len(resource.Ports))
@@ -265,14 +206,37 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		}
 	}
 
-	serverGroup, serverGroupReconcileStatus := actuator.getServerGroupHelper(ctx, obj, resource)
+	serverGroup, serverGroupReconcileStatus := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		resource.ServerGroupRef, "ServerGroup",
+		func(sg *orcv1alpha1.ServerGroup) bool { return orcv1alpha1.IsAvailable(sg) && sg.Status.ID != nil },
+	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(serverGroupReconcileStatus)
 
-	keypair, keypairReconcileStatus := actuator.getKeypairHelper(ctx, obj, resource)
+	keypair, keypairReconcileStatus := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		resource.KeypairRef, "KeyPair",
+		func(kp *orcv1alpha1.KeyPair) bool { return orcv1alpha1.IsAvailable(kp) && kp.Status.Resource != nil },
+	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(keypairReconcileStatus)
 
-	userData, userDataReconcileStatus := actuator.getUserDataHelper(ctx, obj, resource)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(userDataReconcileStatus)
+	var userData []byte
+	if resource.UserData != nil {
+		secret, secretReconcileStatus := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace,
+			resource.UserData.SecretRef, "Secret",
+			func(*corev1.Secret) bool { return true }, // Secrets don't have availability status
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(secretReconcileStatus)
+		if secretReconcileStatus == nil {
+			var ok bool
+			userData, ok = secret.Data["value"]
+			if !ok {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.NewReconcileStatus().WithProgressMessage("User data secret does not contain \"value\" key"))
+			}
+		}
+	}
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
