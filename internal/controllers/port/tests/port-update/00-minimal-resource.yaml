@@ -12,3 +12,17 @@ spec:
     portSecurity: Disabled
     # Need to set the default values to revert them correctly in the 02-revert-resource step.
     vnicType: normal
+---
+# This port is intended to be used only to test fields editable
+# by admin users
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-update-admin
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: port-update

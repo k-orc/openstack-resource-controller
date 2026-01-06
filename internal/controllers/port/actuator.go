@@ -254,6 +254,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	portsBindingOpts := portsbinding.CreateOptsExt{
 		CreateOptsBuilder: createOpts,
 		VNICType:          resource.VNICType,
+		HostID:            resource.HostID,
 	}
 
 	portSecurityOpts := portsecurity.PortCreateOptsExt{
@@ -504,6 +505,16 @@ func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resou
 			}
 		}
 	}
+
+	if resource.HostID != "" {
+		if resource.HostID != osResource.HostID {
+			updateOpts = &portsbinding.UpdateOptsExt{
+				UpdateOptsBuilder: updateOpts,
+				HostID:            &resource.HostID,
+			}
+		}
+	}
+
 	return updateOpts
 }
 

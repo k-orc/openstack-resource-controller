@@ -2171,6 +2171,7 @@ _Appears in:_
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br /> |
+| `hostID` _string_ | hostID is the ID of host where the port resides. |  | MaxLength: 36 <br /> |
 
 
 #### PortResourceStatus
@@ -2202,6 +2203,7 @@ _Appears in:_
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
+| `hostID` _string_ | hostID is the ID of host where the port resides. |  | MaxLength: 128 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
