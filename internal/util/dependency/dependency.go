@@ -33,6 +33,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 )
 
 // NewDependency returns a new Dependency, which can perform tasks necessary to manage a dependency between 2 object types. The 2 object types are:
@@ -72,6 +73,7 @@ func NewDependency[
 
 type deletionGuardConfig struct {
 	overrideDependencyName *string
+	overrideFinalizerName  *string
 }
 
 type deletionGuardOpt = func(*deletionGuardConfig)
@@ -79,6 +81,12 @@ type deletionGuardOpt = func(*deletionGuardConfig)
 func OverrideDependencyName(name string) deletionGuardOpt {
 	return func(opts *deletionGuardConfig) {
 		opts.overrideDependencyName = &name
+	}
+}
+
+func OverrideFinalizerName(name string) deletionGuardOpt {
+	return func(opts *deletionGuardConfig) {
+		opts.overrideFinalizerName = &name
 	}
 }
 
@@ -104,6 +112,7 @@ func NewDeletionGuardDependency[
 		finalizer:              finalizer,
 		fieldOwner:             fieldOwner,
 		overrideDependencyName: config.overrideDependencyName,
+		overrideFinalizerName:  config.overrideFinalizerName,
 	}
 }
 
@@ -130,6 +139,14 @@ type DeletionGuardDependency[
 	finalizer              string
 	fieldOwner             client.FieldOwner
 	overrideDependencyName *string
+	overrideFinalizerName  *string
+}
+
+func (d *DeletionGuardDependency[_, _, _, _, _, _]) getFinalizer() string {
+	if d.overrideFinalizerName != nil {
+		return orcstrings.GetFinalizerName(*d.overrideFinalizerName)
+	}
+	return d.finalizer
 }
 
 type ObjectType[objectT any] interface {
@@ -220,7 +237,7 @@ func (d *DeletionGuardDependency[objectTP, _, _, _, _, _]) addDeletionGuard(mgr 
 		return d.getDependencyRefs(obj)
 	}
 
-	return addDeletionGuard[objectTP](mgr, d.finalizer, d.fieldOwner, getDependencyRefsForClientObject, d.GetObjectsForDependency, d.overrideDependencyName)
+	return addDeletionGuard[objectTP](mgr, d.getFinalizer(), d.fieldOwner, getDependencyRefsForClientObject, d.GetObjectsForDependency, d.overrideDependencyName)
 }
 
 // GetDependencies returns the dependencies of the given object, ensuring that all returned dependencies have the required finalizer. It returns:
@@ -254,7 +271,7 @@ func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencie
 			// Don't add the finalizer until the dependency is ready. This makes
 			// it easier to delete incorrectly created objects which never
 			// became ready.
-			if depErr := EnsureFinalizer(ctx, k8sClient, dep, d.finalizer, d.fieldOwner); depErr != nil {
+			if depErr := EnsureFinalizer(ctx, k8sClient, dep, d.getFinalizer(), d.fieldOwner); depErr != nil {
 				reconcileStatus = reconcileStatus.WithError(depErr)
 				continue
 			}
