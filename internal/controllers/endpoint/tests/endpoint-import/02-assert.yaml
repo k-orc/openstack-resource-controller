@@ -32,7 +32,6 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: endpoint-import-external
     interface: internal
     url: http://example.com
-    #enabled: true
+    enabled: false

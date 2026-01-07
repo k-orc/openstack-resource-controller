@@ -5,7 +5,6 @@ metadata:
   name: endpoint-create-minimal
 status:
   resource:
-    name: endpoint-create-minimal
     url: http://example.com
     interface: internal
     enabled: true
@@ -31,3 +30,4 @@ resourceRefs:
 assertAll:
     - celExpr: "endpoint.status.id != ''"
     - celExpr: "endpoint.status.resource.serviceID == service.status.id"
+    - celExpr: "!has(endpoint.status.resource.name)"

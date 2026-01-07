@@ -25,3 +25,4 @@ spec:
       serviceRef: endpoint-import
       interface: internal
       url: http://example.com
+      enabled: false

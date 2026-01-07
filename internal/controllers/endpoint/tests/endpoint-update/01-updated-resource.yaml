@@ -5,9 +5,6 @@ metadata:
   name: endpoint-update
 spec:
   resource:
-    name: endpoint-update-updated
     interface: public
     url: http://example.com/updated
-    # TODO(winiciusallan): change it later.
-    #enabled: true
-
+    enabled: true

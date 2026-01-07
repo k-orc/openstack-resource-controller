@@ -48,3 +48,9 @@ spec:
     tags:
       - tag1
       - tag2
+    metadata:
+      - key: environment
+        value: test
+      - key: owner
+        value: kuttl
+    configDrive: true

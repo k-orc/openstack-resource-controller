@@ -18,10 +18,11 @@ package v1alpha1
 
 // EndpointResourceSpec contains the desired state of the resource.
 type EndpointResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
+	// description is a human-readable description for the resource.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// enabled indicates whether the endpoint is enabled or not.
 	// +kubebuilder:default:=true
@@ -64,17 +65,18 @@ type EndpointFilter struct {
 
 // EndpointResourceStatus represents the observed state of the resource.
 type EndpointResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
-	// +kubebuilder:validation:MaxLength=1024
+	// description is a human-readable description for the resource.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Name string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 
 	// enabled indicates whether the endpoint is enabled or not.
 	// +optional
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled bool `json:"enabled,omitempty"`
 
 	// interface indicates the visibility of the endpoint.
-	// +kubebuilder:validation:Enum:=admin;internal;public
+	// +kubebuilder:validation:MaxLength=128
 	// +optional
 	Interface string `json:"interface,omitempty"`
 

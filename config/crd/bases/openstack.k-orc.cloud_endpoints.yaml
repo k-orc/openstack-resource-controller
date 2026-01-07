@@ -155,6 +155,12 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   enabled:
                     default: true
                     description: enabled indicates whether the endpoint is enabled
@@ -166,14 +172,6 @@ spec:
                     - admin
                     - internal
                     - public
-                    type: string
-                  name:
-                    description: |-
-                      name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
-                    maxLength: 255
-                    minLength: 1
-                    pattern: ^[^,]+$
                     type: string
                   serviceRef:
                     description: serviceRef is a reference to the ORC Service which
@@ -295,21 +293,19 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   enabled:
                     description: enabled indicates whether the endpoint is enabled
                       or not.
                     type: boolean
                   interface:
                     description: interface indicates the visibility of the endpoint.
-                    enum:
-                    - admin
-                    - internal
-                    - public
-                    type: string
-                  name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
-                    maxLength: 1024
+                    maxLength: 128
                     type: string
                   serviceID:
                     description: serviceID is the ID of the Service to which the resource

@@ -14,7 +14,6 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: endpoint-import-external-not-this-one
     interface: internal
     url: http://example.com
 ---

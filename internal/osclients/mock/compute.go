@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -322,6 +322,21 @@ func (m *MockComputeClient) ReplaceAllServerAttributesTags(ctx context.Context, 
 func (mr *MockComputeClientMockRecorder) ReplaceAllServerAttributesTags(ctx, resourceID, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceAllServerAttributesTags", reflect.TypeOf((*MockComputeClient)(nil).ReplaceAllServerAttributesTags), ctx, resourceID, opts)
+}
+
+// ReplaceServerMetadata mocks base method.
+func (m *MockComputeClient) ReplaceServerMetadata(ctx context.Context, serverID string, opts servers.MetadataOpts) (map[string]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReplaceServerMetadata", ctx, serverID, opts)
+	ret0, _ := ret[0].(map[string]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReplaceServerMetadata indicates an expected call of ReplaceServerMetadata.
+func (mr *MockComputeClientMockRecorder) ReplaceServerMetadata(ctx, serverID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceServerMetadata", reflect.TypeOf((*MockComputeClient)(nil).ReplaceServerMetadata), ctx, serverID, opts)
 }
 
 // UpdateServer mocks base method.

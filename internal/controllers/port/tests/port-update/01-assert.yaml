@@ -49,3 +49,18 @@ status:
   - type: Progressing
     status: "False"
     reason: Success 
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-update-admin
+status:
+  resource:
+    hostID: devstack
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success 

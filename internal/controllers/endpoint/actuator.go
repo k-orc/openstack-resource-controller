@@ -167,9 +167,10 @@ func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObje
 		return nil, reconcileStatus
 	}
 	createOpts := endpoints.CreateOpts{
-		Name:         getResourceName(obj),
-		ServiceID:    serviceID,
 		Availability: gophercloud.Availability(resource.Interface),
+		Description:  ptr.Deref(resource.Description, ""),
+		Enabled:      resource.Enabled,
+		ServiceID:    serviceID,
 		URL:          resource.URL,
 	}
 
@@ -200,7 +201,7 @@ func (actuator endpointActuator) updateResource(ctx context.Context, obj orcObje
 
 	updateOpts := endpoints.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
+	handleEnabledUpdate(&updateOpts, resource, osResource)
 	handleURLUpdate(&updateOpts, resource, osResource)
 	handleInterfaceUpdate(&updateOpts, resource, osResource)
 
@@ -239,14 +240,10 @@ func needsUpdate(updateOpts endpoints.UpdateOpts) (bool, error) {
 		updateMap = make(map[string]any)
 	}
 
-	return len(updateMap) > 0, nil
-}
+	log := ctrl.LoggerFrom(context.Background())
+	log.Info("Description", "updateMap", updateMap)
 
-func handleNameUpdate(updateOpts *endpoints.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = name
-	}
+	return len(updateMap) > 0, nil
 }
 
 func handleURLUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
@@ -260,6 +257,13 @@ func handleInterfaceUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceS
 	endpointInterface := gophercloud.Availability(resource.Interface)
 	if osResource.Availability != endpointInterface {
 		updateOpts.Availability = endpointInterface
+	}
+}
+
+func handleEnabledUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	enabled := resource.Enabled
+	if enabled != nil && osResource.Enabled != *enabled {
+		updateOpts.Enabled = enabled
 	}
 }
 

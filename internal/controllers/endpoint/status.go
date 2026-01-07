@@ -53,8 +53,11 @@ func (endpointStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osR
 		WithServiceID(osResource.ServiceID).
 		WithEnabled(osResource.Enabled).
 		WithInterface(string(osResource.Availability)).
-		WithURL(osResource.URL).
-		WithName(osResource.Name)
+		WithURL(osResource.URL)
+
+	if osResource.Description != "" {
+		resourceStatus.WithDescription(osResource.Description)
+	}
 
 	statusApply.WithResource(resourceStatus)
 }

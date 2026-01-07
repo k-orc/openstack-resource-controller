@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -237,13 +237,13 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.EndpointResourceSpec
   map:
     fields:
+    - name: description
+      type:
+        scalar: string
     - name: enabled
       type:
         scalar: boolean
     - name: interface
-      type:
-        scalar: string
-    - name: name
       type:
         scalar: string
     - name: serviceRef
@@ -256,13 +256,13 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.EndpointResourceStatus
   map:
     fields:
+    - name: description
+      type:
+        scalar: string
     - name: enabled
       type:
         scalar: boolean
     - name: interface
-      type:
-        scalar: string
-    - name: name
       type:
         scalar: string
     - name: serviceID
@@ -1448,6 +1448,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: hostID
+      type:
+        scalar: string
     - name: macAddress
       type:
         scalar: string
@@ -1508,6 +1511,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FixedIPStatus
           elementRelationship: atomic
+    - name: hostID
+      type:
+        scalar: string
     - name: macAddress
       type:
         scalar: string
@@ -2470,6 +2476,24 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: portState
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadata
+  map:
+    fields:
+    - name: key
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadataStatus
+  map:
+    fields:
+    - name: key
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerPortSpec
   map:
     fields:
@@ -2482,6 +2506,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: configDrive
+      type:
+        scalar: boolean
     - name: flavorRef
       type:
         scalar: string
@@ -2491,6 +2518,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: keypairRef
       type:
         scalar: string
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadata
+          elementRelationship: atomic
     - name: name
       type:
         scalar: string
@@ -2524,6 +2557,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: configDrive
+      type:
+        scalar: boolean
     - name: hostID
       type:
         scalar: string
@@ -2535,6 +2571,12 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerInterfaceStatus
+          elementRelationship: atomic
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerMetadataStatus
           elementRelationship: atomic
     - name: name
       type:

@@ -18,12 +18,10 @@ package group
 
 import (
 	"context"
-	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/groups"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -33,6 +31,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
@@ -83,24 +82,13 @@ func (actuator groupActuator) ListOSResourcesForImport(ctx context.Context, obj 
 
 	var reconcileStatus progress.ReconcileStatus
 
-	domain := &orcv1alpha1.Domain{}
-	if filter.DomainRef != nil {
-		domainKey := client.ObjectKey{Name: string(*filter.DomainRef), Namespace: obj.Namespace}
-		if err := actuator.k8sClient.Get(ctx, domainKey, domain); err != nil {
-			if apierrors.IsNotFound(err) {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WaitingOnObject("Domain", domainKey.Name, progress.WaitingOnCreation))
-			} else {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WrapError(fmt.Errorf("fetching domain %s: %w", domainKey.Name, err)))
-			}
-		} else {
-			if !orcv1alpha1.IsAvailable(domain) || domain.Status.ID == nil {
-				reconcileStatus = reconcileStatus.WithReconcileStatus(
-					progress.WaitingOnObject("Domain", domainKey.Name, progress.WaitingOnReady))
-			}
-		}
-	}
+	domain, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace, filter.DomainRef, "Domain",
+		func(dep *orcv1alpha1.Domain) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus

@@ -180,6 +180,11 @@ type PortResourceSpec struct {
 	// +kubebuilder:validation:MaxLength=32
 	// +optional
 	MACAddress string `json:"macAddress,omitempty"`
+
+	// hostID is the ID of host where the port resides.
+	// +kubebuilder:validation:MaxLength=36
+	// +optional
+	HostID string `json:"hostID,omitempty"`
 }
 
 type PortResourceStatus struct {
@@ -271,6 +276,11 @@ type PortResourceStatus struct {
 	// portSecurityEnabled indicates whether port security is enabled or not.
 	// +optional
 	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
+
+	// hostID is the ID of host where the port resides.
+	// +kubebuilder:validation:MaxLength=128
+	// +optional
+	HostID string `json:"hostID,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
 }

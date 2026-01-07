@@ -21,10 +21,8 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: endpoint-create-full-override
+    description: "Endpoint description"
     serviceRef: endpoint-create-full
     interface: internal
     url: https://example.com
-    # TODO(winiciusallan): make this field available after
-    # the next gophercloud minor.
-    #enabled: false
+    enabled: false

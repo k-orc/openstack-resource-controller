@@ -24,3 +24,6 @@ spec:
     serviceRef: endpoint-update
     interface: internal
     url: http://example.com
+    # Set a different value than the default so we can update it
+    # later.
+    enabled: false

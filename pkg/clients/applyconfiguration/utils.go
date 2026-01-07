@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -306,6 +306,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerInterfaceFixedIPApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerInterfaceStatus"):
 		return &apiv1alpha1.ServerInterfaceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerMetadata"):
+		return &apiv1alpha1.ServerMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerMetadataStatus"):
+		return &apiv1alpha1.ServerMetadataStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerPortSpec"):
 		return &apiv1alpha1.ServerPortSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerResourceSpec"):

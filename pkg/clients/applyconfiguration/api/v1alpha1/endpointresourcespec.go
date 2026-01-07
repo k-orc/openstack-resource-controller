@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ import (
 // EndpointResourceSpecApplyConfiguration represents a declarative configuration of the EndpointResourceSpec type for use
 // with apply.
 type EndpointResourceSpecApplyConfiguration struct {
-	Name       *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Enabled    *bool                          `json:"enabled,omitempty"`
-	Interface  *string                        `json:"interface,omitempty"`
-	URL        *string                        `json:"url,omitempty"`
-	ServiceRef *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	Description *string                        `json:"description,omitempty"`
+	Enabled     *bool                          `json:"enabled,omitempty"`
+	Interface   *string                        `json:"interface,omitempty"`
+	URL         *string                        `json:"url,omitempty"`
+	ServiceRef  *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
 }
 
 // EndpointResourceSpecApplyConfiguration constructs a declarative configuration of the EndpointResourceSpec type for use with
@@ -38,11 +38,11 @@ func EndpointResourceSpec() *EndpointResourceSpecApplyConfiguration {
 	return &EndpointResourceSpecApplyConfiguration{}
 }
 
-// WithName sets the Name field in the declarative configuration to the given value
+// WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *EndpointResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *EndpointResourceSpecApplyConfiguration {
-	b.Name = &value
+// If called multiple times, the Description field is set to the value of the last call.
+func (b *EndpointResourceSpecApplyConfiguration) WithDescription(value string) *EndpointResourceSpecApplyConfiguration {
+	b.Description = &value
 	return b
 }
 

@@ -12,7 +12,6 @@ import (
 )
 
 const (
-	defaultYear       = "2025"
 	defaultAPIVersion = "v1alpha1"
 )
 
@@ -54,7 +53,6 @@ type additionalPrintColumn struct {
 
 type templateFields struct {
 	APIVersion             string
-	Year                   string
 	Name                   string
 	NameLower              string
 	IsNotNamed             bool
@@ -163,7 +161,8 @@ var resources []templateFields = []templateFields{
 		Name: "Group",
 	},
 	{
-		Name: "Endpoint",
+		Name:       "Endpoint",
+		IsNotNamed: true,
 	},
 }
 
@@ -250,10 +249,6 @@ func main() {
 func addDefaults(resources []templateFields) {
 	for i := range resources {
 		resource := &resources[i]
-
-		if resource.Year == "" {
-			resource.Year = defaultYear
-		}
 
 		if resource.APIVersion == "" {
 			resource.APIVersion = defaultAPIVersion

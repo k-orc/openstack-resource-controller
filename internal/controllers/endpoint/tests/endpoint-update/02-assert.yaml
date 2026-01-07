@@ -12,6 +12,8 @@ resourceRefs:
       ref: service
 assertAll:
     - celExpr: "endpoint.status.resource.serviceID == service.status.id"
+    - celExpr: "!has(endpoint.status.resource.name)"
+    - celExpr: "!has(endpoint.status.resource.description)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -19,10 +21,9 @@ metadata:
   name: endpoint-update
 status:
   resource:
-    name: endpoint-update
     interface: internal
     url: http://example.com
-    #enabled: true
+    enabled: false
   conditions:
   - type: Available
     status: "True"

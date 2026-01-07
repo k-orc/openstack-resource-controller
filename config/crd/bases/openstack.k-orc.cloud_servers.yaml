@@ -202,6 +202,15 @@ spec:
                     x-kubernetes-validations:
                     - message: availabilityZone is immutable
                       rule: self == oldSelf
+                  configDrive:
+                    description: |-
+                      configDrive specifies whether to attach a config drive to the server.
+                      When true, configuration data will be available via a special drive
+                      instead of the metadata service.
+                    type: boolean
+                    x-kubernetes-validations:
+                    - message: configDrive is immutable
+                      rule: self == oldSelf
                   flavorRef:
                     description: flavorRef references the flavor to use for the server
                       instance.
@@ -231,6 +240,30 @@ spec:
                     x-kubernetes-validations:
                     - message: keypairRef is immutable
                       rule: self == oldSelf
+                  metadata:
+                    description: metadata is a list of metadata key-value pairs which
+                      will be set on the server.
+                    items:
+                      description: ServerMetadata represents a key-value pair for
+                        server metadata.
+                      properties:
+                        key:
+                          description: key is the metadata key.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        value:
+                          description: value is the metadata value.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                      required:
+                      - key
+                      - value
+                      type: object
+                    maxItems: 128
+                    type: array
+                    x-kubernetes-list-type: atomic
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
@@ -431,6 +464,10 @@ spec:
                       server is located.
                     maxLength: 1024
                     type: string
+                  configDrive:
+                    description: configDrive indicates whether the server was booted
+                      with a config drive.
+                    type: boolean
                   hostID:
                     description: hostID is the host where the server is located in
                       the cloud.
@@ -486,6 +523,25 @@ spec:
                           type: string
                       type: object
                     maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  metadata:
+                    description: metadata is the list of metadata key-value pairs
+                      on the resource.
+                    items:
+                      description: ServerMetadataStatus represents a key-value pair
+                        for server metadata in status.
+                      properties:
+                        key:
+                          description: key is the metadata key.
+                          maxLength: 255
+                          type: string
+                        value:
+                          description: value is the metadata value.
+                          maxLength: 255
+                          type: string
+                      type: object
+                    maxItems: 128
                     type: array
                     x-kubernetes-list-type: atomic
                   name:

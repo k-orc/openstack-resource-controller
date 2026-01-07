@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ type ServerResourceSpecApplyConfiguration struct {
 	AvailabilityZone *string                              `json:"availabilityZone,omitempty"`
 	KeypairRef       *apiv1alpha1.KubernetesNameRef       `json:"keypairRef,omitempty"`
 	Tags             []apiv1alpha1.ServerTag              `json:"tags,omitempty"`
+	Metadata         []ServerMetadataApplyConfiguration   `json:"metadata,omitempty"`
+	ConfigDrive      *bool                                `json:"configDrive,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -132,5 +134,26 @@ func (b *ServerResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.Se
 	for i := range values {
 		b.Tags = append(b.Tags, values[i])
 	}
+	return b
+}
+
+// WithMetadata adds the given value to the Metadata field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Metadata field.
+func (b *ServerResourceSpecApplyConfiguration) WithMetadata(values ...*ServerMetadataApplyConfiguration) *ServerResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithMetadata")
+		}
+		b.Metadata = append(b.Metadata, *values[i])
+	}
+	return b
+}
+
+// WithConfigDrive sets the ConfigDrive field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ConfigDrive field is set to the value of the last call.
+func (b *ServerResourceSpecApplyConfiguration) WithConfigDrive(value bool) *ServerResourceSpecApplyConfiguration {
+	b.ConfigDrive = &value
 	return b
 }

@@ -14,8 +14,9 @@ status:
     portSecurityEnabled: true
     propagateUplinkStatus: false
     status: DOWN
-    vnicType: direct
+    vnicType: macvtap
     macAddress: fa:16:3e:23:fd:d7
+    hostID: devstack
     tags:
       - tag1
 ---

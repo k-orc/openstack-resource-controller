@@ -408,7 +408,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `enabled` _boolean_ | enabled indicates whether the endpoint is enabled or not. | true |  |
 | `interface` _string_ | interface indicates the visibility of the endpoint. |  | Enum: [admin internal public] <br /> |
 | `url` _string_ | url is the endpoint URL. |  | MaxLength: 1024 <br /> |
@@ -428,9 +428,9 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `enabled` _boolean_ | enabled indicates whether the endpoint is enabled or not. |  |  |
-| `interface` _string_ | interface indicates the visibility of the endpoint. |  | Enum: [admin internal public] <br /> |
+| `interface` _string_ | interface indicates the visibility of the endpoint. |  | MaxLength: 128 <br /> |
 | `url` _string_ | url is the endpoint URL. |  | MaxLength: 1024 <br /> |
 | `serviceID` _string_ | serviceID is the ID of the Service to which the resource is associated. |  | MaxLength: 1024 <br /> |
 
@@ -2145,7 +2145,6 @@ _Validation:_
 - Pattern: `^[^,]+$`
 
 _Appears in:_
-- [EndpointResourceSpec](#endpointresourcespec)
 - [FlavorFilter](#flavorfilter)
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)
@@ -2314,6 +2313,7 @@ _Appears in:_
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br /> |
+| `hostID` _string_ | hostID is the ID of host where the port resides. |  | MaxLength: 36 <br /> |
 
 
 #### PortResourceStatus
@@ -2345,6 +2345,7 @@ _Appears in:_
 | `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  |  |
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br /> |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  |  |
+| `hostID` _string_ | hostID is the ID of host where the port resides. |  | MaxLength: 128 <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  |  |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  |  |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  |  |
@@ -3436,6 +3437,40 @@ _Appears in:_
 | `fixedIPs` _[ServerInterfaceFixedIP](#serverinterfacefixedip) array_ | fixedIPs is the list of fixed IP addresses assigned to the interface. |  | MaxItems: 32 <br /> |
 
 
+#### ServerMetadata
+
+
+
+ServerMetadata represents a key-value pair for server metadata.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the metadata key. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `value` _string_ | value is the metadata value. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ServerMetadataStatus
+
+
+
+ServerMetadataStatus represents a key-value pair for server metadata in status.
+
+
+
+_Appears in:_
+- [ServerResourceStatus](#serverresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the metadata key. |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the metadata value. |  | MaxLength: 255 <br /> |
+
+
 #### ServerPortSpec
 
 
@@ -3477,6 +3512,8 @@ _Appears in:_
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
 | `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `metadata` _[ServerMetadata](#servermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
+| `configDrive` _boolean_ | configDrive specifies whether to attach a config drive to the server.<br />When true, configuration data will be available via a special drive<br />instead of the metadata service. |  |  |
 
 
 #### ServerResourceStatus
@@ -3501,6 +3538,8 @@ _Appears in:_
 | `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 64 <br /> |
 | `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 50 <br />items:MaxLength: 1024 <br /> |
+| `metadata` _[ServerMetadataStatus](#servermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
+| `configDrive` _boolean_ | configDrive indicates whether the server was booted with a config drive. |  |  |
 
 
 #### ServerSpec

@@ -298,6 +298,10 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
+                  hostID:
+                    description: hostID is the ID of host where the port resides.
+                    maxLength: 36
+                    type: string
                   macAddress:
                     description: macAddress is the MAC address of the port.
                     maxLength: 32
@@ -561,6 +565,10 @@ spec:
                     maxItems: 128
                     type: array
                     x-kubernetes-list-type: atomic
+                  hostID:
+                    description: hostID is the ID of host where the port resides.
+                    maxLength: 128
+                    type: string
                   macAddress:
                     description: macAddress is the MAC address of the port.
                     maxLength: 1024
