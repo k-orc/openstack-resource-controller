@@ -71,7 +71,7 @@ metadata:
   name: trunk-dependency-no-project
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
