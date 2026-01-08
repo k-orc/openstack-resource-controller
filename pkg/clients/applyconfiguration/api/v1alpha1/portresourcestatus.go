@@ -41,6 +41,7 @@ type PortResourceStatusApplyConfiguration struct {
 	PropagateUplinkStatus                   *bool                                        `json:"propagateUplinkStatus,omitempty"`
 	VNICType                                *string                                      `json:"vnicType,omitempty"`
 	PortSecurityEnabled                     *bool                                        `json:"portSecurityEnabled,omitempty"`
+	HostID                                  *string                                      `json:"hostID,omitempty"`
 	NeutronStatusMetadataApplyConfiguration `json:",inline"`
 }
 
@@ -189,6 +190,14 @@ func (b *PortResourceStatusApplyConfiguration) WithVNICType(value string) *PortR
 // If called multiple times, the PortSecurityEnabled field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithPortSecurityEnabled(value bool) *PortResourceStatusApplyConfiguration {
 	b.PortSecurityEnabled = &value
+	return b
+}
+
+// WithHostID sets the HostID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the HostID field is set to the value of the last call.
+func (b *PortResourceStatusApplyConfiguration) WithHostID(value string) *PortResourceStatusApplyConfiguration {
+	b.HostID = &value
 	return b
 }
 

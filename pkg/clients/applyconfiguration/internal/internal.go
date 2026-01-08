@@ -1333,6 +1333,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: hostID
+      type:
+        scalar: string
     - name: macAddress
       type:
         scalar: string
@@ -1393,6 +1396,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FixedIPStatus
           elementRelationship: atomic
+    - name: hostID
+      type:
+        scalar: string
     - name: macAddress
       type:
         scalar: string

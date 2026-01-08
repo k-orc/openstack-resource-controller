@@ -4909,6 +4909,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							Format:      "",
 						},
 					},
+					"hostID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hostID is the ID of host where the port resides.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"networkRef"},
 			},
@@ -5083,6 +5090,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref
 						SchemaProps: spec.SchemaProps{
 							Description: "portSecurityEnabled indicates whether port security is enabled or not.",
 							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"hostID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hostID is the ID of host where the port resides.",
+							Type:        []string{"string"},
 							Format:      "",
 						},
 					},

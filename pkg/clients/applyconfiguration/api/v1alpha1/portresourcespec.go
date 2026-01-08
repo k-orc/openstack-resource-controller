@@ -37,6 +37,7 @@ type PortResourceSpecApplyConfiguration struct {
 	PortSecurity        *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
 	ProjectRef          *apiv1alpha1.KubernetesNameRef         `json:"projectRef,omitempty"`
 	MACAddress          *string                                `json:"macAddress,omitempty"`
+	HostID              *string                                `json:"hostID,omitempty"`
 }
 
 // PortResourceSpecApplyConfiguration constructs a declarative configuration of the PortResourceSpec type for use with
@@ -152,5 +153,13 @@ func (b *PortResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.Ku
 // If called multiple times, the MACAddress field is set to the value of the last call.
 func (b *PortResourceSpecApplyConfiguration) WithMACAddress(value string) *PortResourceSpecApplyConfiguration {
 	b.MACAddress = &value
+	return b
+}
+
+// WithHostID sets the HostID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the HostID field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithHostID(value string) *PortResourceSpecApplyConfiguration {
+	b.HostID = &value
 	return b
 }
