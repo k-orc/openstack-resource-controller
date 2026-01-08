@@ -31,6 +31,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 )
 
@@ -115,7 +116,7 @@ var subportPortDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.T
 		}
 		return portRefs
 	},
-	finalizer, externalObjectFieldOwner,
+	orcstrings.GetFinalizerName("trunk-subport"), externalObjectFieldOwner,
 	dependency.OverrideDependencyName("subport_port"),
 )
 
