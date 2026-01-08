@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-	"time"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -32,7 +31,6 @@ type templateFields struct {
 	OpenStackJSONObject        string
 	AvailablePollingPeriod     int
 	DeletingPollingPeriod      int
-	Year                       int
 	RequiredCreateDependencies strList
 	OptionalCreateDependencies strList
 	AllCreateDependencies      strList
@@ -180,7 +178,6 @@ func main() {
 
 	fields.PackageName = strings.ToLower(fields.Kind)
 	fields.GophercloudPackage = path.Base(fields.GophercloudModule)
-	fields.Year = time.Now().Year()
 	fields.AllCreateDependencies = slices.Concat(fields.RequiredCreateDependencies, fields.OptionalCreateDependencies)
 
 	render("data/api", filepath.Join("api", "v1alpha1"), &fields)
