@@ -1,16 +1,43 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: trunk-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-create-minimal
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: trunk-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: trunk-create-minimal
+    ipVersion: 4
+    cidr: 192.168.156.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
   name: trunk-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: trunk-create-minimal
+    addresses:
+    - subnetRef: trunk-create-minimal
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -18,11 +45,8 @@ metadata:
   name: trunk-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
   resource:
-    portRef: trunk-create-full
+    portRef: trunk-create-minimal

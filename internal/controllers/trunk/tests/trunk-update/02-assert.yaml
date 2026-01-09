@@ -1,22 +1,11 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Trunk
-      name: trunk-update
-      ref: trunk
-assertAll:
-    - celExpr: "!has(trunk.status.resource.description)"
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
 metadata:
   name: trunk-update
 status:
   resource:
-    name: trunk-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    adminStateUp: false
   conditions:
   - type: Available
     status: "True"

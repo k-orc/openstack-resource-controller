@@ -7,7 +7,11 @@ status:
   resource:
     name: trunk-create-full-override
     description: Trunk from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    adminStateUp: false
+    status: ACTIVE
+    tags:
+      - tag1
+      - tag2
   conditions:
   - type: Available
     status: "True"
@@ -28,6 +32,14 @@ resourceRefs:
       name: trunk-create-full
       ref: port
     - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-create-full-subport1
+      ref: subport1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-create-full-subport2
+      ref: subport2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Project
       name: trunk-create-full
       ref: project
@@ -35,4 +47,10 @@ assertAll:
     - celExpr: "trunk.status.id != ''"
     - celExpr: "trunk.status.resource.portID == port.status.id"
     - celExpr: "trunk.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "trunk.status.resource.tenantID != ''"
+    - celExpr: "trunk.status.resource.createdAt != ''"
+    - celExpr: "trunk.status.resource.updatedAt != ''"
+    - celExpr: "trunk.status.resource.revisionNumber > 0"
+    - celExpr: "trunk.status.resource.subports.size() == 2"
+    - celExpr: "trunk.status.resource.subports.exists(s, s.portID == subport1.status.id && s.segmentationID == 100 && s.segmentationType == 'vlan')"
+    - celExpr: "trunk.status.resource.subports.exists(s, s.portID == subport2.status.id && s.segmentationID == 200 && s.segmentationType == 'vlan')"

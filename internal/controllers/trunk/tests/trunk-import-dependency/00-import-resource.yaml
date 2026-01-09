@@ -18,7 +18,7 @@ metadata:
   name: trunk-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
@@ -31,7 +31,7 @@ metadata:
   name: trunk-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:

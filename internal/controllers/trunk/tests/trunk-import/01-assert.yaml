@@ -16,7 +16,9 @@ status:
   resource:
     name: trunk-import-external-not-this-one
     description: Trunk trunk-import-external from "trunk-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    adminStateUp: true
+    tags:
+      - trunk-import-tag
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk

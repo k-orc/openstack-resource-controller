@@ -5,10 +5,20 @@ metadata:
   name: trunk-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Sample Trunk
-    # TODO(scaffolding): Add all fields the resource supports
+    name: trunk-sample-name
+    portRef: my-port
+    subPorts:
+      - portRef: sub-port-1
+        segmentationID: 101
+        segmentationType: vlan
+      - portRef: sub-port-2
+        segmentationID: 102
+        segmentationType: vlan
+    tags:
+      - tag1
+      - tag2

@@ -30,4 +30,6 @@ status:
   resource:
     name: trunk-import-external
     description: Trunk trunk-import-external from "trunk-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    adminStateUp: true
+    tags:
+      - trunk-import-tag

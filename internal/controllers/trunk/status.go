@@ -52,10 +52,37 @@ func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 	resourceStatus := orcapplyconfigv1alpha1.TrunkResourceStatus().
 		WithPortID(osResource.PortID).
 		WithProjectID(osResource.ProjectID).
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithAdminStateUp(osResource.AdminStateUp).
+		WithRevisionNumber(int64(osResource.RevisionNumber)).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
+		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
-	// TODO(scaffolding): add all of the fields supported in the TrunkResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if osResource.Status != "" {
+		resourceStatus.WithStatus(osResource.Status)
+	}
+
+	if osResource.TenantID != "" {
+		resourceStatus.WithTenantID(osResource.TenantID)
+	}
+
+	if len(osResource.Tags) > 0 {
+		resourceStatus.WithTags(osResource.Tags...)
+	}
+
+	if len(osResource.Subports) > 0 {
+		subports := make([]*orcapplyconfigv1alpha1.TrunkSubportStatusApplyConfiguration, 0, len(osResource.Subports))
+		for i := range osResource.Subports {
+			sp := osResource.Subports[i]
+			subports = append(subports,
+				orcapplyconfigv1alpha1.TrunkSubportStatus().
+					WithPortID(sp.PortID).
+					WithSegmentationID(int32(sp.SegmentationID)).
+					WithSegmentationType(sp.SegmentationType),
+			)
+		}
+		resourceStatus.WithSubports(subports...)
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)

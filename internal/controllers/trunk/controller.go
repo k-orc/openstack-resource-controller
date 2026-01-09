@@ -31,6 +31,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
 )
 
@@ -97,6 +98,26 @@ var projectImportDependency = dependency.NewDependency[*orcv1alpha1.TrunkList, *
 	},
 )
 
+var subportPortDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
+	"spec.resource.subports[].portRef",
+	func(trunk *orcv1alpha1.Trunk) []string {
+		resource := trunk.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+		if len(resource.Subports) == 0 {
+			return nil
+		}
+		portRefs := make([]string, 0, len(resource.Subports))
+		for i := range resource.Subports {
+			portRefs = append(portRefs, string(resource.Subports[i].PortRef))
+		}
+		return portRefs
+	},
+	orcstrings.GetFinalizerName("trunk-subport"), externalObjectFieldOwner,
+	dependency.OverrideDependencyName("subport_port"),
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -122,6 +143,11 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		return err
 	}
 
+	subportPortWatchEventHandler, err := subportPortDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.Port{}, portWatchEventHandler,
@@ -138,6 +164,10 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
+		// Watch for subport port changes
+		Watches(&orcv1alpha1.Port{}, subportPortWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
 		For(&orcv1alpha1.Trunk{})
 
 	if err := errors.Join(
@@ -145,6 +175,7 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		projectDependency.AddToManager(ctx, mgr),
 		portImportDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
+		subportPortDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

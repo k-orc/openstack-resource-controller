@@ -10,4 +10,7 @@ delete:
   name: trunk-dependency-no-port
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Trunk
+  name: trunk-dependency-no-subport
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Trunk
   name: trunk-dependency-no-project

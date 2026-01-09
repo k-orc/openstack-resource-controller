@@ -6,7 +6,8 @@ metadata:
 status:
   resource:
     name: trunk-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    adminStateUp: true
+    status: ACTIVE
   conditions:
   - type: Available
     status: "True"
@@ -29,4 +30,11 @@ resourceRefs:
 assertAll:
     - celExpr: "trunk.status.id != ''"
     - celExpr: "trunk.status.resource.portID == port.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "trunk.status.resource.projectID != ''"
+    - celExpr: "trunk.status.resource.tenantID != ''"
+    - celExpr: "trunk.status.resource.createdAt != ''"
+    - celExpr: "trunk.status.resource.updatedAt != ''"
+    - celExpr: "trunk.status.resource.revisionNumber > 0"
+    - celExpr: "!has(trunk.status.resource.description)"
+    - celExpr: "!has(trunk.status.resource.tags)"
+    - celExpr: "!has(trunk.status.resource.subports)"

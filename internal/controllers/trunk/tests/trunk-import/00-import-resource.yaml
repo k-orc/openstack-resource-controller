@@ -12,4 +12,6 @@ spec:
     filter:
       name: trunk-import-external
       description: Trunk trunk-import-external from "trunk-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      adminStateUp: true
+      tags:
+        - trunk-import-tag

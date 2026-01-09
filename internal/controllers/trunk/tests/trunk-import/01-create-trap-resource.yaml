@@ -1,16 +1,43 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: trunk-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: trunk-import
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: trunk-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: trunk-import
+    ipVersion: 4
+    cidr: 192.168.156.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
   name: trunk-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: trunk-import
+    addresses:
+    - subnetRef: trunk-import
 ---
 # This `trunk-import-external-not-this-one` resource serves two purposes:
 # - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
@@ -21,11 +48,12 @@ metadata:
   name: trunk-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Trunk trunk-import-external from "trunk-import" test
     portRef: trunk-import-external-not-this-one
-    # TODO(scaffolding): Add fields necessary to match filter
+    adminStateUp: true
+    tags:
+      - trunk-import-tag

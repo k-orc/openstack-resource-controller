@@ -5,12 +5,13 @@ metadata:
   name: trunk-import
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: trunk-import
+    addresses:
+    - subnetRef: trunk-import
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -18,11 +19,12 @@ metadata:
   name: trunk-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Trunk trunk-import-external from "trunk-import" test
     portRef: trunk-import
-    # TODO(scaffolding): Add fields necessary to match filter
+    adminStateUp: true
+    tags:
+      - trunk-import-tag
