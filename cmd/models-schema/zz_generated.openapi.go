@@ -10337,7 +10337,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportSpec(ref c
 					"portRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "portRef is a reference to the ORC Port that will be attached as a subport.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -10345,7 +10344,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportSpec(ref c
 					"segmentationID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "segmentationID is the segmentation ID for the subport (e.g. VLAN ID).",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -10353,7 +10351,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportSpec(ref c
 					"segmentationType": {
 						SchemaProps: spec.SchemaProps{
 							Description: "segmentationType is the segmentation type for the subport (e.g. vlan).",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},

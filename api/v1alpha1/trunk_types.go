@@ -15,25 +15,26 @@ limitations under the License.
 */
 
 package v1alpha1
+
 // TrunkSubportSpec represents a subport to attach to a trunk.
 // It maps to gophercloud's trunks.Subport.
 type TrunkSubportSpec struct {
 	// portRef is a reference to the ORC Port that will be attached as a subport.
 	// +required
-	PortRef *KubernetesNameRef `json:"portRef"`
+	PortRef KubernetesNameRef `json:"portRef,omitempty"`
 
 	// segmentationID is the segmentation ID for the subport (e.g. VLAN ID).
 	// +required
 	// +kubebuilder:validation:Minimum:=1
 	// +kubebuilder:validation:Maximum:=4094
-	SegmentationID int32 `json:"segmentationID"`
+	SegmentationID int32 `json:"segmentationID,omitempty"`
 
 	// segmentationType is the segmentation type for the subport (e.g. vlan).
 	// +required
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=32
 	// +kubebuilder:validation:Enum:=inherit;vlan
-	SegmentationType string `json:"segmentationType"`
+	SegmentationType string `json:"segmentationType,omitempty"`
 }
 
 // TrunkSubportStatus represents an attached subport on a trunk.
@@ -68,7 +69,7 @@ type TrunkResourceSpec struct {
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="portRef is immutable"
-	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
+	PortRef KubernetesNameRef `json:"portRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional

@@ -162,11 +162,11 @@ func TestHandleAdminStateUpUpdate(t *testing.T) {
 
 func TestReconcileSubportsLogic(t *testing.T) {
 	testCases := []struct {
-		name              string
-		desiredSubports   map[string]*orcv1alpha1.TrunkSubportSpec
-		actualSubports    map[string]trunks.Subport
-		expectedToAdd     int
-		expectedToRemove  int
+		name             string
+		desiredSubports  map[string]*orcv1alpha1.TrunkSubportSpec
+		actualSubports   map[string]trunks.Subport
+		expectedToAdd    int
+		expectedToRemove int
 	}{
 		{
 			name: "No changes needed",
