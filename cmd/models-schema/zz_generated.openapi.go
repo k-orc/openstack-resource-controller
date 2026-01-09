@@ -201,6 +201,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_SubnetResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetSpec":                     schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkFilter":                    schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceSpec":              schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume":                         schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus(ref),
@@ -9738,6 +9741,130 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref commo
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TrunkFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portRef is a reference to the ORC Port which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TrunkResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portRef is a reference to the ORC Port which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"portRef"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TrunkResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"portID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portID is the ID of the Port to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the Project to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 

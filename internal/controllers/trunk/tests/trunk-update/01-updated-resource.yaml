@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update
+spec:
+  resource:
+    name: trunk-update-updated
+    description: trunk-update-updated
+    # TODO(scaffolding): update all mutable fields

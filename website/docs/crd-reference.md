@@ -1632,6 +1632,8 @@ _Appears in:_
 - [ServerVolumeSpec](#servervolumespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
+- [TrunkFilter](#trunkfilter)
+- [TrunkResourceSpec](#trunkresourcespec)
 - [UserDataSpec](#userdataspec)
 - [VolumeResourceSpec](#volumeresourcespec)
 
@@ -2025,6 +2027,8 @@ _Appears in:_
 - [ServiceResourceSpec](#serviceresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
+- [TrunkFilter](#trunkfilter)
+- [TrunkResourceSpec](#trunkresourcespec)
 - [VolumeFilter](#volumefilter)
 - [VolumeResourceSpec](#volumeresourcespec)
 - [VolumeTypeFilter](#volumetypefilter)
@@ -3819,6 +3823,12 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  |  |
 | `resource` _[SubnetResourceStatus](#subnetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-create-minimal
+status:
+  resource:
+    name: trunk-create-minimal
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Trunk
+      name: trunk-create-minimal
+      ref: trunk
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-create-minimal
+      ref: port
+assertAll:
+    - celExpr: "trunk.status.id != ''"
+    - celExpr: "trunk.status.resource.portID == port.status.id"
+    # TODO(scaffolding): Add more checks
