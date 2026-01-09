@@ -202,7 +202,7 @@ func render(srcDir, distDir string, resource *templateFields) {
 
 	for _, file := range files {
 		if file.IsDir() {
-			if file.Name() == "dependency" && len(resource.OptionalCreateDependencies) == 0 {
+			if file.Name() == "dependency" && len(resource.AllCreateDependencies) == 0 {
 				continue
 			}
 			if file.Name() == "import-dependency" && len(resource.ImportDependencies) == 0 {
