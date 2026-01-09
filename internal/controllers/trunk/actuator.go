@@ -18,8 +18,8 @@ package trunk
 
 import (
 	"context"
-	"iter"
 	"fmt"
+	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
 	corev1 "k8s.io/api/core/v1"
@@ -128,10 +128,10 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	}
 
 	listOpts := trunks.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		PortID:    ptr.Deref(port.Status.ID, ""),
-		ProjectID: ptr.Deref(project.Status.ID, ""),
+		Name:         string(ptr.Deref(filter.Name, "")),
+		Description:  string(ptr.Deref(filter.Description, "")),
+		PortID:       ptr.Deref(port.Status.ID, ""),
+		ProjectID:    ptr.Deref(project.Status.ID, ""),
 		AdminStateUp: filter.AdminStateUp,
 		Tags:         tags.Join(filter.Tags),
 		TagsAny:      tags.Join(filter.TagsAny),
@@ -192,12 +192,9 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 			subports = make([]trunks.Subport, len(resource.Subports))
 			for i := range resource.Subports {
 				subportSpec := &resource.Subports[i]
-				if subportSpec.PortRef == nil {
-					return nil, reconcileStatus.WithError(fmt.Errorf("subport number %d has nil portRef", i+1))
-				}
-				port, ok := subportPortMap[string(*subportSpec.PortRef)]
+				port, ok := subportPortMap[string(subportSpec.PortRef)]
 				if !ok {
-					return nil, reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", *subportSpec.PortRef))
+					return nil, reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", subportSpec.PortRef))
 				}
 				subports[i] = trunks.Subport{
 					PortID:           ptr.Deref(port.Status.ID, ""),
@@ -212,12 +209,12 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 		return nil, reconcileStatus
 	}
 	createOpts := trunks.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: string(ptr.Deref(resource.Description, "")),
-		PortID:      portID,
-		ProjectID:   projectID,
+		Name:         getResourceName(obj),
+		Description:  string(ptr.Deref(resource.Description, "")),
+		PortID:       portID,
+		ProjectID:    projectID,
 		AdminStateUp: resource.AdminStateUp,
-		Subports:    subports,
+		Subports:     subports,
 	}
 
 	osResource, err := actuator.osClient.CreateTrunk(ctx, createOpts)
@@ -335,16 +332,13 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 
 		for i := range resource.Subports {
 			subportSpec := &resource.Subports[i]
-			if subportSpec.PortRef == nil {
-				return reconcileStatus.WithError(fmt.Errorf("subport at index %d has nil portRef", i))
-			}
-			port, ok := subportPortMap[string(*subportSpec.PortRef)]
+			port, ok := subportPortMap[string(subportSpec.PortRef)]
 			if !ok {
-				return reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", *subportSpec.PortRef))
+				return reconcileStatus.WithError(fmt.Errorf("unable to resolve required subport port reference: %s", subportSpec.PortRef))
 			}
 			portID := ptr.Deref(port.Status.ID, "")
 			if portID == "" {
-				return reconcileStatus.WithError(fmt.Errorf("subport port %s does not have an ID", *subportSpec.PortRef))
+				return reconcileStatus.WithError(fmt.Errorf("subport port %s does not have an ID", subportSpec.PortRef))
 			}
 			desiredSubports[portID] = subportSpec
 		}

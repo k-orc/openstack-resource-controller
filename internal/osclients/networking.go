@@ -243,7 +243,6 @@ func (c networkClient) ListTrunkSubports(ctx context.Context, trunkID string) ([
 	return trunks.GetSubports(ctx, c.serviceClient, trunkID).Extract()
 }
 
-
 func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error) {
 	allPages, err := trunks.List(c.serviceClient, opts).AllPages(ctx)
 	if err != nil {
