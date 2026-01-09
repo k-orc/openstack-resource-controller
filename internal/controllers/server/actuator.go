@@ -249,6 +249,11 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	// Sort tags before creation to simplify comparisons
 	slices.Sort(tags)
 
+	metadata := make(map[string]string)
+	for _, m := range resource.Metadata {
+		metadata[m.Key] = m.Value
+	}
+
 	serverCreateOpts := servers.CreateOpts{
 		Name:             getResourceName(obj),
 		ImageRef:         *image.Status.ID,
@@ -256,6 +261,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		Networks:         portList,
 		UserData:         userData,
 		Tags:             tags,
+		Metadata:         metadata,
 		AvailabilityZone: resource.AvailabilityZone,
 	}
 
@@ -307,6 +313,7 @@ func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcOb
 		actuator.checkStatus,
 		actuator.updateResource,
 		actuator.reconcileTags,
+		actuator.reconcileMetadata,
 		actuator.reconcilePortAttachments,
 		actuator.reconcileVolumeAttachments,
 	}, nil
@@ -391,6 +398,39 @@ func (actuator serverActuator) reconcileTags(ctx context.Context, obj orcObjectP
 	}
 
 	return tags.ReconcileTags[orcObjectPT, osResourceT](obj.Spec.Resource.Tags, ptr.Deref(osResource.Tags, []string{}), tags.NewServerTagReplacer(actuator.osClient, osResource.ID))(ctx, obj, osResource)
+}
+
+func (actuator serverActuator) reconcileMetadata(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	// Metadata cannot be set on a server that is still building
+	if osResource.Status == "" || osResource.Status == ServerStatusBuild {
+		return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverActivePollingPeriod)
+	}
+
+	// Build the desired metadata map from spec
+	desiredMetadata := make(map[string]string)
+	for _, m := range resource.Metadata {
+		desiredMetadata[m.Key] = m.Value
+	}
+
+	// Compare with current metadata
+	if maps.Equal(desiredMetadata, osResource.Metadata) {
+		return nil
+	}
+
+	log.V(logging.Verbose).Info("Updating server metadata")
+	_, err := actuator.osClient.ReplaceServerMetadata(ctx, osResource.ID, desiredMetadata)
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
 }
 
 func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {

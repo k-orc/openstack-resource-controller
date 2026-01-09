@@ -32,6 +32,7 @@ assertAll:
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
     - celExpr: "!has(server.status.resource.tags)"
     - celExpr: "!has(server.status.resource.volumes)"
+    - celExpr: "!has(server.status.resource.metadata)"
     - celExpr: "!has(volume.status.resource.attachments)"
     - celExpr: "port1.status.resource.deviceID == server.status.id"
     - celExpr: "port1.status.resource.status == 'ACTIVE'"

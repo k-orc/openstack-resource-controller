@@ -3295,6 +3295,40 @@ _Appears in:_
 | `fixedIPs` _[ServerInterfaceFixedIP](#serverinterfacefixedip) array_ | fixedIPs is the list of fixed IP addresses assigned to the interface. |  | MaxItems: 32 <br /> |
 
 
+#### ServerMetadata
+
+
+
+ServerMetadata represents a key-value pair for server metadata.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the metadata key. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `value` _string_ | value is the metadata value. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ServerMetadataStatus
+
+
+
+ServerMetadataStatus represents a key-value pair for server metadata in status.
+
+
+
+_Appears in:_
+- [ServerResourceStatus](#serverresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the metadata key. |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the metadata value. |  | MaxLength: 255 <br /> |
+
+
 #### ServerPortSpec
 
 
@@ -3336,6 +3370,7 @@ _Appears in:_
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
 | `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
+| `metadata` _[ServerMetadata](#servermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
 
 
 #### ServerResourceStatus
@@ -3360,6 +3395,7 @@ _Appears in:_
 | `volumes` _[ServerVolumeStatus](#servervolumestatus) array_ | volumes contains the volumes attached to the server. |  | MaxItems: 64 <br /> |
 | `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 50 <br />items:MaxLength: 1024 <br /> |
+| `metadata` _[ServerMetadataStatus](#servermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
 
 
 #### ServerSpec

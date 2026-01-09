@@ -175,6 +175,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceFixedIP":         schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceFixedIP(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_ServerInterfaceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerList":                     schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata":                 schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadataStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadataStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec":                 schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec":             schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(ref),
@@ -8107,6 +8109,61 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerList(ref common.
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadata(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerMetadata represents a key-value pair for server metadata.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"key": {
+						SchemaProps: spec.SchemaProps{
+							Description: "key is the metadata key.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the metadata value.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"key", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerMetadataStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ServerMetadataStatus represents a key-value pair for server metadata in status.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"key": {
+						SchemaProps: spec.SchemaProps{
+							Description: "key is the metadata key.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the metadata value.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_ServerPortSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -8239,12 +8296,31 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							},
 						},
 					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata is a list of metadata key-value pairs which will be set on the server.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata"),
+									},
+								},
+							},
+						},
+					},
 				},
 				Required: []string{"imageRef", "flavorRef", "ports"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
 	}
 }
 
@@ -8368,11 +8444,30 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceStatus(r
 							},
 						},
 					},
+					"metadata": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata is the list of metadata key-value pairs on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadataStatus"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerInterfaceStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadataStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeStatus"},
 	}
 }
 

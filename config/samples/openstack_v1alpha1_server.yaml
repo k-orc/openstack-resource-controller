@@ -20,3 +20,8 @@ spec:
     tags:
       - tag1
       - tag2
+    metadata:
+      - key: environment
+        value: development
+      - key: owner
+        value: sample

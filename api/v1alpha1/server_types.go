@@ -181,6 +181,27 @@ type ServerResourceSpec struct {
 	// +listType=set
 	// +optional
 	Tags []ServerTag `json:"tags,omitempty"`
+
+	// metadata is a list of metadata key-value pairs which will be set on the server.
+	// +kubebuilder:validation:MaxItems:=128
+	// +listType=atomic
+	// +optional
+	Metadata []ServerMetadata `json:"metadata,omitempty"`
+}
+
+// ServerMetadata represents a key-value pair for server metadata.
+type ServerMetadata struct {
+	// key is the metadata key.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Key string `json:"key,omitempty"`
+
+	// value is the metadata value.
+	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:MinLength:=1
+	// +required
+	Value string `json:"value,omitempty"`
 }
 
 // +kubebuilder:validation:MinProperties:=1
@@ -261,4 +282,23 @@ type ServerResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	Tags []string `json:"tags,omitempty"`
+
+	// metadata is the list of metadata key-value pairs on the resource.
+	// +kubebuilder:validation:MaxItems:=128
+	// +listType=atomic
+	// +optional
+	Metadata []ServerMetadataStatus `json:"metadata,omitempty"`
+}
+
+// ServerMetadataStatus represents a key-value pair for server metadata in status.
+type ServerMetadataStatus struct {
+	// key is the metadata key.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Key string `json:"key,omitempty"`
+
+	// value is the metadata value.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Value string `json:"value,omitempty"`
 }
