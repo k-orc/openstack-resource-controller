@@ -71,7 +71,8 @@ func (serverStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithHostID(osResource.HostID).
 		WithAvailabilityZone(osResource.AvailabilityZone).
 		WithServerGroups(ptr.Deref(osResource.ServerGroups, []string{})...).
-		WithTags(ptr.Deref(osResource.Tags, []string{})...)
+		WithTags(ptr.Deref(osResource.Tags, []string{})...).
+		WithConfigDrive(osResource.ConfigDrive)
 
 	if imageID, ok := osResource.Image["id"]; ok {
 		status.WithImageID(fmt.Sprintf("%s", imageID))

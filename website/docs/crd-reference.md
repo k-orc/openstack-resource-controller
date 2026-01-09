@@ -3371,6 +3371,7 @@ _Appears in:_
 | `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 | `metadata` _[ServerMetadata](#servermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
+| `configDrive` _boolean_ | configDrive specifies whether to attach a config drive to the server.<br />When true, configuration data will be available via a special drive<br />instead of the metadata service. |  |  |
 
 
 #### ServerResourceStatus
@@ -3396,6 +3397,7 @@ _Appears in:_
 | `interfaces` _[ServerInterfaceStatus](#serverinterfacestatus) array_ | interfaces contains the list of interfaces attached to the server. |  | MaxItems: 64 <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 50 <br />items:MaxLength: 1024 <br /> |
 | `metadata` _[ServerMetadataStatus](#servermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
+| `configDrive` _boolean_ | configDrive indicates whether the server was booted with a config drive. |  |  |
 
 
 #### ServerSpec
