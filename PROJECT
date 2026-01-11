@@ -61,6 +61,30 @@ resources:
     namespaced: true
   domain: k-orc.cloud
   group: openstack
+  kind: LBPool
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: Listener
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
+  kind: LoadBalancer
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
   kind: Network
   path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1

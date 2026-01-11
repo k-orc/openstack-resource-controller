@@ -160,6 +160,56 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
 		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPool"):
+		return &apiv1alpha1.LBPoolApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolFilter"):
+		return &apiv1alpha1.LBPoolFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolImport"):
+		return &apiv1alpha1.LBPoolImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolMemberSpec"):
+		return &apiv1alpha1.LBPoolMemberSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolMemberStatus"):
+		return &apiv1alpha1.LBPoolMemberStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolResourceSpec"):
+		return &apiv1alpha1.LBPoolResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolResourceStatus"):
+		return &apiv1alpha1.LBPoolResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolSessionPersistence"):
+		return &apiv1alpha1.LBPoolSessionPersistenceApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolSpec"):
+		return &apiv1alpha1.LBPoolSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LBPoolStatus"):
+		return &apiv1alpha1.LBPoolStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Listener"):
+		return &apiv1alpha1.ListenerApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerFilter"):
+		return &apiv1alpha1.ListenerFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerHSTS"):
+		return &apiv1alpha1.ListenerHSTSApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerImport"):
+		return &apiv1alpha1.ListenerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerResourceSpec"):
+		return &apiv1alpha1.ListenerResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerResourceStatus"):
+		return &apiv1alpha1.ListenerResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerSpec"):
+		return &apiv1alpha1.ListenerSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerStatus"):
+		return &apiv1alpha1.ListenerStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancer"):
+		return &apiv1alpha1.LoadBalancerApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerFilter"):
+		return &apiv1alpha1.LoadBalancerFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerImport"):
+		return &apiv1alpha1.LoadBalancerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerResourceSpec"):
+		return &apiv1alpha1.LoadBalancerResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerResourceStatus"):
+		return &apiv1alpha1.LoadBalancerResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerSpec"):
+		return &apiv1alpha1.LoadBalancerSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LoadBalancerStatus"):
+		return &apiv1alpha1.LoadBalancerStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ManagedOptions"):
 		return &apiv1alpha1.ManagedOptionsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Network"):
