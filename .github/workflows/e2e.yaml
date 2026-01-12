@@ -38,7 +38,7 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk"
+        enabled_services: "openstack-cli-server,neutron-trunk,neutron-uplink-status-propagation"
         conf_overrides: |
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]

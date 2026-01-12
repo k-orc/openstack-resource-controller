@@ -17,6 +17,7 @@ status:
     vnicType: macvtap
     macAddress: fa:16:3e:23:fd:d7
     hostID: devstack
+    propagateUplinkStatus: true
     tags:
       - tag1
 ---

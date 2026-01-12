@@ -210,6 +210,11 @@ type PortResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="hostID is immutable"
 	HostID *HostID `json:"hostID,omitempty"` //nolint:kubeapilinter // HostID provides both raw ID and ServerRef options
+
+	// propagateUplinkStatus represents the uplink status propagation of
+	// the port.
+	// +optional
+	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 }
 
 type PortResourceStatus struct {
@@ -291,7 +296,7 @@ type PortResourceStatus struct {
 	// propagateUplinkStatus represents the uplink status propagation of
 	// the port.
 	// +optional
-	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
+	PropagateUplinkStatus bool `json:"propagateUplinkStatus,omitempty"`
 
 	// vnicType is the type of vNIC which this port is attached to.
 	// +kubebuilder:validation:MaxLength:=64

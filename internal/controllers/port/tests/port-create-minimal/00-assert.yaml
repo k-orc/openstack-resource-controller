@@ -9,7 +9,7 @@ status:
     adminStateUp: true
     portSecurityEnabled: true
     propagateUplinkStatus: false
-    revisionNumber: 1
+    revisionNumber: 2
     status: DOWN
     vnicType: normal
 ---
