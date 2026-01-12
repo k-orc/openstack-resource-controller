@@ -25,19 +25,20 @@ import (
 // PortResourceSpecApplyConfiguration represents a declarative configuration of the PortResourceSpec type for use
 // with apply.
 type PortResourceSpecApplyConfiguration struct {
-	Name                *apiv1alpha1.OpenStackName             `json:"name,omitempty"`
-	Description         *apiv1alpha1.NeutronDescription        `json:"description,omitempty"`
-	NetworkRef          *apiv1alpha1.KubernetesNameRef         `json:"networkRef,omitempty"`
-	Tags                []apiv1alpha1.NeutronTag               `json:"tags,omitempty"`
-	AllowedAddressPairs []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
-	Addresses           []AddressApplyConfiguration            `json:"addresses,omitempty"`
-	AdminStateUp        *bool                                  `json:"adminStateUp,omitempty"`
-	SecurityGroupRefs   []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
-	VNICType            *string                                `json:"vnicType,omitempty"`
-	PortSecurity        *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
-	ProjectRef          *apiv1alpha1.KubernetesNameRef         `json:"projectRef,omitempty"`
-	MACAddress          *string                                `json:"macAddress,omitempty"`
-	HostID              *string                                `json:"hostID,omitempty"`
+	Name                  *apiv1alpha1.OpenStackName             `json:"name,omitempty"`
+	Description           *apiv1alpha1.NeutronDescription        `json:"description,omitempty"`
+	NetworkRef            *apiv1alpha1.KubernetesNameRef         `json:"networkRef,omitempty"`
+	Tags                  []apiv1alpha1.NeutronTag               `json:"tags,omitempty"`
+	AllowedAddressPairs   []AllowedAddressPairApplyConfiguration `json:"allowedAddressPairs,omitempty"`
+	Addresses             []AddressApplyConfiguration            `json:"addresses,omitempty"`
+	AdminStateUp          *bool                                  `json:"adminStateUp,omitempty"`
+	SecurityGroupRefs     []apiv1alpha1.OpenStackName            `json:"securityGroupRefs,omitempty"`
+	VNICType              *string                                `json:"vnicType,omitempty"`
+	PortSecurity          *apiv1alpha1.PortSecurityState         `json:"portSecurity,omitempty"`
+	ProjectRef            *apiv1alpha1.KubernetesNameRef         `json:"projectRef,omitempty"`
+	MACAddress            *string                                `json:"macAddress,omitempty"`
+	HostID                *string                                `json:"hostID,omitempty"`
+	PropagateUplinkStatus *bool                                  `json:"propagateUplinkStatus,omitempty"`
 }
 
 // PortResourceSpecApplyConfiguration constructs a declarative configuration of the PortResourceSpec type for use with
@@ -161,5 +162,13 @@ func (b *PortResourceSpecApplyConfiguration) WithMACAddress(value string) *PortR
 // If called multiple times, the HostID field is set to the value of the last call.
 func (b *PortResourceSpecApplyConfiguration) WithHostID(value string) *PortResourceSpecApplyConfiguration {
 	b.HostID = &value
+	return b
+}
+
+// WithPropagateUplinkStatus sets the PropagateUplinkStatus field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the PropagateUplinkStatus field is set to the value of the last call.
+func (b *PortResourceSpecApplyConfiguration) WithPropagateUplinkStatus(value bool) *PortResourceSpecApplyConfiguration {
+	b.PropagateUplinkStatus = &value
 	return b
 }

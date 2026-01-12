@@ -185,6 +185,11 @@ type PortResourceSpec struct {
 	// +kubebuilder:validation:MaxLength=36
 	// +optional
 	HostID string `json:"hostID,omitempty"`
+
+	// propagateUplinkStatus represents the uplink status propagation of
+	// the port.
+	// +optional
+	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 }
 
 type PortResourceStatus struct {
@@ -266,7 +271,7 @@ type PortResourceStatus struct {
 	// propagateUplinkStatus represents the uplink status propagation of
 	// the port.
 	// +optional
-	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
+	PropagateUplinkStatus bool `json:"propagateUplinkStatus,omitempty"`
 
 	// vnicType is the type of vNIC which this port is attached to.
 	// +kubebuilder:validation:MaxLength:=64

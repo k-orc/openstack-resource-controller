@@ -171,12 +171,13 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	createOpts := ports.CreateOpts{
-		NetworkID:    *network.Status.ID,
-		Name:         getResourceName(obj),
-		Description:  string(ptr.Deref(resource.Description, "")),
-		ProjectID:    projectID,
-		AdminStateUp: resource.AdminStateUp,
-		MACAddress:   resource.MACAddress,
+		NetworkID:             *network.Status.ID,
+		Name:                  getResourceName(obj),
+		Description:           string(ptr.Deref(resource.Description, "")),
+		ProjectID:             projectID,
+		AdminStateUp:          resource.AdminStateUp,
+		MACAddress:            resource.MACAddress,
+		PropagateUplinkStatus: resource.PropagateUplinkStatus,
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
@@ -345,6 +346,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 		handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource)
 		handleSecurityGroupRefsUpdate(baseUpdateOpts, resource, osResource, secGroupMap)
 		handleAdminStateUpUpdate(baseUpdateOpts, resource, osResource)
+		handlePropagateUplinkStatusUpdate(baseUpdateOpts, resource, osResource)
 		updateOpts = baseUpdateOpts
 	}
 
@@ -527,6 +529,16 @@ func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSp
 		if *adminStateUp != osResouce.AdminStateUp {
 			updateOpts.AdminStateUp = adminStateUp
 		}
+	}
+}
+
+func handlePropagateUplinkStatusUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// When this field is not defined, let's set this as `false` to
+	// avoid errors in environments where uplink-propagation-status
+	// extension isn't enabled.
+	propagateUplinkStatus := ptr.Deref(resource.PropagateUplinkStatus, false)
+	if propagateUplinkStatus != osResource.PropagateUplinkStatus {
+		updateOpts.PropagateUplinkStatus = &propagateUplinkStatus
 	}
 }
 
