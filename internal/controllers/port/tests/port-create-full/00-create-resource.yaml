@@ -87,3 +87,4 @@ spec:
     macAddress: fa:16:3e:23:fd:d7
     hostID:
       id: devstack
+    propagateUplinkStatus: false

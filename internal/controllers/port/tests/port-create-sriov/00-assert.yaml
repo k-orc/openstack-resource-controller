@@ -9,7 +9,7 @@ status:
     description: Port from "create sriov" test
     adminStateUp: true
     portSecurityEnabled: false
-    propagateUplinkStatus: false
+    propagateUplinkStatus: true
     status: DOWN
     vnicType: direct
     tags:
