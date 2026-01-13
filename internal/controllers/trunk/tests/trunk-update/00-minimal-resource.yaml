@@ -10,5 +10,3 @@ spec:
   managementPolicy: managed
   resource:
     portRef: trunk-update
-    tags:
-    - trunk-update-initial

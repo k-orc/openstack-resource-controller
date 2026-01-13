@@ -1,31 +1,5 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Network
-metadata:
-  name: trunk-import
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    name: trunk-import
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Subnet
-metadata:
-  name: trunk-import
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    cidr: 192.168.162.0/24
-    ipVersion: 4
-    networkRef: trunk-import
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
   name: trunk-import-external-not-this-one
@@ -52,5 +26,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Trunk trunk-import-external-not-this-one from "trunk-import" test
+    description: Trunk trunk-import-external from "trunk-import" test
     portRef: trunk-import-external-not-this-one

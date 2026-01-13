@@ -1,7 +1,16 @@
-# NOTE: kuttl only does patch updates, which means we can't delete a field.
-# We have to use a kubectl apply command instead.
-apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-commands:
-  - command: kubectl replace -f 00-minimal-resource.yaml
-    namespaced: true
+# Update subports: remove subport2, add subport3, change subport1 segmentation
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update
+spec:
+  resource:
+    adminStateUp: true
+    subports:
+    - portRef: trunk-update-subport1
+      segmentationID: 150
+      segmentationType: vlan
+    - portRef: trunk-update-subport3
+      segmentationID: 300
+      segmentationType: vlan

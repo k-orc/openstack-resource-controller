@@ -48,7 +48,6 @@ type (
 )
 
 type trunkActuator struct {
-	osClient      osclients.TrunkClient
 	networkClient osclients.NetworkClient
 	k8sClient     client.Client
 }
@@ -61,11 +60,26 @@ func (trunkActuator) GetResourceID(osResource *osResourceT) string {
 }
 
 func (actuator trunkActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetTrunk(ctx, id)
+	resource, err := actuator.networkClient.GetTrunk(ctx, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
 	return resource, nil
+}
+
+// sliceToIter converts a slice of trunks to an iterator
+func sliceToIter(trunks []trunks.Trunk, err error) iter.Seq2[*osResourceT, error] {
+	return func(yield func(*osResourceT, error) bool) {
+		if err != nil {
+			yield(nil, err)
+			return
+		}
+		for i := range trunks {
+			if !yield(&trunks[i], nil) {
+				return
+			}
+		}
+	}
 }
 
 func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
@@ -79,7 +93,8 @@ func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		Description: string(ptr.Deref(resourceSpec.Description, "")),
 	}
 
-	return actuator.osClient.ListTrunks(ctx, listOpts), true
+	trunkList, err := actuator.networkClient.ListTrunk(ctx, listOpts)
+	return sliceToIter(trunkList, err), true
 }
 
 func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
@@ -138,11 +153,9 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		NotTags:      tags.Join(filter.NotTags),
 		NotTagsAny:   tags.Join(filter.NotTagsAny),
 	}
-	if filter.Status != nil {
-		listOpts.Status = *filter.Status
-	}
 
-	return actuator.osClient.ListTrunks(ctx, listOpts), nil
+	trunkList, err := actuator.networkClient.ListTrunk(ctx, listOpts)
+	return sliceToIter(trunkList, err), nil
 }
 
 func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -217,7 +230,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 		Subports:     subports,
 	}
 
-	osResource, err := actuator.osClient.CreateTrunk(ctx, createOpts)
+	osResource, err := actuator.networkClient.CreateTrunk(ctx, createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if !orcerrors.IsRetryable(err) {
@@ -230,7 +243,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 }
 
 func (actuator trunkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteTrunk(ctx, resource.ID))
+	return progress.WrapError(actuator.networkClient.DeleteTrunk(ctx, resource.ID))
 }
 
 func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
@@ -258,7 +271,7 @@ func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectP
 		return nil
 	}
 
-	_, err = actuator.osClient.UpdateTrunk(ctx, osResource.ID, updateOpts)
+	_, err = actuator.networkClient.UpdateTrunk(ctx, osResource.ID, updateOpts)
 
 	// We should require the spec to be updated before retrying an update which returned a conflict
 	if orcerrors.IsConflict(err) {
@@ -345,7 +358,7 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 	}
 
 	// Build actual subports map: portID -> subport
-	actualSubports := make(map[string]trunks.Subport)
+	actualSubports := make(map[string]trunks.Subport, len(osResource.Subports))
 	for i := range osResource.Subports {
 		sp := osResource.Subports[i]
 		actualSubports[sp.PortID] = sp
@@ -424,8 +437,8 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 func (actuator trunkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.networkClient, "trunks", osResource.ID)),
-		actuator.reconcileSubports,
 		actuator.updateResource,
+		actuator.reconcileSubports,
 	}, nil
 }
 
@@ -446,17 +459,12 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Trunk, controller i
 	if err != nil {
 		return trunkActuator{}, progress.WrapError(err)
 	}
-	osClient, err := clientScope.NewTrunkClient()
-	if err != nil {
-		return trunkActuator{}, progress.WrapError(err)
-	}
 	networkClient, err := clientScope.NewNetworkClient()
 	if err != nil {
 		return trunkActuator{}, progress.WrapError(err)
 	}
 
 	return trunkActuator{
-		osClient:      osClient,
 		networkClient: networkClient,
 		k8sClient:     controller.GetK8sClient(),
 	}, nil

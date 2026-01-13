@@ -5,7 +5,7 @@ metadata:
   name: trunk-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:

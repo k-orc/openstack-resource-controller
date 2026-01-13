@@ -2,7 +2,8 @@
 
 ## Step 00
 
-Import a trunk that matches all fields in the filter, and verify it is waiting for the external resource to be created.
+Create the required dependencies (Network, Subnet, Port) and the external trunk to be imported.
+Import the trunk that matches all fields in the filter and verify it is successfully imported.
 
 ## Step 01
 
@@ -10,7 +11,7 @@ Create a trunk whose name is a superstring of the one specified in the import fi
 
 ## Step 02
 
-Create a trunk matching the filter and verify that the observed status on the imported trunk corresponds to the spec of the created trunk.
+Verify that the observed status on the imported trunk corresponds to the spec of the created trunk.
 Also, confirm that it does not adopt any trunk whose name is a superstring of its own.
 
 ## Reference

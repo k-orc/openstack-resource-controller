@@ -28,5 +28,4 @@ spec:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    name: trunk-dependency
+  resource: {}

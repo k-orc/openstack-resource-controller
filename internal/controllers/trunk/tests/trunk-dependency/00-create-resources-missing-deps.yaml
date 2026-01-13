@@ -28,7 +28,7 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: trunk-dependency
+  name: trunk-dependency-parent-no-project
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -42,7 +42,7 @@ spec:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
 metadata:
-  name: trunk-dependency-no-secret
+  name: trunk-dependency-parent-no-secret
 spec:
   cloudCredentialsRef:
     cloudName: openstack
@@ -75,7 +75,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    portRef: trunk-dependency
+    portRef: trunk-dependency-parent-no-project
     projectRef: trunk-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -88,4 +88,4 @@ spec:
     secretName: trunk-dependency
   managementPolicy: managed
   resource:
-    portRef: trunk-dependency-no-secret
+    portRef: trunk-dependency-parent-no-secret

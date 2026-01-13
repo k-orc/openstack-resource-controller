@@ -7,5 +7,13 @@ spec:
   resource:
     name: trunk-update-updated
     description: trunk-update-updated
+    adminStateUp: true
     tags:
     - trunk-update-updated
+    subports:
+    - portRef: trunk-update-subport1
+      segmentationID: 100
+      segmentationType: vlan
+    - portRef: trunk-update-subport2
+      segmentationID: 200
+      segmentationType: vlan

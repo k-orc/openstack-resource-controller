@@ -5,7 +5,7 @@ metadata:
   name: trunk-import-dependency-external
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin  
+    cloudName: openstack  
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -22,8 +22,7 @@ spec:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    name: trunk-import-dependency-external
+  resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -37,4 +36,3 @@ spec:
   resource:
     portRef: trunk-import-dependency-external
     projectRef: trunk-import-dependency-external
-    description: Trunk trunk-import-dependency-external from "trunk-import-dependency" test

@@ -43,7 +43,6 @@ type MockScopeFactory struct {
 	NetworkClient    *mock.MockNetworkClient
 	RoleClient       *mock.MockRoleClient
 	ServiceClient    *mock.MockServiceClient
-	TrunkClient      *mock.MockTrunkClient
 	VolumeClient     *mock.MockVolumeClient
 	VolumeTypeClient *mock.MockVolumeTypeClient
 
@@ -60,7 +59,6 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	roleClient := mock.NewMockRoleClient(mockCtrl)
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
-	trunkClient := mock.NewMockTrunkClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 
@@ -74,7 +72,6 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		NetworkClient:    networkClient,
 		RoleClient:       roleClient,
 		ServiceClient:    serviceClient,
-		TrunkClient:      trunkClient,
 		VolumeClient:     volumeClient,
 		VolumeTypeClient: volumetypeClient,
 	}
@@ -133,10 +130,6 @@ func (f *MockScopeFactory) NewGroupClient() (osclients.GroupClient, error) {
 
 func (f *MockScopeFactory) NewRoleClient() (osclients.RoleClient, error) {
 	return f.RoleClient, nil
-}
-
-func (f *MockScopeFactory) NewTrunkClient() (osclients.TrunkClient, error) {
-	return f.TrunkClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {
