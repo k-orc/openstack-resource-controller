@@ -40,6 +40,8 @@ jobs:
         branch: ${{ matrix.openstack_version }}
         enabled_services: "openstack-cli-server,neutron-trunk,neutron-uplink-status-propagation"
         conf_overrides: |
+          enable_plugin neutron https://opendev.org/openstack/neutron.git ${{ matrix.openstack_version }}
+
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
