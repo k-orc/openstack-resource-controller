@@ -30,7 +30,7 @@ spec:
 {{- if len .RequiredCreateDependencies }}
   resource:
 {{- range .RequiredCreateDependencies }}
-    {{ . | camelCase }}Ref: {{ $packageName }}-create-full
+    {{ . | camelCase }}Ref: {{ $packageName }}-create-minimal
 {{- end }}
 {{- else }}
   resource: {}
