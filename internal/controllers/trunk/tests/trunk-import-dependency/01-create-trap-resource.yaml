@@ -5,7 +5,7 @@ metadata:
   name: trunk-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -17,7 +17,7 @@ metadata:
   name: trunk-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -31,13 +31,24 @@ metadata:
   name: trunk-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: trunk-import-dependency
     addresses:
     - subnetRef: trunk-import-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: trunk-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
 ---
 # This `trunk-import-dependency-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -51,4 +62,4 @@ spec:
   managementPolicy: managed
   resource:
     portRef: trunk-import-dependency-not-this-one
-    description: Trunk trunk-import-dependency-not-this-one from "trunk-import-dependency" test
+    projectRef: trunk-import-dependency-not-this-one

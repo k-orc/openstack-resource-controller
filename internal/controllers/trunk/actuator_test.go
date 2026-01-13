@@ -17,8 +17,10 @@ limitations under the License.
 package trunk
 
 import (
+	"slices"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"k8s.io/utils/ptr"
@@ -162,11 +164,11 @@ func TestHandleAdminStateUpUpdate(t *testing.T) {
 
 func TestReconcileSubportsLogic(t *testing.T) {
 	testCases := []struct {
-		name             string
-		desiredSubports  map[string]*orcv1alpha1.TrunkSubportSpec
-		actualSubports   map[string]trunks.Subport
-		expectedToAdd    int
-		expectedToRemove int
+		name                   string
+		desiredSubports        map[string]*orcv1alpha1.TrunkSubportSpec
+		actualSubports         map[string]trunks.Subport
+		expectedSubportsToAdd  []trunks.Subport
+		expectedSubportsRemove []trunks.Subport
 	}{
 		{
 			name: "No changes needed",
@@ -176,8 +178,8 @@ func TestReconcileSubportsLogic(t *testing.T) {
 			actualSubports: map[string]trunks.Subport{
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 			},
-			expectedToAdd:    0,
-			expectedToRemove: 0,
+			expectedSubportsToAdd:  []trunks.Subport{},
+			expectedSubportsRemove: []trunks.Subport{},
 		},
 		{
 			name: "Add new subport",
@@ -188,8 +190,10 @@ func TestReconcileSubportsLogic(t *testing.T) {
 			actualSubports: map[string]trunks.Subport{
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 			},
-			expectedToAdd:    1,
-			expectedToRemove: 0,
+			expectedSubportsToAdd: []trunks.Subport{
+				{PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"},
+			},
+			expectedSubportsRemove: []trunks.Subport{},
 		},
 		{
 			name: "Remove subport",
@@ -200,8 +204,10 @@ func TestReconcileSubportsLogic(t *testing.T) {
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 				"port2": {PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"},
 			},
-			expectedToAdd:    0,
-			expectedToRemove: 1,
+			expectedSubportsToAdd: []trunks.Subport{},
+			expectedSubportsRemove: []trunks.Subport{
+				{PortID: "port2"},
+			},
 		},
 		{
 			name: "Update segmentation",
@@ -211,8 +217,12 @@ func TestReconcileSubportsLogic(t *testing.T) {
 			actualSubports: map[string]trunks.Subport{
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 			},
-			expectedToAdd:    1,
-			expectedToRemove: 1,
+			expectedSubportsToAdd: []trunks.Subport{
+				{PortID: "port1", SegmentationID: 150, SegmentationType: "vlan"},
+			},
+			expectedSubportsRemove: []trunks.Subport{
+				{PortID: "port1"},
+			},
 		},
 		{
 			name: "Update segmentation type",
@@ -222,8 +232,12 @@ func TestReconcileSubportsLogic(t *testing.T) {
 			actualSubports: map[string]trunks.Subport{
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 			},
-			expectedToAdd:    1,
-			expectedToRemove: 1,
+			expectedSubportsToAdd: []trunks.Subport{
+				{PortID: "port1", SegmentationID: 100, SegmentationType: "inherit"},
+			},
+			expectedSubportsRemove: []trunks.Subport{
+				{PortID: "port1"},
+			},
 		},
 		{
 			name:            "Remove all subports",
@@ -232,8 +246,11 @@ func TestReconcileSubportsLogic(t *testing.T) {
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 				"port2": {PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"},
 			},
-			expectedToAdd:    0,
-			expectedToRemove: 2,
+			expectedSubportsToAdd: []trunks.Subport{},
+			expectedSubportsRemove: []trunks.Subport{
+				{PortID: "port1"},
+				{PortID: "port2"},
+			},
 		},
 		{
 			name: "Complex update: add, remove, and modify",
@@ -245,15 +262,21 @@ func TestReconcileSubportsLogic(t *testing.T) {
 				"port1": {PortID: "port1", SegmentationID: 100, SegmentationType: "vlan"},
 				"port2": {PortID: "port2", SegmentationID: 200, SegmentationType: "vlan"}, // removed
 			},
-			expectedToAdd:    2, // port1 (modified) + port3 (new)
-			expectedToRemove: 2, // port1 (for modification) + port2 (removed)
+			expectedSubportsToAdd: []trunks.Subport{
+				{PortID: "port1", SegmentationID: 150, SegmentationType: "vlan"}, // modified
+				{PortID: "port3", SegmentationID: 300, SegmentationType: "vlan"}, // new
+			},
+			expectedSubportsRemove: []trunks.Subport{
+				{PortID: "port1"}, // for modification
+				{PortID: "port2"}, // removed
+			},
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			var subportsToAdd []trunks.Subport
-			var subportsToRemove []trunks.Subport
+			subportsToAdd := []trunks.Subport{}
+			subportsToRemove := []trunks.Subport{}
 
 			// Find subports to add (in desired but not in actual, or different segmentation)
 			for portID, desiredSpec := range tt.desiredSubports {
@@ -283,11 +306,26 @@ func TestReconcileSubportsLogic(t *testing.T) {
 				}
 			}
 
-			if len(subportsToAdd) != tt.expectedToAdd {
-				t.Errorf("Expected %d subports to add, got %d", tt.expectedToAdd, len(subportsToAdd))
+			// Sort slices by PortID for deterministic comparison
+			sortByPortID := func(a, b trunks.Subport) int {
+				if a.PortID < b.PortID {
+					return -1
+				}
+				if a.PortID > b.PortID {
+					return 1
+				}
+				return 0
 			}
-			if len(subportsToRemove) != tt.expectedToRemove {
-				t.Errorf("Expected %d subports to remove, got %d", tt.expectedToRemove, len(subportsToRemove))
+			slices.SortFunc(subportsToAdd, sortByPortID)
+			slices.SortFunc(subportsToRemove, sortByPortID)
+			slices.SortFunc(tt.expectedSubportsToAdd, sortByPortID)
+			slices.SortFunc(tt.expectedSubportsRemove, sortByPortID)
+
+			if diff := cmp.Diff(tt.expectedSubportsToAdd, subportsToAdd); diff != "" {
+				t.Errorf("Subports to add mismatch (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(tt.expectedSubportsRemove, subportsToRemove); diff != "" {
+				t.Errorf("Subports to remove mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

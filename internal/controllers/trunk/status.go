@@ -48,18 +48,19 @@ func (trunkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Trunk, o
 	return metav1.ConditionTrue, nil
 }
 
-func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
+func (trunkStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.TrunkResourceStatus().
 		WithPortID(osResource.PortID).
 		WithProjectID(osResource.ProjectID).
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithAdminStateUp(osResource.AdminStateUp).
+		WithRevisionNumber(int64(osResource.RevisionNumber)).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
+		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
 
 	if osResource.Status != "" {
 		resourceStatus.WithStatus(osResource.Status)
 	}
-
-	// Always present on the OS resource.
-	resourceStatus.WithAdminStateUp(osResource.AdminStateUp)
 
 	if osResource.TenantID != "" {
 		resourceStatus.WithTenantID(osResource.TenantID)

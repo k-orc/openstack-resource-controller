@@ -75,7 +75,11 @@ spec:
   resource:
     name: trunk-create-full-override
     description: Trunk from "create full" test
+    adminStateUp: true
     portRef: trunk-create-full
+    tags:
+      - tag1
+      - tag2
     subports:
     - portRef: trunk-create-full-subport1
       segmentationID: 100
