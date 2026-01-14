@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-update
+spec:
+  resource:
+    interface: public
+    url: http://example.com/updated
+    enabled: true

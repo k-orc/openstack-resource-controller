@@ -32,6 +32,10 @@ func (c *FakeOpenstackV1alpha1) Domains(namespace string) v1alpha1.DomainInterfa
 	return newFakeDomains(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Endpoints(namespace string) v1alpha1.EndpointInterface {
+	return newFakeEndpoints(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Flavors(namespace string) v1alpha1.FlavorInterface {
 	return newFakeFlavors(c, namespace)
 }
