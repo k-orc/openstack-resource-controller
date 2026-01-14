@@ -7,7 +7,7 @@ metadata:
   name: {{ $packageName }}-update
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
@@ -21,7 +21,7 @@ metadata:
   name: {{ .PackageName }}-update
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created or updated
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created or updated
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
