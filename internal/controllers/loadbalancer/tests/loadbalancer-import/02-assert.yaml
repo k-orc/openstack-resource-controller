@@ -1,0 +1,35 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-import-external
+      ref: loadbalancer1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-import-external-not-this-one
+      ref: loadbalancer2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-import
+      ref: loadbalancerImport
+assertAll:
+    - celExpr: "loadbalancer1.status.id != loadbalancer2.status.id"
+    - celExpr: "loadbalancerImport.status.id == loadbalancer1.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-import
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+  resource:
+    name: loadbalancer-import-external
+    description: LoadBalancer loadbalancer-import-external from "loadbalancer-import" test
