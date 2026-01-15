@@ -13,4 +13,5 @@ spec:
     flavorRef: server-update
     ports:
       - portRef: server-update
-    serverGroupRef: server-update
+    schedulerHints:
+      serverGroupRef: server-update
