@@ -15,6 +15,14 @@ resourceRefs:
       name: server-create-full
       ref: port
     - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-create-full-dummy
+      ref: portDummy
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: server-create-full-dummy
+      ref: serverDummy
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: ServerGroup
       name: server-create-full
       ref: sg
@@ -35,7 +43,9 @@ resourceRefs:
       name: server-create-full
       ref: subnet
 assertAll:
+    - celExpr: "serverDummy.status.resource.status == 'ACTIVE'"
     - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.hostID == serverDummy.status.resource.hostID"
     - celExpr: "server.status.resource.availabilityZone == 'nova'"
     - celExpr: "server.status.resource.imageID == image.status.id"
     - celExpr: "server.status.resource.serverGroups[0] == sg.status.id"
