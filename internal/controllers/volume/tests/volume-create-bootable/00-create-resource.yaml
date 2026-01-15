@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Image
+metadata:
+  name: volume-create-bootable-image
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    content:
+      diskFormat: raw
+      download:
+        url: https://github.com/k-orc/openstack-resource-controller/raw/690b760f49dfb61b173755e91cb51ed42472c7f3/internal/controllers/image/testdata/raw.img
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-create-bootable
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    size: 1
+    imageRef: volume-create-bootable-image
