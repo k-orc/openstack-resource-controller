@@ -521,10 +521,10 @@ func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *reso
 	return updateOpts
 }
 
-func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResouce *osResourceT) {
+func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	adminStateUp := resource.AdminStateUp
 	if adminStateUp != nil {
-		if *adminStateUp != osResouce.AdminStateUp {
+		if *adminStateUp != osResource.AdminStateUp {
 			updateOpts.AdminStateUp = adminStateUp
 		}
 	}

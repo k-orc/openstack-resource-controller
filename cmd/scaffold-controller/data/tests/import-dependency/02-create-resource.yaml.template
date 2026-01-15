@@ -1,19 +1,4 @@
 {{ $packageName := .PackageName -}}
-{{ range .RequiredCreateDependencies -}}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: {{ . }}
-metadata:
-  name: {{ $packageName }}-import-dependency-external
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
-{{ end -}}
 {{ range .ImportDependencies -}}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -22,7 +7,7 @@ metadata:
   name: {{ $packageName }}-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
@@ -36,14 +21,11 @@ metadata:
   name: {{ $packageName }}-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-{{- range .RequiredCreateDependencies }}
-    {{ . | camelCase }}Ref: {{ $packageName }}-import-dependency-external
-{{- end }}
 {{- range .ImportDependencies }}
     {{ . | camelCase }}Ref: {{ $packageName }}-import-dependency-external
 {{- end }}
