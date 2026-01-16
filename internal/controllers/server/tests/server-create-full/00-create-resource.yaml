@@ -40,8 +40,11 @@ spec:
     flavorRef: server-create-full
     ports:
       - portRef: server-create-full
-    serverGroupRef: server-create-full
     keypairRef: server-create-full
+    schedulerHints:
+      serverGroupRef: server-create-full
+      query: '[">=", "$free_ram_mb", "1024"]'
+      # buildNearHostIP: 10.0.0.0/8
     volumes:
       - volumeRef: server-create-full
     availabilityZone: nova

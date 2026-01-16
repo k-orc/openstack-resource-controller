@@ -37,6 +37,10 @@ jobs:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
         enabled_services: "openstack-cli-server"
+        conf_overrides: |
+          [[post-config|/etc/nova/nova.conf]]
+          [filter_scheduler]
+          enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab
