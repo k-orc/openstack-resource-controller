@@ -154,6 +154,14 @@ type SubnetListerExpansion interface{}
 // SubnetNamespaceLister.
 type SubnetNamespaceListerExpansion interface{}
 
+// TrunkListerExpansion allows custom methods to be added to
+// TrunkLister.
+type TrunkListerExpansion interface{}
+
+// TrunkNamespaceListerExpansion allows custom methods to be added to
+// TrunkNamespaceLister.
+type TrunkNamespaceListerExpansion interface{}
+
 // VolumeListerExpansion allows custom methods to be added to
 // VolumeLister.
 type VolumeListerExpansion interface{}

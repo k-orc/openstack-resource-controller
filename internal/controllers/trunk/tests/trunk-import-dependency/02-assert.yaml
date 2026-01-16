@@ -1,0 +1,39 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Trunk
+      name: trunk-import-dependency
+      ref: trunk1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Trunk
+      name: trunk-import-dependency-not-this-one
+      ref: trunk2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-import-dependency
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: trunk-import-dependency
+      ref: project
+assertAll:
+    - celExpr: "trunk1.status.id != trunk2.status.id"
+    - celExpr: "trunk1.status.resource.portID == port.status.id"
+    - celExpr: "trunk1.status.resource.projectID == project.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success

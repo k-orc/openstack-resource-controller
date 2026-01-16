@@ -1,0 +1,7 @@
+# Step 02 is now a no-op since the resources were created in step 00.
+# This step exists to maintain the test structure and verify that
+# the import still works correctly after a trap resource was created.
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands: []
