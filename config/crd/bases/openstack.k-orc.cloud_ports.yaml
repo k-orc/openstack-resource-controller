@@ -382,6 +382,9 @@ spec:
                       propagateUplinkStatus represents the uplink status propagation of
                       the port.
                     type: boolean
+                    x-kubernetes-validations:
+                    - message: propagateUplinkStatus is immutable
+                      rule: self == oldSelf
                   securityGroupRefs:
                     description: |-
                       securityGroupRefs are references to the security groups associated
