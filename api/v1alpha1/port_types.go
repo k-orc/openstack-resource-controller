@@ -49,6 +49,26 @@ type PortFilter struct {
 	FilterByNeutronTags `json:",inline"`
 }
 
+// HostID specifies how to determine the host ID for port binding.
+// Exactly one of the fields must be set.
+// +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:MaxProperties:=1
+// +kubebuilder:validation:XValidation:rule="(has(self.id) && size(self.id) > 0) != (has(self.serverRef) && size(self.serverRef) > 0)",message="exactly one of id or serverRef must be set"
+type HostID struct {
+	// id is the literal host ID string to use for binding:host_id.
+	// This is mutually exclusive with serverRef.
+	// +kubebuilder:validation:MaxLength=36
+	// +optional
+	ID string `json:"id,omitempty"`
+
+	// serverRef is a reference to an ORC Server resource from which to
+	// retrieve the hostID for port binding. The hostID will be read from
+	// the Server's status.resource.hostID field.
+	// This is mutually exclusive with id.
+	// +optional
+	ServerRef KubernetesNameRef `json:"serverRef,omitempty"`
+}
+
 type AllowedAddressPair struct {
 	// ip contains an IP address which a server connected to the port can
 	// send packets with. It can be an IP Address or a CIDR (if supported
@@ -181,10 +201,9 @@ type PortResourceSpec struct {
 	// +optional
 	MACAddress string `json:"macAddress,omitempty"`
 
-	// hostID is the ID of host where the port resides.
-	// +kubebuilder:validation:MaxLength=36
+	// hostID specifies the host where the port will be bound.
 	// +optional
-	HostID string `json:"hostID,omitempty"`
+	HostID *HostID `json:"hostID,omitempty"`
 }
 
 type PortResourceStatus struct {

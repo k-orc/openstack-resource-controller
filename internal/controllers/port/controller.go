@@ -127,6 +127,17 @@ var (
 			return []string{string(*resource.Filter.ProjectRef)}
 		},
 	)
+
+	serverDependency = dependency.NewDependency[*orcv1alpha1.PortList, *orcv1alpha1.Server](
+		"spec.resource.hostID.serverRef",
+		func(port *orcv1alpha1.Port) []string {
+			resource := port.Spec.Resource
+			if resource == nil || resource.HostID == nil || resource.HostID.ServerRef == "" {
+				return nil
+			}
+			return []string{string(resource.HostID.ServerRef)}
+		},
+	)
 )
 
 // serverToPortMapFunc creates a mapping function that reconciles ports when:
@@ -291,6 +302,11 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
+	serverWatchEventHandler, err := serverDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		For(&orcv1alpha1.Port{}).
@@ -314,6 +330,9 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
+		Watches(&orcv1alpha1.Server{}, serverWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Server{})),
+		).
 		Watches(&orcv1alpha1.Server{}, handler.EnqueueRequestsFromMapFunc(serverToPortMapFunc(ctx, k8sClient)),
 			builder.WithPredicates(predicates.NewServerInterfacesChanged(log)),
 		)
@@ -325,6 +344,7 @@ func (c portReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		securityGroupDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
+		serverDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

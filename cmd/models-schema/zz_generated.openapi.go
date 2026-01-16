@@ -74,6 +74,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupResourceStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_GroupResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupSpec":                      schema_openstack_resource_controller_v2_api_v1alpha1_GroupSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupStatus":                    schema_openstack_resource_controller_v2_api_v1alpha1_GroupStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID":                         schema_openstack_resource_controller_v2_api_v1alpha1_HostID(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRoute":                      schema_openstack_resource_controller_v2_api_v1alpha1_HostRoute(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostRouteStatus":                schema_openstack_resource_controller_v2_api_v1alpha1_HostRouteStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.IPv6Options":                    schema_openstack_resource_controller_v2_api_v1alpha1_IPv6Options(ref),
@@ -2637,6 +2638,33 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_GroupStatus(ref common
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_HostID(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "HostID specifies how to determine the host ID for port binding. Exactly one of the fields must be set.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the literal host ID string to use for binding:host_id. This is mutually exclusive with serverRef.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serverRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serverRef is a reference to an ORC Server resource from which to retrieve the hostID for port binding. The hostID will be read from the Server's status.resource.hostID field. This is mutually exclusive with id.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_HostRoute(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -4913,9 +4941,8 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 					},
 					"hostID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "hostID is the ID of host where the port resides.",
-							Type:        []string{"string"},
-							Format:      "",
+							Description: "hostID specifies the host where the port will be bound.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID"),
 						},
 					},
 				},
@@ -4923,7 +4950,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID"},
 	}
 }
 
