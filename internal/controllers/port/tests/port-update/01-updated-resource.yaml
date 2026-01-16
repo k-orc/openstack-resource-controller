@@ -31,4 +31,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    hostID: devstack
+    hostID:
+      id: devstack

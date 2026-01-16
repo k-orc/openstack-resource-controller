@@ -57,6 +57,45 @@ const (
 	serverBuildPollingPeriod = 15 * time.Second
 )
 
+// resolveHostID resolves the actual host ID string to use for port binding.
+// It handles both direct ID specification and server reference.
+// Returns the resolved host ID and a reconcile status (for waiting on dependencies).
+func resolveHostID(
+	ctx context.Context,
+	k8sClient client.Client,
+	obj orcObjectPT,
+	hostIDSpec *orcv1alpha1.HostID,
+) (string, progress.ReconcileStatus) {
+	if hostIDSpec == nil {
+		return "", nil
+	}
+
+	// Direct ID specification
+	if hostIDSpec.ID != "" {
+		return hostIDSpec.ID, nil
+	}
+
+	// Server reference - fetch the server and extract its hostID
+	if hostIDSpec.ServerRef != "" {
+		server, serverDepRS := dependency.FetchDependency(
+			ctx, k8sClient, obj.Namespace, &hostIDSpec.ServerRef, "Server",
+			func(dep *orcv1alpha1.Server) bool {
+				return orcv1alpha1.IsAvailable(dep) &&
+					dep.Status.Resource != nil &&
+					dep.Status.Resource.HostID != ""
+			},
+		)
+		if needsReschedule, _ := serverDepRS.NeedsReschedule(); needsReschedule {
+			return "", serverDepRS
+		}
+		if server != nil && server.Status.Resource != nil {
+			return server.Status.Resource.HostID, nil
+		}
+	}
+
+	return "", nil
+}
+
 type portActuator struct {
 	osClient  osclients.NetworkClient
 	k8sClient client.Client
@@ -166,6 +205,14 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		}
 	}
 
+	// Resolve hostID if specified
+	var resolvedHostID string
+	if resource.HostID != nil {
+		var hostIDReconcileStatus progress.ReconcileStatus
+		resolvedHostID, hostIDReconcileStatus = resolveHostID(ctx, actuator.k8sClient, obj, resource.HostID)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(hostIDReconcileStatus)
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -232,7 +279,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	portsBindingOpts := portsbinding.CreateOptsExt{
 		CreateOptsBuilder: createOpts,
 		VNICType:          resource.VNICType,
-		HostID:            resource.HostID,
+		HostID:            resolvedHostID,
 	}
 
 	portSecurityOpts := portsecurity.PortCreateOptsExt{
@@ -330,6 +377,14 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 	reconcileStatus := progress.NewReconcileStatus().
 		WithReconcileStatus(secGroupDepRS)
 
+	// Resolve hostID if specified
+	var resolvedHostID string
+	if resource.HostID != nil {
+		var hostIDReconcileStatus progress.ReconcileStatus
+		resolvedHostID, hostIDReconcileStatus = resolveHostID(ctx, actuator.k8sClient, obj, resource.HostID)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(hostIDReconcileStatus)
+	}
+
 	needsReschedule, _ := reconcileStatus.NeedsReschedule()
 	if needsReschedule {
 		return reconcileStatus
@@ -348,7 +403,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 		updateOpts = baseUpdateOpts
 	}
 
-	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource)
+	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource, resolvedHostID)
 	updateOpts = handlePortSecurityUpdate(updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
@@ -474,7 +529,7 @@ func handleSecurityGroupRefsUpdate(updateOpts *ports.UpdateOpts, resource *resou
 	}
 }
 
-func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
+func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, resolvedHostID string) ports.UpdateOptsBuilder {
 	if resource.VNICType != "" {
 		if resource.VNICType != osResource.VNICType {
 			updateOpts = &portsbinding.UpdateOptsExt{
@@ -484,11 +539,11 @@ func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resou
 		}
 	}
 
-	if resource.HostID != "" {
-		if resource.HostID != osResource.HostID {
+	if resolvedHostID != "" {
+		if resolvedHostID != osResource.HostID {
 			updateOpts = &portsbinding.UpdateOptsExt{
 				UpdateOptsBuilder: updateOpts,
-				HostID:            &resource.HostID,
+				HostID:            &resolvedHostID,
 			}
 		}
 	}
