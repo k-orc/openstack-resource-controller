@@ -189,6 +189,7 @@ type PortResourceSpec struct {
 	// propagateUplinkStatus represents the uplink status propagation of
 	// the port.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="propagateUplinkStatus is immutable"
 	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 }
 

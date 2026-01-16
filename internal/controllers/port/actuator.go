@@ -346,7 +346,6 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 		handleAllowedAddressPairsUpdate(baseUpdateOpts, resource, osResource)
 		handleSecurityGroupRefsUpdate(baseUpdateOpts, resource, osResource, secGroupMap)
 		handleAdminStateUpUpdate(baseUpdateOpts, resource, osResource)
-		handlePropagateUplinkStatusUpdate(baseUpdateOpts, resource, osResource)
 		updateOpts = baseUpdateOpts
 	}
 
@@ -528,23 +527,6 @@ func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSp
 	if adminStateUp != nil {
 		if *adminStateUp != osResouce.AdminStateUp {
 			updateOpts.AdminStateUp = adminStateUp
-		}
-	}
-}
-
-func handlePropagateUplinkStatusUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	propagateUplinkStatus := resource.PropagateUplinkStatus
-	if osResource.PropagateUplinkStatusPtr != nil {
-		if propagateUplinkStatus != nil {
-			if *propagateUplinkStatus != *osResource.PropagateUplinkStatusPtr {
-				updateOpts.PropagateUplinkStatus = propagateUplinkStatus
-			}
-		} else {
-			// Fallback to the default value if unset from spec and extension
-			// is enabled.
-			if !*osResource.PropagateUplinkStatusPtr {
-				updateOpts.PropagateUplinkStatus = ptr.To(true)
-			}
 		}
 	}
 }

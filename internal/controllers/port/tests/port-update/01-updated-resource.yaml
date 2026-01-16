@@ -20,7 +20,6 @@ spec:
     - tag1
     vnicType: direct
     portSecurity: Enabled
-    propagateUplinkStatus: false
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port

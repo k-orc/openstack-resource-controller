@@ -36,7 +36,7 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-uplink-status-propagation,uplink_status_propagation_updatable"
+        enabled_services: "openstack-cli-server,neutron-uplink-status-propagation"
         conf_overrides: |
             enable_plugin neutron https://opendev.org/openstack/neutron.git ${{ matrix.openstack_version }}
 
