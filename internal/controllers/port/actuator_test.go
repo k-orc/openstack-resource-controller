@@ -440,18 +440,18 @@ func TestHandlePropagateUplinkStatusUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
 		newValue      *bool
-		existingValue bool
+		existingValue *bool
 		expectChange  bool
 	}{
-		{name: "Set the same value as the existing one", newValue: ptr.To(true), existingValue: true, expectChange: false},
-		{name: "Enabled when was disabled", newValue: ptr.To(true), existingValue: false, expectChange: true},
-		{name: "Disable if it is not defined on spec", newValue: nil, existingValue: true, expectChange: true},
+		{name: "If the same value, do nothing", newValue: ptr.To(true), existingValue: ptr.To(true), expectChange: false},
+		{name: "Enable it when was disabled", newValue: ptr.To(true), existingValue: ptr.To(false), expectChange: true},
+		{name: "Enable if it is not defined on spec", newValue: nil, existingValue: ptr.To(false), expectChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			resource := &orcv1alpha1.PortResourceSpec{PropagateUplinkStatus: tt.newValue}
-			osResource := &osclients.PortExt{Port: ports.Port{PropagateUplinkStatus: tt.existingValue}}
+			osResource := &osclients.PortExt{PortTmpExt: osclients.PortTmpExt{PropagateUplinkStatusPtr: tt.existingValue}}
 			updateOpts := &ports.UpdateOpts{}
 
 			handlePropagateUplinkStatusUpdate(updateOpts, resource, osResource)

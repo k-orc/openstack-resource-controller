@@ -20,3 +20,4 @@ spec:
     - tag1
     vnicType: direct
     portSecurity: Enabled
+    propagateUplinkStatus: false
