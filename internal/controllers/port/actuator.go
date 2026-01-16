@@ -533,12 +533,19 @@ func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSp
 }
 
 func handlePropagateUplinkStatusUpdate(updateOpts *ports.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	// When this field is not defined, let's set this as `false` to
-	// avoid errors in environments where uplink-propagation-status
-	// extension isn't enabled.
-	propagateUplinkStatus := ptr.Deref(resource.PropagateUplinkStatus, false)
-	if propagateUplinkStatus != osResource.PropagateUplinkStatus {
-		updateOpts.PropagateUplinkStatus = &propagateUplinkStatus
+	propagateUplinkStatus := resource.PropagateUplinkStatus
+	if osResource.PropagateUplinkStatusPtr != nil {
+		if propagateUplinkStatus != nil {
+			if *propagateUplinkStatus != *osResource.PropagateUplinkStatusPtr {
+				updateOpts.PropagateUplinkStatus = propagateUplinkStatus
+			}
+		} else {
+			// Fallback to the default value if unset from spec and extension
+			// is enabled.
+			if !*osResource.PropagateUplinkStatusPtr {
+				updateOpts.PropagateUplinkStatus = ptr.To(true)
+			}
+		}
 	}
 }
 

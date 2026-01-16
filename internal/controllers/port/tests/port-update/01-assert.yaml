@@ -34,7 +34,7 @@ status:
     description: port-update-updated
     adminStateUp: true
     portSecurityEnabled: true
-    propagateUplinkStatus: true
+    propagateUplinkStatus: false
     status: DOWN
     vnicType: direct
     allowedAddressPairs:

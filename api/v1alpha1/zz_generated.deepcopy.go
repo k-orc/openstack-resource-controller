@@ -2574,6 +2574,11 @@ func (in *PortResourceStatus) DeepCopyInto(out *PortResourceStatus) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.PropagateUplinkStatus != nil {
+		in, out := &in.PropagateUplinkStatus, &out.PropagateUplinkStatus
+		*out = new(bool)
+		**out = **in
+	}
 	if in.PortSecurityEnabled != nil {
 		in, out := &in.PortSecurityEnabled, &out.PortSecurityEnabled
 		*out = new(bool)

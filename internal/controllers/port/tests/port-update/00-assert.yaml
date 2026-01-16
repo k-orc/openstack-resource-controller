@@ -30,10 +30,8 @@ status:
     name: port-update
     adminStateUp: true
     portSecurityEnabled: false
-    propagateUplinkStatus: false
-    # The revisionNumber has increased to enforce `propagateUplinkStatus` default
-    # value.
-    revisionNumber: 2
+    propagateUplinkStatus: true
+    revisionNumber: 1
     status: DOWN
     vnicType: normal
   conditions:
@@ -55,8 +53,8 @@ status:
     name: port-update-admin
     adminStateUp: true
     portSecurityEnabled: true
-    propagateUplinkStatus: false
-    revisionNumber: 2
+    propagateUplinkStatus: true
+    revisionNumber: 1
     status: DOWN
     vnicType: normal
   conditions:
