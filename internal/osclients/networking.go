@@ -52,10 +52,19 @@ type NetworkExt struct {
 	provider.NetworkProviderExt
 }
 
+// NOTE(winiciusallan): This is a temporary extension struct to
+// workaround a missing pointer on Gophercloud and must be
+// removed in future releases.
+// See https://github.com/gophercloud/gophercloud/issues/3605
+type PortTmpExt struct {
+	PropagateUplinkStatusPtr *bool `json:"propagate_uplink_status,omitempty"`
+}
+
 type PortExt struct {
 	ports.Port
 	portsecurity.PortSecurityExt
 	portsbinding.PortsBindingExt
+	PortTmpExt //nolint:govet
 }
 
 type NetworkClient interface {
