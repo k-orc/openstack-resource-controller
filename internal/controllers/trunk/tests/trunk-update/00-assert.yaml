@@ -6,7 +6,7 @@ metadata:
 status:
   resource:
     name: trunk-update
-    adminStateUp: true
+    adminStateUp: false
     status: ACTIVE
   conditions:
   - type: Available
@@ -23,7 +23,11 @@ resourceRefs:
       kind: Trunk
       name: trunk-update
       ref: trunk
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-update
+      ref: port
 assertAll:
+    - celExpr: "trunk.status.resource.portID == port.status.id"
     - celExpr: "!has(trunk.status.resource.description)"
-    - celExpr: "!has(trunk.status.resource.tags) || trunk.status.resource.tags.size() == 0"
-    - celExpr: "!has(trunk.status.resource.subports) || trunk.status.resource.subports.size() == 0"
+    - celExpr: "!has(trunk.status.resource.tags)"

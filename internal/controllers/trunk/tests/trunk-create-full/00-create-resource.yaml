@@ -1,15 +1,27 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: trunk-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
   name: trunk-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: trunk-create-full
+    projectRef: trunk-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -17,11 +29,12 @@ metadata:
   name: trunk-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: trunk-create-full
+    projectRef: trunk-create-full
     ipVersion: 4
     cidr: 192.168.158.0/24
 ---
@@ -31,11 +44,12 @@ metadata:
   name: trunk-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: trunk-create-full
+    projectRef: trunk-create-full
     addresses:
     - subnetRef: trunk-create-full
 ---
@@ -45,11 +59,12 @@ metadata:
   name: trunk-create-full-subport1
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: trunk-create-full
+    projectRef: trunk-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -57,11 +72,12 @@ metadata:
   name: trunk-create-full-subport2
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: trunk-create-full
+    projectRef: trunk-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
@@ -69,7 +85,7 @@ metadata:
   name: trunk-create-full
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
@@ -77,6 +93,7 @@ spec:
     description: Trunk from "create full" test
     adminStateUp: true
     portRef: trunk-create-full
+    projectRef: trunk-create-full
     tags:
       - tag1
       - tag2

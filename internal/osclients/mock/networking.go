@@ -547,21 +547,6 @@ func (mr *MockNetworkClientMockRecorder) ListSubnet(ctx, opts any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSubnet", reflect.TypeOf((*MockNetworkClient)(nil).ListSubnet), ctx, opts)
 }
 
-// ListTrunk mocks base method.
-func (m *MockNetworkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListTrunk", ctx, opts)
-	ret0, _ := ret[0].([]trunks.Trunk)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListTrunk indicates an expected call of ListTrunk.
-func (mr *MockNetworkClientMockRecorder) ListTrunk(ctx, opts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTrunk", reflect.TypeOf((*MockNetworkClient)(nil).ListTrunk), ctx, opts)
-}
-
 // ListTrunkSubports mocks base method.
 func (m *MockNetworkClient) ListTrunkSubports(ctx context.Context, trunkID string) ([]trunks.Subport, error) {
 	m.ctrl.T.Helper()
@@ -575,6 +560,20 @@ func (m *MockNetworkClient) ListTrunkSubports(ctx context.Context, trunkID strin
 func (mr *MockNetworkClientMockRecorder) ListTrunkSubports(ctx, trunkID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTrunkSubports", reflect.TypeOf((*MockNetworkClient)(nil).ListTrunkSubports), ctx, trunkID)
+}
+
+// ListTrunks mocks base method.
+func (m *MockNetworkClient) ListTrunks(ctx context.Context, opts trunks.ListOptsBuilder) iter.Seq2[*trunks.Trunk, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListTrunks", ctx, opts)
+	ret0, _ := ret[0].(iter.Seq2[*trunks.Trunk, error])
+	return ret0
+}
+
+// ListTrunks indicates an expected call of ListTrunks.
+func (mr *MockNetworkClientMockRecorder) ListTrunks(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTrunks", reflect.TypeOf((*MockNetworkClient)(nil).ListTrunks), ctx, opts)
 }
 
 // RemoveRouterInterface mocks base method.

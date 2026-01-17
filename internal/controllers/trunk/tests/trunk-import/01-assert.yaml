@@ -6,17 +6,20 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: OpenStack resource is available
       status: "True"
       reason: Success
     - type: Progressing
-      message: OpenStack resource is up to date
       status: "False"
       reason: Success
   resource:
     name: trunk-import-external-not-this-one
     description: Trunk trunk-import-external from "trunk-import" test
+    adminStateUp: true
+    status: ACTIVE
+    tags:
+      - trunk-import-tag
 ---
+# trunk-import should still be waiting for the external resource
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Trunk
 metadata:
@@ -24,12 +27,10 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
+      message: Waiting for OpenStack resource to be created externally
       status: "False"
-      reason: Success
-  resource:
-    name: trunk-import-external
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing

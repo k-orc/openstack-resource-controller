@@ -10,3 +10,4 @@ spec:
   managementPolicy: managed
   resource:
     portRef: trunk-update
+    adminStateUp: false

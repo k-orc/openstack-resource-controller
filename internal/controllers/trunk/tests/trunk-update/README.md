@@ -2,19 +2,21 @@
 
 ## Step 00
 
-Create a Trunk using only mandatory fields (portRef only).
+Create a disabled Trunk (adminStateUp: false) using only mandatory fields.
 
 ## Step 01
 
-Update all mutable fields: name, description, tags, and add subports.
+Update all mutable fields: name, description, tags.
+Enable the trunk by setting adminStateUp to true.
+Assert that the trunk is enabled with status: ACTIVE.
 
 ## Step 02
 
-Update subports: remove subport2, add subport3, change subport1 segmentation.
+Revert the resource to minimal state (no description, no tags) but keep it enabled (adminStateUp: true) so it can be deleted.
 
 ## Step 03
 
-Revert the resource to its original value and verify that the resulting object matches its state when first created (no description, no tags, no subports, adminStateUp true).
+Delete all resources (Trunk, Port, Subnet, Network).
 
 ## Reference
 

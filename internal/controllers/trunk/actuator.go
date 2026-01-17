@@ -67,21 +67,6 @@ func (actuator trunkActuator) GetOSResourceByID(ctx context.Context, id string) 
 	return resource, nil
 }
 
-// sliceToIter converts a slice of trunks to an iterator
-func sliceToIter(trunks []trunks.Trunk, err error) iter.Seq2[*osResourceT, error] {
-	return func(yield func(*osResourceT, error) bool) {
-		if err != nil {
-			yield(nil, err)
-			return
-		}
-		for i := range trunks {
-			if !yield(&trunks[i], nil) {
-				return
-			}
-		}
-	}
-}
-
 func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
 	resourceSpec := orcObject.Spec.Resource
 	if resourceSpec == nil {
@@ -93,8 +78,7 @@ func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		Description: string(ptr.Deref(resourceSpec.Description, "")),
 	}
 
-	trunkList, err := actuator.networkClient.ListTrunk(ctx, listOpts)
-	return sliceToIter(trunkList, err), true
+	return actuator.networkClient.ListTrunks(ctx, listOpts), true
 }
 
 func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
@@ -148,14 +132,14 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		PortID:       ptr.Deref(port.Status.ID, ""),
 		ProjectID:    ptr.Deref(project.Status.ID, ""),
 		AdminStateUp: filter.AdminStateUp,
-		Tags:         tags.Join(filter.Tags),
-		TagsAny:      tags.Join(filter.TagsAny),
-		NotTags:      tags.Join(filter.NotTags),
-		NotTagsAny:   tags.Join(filter.NotTagsAny),
+		// NOTE: Status filtering is not supported by the OpenStack Neutron Trunk API
+		Tags:       tags.Join(filter.Tags),
+		TagsAny:    tags.Join(filter.TagsAny),
+		NotTags:    tags.Join(filter.NotTags),
+		NotTagsAny: tags.Join(filter.NotTagsAny),
 	}
 
-	trunkList, err := actuator.networkClient.ListTrunk(ctx, listOpts)
-	return sliceToIter(trunkList, err), nil
+	return actuator.networkClient.ListTrunks(ctx, listOpts), nil
 }
 
 func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {

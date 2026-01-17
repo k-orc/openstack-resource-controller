@@ -39,10 +39,14 @@ resourceRefs:
       kind: Port
       name: trunk-create-full-subport2
       ref: subport2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: trunk-create-full
+      ref: project
 assertAll:
     - celExpr: "trunk.status.id != ''"
     - celExpr: "trunk.status.resource.portID == port.status.id"
-    - celExpr: "trunk.status.resource.projectID != ''"
+    - celExpr: "trunk.status.resource.projectID == project.status.id"
     - celExpr: "trunk.status.resource.createdAt != ''"
     - celExpr: "trunk.status.resource.updatedAt != ''"
     - celExpr: "trunk.status.resource.revisionNumber > 0"

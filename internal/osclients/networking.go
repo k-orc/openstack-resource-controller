@@ -102,7 +102,7 @@ type NetworkClient interface {
 	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
 	UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
 
-	ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error)
+	ListTrunks(ctx context.Context, opts trunks.ListOptsBuilder) iter.Seq2[*trunks.Trunk, error]
 	GetTrunk(ctx context.Context, id string) (*trunks.Trunk, error)
 	CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error)
 	UpdateTrunk(ctx context.Context, id string, opts trunks.UpdateOptsBuilder) (*trunks.Trunk, error)
@@ -243,12 +243,11 @@ func (c networkClient) ListTrunkSubports(ctx context.Context, trunkID string) ([
 	return trunks.GetSubports(ctx, c.serviceClient, trunkID).Extract()
 }
 
-func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error) {
-	allPages, err := trunks.List(c.serviceClient, opts).AllPages(ctx)
-	if err != nil {
-		return nil, err
+func (c networkClient) ListTrunks(ctx context.Context, opts trunks.ListOptsBuilder) iter.Seq2[*trunks.Trunk, error] {
+	pager := trunks.List(c.serviceClient, opts)
+	return func(yield func(*trunks.Trunk, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(trunks.ExtractTrunks, yield))
 	}
-	return trunks.ExtractTrunks(allPages)
 }
 
 func (c networkClient) AddSubports(ctx context.Context, id string, opts trunks.AddSubportsOptsBuilder) (*trunks.Trunk, error) {

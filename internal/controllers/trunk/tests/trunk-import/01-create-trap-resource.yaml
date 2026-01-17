@@ -11,7 +11,7 @@ spec:
   resource:
     networkRef: trunk-import
     addresses:
-    - subnetRef: trunk-import
+      - subnetRef: trunk-import
 ---
 # This `trunk-import-external-not-this-one` resource serves two purposes:
 # - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
@@ -26,5 +26,8 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Trunk trunk-import-external from "trunk-import" test
     portRef: trunk-import-external-not-this-one
+    description: Trunk trunk-import-external from "trunk-import" test
+    adminStateUp: true
+    tags:
+      - trunk-import-tag
