@@ -7,7 +7,7 @@ require (
 	github.com/go-logr/logr v1.4.3
 	github.com/gophercloud/gophercloud/v2 v2.10.0
 	github.com/gophercloud/utils/v2 v2.0.0-20241220104409-2e0af06694a1
-	github.com/onsi/ginkgo/v2 v2.27.4
+	github.com/onsi/ginkgo/v2 v2.27.5
 	github.com/onsi/gomega v1.39.0
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
@@ -19,7 +19,7 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
-	sigs.k8s.io/controller-runtime v0.22.4
+	sigs.k8s.io/controller-runtime v0.22.5
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.1
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -101,9 +101,9 @@ require (
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.34.1 // indirect
-	k8s.io/apiserver v0.34.1 // indirect
-	k8s.io/component-base v0.34.1 // indirect
+	k8s.io/apiextensions-apiserver v0.34.3 // indirect
+	k8s.io/apiserver v0.34.3 // indirect
+	k8s.io/component-base v0.34.3 // indirect
 	k8s.io/gengo/v2 v2.0.0-20250604051438-85fd79dbfd9f // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
