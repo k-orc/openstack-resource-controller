@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
@@ -48,6 +49,11 @@ type (
 	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 	securityGroupIterator     = iter.Seq2[*osResourceT, error]
+)
+
+const (
+	// The frequency to poll when waiting for the resource to become available
+	securityGroupAvailablePollingPeriod = 15 * time.Second
 )
 
 type securityGroupActuator struct {
@@ -134,9 +140,6 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 		ProjectID:   projectID,
 	}
 
-	// FIXME(mandre) The security group inherits the default security group
-	// rules. This could be a problem when we implement `update` if ORC
-	// does not takes these rules into account.
 	osResource, err := actuator.osClient.CreateSecGroup(ctx, &createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
