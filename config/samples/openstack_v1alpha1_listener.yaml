@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: my-listener
+    description: Sample HTTP Listener
+    loadBalancerRef: loadbalancer-sample
+    protocol: HTTP
+    protocolPort: 80
+    adminStateUp: true
