@@ -15,3 +15,7 @@ assertAll:
     - celExpr: "'openstack.k-orc.cloud/volume' in volumetype.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/volume' in secret.metadata.finalizers"
+commands:
+# Image is a creation dependency, so it should be deleted immediately
+- script: "! kubectl get image volume-dependency-image --namespace $NAMESPACE"
+  skipLogOutput: true

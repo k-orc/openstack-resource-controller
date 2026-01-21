@@ -28,3 +28,20 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volume-dependency-no-image
+status:
+  resource:
+    size: 1
+    status: available
+    bootable: true
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

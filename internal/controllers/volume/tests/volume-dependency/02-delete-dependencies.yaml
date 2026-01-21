@@ -7,3 +7,5 @@ commands:
     namespaced: true
   - command: kubectl delete secret volume-dependency --wait=false
     namespaced: true
+  - command: kubectl delete image volume-dependency-image --wait=false
+    namespaced: true

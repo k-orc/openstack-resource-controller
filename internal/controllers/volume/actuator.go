@@ -32,6 +32,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
@@ -165,6 +166,17 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 		}
 	}
 
+	// Resolve image dependency for bootable volumes
+	image, imageDepRS := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		resource.ImageRef, "Image",
+		func(dep *orcv1alpha1.Image) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(imageDepRS)
+	imageID := ptr.Deref(image.Status.ID, "")
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -181,6 +193,7 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 		Metadata:         metadata,
 		VolumeType:       volumetypeID,
 		AvailabilityZone: resource.AvailabilityZone,
+		ImageID:          imageID,
 	}
 
 	osResource, err := actuator.osClient.CreateVolume(ctx, createOpts)
