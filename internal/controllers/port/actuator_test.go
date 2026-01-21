@@ -359,7 +359,7 @@ func TestHandlePortBindingUpdate(t *testing.T) {
 				},
 			}
 
-			updateOpts := handlePortBindingUpdate(&ports.UpdateOpts{}, resource, osResource)
+			updateOpts := handlePortBindingUpdate(&ports.UpdateOpts{}, resource, osResource, "")
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {

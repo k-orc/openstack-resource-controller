@@ -892,6 +892,26 @@ _Appears in:_
 | `resource` _[GroupResourceStatus](#groupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
+#### HostID
+
+
+
+HostID specifies how to determine the host ID for port binding.
+Exactly one of the fields must be set.
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [PortResourceSpec](#portresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the literal host ID string to use for binding:host_id.<br />This is mutually exclusive with serverRef. |  | MaxLength: 36 <br /> |
+| `serverRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverRef is a reference to an ORC Server resource from which to<br />retrieve the hostID for port binding. The hostID will be read from<br />the Server's status.resource.hostID field.<br />This is mutually exclusive with id. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+
+
 #### HostRoute
 
 
@@ -1616,6 +1636,7 @@ _Appears in:_
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
+- [HostID](#hostid)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -2171,7 +2192,7 @@ _Appears in:_
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br /> |
-| `hostID` _string_ | hostID is the ID of host where the port resides. |  | MaxLength: 36 <br /> |
+| `hostID` _[HostID](#hostid)_ | hostID specifies the host where the port will be bound. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 
 
 #### PortResourceStatus

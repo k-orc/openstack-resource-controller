@@ -112,6 +112,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.GroupSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("GroupStatus"):
 		return &apiv1alpha1.GroupStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("HostID"):
+		return &apiv1alpha1.HostIDApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HostRoute"):
 		return &apiv1alpha1.HostRouteApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HostRouteStatus"):
