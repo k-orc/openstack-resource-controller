@@ -730,6 +730,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Domain(ref common.Refe
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -1395,6 +1396,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Flavor(ref common.Refe
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -1805,6 +1807,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIP(ref common.
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -2367,6 +2370,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Group(ref common.Refer
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -2797,6 +2801,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Image(ref common.Refer
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -3517,6 +3522,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPair(ref common.Ref
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -3861,6 +3867,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Network(ref common.Ref
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -4530,6 +4537,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Port(ref common.Refere
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -5309,6 +5317,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Project(ref common.Ref
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -5779,6 +5788,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Role(ref common.Refere
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -6103,6 +6113,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Router(ref common.Refe
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -6295,6 +6306,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterface(ref co
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -6842,6 +6854,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroup(ref comm
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -7494,6 +7507,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref common.Refe
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -7651,6 +7665,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroup(ref common
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -8711,6 +8726,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Service(ref common.Ref
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -9050,6 +9066,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref common.Refe
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -9821,6 +9838,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Trunk(ref common.Refer
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -10478,6 +10496,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref common.Refe
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{
@@ -11115,6 +11134,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeType(ref common.
 						},
 					},
 				},
+				Required: []string{"spec"},
 			},
 		},
 		Dependencies: []string{

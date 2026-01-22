@@ -159,8 +159,8 @@ type {{ .Name }} struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec {{ .Name }}Spec `json:"spec,omitempty"`
+	// +required
+	Spec {{ .Name }}Spec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional

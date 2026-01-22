@@ -137,8 +137,8 @@ type Trunk struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec TrunkSpec `json:"spec,omitempty"`
+	// +required
+	Spec TrunkSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional

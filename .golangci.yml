@@ -37,7 +37,6 @@ linters:
               # NOTE: conflicts with the lack of validation in the Status structs
               - arrayofstruct
               # NOTE: The following checks are currently failing
-              - nonpointerstructs
               - optionalfields
             enable:
               - commentstart
@@ -53,6 +52,7 @@ linters:
               - nodurations
               - nofloats
               - nomaps
+              - nonpointerstructs
               - nonullable
               - notimestamp
               - nophase

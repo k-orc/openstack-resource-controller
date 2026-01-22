@@ -137,8 +137,8 @@ type Flavor struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec FlavorSpec `json:"spec,omitempty"`
+	// +required
+	Spec FlavorSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional

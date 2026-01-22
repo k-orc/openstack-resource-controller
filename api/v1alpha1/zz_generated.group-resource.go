@@ -137,8 +137,8 @@ type Group struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec GroupSpec `json:"spec,omitempty"`
+	// +required
+	Spec GroupSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional

@@ -137,8 +137,8 @@ type Router struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec RouterSpec `json:"spec,omitempty"`
+	// +required
+	Spec RouterSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional
