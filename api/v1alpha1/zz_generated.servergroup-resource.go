@@ -137,8 +137,8 @@ type ServerGroup struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec ServerGroupSpec `json:"spec,omitempty"`
+	// +required
+	Spec ServerGroupSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional
