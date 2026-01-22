@@ -35,12 +35,12 @@ linters:
           linters:
             disable:
               - arrayofstruct
-              - defaults
               - nonpointerstructs
               - optionalfields
             enable:
               - commentstart
               - conditions
+              - defaults
               - duplicatemarkers
               - integers
               - jsontags
@@ -65,6 +65,9 @@ linters:
               isFirstField: Warn
               usePatchStrategy: Ignore
               useProtobuf: Forbid
+            defaults:
+              # Let's use `+kubebuilder:default` until elastic/crd-ref-docs supports `+default`
+              preferredDefaultMarker: "kubebuilder:default"
             requiredfields:
               omitempty:
                 policy: Ignore
