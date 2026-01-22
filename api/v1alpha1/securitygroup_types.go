@@ -78,12 +78,12 @@ type PortRangeStatus struct {
 	// If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal
 	// to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type
 	// +optional
-	Min int32 `json:"min"`
+	Min *int32 `json:"min,omitempty"`
 	// max is the maximum port number in the range that is matched by the security group rule.
 	// If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal
 	// to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.
 	// +optional
-	Max int32 `json:"max"`
+	Max *int32 `json:"max,omitempty"`
 }
 
 // NOTE: A validation was removed from SecurityGroupRule until we bump minimum k8s to at least v1.31:
@@ -130,18 +130,18 @@ type SecurityGroupRuleStatus struct {
 	// id is the ID of the security group rule.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ID string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// direction represents the direction in which the security group rule
 	// is applied. Can be ingress or egress.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Direction string `json:"direction,omitempty"`
+	Direction *string `json:"direction,omitempty"`
 
 	// RemoteAddressGroupId (Not in gophercloud)
 
@@ -149,24 +149,24 @@ type SecurityGroupRuleStatus struct {
 	// RemoteGroupID
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	RemoteGroupID string `json:"remoteGroupID,omitempty"`
+	RemoteGroupID *string `json:"remoteGroupID,omitempty"`
 
 	// remoteIPPrefix is an IP address block. Should match the Ethertype (IPv4 or IPv6)
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	RemoteIPPrefix string `json:"remoteIPPrefix,omitempty"`
+	RemoteIPPrefix *string `json:"remoteIPPrefix,omitempty"`
 
 	// protocol is the IP protocol can be represented by a string, an
 	// integer, or null
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Protocol string `json:"protocol,omitempty"`
+	Protocol *string `json:"protocol,omitempty"`
 
 	// ethertype must be IPv4 or IPv6, and addresses represented in CIDR
 	// must match the ingress or egress rules.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Ethertype string `json:"ethertype,omitempty"`
+	Ethertype *string `json:"ethertype,omitempty"`
 
 	// portRange sets the minimum and maximum ports range that the security group rule
 	// matches. If the protocol is [tcp, udp, dccp sctp,udplite] PortRange.Min must be less than
@@ -243,17 +243,17 @@ type SecurityGroupResourceStatus struct {
 	// name is a Human-readable name for the security group. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// projectID is the project owner of the security group.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=64
@@ -264,7 +264,7 @@ type SecurityGroupResourceStatus struct {
 
 	// stateful indicates if the security group is stateful or stateless.
 	// +optional
-	Stateful bool `json:"stateful,omitempty"`
+	Stateful *bool `json:"stateful,omitempty"`
 
 	// rules is a list of security group rules belonging to this SG.
 	// +kubebuilder:validation:MaxItems:=256

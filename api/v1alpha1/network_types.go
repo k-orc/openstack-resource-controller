@@ -22,7 +22,7 @@ type ProviderPropertiesStatus struct {
 	// Valid values depend on the networking back-end.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	NetworkType string `json:"networkType,omitempty"`
+	NetworkType *string `json:"networkType,omitempty"`
 
 	// physicalNetwork is the physical network where this network
 	// should be implemented. The Networking API v2.0 does not provide a
@@ -31,7 +31,7 @@ type ProviderPropertiesStatus struct {
 	// to specific bridges on each compute host.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
+	PhysicalNetwork *string `json:"physicalNetwork,omitempty"`
 
 	// segmentationID is the ID of the isolated segment on the
 	// physical network. The network_type attribute defines the
@@ -146,24 +146,24 @@ type NetworkResourceStatus struct {
 	// name is a Human-readable name for the network. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// projectID is the project owner of the network.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// status indicates whether network is currently operational. Possible values
 	// include `ACTIVE', `DOWN', `BUILD', or `ERROR'. Plug-ins might define
 	// additional values.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems=64
@@ -177,7 +177,7 @@ type NetworkResourceStatus struct {
 	// adminStateUp is the administrative state of the network,
 	// which is up (true) or down (false).
 	// +optional
-	AdminStateUp *bool `json:"adminStateUp"`
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// availabilityZoneHints is the availability zone candidate for the
 	// network.
@@ -190,7 +190,7 @@ type NetworkResourceStatus struct {
 	// dnsDomain is the DNS domain of the network
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DNSDomain string `json:"dnsDomain,omitempty"`
+	DNSDomain *string `json:"dnsDomain,omitempty"`
 
 	// mtu is the the maximum transmission unit value to address
 	// fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.

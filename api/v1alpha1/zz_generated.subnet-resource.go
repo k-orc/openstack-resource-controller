@@ -69,7 +69,7 @@ type SubnetSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -117,6 +117,9 @@ type SubnetStatus struct {
 var _ ObjectWithConditions = &Subnet{}
 
 func (i *Subnet) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -142,7 +145,7 @@ type Subnet struct {
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status SubnetStatus `json:"status,omitempty"`
+	Status *SubnetStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

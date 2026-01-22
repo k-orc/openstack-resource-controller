@@ -70,7 +70,7 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		patch := baseSecurityGroupPatch(securityGroup)
 		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec())
 		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-		Expect(securityGroup.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(securityGroup.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 
 	It("should require import for unmanaged", func(ctx context.Context) {
@@ -162,7 +162,7 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 				WithOnDelete(orcv1alpha1.OnDeleteDetach)).WithResource(
 			applyconfigv1alpha1.SecurityGroupResourceSpec())
 		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-		Expect(securityGroup.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
+		Expect(securityGroup.Spec.ManagedOptions.OnDelete).To(HaveValue(Equal(orcv1alpha1.OnDelete("detach"))))
 	})
 
 	It("should not permit invalid direction", func(ctx context.Context) {

@@ -714,7 +714,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Domain(ref common.Refe
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainStatus"),
 						},
 					},
@@ -1380,7 +1379,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Flavor(ref common.Refe
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorStatus"),
 						},
 					},
@@ -1791,7 +1789,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIP(ref common.
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPStatus"),
 						},
 					},
@@ -2354,7 +2351,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Group(ref common.Refer
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupStatus"),
 						},
 					},
@@ -2758,7 +2754,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Image(ref common.Refer
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageStatus"),
 						},
 					},
@@ -3479,7 +3474,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPair(ref common.Ref
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairStatus"),
 						},
 					},
@@ -3824,7 +3818,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Network(ref common.Ref
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkStatus"),
 						},
 					},
@@ -4494,7 +4487,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Port(ref common.Refere
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortStatus"),
 						},
 					},
@@ -4531,7 +4523,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref common.
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "networkRef is a reference to the ORC Network which this port is associated with.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -4760,7 +4751,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortRangeStatus(ref co
 					"min": {
 						SchemaProps: spec.SchemaProps{
 							Description: "min is the minimum port number in the range that is matched by the security group rule. If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be less than or equal to the port_range_max attribute value. If the protocol is ICMP, this value must be an ICMP type",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -4768,7 +4758,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortRangeStatus(ref co
 					"max": {
 						SchemaProps: spec.SchemaProps{
 							Description: "max is the maximum port number in the range that is matched by the security group rule. If the protocol is TCP, UDP, DCCP, SCTP or UDP-Lite this value must be greater than or equal to the port_range_min attribute value. If the protocol is ICMP, this value must be an ICMP code.",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -5275,7 +5264,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Project(ref common.Ref
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectStatus"),
 						},
 					},
@@ -5746,7 +5734,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Role(ref common.Refere
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleStatus"),
 						},
 					},
@@ -6071,7 +6058,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Router(ref common.Refe
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterStatus"),
 						},
 					},
@@ -6264,7 +6250,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterInterface(ref co
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterInterfaceStatus"),
 						},
 					},
@@ -6812,7 +6797,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroup(ref comm
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus"),
 						},
 					},
@@ -7465,7 +7449,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref common.Refe
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerStatus"),
 						},
 					},
@@ -7623,7 +7606,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroup(ref common
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupStatus"),
 						},
 					},
@@ -8684,7 +8666,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Service(ref common.Ref
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceStatus"),
 						},
 					},
@@ -9024,7 +9005,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref common.Refe
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetStatus"),
 						},
 					},
@@ -9088,7 +9068,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref commo
 					"networkRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "networkRef is a reference to the ORC Network which this subnet is associated with.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9815,7 +9794,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref common.Refe
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeStatus"),
 						},
 					},
@@ -9837,7 +9815,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus
 					"attachmentID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "attachmentID represents the attachment UUID.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9845,7 +9822,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus
 					"serverID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "serverID is the UUID of the server to which the volume is attached.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9853,7 +9829,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus
 					"device": {
 						SchemaProps: spec.SchemaProps{
 							Description: "device is the name of the device in the instance.",
-							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -10453,7 +10428,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeType(ref common.
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status defines the observed state of the resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeStatus"),
 						},
 					},

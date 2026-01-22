@@ -90,7 +90,7 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 	var reconcileStatus progress.ReconcileStatus
 
 	network, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace, &filter.NetworkRef, "Network",
+		ctx, actuator.k8sClient, obj.Namespace, filter.NetworkRef, "Network",
 		func(dep *orcv1alpha1.Network) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
@@ -119,7 +119,7 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 		NotTags:      tags.Join(filter.NotTags),
 		NotTagsAny:   tags.Join(filter.NotTagsAny),
 		AdminStateUp: filter.AdminStateUp,
-		MACAddress:   filter.MACAddress,
+		MACAddress:   ptr.Deref(filter.MACAddress, ""),
 	}
 
 	return actuator.osClient.ListPort(ctx, listOpts), nil
@@ -176,11 +176,11 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		Description:  string(ptr.Deref(resource.Description, "")),
 		ProjectID:    projectID,
 		AdminStateUp: resource.AdminStateUp,
-		MACAddress:   resource.MACAddress,
+		MACAddress:   ptr.Deref(resource.MACAddress, ""),
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
-		if resource.PortSecurity == orcv1alpha1.PortSecurityDisabled {
+		if ptr.Deref(resource.PortSecurity, orcv1alpha1.PortSecurityInherit) == orcv1alpha1.PortSecurityDisabled {
 			return nil, progress.WrapError(
 				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "AllowedAddressPairs cannot be set when PortSecurity is disabled"))
 		}
@@ -214,7 +214,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	// We explicitly disable default security groups by passing an empty
 	// value whenever the user does not specifies security groups
 	securityGroups := make([]string, len(resource.SecurityGroupRefs))
-	if len(securityGroups) > 0 && resource.PortSecurity == orcv1alpha1.PortSecurityDisabled {
+	if len(securityGroups) > 0 && ptr.Deref(resource.PortSecurity, orcv1alpha1.PortSecurityInherit) == orcv1alpha1.PortSecurityDisabled {
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "SecurityGroupRefs cannot be set when PortSecurity is disabled"))
 	}
@@ -231,14 +231,14 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 
 	portsBindingOpts := portsbinding.CreateOptsExt{
 		CreateOptsBuilder: createOpts,
-		VNICType:          resource.VNICType,
-		HostID:            resource.HostID,
+		VNICType:          ptr.Deref(resource.VNICType, ""),
+		HostID:            ptr.Deref(resource.HostID, ""),
 	}
 
 	portSecurityOpts := portsecurity.PortCreateOptsExt{
 		CreateOptsBuilder: portsBindingOpts,
 	}
-	switch resource.PortSecurity {
+	switch ptr.Deref(resource.PortSecurity, orcv1alpha1.PortSecurityInherit) {
 	case orcv1alpha1.PortSecurityEnabled:
 		portSecurityOpts.PortSecurityEnabled = ptr.To(true)
 	case orcv1alpha1.PortSecurityDisabled:
@@ -247,7 +247,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		// do nothing
 	default:
 		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid value %s", resource.PortSecurity)))
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid value %s", ptr.Deref(resource.PortSecurity, ""))))
 	}
 
 	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
@@ -297,11 +297,11 @@ func (actuator portActuator) checkAttachedServer(ctx context.Context, obj orcObj
 		server := &serverList.Items[i]
 		if server.Status.ID != nil && *server.Status.ID == osResource.DeviceID {
 			// Check if server is in BUILD status
-			if server.Status.Resource != nil && server.Status.Resource.Status == "BUILD" {
+			if server.Status.Resource != nil && ptr.Deref(server.Status.Resource.Status, "") == "BUILD" {
 				log.V(logging.Verbose).Info("Port is attached to server in BUILD status, waiting",
 					"port", obj.Name,
 					"server", server.Name,
-					"serverStatus", server.Status.Resource.Status)
+					"serverStatus", ptr.Deref(server.Status.Resource.Status, ""))
 				return progress.NewReconcileStatus().WaitingOnOpenStack(progress.WaitingOnReady, serverBuildPollingPeriod)
 			}
 			// Server found and not in BUILD status, continue reconciliation
@@ -475,20 +475,20 @@ func handleSecurityGroupRefsUpdate(updateOpts *ports.UpdateOpts, resource *resou
 }
 
 func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
-	if resource.VNICType != "" {
-		if resource.VNICType != osResource.VNICType {
+	if resource.VNICType != nil && *resource.VNICType != "" {
+		if *resource.VNICType != osResource.VNICType {
 			updateOpts = &portsbinding.UpdateOptsExt{
 				UpdateOptsBuilder: updateOpts,
-				VNICType:          resource.VNICType,
+				VNICType:          *resource.VNICType,
 			}
 		}
 	}
 
-	if resource.HostID != "" {
-		if resource.HostID != osResource.HostID {
+	if resource.HostID != nil && *resource.HostID != "" {
+		if *resource.HostID != osResource.HostID {
 			updateOpts = &portsbinding.UpdateOptsExt{
 				UpdateOptsBuilder: updateOpts,
-				HostID:            &resource.HostID,
+				HostID:            resource.HostID,
 			}
 		}
 	}
@@ -500,7 +500,7 @@ func handlePortSecurityUpdate(updateOpts ports.UpdateOptsBuilder, resource *reso
 
 	var desiredState *bool
 
-	switch resource.PortSecurity {
+	switch ptr.Deref(resource.PortSecurity, orcv1alpha1.PortSecurityInherit) {
 	case orcv1alpha1.PortSecurityInherit:
 		return updateOpts
 	case orcv1alpha1.PortSecurityEnabled:

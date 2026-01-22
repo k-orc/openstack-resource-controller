@@ -91,12 +91,12 @@ type ProjectResourceStatus struct {
 	// name is a Human-readable name for the project. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength:=65535
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// enabled represents whether a project is enabled or not.
 	// +optional

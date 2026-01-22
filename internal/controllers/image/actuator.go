@@ -163,7 +163,7 @@ func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alph
 		Name:            getResourceName(obj),
 		Visibility:      visibility,
 		Tags:            tags,
-		ContainerFormat: string(resource.Content.ContainerFormat),
+		ContainerFormat: string(ptr.Deref(resource.Content.ContainerFormat, "")),
 		DiskFormat:      (string)(resource.Content.DiskFormat),
 		MinDisk:         minDisk,
 		MinRAM:          minMemory,
@@ -358,14 +358,14 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 	// Newly created image, waiting for upload, or... previous upload was interrupted and has now reset
 	case images.ImageStatusQueued:
 		// Don't attempt image creation if we're not managing the image
-		if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
+		if orcObject.Spec.ManagementPolicy != nil && *orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
 			return progress.NewReconcileStatus().
 				WithProgressMessage("Waiting for glance image content to be uploaded externally").
 				WithRequeue(externalUpdatePollingPeriod)
 		}
 
 		// Initialize download status
-		if orcObject.Status.DownloadAttempts == nil {
+		if orcObject.Status == nil || orcObject.Status.DownloadAttempts == nil {
 			err := setDownloadingStatus(ctx, false, "Starting image upload", orcv1alpha1.ConditionReasonProgressing, metav1.ConditionTrue, orcObject, actuator.k8sClient)
 			if err != nil {
 				return progress.WrapError(err)
@@ -375,7 +375,7 @@ func (actuator imageActuator) handleUpload(ctx context.Context, orcObject orcObj
 				WithProgressMessage("Starting image upload")
 		}
 
-		if ptr.Deref(orcObject.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
+		if orcObject.Status != nil && ptr.Deref(orcObject.Status.DownloadAttempts, 0) >= maxDownloadAttempts {
 			return progress.WrapError(
 				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Unable to download content after %d attempts", maxDownloadAttempts)))
 		}

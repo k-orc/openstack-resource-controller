@@ -118,8 +118,8 @@ func serverToVolumeMapFunc(ctx context.Context, k8sClient client.Client) handler
 		serverVolumeIDs := make(map[string]struct{})
 		for i := range serverStatus.Volumes {
 			volumeID := serverStatus.Volumes[i].ID
-			if volumeID != "" {
-				serverVolumeIDs[volumeID] = struct{}{}
+			if volumeID != nil && *volumeID != "" {
+				serverVolumeIDs[*volumeID] = struct{}{}
 			}
 		}
 
@@ -151,7 +151,7 @@ func serverToVolumeMapFunc(ctx context.Context, k8sClient client.Client) handler
 			if _, volumeInServerStatus := serverVolumeIDs[volumeID]; volumeInServerStatus {
 				hasAttachment := false
 				for j := range volumeStatus.Attachments {
-					if volumeStatus.Attachments[j].ServerID == serverID {
+					if ptr.Deref(volumeStatus.Attachments[j].ServerID, "") == serverID {
 						hasAttachment = true
 						break
 					}
@@ -168,7 +168,7 @@ func serverToVolumeMapFunc(ctx context.Context, k8sClient client.Client) handler
 			// Volume has attachment info for this server, but server no longer lists this volume
 			if !shouldReconcile {
 				for j := range volumeStatus.Attachments {
-					if volumeStatus.Attachments[j].ServerID == serverID {
+					if ptr.Deref(volumeStatus.Attachments[j].ServerID, "") == serverID {
 						// Volume thinks it's attached to this server
 						if _, stillAttached := serverVolumeIDs[volumeID]; !stillAttached {
 							shouldReconcile = true

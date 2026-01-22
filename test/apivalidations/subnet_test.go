@@ -61,7 +61,7 @@ var _ = Describe("ORC Subnet API validations", func() {
 		subnet := subnetStub(namespace)
 		patch := baseSubnetPatch(subnet)
 		Expect(applyObj(ctx, subnet, patch)).To(Succeed())
-		Expect(subnet.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(subnet.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 	It("should allow valid tags", func(ctx context.Context) {
 		subnet := subnetStub(namespace)

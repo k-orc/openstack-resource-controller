@@ -70,7 +70,7 @@ type ImageSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -120,6 +120,9 @@ type ImageStatus struct {
 var _ ObjectWithConditions = &Image{}
 
 func (i *Image) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -145,7 +148,7 @@ type Image struct {
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status ImageStatus `json:"status,omitempty"`
+	Status *ImageStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

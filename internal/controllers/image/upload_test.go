@@ -28,6 +28,7 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
@@ -183,7 +184,7 @@ var _ = Describe("Upload tests", Ordered, func() {
 		orcImage.Spec = orcv1alpha1.ImageSpec{
 			Resource: &orcv1alpha1.ImageResourceSpec{
 				Content: &orcv1alpha1.ImageContent{
-					ContainerFormat: orcv1alpha1.ImageContainerFormatBare,
+					ContainerFormat: ptr.To(orcv1alpha1.ImageContainerFormatBare),
 					DiskFormat:      orcv1alpha1.ImageDiskFormatRaw,
 					Download: &orcv1alpha1.ImageContentSourceDownload{
 						URL:        "http://" + fileServeAddr + "/" + imageName,

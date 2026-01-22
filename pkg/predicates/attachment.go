@@ -101,14 +101,14 @@ func newServerResourceChanged(
 // where the status.resource.volumes field changed.
 func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
 	getVolumeIDs := func(server *orcv1alpha1.Server) []string {
-		if server.Status.Resource == nil {
+		if server.Status == nil || server.Status.Resource == nil {
 			return nil
 		}
 		volumeIDs := make([]string, 0, len(server.Status.Resource.Volumes))
 		for i := range server.Status.Resource.Volumes {
 			volumeID := server.Status.Resource.Volumes[i].ID
-			if volumeID != "" {
-				volumeIDs = append(volumeIDs, volumeID)
+			if volumeID != nil && *volumeID != "" {
+				volumeIDs = append(volumeIDs, *volumeID)
 			}
 		}
 		return volumeIDs
@@ -121,14 +121,14 @@ func NewServerVolumesChanged(log logr.Logger) predicate.Predicate {
 // where the status.resource.interfaces field changed.
 func NewServerInterfacesChanged(log logr.Logger) predicate.Predicate {
 	getPortIDs := func(server *orcv1alpha1.Server) []string {
-		if server.Status.Resource == nil {
+		if server.Status == nil || server.Status.Resource == nil {
 			return nil
 		}
 		portIDs := make([]string, 0, len(server.Status.Resource.Interfaces))
 		for i := range server.Status.Resource.Interfaces {
 			portID := server.Status.Resource.Interfaces[i].PortID
-			if portID != "" {
-				portIDs = append(portIDs, portID)
+			if portID != nil && *portID != "" {
+				portIDs = append(portIDs, *portID)
 			}
 		}
 		return portIDs

@@ -43,7 +43,7 @@ type FloatingIPFilter struct {
 	// status is the status of the floatingip.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -98,47 +98,47 @@ type FloatingIPResourceStatus struct {
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// floatingNetworkID is the ID of the network to which the floatingip is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	FloatingNetworkID string `json:"floatingNetworkID,omitempty"`
+	FloatingNetworkID *string `json:"floatingNetworkID,omitempty"`
 
 	// floatingIP is the IP address of the floatingip.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	FloatingIP string `json:"floatingIP,omitempty"`
+	FloatingIP *string `json:"floatingIP,omitempty"`
 
 	// portID is the ID of the port to which the floatingip is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	PortID string `json:"portID,omitempty"`
+	PortID *string `json:"portID,omitempty"`
 
 	// fixedIP is the IP address of the port to which the floatingip is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	FixedIP string `json:"fixedIP,omitempty"`
+	FixedIP *string `json:"fixedIP,omitempty"`
 
 	// tenantID is the project owner of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	TenantID string `json:"tenantID,omitempty"`
+	TenantID *string `json:"tenantID,omitempty"`
 
 	// projectID is the project owner of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// status indicates the current status of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// routerID is the ID of the router to which the floatingip is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	RouterID string `json:"routerID,omitempty"`
+	RouterID *string `json:"routerID,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=64

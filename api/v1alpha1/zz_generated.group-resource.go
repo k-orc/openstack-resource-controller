@@ -69,7 +69,7 @@ type GroupSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -117,6 +117,9 @@ type GroupStatus struct {
 var _ ObjectWithConditions = &Group{}
 
 func (i *Group) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -142,7 +145,7 @@ type Group struct {
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status GroupStatus `json:"status,omitempty"`
+	Status *GroupStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

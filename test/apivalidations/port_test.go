@@ -59,7 +59,7 @@ var _ = Describe("ORC Port API validations", func() {
 		patch := basePortPatch(port)
 		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().WithNetworkRef(networkName))
 		Expect(applyObj(ctx, port, patch)).To(Succeed())
-		Expect(port.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(port.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 
 	It("should allow to create a port with securityGroupRefs when portSecurity is enabled", func(ctx context.Context) {
@@ -71,7 +71,7 @@ var _ = Describe("ORC Port API validations", func() {
 			WithPortSecurity(orcv1alpha1.PortSecurityEnabled))
 		Expect(applyObj(ctx, port, patch)).To(Succeed())
 		Expect(port.Spec.Resource.SecurityGroupRefs).To(Equal([]orcv1alpha1.OpenStackName{"sg-foo"}))
-		Expect(port.Spec.Resource.PortSecurity).To(Equal(orcv1alpha1.PortSecurityEnabled))
+		Expect(port.Spec.Resource.PortSecurity).To(HaveValue(Equal(orcv1alpha1.PortSecurityEnabled)))
 	})
 
 	It("should allow to create a port with portSecurity set to Inherit", func(ctx context.Context) {
@@ -81,7 +81,7 @@ var _ = Describe("ORC Port API validations", func() {
 			WithNetworkRef(networkName).
 			WithPortSecurity(orcv1alpha1.PortSecurityInherit))
 		Expect(applyObj(ctx, port, patch)).To(Succeed())
-		Expect(port.Spec.Resource.PortSecurity).To(Equal(orcv1alpha1.PortSecurityInherit))
+		Expect(port.Spec.Resource.PortSecurity).To(HaveValue(Equal(orcv1alpha1.PortSecurityInherit)))
 	})
 
 	It("should allow to create a port with portSecurity set to Disabled", func(ctx context.Context) {
@@ -91,7 +91,7 @@ var _ = Describe("ORC Port API validations", func() {
 			WithNetworkRef(networkName).
 			WithPortSecurity(orcv1alpha1.PortSecurityDisabled))
 		Expect(applyObj(ctx, port, patch)).To(Succeed())
-		Expect(port.Spec.Resource.PortSecurity).To(Equal(orcv1alpha1.PortSecurityDisabled))
+		Expect(port.Spec.Resource.PortSecurity).To(HaveValue(Equal(orcv1alpha1.PortSecurityDisabled)))
 	})
 
 	It("should not allow to create a port with securityGroupRefs when portSecurity is explicitly set to Disabled", func(ctx context.Context) {

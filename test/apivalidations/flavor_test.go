@@ -72,7 +72,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		patch := baseFlavorPatch(flavor)
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-		Expect(flavor.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(flavor.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 
 	It("should be immutable", func(ctx context.Context) {
@@ -128,7 +128,7 @@ var _ = Describe("ORC Flavor API validations", func() {
 		}
 
 		Expect(k8sClient.Create(ctx, flavor)).To(Succeed())
-		Expect(flavor.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(flavor.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 
 	It("should require import for unmanaged", func(ctx context.Context) {
@@ -229,6 +229,6 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
 				WithOnDelete(orcv1alpha1.OnDeleteDetach))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-		Expect(flavor.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
+		Expect(flavor.Spec.ManagedOptions.OnDelete).To(HaveValue(Equal(orcv1alpha1.OnDelete("detach"))))
 	})
 })

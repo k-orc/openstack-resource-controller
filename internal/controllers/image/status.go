@@ -59,7 +59,7 @@ func (imageStatusWriter) GetApplyConfig(name, namespace string) objectApplyPT {
 
 func (imageStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
-		if orcObject.Status.ID == nil {
+		if orcObject.Status == nil || orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
 		} else {
 			return metav1.ConditionUnknown, nil
@@ -95,7 +95,10 @@ func (imageStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 func setDownloadingStatus(ctx context.Context, increment bool, message, reason string, downloadingStatus metav1.ConditionStatus, orcObject orcObjectPT, k8sClient client.Client) error {
 	status := orcapplyconfigv1alpha1.ImageStatus()
 
-	downloadAttempts := ptr.Deref(orcObject.Status.DownloadAttempts, 0)
+	var downloadAttempts int32
+	if orcObject.Status != nil {
+		downloadAttempts = ptr.Deref(orcObject.Status.DownloadAttempts, 0)
+	}
 	if increment {
 		downloadAttempts += 1
 	}

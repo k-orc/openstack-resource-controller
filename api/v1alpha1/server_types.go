@@ -78,41 +78,41 @@ type ServerVolumeStatus struct {
 	// id is the ID of a volume attached to the server.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	ID string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"`
 }
 
 type ServerInterfaceFixedIP struct {
 	// ipAddress is the IP address assigned to the port.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	IPAddress string `json:"ipAddress,omitempty"`
+	IPAddress *string `json:"ipAddress,omitempty"`
 
 	// subnetID is the ID of the subnet from which the IP address is allocated.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	SubnetID string `json:"subnetID,omitempty"`
+	SubnetID *string `json:"subnetID,omitempty"`
 }
 
 type ServerInterfaceStatus struct {
 	// portID is the ID of a port attached to the server.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	PortID string `json:"portID,omitempty"`
+	PortID *string `json:"portID,omitempty"`
 
 	// netID is the ID of the network to which the interface is attached.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	NetID string `json:"netID,omitempty"`
+	NetID *string `json:"netID,omitempty"`
 
 	// macAddr is the MAC address of the interface.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	MACAddr string `json:"macAddr,omitempty"`
+	MACAddr *string `json:"macAddr,omitempty"`
 
 	// portState is the state of the port (e.g., ACTIVE, DOWN).
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	PortState string `json:"portState,omitempty"`
+	PortState *string `json:"portState,omitempty"`
 
 	// fixedIPs is the list of fixed IP addresses assigned to the interface.
 	// +kubebuilder:validation:MaxItems:=32
@@ -168,7 +168,7 @@ type ServerResourceSpec struct {
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 
 	// keypairRef is a reference to a KeyPair object. The server will be
 	// created with this keypair for SSH access.
@@ -229,7 +229,7 @@ type ServerFilter struct {
 	// availabilityZone is the availability zone of the existing resource
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 
 	FilterByServerTags `json:",inline"`
 }
@@ -239,28 +239,28 @@ type ServerResourceStatus struct {
 	// name is the human-readable name of the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// hostID is the host where the server is located in the cloud.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	HostID string `json:"hostID,omitempty"`
+	HostID *string `json:"hostID,omitempty"`
 
 	// status contains the current operational status of the server,
 	// such as IN_PROGRESS or ACTIVE.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// imageID indicates the OS image used to deploy the server.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ImageID string `json:"imageID,omitempty"`
+	ImageID *string `json:"imageID,omitempty"`
 
 	// availabilityZone is the availability zone where the server is located.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 
 	// serverGroups is a slice of strings containing the UUIDs of the
 	// server groups to which the server belongs. Currently this can
@@ -298,7 +298,7 @@ type ServerResourceStatus struct {
 
 	// configDrive indicates whether the server was booted with a config drive.
 	// +optional
-	ConfigDrive bool `json:"configDrive,omitempty"`
+	ConfigDrive *bool `json:"configDrive,omitempty"`
 }
 
 // ServerMetadataStatus represents a key-value pair for server metadata in status.
@@ -306,10 +306,10 @@ type ServerMetadataStatus struct {
 	// key is the metadata key.
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Key string `json:"key,omitempty"`
+	Key *string `json:"key,omitempty"`
 
 	// value is the metadata value.
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Value string `json:"value,omitempty"`
+	Value *string `json:"value,omitempty"`
 }

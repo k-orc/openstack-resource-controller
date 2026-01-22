@@ -52,15 +52,15 @@ type GroupResourceStatus struct {
 	// name is a Human-readable name for the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// domainID is the ID of the Domain to which the resource is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DomainID string `json:"domainID,omitempty"`
+	DomainID *string `json:"domainID,omitempty"`
 }

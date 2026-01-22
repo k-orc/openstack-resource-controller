@@ -257,7 +257,7 @@ type ImageContent struct {
 	// Permitted values are ami, ari, aki, bare, compressed, ovf, ova, and docker.
 	// +kubebuilder:default:=bare
 	// +optional
-	ContainerFormat ImageContainerFormat `json:"containerFormat,omitempty"`
+	ContainerFormat *ImageContainerFormat `json:"containerFormat,omitempty"`
 
 	// diskFormat is the format of the disk image.
 	// Normal values are "qcow2", or "raw". Glance may be configured to support others.
@@ -363,21 +363,21 @@ type ImageResourceStatus struct {
 	// name is a Human-readable name for the image. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// status is the image status as reported by Glance
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// protected specifies that the image is protected from deletion.
 	// +optional
-	Protected bool `json:"protected,omitempty"`
+	Protected *bool `json:"protected,omitempty"`
 
 	// visibility of the image
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Visibility string `json:"visibility,omitempty"`
+	Visibility *string `json:"visibility,omitempty"`
 
 	// hash is the hash of the image data published by Glance. Note that this is
 	// a hash of the data stored internally by Glance, which will have been

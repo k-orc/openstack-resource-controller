@@ -69,7 +69,7 @@ type FloatingIPSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -117,6 +117,9 @@ type FloatingIPStatus struct {
 var _ ObjectWithConditions = &FloatingIP{}
 
 func (i *FloatingIP) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -143,7 +146,7 @@ type FloatingIP struct {
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status FloatingIPStatus `json:"status,omitempty"`
+	Status *FloatingIPStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

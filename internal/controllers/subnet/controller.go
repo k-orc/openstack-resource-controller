@@ -70,10 +70,10 @@ var (
 		"spec.import.filter.networkRef",
 		func(subnet *orcv1alpha1.Subnet) []string {
 			resource := subnet.Spec.Import
-			if resource == nil || resource.Filter == nil {
+			if resource == nil || resource.Filter == nil || resource.Filter.NetworkRef == nil {
 				return nil
 			}
-			return []string{string(resource.Filter.NetworkRef)}
+			return []string{string(*resource.Filter.NetworkRef)}
 		},
 	)
 

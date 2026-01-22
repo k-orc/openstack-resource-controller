@@ -227,7 +227,7 @@ func TestHandleAllowedAddressPairsUpdate(t *testing.T) {
 
 func makeSecGroupWithID(id string) *orcv1alpha1.SecurityGroup {
 	return &orcv1alpha1.SecurityGroup{
-		Status: orcv1alpha1.SecurityGroupStatus{
+		Status: &orcv1alpha1.SecurityGroupStatus{
 			ID: &id,
 		},
 	}
@@ -339,15 +339,16 @@ func TestHandleSecurityGroupRefsUpdate(t *testing.T) {
 func TestHandlePortBindingUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
-		newValue      string
+		newValue      *string
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: "normal", existingValue: "normal", expectChange: false},
-		{name: "Different", newValue: "direct", existingValue: "normal", expectChange: true},
-		{name: "Updating to empty string", newValue: "", existingValue: "normal", expectChange: false},
-		{name: "Updating from empty string", newValue: "normal", existingValue: "", expectChange: true},
-		{name: "Both are empty strings", newValue: "", existingValue: "", expectChange: false},
+		{name: "Identical", newValue: ptr.To("normal"), existingValue: "normal", expectChange: false},
+		{name: "Different", newValue: ptr.To("direct"), existingValue: "normal", expectChange: true},
+		{name: "Updating to empty string", newValue: ptr.To(""), existingValue: "normal", expectChange: false},
+		{name: "Updating from empty string", newValue: ptr.To("normal"), existingValue: "", expectChange: true},
+		{name: "Both are empty strings", newValue: ptr.To(""), existingValue: "", expectChange: false},
+		{name: "Nil value", newValue: nil, existingValue: "normal", expectChange: false},
 	}
 
 	for _, tt := range testCases {
@@ -372,21 +373,21 @@ func TestHandlePortBindingUpdate(t *testing.T) {
 func TestHandlePortSecurityUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
-		newValue      orcv1alpha1.PortSecurityState
+		newValue      *orcv1alpha1.PortSecurityState
 		existingValue bool
 		expectChange  bool
 	}{
-		{name: "Enabled when already enabled", newValue: orcv1alpha1.PortSecurityEnabled, existingValue: true, expectChange: false},
-		{name: "Enabled when was disabled", newValue: orcv1alpha1.PortSecurityEnabled, existingValue: false, expectChange: true},
+		{name: "Enabled when already enabled", newValue: ptr.To(orcv1alpha1.PortSecurityEnabled), existingValue: true, expectChange: false},
+		{name: "Enabled when was disabled", newValue: ptr.To(orcv1alpha1.PortSecurityEnabled), existingValue: false, expectChange: true},
 
-		{name: "Disabled when already disabled", newValue: orcv1alpha1.PortSecurityDisabled, existingValue: false, expectChange: false},
-		{name: "Disabled when was enabled", newValue: orcv1alpha1.PortSecurityDisabled, existingValue: true, expectChange: true},
+		{name: "Disabled when already disabled", newValue: ptr.To(orcv1alpha1.PortSecurityDisabled), existingValue: false, expectChange: false},
+		{name: "Disabled when was enabled", newValue: ptr.To(orcv1alpha1.PortSecurityDisabled), existingValue: true, expectChange: true},
 
-		{name: "Inherit when was enabled", newValue: orcv1alpha1.PortSecurityInherit, existingValue: true, expectChange: false},
-		{name: "Inherit when was disabled", newValue: orcv1alpha1.PortSecurityInherit, existingValue: false, expectChange: false},
+		{name: "Inherit when was enabled", newValue: ptr.To(orcv1alpha1.PortSecurityInherit), existingValue: true, expectChange: false},
+		{name: "Inherit when was disabled", newValue: ptr.To(orcv1alpha1.PortSecurityInherit), existingValue: false, expectChange: false},
 
-		{name: "Default (empty string) when was enabled", newValue: "", existingValue: true, expectChange: false},
-		{name: "Invalid string when was enabled", newValue: "foo", existingValue: true, expectChange: false},
+		{name: "Default (nil) when was enabled", newValue: nil, existingValue: true, expectChange: false},
+		{name: "Invalid string when was enabled", newValue: ptr.To(orcv1alpha1.PortSecurityState("foo")), existingValue: true, expectChange: false},
 	}
 
 	for _, tt := range testCases {
