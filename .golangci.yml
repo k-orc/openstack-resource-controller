@@ -34,7 +34,9 @@ linters:
         settings:
           linters:
             disable:
+              # NOTE: conflicts with the lack of validation in the Status structs
               - arrayofstruct
+              # NOTE: The following checks are currently failing
               - nonpointerstructs
               - optionalfields
             enable:
