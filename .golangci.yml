@@ -38,7 +38,6 @@ linters:
               - defaults
               - nonpointerstructs
               - optionalfields
-              - maxlength
               - requiredfields
             enable:
               - commentstart
@@ -46,6 +45,7 @@ linters:
               - duplicatemarkers
               - integers
               - jsontags
+              - maxlength
               # NOTE: we have a number of boolean fields. Should we convert them to
               # string?
               # - nobools

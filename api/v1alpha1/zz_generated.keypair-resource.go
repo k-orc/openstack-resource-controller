@@ -30,6 +30,7 @@ type KeyPairImport struct {
 	// the resource name as the unique identifier, not a UUID.
 	// When specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
@@ -104,6 +105,7 @@ type KeyPairStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
 	// id is the unique identifier of the OpenStack resource.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
