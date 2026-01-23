@@ -38,7 +38,6 @@ linters:
               - defaults
               - nonpointerstructs
               - optionalfields
-              - requiredfields
             enable:
               - commentstart
               - conditions
@@ -56,6 +55,7 @@ linters:
               - notimestamp
               - nophase
               - optionalorrequired
+              - requiredfields
               - ssatags
               - statusoptional
               - statussubresource
@@ -65,9 +65,9 @@ linters:
               isFirstField: Warn
               usePatchStrategy: Ignore
               useProtobuf: Forbid
-            # requiredfields:
-            #   omitempty:
-            #     policy: Ignore
+            requiredfields:
+              omitempty:
+                policy: Ignore
   exclusions:
     generated: disable
     rules:
