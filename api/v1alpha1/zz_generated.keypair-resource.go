@@ -77,7 +77,7 @@ type KeyPairSpec struct {
 
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required
-	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef"`
+	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef,omitzero"`
 }
 
 // KeyPairStatus defines the observed state of an ORC resource.
