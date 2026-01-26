@@ -48,7 +48,38 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 	router := &orcv1alpha1.Router{}
 	if err := r.client.Get(ctx, req.NamespacedName, router); err != nil {
 		if apierrors.IsNotFound(err) {
-			return ctrl.Result{}, nil
+			// The router does not exist (yet). We still need to update the status
+			// on all RouterInterfaces that are associated with that router
+
+			// Creating a dummy router struct with namespace and name will be enough to
+			// retrieve all defined RouterInterfaces for that to-be-created router
+			router.Name = req.Name
+			router.Namespace = req.Namespace
+			routerInterfaces, err := routerDependency.GetObjectsForDependency(ctx, r.client, router)
+
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("fetching router interfaces: %w", err)
+			}
+
+			if len(routerInterfaces) == 0 {
+				return ctrl.Result{}, nil
+			}
+
+			var osResource *osclients.PortExt
+
+			var reconcileStatus progress.ReconcileStatus
+			for i := range routerInterfaces {
+				routerInterface := &routerInterfaces[i]
+				log = log.WithValues("name", routerInterface.Name)
+
+				var ifReconcileStatus progress.ReconcileStatus
+				ifReconcileStatus = progress.WaitingOnObject("Router", req.Name, progress.WaitingOnCreation)
+				ifReconcileStatus = ifReconcileStatus.WithReconcileStatus(r.updateStatus(ctx, routerInterface, osResource, ifReconcileStatus))
+
+				reconcileStatus = reconcileStatus.WithReconcileStatus(ifReconcileStatus)
+			}
+
+			return reconcileStatus.Return(log)
 		}
 		return ctrl.Result{}, err
 	}
