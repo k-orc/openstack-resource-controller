@@ -1618,6 +1618,8 @@ _Appears in:_
 - [GroupResourceSpec](#groupresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
+- [NetworkSegmentRangeFilter](#networksegmentrangefilter)
+- [NetworkSegmentRangeResourceSpec](#networksegmentrangeresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
 - [RoleFilter](#rolefilter)
@@ -1856,6 +1858,12 @@ _Appears in:_
 | `subnets` _string array_ | subnets associated with this network. |  | MaxItems: 256 <br />items:MaxLength: 1024 <br /> |
 
 
+
+
+
+
+
+
 #### NetworkSpec
 
 
@@ -2011,6 +2019,8 @@ _Appears in:_
 - [KeyPairResourceSpec](#keypairresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
+- [NetworkSegmentRangeFilter](#networksegmentrangefilter)
+- [NetworkSegmentRangeResourceSpec](#networksegmentrangeresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
 - [RouterFilter](#routerfilter)
