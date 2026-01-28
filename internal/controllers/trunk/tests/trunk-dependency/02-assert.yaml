@@ -1,0 +1,29 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-dependency-parent-no-project
+      ref: portNoProject
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-dependency-parent-no-secret
+      ref: portNoSecret
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: trunk-dependency
+      ref: project
+    - apiVersion: v1
+      kind: Secret
+      name: trunk-dependency
+      ref: secret
+assertAll:
+    - celExpr: "portNoProject.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/trunk' in portNoProject.metadata.finalizers"
+    - celExpr: "portNoSecret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/trunk' in portNoSecret.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/trunk' in project.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/trunk' in secret.metadata.finalizers"

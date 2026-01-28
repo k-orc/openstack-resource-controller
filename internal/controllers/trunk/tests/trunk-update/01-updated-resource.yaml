@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update
+spec:
+  resource:
+    # kuttl does a merge patch, we only need to change the things we want changed
+    name: trunk-update-updated
+    description: trunk-update-updated
+    adminStateUp: true
+    tags:
+      - tag1
+      - tag2

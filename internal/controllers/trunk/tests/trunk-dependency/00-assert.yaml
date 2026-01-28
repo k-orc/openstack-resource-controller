@@ -1,0 +1,45 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/trunk-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/trunk-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-dependency-no-port
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Port/trunk-dependency-pending to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Port/trunk-dependency-pending to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/trunk-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/trunk-dependency to be created
+      status: "True"
+      reason: Progressing
