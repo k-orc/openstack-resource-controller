@@ -70,17 +70,26 @@ func GetOrCreateOSResource[
 		osResource, reconcileStatus := actuator.GetOSResourceByID(ctx, *resourceID)
 		if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
 			if orcerrors.IsNotFound(err) {
-				// An OpenStack resource we previously referenced has been deleted unexpectedly. We can't recover from this.
-				return osResource, progress.WrapError(
-					orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "resource has been deleted from OpenStack"))
+				// An OpenStack resource we previously referenced has been deleted unexpectedly.
+				// For managed resources, we can recover by recreating the resource.
+				// For imported resources, this is an unrecoverable error.
+				if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged && objAdapter.GetImportID() == nil && objAdapter.GetImportFilter() == nil {
+					log.V(logging.Info).Info("Resource has been deleted from OpenStack, will recreate", "ID", *resourceID)
+					// Fall through to creation by not returning here.
+					// The status ID will be updated after the new resource is created.
+				} else {
+					return osResource, progress.WrapError(
+						orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "resource has been deleted from OpenStack"))
+				}
 			} else {
 				return osResource, reconcileStatus
 			}
 		}
 		if osResource != nil {
 			log.V(logging.Verbose).Info("Got existing OpenStack resource", "ID", actuator.GetResourceID(osResource))
+			return osResource, nil
 		}
-		return osResource, nil
+		// osResource is nil, fall through to creation
 	}
 
 	// Import by ID
