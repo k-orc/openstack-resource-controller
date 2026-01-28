@@ -1,0 +1,53 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-create-full
+status:
+  resource:
+    name: loadbalancer-create-full-override
+    description: LoadBalancer from "create full" test
+    adminStateUp: true
+    provisioningStatus: ACTIVE
+    tags:
+    - tag1
+    - tag2
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-create-full
+      ref: loadbalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-create-full
+      ref: subnet
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: loadbalancer-create-full
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: loadbalancer-create-full
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: loadbalancer-create-full
+      ref: project
+assertAll:
+    # Dynamic checks that require CEL - cross-resource comparisons
+    - celExpr: "loadbalancer.status.id != ''"
+    - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
+    - celExpr: "loadbalancer.status.resource.vipNetworkID == network.status.id"
+    - celExpr: "loadbalancer.status.resource.vipPortID == port.status.id"
+    - celExpr: "loadbalancer.status.resource.projectID == project.status.id"
+    - celExpr: "loadbalancer.status.resource.vipAddress != ''"

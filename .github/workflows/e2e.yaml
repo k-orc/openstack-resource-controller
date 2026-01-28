@@ -36,7 +36,20 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server"
+        enabled_services: "openstack-cli-server,octavia,o-api,o-cw,o-hm,o-hk,o-da"
+        conf_overrides: |
+            enable_plugin octavia https://github.com/openstack/octavia ${{ matrix.openstack_version }}
+            enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
+
+            ${{ matrix.devstack_conf_overrides }}
+    - name: Calculate go version
+      id: vars
+      run: echo "go_version=$(make go-version)" >> $GITHUB_OUTPUT
+
+    - name: Set up Go
+      uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # tag=v6.1.0
+      with:
+        go-version: ${{ steps.vars.outputs.go_version }}
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab

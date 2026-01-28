@@ -1,0 +1,98 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: lbpool-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: lbpool-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: lbpool-dependency
+    ipVersion: 4
+    cidr: 10.0.3.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: lbpool-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: lbpool-dependency
+---
+# This LBPool is waiting for a LoadBalancer that doesn't exist yet
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-loadbalancer
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    loadBalancerRef: lbpool-dependency-pending
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+---
+# This LBPool is waiting for a Secret that doesn't exist yet
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: lbpool-dependency
+  managementPolicy: managed
+  resource:
+    loadBalancerRef: lbpool-dependency
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+---
+# This LBPool is waiting for a Listener that doesn't exist yet
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-listener
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    listenerRef: lbpool-dependency
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+---
+# This LBPool is waiting for a Project that doesn't exist yet
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    loadBalancerRef: lbpool-dependency
+    projectRef: lbpool-dependency
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
