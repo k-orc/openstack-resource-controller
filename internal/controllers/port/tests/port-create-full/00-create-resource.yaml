@@ -86,3 +86,4 @@ spec:
     projectRef: port-create-full
     macAddress: fa:16:3e:23:fd:d7
     hostID: devstack
+    propagateUplinkStatus: false

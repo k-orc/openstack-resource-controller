@@ -171,12 +171,13 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	createOpts := ports.CreateOpts{
-		NetworkID:    *network.Status.ID,
-		Name:         getResourceName(obj),
-		Description:  string(ptr.Deref(resource.Description, "")),
-		ProjectID:    projectID,
-		AdminStateUp: resource.AdminStateUp,
-		MACAddress:   resource.MACAddress,
+		NetworkID:             *network.Status.ID,
+		Name:                  getResourceName(obj),
+		Description:           string(ptr.Deref(resource.Description, "")),
+		ProjectID:             projectID,
+		AdminStateUp:          resource.AdminStateUp,
+		MACAddress:            resource.MACAddress,
+		PropagateUplinkStatus: resource.PropagateUplinkStatus,
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {
