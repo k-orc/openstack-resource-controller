@@ -219,8 +219,10 @@ func (c *Controller[
 		return reconcileStatus.WithError(fmt.Errorf("oResource is not set, but no wait events or error"))
 	}
 
-	if objAdapter.GetStatusID() == nil {
-		resourceID := actuator.GetResourceID(osResource)
+	resourceID := actuator.GetResourceID(osResource)
+	statusID := objAdapter.GetStatusID()
+	if statusID == nil || *statusID != resourceID {
+		// Update status ID if not set, or if it differs (e.g., after recreation due to drift detection)
 		if err := status.SetStatusID(ctx, c, objAdapter.GetObject(), resourceID, c.statusWriter); err != nil {
 			return reconcileStatus.WithError(err)
 		}
