@@ -51,13 +51,16 @@ func (userStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.User, osR
 func (userStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.UserResourceStatus().
 		WithDomainID(osResource.DomainID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the UserResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithEnabled(osResource.Enabled).
+		WithPasswordExpiresAt(metav1.NewTime(osResource.PasswordExpiresAt))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.DefaultProjectID != "" {
+		resourceStatus.WithDefaultProjectID(osResource.DefaultProjectID)
 	}
 
 	statusApply.WithResource(resourceStatus)

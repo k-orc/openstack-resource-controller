@@ -6,5 +6,6 @@ metadata:
 spec:
   resource:
     name: user-update-updated
-    description: user-update-updated
-    # TODO(scaffolding): update all mutable fields
+    enabled: True
+    defaultProjectID: "user-dependency"
+

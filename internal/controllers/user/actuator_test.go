@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   users.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   users.UpdateOpts{Name: "updated"},
 			expectChange: true,
 		},
 	}
@@ -53,10 +53,10 @@ func TestNeedsUpdate(t *testing.T) {
 }
 
 func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+	ptrToName := ptr.To[orcv1alpha1.KeystoneName]
 	testCases := []struct {
 		name          string
-		newValue      *orcv1alpha1.OpenStackName
+		newValue      *orcv1alpha1.KeystoneName
 		existingValue string
 		expectChange  bool
 	}{
@@ -87,28 +87,83 @@ func TestHandleNameUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+func TestHandleDefaultProjectIDUpdate(t *testing.T) {
+	ptrToDefaultProjectID := ptr.To[string]
 	testCases := []struct {
 		name          string
 		newValue      *string
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
+		{name: "Identical", newValue: ptrToDefaultProjectID("defProID"), existingValue: "defProID", expectChange: false},
+		{name: "Different", newValue: ptrToDefaultProjectID("new-defProID"), existingValue: "defProID", expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: "defProID", expectChange: false},
 		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.UserResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			resource := &orcv1alpha1.UserResourceSpec{DefaultProjectID: tt.newValue}
+			osResource := &osResourceT{DefaultProjectID: tt.existingValue}
 
 			updateOpts := users.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			handleDefaultProjectIDUpdate(&updateOpts, resource, osResource)
 
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+
+	}
+}
+
+func TestHandleEnabledUpdate(t *testing.T) {
+	ptrToBool := ptr.To[bool]
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToBool(true), existingValue: true, expectChange: false},
+		{name: "Different", newValue: ptrToBool(false), existingValue: true, expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: true, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.UserResourceSpec{Enabled: tt.newValue}
+			osResource := &users.User{Enabled: tt.existingValue}
+
+			updateOpts := users.UpdateOpts{}
+			handleEnabledUpdate(&updateOpts, resource, osResource)
+
+			if got, _ := needsUpdate(updateOpts); got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandlePasswordUpdate(t *testing.T) {
+	ptrToPassword := ptr.To[string]
+	testCases := []struct {
+		name          string
+		newValue      *string
+		existingValue string
+		expectChange  bool
+	}{
+		{name: "Value provided", newValue: ptrToPassword("new-pwd"), expectChange: true},
+		{name: "No value provided", newValue: nil, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.UserResourceSpec{Password: tt.newValue}
+
+			updateOpts := users.UpdateOpts{}
+			handlePasswordUpdate(&updateOpts, resource)
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)

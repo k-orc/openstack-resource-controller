@@ -15,8 +15,8 @@ status:
       reason: Success
   resource:
     name: user-import-external-not-this-one
-    description: User user-import-external from "user-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    enabled: True
+    defaultProjectID: "user-import"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User

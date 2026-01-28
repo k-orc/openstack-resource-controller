@@ -1,4 +1,15 @@
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: user-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 # This `user-import-external-not-this-one` resource serves two purposes:
 # - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
 # - ensure that importing a resource which name is a substring of it will not pick this one.
@@ -8,10 +19,10 @@ metadata:
   name: user-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resouce needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: User user-import-external from "user-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    enabled: True
+    defaultProjectID: "user-import"
+    domainRef: user-import-external-not-this-one

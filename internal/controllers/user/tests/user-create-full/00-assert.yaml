@@ -6,8 +6,8 @@ metadata:
 status:
   resource:
     name: user-create-full-override
-    description: User from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: True
+    defaultProjectID: "user-create-full"
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +30,4 @@ resourceRefs:
 assertAll:
     - celExpr: "user.status.id != ''"
     - celExpr: "user.status.resource.domainID == domain.status.id"
-    # TODO(scaffolding): Add more checks
+   

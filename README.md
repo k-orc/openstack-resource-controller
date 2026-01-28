@@ -83,6 +83,7 @@ kubectl delete -f $ORC_RELEASE
 | server group                |         |    ✔    |     ✔    |
 | service                     |         |    ✔    |     ✔    |
 | subnet                      |         |    ◐    |     ◐    |
+| user                        |         |    ◐    |     ◐    |          
 | volume                      |         |    ◐    |     ◐    |
 | volume type                 |         |    ◐    |     ◐    |
 
