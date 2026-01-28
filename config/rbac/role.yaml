@@ -34,6 +34,7 @@ rules:
   - servers
   - services
   - subnets
+  - users
   - volumes
   - volumetypes
   verbs:
@@ -64,6 +65,7 @@ rules:
   - servers/status
   - services/status
   - subnets/status
+  - users/status
   - volumes/status
   - volumetypes/status
   verbs:

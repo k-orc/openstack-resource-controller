@@ -52,6 +52,8 @@ type ServiceExpansion interface{}
 
 type SubnetExpansion interface{}
 
+type UserExpansion interface{}
+
 type VolumeExpansion interface{}
 
 type VolumeTypeExpansion interface{}

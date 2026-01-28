@@ -1,0 +1,27 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-dependency-no-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: user-dependency
+    enabled: True
+    defaultProjectID: "user-dependency"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: user-dependency
+  managementPolicy: managed
+  resource: 
+    enabled: True
+    defaultProjectID: "user-dependency"
