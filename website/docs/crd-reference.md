@@ -1698,6 +1698,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `onDelete` _[OnDelete](#ondelete)_ | onDelete specifies the behaviour of the controller when the ORC<br />object is deleted. Options are `delete` - delete the OpenStack resource;<br />`detach` - do not delete the OpenStack resource. If not specified, the<br />default is `delete`. | delete | Enum: [delete detach] <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod specifies the interval after which a successfully<br />reconciled resource will be reconciled again to detect drift from the<br />desired state. Set to 0 to disable periodic resync. If not specified,<br />the default is 10 hours. | 10h |  |
 
 
 #### ManagementPolicy
