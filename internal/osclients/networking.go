@@ -30,6 +30,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/networksegmentranges"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
@@ -101,6 +102,12 @@ type NetworkClient interface {
 	DeleteSubnet(ctx context.Context, id string) error
 	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
 	UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
+
+	ListNetworkSegmentRange(ctx context.Context, opts networksegmentranges.ListOptsBuilder) iter.Seq2[*networksegmentranges.NetworkSegmentRange, error]
+	CreateNetworkSegmentRange(ctx context.Context, opts networksegmentranges.CreateOptsBuilder) (*networksegmentranges.NetworkSegmentRange, error)
+	DeleteNetworkSegmentRange(ctx context.Context, id string) error
+	GetNetworkSegmentRange(ctx context.Context, id string) (*networksegmentranges.NetworkSegmentRange, error)
+	UpdateNetworkSegmentRange(ctx context.Context, id string, opts networksegmentranges.UpdateOptsBuilder) (*networksegmentranges.NetworkSegmentRange, error)
 
 	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
 }
@@ -363,6 +370,29 @@ func (c networkClient) GetSubnet(ctx context.Context, id string) (*subnets.Subne
 
 func (c networkClient) UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error) {
 	return subnets.Update(ctx, c.serviceClient, id, opts).Extract()
+}
+
+func (c networkClient) ListNetworkSegmentRange(ctx context.Context, opts networksegmentranges.ListOptsBuilder) iter.Seq2[*networksegmentranges.NetworkSegmentRange, error] {
+	pager := networksegmentranges.List(c.serviceClient, opts)
+	return func(yield func(*networksegmentranges.NetworkSegmentRange, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(networksegmentranges.ExtractNetworkSegmentRanges, yield))
+	}
+}
+
+func (c networkClient) CreateNetworkSegmentRange(ctx context.Context, opts networksegmentranges.CreateOptsBuilder) (*networksegmentranges.NetworkSegmentRange, error) {
+	return networksegmentranges.Create(ctx, c.serviceClient, opts).Extract()
+}
+
+func (c networkClient) DeleteNetworkSegmentRange(ctx context.Context, id string) error {
+	return networksegmentranges.Delete(ctx, c.serviceClient, id).ExtractErr()
+}
+
+func (c networkClient) GetNetworkSegmentRange(ctx context.Context, id string) (*networksegmentranges.NetworkSegmentRange, error) {
+	return networksegmentranges.Get(ctx, c.serviceClient, id).Extract()
+}
+
+func (c networkClient) UpdateNetworkSegmentRange(ctx context.Context, id string, opts networksegmentranges.UpdateOptsBuilder) (*networksegmentranges.NetworkSegmentRange, error) {
+	return networksegmentranges.Update(ctx, c.serviceClient, id, opts).Extract()
 }
 
 func (c networkClient) ListExtensions(ctx context.Context) ([]extensions.Extension, error) {

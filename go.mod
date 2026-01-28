@@ -1,6 +1,6 @@
 module github.com/k-orc/openstack-resource-controller/v2
 
-go 1.24.0
+go 1.25.6
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -88,7 +88,7 @@ require (
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/term v0.38.0 // indirect
 	golang.org/x/time v0.9.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
@@ -109,3 +109,5 @@ require (
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 )
+
+replace github.com/gophercloud/gophercloud/v2 => github.com/cardoe/gophercloud/v2 v2.0.0-20260127183603-16497aa07f67

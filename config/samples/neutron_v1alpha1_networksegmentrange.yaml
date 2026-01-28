@@ -1,0 +1,45 @@
+---
+# Example of a shared VXLAN network segment range
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: NetworkSegmentRange
+metadata:
+  name: vxlan-range-shared
+spec:
+  cloudCredentialsRef:
+    name: my-cloud-credentials
+  resource:
+    name: vxlan-tenant-range
+    networkType: vxlan
+    minimum: 10000
+    maximum: 20000
+    shared: true
+---
+# Example of a project-specific VLAN network segment range
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: NetworkSegmentRange
+metadata:
+  name: vlan-range-project
+spec:
+  cloudCredentialsRef:
+    name: my-cloud-credentials
+  resource:
+    name: vlan-project-range
+    networkType: vlan
+    physicalNetwork: physnet1
+    minimum: 100
+    maximum: 200
+    shared: false
+    projectRef: my-project
+---
+# Example of importing an existing network segment range
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: NetworkSegmentRange
+metadata:
+  name: existing-geneve-range
+spec:
+  cloudCredentialsRef:
+    name: my-cloud-credentials
+  import:
+    filter:
+      name: geneve-default-range
+      networkType: geneve

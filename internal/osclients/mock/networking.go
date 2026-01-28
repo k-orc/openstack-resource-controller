@@ -32,6 +32,7 @@ import (
 	attributestags "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	floatingips "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/floatingips"
 	routers "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
+	networksegmentranges "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/networksegmentranges"
 	groups "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	rules "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	networks "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
@@ -108,6 +109,21 @@ func (m *MockNetworkClient) CreateNetwork(ctx context.Context, opts networks.Cre
 func (mr *MockNetworkClientMockRecorder) CreateNetwork(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNetwork", reflect.TypeOf((*MockNetworkClient)(nil).CreateNetwork), ctx, opts)
+}
+
+// CreateNetworkSegmentRange mocks base method.
+func (m *MockNetworkClient) CreateNetworkSegmentRange(ctx context.Context, opts networksegmentranges.CreateOptsBuilder) (*networksegmentranges.NetworkSegmentRange, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateNetworkSegmentRange", ctx, opts)
+	ret0, _ := ret[0].(*networksegmentranges.NetworkSegmentRange)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNetworkSegmentRange indicates an expected call of CreateNetworkSegmentRange.
+func (mr *MockNetworkClientMockRecorder) CreateNetworkSegmentRange(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNetworkSegmentRange", reflect.TypeOf((*MockNetworkClient)(nil).CreateNetworkSegmentRange), ctx, opts)
 }
 
 // CreatePort mocks base method.
@@ -213,6 +229,20 @@ func (mr *MockNetworkClientMockRecorder) DeleteNetwork(ctx, id any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNetwork", reflect.TypeOf((*MockNetworkClient)(nil).DeleteNetwork), ctx, id)
 }
 
+// DeleteNetworkSegmentRange mocks base method.
+func (m *MockNetworkClient) DeleteNetworkSegmentRange(ctx context.Context, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteNetworkSegmentRange", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteNetworkSegmentRange indicates an expected call of DeleteNetworkSegmentRange.
+func (mr *MockNetworkClientMockRecorder) DeleteNetworkSegmentRange(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNetworkSegmentRange", reflect.TypeOf((*MockNetworkClient)(nil).DeleteNetworkSegmentRange), ctx, id)
+}
+
 // DeletePort mocks base method.
 func (m *MockNetworkClient) DeletePort(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -311,6 +341,21 @@ func (m *MockNetworkClient) GetNetwork(ctx context.Context, id string) (*osclien
 func (mr *MockNetworkClientMockRecorder) GetNetwork(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNetwork", reflect.TypeOf((*MockNetworkClient)(nil).GetNetwork), ctx, id)
+}
+
+// GetNetworkSegmentRange mocks base method.
+func (m *MockNetworkClient) GetNetworkSegmentRange(ctx context.Context, id string) (*networksegmentranges.NetworkSegmentRange, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNetworkSegmentRange", ctx, id)
+	ret0, _ := ret[0].(*networksegmentranges.NetworkSegmentRange)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNetworkSegmentRange indicates an expected call of GetNetworkSegmentRange.
+func (mr *MockNetworkClientMockRecorder) GetNetworkSegmentRange(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNetworkSegmentRange", reflect.TypeOf((*MockNetworkClient)(nil).GetNetworkSegmentRange), ctx, id)
 }
 
 // GetPort mocks base method.
@@ -414,6 +459,20 @@ func (m *MockNetworkClient) ListNetwork(ctx context.Context, opts networks.ListO
 func (mr *MockNetworkClientMockRecorder) ListNetwork(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListNetwork", reflect.TypeOf((*MockNetworkClient)(nil).ListNetwork), ctx, opts)
+}
+
+// ListNetworkSegmentRange mocks base method.
+func (m *MockNetworkClient) ListNetworkSegmentRange(ctx context.Context, opts networksegmentranges.ListOptsBuilder) iter.Seq2[*networksegmentranges.NetworkSegmentRange, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListNetworkSegmentRange", ctx, opts)
+	ret0, _ := ret[0].(iter.Seq2[*networksegmentranges.NetworkSegmentRange, error])
+	return ret0
+}
+
+// ListNetworkSegmentRange indicates an expected call of ListNetworkSegmentRange.
+func (mr *MockNetworkClientMockRecorder) ListNetworkSegmentRange(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListNetworkSegmentRange", reflect.TypeOf((*MockNetworkClient)(nil).ListNetworkSegmentRange), ctx, opts)
 }
 
 // ListPort mocks base method.
@@ -545,6 +604,21 @@ func (m *MockNetworkClient) UpdateNetwork(ctx context.Context, id string, opts n
 func (mr *MockNetworkClientMockRecorder) UpdateNetwork(ctx, id, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNetwork", reflect.TypeOf((*MockNetworkClient)(nil).UpdateNetwork), ctx, id, opts)
+}
+
+// UpdateNetworkSegmentRange mocks base method.
+func (m *MockNetworkClient) UpdateNetworkSegmentRange(ctx context.Context, id string, opts networksegmentranges.UpdateOptsBuilder) (*networksegmentranges.NetworkSegmentRange, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateNetworkSegmentRange", ctx, id, opts)
+	ret0, _ := ret[0].(*networksegmentranges.NetworkSegmentRange)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateNetworkSegmentRange indicates an expected call of UpdateNetworkSegmentRange.
+func (mr *MockNetworkClientMockRecorder) UpdateNetworkSegmentRange(ctx, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNetworkSegmentRange", reflect.TypeOf((*MockNetworkClient)(nil).UpdateNetworkSegmentRange), ctx, id, opts)
 }
 
 // UpdatePort mocks base method.
