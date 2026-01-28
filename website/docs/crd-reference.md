@@ -1627,6 +1627,7 @@ _Appears in:_
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
+- [ServerBootVolumeSpec](#serverbootvolumespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
 - [ServerVolumeSpec](#servervolumespec)
@@ -3032,6 +3033,24 @@ Server is the Schema for an ORC resource.
 | `status` _[ServerStatus](#serverstatus)_ | status defines the observed state of the resource. |  |  |
 
 
+#### ServerBootVolumeSpec
+
+
+
+ServerBootVolumeSpec defines the boot volume for boot-from-volume server creation.
+When specified, the server boots from this volume instead of an image.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `volumeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeRef is a reference to a Volume object. The volume must be<br />bootable (created from an image) and available before server creation. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `tag` _string_ | tag is the device tag applied to the volume. |  | MaxLength: 255 <br /> |
+
+
 #### ServerFilter
 
 
@@ -3361,8 +3380,9 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />NOTE: This is not required in case of boot from volume. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />This field is required unless bootVolume is specified for boot-from-volume. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `bootVolume` _[ServerBootVolumeSpec](#serverbootvolumespec)_ | bootVolume specifies a volume to boot from instead of an image.<br />When specified, imageRef must be omitted. The volume must be<br />bootable (created from an image using imageRef in the Volume spec). |  |  |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 64 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
