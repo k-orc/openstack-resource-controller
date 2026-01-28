@@ -7,7 +7,10 @@ resourceRefs:
       name: user-update
       ref: user
 assertAll:
-    - celExpr: "!has(user.status.resource.description)"
+    - celExpr: "user.status.id != ''"
+    - celExpr: "user.status.resource.domainID == 'default'"
+    - celExpr: "!has(user.status.resource.defaultProjectID)" 
+    - celExpr: "!has(user.spec.resource.password)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
@@ -16,7 +19,6 @@ metadata:
 status:
   resource:
     name: user-update
-    # TODO(scaffolding): Add matches for more fields
   conditions:
   - type: Available
     status: "True"

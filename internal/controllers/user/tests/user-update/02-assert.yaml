@@ -7,7 +7,7 @@ resourceRefs:
       name: user-update
       ref: user
 assertAll:
-    - celExpr: "!has(user.status.resource.description)"
+    - celExpr: "user.status.resource.domainID == 'default'"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
@@ -16,7 +16,6 @@ metadata:
 status:
   resource:
     name: user-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
   conditions:
   - type: Available
     status: "True"

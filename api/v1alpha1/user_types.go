@@ -21,7 +21,7 @@ type UserResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *KeystoneName `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
@@ -29,18 +29,27 @@ type UserResourceSpec struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
+	// defaultProjectID is the ID of the default project for the user
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	DefaultProjectID *string `json:"defaultProjectID,omitempty"`
+
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/users
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// password is created by the user
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Password *string `json:"password,omitempty"`
+
+	// enabled indicates whether the user is enabled or not
+	// +kubebuilder:default=true
+	// +optional
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // UserFilter defines an existing resource by its properties
@@ -48,21 +57,11 @@ type UserResourceSpec struct {
 type UserFilter struct {
 	// name of the existing resource
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
+	Name *KeystoneName `json:"name,omitempty"`
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/users
 }
 
 // UserResourceStatus represents the observed state of the resource.
@@ -77,12 +76,19 @@ type UserResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
+	// defaultProjectID is the ID of the default project for the user
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	DefaultProjectID string `json:"defaultProjectID,omitempty"`
+
 	// domainID is the ID of the Domain to which the resource is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the User structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/users
+	// enabled indicates whether the user is enabled or not
+	// +kubebuilder:default=true
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
 }

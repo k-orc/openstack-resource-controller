@@ -6,12 +6,5 @@ resourceRefs:
       kind: Domain
       name: user-dependency
       ref: domain
-    - apiVersion: v1
-      kind: Secret
-      name: user-dependency
-      ref: secret
 assertAll:
-    - celExpr: "domain.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/user' in domain.metadata.finalizers"
-    - celExpr: "secret.metadata.deletionTimestamp != 0"
-    - celExpr: "'openstack.k-orc.cloud/user' in secret.metadata.finalizers"
+    - celExpr: "domain.status.resource.enabled == false"

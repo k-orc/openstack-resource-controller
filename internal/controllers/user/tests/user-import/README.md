@@ -10,8 +10,16 @@ Create a user whose name is a superstring of the one specified in the import fil
 
 ## Step 02
 
+Disable the first domain dependency so it can be deleted without issue by KUTTL during cleanup.
+
+## Step 03
+
 Create a user matching the filter and verify that the observed status on the imported user corresponds to the spec of the created user.
 Also, confirm that it does not adopt any user whose name is a superstring of its own.
+
+## Step 04
+
+Disable the second domain dependency so it can be deleted without issue by KUTTL during cleanup.
 
 ## Reference
 

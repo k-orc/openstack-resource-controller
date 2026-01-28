@@ -29,5 +29,5 @@ status:
       reason: Success
   resource:
     name: user-import-external
-    description: User user-import-external from "user-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    defaultProjectID: user-import-external
+    enabled: True

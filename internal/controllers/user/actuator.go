@@ -71,22 +71,15 @@ func (actuator userActuator) ListOSResourcesForAdoption(ctx context.Context, orc
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := users.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListUsers(ctx, listOpts), true
 }
 
 func (actuator userActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+
 	var reconcileStatus progress.ReconcileStatus
 
 	domain, rs := dependency.FetchDependency(
@@ -101,10 +94,8 @@ func (actuator userActuator) ListOSResourcesForImport(ctx context.Context, obj o
 	}
 
 	listOpts := users.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		DomainID:  ptr.Deref(domain.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:     string(ptr.Deref(filter.Name, "")),
+		DomainID: ptr.Deref(domain.Status.ID, ""),
 	}
 
 	return actuator.osClient.ListUsers(ctx, listOpts), reconcileStatus
@@ -136,10 +127,11 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 		return nil, reconcileStatus
 	}
 	createOpts := users.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		DomainID:  domainID,
-		// TODO(scaffolding): Add more fields
+		Name:             getResourceName(obj),
+		DefaultProjectID: ptr.Deref(resource.DefaultProjectID, ""),
+		DomainID:         domainID,
+		Password:         ptr.Deref(resource.Password, ""),
+		Enabled:          resource.Enabled,
 	}
 
 	osResource, err := actuator.osClient.CreateUser(ctx, createOpts)
@@ -170,9 +162,9 @@ func (actuator userActuator) updateResource(ctx context.Context, obj orcObjectPT
 	updateOpts := users.UpdateOpts{}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleDefaultProjectIDUpdate(&updateOpts, resource, osResource)
+	handleEnabledUpdate(&updateOpts, resource, osResource)
+	handlePasswordUpdate(&updateOpts, resource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -215,14 +207,30 @@ func needsUpdate(updateOpts users.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *users.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.Name = name
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *users.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+func handleDefaultProjectIDUpdate(updateOpts *users.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	defaultProjectID := ptr.Deref(resource.DefaultProjectID, "")
+	if osResource.DefaultProjectID != defaultProjectID {
+		updateOpts.DefaultProjectID = defaultProjectID
+	}
+}
+
+func handleEnabledUpdate(updateOpts *users.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	enabled := ptr.Deref(resource.Enabled, true)
+	if osResource.Enabled != enabled {
+		updateOpts.Enabled = &enabled
+	}
+}
+
+// Note: Openstack Identity API & users.User struct does not return passwords,
+// we cannot compare the current state with the desired state.
+// We will treat this as a "write-only" field and include it in the update if it is defined in the spec.
+func handlePasswordUpdate(updateOpts *users.UpdateOpts, resource *resourceSpecT) {
+	if resource.Password != nil {
+		updateOpts.Password = ptr.Deref(resource.Password, "")
 	}
 }
 

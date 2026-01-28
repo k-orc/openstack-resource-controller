@@ -1,0 +1,30 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Group
+      name: group-import-external
+      ref: group1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Group
+      name: group-import-external-not-this-one
+      ref: group2
+assertAll:
+    - celExpr: "group1.status.id != group2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+
