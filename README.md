@@ -34,6 +34,9 @@ We welcome contributions of all kinds! Whether you’re fixing bugs, adding new 
 * Make your changes and test thoroughly.
 * Submit a pull request with a clear description of your changes.
 
+For significant new features or architectural changes, please review our
+[enhancement proposal process](enhancements/README.md) before starting work.
+
 If you're unsure where to start, check out the [open issues](https://github.com/k-orc/openstack-resource-controller/issues) and feel free to ask
 questions or propose ideas!
 

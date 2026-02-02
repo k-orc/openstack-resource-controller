@@ -6,6 +6,10 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this feature request!
+
+        **Note:** For significant new features or architectural changes, consider writing an
+        [enhancement proposal](https://github.com/k-orc/openstack-resource-controller/tree/main/enhancements)
+        instead of or in addition to this issue.
   - type: textarea
     id: request
     attributes:
