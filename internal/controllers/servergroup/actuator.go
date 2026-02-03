@@ -110,9 +110,9 @@ func (actuator servergroupActuator) CreateResource(ctx context.Context, obj orcO
 	}
 
 	var rules *servergroups.Rules
-	if resource.Rules != nil {
+	if resource.Rules != nil && resource.Rules.MaxServerPerHost != nil {
 		rules = &servergroups.Rules{
-			MaxServerPerHost: int(resource.Rules.MaxServerPerHost),
+			MaxServerPerHost: int(*resource.Rules.MaxServerPerHost),
 		}
 	}
 

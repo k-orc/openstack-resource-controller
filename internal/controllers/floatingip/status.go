@@ -43,7 +43,7 @@ func (floatingipStatusWriter) GetApplyConfig(name, namespace string) objectApply
 
 func (floatingipStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
-		if orcObject.Status.ID == nil {
+		if orcObject.Status == nil || orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
 		} else {
 			return metav1.ConditionUnknown, nil

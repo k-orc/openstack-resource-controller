@@ -52,7 +52,7 @@ type SubnetFilter struct {
 
 	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +optional
-	NetworkRef KubernetesNameRef `json:"networkRef"`
+	NetworkRef *KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
@@ -151,12 +151,12 @@ type SubnetResourceStatus struct {
 	// name is the human-readable name of the subnet. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// ipVersion specifies IP version, either `4' or `6'.
 	// +optional
@@ -165,12 +165,12 @@ type SubnetResourceStatus struct {
 	// cidr representing IP range for this subnet, based on IP version.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	CIDR string `json:"cidr,omitempty"`
+	CIDR *string `json:"cidr,omitempty"`
 
 	// gatewayIP is the default gateway used by devices in this subnet, if any.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	GatewayIP string `json:"gatewayIP,omitempty"`
+	GatewayIP *string `json:"gatewayIP,omitempty"`
 
 	// dnsNameservers is a list of name servers used by hosts in this subnet.
 	// +kubebuilder:validation:MaxItems:=16
@@ -204,28 +204,28 @@ type SubnetResourceStatus struct {
 	// networkID is the ID of the network to which the subnet belongs.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	NetworkID string `json:"networkID,omitempty"`
+	NetworkID *string `json:"networkID,omitempty"`
 
 	// projectID is the project owner of the subnet.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// ipv6AddressMode specifies mechanisms for assigning IPv6 IP addresses.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	IPv6AddressMode string `json:"ipv6AddressMode,omitempty"`
+	IPv6AddressMode *string `json:"ipv6AddressMode,omitempty"`
 
 	// ipv6RAMode is the IPv6 router advertisement mode. It specifies
 	// whether the networking service should transmit ICMPv6 packets.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	IPv6RAMode string `json:"ipv6RAMode,omitempty"`
+	IPv6RAMode *string `json:"ipv6RAMode,omitempty"`
 
 	// subnetPoolID is the id of the subnet pool associated with the subnet.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	SubnetPoolID string `json:"subnetPoolID,omitempty"`
+	SubnetPoolID *string `json:"subnetPoolID,omitempty"`
 
 	// tags optionally set via extensions/attributestags
 	// +kubebuilder:validation:MaxItems:=64
@@ -307,12 +307,12 @@ type AllocationPoolStatus struct {
 	// start is the first IP address in the allocation pool.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Start string `json:"start,omitempty"`
+	Start *string `json:"start,omitempty"`
 
 	// end is the last IP address in the allocation pool.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	End string `json:"end,omitempty"`
+	End *string `json:"end,omitempty"`
 }
 
 type HostRoute struct {
@@ -329,10 +329,10 @@ type HostRouteStatus struct {
 	// destination for the additional route.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Destination string `json:"destination,omitempty"`
+	Destination *string `json:"destination,omitempty"`
 
 	// nextHop for the additional route.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	NextHop string `json:"nextHop,omitempty"`
+	NextHop *string `json:"nextHop,omitempty"`
 }

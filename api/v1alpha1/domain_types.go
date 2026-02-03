@@ -53,12 +53,12 @@ type DomainResourceStatus struct {
 	// name is a Human-readable name for the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// enabled defines whether a domain is enabled or not. Default is true.
 	// Note: Users can only authorize against an enabled domain (and any of its projects).

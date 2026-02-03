@@ -29,7 +29,7 @@ type PortFilter struct {
 
 	// networkRef is a reference to the ORC Network which this port is associated with.
 	// +optional
-	NetworkRef KubernetesNameRef `json:"networkRef"`
+	NetworkRef *KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
@@ -44,7 +44,7 @@ type PortFilter struct {
 	// macAddress is the MAC address of the port.
 	// +kubebuilder:validation:MaxLength=32
 	// +optional
-	MACAddress string `json:"macAddress,omitempty"`
+	MACAddress *string `json:"macAddress,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
 }
@@ -67,13 +67,13 @@ type AllowedAddressPairStatus struct {
 	// send packets with.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	IP string `json:"ip,omitempty"`
+	IP *string `json:"ip,omitempty"`
 
 	// mac contains a MAC address which a server connected to the port can
 	// send packets with.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	MAC string `json:"mac,omitempty"`
+	MAC *string `json:"mac,omitempty"`
 }
 
 type Address struct {
@@ -93,12 +93,12 @@ type FixedIPStatus struct {
 	// ip contains a fixed IP address assigned to the port.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	IP string `json:"ip,omitempty"`
+	IP *string `json:"ip,omitempty"`
 
 	// subnetID is the ID of the subnet this IP is allocated from.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	SubnetID string `json:"subnetID,omitempty"`
+	SubnetID *string `json:"subnetID,omitempty"`
 }
 
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.securityGroupRefs) : true",message="securityGroupRefs must be empty when portSecurity is set to Disabled"
@@ -159,7 +159,7 @@ type PortResourceSpec struct {
 	// deployments. If not specified, the Neutron default value is used.
 	// +kubebuilder:validation:MaxLength:=64
 	// +optional
-	VNICType string `json:"vnicType,omitempty"`
+	VNICType *string `json:"vnicType,omitempty"`
 
 	// portSecurity controls port security for this port.
 	// When set to Enabled, port security is enabled.
@@ -168,7 +168,7 @@ type PortResourceSpec struct {
 	// +kubebuilder:default=Inherit
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="!(oldSelf != 'Inherit' && self == 'Inherit')",message="portSecurity cannot be changed to Inherit"
-	PortSecurity PortSecurityState `json:"portSecurity,omitempty"`
+	PortSecurity *PortSecurityState `json:"portSecurity,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
@@ -179,39 +179,39 @@ type PortResourceSpec struct {
 	// macAddress is the MAC address of the port.
 	// +kubebuilder:validation:MaxLength=32
 	// +optional
-	MACAddress string `json:"macAddress,omitempty"`
+	MACAddress *string `json:"macAddress,omitempty"`
 
 	// hostID is the ID of host where the port resides.
 	// +kubebuilder:validation:MaxLength=36
 	// +optional
-	HostID string `json:"hostID,omitempty"`
+	HostID *string `json:"hostID,omitempty"`
 }
 
 type PortResourceStatus struct {
 	// name is the human-readable name of the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// networkID is the ID of the attached network.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	NetworkID string `json:"networkID,omitempty"`
+	NetworkID *string `json:"networkID,omitempty"`
 
 	// projectID is the project owner of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// status indicates the current status of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems=64
@@ -228,17 +228,17 @@ type PortResourceStatus struct {
 	// macAddress is the MAC address of the port.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	MACAddress string `json:"macAddress,omitempty"`
+	MACAddress *string `json:"macAddress,omitempty"`
 
 	// deviceID is the ID of the device that uses this port.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DeviceID string `json:"deviceID,omitempty"`
+	DeviceID *string `json:"deviceID,omitempty"`
 
 	// deviceOwner is the entity type that uses this port.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DeviceOwner string `json:"deviceOwner,omitempty"`
+	DeviceOwner *string `json:"deviceOwner,omitempty"`
 
 	// allowedAddressPairs is a set of zero or more allowed address pair
 	// objects each where address pair object contains an IP address and
@@ -271,7 +271,7 @@ type PortResourceStatus struct {
 	// vnicType is the type of vNIC which this port is attached to.
 	// +kubebuilder:validation:MaxLength:=64
 	// +optional
-	VNICType string `json:"vnicType,omitempty"`
+	VNICType *string `json:"vnicType,omitempty"`
 
 	// portSecurityEnabled indicates whether port security is enabled or not.
 	// +optional
@@ -280,7 +280,7 @@ type PortResourceStatus struct {
 	// hostID is the ID of host where the port resides.
 	// +kubebuilder:validation:MaxLength=128
 	// +optional
-	HostID string `json:"hostID,omitempty"`
+	HostID *string `json:"hostID,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
 }

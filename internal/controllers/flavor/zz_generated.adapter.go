@@ -48,7 +48,10 @@ func (f adapterT) GetObject() orcObjectPT {
 }
 
 func (f adapterT) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return f.Spec.ManagementPolicy
+	if f.Spec.ManagementPolicy == nil {
+		return ""
+	}
+	return *f.Spec.ManagementPolicy
 }
 
 func (f adapterT) GetManagedOptions() *orcv1alpha1.ManagedOptions {
@@ -56,6 +59,9 @@ func (f adapterT) GetManagedOptions() *orcv1alpha1.ManagedOptions {
 }
 
 func (f adapterT) GetStatusID() *string {
+	if f.Status == nil {
+		return nil
+	}
 	return f.Status.ID
 }
 

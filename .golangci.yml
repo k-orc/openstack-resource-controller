@@ -34,10 +34,12 @@ linters:
         settings:
           linters:
             disable:
-              - optionalfields
+              # NOTE: conflicts with the lack of validation in the Status structs
+              - arrayofstruct
             enable:
               - commentstart
               - conditions
+              - defaults
               - duplicatemarkers
               - integers
               - jsontags
@@ -48,6 +50,7 @@ linters:
               - nodurations
               - nofloats
               - nomaps
+              - nonpointerstructs
               - nonullable
               - notimestamp
               - nophase
@@ -62,11 +65,14 @@ linters:
               isFirstField: Warn
               usePatchStrategy: Ignore
               useProtobuf: Forbid
+            defaults:
+              # Let's use `+kubebuilder:default` until elastic/crd-ref-docs supports `+default`
+              preferredDefaultMarker: "kubebuilder:default"
             requiredfields:
               omitempty:
                 policy: Ignore
   exclusions:
-    generated: lax
+    generated: disable
     rules:
       - linters:
           - lll
@@ -76,12 +82,21 @@ linters:
           - lll
         path: internal/*
       - linters:
+        - dupl
+        - goimports
+        - unparam
+        path: zz_generated
+      - linters:
           - kubeapilinter
-        path-except: api/*
+        path-except: ^api/*
     paths:
       - third_party$
       - builtin$
       - examples$
+      - applyconfiguration/*
+      - clientset/*
+      - informers/*
+      - listers/*
 formatters:
   enable:
     - gofmt
@@ -92,3 +107,5 @@ formatters:
       - third_party$
       - builtin$
       - examples$
+issues:
+  exclude-generated: disable

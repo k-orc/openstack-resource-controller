@@ -68,10 +68,10 @@ var (
 		"spec.import.filter.networkRef",
 		func(port *orcv1alpha1.Port) []string {
 			resource := port.Spec.Import
-			if resource == nil || resource.Filter == nil {
+			if resource == nil || resource.Filter == nil || resource.Filter.NetworkRef == nil {
 				return nil
 			}
-			return []string{string(resource.Filter.NetworkRef)}
+			return []string{string(*resource.Filter.NetworkRef)}
 		},
 	)
 
@@ -160,8 +160,8 @@ func serverToPortMapFunc(ctx context.Context, k8sClient client.Client) handler.M
 		serverPortIDs := make(map[string]struct{})
 		for i := range serverStatus.Interfaces {
 			portID := serverStatus.Interfaces[i].PortID
-			if portID != "" {
-				serverPortIDs[portID] = struct{}{}
+			if portID != nil && *portID != "" {
+				serverPortIDs[*portID] = struct{}{}
 			}
 		}
 
@@ -191,7 +191,7 @@ func serverToPortMapFunc(ctx context.Context, k8sClient client.Client) handler.M
 
 			// Port ID is in server's status, but port doesn't have attachment info for this server
 			if _, portInServerStatus := serverPortIDs[portID]; portInServerStatus {
-				if portStatus.DeviceID != serverID {
+				if ptr.Deref(portStatus.DeviceID, "") != serverID {
 					shouldReconcile = true
 					reason = "Server attached port but port status not updated"
 					log.V(logging.Verbose).Info("port needs reconciliation: listed in server status but deviceID not set",
@@ -202,7 +202,7 @@ func serverToPortMapFunc(ctx context.Context, k8sClient client.Client) handler.M
 
 			// Port has attachment info for this server, but server no longer lists this port
 			if !shouldReconcile {
-				if portStatus.DeviceID == serverID {
+				if ptr.Deref(portStatus.DeviceID, "") == serverID {
 					// Port thinks it's attached to this server
 					if _, stillAttached := serverPortIDs[portID]; !stillAttached {
 						shouldReconcile = true

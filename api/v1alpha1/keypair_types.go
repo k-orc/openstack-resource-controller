@@ -49,20 +49,20 @@ type KeyPairResourceStatus struct {
 	// name is a Human-readable name for the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// fingerprint is the fingerprint of the public key
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Fingerprint string `json:"fingerprint,omitempty"`
+	Fingerprint *string `json:"fingerprint,omitempty"`
 
 	// publicKey is the public key of the Keypair
 	// +kubebuilder:validation:MaxLength=16384
 	// +optional
-	PublicKey string `json:"publicKey,omitempty"`
+	PublicKey *string `json:"publicKey,omitempty"`
 
 	// type is the type of the Keypair (ssh or x509)
 	// +kubebuilder:validation:MaxLength=64
 	// +optional
-	Type string `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 }

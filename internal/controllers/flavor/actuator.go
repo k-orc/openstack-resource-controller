@@ -84,8 +84,8 @@ func (actuator flavorActuator) ListOSResourcesForAdoption(ctx context.Context, o
 				f.RAM == int(resourceSpec.RAM) &&
 				f.VCPUs == int(resourceSpec.Vcpus) &&
 				f.Disk == int(resourceSpec.Disk) &&
-				f.Swap == int(resourceSpec.Swap) &&
-				f.Ephemeral == int(resourceSpec.Ephemeral)
+				f.Swap == int(ptr.Deref(resourceSpec.Swap, 0)) &&
+				f.Ephemeral == int(ptr.Deref(resourceSpec.Ephemeral, 0))
 		},
 	)
 
@@ -148,9 +148,9 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 		RAM:         int(resource.RAM),
 		VCPUs:       int(resource.Vcpus),
 		Disk:        ptr.To(int(resource.Disk)),
-		Swap:        ptr.To(int(resource.Swap)),
+		Swap:        ptr.To(int(ptr.Deref(resource.Swap, 0))),
 		IsPublic:    resource.IsPublic,
-		Ephemeral:   ptr.To(int(resource.Ephemeral)),
+		Ephemeral:   ptr.To(int(ptr.Deref(resource.Ephemeral, 0))),
 		Description: ptr.Deref(resource.Description, ""),
 	}
 

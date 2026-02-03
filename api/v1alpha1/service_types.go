@@ -60,17 +60,17 @@ type ServiceResourceStatus struct {
 	// name indicates the name of service.
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description indicates the description of service.
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// type indicates which resource the service is responsible for.
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Type string `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 
 	// enabled indicates whether the service is enabled or not.
 	// +optional

@@ -63,22 +63,22 @@ type VolumeTypeResourceStatus struct {
 	// name is a Human-readable name for the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// extraSpecs is a map of key-value pairs that define extra specifications for the volume type.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
-	ExtraSpecs []VolumeTypeExtraSpecStatus `json:"extraSpecs"`
+	ExtraSpecs []VolumeTypeExtraSpecStatus `json:"extraSpecs,omitempty"`
 
 	// isPublic indicates whether the VolumeType is public.
 	// +optional
-	IsPublic *bool `json:"isPublic"`
+	IsPublic *bool `json:"isPublic,omitempty"`
 }
 
 type VolumeTypeExtraSpec struct {
@@ -97,10 +97,10 @@ type VolumeTypeExtraSpecStatus struct {
 	// name is the name of the extraspec
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// value is the value of the extraspec
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Value string `json:"value,omitempty"`
+	Value *string `json:"value,omitempty"`
 }

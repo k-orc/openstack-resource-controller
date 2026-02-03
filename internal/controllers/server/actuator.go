@@ -139,7 +139,7 @@ func (actuator serverActuator) ListOSResourcesForImport(ctx context.Context, obj
 		TagsAny:          tags.Join(filter.TagsAny),
 		NotTags:          tags.Join(filter.NotTags),
 		NotTagsAny:       tags.Join(filter.NotTagsAny),
-		AvailabilityZone: filter.AvailabilityZone,
+		AvailabilityZone: ptr.Deref(filter.AvailabilityZone, ""),
 	}
 
 	if filter.Name != nil {
@@ -262,7 +262,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		UserData:         userData,
 		Tags:             tags,
 		Metadata:         metadata,
-		AvailabilityZone: resource.AvailabilityZone,
+		AvailabilityZone: ptr.Deref(resource.AvailabilityZone, ""),
 		ConfigDrive:      resource.ConfigDrive,
 	}
 
@@ -273,7 +273,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	if resource.KeypairRef != nil {
 		createOpts = keypairs.CreateOptsExt{
 			CreateOptsBuilder: serverCreateOpts,
-			KeyName:           keypair.Status.Resource.Name,
+			KeyName:           ptr.Deref(keypair.Status.Resource.Name, ""),
 		}
 	}
 

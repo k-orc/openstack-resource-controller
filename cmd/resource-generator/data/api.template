@@ -30,14 +30,16 @@ type {{ .Name }}Import struct {
 	// the resource name as the unique identifier, not a UUID.
 	// When specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 {{- else }}
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
-	// +optional
 	// +kubebuilder:validation:Format:=uuid
+	// +kubebuilder:validation:MaxLength:=36
+	// +optional
 	ID *string `json:"id,omitempty"`
 {{- end }}
 
@@ -82,7 +84,7 @@ type {{ .Name }}Spec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -90,7 +92,7 @@ type {{ .Name }}Spec struct {
 
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required
-	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef"`
+	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef,omitzero"`
 }
 
 // {{ .Name }}Status defines the observed state of an ORC resource.
@@ -118,6 +120,7 @@ type {{ .Name }}Status struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
 	// id is the unique identifier of the OpenStack resource.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
@@ -133,6 +136,9 @@ type {{ .Name }}Status struct {
 var _ ObjectWithConditions = &{{ .Name }}{}
 
 func (i *{{ .Name }}) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -156,12 +162,12 @@ type {{ .Name }} struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec {{ .Name }}Spec `json:"spec,omitempty"`
+	// +required
+	Spec {{ .Name }}Spec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status {{ .Name }}Status `json:"status,omitempty"`
+	Status *{{ .Name }}Status `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

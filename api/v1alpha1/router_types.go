@@ -46,7 +46,7 @@ type ExternalGatewayStatus struct {
 	// networkID is the ID of the network the gateway is on.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	NetworkID string `json:"networkID,omitempty"`
+	NetworkID *string `json:"networkID,omitempty"`
 }
 
 type RouterResourceSpec struct {
@@ -102,22 +102,22 @@ type RouterResourceStatus struct {
 	// name is the human-readable name of the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// projectID is the project owner of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// status indicates the current status of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// tags is the list of tags on the resource.
 	// +kubebuilder:validation:MaxItems:=64
@@ -129,7 +129,7 @@ type RouterResourceStatus struct {
 	// adminStateUp is the administrative state of the router,
 	// which is up (true) or down (false).
 	// +optional
-	AdminStateUp *bool `json:"adminStateUp"`
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
 
 	// externalGateways is a list of external gateways for the router.
 	// +kubebuilder:validation:MaxItems:=32

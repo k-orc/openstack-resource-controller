@@ -52,14 +52,14 @@ type ManagedOptions struct {
 	// default is `delete`.
 	// +kubebuilder:default:=delete
 	// +optional
-	OnDelete OnDelete `json:"onDelete,omitempty"`
+	OnDelete *OnDelete `json:"onDelete,omitempty"`
 }
 
 // GetOnDelete returns the delete behaviour from ManagedOptions. If called on a
 // nil receiver it safely returns the default.
 func (o *ManagedOptions) GetOnDelete() OnDelete {
-	if o == nil {
+	if o == nil || o.OnDelete == nil {
 		return OnDeleteDelete
 	}
-	return o.OnDelete
+	return *o.OnDelete
 }

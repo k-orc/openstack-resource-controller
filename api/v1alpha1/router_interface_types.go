@@ -36,12 +36,12 @@ type RouterInterface struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec RouterInterfaceSpec `json:"spec,omitempty"`
+	// +required
+	Spec RouterInterfaceSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status RouterInterfaceStatus `json:"status,omitempty"`
+	Status *RouterInterfaceStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -123,6 +123,9 @@ type RouterInterfaceStatus struct {
 var _ ObjectWithConditions = &Router{}
 
 func (i *RouterInterface) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 

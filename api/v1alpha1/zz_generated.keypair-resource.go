@@ -30,6 +30,7 @@ type KeyPairImport struct {
 	// the resource name as the unique identifier, not a UUID.
 	// When specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
@@ -68,7 +69,7 @@ type KeyPairSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -76,7 +77,7 @@ type KeyPairSpec struct {
 
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required
-	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef"`
+	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef,omitzero"`
 }
 
 // KeyPairStatus defines the observed state of an ORC resource.
@@ -104,6 +105,7 @@ type KeyPairStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
 	// id is the unique identifier of the OpenStack resource.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
@@ -115,6 +117,9 @@ type KeyPairStatus struct {
 var _ ObjectWithConditions = &KeyPair{}
 
 func (i *KeyPair) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -135,12 +140,12 @@ type KeyPair struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec KeyPairSpec `json:"spec,omitempty"`
+	// +required
+	Spec KeyPairSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status KeyPairStatus `json:"status,omitempty"`
+	Status *KeyPairStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

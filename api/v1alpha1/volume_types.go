@@ -46,7 +46,7 @@ type VolumeResourceSpec struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 
 	// metadata key and value pairs to be associated with the volume.
 	// NOTE(mandre): gophercloud can't clear all metadata at the moment, we thus can't allow
@@ -86,28 +86,28 @@ type VolumeFilter struct {
 	// availabilityZone is the availability zone of the existing resource
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 }
 
 type VolumeAttachmentStatus struct {
 	// attachmentID represents the attachment UUID.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	AttachmentID string `json:"attachmentID"`
+	AttachmentID *string `json:"attachmentID,omitempty"`
 
 	// serverID is the UUID of the server to which the volume is attached.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ServerID string `json:"serverID"`
+	ServerID *string `json:"serverID,omitempty"`
 
 	// device is the name of the device in the instance.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Device string `json:"device"`
+	Device *string `json:"device,omitempty"`
 
 	// attachedAt shows the date and time when the resource was attached. The date and time stamp format is ISO 8601.
 	// +optional
-	AttachedAt *metav1.Time `json:"attachedAt"`
+	AttachedAt *metav1.Time `json:"attachedAt,omitempty"`
 }
 
 // VolumeResourceStatus represents the observed state of the resource.
@@ -115,12 +115,12 @@ type VolumeResourceStatus struct {
 	// name is a Human-readable name for the resource. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// size is the size of the volume in GiB.
 	// +optional
@@ -129,23 +129,23 @@ type VolumeResourceStatus struct {
 	// status represents the current status of the volume.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Status string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 
 	// availabilityZone is which availability zone the volume is in.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
 
 	// attachments is a list of attachments for the volume.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=atomic
 	// +optional
-	Attachments []VolumeAttachmentStatus `json:"attachments"`
+	Attachments []VolumeAttachmentStatus `json:"attachments,omitempty"`
 
 	// volumeType is the name of associated the volume type.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	VolumeType string `json:"volumeType,omitempty"`
+	VolumeType *string `json:"volumeType,omitempty"`
 
 	// FIXME(mandre) Gophercloud doesn't return this field
 	// // volumeTypeID is the ID of the volumetype to which the resource is associated.
@@ -156,17 +156,17 @@ type VolumeResourceStatus struct {
 	// snapshotID is the ID of the snapshot from which the volume was created
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	SnapshotID string `json:"snapshotID,omitempty"`
+	SnapshotID *string `json:"snapshotID,omitempty"`
 
 	// sourceVolID is the ID of another block storage volume from which the current volume was created
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	SourceVolID string `json:"sourceVolID,omitempty"`
+	SourceVolID *string `json:"sourceVolID,omitempty"`
 
 	// backupID is the ID of the backup from which the volume was restored
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	BackupID string `json:"backupID,omitempty"`
+	BackupID *string `json:"backupID,omitempty"`
 
 	// metadata key and value pairs to be associated with the volume.
 	// +kubebuilder:validation:MaxItems:=64
@@ -177,7 +177,7 @@ type VolumeResourceStatus struct {
 	// userID is the ID of the user who created the volume.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	UserID string `json:"userID,omitempty"`
+	UserID *string `json:"userID,omitempty"`
 
 	// bootable indicates whether this is a bootable volume.
 	// +optional
@@ -186,7 +186,7 @@ type VolumeResourceStatus struct {
 	// imageID is the ID of the image this volume was created from, if any.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ImageID string `json:"imageID,omitempty"`
+	ImageID *string `json:"imageID,omitempty"`
 
 	// encrypted denotes if the volume is encrypted.
 	// +optional
@@ -195,12 +195,12 @@ type VolumeResourceStatus struct {
 	// replicationStatus is the status of replication.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ReplicationStatus string `json:"replicationStatus,omitempty"`
+	ReplicationStatus *string `json:"replicationStatus,omitempty"`
 
 	// consistencyGroupID is the consistency group ID.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ConsistencyGroupID string `json:"consistencyGroupID,omitempty"`
+	ConsistencyGroupID *string `json:"consistencyGroupID,omitempty"`
 
 	// multiattach denotes if the volume is multi-attach capable.
 	// +optional
@@ -209,12 +209,12 @@ type VolumeResourceStatus struct {
 	// host is the identifier of the host holding the volume.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Host string `json:"host,omitempty"`
+	Host *string `json:"host,omitempty"`
 
 	// tenantID is the ID of the project that owns the volume.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	TenantID string `json:"tenantID,omitempty"`
+	TenantID *string `json:"tenantID,omitempty"`
 
 	// createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601
 	// +optional
@@ -241,10 +241,10 @@ type VolumeMetadataStatus struct {
 	// name is the name of the metadata
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// value is the value of the metadata
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
-	Value string `json:"value,omitempty"`
+	Value *string `json:"value,omitempty"`
 }

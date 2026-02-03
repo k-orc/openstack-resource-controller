@@ -57,7 +57,7 @@ var _ = Describe("ORC Network API validations", func() {
 		patch := baseNetworkPatch(network)
 		patch.Spec.WithResource(applyconfigv1alpha1.NetworkResourceSpec())
 		Expect(applyObj(ctx, network, patch)).To(Succeed())
-		Expect(network.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(network.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 
 	DescribeTable("should permit valid DNS domain",

@@ -126,7 +126,7 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 		TagsAny:           tags.Join(filter.TagsAny),
 		NotTags:           tags.Join(filter.NotTags),
 		NotTagsAny:        tags.Join(filter.NotTagsAny),
-		Status:            filter.Status,
+		Status:            ptr.Deref(filter.Status, ""),
 	}
 
 	return actuator.osClient.ListFloatingIP(ctx, listOpts), nil
@@ -167,7 +167,7 @@ func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subnetDepRS)
 		if subnet != nil {
 			subnetID = ptr.Deref(subnet.Status.ID, "")
-			networkID = subnet.Status.Resource.NetworkID
+			networkID = ptr.Deref(subnet.Status.Resource.NetworkID, "")
 		}
 	}
 

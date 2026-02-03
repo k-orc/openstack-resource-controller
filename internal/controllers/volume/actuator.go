@@ -91,9 +91,9 @@ func (actuator volumeActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	filters = append(filters, func(f *volumes.Volume) bool {
 		return f.Size == int(resourceSpec.Size)
 	})
-	if resourceSpec.AvailabilityZone != "" {
+	if resourceSpec.AvailabilityZone != nil {
 		filters = append(filters, func(f *volumes.Volume) bool {
-			return f.AvailabilityZone == resourceSpec.AvailabilityZone
+			return f.AvailabilityZone == *resourceSpec.AvailabilityZone
 		})
 	}
 
@@ -125,9 +125,9 @@ func (actuator volumeActuator) ListOSResourcesForImport(ctx context.Context, obj
 			return f.Size == int(*filter.Size)
 		})
 	}
-	if filter.AvailabilityZone != "" {
+	if filter.AvailabilityZone != nil {
 		filters = append(filters, func(f *volumes.Volume) bool {
-			return f.AvailabilityZone == filter.AvailabilityZone
+			return f.AvailabilityZone == *filter.AvailabilityZone
 		})
 	}
 
@@ -192,7 +192,7 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 		Size:             int(resource.Size),
 		Metadata:         metadata,
 		VolumeType:       volumetypeID,
-		AvailabilityZone: resource.AvailabilityZone,
+		AvailabilityZone: ptr.Deref(resource.AvailabilityZone, ""),
 		ImageID:          imageID,
 	}
 

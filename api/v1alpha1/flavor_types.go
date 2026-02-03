@@ -56,7 +56,7 @@ type FlavorResourceSpec struct {
 	// MiB. If 0 (the default), no dedicated swap disk will be created.
 	// +kubebuilder:validation:Minimum=0
 	// +optional
-	Swap int32 `json:"swap,omitempty"`
+	Swap *int32 `json:"swap,omitempty"`
 
 	// isPublic flags a flavor as being available to all projects or not.
 	// +optional
@@ -68,7 +68,7 @@ type FlavorResourceSpec struct {
 	// limitations. Defaults to 0.
 	// +kubebuilder:validation:Minimum=0
 	// +optional
-	Ephemeral int32 `json:"ephemeral,omitempty"`
+	Ephemeral *int32 `json:"ephemeral,omitempty"`
 }
 
 // FlavorFilter defines an existing resource by its properties
@@ -99,12 +99,12 @@ type FlavorResourceStatus struct {
 	// name is a Human-readable name for the flavor. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength:=65535
 	// +optional
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// ram is the memory of the flavor, measured in MB.
 	// +optional

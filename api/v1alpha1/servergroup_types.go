@@ -36,7 +36,7 @@ type ServerGroupRules struct {
 	// maxServerPerHost specifies how many servers can reside on a single compute host.
 	// It can be used only with the "anti-affinity" policy.
 	// +optional
-	MaxServerPerHost int32 `json:"maxServerPerHost,omitempty"`
+	MaxServerPerHost *int32 `json:"maxServerPerHost,omitempty"`
 }
 
 // ServerGroupResourceSpec contains the desired state of a servergroup
@@ -77,22 +77,22 @@ type ServerGroupResourceStatus struct {
 	// name is a Human-readable name for the servergroup. Might not be unique.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// policy is the policy of the servergroup.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Policy string `json:"policy,omitempty"`
+	Policy *string `json:"policy,omitempty"`
 
 	// projectID is the project owner of the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	ProjectID string `json:"projectID,omitempty"`
+	ProjectID *string `json:"projectID,omitempty"`
 
 	// userID of the server group.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	UserID string `json:"userID,omitempty"`
+	UserID *string `json:"userID,omitempty"`
 
 	// rules is the rules of the server group.
 	// +optional

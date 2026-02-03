@@ -131,7 +131,7 @@ var _ = Describe("ORC Image API validations", func() {
 		}
 
 		Expect(k8sClient.Create(ctx, image)).To(Succeed())
-		Expect(image.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+		Expect(image.Spec.ManagementPolicy).To(HaveValue(Equal(orcv1alpha1.ManagementPolicyManaged)))
 	})
 
 	It("should require import for unmanaged", func(ctx context.Context) {
@@ -227,7 +227,7 @@ var _ = Describe("ORC Image API validations", func() {
 			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
 				WithOnDelete(orcv1alpha1.OnDeleteDetach))
 		Expect(applyObj(ctx, image, patch)).To(Succeed())
-		Expect(image.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
+		Expect(image.Spec.ManagedOptions.OnDelete).To(HaveValue(Equal(orcv1alpha1.OnDelete("detach"))))
 	})
 
 	DescribeTable("should permit containerFormat",

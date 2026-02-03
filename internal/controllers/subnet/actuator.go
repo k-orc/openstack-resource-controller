@@ -88,7 +88,7 @@ func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj
 	var reconcileStatus progress.ReconcileStatus
 
 	network, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace, &filter.NetworkRef, "Network",
+		ctx, actuator.k8sClient, obj.Namespace, filter.NetworkRef, "Network",
 		func(dep *orcv1alpha1.Network) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},

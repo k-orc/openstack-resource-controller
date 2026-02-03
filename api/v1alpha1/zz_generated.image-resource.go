@@ -29,8 +29,9 @@ type ImageImport struct {
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
-	// +optional
 	// +kubebuilder:validation:Format:=uuid
+	// +kubebuilder:validation:MaxLength:=36
+	// +optional
 	ID *string `json:"id,omitempty"`
 
 	// filter contains a resource query which is expected to return a single
@@ -69,7 +70,7 @@ type ImageSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="managementPolicy is immutable"
 	// +kubebuilder:default:=managed
 	// +optional
-	ManagementPolicy ManagementPolicy `json:"managementPolicy,omitempty"`
+	ManagementPolicy *ManagementPolicy `json:"managementPolicy,omitempty"`
 
 	// managedOptions specifies options which may be applied to managed objects.
 	// +optional
@@ -77,7 +78,7 @@ type ImageSpec struct {
 
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required
-	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef"`
+	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef,omitzero"`
 }
 
 // ImageStatus defines the observed state of an ORC resource.
@@ -105,6 +106,7 @@ type ImageStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
 	// id is the unique identifier of the OpenStack resource.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
@@ -118,6 +120,9 @@ type ImageStatus struct {
 var _ ObjectWithConditions = &Image{}
 
 func (i *Image) GetConditions() []metav1.Condition {
+	if i.Status == nil {
+		return nil
+	}
 	return i.Status.Conditions
 }
 
@@ -138,12 +143,12 @@ type Image struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec ImageSpec `json:"spec,omitempty"`
+	// +required
+	Spec ImageSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional
-	Status ImageStatus `json:"status,omitempty"`
+	Status *ImageStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

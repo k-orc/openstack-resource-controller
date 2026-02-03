@@ -162,6 +162,8 @@ spec:
                 maxLength: 1024
                 type: string
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true
