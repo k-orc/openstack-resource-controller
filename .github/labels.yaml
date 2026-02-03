@@ -26,3 +26,6 @@
 - color: 'C2E0C6'
   description: Documentation
   name: docs
+- color: 'A2EEEF'
+  description: Enhancement proposal
+  name: enhancement
