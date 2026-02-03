@@ -6274,7 +6274,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 					},
 					"propagateUplinkStatus": {
 						SchemaProps: spec.SchemaProps{
-							Description: "propagateUplinkStatus represents the uplink status propagation of the port.",
+							Description: "propagateUplinkStatus represents the uplink status propagation of the port. The field is now immutable due to a limitation on Dalmatian (2024.2) release, we should address this later. https://github.com/k-orc/openstack-resource-controller/pull/641#discussion_r2905989136",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},

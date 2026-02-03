@@ -2739,7 +2739,7 @@ _Appears in:_
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br />Optional: \{\} <br /> |
 | `hostID` _[HostID](#hostid)_ | hostID specifies the host where the port will be bound.<br />Note that when the port is attached to a server, OpenStack may<br />rebind the port to the server's actual compute host, which may<br />differ from the specified hostID if no matching scheduler hint<br />is used. In this case the port's status will reflect the actual<br />binding host, not the value specified here. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
-| `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port. |  | Optional: \{\} <br /> |
+| `propagateUplinkStatus` _boolean_ | propagateUplinkStatus represents the uplink status propagation of<br />the port.<br />The field is now immutable due to a limitation on<br />Dalmatian (2024.2) release, we should address this later.<br />https://github.com/k-orc/openstack-resource-controller/pull/641#discussion_r2905989136 |  | Optional: \{\} <br /> |
 
 
 #### PortResourceStatus
