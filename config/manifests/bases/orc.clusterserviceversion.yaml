@@ -104,6 +104,11 @@ spec:
       kind: Subnet
       name: subnets.openstack.k-orc.cloud
       version: v1alpha1
+    - description: User is the Schema for an ORC resource.
+      displayName: User
+      kind: User
+      name: users.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Volume is the Schema for an ORC resource.
       displayName: Volume
       kind: Volume

@@ -16,7 +16,6 @@ status:
   resource:
     name: group-import-external-not-this-one
     description: Group group-import-external from "group-import" test
-
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Group

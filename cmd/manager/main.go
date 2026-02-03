@@ -45,6 +45,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/servergroup"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/service"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/user"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volumetype"
 	internalmanager "github.com/k-orc/openstack-resource-controller/v2/internal/manager"
@@ -126,6 +127,7 @@ func main() {
 		keypair.New(scopeFactory),
 		group.New(scopeFactory),
 		role.New(scopeFactory),
+		user.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
