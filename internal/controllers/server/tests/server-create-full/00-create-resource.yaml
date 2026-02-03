@@ -14,6 +14,20 @@ spec:
       - subnetRef: server-create-full
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: server-create-full-dummy
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-create-full
+    addresses:
+      - subnetRef: server-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Volume
 metadata:
   name: server-create-full
@@ -24,6 +38,21 @@ spec:
   managementPolicy: managed
   resource:
     size: 1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-create-full-dummy
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    imageRef: server-create-full
+    flavorRef: server-create-full
+    ports:
+      - portRef: server-create-full-dummy
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Server
@@ -40,8 +69,15 @@ spec:
     flavorRef: server-create-full
     ports:
       - portRef: server-create-full
-    serverGroupRef: server-create-full
     keypairRef: server-create-full
+    schedulerHints:
+      serverGroupRef: server-create-full
+      query: '[">=", "$free_ram_mb", 32]'
+      buildNearHostIP: 10.0.0.0/8
+      additionalProperties:
+        custom_hint: custom_value
+      sameHostServerRefs:
+        - server-create-full-dummy
     volumes:
       - volumeRef: server-create-full
     availabilityZone: nova

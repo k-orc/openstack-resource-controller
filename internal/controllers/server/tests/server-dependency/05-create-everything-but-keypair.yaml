@@ -27,7 +27,8 @@ spec:
     flavorRef: server-dependency
     ports:
       - portRef: server-dependency
-    serverGroupRef: server-dependency
+    schedulerHints:
+      serverGroupRef: server-dependency
     keypairRef: server-dependency
     userData:
       secretRef: server-dependency

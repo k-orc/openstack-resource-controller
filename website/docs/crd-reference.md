@@ -147,6 +147,7 @@ _Validation:_
 _Appears in:_
 - [HostRoute](#hostroute)
 - [SecurityGroupRule](#securitygrouprule)
+- [ServerSchedulerHints](#serverschedulerhints)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 
@@ -1629,6 +1630,7 @@ _Appears in:_
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
+- [ServerSchedulerHints](#serverschedulerhints)
 - [ServerVolumeSpec](#servervolumespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
@@ -3366,12 +3368,12 @@ _Appears in:_
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 64 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
-| `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
 | `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `tags` _[ServerTag](#servertag) array_ | tags is a list of tags which will be applied to the server. |  | MaxItems: 50 <br />MaxLength: 80 <br />MinLength: 1 <br /> |
 | `metadata` _[ServerMetadata](#servermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
 | `configDrive` _boolean_ | configDrive specifies whether to attach a config drive to the server.<br />When true, configuration data will be available via a special drive<br />instead of the metadata service. |  |  |
+| `schedulerHints` _[ServerSchedulerHints](#serverschedulerhints)_ | schedulerHints provides hints to the Nova scheduler for server placement. |  |  |
 
 
 #### ServerResourceStatus
@@ -3398,6 +3400,29 @@ _Appears in:_
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 50 <br />items:MaxLength: 1024 <br /> |
 | `metadata` _[ServerMetadataStatus](#servermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 128 <br /> |
 | `configDrive` _boolean_ | configDrive indicates whether the server was booted with a config drive. |  |  |
+
+
+#### ServerSchedulerHints
+
+
+
+ServerSchedulerHints provides hints to the Nova scheduler for server placement.
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server will be<br />scheduled on a host in the specified server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `differentHostServerRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | differentHostServerRefs is a list of references to Server objects.<br />The server will be scheduled on a different host than all specified servers. |  | MaxItems: 64 <br />MaxLength: 253 <br />MinLength: 1 <br /> |
+| `sameHostServerRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | sameHostServerRefs is a list of references to Server objects.<br />The server will be scheduled on the same host as all specified servers. |  | MaxItems: 64 <br />MaxLength: 253 <br />MinLength: 1 <br /> |
+| `query` _string_ | query is a conditional statement that results in compute nodes<br />able to host the server. |  | MaxLength: 1024 <br /> |
+| `targetCell` _string_ | targetCell is a cell name where the server will be placed. |  | MaxLength: 255 <br /> |
+| `differentCell` _string array_ | differentCell is a list of cell names where the server should not<br />be placed. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br /> |
+| `buildNearHostIP` _[CIDR](#cidr)_ | buildNearHostIP specifies a subnet of compute nodes to host the server.<br />The host IP should be provided in an CIDR format like 10.10.10.10/24. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br /> |
+| `additionalProperties` _object (keys:string, values:string)_ | additionalProperties is a map of arbitrary key/value pairs that are<br />not validated by Nova. |  |  |
 
 
 #### ServerSpec

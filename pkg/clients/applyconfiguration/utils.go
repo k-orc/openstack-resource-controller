@@ -302,6 +302,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ServerResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerResourceStatus"):
 		return &apiv1alpha1.ServerResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerSchedulerHints"):
+		return &apiv1alpha1.ServerSchedulerHintsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerSpec"):
 		return &apiv1alpha1.ServerSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerStatus"):

@@ -105,14 +105,14 @@ var (
 	// No deletion guard for server group, because server group can be safely deleted while
 	// referenced by a server
 	serverGroupDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.ServerGroup](
-		"spec.resource.serverGroupRef",
+		"spec.resource.schedulerHints.serverGroupRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
-			if resource == nil || resource.ServerGroupRef == nil {
+			if resource == nil || resource.SchedulerHints == nil || resource.SchedulerHints.ServerGroupRef == nil {
 				return nil
 			}
 
-			return []string{string(*resource.ServerGroupRef)}
+			return []string{string(*resource.SchedulerHints.ServerGroupRef)}
 		},
 	)
 
@@ -161,6 +161,40 @@ var (
 		},
 		finalizer, externalObjectFieldOwner,
 	)
+
+	// No deletion guard for server references in scheduler hints, because they
+	// are only used on creation for placement decisions
+	sameHostServerRefDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Server](
+		"spec.resource.schedulerHints.sameHostServerRefs",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil || resource.SchedulerHints == nil {
+				return nil
+			}
+
+			refs := make([]string, 0, len(resource.SchedulerHints.SameHostServerRefs))
+			for _, ref := range resource.SchedulerHints.SameHostServerRefs {
+				refs = append(refs, string(ref))
+			}
+			return refs
+		},
+	)
+
+	differentHostServerRefDependency = dependency.NewDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Server](
+		"spec.resource.schedulerHints.differentHostServerRefs",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil || resource.SchedulerHints == nil {
+				return nil
+			}
+
+			refs := make([]string, 0, len(resource.SchedulerHints.DifferentHostServerRefs))
+			for _, ref := range resource.SchedulerHints.DifferentHostServerRefs {
+				refs = append(refs, string(ref))
+			}
+			return refs
+		},
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -196,6 +230,14 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	sameHostServerRefWatchEventHandler, err := sameHostServerRefDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+	differentHostServerRefWatchEventHandler, err := differentHostServerRefDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
@@ -218,6 +260,12 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.KeyPair{}, keypairWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.KeyPair{})),
 		).
+		Watches(&orcv1alpha1.Server{}, sameHostServerRefWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Server{})),
+		).
+		Watches(&orcv1alpha1.Server{}, differentHostServerRefWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Server{})),
+		).
 		// XXX: This is a general watch on secrets. A general watch on secrets
 		// is undesirable because:
 		// - It requires problematic RBAC
@@ -235,6 +283,8 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		userDataDependency.AddToManager(ctx, mgr),
 		volumeDependency.AddToManager(ctx, mgr),
 		keypairDependency.AddToManager(ctx, mgr),
+		sameHostServerRefDependency.AddToManager(ctx, mgr),
+		differentHostServerRefDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {
