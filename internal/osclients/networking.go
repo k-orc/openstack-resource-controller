@@ -18,6 +18,7 @@ package osclients
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"iter"
 
@@ -52,19 +53,28 @@ type NetworkExt struct {
 	provider.NetworkProviderExt
 }
 
-// NOTE(winiciusallan): This is a temporary extension struct to
-// workaround a missing pointer on Gophercloud and must be
-// removed in future releases.
-// See https://github.com/gophercloud/gophercloud/issues/3605
-type PortTmpExt struct {
-	PropagateUplinkStatusPtr *bool `json:"propagate_uplink_status,omitempty"`
-}
-
 type PortExt struct {
 	ports.Port
 	portsecurity.PortSecurityExt
 	portsbinding.PortsBindingExt
-	PortTmpExt //nolint:govet
+
+	PropagateUplinkStatusPtr *bool `json:"propagate_uplink_status,omitempty"`
+}
+
+func (p *PortExt) UnmarshalJSON(b []byte) error {
+	if err := json.Unmarshal(b, &p.Port); err != nil {
+		return err
+	}
+
+	var tmp struct {
+		PropagateUplinkStatusPtr *bool `json:"propagate_uplink_status"`
+	}
+	if err := json.Unmarshal(b, &tmp); err != nil {
+		return err
+	}
+
+	p.PropagateUplinkStatusPtr = tmp.PropagateUplinkStatusPtr
+	return nil
 }
 
 type NetworkClient interface {
@@ -181,13 +191,30 @@ func (c networkClient) UpdateFloatingIP(ctx context.Context, id string, opts flo
 
 func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder) iter.Seq2[*PortExt, error] {
 	extractPortExt := func(p pagination.Page) ([]PortExt, error) {
-		var resources []PortExt
-		err := ports.ExtractPortsInto(p, &resources)
+		bodyMap, ok := p.(ports.PortPage).Body.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("unexpected body type: %T", p.(ports.PortPage).Body)
+		}
+
+		portsData, ok := bodyMap["ports"]
+		if !ok {
+			return nil, fmt.Errorf("ports key not found in response")
+		}
+
+		// Marshal and unmarshal to trigger UnmarshalJSON
+		jsonData, err := json.Marshal(portsData)
 		if err != nil {
 			return nil, err
 		}
+
+		var resources []PortExt
+		if err := json.Unmarshal(jsonData, &resources); err != nil {
+			return nil, err
+		}
+
 		return resources, nil
 	}
+
 	pager := ports.List(c.serviceClient, opts)
 	return func(yield func(*PortExt, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(extractPortExt, yield))
