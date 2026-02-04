@@ -32,11 +32,10 @@ import (
 )
 
 type ApplicationCredentialClient interface {
-	ListApplicationCredentials(ctx context.Context, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error]
-	CreateApplicationCredential(ctx context.Context, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error)
-	DeleteApplicationCredential(ctx context.Context, resourceID string) error
+	ListApplicationCredentials(ctx context.Context, userID string, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error]
+	CreateApplicationCredential(ctx context.Context, userID string, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error)
+	DeleteApplicationCredential(ctx context.Context, userID string, resourceID string) error
 	GetApplicationCredential(ctx context.Context, resourceID string) (*applicationcredentials.ApplicationCredential, error)
-	UpdateApplicationCredential(ctx context.Context, id string, opts applicationcredentials.UpdateOptsBuilder) (*applicationcredentials.ApplicationCredential, error)
 }
 
 type applicationcredentialClient struct{ client *gophercloud.ServiceClient }
@@ -55,23 +54,19 @@ func NewApplicationCredentialClient(providerClient *gophercloud.ProviderClient, 
 	return &applicationcredentialClient{client}, nil
 }
 
-func (c applicationcredentialClient) ListApplicationCredentials(ctx context.Context, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
-	pager := applicationcredentials.List(c.client, listOpts)
+func (c applicationcredentialClient) ListApplicationCredentials(ctx context.Context, userID string, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
+	pager := applicationcredentials.List(c.client, userID, listOpts)
 	return func(yield func(*applicationcredentials.ApplicationCredential, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(applicationcredentials.ExtractApplicationCredentials, yield))
 	}
 }
 
-func (c applicationcredentialClient) CreateApplicationCredential(ctx context.Context, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
-	return applicationcredentials.Create(ctx, c.client, opts).Extract()
+func (c applicationcredentialClient) CreateApplicationCredential(ctx context.Context, userID string, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
+	return applicationcredentials.Create(ctx, c.client, userID, opts).Extract()
 }
 
-func (c applicationcredentialClient) DeleteApplicationCredential(ctx context.Context, resourceID string) error {
-	return applicationcredentials.Delete(ctx, c.client, resourceID).ExtractErr()
-}
-
-func (c applicationcredentialClient) UpdateApplicationCredential(ctx context.Context, id string, opts applicationcredentials.UpdateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
-	return applicationcredentials.Update(ctx, c.client, id, opts).Extract()
+func (c applicationcredentialClient) DeleteApplicationCredential(ctx context.Context, userID string, resourceID string) error {
+	return applicationcredentials.Delete(ctx, c.client, userID, resourceID).ExtractErr()
 }
 
 func (c applicationcredentialClient) GetApplicationCredential(ctx context.Context, resourceID string) (*applicationcredentials.ApplicationCredential, error) {
@@ -142,24 +137,20 @@ func NewApplicationCredentialErrorClient(e error) ApplicationCredentialClient {
 	return applicationcredentialErrorClient{e}
 }
 
-func (e applicationcredentialErrorClient) ListApplicationCredentials(_ context.Context, _ applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
+func (e applicationcredentialErrorClient) ListApplicationCredentials(_ context.Context, _ string, _ applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
 	return func(yield func(*applicationcredentials.ApplicationCredential, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e applicationcredentialErrorClient) CreateApplicationCredential(_ context.Context, _ applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
+func (e applicationcredentialErrorClient) CreateApplicationCredential(_ context.Context, _ string, _ applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
 	return nil, e.error
 }
 
-func (e applicationcredentialErrorClient) DeleteApplicationCredential(_ context.Context, _ string) error {
+func (e applicationcredentialErrorClient) DeleteApplicationCredential(_ context.Context, _ string, _ string) error {
 	return e.error
 }
 
 func (e applicationcredentialErrorClient) GetApplicationCredential(_ context.Context, _ string) (*applicationcredentials.ApplicationCredential, error) {
-	return nil, e.error
-}
-
-func (e applicationcredentialErrorClient) UpdateApplicationCredential(_ context.Context, _ string, _ applicationcredentials.UpdateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
 	return nil, e.error
 }
