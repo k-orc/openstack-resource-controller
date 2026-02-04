@@ -141,6 +141,10 @@ func (s *providerScope) NewAddressScopeClient() (clients.AddressScopeClient, err
 	return clients.NewAddressScopeClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewApplicationCredentialClient() (clients.ApplicationCredentialClient, error) {
+	return clients.NewApplicationCredentialClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewComputeClient() (clients.ComputeClient, error) {
 	return clients.NewComputeClient(s.providerClient, s.providerClientOpts)
 }
