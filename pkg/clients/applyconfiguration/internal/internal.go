@@ -998,6 +998,490 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.KeyPairResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Listener
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: loadBalancerRef
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: protocol
+      type:
+        scalar: string
+    - name: protocolPort
+      type:
+        scalar: numeric
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerHSTS
+  map:
+    fields:
+    - name: includeSubDomains
+      type:
+        scalar: boolean
+    - name: maxAge
+      type:
+        scalar: numeric
+    - name: preload
+      type:
+        scalar: boolean
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerResourceSpec
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: allowedCIDRs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: alpnProtocols
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: clientAuthentication
+      type:
+        scalar: string
+    - name: clientCATLSContainerRef
+      type:
+        scalar: string
+    - name: clientCRLContainerRef
+      type:
+        scalar: string
+    - name: connectionLimit
+      type:
+        scalar: numeric
+    - name: defaultPoolRef
+      type:
+        scalar: string
+    - name: defaultTLSContainerRef
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: hsts
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerHSTS
+    - name: insertHeaders
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: loadBalancerRef
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: protocol
+      type:
+        scalar: string
+    - name: protocolPort
+      type:
+        scalar: numeric
+    - name: sniContainerRefs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: timeoutClientData
+      type:
+        scalar: numeric
+    - name: timeoutMemberConnect
+      type:
+        scalar: numeric
+    - name: timeoutMemberData
+      type:
+        scalar: numeric
+    - name: timeoutTCPInspect
+      type:
+        scalar: numeric
+    - name: tlsCiphers
+      type:
+        scalar: string
+    - name: tlsVersions
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerResourceStatus
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: allowedCIDRs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: connectionLimit
+      type:
+        scalar: numeric
+    - name: defaultPoolID
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: insertHeaders
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: loadBalancerID
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: operatingStatus
+      type:
+        scalar: string
+    - name: protocol
+      type:
+        scalar: string
+    - name: protocolPort
+      type:
+        scalar: numeric
+    - name: provisioningStatus
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: timeoutClientData
+      type:
+        scalar: numeric
+    - name: timeoutMemberConnect
+      type:
+        scalar: numeric
+    - name: timeoutMemberData
+      type:
+        scalar: numeric
+    - name: timeoutTCPInspect
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ListenerResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancer
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerFilter
+  map:
+    fields:
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+    - name: provider
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: vipAddress
+      type:
+        scalar: string
+    - name: vipNetworkRef
+      type:
+        scalar: string
+    - name: vipPortRef
+      type:
+        scalar: string
+    - name: vipSubnetRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerResourceSpec
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: flavorRef
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+    - name: provider
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: vipAddress
+      type:
+        scalar: string
+    - name: vipNetworkRef
+      type:
+        scalar: string
+    - name: vipPortRef
+      type:
+        scalar: string
+    - name: vipSubnetRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerResourceStatus
+  map:
+    fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: flavorID
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: operatingStatus
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: provider
+      type:
+        scalar: string
+    - name: provisioningStatus
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: vipAddress
+      type:
+        scalar: string
+    - name: vipNetworkID
+      type:
+        scalar: string
+    - name: vipPortID
+      type:
+        scalar: string
+    - name: vipSubnetID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
   map:
     fields:
