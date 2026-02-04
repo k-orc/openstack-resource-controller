@@ -50,14 +50,38 @@ func (applicationcredentialStatusWriter) ResourceAvailableStatus(orcObject *orcv
 
 func (applicationcredentialStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.ApplicationCredentialResourceStatus().
-		WithUserID(osResource.UserID).
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithUnrestricted(osResource.Unrestricted).
+		WithProjectID(osResource.ProjectID)
 
-	// TODO(scaffolding): add all of the fields supported in the ApplicationCredentialResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if !osResource.ExpiresAt.IsZero() {
+		resourceStatus.WithExpiresAt(metav1.NewTime(osResource.ExpiresAt))
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	for i := range osResource.Roles {
+		roleStatus := orcapplyconfigv1alpha1.ApplicationCredentialAccessRoleStatus().
+			WithID(osResource.Roles[i].ID).
+			WithName(osResource.Roles[i].Name)
+
+		if osResource.Roles[i].DomainID != "" {
+			roleStatus.WithDomainID(osResource.Roles[i].DomainID)
+		}
+
+		resourceStatus.WithRoles(roleStatus)
+	}
+
+	for i := range osResource.AccessRules {
+		accessRuleStatus := orcapplyconfigv1alpha1.ApplicationCredentialAccessRuleStatus().
+			WithID(osResource.AccessRules[i].ID).
+			WithPath(osResource.AccessRules[i].Path).
+			WithMethod(osResource.AccessRules[i].Method).
+			WithService(osResource.AccessRules[i].Service)
+
+		resourceStatus.WithAccessRules(accessRuleStatus)
 	}
 
 	statusApply.WithResource(resourceStatus)

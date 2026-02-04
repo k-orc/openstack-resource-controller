@@ -18,6 +18,7 @@ package applicationcredential
 
 import (
 	"context"
+	"fmt"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/applicationcredentials"
@@ -29,7 +30,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
@@ -41,7 +41,6 @@ type (
 
 	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
@@ -65,49 +64,90 @@ func (actuator applicationcredentialActuator) GetOSResourceByID(ctx context.Cont
 	return resource, nil
 }
 
+func (actuator applicationcredentialActuator) ResolveUserIDInFilter(ctx context.Context, orcObject orcObjectPT, userRef *orcv1alpha1.KubernetesNameRef) (*string, progress.ReconcileStatus) {
+	user, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace,
+		userRef, "User",
+		func(dep *orcv1alpha1.User) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+	)
+
+	if user == nil {
+		return nil, rs
+	}
+
+	return user.Status.ID, rs
+}
+
+func (actuator applicationcredentialActuator) ResolveUserIDDependency(ctx context.Context, orcObject orcObjectPT) (*string, progress.ReconcileStatus) {
+	user, rs := userDependency.GetDependency(
+		ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.User) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+
+	if user == nil {
+		return nil, rs
+	}
+
+	return user.Status.ID, rs
+}
+
 func (actuator applicationcredentialActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
 	resourceSpec := orcObject.Spec.Resource
 	if resourceSpec == nil {
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	listOpts := applicationcredentials.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	userID, _ := actuator.ResolveUserIDInFilter(ctx, orcObject, resourceSpec.UserRef)
+	if userID == nil {
+		return nil, false
 	}
 
-	return actuator.osClient.ListApplicationCredentials(ctx, listOpts), true
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// Add client-side filters
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(f *applicationcredentials.ApplicationCredential) bool {
+			return f.Description == *resourceSpec.Description
+		})
+	}
+
+	listOpts := applicationcredentials.ListOpts{
+		Name: getResourceName(orcObject),
+	}
+
+	return actuator.listOSResources(ctx, ptr.Deref(userID, ""), filters, listOpts), true
 }
 
 func (actuator applicationcredentialActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
-	user, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.UserRef, "User",
-		func(dep *orcv1alpha1.User) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
+	userID, rs := actuator.ResolveUserIDInFilter(ctx, obj, filter.UserRef)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
 
-	listOpts := applicationcredentials.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		UserID:  ptr.Deref(user.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// Add client-side filters
+	if filter.Description != nil {
+		filters = append(filters, func(f *applicationcredentials.ApplicationCredential) bool {
+			return f.Description == *filter.Description
+		})
 	}
 
-	return actuator.osClient.ListApplicationCredentials(ctx, listOpts), reconcileStatus
+	listOpts := applicationcredentials.ListOpts{
+		Name: string(ptr.Deref(filter.Name, "")),
+	}
+
+	return actuator.listOSResources(ctx, ptr.Deref(userID, ""), filters, listOpts), nil
+}
+
+func (actuator applicationcredentialActuator) listOSResources(ctx context.Context, userID string, filters []osclients.ResourceFilter[osResourceT], listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
+	applicationCredentials := actuator.osClient.ListApplicationCredentials(ctx, userID, listOpts)
+	return osclients.Filter(applicationCredentials, filters...)
 }
 
 func (actuator applicationcredentialActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -118,29 +158,91 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
 	var reconcileStatus progress.ReconcileStatus
 
-	var userID string
-        user, userDepRS := userDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.User) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(userDepRS)
-        if user != nil {
-                userID = ptr.Deref(user.Status.ID, "")
-        }
+	userID, userDepRS := actuator.ResolveUserIDDependency(ctx, obj)
+
+	rolesMap, roleDepRs := roleDependency.GetDependencies(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Role) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+
+	reconcileStatus = reconcileStatus.
+		WithReconcileStatus(userDepRS).
+		WithReconcileStatus(roleDepRs)
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
-	createOpts := applicationcredentials.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		UserID:  userID,
-		// TODO(scaffolding): Add more fields
+
+	roleList := make([]applicationcredentials.Role, len(resource.RoleRefs))
+	for i := range resource.RoleRefs {
+		roleName := string(resource.RoleRefs[i])
+		role, ok := rolesMap[roleName]
+		if !ok {
+			// Programming error
+			return nil, progress.WrapError(fmt.Errorf("role %s was not returned by GetDependencies", roleName))
+		}
+		roleList[i].ID = *role.Status.ID
+		roleList[i].DomainID = role.Status.Resource.DomainID
+		roleList[i].Name = role.Status.Resource.Name
 	}
 
-	osResource, err := actuator.osClient.CreateApplicationCredential(ctx, createOpts)
+	accessRuleList := make([]applicationcredentials.AccessRule, len(resource.AccessRules))
+	for i := range resource.AccessRules {
+		accessRuleSpec := &resource.AccessRules[i]
+		accessRule := &accessRuleList[i]
+
+		if accessRuleSpec.Path != nil {
+			accessRule.Path = *accessRuleSpec.Path
+		}
+
+		if accessRuleSpec.Service != nil {
+			accessRule.Service = *accessRuleSpec.Service
+		}
+
+		if accessRuleSpec.Method != nil {
+			accessRule.Method = string(*accessRuleSpec.Method)
+		}
+	}
+
+	var secretData []byte
+
+	secret, secretReconcileStatus := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		resource.Secret.SecretRef, "Secret",
+		func(*corev1.Secret) bool { return true }, // Secrets don't have availability status
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(secretReconcileStatus)
+	if secretReconcileStatus == nil {
+		var ok bool
+		secretData, ok = secret.Data["value"]
+		if !ok {
+			reconcileStatus = reconcileStatus.WithReconcileStatus(
+				progress.NewReconcileStatus().WithProgressMessage("Application credential secret does not contain \"value\" key"))
+		}
+	}
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
+	createOpts := applicationcredentials.CreateOpts{
+		Name:         getResourceName(obj),
+		Description:  ptr.Deref(resource.Description, ""),
+		Unrestricted: ptr.Deref(resource.Unrestricted, false),
+		Secret:       string(secretData),
+		Roles:        roleList,
+		AccessRules:  accessRuleList,
+	}
+
+	if resource.ExpiresAt != nil {
+		createOpts.ExpiresAt = &resource.ExpiresAt.Time
+	}
+
+	osResource, err := actuator.osClient.CreateApplicationCredential(ctx, ptr.Deref(userID, ""), createOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if !orcerrors.IsRetryable(err) {
@@ -152,82 +254,17 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 	return osResource, nil
 }
 
-func (actuator applicationcredentialActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteApplicationCredential(ctx, resource.ID))
-}
+func (actuator applicationcredentialActuator) DeleteResource(ctx context.Context, orcObject orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
+	var reconcileStatus progress.ReconcileStatus
 
-func (actuator applicationcredentialActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	userID, userDepRS := actuator.ResolveUserIDDependency(ctx, orcObject)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(userDepRS)
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
 	}
 
-	updateOpts := applicationcredentials.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
-	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
-	}
-
-	_, err = actuator.osClient.UpdateApplicationCredential(ctx, osResource.ID, updateOpts)
-
-	// We should require the spec to be updated before retrying an update which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
-
-	if err != nil {
-		return progress.WrapError(err)
-	}
-
-	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts applicationcredentials.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToApplicationCredentialUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["application_credentials"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *applicationcredentials.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *applicationcredentials.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
-}
-
-func (actuator applicationcredentialActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
+	return progress.WrapError(actuator.osClient.DeleteApplicationCredential(ctx, ptr.Deref(userID, ""), resource.ID))
 }
 
 type applicationcredentialHelperFactory struct{}
