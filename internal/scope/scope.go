@@ -48,6 +48,7 @@ type Factory interface {
 
 // Scope contains arguments common to most operations.
 type Scope interface {
+	NewApplicationCredentialClient() (osclients.ApplicationCredentialClient, error)
 	NewComputeClient() (osclients.ComputeClient, error)
 	NewDomainClient() (osclients.DomainClient, error)
 	NewEndpointClient() (osclients.EndpointClient, error)
