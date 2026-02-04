@@ -17,6 +17,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - applicationcredentials
   - domains
   - flavors
   - floatingips
@@ -47,6 +48,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - applicationcredentials/status
   - domains/status
   - flavors/status
   - floatingips/status
