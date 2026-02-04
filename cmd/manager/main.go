@@ -28,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/addressscope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/applicationcredential"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/endpoint"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/flavor"
@@ -112,6 +113,7 @@ func main() {
 
 	controllers := []interfaces.Controller{
 		addressscope.New(scopeFactory),
+		applicationcredential.New(scopeFactory),
 		endpoint.New(scopeFactory),
 		image.New(scopeFactory),
 		network.New(scopeFactory),
