@@ -27,6 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/applicationcredential"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/flavor"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/floatingip"
@@ -126,6 +127,7 @@ func main() {
 		keypair.New(scopeFactory),
 		group.New(scopeFactory),
 		role.New(scopeFactory),
+		applicationcredential.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
