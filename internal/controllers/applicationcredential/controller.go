@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 
+	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -38,6 +39,57 @@ const controllerName = "applicationcredential"
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=applicationcredentials,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=applicationcredentials/status,verbs=get;update;patch
+
+var (
+	// We don't need a deletion guard on the application credential secret because it's only
+	// used on creation.
+	secretDependency = dependency.NewDependency[*orcv1alpha1.ApplicationCredentialList, *corev1.Secret](
+		"spec.resource.secretRef",
+		func(applicationcredential *orcv1alpha1.ApplicationCredential) []string {
+			resource := applicationcredential.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			return []string{string(resource.SecretRef)}
+		},
+	)
+
+	roleDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ApplicationCredentialList, *orcv1alpha1.Role](
+		"spec.resource.roleRefs",
+		func(port *orcv1alpha1.ApplicationCredential) []string {
+			if port.Spec.Resource == nil {
+				return nil
+			}
+			roles := make([]string, len(port.Spec.Resource.RoleRefs))
+			for i := range port.Spec.Resource.RoleRefs {
+				roles[i] = string(port.Spec.Resource.RoleRefs[i])
+			}
+			return roles
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+
+	serviceDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ApplicationCredentialList, *orcv1alpha1.Service](
+		"spec.resource.accessRules[].serviceRef",
+		func(router *orcv1alpha1.ApplicationCredential) []string {
+			resource := router.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			services := make([]string, 0)
+			for i := range resource.AccessRules {
+				if resource.AccessRules[i].ServiceRef == nil {
+					continue
+				}
+				services = append(services, string(*resource.AccessRules[i].ServiceRef))
+			}
+			return services
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+)
 
 type applicationcredentialReconcilerConstructor struct {
 	scopeFactory scope.Factory
@@ -67,10 +119,10 @@ var userImportDependency = dependency.NewDependency[*orcv1alpha1.ApplicationCred
 	"spec.import.filter.userRef",
 	func(applicationcredential *orcv1alpha1.ApplicationCredential) []string {
 		resource := applicationcredential.Spec.Import
-		if resource == nil || resource.Filter == nil || resource.Filter.UserRef == nil {
+		if resource == nil || resource.Filter == nil {
 			return nil
 		}
-		return []string{string(*resource.Filter.UserRef)}
+		return []string{string(resource.Filter.UserRef)}
 	},
 )
 
@@ -89,6 +141,21 @@ func (c applicationcredentialReconcilerConstructor) SetupWithManager(ctx context
 		return err
 	}
 
+	secretWatchEventHandler, err := secretDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	roleWatchEventHandler, err := roleDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	serviceWatchEventHandler, err := serviceDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.User{}, userWatchEventHandler,
@@ -98,12 +165,29 @@ func (c applicationcredentialReconcilerConstructor) SetupWithManager(ctx context
 		Watches(&orcv1alpha1.User{}, userImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.User{})),
 		).
+		// XXX: This is a general watch on secrets. A general watch on secrets
+		// is undesirable because:
+		// - It requires problematic RBAC
+		// - Secrets are arbitrarily large, and we don't want to cache their contents
+		//
+		// These will require separate solutions. For the latter we should
+		// probably use a MetadataOnly watch only secrets.
+		Watches(&corev1.Secret{}, secretWatchEventHandler).
+		Watches(&orcv1alpha1.Role{}, roleWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Role{})),
+		).
+		Watches(&orcv1alpha1.Service{}, serviceWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Service{})),
+		).
 		For(&orcv1alpha1.ApplicationCredential{})
 
 	if err := errors.Join(
 		userDependency.AddToManager(ctx, mgr),
 		userImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
+		secretDependency.AddToManager(ctx, mgr),
+		roleDependency.AddToManager(ctx, mgr),
+		serviceDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {
 		return err
