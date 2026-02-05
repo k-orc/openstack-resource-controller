@@ -29,8 +29,9 @@ type ProjectImport struct {
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
-	// +optional
 	// +kubebuilder:validation:Format:=uuid
+	// +kubebuilder:validation:MaxLength:=36
+	// +optional
 	ID *string `json:"id,omitempty"`
 
 	// filter contains a resource query which is expected to return a single
@@ -76,7 +77,7 @@ type ProjectSpec struct {
 
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required
-	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef"`
+	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef,omitzero"`
 }
 
 // ProjectStatus defines the observed state of an ORC resource.
@@ -104,6 +105,7 @@ type ProjectStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
 	// id is the unique identifier of the OpenStack resource.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
 
@@ -135,8 +137,8 @@ type Project struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// spec specifies the desired state of the resource.
-	// +optional
-	Spec ProjectSpec `json:"spec,omitempty"`
+	// +required
+	Spec ProjectSpec `json:"spec,omitzero"`
 
 	// status defines the observed state of the resource.
 	// +optional

@@ -109,6 +109,7 @@ spec:
                       that when specifying an import by ID, the resource MUST already exist.
                       The ORC object will enter an error state if the resource does not exist.
                     format: uuid
+                    maxLength: 36
                     type: string
                 type: object
               managedOptions:
@@ -269,6 +270,7 @@ spec:
                 x-kubernetes-list-type: map
               id:
                 description: id is the unique identifier of the OpenStack resource.
+                maxLength: 1024
                 type: string
               resource:
                 description: resource contains the observed state of the OpenStack
@@ -291,6 +293,8 @@ spec:
                     type: string
                 type: object
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true
