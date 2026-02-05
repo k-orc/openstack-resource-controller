@@ -182,7 +182,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	{
 		portsMap, portsReconcileStatus := portDependency.GetDependencies(
 			ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
-				return port.Status.ID != nil
+				return orcv1alpha1.IsAvailable(port) && port.Status.ID != nil
 			},
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(portsReconcileStatus)
@@ -445,7 +445,7 @@ func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj
 
 	portDepsMap, reconcileStatus := portDependency.GetDependencies(
 		ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
-			return port.Status.ID != nil
+			return orcv1alpha1.IsAvailable(port) && port.Status.ID != nil
 		},
 	)
 
