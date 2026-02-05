@@ -36,7 +36,7 @@ can specify modules that you want to test by passing the package's path,
 separated by a blank space, for example:
 
 ```bash
-TEST_PATHS="./internal/controller/server ./internal/controller/image" make test
+TEST_PATHS="./internal/controllers/server ./internal/controllers/image" make test
 ```
 
 ## E2E tests

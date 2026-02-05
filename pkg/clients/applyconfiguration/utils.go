@@ -342,6 +342,24 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SubnetSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetStatus"):
 		return &apiv1alpha1.SubnetStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Trunk"):
+		return &apiv1alpha1.TrunkApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkFilter"):
+		return &apiv1alpha1.TrunkFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkImport"):
+		return &apiv1alpha1.TrunkImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkResourceSpec"):
+		return &apiv1alpha1.TrunkResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkResourceStatus"):
+		return &apiv1alpha1.TrunkResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkSpec"):
+		return &apiv1alpha1.TrunkSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkStatus"):
+		return &apiv1alpha1.TrunkStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkSubportSpec"):
+		return &apiv1alpha1.TrunkSubportSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("TrunkSubportStatus"):
+		return &apiv1alpha1.TrunkSubportStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("UserDataSpec"):
 		return &apiv1alpha1.UserDataSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Volume"):

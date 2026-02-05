@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: trunk-update-subport
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: trunk-update
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update
+spec:
+  resource:
+    name: trunk-update-updated
+    description: trunk-update-updated
+    subports:
+      - portRef: trunk-update-subport
+        segmentationID: 100
+        segmentationType: vlan
+    tags:
+      - tag1
+      - tag2

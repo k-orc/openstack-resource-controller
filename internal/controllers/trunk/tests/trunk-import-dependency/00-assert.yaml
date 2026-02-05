@@ -1,0 +1,19 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Port/trunk-import-dependency to be ready
+        Waiting for Project/trunk-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Port/trunk-import-dependency to be ready
+        Waiting for Project/trunk-import-dependency to be ready
+      status: "True"
+      reason: Progressing

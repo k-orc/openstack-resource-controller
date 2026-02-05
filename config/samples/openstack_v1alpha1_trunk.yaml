@@ -1,0 +1,24 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Sample Trunk
+    name: trunk-sample-name
+    portRef: my-port
+    subPorts:
+      - portRef: sub-port-1
+        segmentationID: 101
+        segmentationType: vlan
+      - portRef: sub-port-2
+        segmentationID: 102
+        segmentationType: vlan
+    tags:
+      - tag1
+      - tag2

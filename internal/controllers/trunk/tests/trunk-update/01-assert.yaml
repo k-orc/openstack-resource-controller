@@ -1,0 +1,50 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Trunk
+metadata:
+  name: trunk-update
+status:
+  resource:
+    name: trunk-update-updated
+    description: trunk-update-updated
+    adminStateUp: true
+    status: ACTIVE
+    tags:
+      - tag1
+      - tag2
+    subports:
+      - segmentationID: 100
+        segmentationType: vlan
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Trunk
+      name: trunk-update
+      ref: trunk
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-update
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: trunk-update-subport
+      ref: subport
+assertAll:
+    - celExpr: "trunk.status.id != ''"
+    - celExpr: "trunk.status.resource.portID == port.status.id"
+    - celExpr: "trunk.status.resource.projectID != ''"
+    - celExpr: "trunk.status.resource.tenantID != ''"
+    - celExpr: "trunk.status.resource.createdAt != ''"
+    - celExpr: "trunk.status.resource.updatedAt != ''"
+    - celExpr: "trunk.status.resource.revisionNumber > 0"
+    - celExpr: "trunk.status.resource.subports.size() == 1"
+    - celExpr: "trunk.status.resource.subports[0].portID == subport.status.id"

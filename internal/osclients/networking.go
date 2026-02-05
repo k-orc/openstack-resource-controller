@@ -102,6 +102,14 @@ type NetworkClient interface {
 	GetSubnet(ctx context.Context, id string) (*subnets.Subnet, error)
 	UpdateSubnet(ctx context.Context, id string, opts subnets.UpdateOptsBuilder) (*subnets.Subnet, error)
 
+	ListTrunks(ctx context.Context, listOpts trunks.ListOptsBuilder) iter.Seq2[*trunks.Trunk, error]
+	CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error)
+	DeleteTrunk(ctx context.Context, resourceID string) error
+	GetTrunk(ctx context.Context, resourceID string) (*trunks.Trunk, error)
+	UpdateTrunk(ctx context.Context, id string, opts trunks.UpdateOptsBuilder) (*trunks.Trunk, error)
+	AddSubports(ctx context.Context, id string, opts trunks.AddSubportsOptsBuilder) (*trunks.Trunk, error)
+	RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error
+
 	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
 }
 
@@ -212,31 +220,6 @@ func (c networkClient) UpdatePort(ctx context.Context, id string, opts ports.Upd
 		return nil, err
 	}
 	return &portExt, nil
-}
-
-func (c networkClient) CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error) {
-	return trunks.Create(ctx, c.serviceClient, opts).Extract()
-}
-
-func (c networkClient) DeleteTrunk(ctx context.Context, id string) error {
-	return trunks.Delete(ctx, c.serviceClient, id).ExtractErr()
-}
-
-func (c networkClient) ListTrunkSubports(ctx context.Context, trunkID string) ([]trunks.Subport, error) {
-	return trunks.GetSubports(ctx, c.serviceClient, trunkID).Extract()
-}
-
-func (c networkClient) RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error {
-	_, err := trunks.RemoveSubports(ctx, c.serviceClient, id, opts).Extract()
-	return err
-}
-
-func (c networkClient) ListTrunk(ctx context.Context, opts trunks.ListOptsBuilder) ([]trunks.Trunk, error) {
-	allPages, err := trunks.List(c.serviceClient, opts).AllPages(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return trunks.ExtractTrunks(allPages)
 }
 
 func (c networkClient) CreateRouter(ctx context.Context, opts routers.CreateOptsBuilder) (*routers.Router, error) {
@@ -371,4 +354,36 @@ func (c networkClient) ListExtensions(ctx context.Context) ([]extensions.Extensi
 		return nil, err
 	}
 	return extensions.ExtractExtensions(allPages)
+}
+
+func (c networkClient) ListTrunks(ctx context.Context, listOpts trunks.ListOptsBuilder) iter.Seq2[*trunks.Trunk, error] {
+	pager := trunks.List(c.serviceClient, listOpts)
+	return func(yield func(*trunks.Trunk, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(trunks.ExtractTrunks, yield))
+	}
+}
+
+func (c networkClient) CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error) {
+	return trunks.Create(ctx, c.serviceClient, opts).Extract()
+}
+
+func (c networkClient) DeleteTrunk(ctx context.Context, resourceID string) error {
+	return trunks.Delete(ctx, c.serviceClient, resourceID).ExtractErr()
+}
+
+func (c networkClient) GetTrunk(ctx context.Context, resourceID string) (*trunks.Trunk, error) {
+	return trunks.Get(ctx, c.serviceClient, resourceID).Extract()
+}
+
+func (c networkClient) UpdateTrunk(ctx context.Context, id string, opts trunks.UpdateOptsBuilder) (*trunks.Trunk, error) {
+	return trunks.Update(ctx, c.serviceClient, id, opts).Extract()
+}
+
+func (c networkClient) AddSubports(ctx context.Context, id string, opts trunks.AddSubportsOptsBuilder) (*trunks.Trunk, error) {
+	return trunks.AddSubports(ctx, c.serviceClient, id, opts).Extract()
+}
+
+func (c networkClient) RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error {
+	_, err := trunks.RemoveSubports(ctx, c.serviceClient, id, opts).Extract()
+	return err
 }
