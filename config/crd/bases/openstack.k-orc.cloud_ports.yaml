@@ -347,6 +347,14 @@ spec:
                     x-kubernetes-validations:
                     - message: projectRef is immutable
                       rule: self == oldSelf
+                  propagateUplinkStatus:
+                    description: |-
+                      propagateUplinkStatus represents the uplink status propagation of
+                      the port.
+                    type: boolean
+                    x-kubernetes-validations:
+                    - message: propagateUplinkStatus is immutable
+                      rule: self == oldSelf
                   securityGroupRefs:
                     description: |-
                       securityGroupRefs are the names of the security groups associated

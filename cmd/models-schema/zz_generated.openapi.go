@@ -4918,6 +4918,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							Format:      "",
 						},
 					},
+					"propagateUplinkStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "propagateUplinkStatus represents the uplink status propagation of the port.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"networkRef"},
 			},

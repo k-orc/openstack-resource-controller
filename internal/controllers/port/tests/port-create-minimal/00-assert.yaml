@@ -8,7 +8,7 @@ status:
     name: port-create-minimal
     adminStateUp: true
     portSecurityEnabled: true
-    propagateUplinkStatus: false
+    propagateUplinkStatus: true
     revisionNumber: 1
     status: DOWN
     vnicType: normal

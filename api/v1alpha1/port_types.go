@@ -185,6 +185,12 @@ type PortResourceSpec struct {
 	// +kubebuilder:validation:MaxLength=36
 	// +optional
 	HostID string `json:"hostID,omitempty"`
+
+	// propagateUplinkStatus represents the uplink status propagation of
+	// the port.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="propagateUplinkStatus is immutable"
+	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 }
 
 type PortResourceStatus struct {
