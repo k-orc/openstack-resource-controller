@@ -139,7 +139,7 @@ lint: golangci-kal ## Run golangci-kal linter
 	$(GOLANGCI_KAL) run
 
 .PHONY: lint-fix
-lint-fix: golangci-kal ## Run golangci-lint linter and perform fixes
+lint-fix: golangci-kal ## Run golangci-kal linter and perform fixes
 	$(GOLANGCI_KAL) run --fix
 
 ##@ Build
@@ -315,7 +315,6 @@ KUSTOMIZE_VERSION ?= v5.6.0
 CONTROLLER_TOOLS_VERSION ?= v0.17.1
 ENVTEST_VERSION ?= release-0.22
 GOLANGCI_LINT_VERSION ?= v2.7.2
-KAL_VERSION ?= v0.0.0-20260205134631-d65d24a9df89
 MOCKGEN_VERSION ?= v0.5.0
 KUTTL_VERSION ?= v0.24.0
 GOVULNCHECK_VERSION ?= v1.1.4
@@ -346,8 +345,8 @@ version:  $(GOLANGCI_LINT_VERSION)
 name: golangci-kube-api-linter
 destination: $(LOCALBIN)
 plugins:
-- module: 'sigs.k8s.io/kube-api-linter'
-  version: $(KAL_VERSION)
+- module: 'github.com/k-orc/openstack-resource-controller/v2/tools/orc-api-linter'
+  path: ./tools/orc-api-linter
 endef
 export custom-gcl
 
@@ -357,6 +356,7 @@ CUSTOM_GCL_FILE ?= $(shell pwd)/.custom-gcl.yml
 golangci-kal: $(GOLANGCI_KAL)
 $(GOLANGCI_KAL): $(LOCALBIN) $(GOLANGCI_LINT)
 	$(file >$(CUSTOM_GCL_FILE),$(custom-gcl))
+	cd tools/orc-api-linter && go mod tidy
 	$(GOLANGCI_LINT) custom
 
 .PHONY: mockgen

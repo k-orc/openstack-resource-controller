@@ -62,6 +62,7 @@ linters:
               - statusoptional
               - statussubresource
               - uniquemarkers
+              - noopenstackidref
           lintersConfig:
             conditions:
               isFirstField: Warn

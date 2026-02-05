@@ -83,3 +83,4 @@ You should update `examples/components/kustomizeconfig/kustomizeconfig.yaml` wit
 * Do not use unsigned integers: use `intN` with a kubebuilder marker validating for a minimum of 0.
 * Optional fields should have the `omitempty` tag.
 * Optional fields should be pointers, unless their zero-value is also the OpenStack default, or we can be very confident that we will never need to distinguish between empty and unset values. e.g. Will we ever want to set a value explicitly to the empty string?
+* ResourceSpec and Filter fields must reference other ORC objects using `*KubernetesNameRef` with a `Ref` suffix (e.g., `ProjectRef`), not OpenStack resources directly by UUID (e.g., `ProjectID *string`). Exceptions include bare `ID` fields (used for `spec.import.id`) and non-resource IDs like `SegmentationID`.
