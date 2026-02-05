@@ -184,7 +184,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	)
 	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
-			return dep.Status.ID != nil
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
 	reconcileStatus := progress.NewReconcileStatus().
@@ -370,7 +370,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 
 	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
-			return dep.Status.ID != nil
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
 
