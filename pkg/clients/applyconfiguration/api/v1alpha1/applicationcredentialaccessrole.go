@@ -22,31 +22,31 @@ import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 )
 
-// ApplicationCredentialFilterApplyConfiguration represents a declarative configuration of the ApplicationCredentialFilter type for use
+// ApplicationCredentialAccessRoleApplyConfiguration represents a declarative configuration of the ApplicationCredentialAccessRole type for use
 // with apply.
-type ApplicationCredentialFilterApplyConfiguration struct {
-	Name   *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	UserID *string                    `json:"userID,omitempty"`
+type ApplicationCredentialAccessRoleApplyConfiguration struct {
+	Name *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	ID   *string                    `json:"id,omitempty"`
 }
 
-// ApplicationCredentialFilterApplyConfiguration constructs a declarative configuration of the ApplicationCredentialFilter type for use with
+// ApplicationCredentialAccessRoleApplyConfiguration constructs a declarative configuration of the ApplicationCredentialAccessRole type for use with
 // apply.
-func ApplicationCredentialFilter() *ApplicationCredentialFilterApplyConfiguration {
-	return &ApplicationCredentialFilterApplyConfiguration{}
+func ApplicationCredentialAccessRole() *ApplicationCredentialAccessRoleApplyConfiguration {
+	return &ApplicationCredentialAccessRoleApplyConfiguration{}
 }
 
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *ApplicationCredentialFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ApplicationCredentialFilterApplyConfiguration {
+func (b *ApplicationCredentialAccessRoleApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *ApplicationCredentialAccessRoleApplyConfiguration {
 	b.Name = &value
 	return b
 }
 
-// WithUserID sets the UserID field in the declarative configuration to the given value
+// WithID sets the ID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the UserID field is set to the value of the last call.
-func (b *ApplicationCredentialFilterApplyConfiguration) WithUserID(value string) *ApplicationCredentialFilterApplyConfiguration {
-	b.UserID = &value
+// If called multiple times, the ID field is set to the value of the last call.
+func (b *ApplicationCredentialAccessRoleApplyConfiguration) WithID(value string) *ApplicationCredentialAccessRoleApplyConfiguration {
+	b.ID = &value
 	return b
 }
