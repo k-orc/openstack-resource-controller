@@ -32,7 +32,7 @@ type VolumeImport struct {
 	// +kubebuilder:validation:Format:=uuid
 	// +kubebuilder:validation:MaxLength:=36
 	// +optional
-	ID *string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 
 	// filter contains a resource query which is expected to return a single
 	// result. The controller will continue to retry if filter returns no
