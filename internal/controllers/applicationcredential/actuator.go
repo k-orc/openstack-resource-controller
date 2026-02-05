@@ -70,10 +70,10 @@ func (actuator applicationcredentialActuator) ListOSResourcesForAdoption(ctx con
 		return nil, false
 	}
 
-	user, _ := dependency.FetchDependency(
+	user, _ := dependency.FetchDependency[*orcv1alpha1.User](
 		ctx, actuator.k8sClient, orcObject.Namespace,
 		&resourceSpec.UserRef, "User",
-		func(dep *orcv1alpha1.User) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 
 	if user.Status.ID == nil {
@@ -99,10 +99,10 @@ func (actuator applicationcredentialActuator) ListOSResourcesForAdoption(ctx con
 func (actuator applicationcredentialActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	user, rs := dependency.FetchDependency(
+	user, rs := dependency.FetchDependency[*orcv1alpha1.User](
 		ctx, actuator.k8sClient, obj.Namespace,
 		&filter.UserRef, "User",
-		func(dep *orcv1alpha1.User) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -143,21 +143,15 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 	var reconcileStatus progress.ReconcileStatus
 
 	user, userDepRS := userDependency.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.User) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	rolesMap, roleDepRs := roleDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Role) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	serviceMap, serviceDepRS := serviceDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Service) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	secret, secretReconcileStatus := dependency.FetchDependency(
@@ -250,9 +244,7 @@ func (actuator applicationcredentialActuator) DeleteResource(ctx context.Context
 	var reconcileStatus progress.ReconcileStatus
 
 	user, userDepRS := userDependency.GetDependency(
-		ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.User) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 	)
 
 	reconcileStatus = reconcileStatus.WithReconcileStatus(userDepRS)

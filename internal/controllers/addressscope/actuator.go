@@ -81,10 +81,10 @@ func (actuator addressscopeActuator) ListOSResourcesForAdoption(ctx context.Cont
 func (actuator addressscopeActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	project, rs := dependency.FetchDependency(
+	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -115,9 +115,7 @@ func (actuator addressscopeActuator) CreateResource(ctx context.Context, obj orc
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
 		if project != nil {
