@@ -163,27 +163,23 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	var image *orcv1alpha1.Image
 	{
 		dep, imageReconcileStatus := imageDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(image *orcv1alpha1.Image) bool {
-				return orcv1alpha1.IsAvailable(image) && image.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(imageReconcileStatus)
 		image = dep
 	}
 
-	flavor, flavorReconcileStatus := dependency.FetchDependency(
+	flavor, flavorReconcileStatus := dependency.FetchDependency[*orcv1alpha1.Flavor](
 		ctx, actuator.k8sClient, obj.Namespace,
 		&resource.FlavorRef, "Flavor",
-		func(f *orcv1alpha1.Flavor) bool { return orcv1alpha1.IsAvailable(f) && f.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(flavorReconcileStatus)
 
 	portList := make([]servers.Network, len(resource.Ports))
 	{
 		portsMap, portsReconcileStatus := portDependency.GetDependencies(
-			ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
-				return orcv1alpha1.IsAvailable(port) && port.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(portsReconcileStatus)
 		if needsReschedule, _ := portsReconcileStatus.NeedsReschedule(); !needsReschedule {
@@ -206,10 +202,10 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		}
 	}
 
-	serverGroup, serverGroupReconcileStatus := dependency.FetchDependency(
+	serverGroup, serverGroupReconcileStatus := dependency.FetchDependency[*orcv1alpha1.ServerGroup](
 		ctx, actuator.k8sClient, obj.Namespace,
 		resource.ServerGroupRef, "ServerGroup",
-		func(sg *orcv1alpha1.ServerGroup) bool { return orcv1alpha1.IsAvailable(sg) && sg.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(serverGroupReconcileStatus)
 
@@ -444,9 +440,7 @@ func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj
 	}
 
 	portDepsMap, reconcileStatus := portDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(port *orcv1alpha1.Port) bool {
-			return orcv1alpha1.IsAvailable(port) && port.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
@@ -524,9 +518,7 @@ func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, o
 	}
 
 	volumeDepsMap, reconcileStatus := volumeDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(volume *orcv1alpha1.Volume) bool {
-			return orcv1alpha1.IsAvailable(volume) && volume.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {

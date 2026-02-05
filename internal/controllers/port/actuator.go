@@ -128,19 +128,15 @@ func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj
 func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	network, rs := dependency.FetchDependency(
+	network, rs := dependency.FetchDependency[*orcv1alpha1.Network](
 		ctx, actuator.k8sClient, obj.Namespace, &filter.NetworkRef, "Network",
-		func(dep *orcv1alpha1.Network) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	project, rs := dependency.FetchDependency(
+	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -173,19 +169,13 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 
 	// Fetch all dependencies and ensure they have our finalizer
 	network, networkDepRS := networkDependency.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 	subnetMap, subnetDepRS := subnetDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Subnet) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus := progress.NewReconcileStatus().
 		WithReconcileStatus(networkDepRS).
@@ -195,9 +185,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
 		if project != nil {
@@ -369,9 +357,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 	}
 
 	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.SecurityGroup) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	reconcileStatus := progress.NewReconcileStatus().
