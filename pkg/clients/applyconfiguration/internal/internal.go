@@ -634,6 +634,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.GroupResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostID
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
+    - name: serverRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostRoute
   map:
     fields:
@@ -1335,7 +1344,7 @@ var schemaYAML = typed.YAMLObject(`types:
         scalar: string
     - name: hostID
       type:
-        scalar: string
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.HostID
     - name: macAddress
       type:
         scalar: string

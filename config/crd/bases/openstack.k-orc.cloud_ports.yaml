@@ -299,9 +299,31 @@ spec:
                     minLength: 1
                     type: string
                   hostID:
-                    description: hostID is the ID of host where the port resides.
-                    maxLength: 36
-                    type: string
+                    description: hostID specifies the host where the port will be
+                      bound.
+                    maxProperties: 1
+                    minProperties: 1
+                    properties:
+                      id:
+                        description: |-
+                          id is the literal host ID string to use for binding:host_id.
+                          This is mutually exclusive with serverRef.
+                        maxLength: 36
+                        type: string
+                      serverRef:
+                        description: |-
+                          serverRef is a reference to an ORC Server resource from which to
+                          retrieve the hostID for port binding. The hostID will be read from
+                          the Server's status.resource.hostID field.
+                          This is mutually exclusive with id.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                    type: object
+                    x-kubernetes-validations:
+                    - message: exactly one of id or serverRef must be set
+                      rule: (has(self.id) && size(self.id) > 0) != (has(self.serverRef)
+                        && size(self.serverRef) > 0)
                   macAddress:
                     description: macAddress is the MAC address of the port.
                     maxLength: 32
