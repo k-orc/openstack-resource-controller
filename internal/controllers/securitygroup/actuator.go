@@ -331,7 +331,7 @@ orcRules:
 	if len(ruleCreateOpts) > 0 {
 		if _, createErr := actuator.osClient.CreateSecGroupRules(ctx, ruleCreateOpts); createErr != nil {
 			// We should require the spec to be updated before retrying a create which returned a conflict
-			if orcerrors.IsRetryable(createErr) {
+			if !orcerrors.IsRetryable(createErr) {
 				createErr = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+createErr.Error(), createErr)
 			} else {
 				createErr = fmt.Errorf("creating security group rules: %w", createErr)
