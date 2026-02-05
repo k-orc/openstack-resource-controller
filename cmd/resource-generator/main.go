@@ -160,6 +160,15 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "Group",
 	},
+	{
+		Name: "LoadBalancer",
+	},
+	{
+		Name: "Listener",
+	},
+	{
+		Name: "LBPool",
+	},
 }
 
 // These resources won't be generated

@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: my-pool
+    description: Sample LBPool with HTTP backend members
+    loadBalancerRef: loadbalancer-sample
+    protocol: HTTP
+    lbAlgorithm: ROUND_ROBIN
+    adminStateUp: true
+    sessionPersistence:
+      type: SOURCE_IP
+    tags:
+      - environment:production
+      - team:platform
+    members:
+      - name: backend-1
+        address: 10.0.0.10
+        protocolPort: 8080
+        weight: 5
+        adminStateUp: true
+      - name: backend-2
+        address: 10.0.0.11
+        protocolPort: 8080
+        weight: 3
+        backup: true

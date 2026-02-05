@@ -23,6 +23,9 @@ rules:
   - groups
   - images
   - keypairs
+  - lbpools
+  - listeners
+  - loadbalancers
   - networks
   - ports
   - projects
@@ -53,6 +56,9 @@ rules:
   - groups/status
   - images/status
   - keypairs/status
+  - lbpools/status
+  - listeners/status
+  - loadbalancers/status
   - networks/status
   - ports/status
   - projects/status

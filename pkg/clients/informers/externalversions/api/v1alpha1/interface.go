@@ -36,6 +36,12 @@ type Interface interface {
 	Images() ImageInformer
 	// KeyPairs returns a KeyPairInformer.
 	KeyPairs() KeyPairInformer
+	// LBPools returns a LBPoolInformer.
+	LBPools() LBPoolInformer
+	// Listeners returns a ListenerInformer.
+	Listeners() ListenerInformer
+	// LoadBalancers returns a LoadBalancerInformer.
+	LoadBalancers() LoadBalancerInformer
 	// Networks returns a NetworkInformer.
 	Networks() NetworkInformer
 	// Ports returns a PortInformer.
@@ -103,6 +109,21 @@ func (v *version) Images() ImageInformer {
 // KeyPairs returns a KeyPairInformer.
 func (v *version) KeyPairs() KeyPairInformer {
 	return &keyPairInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// LBPools returns a LBPoolInformer.
+func (v *version) LBPools() LBPoolInformer {
+	return &lBPoolInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Listeners returns a ListenerInformer.
+func (v *version) Listeners() ListenerInformer {
+	return &listenerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// LoadBalancers returns a LoadBalancerInformer.
+func (v *version) LoadBalancers() LoadBalancerInformer {
+	return &loadBalancerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Networks returns a NetworkInformer.

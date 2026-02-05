@@ -1,0 +1,31 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: listener-import-external
+      ref: listener1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Listener
+      name: listener-import-external-not-this-one
+      ref: listener2
+assertAll:
+    - celExpr: "listener1.status.id != listener2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Listener
+metadata:
+  name: listener-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: listener-import-external

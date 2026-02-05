@@ -1,0 +1,13 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Dependencies that were prevented deletion before should now be gone
+- script: "! kubectl get loadbalancer lbpool-dependency-pending --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get listener lbpool-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get project lbpool-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get secret lbpool-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
