@@ -129,3 +129,21 @@ type WrongNameCorrectTypeSpec struct {
 	// ProjectID with *KubernetesNameRef type is allowed (type takes precedence).
 	ProjectID *KubernetesNameRef `json:"projectID,omitempty"`
 }
+
+// ---- Plural ID fields: should also be flagged ----
+
+// PluralIDsSpec tests that plural IDs fields are flagged.
+type PluralIDsSpec struct {
+	NetworkIDs []string `json:"networkIDs,omitempty"` // want `field PluralIDsSpec.NetworkIDs references OpenStack resource by ID in spec`
+
+	SubnetIDs []string `json:"subnetIDs,omitempty"` // want `field PluralIDsSpec.SubnetIDs references OpenStack resource by ID in spec`
+
+	// SecurityGroupRefs is correct - uses the Refs suffix.
+	SecurityGroupRefs []KubernetesNameRef `json:"securityGroupRefs,omitempty"`
+}
+
+// PluralIDsStatus tests that plural IDs in status are allowed.
+type PluralIDsStatus struct {
+	// NetworkIDs is allowed in status.
+	NetworkIDs []string `json:"networkIDs,omitempty"`
+}

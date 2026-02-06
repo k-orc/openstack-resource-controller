@@ -37,18 +37,18 @@ const (
 ORC's API design philosophy states that spec fields should only reference
 ORC Kubernetes objects, not OpenStack resources directly by UUID.
 
-Fields ending with 'ID' (like ProjectID, NetworkID) in spec structs should
-instead use KubernetesNameRef type with a 'Ref' suffix (like ProjectRef, NetworkRef).
+Fields ending with 'ID' or 'IDs' (like ProjectID, NetworkIDs) in spec structs should
+instead use KubernetesNameRef type with a 'Ref' or 'Refs' suffix (like ProjectRef, NetworkRefs).
 
 See: https://k-orc.cloud/development/api-design/`
 )
 
-// openstackIDPattern matches field names that end with "ID" and are likely
+// openstackIDPattern matches field names that end with "ID" or "IDs" and are likely
 // references to OpenStack resources by UUID. These should instead use
-// KubernetesNameRef with a "Ref" suffix to reference ORC objects.
-var openstackIDPattern = regexp.MustCompile(`ID$`)
+// KubernetesNameRef with a "Ref" or "Refs" suffix to reference ORC objects.
+var openstackIDPattern = regexp.MustCompile(`IDs?$`)
 
-// excludedIDPatterns contains field name patterns that end in "ID" but are
+// excludedIDPatterns contains field name patterns that end in "ID" or "IDs" but are
 // not OpenStack resource references.
 var excludedIDPatterns = []string{
 	"SegmentationID", // VLAN segmentation ID, not an OpenStack resource
@@ -120,7 +120,14 @@ func checkField(pass *analysis.Pass, field *ast.Field, qualifiedFieldName string
 		return
 	}
 
-	suggestedRef := strings.TrimSuffix(fieldName, "ID") + "Ref"
+	// Generate the suggested Ref/Refs name based on singular/plural
+	var suggestedRef string
+	if strings.HasSuffix(fieldName, "IDs") {
+		suggestedRef = strings.TrimSuffix(fieldName, "IDs") + "Refs"
+	} else {
+		suggestedRef = strings.TrimSuffix(fieldName, "ID") + "Ref"
+	}
+
 	pass.Reportf(field.Pos(),
 		"field %s references OpenStack resource by ID in spec; "+
 			"use *KubernetesNameRef with %s instead; "+
