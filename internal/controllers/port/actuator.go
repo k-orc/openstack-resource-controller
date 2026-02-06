@@ -377,14 +377,6 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 	reconcileStatus := progress.NewReconcileStatus().
 		WithReconcileStatus(secGroupDepRS)
 
-	// Resolve hostID if specified
-	var resolvedHostID string
-	if resource.HostID != nil {
-		var hostIDReconcileStatus progress.ReconcileStatus
-		resolvedHostID, hostIDReconcileStatus = resolveHostID(ctx, actuator.k8sClient, obj, resource.HostID)
-		reconcileStatus = reconcileStatus.WithReconcileStatus(hostIDReconcileStatus)
-	}
-
 	needsReschedule, _ := reconcileStatus.NeedsReschedule()
 	if needsReschedule {
 		return reconcileStatus
@@ -403,7 +395,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 		updateOpts = baseUpdateOpts
 	}
 
-	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource, resolvedHostID)
+	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource)
 	updateOpts = handlePortSecurityUpdate(updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
@@ -529,21 +521,12 @@ func handleSecurityGroupRefsUpdate(updateOpts *ports.UpdateOpts, resource *resou
 	}
 }
 
-func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT, resolvedHostID string) ports.UpdateOptsBuilder {
+func handlePortBindingUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
 	if resource.VNICType != "" {
 		if resource.VNICType != osResource.VNICType {
 			updateOpts = &portsbinding.UpdateOptsExt{
 				UpdateOptsBuilder: updateOpts,
 				VNICType:          resource.VNICType,
-			}
-		}
-	}
-
-	if resolvedHostID != "" {
-		if resolvedHostID != osResource.HostID {
-			updateOpts = &portsbinding.UpdateOptsExt{
-				UpdateOptsBuilder: updateOpts,
-				HostID:            &resolvedHostID,
 			}
 		}
 	}

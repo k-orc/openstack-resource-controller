@@ -322,6 +322,8 @@ spec:
                         type: string
                     type: object
                     x-kubernetes-validations:
+                    - message: hostID is immutable
+                      rule: self == oldSelf
                     - message: exactly one of id or serverRef must be set
                       rule: (has(self.id) && size(self.id) > 0) != (has(self.serverRef)
                         && size(self.serverRef) > 0)

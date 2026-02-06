@@ -6,10 +6,6 @@ resourceRefs:
       kind: port
       name: port-update
       ref: port
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: port
-      name: port-update-admin
-      ref: portAdmin
 assertAll:
     - celExpr: "port.status.id != ''"
     - celExpr: "port.status.resource.createdAt != ''"
@@ -17,9 +13,6 @@ assertAll:
     - celExpr: "port.status.resource.macAddress != ''"
     - celExpr: "!has(port.status.resource.fixedIPs)"
     - celExpr: "!has(port.status.resource.description)"
-    # Following the network API reference, the default value for
-    # hostID field is an empty string.
-    - celExpr: "portAdmin.status.resource.hostID == ''"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
@@ -30,29 +23,6 @@ status:
     name: port-update
     adminStateUp: true
     portSecurityEnabled: false
-    propagateUplinkStatus: false
-    revisionNumber: 1
-    status: DOWN
-    vnicType: normal
-  conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
-metadata:
-  name: port-update-admin
-status:
-  resource:
-    name: port-update-admin
-    adminStateUp: true
-    portSecurityEnabled: true
     propagateUplinkStatus: false
     revisionNumber: 1
     status: DOWN

@@ -203,6 +203,7 @@ type PortResourceSpec struct {
 
 	// hostID specifies the host where the port will be bound.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="hostID is immutable"
 	HostID *HostID `json:"hostID,omitempty"`
 }
 
