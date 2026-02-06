@@ -32,7 +32,7 @@ This is located at `spec.resource` in the base object. It is only defined for [m
 
 * Where relevant, the `ResourceSpec` should include a `name` field to allow object name to be overridden.
 * All fields should use pre-defined validated types where possible, e.g. `OpenStackName`, `NeutronDescription`, `IPvAny`.
-* Lists should have type `set` or `map` where possible, but `atomic` lists may be necessary where a struct has no merge key.
+* Lists of structs should use `listType=map` with an appropriate `listMapKey` where possible. `listType=set` should only be used for lists of primitives (e.g., strings). `listType=atomic` may be necessary where a struct has no suitable merge key.
 
 ### ResourceStatus
 
