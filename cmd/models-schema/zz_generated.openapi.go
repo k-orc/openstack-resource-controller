@@ -4959,7 +4959,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 					},
 					"hostID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "hostID specifies the host where the port will be bound.",
+							Description: "hostID specifies the host where the port will be bound. Note that when the port is attached to a server, OpenStack may rebind the port to the server's actual compute host, which may differ from the specified hostID if no matching scheduler hint is used. In this case the port's status will reflect the actual binding host, not the value specified here.",
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID"),
 						},
 					},

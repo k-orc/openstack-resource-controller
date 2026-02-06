@@ -202,7 +202,13 @@ type PortResourceSpec struct {
 	MACAddress string `json:"macAddress,omitempty"`
 
 	// hostID specifies the host where the port will be bound.
+	// Note that when the port is attached to a server, OpenStack may
+	// rebind the port to the server's actual compute host, which may
+	// differ from the specified hostID if no matching scheduler hint
+	// is used. In this case the port's status will reflect the actual
+	// binding host, not the value specified here.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="hostID is immutable"
 	HostID *HostID `json:"hostID,omitempty"`
 }
 

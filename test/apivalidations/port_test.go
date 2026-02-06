@@ -123,6 +123,20 @@ var _ = Describe("ORC Port API validations", func() {
 		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("spec.resource.vnicType: Too long: may not be longer than 64")))
 	})
 
+	It("should not allow hostID to be modified", func(ctx context.Context) {
+		port := portStub(namespace)
+		patch := basePortPatch(port)
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().
+			WithNetworkRef(networkName).
+			WithHostID(applyconfigv1alpha1.HostID().WithID("host-a")))
+		Expect(applyObj(ctx, port, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().
+			WithNetworkRef(networkName).
+			WithHostID(applyconfigv1alpha1.HostID().WithID("host-b")))
+		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("hostID is immutable")))
+	})
+
 	// Note: we can't create a test for when the portSecurity is set to Inherit and the securityGroupRefs are set, because
 	// the validation is done in the OpenStack API and not in the ORC API. The OpenStack API will return an error if
 	// the network has port security disabled and the port has security group references.

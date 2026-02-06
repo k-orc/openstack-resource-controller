@@ -20,16 +20,3 @@ spec:
     - tag1
     vnicType: direct
     portSecurity: Enabled
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Port
-metadata:
-  name: port-update-admin
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack-admin
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    hostID:
-      id: devstack
