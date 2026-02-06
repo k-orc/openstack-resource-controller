@@ -59,7 +59,7 @@ type HostID struct {
 	// This is mutually exclusive with serverRef.
 	// +kubebuilder:validation:MaxLength=36
 	// +optional
-	ID string `json:"id,omitempty"`
+	ID string `json:"id,omitempty"` //nolint:kubeapilinter // intentionally allow raw ID
 
 	// serverRef is a reference to an ORC Server resource from which to
 	// retrieve the hostID for port binding. The hostID will be read from
@@ -167,7 +167,7 @@ type PortResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
-	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
+	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"` //nolint:kubeapilinter // https://github.com/k-orc/openstack-resource-controller/issues/438
 
 	// vnicType specifies the type of vNIC which this port should be
 	// attached to. This is used to determine which mechanism driver(s) to
@@ -209,7 +209,7 @@ type PortResourceSpec struct {
 	// binding host, not the value specified here.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="hostID is immutable"
-	HostID *HostID `json:"hostID,omitempty"`
+	HostID *HostID `json:"hostID,omitempty"` //nolint:kubeapilinter // HostID provides both raw ID and ServerRef options
 }
 
 type PortResourceStatus struct {
