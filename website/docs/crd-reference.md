@@ -2207,7 +2207,7 @@ _Appears in:_
 | `portSecurity` _[PortSecurityState](#portsecuritystate)_ | portSecurity controls port security for this port.<br />When set to Enabled, port security is enabled.<br />When set to Disabled, port security is disabled and SecurityGroupRefs must be empty.<br />When set to Inherit (default), it takes the value from the network level. | Inherit | Enum: [Enabled Disabled Inherit] <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br /> |
-| `hostID` _[HostID](#hostid)_ | hostID specifies the host where the port will be bound. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `hostID` _[HostID](#hostid)_ | hostID specifies the host where the port will be bound.<br />Note that when the port is attached to a server, OpenStack may<br />rebind the port to the server's actual compute host, which may<br />differ from the specified hostID if no matching scheduler hint<br />is used. In this case the port's status will reflect the actual<br />binding host, not the value specified here. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 
 
 #### PortResourceStatus
