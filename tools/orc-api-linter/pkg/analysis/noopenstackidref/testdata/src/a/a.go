@@ -147,3 +147,41 @@ type PluralIDsStatus struct {
 	// NetworkIDs is allowed in status.
 	NetworkIDs []string `json:"networkIDs,omitempty"`
 }
+
+// ---- Ref/Refs fields with wrong type: should be flagged ----
+
+// OpenStackName simulates the ORC OpenStackName type (wrong type for Refs).
+type OpenStackName string
+
+// WrongTypeRefSpec tests that Ref fields with wrong type are flagged.
+type WrongTypeRefSpec struct {
+	// ProjectRef with *string type is wrong - should use *KubernetesNameRef.
+	ProjectRef *string `json:"projectRef,omitempty"` // want `field WrongTypeRefSpec.ProjectRef has Ref suffix but does not use KubernetesNameRef type`
+
+	// NetworkRef with OpenStackName type is wrong - should use KubernetesNameRef.
+	NetworkRef OpenStackName `json:"networkRef,omitempty"` // want `field WrongTypeRefSpec.NetworkRef has Ref suffix but does not use KubernetesNameRef type`
+
+	// SubnetRef is correct - uses KubernetesNameRef.
+	SubnetRef KubernetesNameRef `json:"subnetRef,omitempty"`
+
+	// RouterRef is correct - uses *KubernetesNameRef.
+	RouterRef *KubernetesNameRef `json:"routerRef,omitempty"`
+}
+
+// WrongTypeRefsSpec tests that plural Refs fields with wrong type are flagged.
+type WrongTypeRefsSpec struct {
+	// SecurityGroupRefs with []OpenStackName type is wrong - should use []KubernetesNameRef.
+	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"` // want `field WrongTypeRefsSpec.SecurityGroupRefs has Ref suffix but does not use KubernetesNameRef type`
+
+	// NetworkRefs with []string type is wrong - should use []KubernetesNameRef.
+	NetworkRefs []string `json:"networkRefs,omitempty"` // want `field WrongTypeRefsSpec.NetworkRefs has Ref suffix but does not use KubernetesNameRef type`
+
+	// SubnetRefs is correct - uses []KubernetesNameRef.
+	SubnetRefs []KubernetesNameRef `json:"subnetRefs,omitempty"`
+}
+
+// WrongTypeRefsStatus tests that Refs in status with wrong type are allowed.
+type WrongTypeRefsStatus struct {
+	// SecurityGroupRefs is allowed in status even with wrong type.
+	SecurityGroupRefs []OpenStackName `json:"securityGroupRefs,omitempty"`
+}

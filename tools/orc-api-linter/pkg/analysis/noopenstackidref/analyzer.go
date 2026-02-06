@@ -40,6 +40,9 @@ ORC Kubernetes objects, not OpenStack resources directly by UUID.
 Fields ending with 'ID' or 'IDs' (like ProjectID, NetworkIDs) in spec structs should
 instead use KubernetesNameRef type with a 'Ref' or 'Refs' suffix (like ProjectRef, NetworkRefs).
 
+Additionally, fields ending with 'Ref' or 'Refs' must use the KubernetesNameRef type,
+not other types like OpenStackName or string.
+
 See: https://k-orc.cloud/development/api-design/`
 )
 
@@ -48,10 +51,20 @@ See: https://k-orc.cloud/development/api-design/`
 // KubernetesNameRef with a "Ref" or "Refs" suffix to reference ORC objects.
 var openstackIDPattern = regexp.MustCompile(`IDs?$`)
 
+// refPattern matches field names that end with "Ref" or "Refs".
+// These fields should use KubernetesNameRef type.
+var refPattern = regexp.MustCompile(`Refs?$`)
+
 // excludedIDPatterns contains field name patterns that end in "ID" or "IDs" but are
 // not OpenStack resource references.
 var excludedIDPatterns = []string{
 	"SegmentationID", // VLAN segmentation ID, not an OpenStack resource
+}
+
+// excludedRefPatterns contains field name patterns that end in "Ref" or "Refs" but
+// intentionally use a different type than KubernetesNameRef.
+var excludedRefPatterns = []string{
+	"CloudCredentialsRef", // References a credentials secret, not an ORC object
 }
 
 // excludedStructs contains struct names that should not be checked even though
@@ -102,6 +115,22 @@ func checkField(pass *analysis.Pass, field *ast.Field, qualifiedFieldName string
 
 	// Only check spec-related structs, not status structs
 	if !isSpecStruct(structName) {
+		return
+	}
+
+	// Check if field name ends in Ref/Refs but uses wrong type
+	if refPattern.MatchString(fieldName) {
+		// Check if field name is in the Ref exclusion list
+		if slices.Contains(excludedRefPatterns, fieldName) {
+			return
+		}
+
+		if !isKubernetesNameRefTypeOrSlice(field.Type) {
+			pass.Reportf(field.Pos(),
+				"field %s has Ref suffix but does not use KubernetesNameRef type; "+
+					"see https://k-orc.cloud/development/api-design/",
+				qualifiedFieldName)
+		}
 		return
 	}
 
@@ -171,4 +200,17 @@ func isKubernetesNameRefType(expr ast.Expr) bool {
 	}
 
 	return false
+}
+
+// isKubernetesNameRefTypeOrSlice checks if the expression is KubernetesNameRef,
+// *KubernetesNameRef, or []KubernetesNameRef. This is used for Ref/Refs fields
+// which may be singular or plural.
+func isKubernetesNameRefTypeOrSlice(expr ast.Expr) bool {
+	// Check for []KubernetesNameRef
+	if arrayType, ok := expr.(*ast.ArrayType); ok {
+		return isKubernetesNameRefType(arrayType.Elt)
+	}
+
+	// Check for KubernetesNameRef or *KubernetesNameRef
+	return isKubernetesNameRefType(expr)
 }
