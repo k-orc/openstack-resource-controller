@@ -4,6 +4,7 @@
 # It should be run by config/default
 resources:
 - bases/openstack.k-orc.cloud_domains.yaml
+- bases/openstack.k-orc.cloud_endpoints.yaml
 - bases/openstack.k-orc.cloud_flavors.yaml
 - bases/openstack.k-orc.cloud_floatingips.yaml
 - bases/openstack.k-orc.cloud_groups.yaml

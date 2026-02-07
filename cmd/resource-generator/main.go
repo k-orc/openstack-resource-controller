@@ -164,6 +164,10 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "Group",
 	},
+	{
+		Name:       "Endpoint",
+		IsNotNamed: true,
+	},
 }
 
 // These resources won't be generated
