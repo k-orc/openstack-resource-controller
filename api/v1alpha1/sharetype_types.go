@@ -23,19 +23,13 @@ type ShareTypeResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// isPublic indicates whether a share type is publicly accessible
 	// +optional
-	Description *string `json:"description,omitempty"`
+	IsPublic *bool `json:"isPublic,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// extraSpecs defines the extra specifications for the share type.
+	// +required
+	ExtraSpecs ShareTypeExtraSpecRequired `json:"extraSpecs,omitempty"`
 }
 
 // ShareTypeFilter defines an existing resource by its properties
@@ -45,15 +39,35 @@ type ShareTypeFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// isPublic indicated whether the ShareType is public.
 	// +optional
-	Description *string `json:"description,omitempty"`
+	IsPublic *bool `json:"isPublic,omitempty"`
+}
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes
+type ShareTypeExtraSpecRequired struct {
+	// driver_handles_shares_servers is REQUIRED.
+	// It defines the driver mode for share server lifecycle management.
+	// +required
+	DriverHandlesShareServers bool `json:"driverHandlesShareServers"`
+
+	// Any other key-value pairs can be added here
+	// +optional
+	// +listType=atomic
+	// +kubebuilder:validation:MaxItems:=64
+	OtherSpecs []ShareTypeExtraSpec `json:"otherSpecs,omitempty"`
+}
+
+// ShareTypeExtraSpec is a generic key-value pair for additional specs.
+type ShareTypeExtraSpec struct {
+	// name is the key of the extra spec.
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Name string `json:"name"`
+
+	// value is the value of the extra spec.
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Value string `json:"value"`
 }
 
 // ShareTypeResourceStatus represents the observed state of the resource.
@@ -68,7 +82,25 @@ type ShareTypeResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ShareType structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes
+	// extraSpecs is a map of key-value pairs that define extra specifications for the share type.
+	// +kubebuilder:validation:MaxItems:=64
+	// +listType=atomic
+	// +optional
+	ExtraSpecs []ShareTypeExtraSpecStatus `json:"extraSpecs"`
+
+	// isPublic indicates whether the ShareType is public.
+	// +optional
+	IsPublic *bool `json:"isPublic"`
+}
+
+type ShareTypeExtraSpecStatus struct {
+	// name is the name of the extraspec
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Name string `json:"name,omitempty"`
+
+	// value is the value of the extraspec
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Value string `json:"value,omitempty"`
 }

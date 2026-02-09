@@ -70,27 +70,57 @@ func (actuator sharetypeActuator) ListOSResourcesForAdoption(ctx context.Context
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
+	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
+	filters = append(filters,
+		func(f *sharetypes.ShareType) bool {
+			name := getResourceName(orcObject)
+			// Compare non-pointer values
+			return f.Name == name
+		},
+	)
+
+	var isPublic string
+	if resourceSpec.IsPublic != nil {
+		if *resourceSpec.IsPublic {
+			isPublic = "true"
+		} else {
+			isPublic = "false"
+		}
+	} else {
+		isPublic = "all"
+	}
 	listOpts := sharetypes.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		IsPublic: isPublic,
 	}
 
 	return actuator.osClient.ListShareTypes(ctx, listOpts), true
 }
 
 func (actuator sharetypeActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
+	if filter.Name != nil {
+		filters = append(filters, func(f *sharetypes.ShareType) bool {
+			return f.Name == string(*filter.Name)
+		})
+	}
+
+	var isPublic string
+	if filter.IsPublic != nil {
+		if *filter.IsPublic {
+			isPublic = "true"
+		} else {
+			isPublic = "false"
+		}
+	} else {
+		isPublic = "all"
+	}
 
 	listOpts := sharetypes.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		IsPublic: isPublic,
 	}
 
 	return actuator.osClient.ListShareTypes(ctx, listOpts), nil
@@ -104,10 +134,22 @@ func (actuator sharetypeActuator) CreateResource(ctx context.Context, obj orcObj
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
+	/*isPublic := false
+	if resource.IsPublic != nil {
+		isPublic = *resource.IsPublic
+	}*/
+	otherSpecs := make(map[string]string)
+	for _, spec := range resource.ExtraSpecs.OtherSpecs {
+		otherSpecs[spec.Name] = spec.Value
+	}
+
 	createOpts := sharetypes.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		Name:     getResourceName(obj),
+		IsPublic: *resource.IsPublic,
+		ExtraSpecs: sharetypes.ExtraSpecsOpts{
+			DriverHandlesShareServers: resource.ExtraSpecs.DriverHandlesShareServers,
+		},
 	}
 
 	osResource, err := actuator.osClient.CreateShareType(ctx, createOpts)
