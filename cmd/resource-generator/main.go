@@ -141,6 +141,9 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
+		Name: "ShareType",
+	},
+	{
 		Name:             "Subnet",
 		ExistingOSClient: true,
 	},

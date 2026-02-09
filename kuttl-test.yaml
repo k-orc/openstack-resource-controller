@@ -18,6 +18,7 @@ testDirs:
 - ./internal/controllers/server/tests/
 - ./internal/controllers/servergroup/tests/
 - ./internal/controllers/service/tests/
+- ./internal/controllers/sharetype/tests/
 - ./internal/controllers/subnet/tests/
 - ./internal/controllers/trunk/tests/
 - ./internal/controllers/volume/tests/

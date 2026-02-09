@@ -1,0 +1,33 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareType
+      name: sharetype-import-external
+      ref: sharetype1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareType
+      name: sharetype-import-external-not-this-one
+      ref: sharetype2
+assertAll:
+    - celExpr: "sharetype1.status.id != sharetype2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: sharetype-import-external
+    description: ShareType sharetype-import-external from "sharetype-import" test
+    # TODO(scaffolding): Add all fields the resource supports
