@@ -42,3 +42,6 @@ __pycache__/
 
 /bundle/
 bundle.Dockerfile
+
+# Allow claude files for this specific repo
+!.claude
