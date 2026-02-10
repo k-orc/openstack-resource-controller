@@ -18,12 +18,16 @@ package osclients
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"iter"
+
+	tokens3 "github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/applicationcredentials"
+	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/users"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
@@ -66,12 +70,69 @@ func (c applicationcredentialClient) DeleteApplicationCredential(ctx context.Con
 	return applicationcredentials.Delete(ctx, c.client, resourceID).ExtractErr()
 }
 
-func (c applicationcredentialClient) GetApplicationCredential(ctx context.Context, resourceID string) (*applicationcredentials.ApplicationCredential, error) {
-	return applicationcredentials.Get(ctx, c.client, resourceID).Extract()
-}
-
 func (c applicationcredentialClient) UpdateApplicationCredential(ctx context.Context, id string, opts applicationcredentials.UpdateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
 	return applicationcredentials.Update(ctx, c.client, id, opts).Extract()
+}
+
+func (c applicationcredentialClient) GetApplicationCredential(ctx context.Context, resourceID string) (*applicationcredentials.ApplicationCredential, error) {
+	// The unique ID of an application credential is not enough to query it from OpenStack
+	// OpenStack actually also requires a unique user ID.
+	// We can not provide the user ID here, as the function signatures of ORC interfaces
+	// expect us to return an OpenStack resource based on a single string.
+
+	// To work around this, we first query ApplicationCredentials for the currently
+	// authenticated user which ORC is connected as. If that fails, we iterate over
+	// all users we have access to and query their ApplicationCredentials.
+
+	// Currently authenticated user
+	userID, err := GetAuthenticatedUserID(c.client.ProviderClient)
+	if err == nil {
+		appCred, appCredErr := applicationcredentials.Get(ctx, c.client, userID, resourceID).Extract()
+
+		if appCred != nil {
+			return appCred, appCredErr
+		}
+	}
+
+	// If not found in currently authenticated user, try iterating over all users
+	userPager := users.List(c.client, nil)
+	userIterator := func(yield func(*users.User, error) bool) {
+		_ = userPager.EachPage(ctx, yieldPage(users.ExtractUsers, yield))
+	}
+
+	for user, userErr := range userIterator {
+		if userErr != nil {
+			continue
+		}
+
+		appCred, appCredErr := applicationcredentials.Get(ctx, c.client, user.ID, resourceID).Extract()
+
+		if appCred != nil {
+			return appCred, appCredErr
+		}
+	}
+
+	return nil, gophercloud.ErrResourceNotFound{
+		Name:         resourceID,
+		ResourceType: "ApplicationCredential",
+	}
+}
+
+func GetAuthenticatedUserID(providerClient *gophercloud.ProviderClient) (string, error) {
+	r := providerClient.GetAuthResult()
+	if r == nil {
+		return "", errors.New("no AuthResult available")
+	}
+	switch r := r.(type) {
+	case tokens3.CreateResult:
+		u, err := r.ExtractUser()
+		if err != nil {
+			return "", err
+		}
+		return u.ID, nil
+	default:
+		return "", errors.New("wrong AuthResult version")
+	}
 }
 
 type applicationcredentialErrorClient struct{ error }
