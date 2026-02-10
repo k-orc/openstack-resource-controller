@@ -213,6 +213,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkSubportStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSubportStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserFilter":                     schema_openstack_resource_controller_v2_api_v1alpha1_UserFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Volume":                         schema_openstack_resource_controller_v2_api_v1alpha1_Volume(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeAttachmentStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_VolumeAttachmentStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_VolumeFilter(ref),
@@ -10443,6 +10446,122 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserDataSpec(ref commo
 					"secretRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "secretRef is a reference to a Secret containing the user data for this server.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_UserFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "UserFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainRef is a reference to the ORC Domain which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "UserResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainRef is a reference to the ORC Domain which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "UserResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainID is the ID of the Domain to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the Project to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

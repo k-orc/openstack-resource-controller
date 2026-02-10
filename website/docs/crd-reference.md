@@ -1660,6 +1660,8 @@ _Appears in:_
 - [TrunkResourceSpec](#trunkresourcespec)
 - [TrunkSubportSpec](#trunksubportspec)
 - [UserDataSpec](#userdataspec)
+- [UserFilter](#userfilter)
+- [UserResourceSpec](#userresourcespec)
 - [VolumeResourceSpec](#volumeresourcespec)
 
 
@@ -2061,6 +2063,8 @@ _Appears in:_
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
+- [UserFilter](#userfilter)
+- [UserResourceSpec](#userresourcespec)
 - [VolumeFilter](#volumefilter)
 - [VolumeResourceSpec](#volumeresourcespec)
 - [VolumeTypeFilter](#volumetypefilter)
@@ -4064,6 +4068,12 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `secretRef` _[KubernetesNameRef](#kubernetesnameref)_ | secretRef is a reference to a Secret containing the user data for this server. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+
+
+
+
+
+
 
 
 #### Volume

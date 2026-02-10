@@ -1,0 +1,27 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-create-minimal
+status:
+  resource:
+    name: user-create-minimal
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: user-create-minimal
+      ref: user
+assertAll:
+    - celExpr: "user.status.id != ''"
+    # TODO(scaffolding): Add more checks

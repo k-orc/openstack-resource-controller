@@ -1,0 +1,26 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: user-update
+      ref: user
+assertAll:
+    - celExpr: "!has(user.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-update
+status:
+  resource:
+    name: user-update
+    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
