@@ -1,6 +1,15 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-- script: "! kubectl get domain.openstack.k-orc.cloud user-import-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: user-import-dependency-external
+      ref: domain1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: user-import-dependency-not-this-one
+      ref: domain2
+assertAll:
+    - celExpr: "domain1.status.resource.enabled == false"
+    - celExpr: "domain2.status.resource.enabled == false"

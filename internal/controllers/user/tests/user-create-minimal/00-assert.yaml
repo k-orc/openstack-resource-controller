@@ -6,7 +6,7 @@ metadata:
 status:
   resource:
     name: user-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: true
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +24,7 @@ resourceRefs:
       ref: user
 assertAll:
     - celExpr: "user.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(user.status.resource.description)"
+    - celExpr: "user.status.resource.domainID == 'default'"
+    - celExpr: "!has(user.status.resource.defaultProjectID)"
+    - celExpr: "!has(user.status.resource.passwordExpiresAt)"

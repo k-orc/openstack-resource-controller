@@ -16,7 +16,6 @@ status:
   resource:
     name: user-import-external-not-this-one
     description: User user-import-external from "user-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User

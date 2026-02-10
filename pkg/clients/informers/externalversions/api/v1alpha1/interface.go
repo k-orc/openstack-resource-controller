@@ -60,6 +60,8 @@ type Interface interface {
 	Subnets() SubnetInformer
 	// Trunks returns a TrunkInformer.
 	Trunks() TrunkInformer
+	// Users returns a UserInformer.
+	Users() UserInformer
 	// Volumes returns a VolumeInformer.
 	Volumes() VolumeInformer
 	// VolumeTypes returns a VolumeTypeInformer.
@@ -165,6 +167,11 @@ func (v *version) Subnets() SubnetInformer {
 // Trunks returns a TrunkInformer.
 func (v *version) Trunks() TrunkInformer {
 	return &trunkInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Users returns a UserInformer.
+func (v *version) Users() UserInformer {
+	return &userInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Volumes returns a VolumeInformer.

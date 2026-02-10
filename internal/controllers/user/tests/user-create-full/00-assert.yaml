@@ -7,7 +7,7 @@ status:
   resource:
     name: user-create-full-override
     description: User from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: true
   conditions:
   - type: Available
     status: "True"
@@ -34,5 +34,5 @@ resourceRefs:
 assertAll:
     - celExpr: "user.status.id != ''"
     - celExpr: "user.status.resource.domainID == domain.status.id"
-    - celExpr: "user.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "user.status.resource.defaultProjectID == project.status.id"
+    # Note: passwordExpiresAt is optional and only populated if OpenStack has password expiration policies configured

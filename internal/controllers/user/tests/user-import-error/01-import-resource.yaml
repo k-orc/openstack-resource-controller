@@ -5,9 +5,9 @@ metadata:
   name: user-import-error
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      description: User from "import error" test
+      domainRef: user-import-error-domain
