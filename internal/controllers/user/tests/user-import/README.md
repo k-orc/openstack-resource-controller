@@ -13,6 +13,10 @@ Create a user whose name is a superstring of the one specified in the import fil
 Create a user matching the filter and verify that the observed status on the imported user corresponds to the spec of the created user.
 Also, confirm that it does not adopt any user whose name is a superstring of its own.
 
+## Step 03
+
+Disable the domain dependency so KUTTL can clean the resources without failing.
+
 ## Reference
 
 https://k-orc.cloud/development/writing-tests/#import

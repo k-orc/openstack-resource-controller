@@ -1,11 +1,23 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-commands:
-# Dependencies that were prevented deletion before should now be gone
-- script: "! kubectl get domain.openstack.k-orc.cloud user-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get project.openstack.k-orc.cloud user-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get secret user-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: user-dependency
+      ref: domain
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: user-dependency
+      ref: project
+    - apiVersion: v1
+      kind: Secret
+      name: user-dependency
+      ref: secret
+assertAll:
+    - celExpr: "domain.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/user' in domain.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/user' in project.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/user' in secret.metadata.finalizers"

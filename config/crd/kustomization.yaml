@@ -22,6 +22,7 @@ resources:
 - bases/openstack.k-orc.cloud_services.yaml
 - bases/openstack.k-orc.cloud_subnets.yaml
 - bases/openstack.k-orc.cloud_trunks.yaml
+- bases/openstack.k-orc.cloud_users.yaml
 - bases/openstack.k-orc.cloud_volumes.yaml
 - bases/openstack.k-orc.cloud_volumetypes.yaml
 # +kubebuilder:scaffold:crdkustomizeresource

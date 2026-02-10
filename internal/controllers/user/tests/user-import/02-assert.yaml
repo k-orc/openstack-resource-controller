@@ -30,4 +30,4 @@ status:
   resource:
     name: user-import-external
     description: User user-import-external from "user-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    enabled: true

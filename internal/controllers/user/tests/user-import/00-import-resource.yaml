@@ -1,15 +1,25 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: user-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
 metadata:
   name: user-import
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
       name: user-import-external
-      description: User user-import-external from "user-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      domainRef: user-import-external

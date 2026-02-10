@@ -64,13 +64,13 @@ var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.UserLi
 )
 
 var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.UserList, *orcv1alpha1.Project](
-	"spec.resource.projectRef",
+	"spec.resource.defaultProjectRef",
 	func(user *orcv1alpha1.User) []string {
 		resource := user.Spec.Resource
-		if resource == nil || resource.ProjectRef == nil {
+		if resource == nil || resource.DefaultProjectRef == nil {
 			return nil
 		}
-		return []string{string(*resource.ProjectRef)}
+		return []string{string(*resource.DefaultProjectRef)}
 	},
 	finalizer, externalObjectFieldOwner,
 )

@@ -17,10 +17,14 @@ Verify that the observed status on the imported User corresponds to the spec of 
 
 ## Step 03
 
+Disable the domain dependencies so KUTTL can clean the resources without failing.
+
+## Step 04
+
 Delete the referenced resources and check that ORC does not prevent deletion. The OpenStack resources still exist because they
 were imported resources and we only deleted the ORC representation of it.
 
-## Step 04
+## Step 05
 
 Delete the User and validate that all resources are gone.
 
