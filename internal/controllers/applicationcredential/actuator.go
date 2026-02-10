@@ -56,7 +56,7 @@ func (applicationcredentialActuator) GetResourceID(osResource *osResourceT) stri
 }
 
 func (actuator applicationcredentialActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetApplicationCredential(ctx, id)
+	resource, err := actuator.osClient.GetApplicationCredential(ctx, "", id)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
