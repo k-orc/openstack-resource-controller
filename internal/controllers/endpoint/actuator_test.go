@@ -19,6 +19,7 @@ package endpoint
 import (
 	"testing"
 
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/endpoints"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"k8s.io/utils/ptr"
@@ -37,7 +38,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   endpoints.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   endpoints.UpdateOpts{URL: "http://updated.com"},
 			expectChange: true,
 		},
 	}
@@ -52,31 +53,25 @@ func TestNeedsUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
+func TestHandleInterfaceUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
-		newValue      *orcv1alpha1.OpenStackName
+		newValue      *string
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
+		{name: "Identical", newValue: ptr.To("internal"), existingValue: "internal", expectChange: false},
+		{name: "Different", newValue: ptr.To("public"), existingValue: "internal", expectChange: true},
+		{name: "No value provided, existing is kept", newValue: nil, existingValue: "internal", expectChange: false},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.Endpoint{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.EndpointSpec{
-				Resource: &orcv1alpha1.EndpointResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
+			resourceSpec := &orcv1alpha1.EndpointResourceSpec{Interface: ptr.Deref(tt.newValue, "")}
+			osResource := &osResourceT{Availability: gophercloud.Availability(tt.existingValue)}
 
 			updateOpts := endpoints.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
+			handleInterfaceUpdate(&updateOpts, resourceSpec, osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
@@ -87,27 +82,25 @@ func TestHandleNameUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+func TestHandleURLUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
 		newValue      *string
 		existingValue string
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Identical", newValue: ptr.To("http://same.com"), existingValue: "http://same.com", expectChange: false},
+		{name: "Different", newValue: ptr.To("http://different.com"), existingValue: "http://same.com", expectChange: true},
+		{name: "No value provided, existing is kept", newValue: nil, existingValue: "http://same.com", expectChange: false},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.EndpointResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			resourceSpec := &orcv1alpha1.EndpointResourceSpec{URL: ptr.Deref(tt.newValue, "")}
+			osResource := &osResourceT{URL: tt.existingValue}
 
 			updateOpts := endpoints.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			handleURLUpdate(&updateOpts, resourceSpec, osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {

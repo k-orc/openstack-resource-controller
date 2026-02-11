@@ -5,12 +5,11 @@ metadata:
   name: endpoint-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    type: endpoint-test
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -18,11 +17,10 @@ metadata:
   name: endpoint-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
   resource:
     serviceRef: endpoint-create-minimal
+    interface: internal
+    url: http://example.com

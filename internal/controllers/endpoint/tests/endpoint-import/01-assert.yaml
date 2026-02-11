@@ -14,9 +14,8 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: endpoint-import-external-not-this-one
-    description: Endpoint endpoint-import-external from "endpoint-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    interface: internal
+    url: http://example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint

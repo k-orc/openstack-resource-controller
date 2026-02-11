@@ -36,6 +36,7 @@ import (
 type MockScopeFactory struct {
 	ComputeClient    *mock.MockComputeClient
 	DomainClient     *mock.MockDomainClient
+	EndpointClient   *mock.MockEndpointClient
 	GroupClient      *mock.MockGroupClient
 	IdentityClient   *mock.MockIdentityClient
 	ImageClient      *mock.MockImageClient
@@ -52,6 +53,7 @@ type MockScopeFactory struct {
 func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	computeClient := mock.NewMockComputeClient(mockCtrl)
 	domainClient := mock.NewMockDomainClient(mockCtrl)
+	endpointClient := mock.NewMockEndpointClient(mockCtrl)
 	groupClient := mock.NewMockGroupClient(mockCtrl)
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
@@ -65,6 +67,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	return &MockScopeFactory{
 		ComputeClient:    computeClient,
 		DomainClient:     domainClient,
+		EndpointClient:   endpointClient,
 		GroupClient:      groupClient,
 		IdentityClient:   identityClient,
 		ImageClient:      imageClient,
@@ -130,6 +133,10 @@ func (f *MockScopeFactory) NewGroupClient() (osclients.GroupClient, error) {
 
 func (f *MockScopeFactory) NewRoleClient() (osclients.RoleClient, error) {
 	return f.RoleClient, nil
+}
+
+func (f *MockScopeFactory) NewEndpointClient() (osclients.EndpointClient, error) {
+	return f.EndpointClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {

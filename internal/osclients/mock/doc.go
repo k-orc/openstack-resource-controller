@@ -38,6 +38,9 @@ import (
 //go:generate mockgen -package mock -destination=domain.go -source=../domain.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock DomainClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt domain.go > _domain.go && mv _domain.go domain.go"
 
+//go:generate mockgen -package mock -destination=endpoint.go -source=../endpoint.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock EndpointClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt endpoint.go > _endpoint.go && mv _endpoint.go endpoint.go"
+
 //go:generate mockgen -package mock -destination=group.go -source=../group.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock GroupClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt group.go > _group.go && mv _group.go group.go"
 

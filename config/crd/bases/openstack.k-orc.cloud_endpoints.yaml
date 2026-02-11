@@ -93,15 +93,20 @@ spec:
                     properties:
                       interface:
                         description: interface of the existing endpoint.
+                        enum:
+                        - admin
+                        - internal
+                        - public
                         type: string
                       serviceRef:
-                        description: serviceRef is a reference to which the endpoint
-                          belongs.
+                        description: serviceRef is a reference to the ORC Service
+                          which this resource is associated with.
                         maxLength: 253
                         minLength: 1
                         type: string
                       url:
                         description: url is the URL of the existing endpoint.
+                        maxLength: 1024
                         type: string
                     type: object
                   id:
@@ -110,6 +115,7 @@ spec:
                       that when specifying an import by ID, the resource MUST already exist.
                       The ORC object will enter an error state if the resource does not exist.
                     format: uuid
+                    maxLength: 36
                     type: string
                 type: object
               managedOptions:
@@ -150,8 +156,16 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: description is immutable
+                      rule: self == oldSelf
                   enabled:
-                    default: true
                     description: enabled indicates whether the endpoint is enabled
                       or not.
                     type: boolean
@@ -161,14 +175,6 @@ spec:
                     - admin
                     - internal
                     - public
-                    type: string
-                  name:
-                    description: |-
-                      name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
-                    maxLength: 255
-                    minLength: 1
-                    pattern: ^[^,]+$
                     type: string
                   serviceRef:
                     description: serviceRef is a reference to the ORC Service which
@@ -181,6 +187,7 @@ spec:
                       rule: self == oldSelf
                   url:
                     description: url is the endpoint URL.
+                    maxLength: 1024
                     type: string
                 required:
                 - interface
@@ -284,26 +291,25 @@ spec:
                 x-kubernetes-list-type: map
               id:
                 description: id is the unique identifier of the OpenStack resource.
+                maxLength: 1024
                 type: string
               resource:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  description:
+                    description: description is a human-readable description for the
+                      resource.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   enabled:
                     description: enabled indicates whether the endpoint is enabled
                       or not.
                     type: boolean
                   interface:
                     description: interface indicates the visibility of the endpoint.
-                    enum:
-                    - admin
-                    - internal
-                    - public
-                    type: string
-                  name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
-                    maxLength: 1024
+                    maxLength: 128
                     type: string
                   serviceID:
                     description: serviceID is the ID of the Service to which the resource
@@ -312,9 +318,12 @@ spec:
                     type: string
                   url:
                     description: url is the endpoint URL.
+                    maxLength: 1024
                     type: string
                 type: object
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

@@ -20,6 +20,7 @@ import (
 	"context"
 	"iter"
 
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/endpoints"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
@@ -71,22 +72,30 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	service, _ := serviceDependency.GetDependency(
+		ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
 
-	listOpts := endpoints.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	if service == nil {
+		return nil, false
 	}
 
-	return actuator.osClient.ListEndpoints(ctx, listOpts), true
+	var filters []osclients.ResourceFilter[osResourceT]
+	filters = append(filters, func(e *endpoints.Endpoint) bool {
+		return e.URL == resourceSpec.URL
+	})
+
+	listOpts := endpoints.ListOpts{
+		Availability: gophercloud.Availability(resourceSpec.Interface),
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+	}
+
+	return actuator.listOsResources(ctx, listOpts, filters), true
 }
 
 func (actuator endpointActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	service, rs := dependency.FetchDependency(
@@ -100,14 +109,24 @@ func (actuator endpointActuator) ListOSResourcesForImport(ctx context.Context, o
 		return nil, reconcileStatus
 	}
 
-	listOpts := endpoints.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		ServiceID:  ptr.Deref(service.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+	var resourceFilters []osclients.ResourceFilter[osResourceT]
+	if filter.URL != "" {
+		resourceFilters = append(resourceFilters, func(e *endpoints.Endpoint) bool {
+			return e.URL == filter.URL
+		})
 	}
 
-	return actuator.osClient.ListEndpoints(ctx, listOpts), reconcileStatus
+	listOpts := endpoints.ListOpts{
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+		Availability: gophercloud.Availability(filter.Interface),
+	}
+
+	return actuator.listOsResources(ctx, listOpts, resourceFilters), nil
+}
+
+func (actuator endpointActuator) listOsResources(ctx context.Context, listOpts endpoints.ListOpts, filter []osclients.ResourceFilter[osResourceT]) iter.Seq2[*osResourceT, error] {
+	endpoints := actuator.osClient.ListEndpoints(ctx, listOpts)
+	return osclients.Filter(endpoints, filter...)
 }
 
 func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -121,23 +140,25 @@ func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObje
 	var reconcileStatus progress.ReconcileStatus
 
 	var serviceID string
-        service, serviceDepRS := serviceDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Service) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(serviceDepRS)
-        if service != nil {
-                serviceID = ptr.Deref(service.Status.ID, "")
-        }
+	service, serviceDepRS := serviceDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+
+	reconcileStatus = reconcileStatus.WithReconcileStatus(serviceDepRS)
+	if service != nil {
+		serviceID = ptr.Deref(service.Status.ID, "")
+	}
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
 	createOpts := endpoints.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:  serviceID,
-		// TODO(scaffolding): Add more fields
+		Availability: gophercloud.Availability(resource.Interface),
+		Description:  ptr.Deref(resource.Description, ""),
+		Enabled:      resource.Enabled,
+		ServiceID:    serviceID,
+		URL:          resource.URL,
 	}
 
 	osResource, err := actuator.osClient.CreateEndpoint(ctx, createOpts)
@@ -167,10 +188,9 @@ func (actuator endpointActuator) updateResource(ctx context.Context, obj orcObje
 
 	updateOpts := endpoints.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleEnabledUpdate(&updateOpts, resource, osResource)
+	handleURLUpdate(&updateOpts, resource, osResource)
+	handleInterfaceUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -210,17 +230,24 @@ func needsUpdate(updateOpts endpoints.UpdateOpts) (bool, error) {
 	return len(updateMap) > 0, nil
 }
 
-func handleNameUpdate(updateOpts *endpoints.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
+func handleURLUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	url := resource.URL
+	if osResource.URL != url {
+		updateOpts.URL = url
 	}
 }
 
-func handleDescriptionUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+func handleInterfaceUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	endpointInterface := gophercloud.Availability(resource.Interface)
+	if osResource.Availability != endpointInterface {
+		updateOpts.Availability = endpointInterface
+	}
+}
+
+func handleEnabledUpdate(updateOpts *endpoints.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	enabled := resource.Enabled
+	if enabled != nil && osResource.Enabled != *enabled {
+		updateOpts.Enabled = enabled
 	}
 }
 

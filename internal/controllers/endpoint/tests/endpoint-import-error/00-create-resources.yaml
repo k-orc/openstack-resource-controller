@@ -5,12 +5,11 @@ metadata:
   name: endpoint-import-error
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    type: endpoint-import-error
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -18,14 +17,13 @@ metadata:
   name: endpoint-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Endpoint from "import error" test
     serviceRef: endpoint-import-error
-    # TODO(scaffolding): add any required field
+    interface: internal
+    url: http://example1.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -33,11 +31,10 @@ metadata:
   name: endpoint-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Endpoint from "import error" test
     serviceRef: endpoint-import-error
-    # TODO(scaffolding): add any required field
+    interface: internal
+    url: http://example2.com

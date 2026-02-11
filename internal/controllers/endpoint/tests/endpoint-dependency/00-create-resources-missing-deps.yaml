@@ -5,12 +5,11 @@ metadata:
   name: endpoint-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    type: endpoint-test
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -18,14 +17,13 @@ metadata:
   name: endpoint-dependency-no-service
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     serviceRef: endpoint-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
-
+    interface: internal
+    url: http://example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -33,10 +31,10 @@ metadata:
   name: endpoint-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: endpoint-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
     serviceRef: endpoint-dependency
+    interface: internal
+    url: http://example.com
