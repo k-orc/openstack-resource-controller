@@ -32,7 +32,7 @@ type KeyPairImport struct {
 	// The ORC object will enter an error state if the resource does not exist.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	ID *string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 
 	// filter contains a resource query which is expected to return a single
 	// result. The controller will continue to retry if filter returns no

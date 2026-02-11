@@ -32,7 +32,7 @@ type {{ .Name }}Import struct {
 	// The ORC object will enter an error state if the resource does not exist.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
-	ID *string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 {{- else }}
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
@@ -40,7 +40,7 @@ type {{ .Name }}Import struct {
 	// +kubebuilder:validation:Format:=uuid
 	// +kubebuilder:validation:MaxLength:=36
 	// +optional
-	ID *string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 {{- end }}
 
 	// filter contains a resource query which is expected to return a single
