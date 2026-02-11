@@ -121,6 +121,19 @@ type FixedIPStatus struct {
 	SubnetID string `json:"subnetID,omitempty"`
 }
 
+type PortValueSpec struct {
+	// key is the name of the Neutron API extension parameter.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Key string `json:"key,omitempty"`
+
+	// value is the value of the Neutron API extension parameter.
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	Value *string `json:"value,omitempty"`
+}
+
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.securityGroupRefs) : true",message="securityGroupRefs must be empty when portSecurity is set to Disabled"
 // +kubebuilder:validation:XValidation:rule="has(self.portSecurity) && self.portSecurity == 'Disabled' ? !has(self.allowedAddressPairs) : true",message="allowedAddressPairs must be empty when portSecurity is set to Disabled"
 type PortResourceSpec struct {
@@ -216,6 +229,21 @@ type PortResourceSpec struct {
 	// operations. Only admin users can create ports with this field.
 	// +optional
 	TrustedVIF *bool `json:"trustedVIF,omitempty"`
+
+	// valueSpecs are extra parameters to include in the API request
+	// with OpenStack. This is an extension point for the API, so what
+	// they do and if they are supported, depends on the specific
+	// OpenStack implementation. This was meant to work similar to the
+	// property on Heat port resource. Since this depends on the
+	// underlying implementation, we can't predict its fields, and
+	// therefore, we don't know how to reconcile them in advance. Use
+	// this field wisely and be aware of the expected behavior.
+	// +kubebuilder:validation:MaxItems:=128
+	// +listType=map
+	// +listMapKey=key
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="valueSpecs is immutable"
+	ValueSpecs []PortValueSpec `json:"valueSpecs,omitempty"`
 }
 
 type PortResourceStatus struct {

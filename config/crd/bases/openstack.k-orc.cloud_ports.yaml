@@ -407,6 +407,41 @@ spec:
                       trusted by physical function to perform some privileged
                       operations. Only admin users can create ports with this field.
                     type: boolean
+                  valueSpecs:
+                    description: |-
+                      valueSpecs are extra parameters to include in the API request
+                      with OpenStack. This is an extension point for the API, so what
+                      they do and if they are supported, depends on the specific
+                      OpenStack implementation. This was meant to work similar to the
+                      property on Heat port resource. Since this depends on the
+                      underlying implementation, we can't predict its fields, and
+                      therefore, we don't know how to reconcile them in advance. Use
+                      this field wisely and be aware of the expected behavior.
+                    items:
+                      properties:
+                        key:
+                          description: key is the name of the Neutron API extension
+                            parameter.
+                          maxLength: 255
+                          minLength: 1
+                          type: string
+                        value:
+                          description: value is the value of the Neutron API extension
+                            parameter.
+                          maxLength: 255
+                          type: string
+                      required:
+                      - key
+                      - value
+                      type: object
+                    maxItems: 128
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - key
+                    x-kubernetes-list-type: map
+                    x-kubernetes-validations:
+                    - message: valueSpecs is immutable
+                      rule: self == oldSelf
                   vnicType:
                     description: |-
                       vnicType specifies the type of vNIC which this port should be

@@ -148,6 +148,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus":                    schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortSpec":                              schema_openstack_resource_controller_v2_api_v1alpha1_PortSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortStatus":                            schema_openstack_resource_controller_v2_api_v1alpha1_PortStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortValueSpec":                         schema_openstack_resource_controller_v2_api_v1alpha1_PortValueSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Project":                               schema_openstack_resource_controller_v2_api_v1alpha1_Project(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectFilter":                         schema_openstack_resource_controller_v2_api_v1alpha1_ProjectFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectImport":                         schema_openstack_resource_controller_v2_api_v1alpha1_ProjectImport(ref),
@@ -6279,12 +6280,34 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							Format:      "",
 						},
 					},
+					"valueSpecs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"key",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "valueSpecs are extra parameters to include in the API request with OpenStack. This is an extension point for the API, so what they do and if they are supported, depends on the specific OpenStack implementation. This was meant to work similar to the property on Heat port resource. Since this depends on the underlying implementation, we can't predict its fields, and therefore, we don't know how to reconcile them in advance. Use this field wisely and be aware of the expected behavior.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortValueSpec"),
+									},
+								},
+							},
+						},
+					},
 				},
 				Required: []string{"networkRef"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortValueSpec"},
 	}
 }
 
@@ -6594,6 +6617,33 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortStatus(ref common.
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_PortValueSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"key": {
+						SchemaProps: spec.SchemaProps{
+							Description: "key is the name of the Neutron API extension parameter.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the Neutron API extension parameter.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"key", "value"},
+			},
+		},
 	}
 }
 

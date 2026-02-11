@@ -30,11 +30,11 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: subnet
       name: port-create-full
-      ref: subnet      
+      ref: subnet
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: securitygroup
       name: port-create-full
-      ref: sg     
+      ref: sg
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: project
       name: port-create-full
