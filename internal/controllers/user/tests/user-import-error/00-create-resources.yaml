@@ -1,0 +1,38 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: user-import-error-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: User from "import error" test
+    domainRef: user-import-error-domain
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: User from "import error" test
+    domainRef: user-import-error-domain

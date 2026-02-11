@@ -1,0 +1,38 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-create-full
+status:
+  resource:
+    name: user-create-full-override
+    description: User from "create full" test
+    enabled: true
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: user-create-full
+      ref: user
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: user-create-full
+      ref: domain
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: user-create-full
+      ref: project
+assertAll:
+    - celExpr: "user.status.id != ''"
+    - celExpr: "user.status.resource.domainID == domain.status.id"
+    - celExpr: "user.status.resource.defaultProjectID == project.status.id"
+    # Note: passwordExpiresAt is optional and only populated if OpenStack has password expiration policies configured

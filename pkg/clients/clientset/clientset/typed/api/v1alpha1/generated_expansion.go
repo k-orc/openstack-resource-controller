@@ -54,6 +54,8 @@ type SubnetExpansion interface{}
 
 type TrunkExpansion interface{}
 
+type UserExpansion interface{}
+
 type VolumeExpansion interface{}
 
 type VolumeTypeExpansion interface{}
