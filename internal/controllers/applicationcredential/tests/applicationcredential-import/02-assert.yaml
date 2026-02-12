@@ -30,4 +30,3 @@ status:
   resource:
     name: applicationcredential-import-external
     description: ApplicationCredential applicationcredential-import-external from "applicationcredential-import" test
-    # TODO(scaffolding): Add all fields the resource supports

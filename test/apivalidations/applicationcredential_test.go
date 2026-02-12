@@ -42,7 +42,8 @@ func applicationcredentialStub(namespace *corev1.Namespace) *orcv1alpha1.Applica
 
 func testApplicationCredentialResource() *applyconfigv1alpha1.ApplicationCredentialResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.ApplicationCredentialResourceSpec().
-		WithUserRef("user")
+		WithUserRef("user").
+		WithSecretRef("applicationcredential-secret")
 }
 
 func baseApplicationCredentialPatch(obj client.Object) *applyconfigv1alpha1.ApplicationCredentialApplyConfiguration {
@@ -79,7 +80,7 @@ var _ = Describe("ORC ApplicationCredential API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.ApplicationCredentialImport().WithFilter(applyconfigv1alpha1.ApplicationCredentialFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.ApplicationCredentialApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.ApplicationCredentialImport().WithFilter(applyconfigv1alpha1.ApplicationCredentialFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.ApplicationCredentialImport().WithFilter(applyconfigv1alpha1.ApplicationCredentialFilter().WithName("foo").WithUserRef("user")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.ApplicationCredentialApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -105,7 +106,7 @@ var _ = Describe("ORC ApplicationCredential API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
 	})
 
-	It("should have immutable userRef", func(ctx context.Context) {
+	It("should be immutable", func(ctx context.Context) {
 		obj := applicationcredentialStub(namespace)
 		patch := baseApplicationCredentialPatch(obj)
 		patch.Spec.WithResource(testApplicationCredentialResource().
@@ -114,15 +115,32 @@ var _ = Describe("ORC ApplicationCredential API validations", func() {
 
 		patch.Spec.WithResource(testApplicationCredentialResource().
 			WithUserRef("user-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("userRef is immutable")))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("ApplicationCredentialResourceSpec is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	DescribeTable("should permit valid http method",
+		func(ctx context.Context, httpmethod orcv1alpha1.HTTPMethod) {
+			obj := applicationcredentialStub(namespace)
+			patch := baseApplicationCredentialPatch(obj)
+			specPatch := applyconfigv1alpha1.ApplicationCredentialAccessRule().WithMethod(httpmethod)
+			patch.Spec.WithResource(testApplicationCredentialResource().WithAccessRules(specPatch))
+			Expect(applyObj(ctx, obj, patch)).To(Succeed(), "create application credential")
+		},
+		Entry(string(orcv1alpha1.HTTPMethodCONNECT), orcv1alpha1.HTTPMethodCONNECT),
+		Entry(string(orcv1alpha1.HTTPMethodDELETE), orcv1alpha1.HTTPMethodDELETE),
+		Entry(string(orcv1alpha1.HTTPMethodGET), orcv1alpha1.HTTPMethodGET),
+		Entry(string(orcv1alpha1.HTTPMethodHEAD), orcv1alpha1.HTTPMethodHEAD),
+		Entry(string(orcv1alpha1.HTTPMethodOPTIONS), orcv1alpha1.HTTPMethodOPTIONS),
+		Entry(string(orcv1alpha1.HTTPMethodPATCH), orcv1alpha1.HTTPMethodPATCH),
+		Entry(string(orcv1alpha1.HTTPMethodPOST), orcv1alpha1.HTTPMethodPOST),
+		Entry(string(orcv1alpha1.HTTPMethodPUT), orcv1alpha1.HTTPMethodPUT),
+		Entry(string(orcv1alpha1.HTTPMethodTRACE), orcv1alpha1.HTTPMethodTRACE),
+	)
+
+	It("should not permit invalid http method", func(ctx context.Context) {
+		obj := applicationcredentialStub(namespace)
+		patch := baseApplicationCredentialPatch(obj)
+		patch.Spec.WithResource(testApplicationCredentialResource().WithAccessRules(applyconfigv1alpha1.ApplicationCredentialAccessRule().WithMethod("foo")))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), "create application credential")
+	})
 })

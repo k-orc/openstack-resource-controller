@@ -5,12 +5,12 @@ metadata:
   name: applicationcredential-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: admin
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ApplicationCredential
@@ -18,14 +18,12 @@ metadata:
   name: applicationcredential-dependency-no-user
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     userRef: applicationcredential-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
-
+    secretRef: applicationcredential-secret
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ApplicationCredential
@@ -33,10 +31,54 @@ metadata:
   name: applicationcredential-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: applicationcredential-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
     userRef: applicationcredential-dependency
+    secretRef: applicationcredential-secret
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-secret-ref
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-secret
+    roleRefs:
+      - applicationcredential-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-service
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-secret
+    accessRules:
+      - method: "GET"
+        serviceRef: applicationcredential-dependency-pending
+        path: "/v2.1/servers"
