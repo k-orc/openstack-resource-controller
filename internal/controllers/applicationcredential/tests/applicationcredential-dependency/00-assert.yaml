@@ -17,6 +17,21 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ApplicationCredential
 metadata:
+  name: applicationcredential-dependency-no-secret-ref
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/applicationcredential-dependency-pending to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/applicationcredential-dependency-pending to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
   name: applicationcredential-dependency-no-user
 status:
   conditions:
