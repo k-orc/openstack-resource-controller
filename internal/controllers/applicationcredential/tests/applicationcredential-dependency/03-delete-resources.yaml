@@ -8,3 +8,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: ApplicationCredential
   name: applicationcredential-dependency-no-user
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ApplicationCredential
+  name: applicationcredential-dependency-no-secret-ref
