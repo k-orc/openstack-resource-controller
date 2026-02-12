@@ -5,13 +5,13 @@ metadata:
   name: applicationcredential-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: ApplicationCredential from "import error" test
-    # TODO(scaffolding): add any required field
+    userID: "token"
+    secret: "abc"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ApplicationCredential
@@ -19,10 +19,10 @@ metadata:
   name: applicationcredential-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: ApplicationCredential from "import error" test
-    # TODO(scaffolding): add any required field
+    userID: "token"
+    secret: "def"

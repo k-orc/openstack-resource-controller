@@ -8,10 +8,10 @@ metadata:
   name: applicationcredential-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: ApplicationCredential applicationcredential-import-external from "applicationcredential-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    userID: "token"
+    secret: "bar"

@@ -5,8 +5,9 @@ metadata:
   name: applicationcredential-create-minimal
 status:
   resource:
+    # Name should default to object name
     name: applicationcredential-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    unrestricted: false
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +25,5 @@ resourceRefs:
       ref: applicationcredential
 assertAll:
     - celExpr: "applicationcredential.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "applicationcredential.status.resource.projectID != ''"
+    - celExpr: "!has(applicationcredential.status.resource.description)"

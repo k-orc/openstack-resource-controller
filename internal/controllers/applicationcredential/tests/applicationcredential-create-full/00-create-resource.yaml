@@ -5,11 +5,19 @@ metadata:
   name: applicationcredential-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: applicationcredential-create-full-override
     description: ApplicationCredential from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    userID: "token"
+    unrestricted: true
+    secret: "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
+    roles:
+      - name: "reader"
+    accessRules:
+      - method: "GET"
+        service: "compute"
+        path: "/v2.1/servers"
+    expiresAt: "2033-03-03T22:22:22Z"
