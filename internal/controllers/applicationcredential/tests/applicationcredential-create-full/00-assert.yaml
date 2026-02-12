@@ -7,7 +7,12 @@ status:
   resource:
     name: applicationcredential-create-full-override
     description: ApplicationCredential from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    unrestricted: true
+    accessRules:
+      - method: "GET"
+        path: "/v2.1/servers"
+        service: "compute"
+    expiresAt: "2033-03-03T22:22:22Z"
   conditions:
   - type: Available
     status: "True"
@@ -27,7 +32,16 @@ resourceRefs:
       kind: User
       name: applicationcredential-create-full
       ref: user
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Role
+      name: applicationcredential-create-full
+      ref: role
 assertAll:
     - celExpr: "applicationcredential.status.id != ''"
-    - celExpr: "applicationcredential.status.resource.userID == user.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "applicationcredential.status.resource.projectID != ''"
+    - celExpr: "applicationcredential.status.resource.accessRules.size() == 1"
+    - celExpr: "applicationcredential.status.resource.accessRules[0].id != ''"
+    - celExpr: "applicationcredential.status.resource.roles.size() == 1"
+    - celExpr: "applicationcredential.status.resource.roles[0].id == role.status.id"
+    - celExpr: "applicationcredential.status.resource.roles[0].name == role.status.resource.name"
+    - celExpr: "!has(applicationcredential.status.resource.roles[0].domainID)"

@@ -5,12 +5,12 @@ metadata:
   name: applicationcredential-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    description: applicationcredential external user
+    passwordRef: applicationcredential-user-password
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ApplicationCredential
@@ -18,10 +18,10 @@ metadata:
   name: applicationcredential-import-dependency-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    description: applicationcredential-import-dependency-target
     userRef: applicationcredential-import-dependency-external
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    secretRef: applicationcredential-secret
