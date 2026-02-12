@@ -11,3 +11,4 @@ spec:
   import:
     filter:
       description: ApplicationCredential from "import error" test
+      userID: "token"
