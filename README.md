@@ -71,6 +71,7 @@ kubectl delete -f $ORC_RELEASE
 | **controller**              | **1.x** | **2.x** | **main** |
 |:---------------------------:|:-------:|:-------:|:--------:|
 | domain                      |         |    ✔    |     ✔    |
+| endpoint                    |         |    ◐    |     ◐    |
 | flavor                      |         |    ✔    |     ✔    |
 | floating ip                 |         |    ◐    |     ◐    |
 | group                       |         |    ✔    |     ✔    |
@@ -89,7 +90,6 @@ kubectl delete -f $ORC_RELEASE
 | trunk                       |         |    ✔    |     ✔    |
 | volume                      |         |    ◐    |     ◐    |
 | volume type                 |         |    ◐    |     ◐    |
-
 
 
 ✔: mostly implemented

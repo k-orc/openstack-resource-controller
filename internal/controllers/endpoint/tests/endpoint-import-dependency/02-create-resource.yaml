@@ -1,0 +1,26 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: endpoint-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    type: endpoint-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: endpoint-import-dependency-external
+    interface: internal
+    url: http://example.com

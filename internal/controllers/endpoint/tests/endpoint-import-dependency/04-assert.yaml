@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get endpoint.openstack.k-orc.cloud endpoint-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

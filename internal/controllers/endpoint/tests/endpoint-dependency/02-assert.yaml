@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: endpoint-dependency
+      ref: service
+    - apiVersion: v1
+      kind: Secret
+      name: endpoint-dependency
+      ref: secret
+assertAll:
+    - celExpr: "service.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/endpoint' in service.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/endpoint' in secret.metadata.finalizers"

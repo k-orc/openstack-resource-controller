@@ -1,0 +1,18 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic endpoint-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: endpoint-dependency-pending
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    type: endpoint-test

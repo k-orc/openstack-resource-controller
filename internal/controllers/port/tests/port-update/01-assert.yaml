@@ -48,4 +48,4 @@ status:
     reason: Success
   - type: Progressing
     status: "False"
-    reason: Success 
+    reason: Success

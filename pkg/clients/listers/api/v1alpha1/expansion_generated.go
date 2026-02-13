@@ -26,6 +26,14 @@ type DomainListerExpansion interface{}
 // DomainNamespaceLister.
 type DomainNamespaceListerExpansion interface{}
 
+// EndpointListerExpansion allows custom methods to be added to
+// EndpointLister.
+type EndpointListerExpansion interface{}
+
+// EndpointNamespaceListerExpansion allows custom methods to be added to
+// EndpointNamespaceLister.
+type EndpointNamespaceListerExpansion interface{}
+
 // FlavorListerExpansion allows custom methods to be added to
 // FlavorLister.
 type FlavorListerExpansion interface{}

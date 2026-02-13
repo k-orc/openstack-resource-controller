@@ -24,6 +24,11 @@ spec:
       kind: Domain
       name: domains.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Endpoint is the Schema for an ORC resource.
+      displayName: Endpoint
+      kind: Endpoint
+      name: endpoints.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Flavor is the Schema for an ORC resource.
       displayName: Flavor
       kind: Flavor

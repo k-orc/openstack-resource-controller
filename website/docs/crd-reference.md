@@ -11,6 +11,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 
 ### Resource Types
 - [Domain](#domain)
+- [Endpoint](#endpoint)
 - [Flavor](#flavor)
 - [FloatingIP](#floatingip)
 - [Group](#group)
@@ -165,6 +166,7 @@ CloudCredentialsReference is a reference to a secret containing OpenStack creden
 
 _Appears in:_
 - [DomainSpec](#domainspec)
+- [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [GroupSpec](#groupspec)
@@ -335,6 +337,142 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br /> |
 | `resource` _[DomainResourceStatus](#domainresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
+
+
+#### Endpoint
+
+
+
+Endpoint is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Endpoint` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[EndpointSpec](#endpointspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[EndpointStatus](#endpointstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### EndpointFilter
+
+
+
+EndpointFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [EndpointImport](#endpointimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `interface` _string_ | interface of the existing endpoint. |  | Enum: [admin internal public] <br /> |
+| `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `url` _string_ | url is the URL of the existing endpoint. |  | MaxLength: 1024 <br /> |
+
+
+#### EndpointImport
+
+
+
+EndpointImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [EndpointSpec](#endpointspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br /> |
+| `filter` _[EndpointFilter](#endpointfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### EndpointResourceSpec
+
+
+
+EndpointResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [EndpointSpec](#endpointspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `enabled` _boolean_ | enabled indicates whether the endpoint is enabled or not. |  |  |
+| `interface` _string_ | interface indicates the visibility of the endpoint. |  | Enum: [admin internal public] <br /> |
+| `url` _string_ | url is the endpoint URL. |  | MaxLength: 1024 <br /> |
+| `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+
+
+#### EndpointResourceStatus
+
+
+
+EndpointResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [EndpointStatus](#endpointstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `enabled` _boolean_ | enabled indicates whether the endpoint is enabled or not. |  |  |
+| `interface` _string_ | interface indicates the visibility of the endpoint. |  | MaxLength: 128 <br /> |
+| `url` _string_ | url is the endpoint URL. |  | MaxLength: 1024 <br /> |
+| `serviceID` _string_ | serviceID is the ID of the Service to which the resource is associated. |  | MaxLength: 1024 <br /> |
+
+
+#### EndpointSpec
+
+
+
+EndpointSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Endpoint](#endpoint)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[EndpointImport](#endpointimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[EndpointResourceSpec](#endpointresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### EndpointStatus
+
+
+
+EndpointStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Endpoint](#endpoint)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br /> |
+| `resource` _[EndpointResourceStatus](#endpointresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Ethertype
@@ -1634,6 +1772,8 @@ _Validation:_
 
 _Appears in:_
 - [Address](#address)
+- [EndpointFilter](#endpointfilter)
+- [EndpointResourceSpec](#endpointresourcespec)
 - [ExternalGateway](#externalgateway)
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
@@ -1704,6 +1844,7 @@ _Appears in:_
 
 _Appears in:_
 - [DomainSpec](#domainspec)
+- [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [GroupSpec](#groupspec)
@@ -1739,6 +1880,7 @@ _Validation:_
 
 _Appears in:_
 - [DomainSpec](#domainspec)
+- [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
 - [FloatingIPSpec](#floatingipspec)
 - [GroupSpec](#groupspec)

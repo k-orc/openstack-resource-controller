@@ -2,17 +2,17 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: port
-      name: port-update
-      ref: port
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: port
+    name: port-update
+    ref: port
 assertAll:
-    - celExpr: "port.status.id != ''"
-    - celExpr: "port.status.resource.createdAt != ''"
-    - celExpr: "port.status.resource.updatedAt != ''"
-    - celExpr: "port.status.resource.macAddress != ''"
-    - celExpr: "!has(port.status.resource.fixedIPs)"
-    - celExpr: "!has(port.status.resource.description)"
+  - celExpr: "port.status.id != ''"
+  - celExpr: "port.status.resource.createdAt != ''"
+  - celExpr: "port.status.resource.updatedAt != ''"
+  - celExpr: "port.status.resource.macAddress != ''"
+  - celExpr: "!has(port.status.resource.fixedIPs)"
+  - celExpr: "!has(port.status.resource.description)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Port
