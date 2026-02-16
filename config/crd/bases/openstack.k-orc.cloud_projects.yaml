@@ -166,6 +166,14 @@ spec:
                     - delete
                     - detach
                     type: string
+                  resyncPeriod:
+                    default: 10h
+                    description: |-
+                      resyncPeriod specifies the interval after which a successfully
+                      reconciled resource will be reconciled again to detect drift from the
+                      desired state. Set to 0 to disable periodic resync. If not specified,
+                      the default is 10 hours.
+                    type: string
                 type: object
               managementPolicy:
                 default: managed

@@ -1128,6 +1128,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: onDelete
       type:
         scalar: string
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Network
   map:
     fields:
@@ -3620,6 +3623,8 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
+- name: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+  scalar: string
 - name: io.k8s.apimachinery.pkg.apis.meta.v1.FieldsV1
   map:
     elementType:

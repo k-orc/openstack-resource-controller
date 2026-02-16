@@ -26,6 +26,8 @@ nav:
       - Coding Standards: development/coding-standards.md
       - Interfaces: development/godoc/generic-interfaces.md
       - ReconcileStatus: development/godoc/reconcile-status.md
+    - Design Proposals:
+      - Drift Detection: development/proposals/drift-detection.md
   - Changelog: changelog.md
 repo_url: https://github.com/k-orc/openstack-resource-controller
 extra:

@@ -4188,9 +4188,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ManagedOptions(ref com
 							Format:      "",
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod specifies the interval after which a successfully reconciled resource will be reconciled again to detect drift from the desired state. Set to 0 to disable periodic resync. If not specified, the default is 10 hours.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
