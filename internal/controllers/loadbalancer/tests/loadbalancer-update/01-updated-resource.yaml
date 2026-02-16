@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-update
+spec:
+  resource:
+    vipSubnetRef: loadbalancer-update
+    name: loadbalancer-update-updated
+    description: loadbalancer-update-updated
+    adminStateUp: false
+    tags:
+      - updated-tag

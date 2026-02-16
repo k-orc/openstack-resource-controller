@@ -47,6 +47,9 @@ import (
 //go:generate mockgen -package mock -destination=keypair.go -source=../keypair.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock KeyPairClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt keypair.go > _keypair.go && mv _keypair.go keypair.go"
 
+//go:generate mockgen -package mock -destination=loadbalancer.go -source=../loadbalancer.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LoadBalancerClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt loadbalancer.go > _loadbalancer.go && mv _loadbalancer.go loadbalancer.go"
+
 //go:generate mockgen -package mock -destination=role.go -source=../role.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RoleClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt role.go > _role.go && mv _role.go role.go"
 

@@ -35,6 +35,7 @@ type OpenstackV1alpha1Interface interface {
 	GroupsGetter
 	ImagesGetter
 	KeyPairsGetter
+	LoadBalancersGetter
 	NetworksGetter
 	PortsGetter
 	ProjectsGetter
@@ -82,6 +83,10 @@ func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {
 
 func (c *OpenstackV1alpha1Client) KeyPairs(namespace string) KeyPairInterface {
 	return newKeyPairs(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) LoadBalancers(namespace string) LoadBalancerInterface {
+	return newLoadBalancers(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Networks(namespace string) NetworkInterface {
