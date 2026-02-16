@@ -106,10 +106,10 @@ func (actuator {{ .PackageName }}Actuator) ListOSResourcesForImport(ctx context.
 	var reconcileStatus progress.ReconcileStatus
 {{- range .ImportDependencies }}
 {{ $depNameCamelCase := . | camelCase }}
-	{{ $depNameCamelCase }}, rs := dependency.FetchDependency(
+	{{ $depNameCamelCase }}, rs := dependency.FetchDependency[*orcv1alpha1.{{ . }}](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.{{ . }}Ref, "{{ . }}",
-		func(dep *orcv1alpha1.{{ . }}) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 {{- end }}
@@ -145,15 +145,13 @@ func (actuator {{ .PackageName }}Actuator) CreateResource(ctx context.Context, o
 {{- range .RequiredCreateDependencies }}
 {{ $depNameCamelCase := . | camelCase }}
 	var {{ $depNameCamelCase }}ID string
-        {{ $depNameCamelCase }}, {{ $depNameCamelCase }}DepRS := {{ $depNameCamelCase }}Dependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.{{ . }}) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus({{ $depNameCamelCase }}DepRS)
-        if {{ $depNameCamelCase }} != nil {
-                {{ $depNameCamelCase }}ID = ptr.Deref({{ $depNameCamelCase }}.Status.ID, "")
-        }
+	{{ $depNameCamelCase }}, {{ $depNameCamelCase }}DepRS := {{ $depNameCamelCase }}Dependency.GetDependency(
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus({{ $depNameCamelCase }}DepRS)
+	if {{ $depNameCamelCase }} != nil {
+		{{ $depNameCamelCase }}ID = ptr.Deref({{ $depNameCamelCase }}.Status.ID, "")
+	}
 
 {{- end }}
 {{- range .OptionalCreateDependencies }}
@@ -161,9 +159,7 @@ func (actuator {{ .PackageName }}Actuator) CreateResource(ctx context.Context, o
 	var {{ $depNameCamelCase }}ID string
 	if resource.{{ . }}Ref != nil {
 		{{ $depNameCamelCase }}, {{ $depNameCamelCase }}DepRS := {{ $depNameCamelCase }}Dependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.{{ . }}) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus({{ $depNameCamelCase }}DepRS)
 		if {{ $depNameCamelCase }} != nil {

@@ -84,17 +84,17 @@ func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, or
 func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	port, rs := dependency.FetchDependency(
+	port, rs := dependency.FetchDependency[*orcv1alpha1.Port](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.PortRef, "Port",
-		func(dep *orcv1alpha1.Port) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	project, rs := dependency.FetchDependency(
+	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -129,9 +129,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 
 	var portID string
 	port, portDepRS := portDependency.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
 	if port != nil {
@@ -141,9 +139,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
 		if project != nil {
@@ -155,9 +151,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 	var subports []trunks.Subport
 	if len(resource.Subports) > 0 {
 		subportPortMap, subportPortDepRS := subportPortDependency.GetDependencies(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subportPortDepRS)
 		if needsReschedule, _ := subportPortDepRS.NeedsReschedule(); !needsReschedule {
@@ -293,9 +287,7 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 	desiredSubports := make(map[string]*orcv1alpha1.TrunkSubportSpec, len(osResource.Subports))
 	if len(resource.Subports) > 0 {
 		subportPortMap, subportPortDepRS := subportPortDependency.GetDependencies(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Port) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subportPortDepRS)
 		if needsReschedule, _ := subportPortDepRS.NeedsReschedule(); needsReschedule {

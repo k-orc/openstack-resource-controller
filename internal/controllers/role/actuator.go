@@ -81,11 +81,9 @@ func (actuator roleActuator) ListOSResourcesForAdoption(ctx context.Context, orc
 func (actuator roleActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	domain, rs := dependency.FetchDependency(
+	domain, rs := dependency.FetchDependency[*orcv1alpha1.Domain](
 		ctx, actuator.k8sClient, obj.Namespace, filter.DomainRef, "Domain",
-		func(dep *orcv1alpha1.Domain) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -114,9 +112,7 @@ func (actuator roleActuator) CreateResource(ctx context.Context, obj orcObjectPT
 	var domainID string
 	if resource.DomainRef != nil {
 		domain, domainDepRS := domainDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Domain) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(domainDepRS)
 		if domain != nil {

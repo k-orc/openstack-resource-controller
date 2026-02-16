@@ -88,11 +88,9 @@ func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Con
 func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	project, rs := dependency.FetchDependency(
+	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -123,9 +121,7 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, reconcileStatus := projectDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 			return nil, reconcileStatus
@@ -280,9 +276,7 @@ func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, reconcileStatus := projectDependency.GetDependency(
-			ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 		)
 		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 			return reconcileStatus
