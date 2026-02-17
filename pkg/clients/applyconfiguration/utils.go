@@ -194,6 +194,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.NetworkStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("NeutronStatusMetadata"):
 		return &apiv1alpha1.NeutronStatusMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("PasswordSpec"):
+		return &apiv1alpha1.PasswordSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Port"):
 		return &apiv1alpha1.PortApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortFilter"):
@@ -374,8 +376,22 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.TrunkSubportSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("TrunkSubportStatus"):
 		return &apiv1alpha1.TrunkSubportStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("User"):
+		return &apiv1alpha1.UserApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("UserDataSpec"):
 		return &apiv1alpha1.UserDataSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("UserFilter"):
+		return &apiv1alpha1.UserFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("UserImport"):
+		return &apiv1alpha1.UserImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("UserResourceSpec"):
+		return &apiv1alpha1.UserResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("UserResourceStatus"):
+		return &apiv1alpha1.UserResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("UserSpec"):
+		return &apiv1alpha1.UserSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("UserStatus"):
+		return &apiv1alpha1.UserStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Volume"):
 		return &apiv1alpha1.VolumeApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeAttachmentStatus"):

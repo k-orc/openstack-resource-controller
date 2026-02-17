@@ -104,6 +104,10 @@ func (c *FakeOpenstackV1alpha1) Trunks(namespace string) v1alpha1.TrunkInterface
 	return newFakeTrunks(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Users(namespace string) v1alpha1.UserInterface {
+	return newFakeUsers(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Volumes(namespace string) v1alpha1.VolumeInterface {
 	return newFakeVolumes(c, namespace)
 }

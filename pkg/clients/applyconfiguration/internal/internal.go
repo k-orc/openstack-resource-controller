@@ -1338,6 +1338,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PasswordSpec
+  map:
+    fields:
+    - name: secretRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Port
   map:
     fields:
@@ -3234,12 +3240,129 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: segmentationType
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.User
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserStatus
+      default: {}
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserDataSpec
   map:
     fields:
     - name: secretRef
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserFilter
+  map:
+    fields:
+    - name: domainRef
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceSpec
+  map:
+    fields:
+    - name: defaultProjectRef
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: domainRef
+      type:
+        scalar: string
+    - name: enabled
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: password
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PasswordSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceStatus
+  map:
+    fields:
+    - name: defaultProjectID
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: domainID
+      type:
+        scalar: string
+    - name: enabled
+      type:
+        scalar: boolean
+    - name: name
+      type:
+        scalar: string
+    - name: passwordExpiresAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Volume
   map:
     fields:
