@@ -28,6 +28,10 @@ type FakeOpenstackV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeOpenstackV1alpha1) AddressScopes(namespace string) v1alpha1.AddressScopeInterface {
+	return newFakeAddressScopes(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Domains(namespace string) v1alpha1.DomainInterface {
 	return newFakeDomains(c, namespace)
 }

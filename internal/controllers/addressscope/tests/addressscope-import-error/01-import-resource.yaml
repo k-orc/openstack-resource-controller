@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: AddressScope from "import error" test
+      ipVersion: 4

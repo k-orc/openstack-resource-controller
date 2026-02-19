@@ -6,8 +6,25 @@ metadata:
 status:
   resource:
     name: addressscope-update-updated
-    description: addressscope-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    ipVersion: 4
+    shared: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-update-shared
+status:
+  resource:
+    name: addressscope-update-shared
+    ipVersion: 4
+    shared: true
   conditions:
   - type: Available
     status: "True"

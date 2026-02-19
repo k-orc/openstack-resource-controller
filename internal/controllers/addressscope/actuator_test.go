@@ -87,27 +87,25 @@ func TestHandleNameUpdate(t *testing.T) {
 	}
 }
 
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+func TestHandleSharedUpdate(t *testing.T) {
 	testCases := []struct {
 		name          string
-		newValue      *string
-		existingValue string
+		newValue      *bool
+		existingValue bool
 		expectChange  bool
 	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
+		{name: "Identical true", newValue: ptr.To(true), existingValue: true, expectChange: false},
+		{name: "Identical false", newValue: ptr.To(false), existingValue: false, expectChange: false},
+		{name: "Change from false to true", newValue: ptr.To(true), existingValue: false, expectChange: true},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.AddressScopeResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			resource := &orcv1alpha1.AddressScopeResourceSpec{Shared: tt.newValue}
+			osResource := &osResourceT{Shared: tt.existingValue}
 
 			updateOpts := addressscopes.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
+			handleSharedUpdate(&updateOpts, resource, osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {

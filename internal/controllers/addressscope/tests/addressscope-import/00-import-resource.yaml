@@ -11,5 +11,6 @@ spec:
   import:
     filter:
       name: addressscope-import-external
-      description: AddressScope addressscope-import-external from "addressscope-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      ipVersion: 4
+      shared: true
+

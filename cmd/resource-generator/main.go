@@ -168,6 +168,9 @@ var resources []templateFields = []templateFields{
 		Name:       "Endpoint",
 		IsNotNamed: true,
 	},
+	{
+		Name: "AddressScope",
+	},
 }
 
 // These resources won't be generated

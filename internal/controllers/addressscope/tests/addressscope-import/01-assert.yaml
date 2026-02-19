@@ -15,8 +15,8 @@ status:
       reason: Success
   resource:
     name: addressscope-import-external-not-this-one
-    description: AddressScope addressscope-import-external from "addressscope-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    ipVersion: 4
+    shared: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: AddressScope

@@ -2,16 +2,16 @@
 
 ## Step 00
 
-Import a AddressScope that references other imported resources. The referenced imported resources have no matching resources yet.
+Import an AddressScope that references other imported resources. The referenced imported resources have no matching resources yet.
 Verify the AddressScope is waiting for the dependency to be ready.
 
 ## Step 01
 
-Create a AddressScope matching the import filter, except for referenced resources, and verify that it's not being imported.
+Create an AddressScope matching the import filter, except for referenced resources, and verify that it's not being imported.
 
 ## Step 02
 
-Create the referenced resources and a AddressScope matching the import filters.
+Create the referenced resources and an AddressScope matching the import filters.
 
 Verify that the observed status on the imported AddressScope corresponds to the spec of the created AddressScope.
 

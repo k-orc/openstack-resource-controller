@@ -2,11 +2,12 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: AddressScope
 metadata:
-  name: addressscope-sample
+  name: addressscope-update-shared
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     ipVersion: 4
+    shared: false

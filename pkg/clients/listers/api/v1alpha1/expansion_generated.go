@@ -18,6 +18,14 @@ limitations under the License.
 
 package v1alpha1
 
+// AddressScopeListerExpansion allows custom methods to be added to
+// AddressScopeLister.
+type AddressScopeListerExpansion interface{}
+
+// AddressScopeNamespaceListerExpansion allows custom methods to be added to
+// AddressScopeNamespaceLister.
+type AddressScopeNamespaceListerExpansion interface{}
+
 // DomainListerExpansion allows custom methods to be added to
 // DomainLister.
 type DomainListerExpansion interface{}
