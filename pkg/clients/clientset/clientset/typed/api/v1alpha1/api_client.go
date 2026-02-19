@@ -28,6 +28,7 @@ import (
 
 type OpenstackV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	AddressScopesGetter
 	DomainsGetter
 	EndpointsGetter
 	FlavorsGetter
@@ -54,6 +55,10 @@ type OpenstackV1alpha1Interface interface {
 // OpenstackV1alpha1Client is used to interact with features provided by the openstack.k-orc.cloud group.
 type OpenstackV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *OpenstackV1alpha1Client) AddressScopes(namespace string) AddressScopeInterface {
+	return newAddressScopes(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Domains(namespace string) DomainInterface {

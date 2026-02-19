@@ -1,8 +1,8 @@
-# Create a AddressScope with all the options
+# Create an AddressScope with all the options
 
 ## Step 00
 
-Create a AddressScope using all available fields, and verify that the observed state corresponds to the spec.
+Create an AddressScope using all available fields, and verify that the observed state corresponds to the spec.
 
 Also validate that the OpenStack resource uses the name from the spec when it is specified.
 

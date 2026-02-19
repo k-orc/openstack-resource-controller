@@ -34,6 +34,7 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
+	AddressScope     *mock.MockAddressScopeClient
 	ComputeClient    *mock.MockComputeClient
 	DomainClient     *mock.MockDomainClient
 	EndpointClient   *mock.MockEndpointClient
@@ -51,6 +52,7 @@ type MockScopeFactory struct {
 }
 
 func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
+	addressScope := mock.NewMockAddressScopeClient(mockCtrl)
 	computeClient := mock.NewMockComputeClient(mockCtrl)
 	domainClient := mock.NewMockDomainClient(mockCtrl)
 	endpointClient := mock.NewMockEndpointClient(mockCtrl)
@@ -65,6 +67,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 
 	return &MockScopeFactory{
+		AddressScope:     addressScope,
 		ComputeClient:    computeClient,
 		DomainClient:     domainClient,
 		EndpointClient:   endpointClient,
@@ -89,6 +92,10 @@ func (f *MockScopeFactory) NewClientScopeFromObject(_ context.Context, _ client.
 		return nil, f.clientScopeCreateError
 	}
 	return f, nil
+}
+
+func (f *MockScopeFactory) NewAddressScopeClient() (osclients.AddressScopeClient, error) {
+	return f.AddressScope, nil
 }
 
 func (f *MockScopeFactory) NewComputeClient() (osclients.ComputeClient, error) {

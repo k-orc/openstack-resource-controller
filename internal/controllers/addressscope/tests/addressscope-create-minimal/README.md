@@ -1,4 +1,4 @@
-# Create a AddressScope with the minimum options
+# Create an AddressScope with the minimum options
 
 ## Step 00
 

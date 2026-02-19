@@ -34,6 +34,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 	// Group=openstack.k-orc.cloud, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithKind("Address"):
 		return &apiv1alpha1.AddressApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScope"):
+		return &apiv1alpha1.AddressScopeApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScopeFilter"):
+		return &apiv1alpha1.AddressScopeFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScopeImport"):
+		return &apiv1alpha1.AddressScopeImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScopeResourceSpec"):
+		return &apiv1alpha1.AddressScopeResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScopeResourceStatus"):
+		return &apiv1alpha1.AddressScopeResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScopeSpec"):
+		return &apiv1alpha1.AddressScopeSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("AddressScopeStatus"):
+		return &apiv1alpha1.AddressScopeStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("AllocationPool"):
 		return &apiv1alpha1.AllocationPoolApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("AllocationPoolStatus"):
