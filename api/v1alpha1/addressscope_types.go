@@ -23,24 +23,22 @@ type AddressScopeResourceSpec struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/addressscopes
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// ipVersion is the IP protocol version.
+	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ipVersion is immutable"
+	IPVersion IPVersion `json:"ipVersion"`
+
+	// shared indicates whether this resource is shared across all
+	// projects or not. By default, only admin users can change set
+	// this value.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="shared is immutable"
+	Shared *bool `json:"shared,omitempty"`
 }
 
 // AddressScopeFilter defines an existing resource by its properties
@@ -50,19 +48,19 @@ type AddressScopeFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/addressscopes
+	// ipVersion is the IP protocol version.
+	// +optional
+	IPVersion IPVersion `json:"ipVersion,omitempty"`
+
+	// shared indicates whether this resource is shared across all
+	// projects or not. By default, only admin users can change set
+	// this value.
+	// +optional
+	Shared *bool `json:"shared,omitempty"`
 }
 
 // AddressScopeResourceStatus represents the observed state of the resource.
@@ -72,17 +70,18 @@ type AddressScopeResourceStatus struct {
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Description string `json:"description,omitempty"`
-
 	// projectID is the ID of the Project to which the resource is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the AddressScope structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/addressscopes
+	// ipVersion is the IP protocol version.
+	// +optional
+	IPVersion int32 `json:"ipVersion,omitempty"`
+
+	// shared indicates whether this resource is shared across all
+	// projects or not. By default, only admin users can change set
+	// this value.
+	// +optional
+	Shared *bool `json:"shared,omitempty"`
 }

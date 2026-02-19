@@ -6,7 +6,8 @@ metadata:
 status:
   resource:
     name: addressscope-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    ipVersion: 4
+    shared: false
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +25,3 @@ resourceRefs:
       ref: addressscope
 assertAll:
     - celExpr: "addressscope.status.id != ''"
-    # TODO(scaffolding): Add more checks

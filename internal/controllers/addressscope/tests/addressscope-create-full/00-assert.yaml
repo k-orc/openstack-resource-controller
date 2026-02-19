@@ -6,8 +6,8 @@ metadata:
 status:
   resource:
     name: addressscope-create-full-override
-    description: AddressScope from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    ipVersion: 4
+    shared: true
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +30,3 @@ resourceRefs:
 assertAll:
     - celExpr: "addressscope.status.id != ''"
     - celExpr: "addressscope.status.resource.projectID == project.status.id"
-    # TODO(scaffolding): Add more checks

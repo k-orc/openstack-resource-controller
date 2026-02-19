@@ -29,5 +29,5 @@ status:
       reason: Success
   resource:
     name: addressscope-import-external
-    description: AddressScope addressscope-import-external from "addressscope-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    ipVersion: 4
+    shared: true

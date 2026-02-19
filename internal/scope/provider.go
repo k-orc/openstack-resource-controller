@@ -137,6 +137,10 @@ func NewCachedProviderScope(cache *cache.LRUExpireCache, cloud clientconfig.Clou
 	return scope, nil
 }
 
+func (s *providerScope) NewAddressScopeClient() (clients.AddressScopeClient, error) {
+	return clients.NewAddressScopeClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewComputeClient() (clients.ComputeClient, error) {
 	return clients.NewComputeClient(s.providerClient, s.providerClientOpts)
 }

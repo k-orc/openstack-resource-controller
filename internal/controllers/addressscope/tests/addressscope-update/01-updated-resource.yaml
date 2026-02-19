@@ -6,5 +6,3 @@ metadata:
 spec:
   resource:
     name: addressscope-update-updated
-    description: addressscope-update-updated
-    # TODO(scaffolding): update all mutable fields

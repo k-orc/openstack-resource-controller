@@ -5,11 +5,9 @@ metadata:
   name: addressscope-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -18,12 +16,15 @@ metadata:
   name: addressscope-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    # We need to use admin credentials to be able to create this
+    # AddressScope because we're specifying a different project
+    # that we are authenticated.
+    # https://docs.openstack.org/api-ref/network/v2/index.html#create-address-scope
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: addressscope-create-full-override
-    description: AddressScope from "create full" test
     projectRef: addressscope-create-full
-    # TODO(scaffolding): Add all fields the resource supports
+    ipVersion: 4
+    shared: true
