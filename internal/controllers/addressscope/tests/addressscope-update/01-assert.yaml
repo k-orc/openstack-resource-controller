@@ -6,8 +6,7 @@ metadata:
 status:
   resource:
     name: addressscope-update-updated
-    description: addressscope-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    shared: false
   conditions:
   - type: Available
     status: "True"

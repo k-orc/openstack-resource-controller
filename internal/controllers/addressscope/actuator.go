@@ -71,22 +71,14 @@ func (actuator addressscopeActuator) ListOSResourcesForAdoption(ctx context.Cont
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := addressscopes.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListAddressScopes(ctx, listOpts), true
 }
 
 func (actuator addressscopeActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	project, rs := dependency.FetchDependency(
@@ -101,10 +93,10 @@ func (actuator addressscopeActuator) ListOSResourcesForImport(ctx context.Contex
 	}
 
 	listOpts := addressscopes.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:      string(ptr.Deref(filter.Name, "")),
+		ProjectID: ptr.Deref(project.Status.ID, ""),
+		IPVersion: int(filter.IPVersion),
+		Shared:    filter.Shared,
 	}
 
 	return actuator.osClient.ListAddressScopes(ctx, listOpts), reconcileStatus
@@ -135,11 +127,15 @@ func (actuator addressscopeActuator) CreateResource(ctx context.Context, obj orc
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
 	createOpts := addressscopes.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		ProjectID:  projectID,
-		// TODO(scaffolding): Add more fields
+		Name:      getResourceName(obj),
+		ProjectID: projectID,
+		IPVersion: int(resource.IPVersion),
+	}
+
+	if resource.Shared != nil {
+		createOpts.Shared = *resource.Shared
 	}
 
 	osResource, err := actuator.osClient.CreateAddressScope(ctx, createOpts)
@@ -170,9 +166,6 @@ func (actuator addressscopeActuator) updateResource(ctx context.Context, obj orc
 	updateOpts := addressscopes.UpdateOpts{}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -216,13 +209,6 @@ func handleNameUpdate(updateOpts *addressscopes.UpdateOpts, obj orcObjectPT, osR
 	name := getResourceName(obj)
 	if osResource.Name != name {
 		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *addressscopes.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
 	}
 }
 

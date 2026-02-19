@@ -10,6 +10,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 
 
 ### Resource Types
+- [AddressScope](#addressscope)
 - [Domain](#domain)
 - [Endpoint](#endpoint)
 - [Flavor](#flavor)
@@ -51,10 +52,139 @@ _Appears in:_
 | `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef references the subnet from which to allocate the IP<br />address. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
+#### AddressScope
+
+
+
+AddressScope is the Schema for an ORC resource.
 
 
 
 
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `AddressScope` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[AddressScopeSpec](#addressscopespec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[AddressScopeStatus](#addressscopestatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### AddressScopeFilter
+
+
+
+AddressScopeFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [AddressScopeImport](#addressscopeimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP protocol version. |  | Enum: [4 6] <br /> |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects or not. By default, only admin users can change set<br />this value. |  |  |
+
+
+#### AddressScopeImport
+
+
+
+AddressScopeImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [AddressScopeSpec](#addressscopespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br /> |
+| `filter` _[AddressScopeFilter](#addressscopefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### AddressScopeResourceSpec
+
+
+
+AddressScopeResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [AddressScopeSpec](#addressscopespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP protocol version. |  | Enum: [4 6] <br /> |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects or not. By default, only admin users can change set<br />this value. |  |  |
+
+
+#### AddressScopeResourceStatus
+
+
+
+AddressScopeResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [AddressScopeStatus](#addressscopestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br /> |
+| `ipVersion` _integer_ | ipVersion is the IP protocol version. |  |  |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects or not. By default, only admin users can change set<br />this value. |  |  |
+
+
+#### AddressScopeSpec
+
+
+
+AddressScopeSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [AddressScope](#addressscope)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[AddressScopeImport](#addressscopeimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[AddressScopeResourceSpec](#addressscoperesourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### AddressScopeStatus
+
+
+
+AddressScopeStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [AddressScope](#addressscope)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br /> |
+| `resource` _[AddressScopeResourceStatus](#addressscoperesourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### AllocationPool
@@ -171,6 +301,7 @@ CloudCredentialsReference is a reference to a secret containing OpenStack creden
 
 
 _Appears in:_
+- [AddressScopeSpec](#addressscopespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -1103,6 +1234,8 @@ _Validation:_
 - Enum: [4 6]
 
 _Appears in:_
+- [AddressScopeFilter](#addressscopefilter)
+- [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 
@@ -1851,6 +1984,7 @@ _Appears in:_
 
 
 _Appears in:_
+- [AddressScopeSpec](#addressscopespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -1887,6 +2021,7 @@ _Validation:_
 - Enum: [managed unmanaged]
 
 _Appears in:_
+- [AddressScopeSpec](#addressscopespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)

@@ -51,14 +51,9 @@ func (addressscopeStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.A
 func (addressscopeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.AddressScopeResourceStatus().
 		WithProjectID(osResource.ProjectID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the AddressScopeResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
-	}
+		WithName(osResource.Name).
+		WithShared(osResource.Shared).
+		WithIPVersion(int32(osResource.IPVersion))
 
 	statusApply.WithResource(resourceStatus)
 }

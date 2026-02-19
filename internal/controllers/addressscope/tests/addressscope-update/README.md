@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Create a AddressScope using only mandatory fields.
+Create an AddressScope using only mandatory fields.
 
 ## Step 01
 

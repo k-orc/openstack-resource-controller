@@ -1,13 +1,13 @@
----
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: AddressScope
-      name: addressscope-update
-      ref: addressscope
-assertAll:
-    - celExpr: "!has(addressscope.status.resource.description)"
+# ---
+# apiVersion: kuttl.dev/v1beta1
+# kind: TestAssert
+# resourceRefs:
+#     - apiVersion: openstack.k-orc.cloud/v1alpha1
+#       kind: AddressScope
+#       name: addressscope-update
+#       ref: addressscope
+# assertAll:
+#     - celExpr: "!has(addressscope.status.resource.description)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: AddressScope
@@ -16,7 +16,8 @@ metadata:
 status:
   resource:
     name: addressscope-update
-    # TODO(scaffolding): Add matches for more fields
+    ipVersion: 4
+    shared: false
   conditions:
   - type: Available
     status: "True"
