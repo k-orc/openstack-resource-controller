@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-import-dependency-not-this-one
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Project/addressscope-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Project/addressscope-import-dependency to be ready
+      status: "True"
+      reason: Progressing

@@ -31,6 +31,9 @@ import (
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Address":                        schema_openstack_resource_controller_v2_api_v1alpha1_Address(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeFilter":             schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceSpec":       schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceStatus":     schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPool":                 schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPool(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllocationPoolStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_AllocationPoolStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AllowedAddressPair":             schema_openstack_resource_controller_v2_api_v1alpha1_AllowedAddressPair(ref),
@@ -556,6 +559,108 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Address(ref common.Ref
 					},
 				},
 				Required: []string{"subnetRef"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AddressScopeFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AddressScopeResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AddressScopeResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the Project to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
 			},
 		},
 	}

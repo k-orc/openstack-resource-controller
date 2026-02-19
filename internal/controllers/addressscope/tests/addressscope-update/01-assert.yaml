@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-update
+status:
+  resource:
+    name: addressscope-update-updated
+    description: addressscope-update-updated
+    # TODO(scaffolding): match all fields that were modified
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

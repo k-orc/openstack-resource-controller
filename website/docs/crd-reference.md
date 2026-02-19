@@ -51,6 +51,12 @@ _Appears in:_
 | `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef references the subnet from which to allocate the IP<br />address. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
+
+
+
+
+
+
 #### AllocationPool
 
 
@@ -1772,6 +1778,8 @@ _Validation:_
 
 _Appears in:_
 - [Address](#address)
+- [AddressScopeFilter](#addressscopefilter)
+- [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [EndpointFilter](#endpointfilter)
 - [EndpointResourceSpec](#endpointresourcespec)
 - [ExternalGateway](#externalgateway)
@@ -2179,6 +2187,8 @@ _Validation:_
 - Pattern: `^[^,]+$`
 
 _Appears in:_
+- [AddressScopeFilter](#addressscopefilter)
+- [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [FlavorFilter](#flavorfilter)
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)

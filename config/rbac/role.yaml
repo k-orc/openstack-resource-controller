@@ -17,6 +17,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - addressscopes
   - domains
   - endpoints
   - flavors
@@ -49,6 +50,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - addressscopes/status
   - domains/status
   - endpoints/status
   - flavors/status

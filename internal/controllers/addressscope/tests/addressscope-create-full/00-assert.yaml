@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-create-full
+status:
+  resource:
+    name: addressscope-create-full-override
+    description: AddressScope from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: AddressScope
+      name: addressscope-create-full
+      ref: addressscope
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: addressscope-create-full
+      ref: project
+assertAll:
+    - celExpr: "addressscope.status.id != ''"
+    - celExpr: "addressscope.status.resource.projectID == project.status.id"
+    # TODO(scaffolding): Add more checks
