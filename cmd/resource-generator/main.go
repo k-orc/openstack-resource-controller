@@ -152,6 +152,9 @@ var resources []templateFields = []templateFields{
 		Name: "Volume",
 	},
 	{
+		Name: "VolumeSnapshot",
+	},
+	{
 		Name: "VolumeType",
 	},
 	{
