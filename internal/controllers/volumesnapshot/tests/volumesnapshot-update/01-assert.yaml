@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-update
+status:
+  resource:
+    name: volumesnapshot-update-updated
+    description: volumesnapshot-update-updated
+    # TODO(scaffolding): match all fields that were modified
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

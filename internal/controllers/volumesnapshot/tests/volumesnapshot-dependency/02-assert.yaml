@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volumesnapshot-dependency
+      ref: volume
+    - apiVersion: v1
+      kind: Secret
+      name: volumesnapshot-dependency
+      ref: secret
+assertAll:
+    - celExpr: "volume.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/volumesnapshot' in volume.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/volumesnapshot' in secret.metadata.finalizers"
