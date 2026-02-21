@@ -7,7 +7,9 @@ status:
   resource:
     name: volumesnapshot-create-full-override
     description: VolumeSnapshot from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    metadata:
+      - name: testkey
+        value: testvalue
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +32,5 @@ resourceRefs:
 assertAll:
     - celExpr: "volumesnapshot.status.id != ''"
     - celExpr: "volumesnapshot.status.resource.volumeID == volume.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "has(volumesnapshot.status.resource.status)"
+    - celExpr: "has(volumesnapshot.status.resource.size)"

@@ -7,4 +7,3 @@ spec:
   resource:
     name: volumesnapshot-update-updated
     description: volumesnapshot-update-updated
-    # TODO(scaffolding): update all mutable fields
