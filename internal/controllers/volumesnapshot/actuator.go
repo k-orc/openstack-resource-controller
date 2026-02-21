@@ -44,10 +44,11 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
-// The frequency to poll when waiting for the resource to become available
-const volumesnapshotAvailablePollingPeriod = 15 * time.Second
-// The frequency to poll when waiting for the resource to be deleted
-const volumesnapshotDeletingPollingPeriod = 15 * time.Second
+
+const (
+	volumesnapshotAvailablePollingPeriod = 15 * time.Second
+	volumesnapshotDeletingPollingPeriod  = 15 * time.Second
+)
 
 type volumesnapshotActuator struct {
 	osClient  osclients.VolumeSnapshotClient
@@ -75,30 +76,34 @@ func (actuator volumesnapshotActuator) ListOSResourcesForAdoption(ctx context.Co
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := snapshots.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(s *snapshots.Snapshot) bool {
+			return s.Description == *resourceSpec.Description
+		})
 	}
 
-	return actuator.osClient.ListVolumeSnapshots(ctx, listOpts), true
+	listOpts := snapshots.ListOpts{
+		Name: getResourceName(orcObject),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator volumesnapshotActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := snapshots.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Name:     string(ptr.Deref(filter.Name, "")),
+		Status:   ptr.Deref(filter.Status, ""),
+		VolumeID: ptr.Deref(filter.VolumeID, ""),
 	}
 
 	return actuator.osClient.ListVolumeSnapshots(ctx, listOpts), nil
+}
+
+func (actuator volumesnapshotActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts snapshots.ListOptsBuilder) iter.Seq2[*snapshots.Snapshot, error] {
+	results := actuator.osClient.ListVolumeSnapshots(ctx, listOpts)
+	return osclients.Filter(results, filters...)
 }
 
 func (actuator volumesnapshotActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -112,23 +117,29 @@ func (actuator volumesnapshotActuator) CreateResource(ctx context.Context, obj o
 	var reconcileStatus progress.ReconcileStatus
 
 	var volumeID string
-        volume, volumeDepRS := volumeDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Volume) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(volumeDepRS)
-        if volume != nil {
-                volumeID = ptr.Deref(volume.Status.ID, "")
-        }
+	volume, volumeDepRS := volumeDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Volume) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(volumeDepRS)
+	if volume != nil {
+		volumeID = ptr.Deref(volume.Status.ID, "")
+	}
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+	metadata := make(map[string]string)
+	for _, m := range resource.Metadata {
+		metadata[m.Name] = m.Value
+	}
+
 	createOpts := snapshots.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		VolumeID:  volumeID,
-		// TODO(scaffolding): Add more fields
+		VolumeID:    volumeID,
+		Force:       ptr.Deref(resource.Force, false),
+		Metadata:    metadata,
 	}
 
 	osResource, err := actuator.osClient.CreateVolumeSnapshot(ctx, createOpts)
@@ -163,8 +174,6 @@ func (actuator volumesnapshotActuator) updateResource(ctx context.Context, obj o
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
