@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-import-external
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Share share-import-external from "share-import" test
+    # TODO(scaffolding): Add fields necessary to match filter

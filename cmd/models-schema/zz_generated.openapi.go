@@ -201,6 +201,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_ServiceResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_ServiceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_ServiceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareFilter":                    schema_openstack_resource_controller_v2_api_v1alpha1_ShareFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareResourceSpec":              schema_openstack_resource_controller_v2_api_v1alpha1_ShareResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareResourceStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_ShareResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subnet":                         schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref),
@@ -9390,6 +9393,87 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceStatus(ref comm
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 

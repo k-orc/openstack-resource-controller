@@ -1,0 +1,26 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Share
+      name: share-update
+      ref: share
+assertAll:
+    - celExpr: "!has(share.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-update
+status:
+  resource:
+    name: share-update
+    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

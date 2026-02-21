@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-create-full
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: share-create-full-override
+    description: Share from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
