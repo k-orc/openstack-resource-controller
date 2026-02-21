@@ -24,5 +24,6 @@ testDirs:
 - ./internal/controllers/trunk/tests/
 - ./internal/controllers/user/tests/
 - ./internal/controllers/volume/tests/
+- ./internal/controllers/volumesnapshot/tests/
 - ./internal/controllers/volumetype/tests/
 timeout: 240

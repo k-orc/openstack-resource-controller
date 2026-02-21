@@ -39,6 +39,7 @@ rules:
   - trunks
   - users
   - volumes
+  - volumesnapshots
   - volumetypes
   verbs:
   - create
@@ -73,6 +74,7 @@ rules:
   - trunks/status
   - users/status
   - volumes/status
+  - volumesnapshots/status
   - volumetypes/status
   verbs:
   - get

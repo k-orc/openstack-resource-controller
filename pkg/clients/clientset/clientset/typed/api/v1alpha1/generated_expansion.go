@@ -62,4 +62,6 @@ type UserExpansion interface{}
 
 type VolumeExpansion interface{}
 
+type VolumeSnapshotExpansion interface{}
+
 type VolumeTypeExpansion interface{}
