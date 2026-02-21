@@ -5,12 +5,11 @@ metadata:
   name: volumesnapshot-import
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    size: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: VolumeSnapshot
@@ -18,11 +17,9 @@ metadata:
   name: volumesnapshot-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: VolumeSnapshot volumesnapshot-import-external from "volumesnapshot-import" test
     volumeRef: volumesnapshot-import
-    # TODO(scaffolding): Add fields necessary to match filter

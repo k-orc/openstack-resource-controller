@@ -16,7 +16,6 @@ status:
   resource:
     name: volumesnapshot-import-external-not-this-one
     description: VolumeSnapshot volumesnapshot-import-external from "volumesnapshot-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: VolumeSnapshot

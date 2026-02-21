@@ -6,7 +6,6 @@ metadata:
 status:
   resource:
     name: volumesnapshot-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -29,4 +28,3 @@ resourceRefs:
 assertAll:
     - celExpr: "volumesnapshot.status.id != ''"
     - celExpr: "volumesnapshot.status.resource.volumeID == volume.status.id"
-    # TODO(scaffolding): Add more checks

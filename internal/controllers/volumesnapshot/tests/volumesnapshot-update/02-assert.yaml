@@ -1,4 +1,19 @@
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-update
+status:
+  resource:
+    name: volumesnapshot-update
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
@@ -8,19 +23,3 @@ resourceRefs:
       ref: volumesnapshot
 assertAll:
     - celExpr: "!has(volumesnapshot.status.resource.description)"
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VolumeSnapshot
-metadata:
-  name: volumesnapshot-update
-status:
-  resource:
-    name: volumesnapshot-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
