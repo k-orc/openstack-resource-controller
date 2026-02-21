@@ -37,6 +37,7 @@ rules:
   - subnets
   - trunks
   - volumes
+  - volumesnapshots
   - volumetypes
   verbs:
   - create
@@ -69,6 +70,7 @@ rules:
   - subnets/status
   - trunks/status
   - volumes/status
+  - volumesnapshots/status
   - volumetypes/status
   verbs:
   - get

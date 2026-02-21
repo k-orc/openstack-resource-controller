@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-create-minimal
+status:
+  resource:
+    name: volumesnapshot-create-minimal
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: VolumeSnapshot
+      name: volumesnapshot-create-minimal
+      ref: volumesnapshot
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volumesnapshot-create-minimal
+      ref: volume
+assertAll:
+    - celExpr: "volumesnapshot.status.id != ''"
+    - celExpr: "volumesnapshot.status.resource.volumeID == volume.status.id"

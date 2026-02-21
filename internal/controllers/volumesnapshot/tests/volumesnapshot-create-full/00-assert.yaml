@@ -1,0 +1,36 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-create-full
+status:
+  resource:
+    name: volumesnapshot-create-full-override
+    description: VolumeSnapshot from "create full" test
+    metadata:
+      - name: testkey
+        value: testvalue
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: VolumeSnapshot
+      name: volumesnapshot-create-full
+      ref: volumesnapshot
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Volume
+      name: volumesnapshot-create-full
+      ref: volume
+assertAll:
+    - celExpr: "volumesnapshot.status.id != ''"
+    - celExpr: "volumesnapshot.status.resource.volumeID == volume.status.id"
+    - celExpr: "has(volumesnapshot.status.resource.status)"
+    - celExpr: "has(volumesnapshot.status.resource.size)"

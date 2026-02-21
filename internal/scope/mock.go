@@ -34,18 +34,19 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
-	ComputeClient    *mock.MockComputeClient
-	DomainClient     *mock.MockDomainClient
-	EndpointClient   *mock.MockEndpointClient
-	GroupClient      *mock.MockGroupClient
-	IdentityClient   *mock.MockIdentityClient
-	ImageClient      *mock.MockImageClient
-	KeyPairClient    *mock.MockKeyPairClient
-	NetworkClient    *mock.MockNetworkClient
-	RoleClient       *mock.MockRoleClient
-	ServiceClient    *mock.MockServiceClient
-	VolumeClient     *mock.MockVolumeClient
-	VolumeTypeClient *mock.MockVolumeTypeClient
+	ComputeClient        *mock.MockComputeClient
+	DomainClient         *mock.MockDomainClient
+	EndpointClient       *mock.MockEndpointClient
+	GroupClient          *mock.MockGroupClient
+	IdentityClient       *mock.MockIdentityClient
+	ImageClient          *mock.MockImageClient
+	KeyPairClient        *mock.MockKeyPairClient
+	NetworkClient        *mock.MockNetworkClient
+	RoleClient           *mock.MockRoleClient
+	ServiceClient        *mock.MockServiceClient
+	VolumeClient         *mock.MockVolumeClient
+	VolumeSnapshotClient *mock.MockVolumeSnapshotClient
+	VolumeTypeClient     *mock.MockVolumeTypeClient
 
 	clientScopeCreateError error
 }
@@ -62,21 +63,23 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	roleClient := mock.NewMockRoleClient(mockCtrl)
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
+	volumesnapshotClient := mock.NewMockVolumeSnapshotClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 
 	return &MockScopeFactory{
-		ComputeClient:    computeClient,
-		DomainClient:     domainClient,
-		EndpointClient:   endpointClient,
-		GroupClient:      groupClient,
-		IdentityClient:   identityClient,
-		ImageClient:      imageClient,
-		KeyPairClient:    keypairClient,
-		NetworkClient:    networkClient,
-		RoleClient:       roleClient,
-		ServiceClient:    serviceClient,
-		VolumeClient:     volumeClient,
-		VolumeTypeClient: volumetypeClient,
+		ComputeClient:        computeClient,
+		DomainClient:         domainClient,
+		EndpointClient:       endpointClient,
+		GroupClient:          groupClient,
+		IdentityClient:       identityClient,
+		ImageClient:          imageClient,
+		KeyPairClient:        keypairClient,
+		NetworkClient:        networkClient,
+		RoleClient:           roleClient,
+		ServiceClient:        serviceClient,
+		VolumeClient:         volumeClient,
+		VolumeSnapshotClient: volumesnapshotClient,
+		VolumeTypeClient:     volumetypeClient,
 	}
 }
 
@@ -109,6 +112,10 @@ func (f *MockScopeFactory) NewIdentityClient() (osclients.IdentityClient, error)
 
 func (f *MockScopeFactory) NewVolumeClient() (osclients.VolumeClient, error) {
 	return f.VolumeClient, nil
+}
+
+func (f *MockScopeFactory) NewVolumeSnapshotClient() (osclients.VolumeSnapshotClient, error) {
+	return f.VolumeSnapshotClient, nil
 }
 
 func (f *MockScopeFactory) NewVolumeTypeClient() (osclients.VolumeTypeClient, error) {

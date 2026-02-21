@@ -1,0 +1,9 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Dependencies that were prevented deletion before should now be gone
+- script: "! kubectl get volume.openstack.k-orc.cloud volumesnapshot-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get secret volumesnapshot-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

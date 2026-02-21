@@ -392,6 +392,24 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.VolumeResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeResourceStatus"):
 		return &apiv1alpha1.VolumeResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshot"):
+		return &apiv1alpha1.VolumeSnapshotApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotFilter"):
+		return &apiv1alpha1.VolumeSnapshotFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotImport"):
+		return &apiv1alpha1.VolumeSnapshotImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotMetadata"):
+		return &apiv1alpha1.VolumeSnapshotMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotMetadataStatus"):
+		return &apiv1alpha1.VolumeSnapshotMetadataStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotResourceSpec"):
+		return &apiv1alpha1.VolumeSnapshotResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotResourceStatus"):
+		return &apiv1alpha1.VolumeSnapshotResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotSpec"):
+		return &apiv1alpha1.VolumeSnapshotSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSnapshotStatus"):
+		return &apiv1alpha1.VolumeSnapshotStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeSpec"):
 		return &apiv1alpha1.VolumeSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("VolumeStatus"):
