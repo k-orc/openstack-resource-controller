@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: volumesnapshot-import-error-external
+      description: VolumeSnapshot from "import error" test
