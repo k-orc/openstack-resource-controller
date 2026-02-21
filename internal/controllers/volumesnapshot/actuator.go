@@ -92,13 +92,21 @@ func (actuator volumesnapshotActuator) ListOSResourcesForAdoption(ctx context.Co
 }
 
 func (actuator volumesnapshotActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	if filter.Description != nil {
+		filters = append(filters, func(s *snapshots.Snapshot) bool {
+			return s.Description == *filter.Description
+		})
+	}
+
 	listOpts := snapshots.ListOpts{
 		Name:     string(ptr.Deref(filter.Name, "")),
 		Status:   ptr.Deref(filter.Status, ""),
 		VolumeID: ptr.Deref(filter.VolumeID, ""),
 	}
 
-	return actuator.osClient.ListVolumeSnapshots(ctx, listOpts), nil
+	return actuator.listOSResources(ctx, filters, listOpts), nil
 }
 
 func (actuator volumesnapshotActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts snapshots.ListOptsBuilder) iter.Seq2[*snapshots.Snapshot, error] {

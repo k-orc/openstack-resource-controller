@@ -5853,6 +5853,11 @@ func (in *VolumeSnapshotFilter) DeepCopyInto(out *VolumeSnapshotFilter) {
 		*out = new(OpenStackName)
 		**out = **in
 	}
+	if in.Description != nil {
+		in, out := &in.Description, &out.Description
+		*out = new(string)
+		**out = **in
+	}
 	if in.Status != nil {
 		in, out := &in.Status, &out.Status
 		*out = new(string)

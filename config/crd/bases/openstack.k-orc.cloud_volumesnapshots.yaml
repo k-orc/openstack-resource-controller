@@ -91,6 +91,11 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      description:
+                        description: description of the existing resource
+                        maxLength: 255
+                        minLength: 1
+                        type: string
                       name:
                         description: name of the existing resource
                         maxLength: 255

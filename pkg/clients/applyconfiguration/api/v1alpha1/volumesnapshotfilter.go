@@ -25,9 +25,10 @@ import (
 // VolumeSnapshotFilterApplyConfiguration represents a declarative configuration of the VolumeSnapshotFilter type for use
 // with apply.
 type VolumeSnapshotFilterApplyConfiguration struct {
-	Name     *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Status   *string                    `json:"status,omitempty"`
-	VolumeID *string                    `json:"volumeID,omitempty"`
+	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Description *string                    `json:"description,omitempty"`
+	Status      *string                    `json:"status,omitempty"`
+	VolumeID    *string                    `json:"volumeID,omitempty"`
 }
 
 // VolumeSnapshotFilterApplyConfiguration constructs a declarative configuration of the VolumeSnapshotFilter type for use with
@@ -41,6 +42,14 @@ func VolumeSnapshotFilter() *VolumeSnapshotFilterApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *VolumeSnapshotFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *VolumeSnapshotFilterApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithDescription sets the Description field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Description field is set to the value of the last call.
+func (b *VolumeSnapshotFilterApplyConfiguration) WithDescription(value string) *VolumeSnapshotFilterApplyConfiguration {
+	b.Description = &value
 	return b
 }
 

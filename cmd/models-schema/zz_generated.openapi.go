@@ -11436,6 +11436,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSnapshotFilter(r
 							Format:      "",
 						},
 					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Description: "status of the existing resource",

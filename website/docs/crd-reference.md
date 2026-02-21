@@ -4420,6 +4420,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `status` _string_ | status of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 | `volumeID` _string_ | volumeID is the ID of the volume the snapshot was created from |  | MaxLength: 255 <br />MinLength: 1 <br /> |
 

@@ -56,6 +56,12 @@ type VolumeSnapshotFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
+	// description of the existing resource
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Description *string `json:"description,omitempty"`
+
 	// status of the existing resource
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255

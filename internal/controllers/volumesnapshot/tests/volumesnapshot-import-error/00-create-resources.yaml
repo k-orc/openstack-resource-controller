@@ -21,7 +21,6 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: volumesnapshot-import-error-external
     description: VolumeSnapshot from "import error" test
     volumeRef: volumesnapshot-import-error
 ---
@@ -35,6 +34,5 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: volumesnapshot-import-error-external
     description: VolumeSnapshot from "import error" test
     volumeRef: volumesnapshot-import-error
