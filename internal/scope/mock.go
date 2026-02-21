@@ -34,16 +34,16 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
-	ComputeClient    *mock.MockComputeClient
-	DomainClient     *mock.MockDomainClient
-	EndpointClient   *mock.MockEndpointClient
-	GroupClient      *mock.MockGroupClient
-	IdentityClient   *mock.MockIdentityClient
-	ImageClient      *mock.MockImageClient
-	KeyPairClient    *mock.MockKeyPairClient
-	NetworkClient    *mock.MockNetworkClient
-	RoleClient       *mock.MockRoleClient
-	ServiceClient    *mock.MockServiceClient
+	ComputeClient        *mock.MockComputeClient
+	DomainClient         *mock.MockDomainClient
+	EndpointClient       *mock.MockEndpointClient
+	GroupClient          *mock.MockGroupClient
+	IdentityClient       *mock.MockIdentityClient
+	ImageClient          *mock.MockImageClient
+	KeyPairClient        *mock.MockKeyPairClient
+	NetworkClient        *mock.MockNetworkClient
+	RoleClient           *mock.MockRoleClient
+	ServiceClient        *mock.MockServiceClient
 	VolumeClient         *mock.MockVolumeClient
 	VolumeSnapshotClient *mock.MockVolumeSnapshotClient
 	VolumeTypeClient     *mock.MockVolumeTypeClient

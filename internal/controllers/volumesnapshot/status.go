@@ -25,11 +25,11 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const SnapshotStatusAvailable = "available"
-const SnapshotStatusInUse     = "in-use"
-const SnapshotStatusDeleting  = "deleting"
+
+const (
+	SnapshotStatusAvailable = "available"
+	SnapshotStatusDeleting  = "deleting"
+)
 
 type volumesnapshotStatusWriter struct{}
 
@@ -50,9 +50,7 @@ func (volumesnapshotStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
-
-	if osResource.Status == SnapshotStatusAvailable || osResource.Status == SnapshotStatusInUse {
+	if osResource.Status == SnapshotStatusAvailable {
 		return metav1.ConditionTrue, nil
 	}
 
@@ -62,14 +60,44 @@ func (volumesnapshotStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1
 
 func (volumesnapshotStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.VolumeSnapshotResourceStatus().
+		WithName(osResource.Name).
 		WithVolumeID(osResource.VolumeID).
-		WithName(osResource.Name)
+		WithStatus(osResource.Status).
+		WithSize(int32(osResource.Size)).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
 
-	// TODO(scaffolding): add all of the fields supported in the VolumeSnapshotResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.Progress != "" {
+		resourceStatus.WithProgress(osResource.Progress)
+	}
+
+	if osResource.ProjectID != "" {
+		resourceStatus.WithProjectID(osResource.ProjectID)
+	}
+
+	if osResource.UserID != "" {
+		resourceStatus.WithUserID(osResource.UserID)
+	}
+
+	if osResource.GroupSnapshotID != "" {
+		resourceStatus.WithGroupSnapshotID(osResource.GroupSnapshotID)
+	}
+
+	if osResource.ConsumesQuota {
+		resourceStatus.WithConsumesQuota(osResource.ConsumesQuota)
+	}
+
+	for k, v := range osResource.Metadata {
+		resourceStatus.WithMetadata(orcapplyconfigv1alpha1.VolumeSnapshotMetadataStatus().
+			WithName(k).
+			WithValue(v))
 	}
 
 	statusApply.WithResource(resourceStatus)
