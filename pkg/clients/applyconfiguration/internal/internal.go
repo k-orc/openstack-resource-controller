@@ -3425,6 +3425,170 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: volumeType
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshot
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotFilter
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: volumeID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotMetadata
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: value
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotMetadataStatus
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: force
+      type:
+        scalar: boolean
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotMetadata
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: volumeRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotResourceStatus
+  map:
+    fields:
+    - name: consumesQuota
+      type:
+        scalar: boolean
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: groupSnapshotID
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotMetadataStatus
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: progress
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+    - name: status
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: userID
+      type:
+        scalar: string
+    - name: volumeID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSnapshotResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeSpec
   map:
     fields:

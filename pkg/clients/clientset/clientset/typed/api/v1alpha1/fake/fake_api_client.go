@@ -108,6 +108,10 @@ func (c *FakeOpenstackV1alpha1) Volumes(namespace string) v1alpha1.VolumeInterfa
 	return newFakeVolumes(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) VolumeSnapshots(namespace string) v1alpha1.VolumeSnapshotInterface {
+	return newFakeVolumeSnapshots(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) VolumeTypes(namespace string) v1alpha1.VolumeTypeInterface {
 	return newFakeVolumeTypes(c, namespace)
 }

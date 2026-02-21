@@ -21,5 +21,6 @@ resources:
 - openstack_v1alpha1_subnet.yaml
 - openstack_v1alpha1_trunk.yaml
 - openstack_v1alpha1_volume.yaml
+- openstack_v1alpha1_volumesnapshot.yaml
 - openstack_v1alpha1_volumetype.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

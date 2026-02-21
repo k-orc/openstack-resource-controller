@@ -64,6 +64,8 @@ type Interface interface {
 	Trunks() TrunkInformer
 	// Volumes returns a VolumeInformer.
 	Volumes() VolumeInformer
+	// VolumeSnapshots returns a VolumeSnapshotInformer.
+	VolumeSnapshots() VolumeSnapshotInformer
 	// VolumeTypes returns a VolumeTypeInformer.
 	VolumeTypes() VolumeTypeInformer
 }
@@ -177,6 +179,11 @@ func (v *version) Trunks() TrunkInformer {
 // Volumes returns a VolumeInformer.
 func (v *version) Volumes() VolumeInformer {
 	return &volumeInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// VolumeSnapshots returns a VolumeSnapshotInformer.
+func (v *version) VolumeSnapshots() VolumeSnapshotInformer {
+	return &volumeSnapshotInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // VolumeTypes returns a VolumeTypeInformer.

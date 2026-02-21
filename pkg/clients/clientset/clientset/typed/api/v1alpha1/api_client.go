@@ -48,6 +48,7 @@ type OpenstackV1alpha1Interface interface {
 	SubnetsGetter
 	TrunksGetter
 	VolumesGetter
+	VolumeSnapshotsGetter
 	VolumeTypesGetter
 }
 
@@ -134,6 +135,10 @@ func (c *OpenstackV1alpha1Client) Trunks(namespace string) TrunkInterface {
 
 func (c *OpenstackV1alpha1Client) Volumes(namespace string) VolumeInterface {
 	return newVolumes(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) VolumeSnapshots(namespace string) VolumeSnapshotInterface {
+	return newVolumeSnapshots(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) VolumeTypes(namespace string) VolumeTypeInterface {
