@@ -34,20 +34,20 @@ import (
 // MockScopeFactory implements both the ScopeFactory and ClientScope interfaces. It can be used in place of the default ProviderScopeFactory
 // when we want to use mocked service clients which do not attempt to connect to a running OpenStack cloud.
 type MockScopeFactory struct {
-	AddressScope     *mock.MockAddressScopeClient
-	ComputeClient    *mock.MockComputeClient
-	DomainClient     *mock.MockDomainClient
-	EndpointClient   *mock.MockEndpointClient
-	GroupClient      *mock.MockGroupClient
-	IdentityClient   *mock.MockIdentityClient
-	ImageClient      *mock.MockImageClient
-	KeyPairClient    *mock.MockKeyPairClient
-	NetworkClient    *mock.MockNetworkClient
-	RoleClient       *mock.MockRoleClient
-	ServiceClient    *mock.MockServiceClient
-	UserClient       *mock.MockUserClient
-	VolumeClient     *mock.MockVolumeClient
-	VolumeTypeClient *mock.MockVolumeTypeClient
+	AddressScope         *mock.MockAddressScopeClient
+	ComputeClient        *mock.MockComputeClient
+	DomainClient         *mock.MockDomainClient
+	EndpointClient       *mock.MockEndpointClient
+	GroupClient          *mock.MockGroupClient
+	IdentityClient       *mock.MockIdentityClient
+	ImageClient          *mock.MockImageClient
+	KeyPairClient        *mock.MockKeyPairClient
+	NetworkClient        *mock.MockNetworkClient
+	RoleClient           *mock.MockRoleClient
+	ServiceClient        *mock.MockServiceClient
+	UserClient           *mock.MockUserClient
+	VolumeClient         *mock.MockVolumeClient
+	VolumeTypeClient     *mock.MockVolumeTypeClient
 	VolumeSnapshotClient *mock.MockVolumeSnapshotClient
 
 	clientScopeCreateError error
@@ -71,21 +71,21 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 
 	return &MockScopeFactory{
-		AddressScope:     addressScope,
-		ComputeClient:    computeClient,
-		DomainClient:     domainClient,
-		EndpointClient:   endpointClient,
-		GroupClient:      groupClient,
-		IdentityClient:   identityClient,
-		ImageClient:      imageClient,
-		KeyPairClient:    keypairClient,
-		NetworkClient:    networkClient,
-		RoleClient:       roleClient,
-		ServiceClient:    serviceClient,
-		UserClient:       userClient,
-		VolumeClient:     volumeClient,
+		AddressScope:         addressScope,
+		ComputeClient:        computeClient,
+		DomainClient:         domainClient,
+		EndpointClient:       endpointClient,
+		GroupClient:          groupClient,
+		IdentityClient:       identityClient,
+		ImageClient:          imageClient,
+		KeyPairClient:        keypairClient,
+		NetworkClient:        networkClient,
+		RoleClient:           roleClient,
+		ServiceClient:        serviceClient,
+		UserClient:           userClient,
+		VolumeClient:         volumeClient,
 		VolumeSnapshotClient: volumesnapshotClient,
-		VolumeTypeClient: volumetypeClient,
+		VolumeTypeClient:     volumetypeClient,
 	}
 }
 

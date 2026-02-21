@@ -50,6 +50,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/trunk"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/user"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volumesnapshot"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volumetype"
 	internalmanager "github.com/k-orc/openstack-resource-controller/v2/internal/manager"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scheme"
@@ -128,6 +129,7 @@ func main() {
 		project.New(scopeFactory),
 		user.New(scopeFactory),
 		volume.New(scopeFactory),
+		volumesnapshot.New(scopeFactory),
 		volumetype.New(scopeFactory),
 		domain.New(scopeFactory),
 		service.New(scopeFactory),
