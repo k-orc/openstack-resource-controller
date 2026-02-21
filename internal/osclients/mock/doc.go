@@ -56,5 +56,8 @@ import (
 //go:generate mockgen -package mock -destination=volume.go -source=../volume.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock VolumeClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt volume.go > _volume.go && mv _volume.go volume.go"
 
+//go:generate mockgen -package mock -destination=volumesnapshot.go -source=../volumesnapshot.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock VolumeSnapshotClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt volumesnapshot.go > _volumesnapshot.go && mv _volumesnapshot.go volumesnapshot.go"
+
 //go:generate mockgen -package mock -destination=volumetype.go -source=../volumetype.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock VolumeTypeClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt volumetype.go > _volumetype.go && mv _volumetype.go volumetype.go"
