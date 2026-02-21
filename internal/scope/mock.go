@@ -48,6 +48,7 @@ type MockScopeFactory struct {
 	UserClient       *mock.MockUserClient
 	VolumeClient     *mock.MockVolumeClient
 	VolumeTypeClient *mock.MockVolumeTypeClient
+	VolumeSnapshotClient *mock.MockVolumeSnapshotClient
 
 	clientScopeCreateError error
 }
@@ -66,6 +67,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
 	userClient := mock.NewMockUserClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
+	volumesnapshotClient := mock.NewMockVolumeSnapshotClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
 
 	return &MockScopeFactory{
@@ -82,6 +84,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		ServiceClient:    serviceClient,
 		UserClient:       userClient,
 		VolumeClient:     volumeClient,
+		VolumeSnapshotClient: volumesnapshotClient,
 		VolumeTypeClient: volumetypeClient,
 	}
 }
@@ -123,6 +126,10 @@ func (f *MockScopeFactory) NewUserClient() (osclients.UserClient, error) {
 
 func (f *MockScopeFactory) NewVolumeClient() (osclients.VolumeClient, error) {
 	return f.VolumeClient, nil
+}
+
+func (f *MockScopeFactory) NewVolumeSnapshotClient() (osclients.VolumeSnapshotClient, error) {
+	return f.VolumeSnapshotClient, nil
 }
 
 func (f *MockScopeFactory) NewVolumeTypeClient() (osclients.VolumeTypeClient, error) {
