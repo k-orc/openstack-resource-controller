@@ -19,7 +19,6 @@ package sharenetwork
 import (
 	"context"
 	"iter"
-	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharenetworks"
 	corev1 "k8s.io/api/core/v1"
@@ -44,10 +43,6 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
-// The frequency to poll when waiting for the resource to become available
-const sharenetworkAvailablePollingPeriod = 5 * time.Second
-// The frequency to poll when waiting for the resource to be deleted
-const sharenetworkDeletingPollingPeriod = 5 * time.Second
 
 type sharenetworkActuator struct {
 	osClient  osclients.ShareNetworkClient
@@ -75,10 +70,6 @@ func (actuator sharenetworkActuator) ListOSResourcesForAdoption(ctx context.Cont
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := sharenetworks.ListOpts{
 		Name:        getResourceName(orcObject),
 		Description: ptr.Deref(resourceSpec.Description, ""),
@@ -88,14 +79,9 @@ func (actuator sharenetworkActuator) ListOSResourcesForAdoption(ctx context.Cont
 }
 
 func (actuator sharenetworkActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := sharenetworks.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Description: ptr.Deref(filter.Description, ""),
 	}
 
 	return actuator.osClient.ListShareNetworks(ctx, listOpts), nil
@@ -140,11 +126,10 @@ func (actuator sharenetworkActuator) CreateResource(ctx context.Context, obj orc
 		return nil, reconcileStatus
 	}
 	createOpts := sharenetworks.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		NetworkID:  networkID,
-		SubnetID:  subnetID,
-		// TODO(scaffolding): Add more fields
+		Name:            getResourceName(obj),
+		Description:     ptr.Deref(resource.Description, ""),
+		NeutronNetID:    networkID,
+		NeutronSubnetID: subnetID,
 	}
 
 	osResource, err := actuator.osClient.CreateShareNetwork(ctx, createOpts)
@@ -160,9 +145,6 @@ func (actuator sharenetworkActuator) CreateResource(ctx context.Context, obj orc
 }
 
 func (actuator sharenetworkActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	if resource.Status == ShareNetworkStatusDeleting {
-		return progress.WaitingOnOpenStack(progress.WaitingOnReady, sharenetworkDeletingPollingPeriod)
-	}
 	return progress.WrapError(actuator.osClient.DeleteShareNetwork(ctx, resource.ID))
 }
 
@@ -179,8 +161,6 @@ func (actuator sharenetworkActuator) updateResource(ctx context.Context, obj orc
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {

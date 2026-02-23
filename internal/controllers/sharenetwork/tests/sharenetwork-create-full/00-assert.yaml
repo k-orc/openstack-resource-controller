@@ -7,7 +7,6 @@ status:
   resource:
     name: sharenetwork-create-full-override
     description: ShareNetwork from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -33,6 +32,9 @@ resourceRefs:
       ref: subnet
 assertAll:
     - celExpr: "sharenetwork.status.id != ''"
-    - celExpr: "sharenetwork.status.resource.networkID == network.status.id"
-    - celExpr: "sharenetwork.status.resource.subnetID == subnet.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "sharenetwork.status.resource.neutronNetID == network.status.id"
+    - celExpr: "sharenetwork.status.resource.neutronSubnetID == subnet.status.id"
+    - celExpr: "sharenetwork.status.resource.name == 'sharenetwork-create-full-override'"
+    - celExpr: "sharenetwork.status.resource.description == 'ShareNetwork from \"create full\" test'"
+    - celExpr: "sharenetwork.status.resource.projectID != ''"
+    - celExpr: "has(sharenetwork.status.resource.createdAt)"

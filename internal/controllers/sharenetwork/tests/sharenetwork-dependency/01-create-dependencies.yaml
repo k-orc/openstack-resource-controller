@@ -2,31 +2,33 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
+  # Create the missing secret that sharenetwork-dependency-no-secret is waiting for
   - command: kubectl create secret generic sharenetwork-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
     namespaced: true
 ---
+# Create the missing Network that sharenetwork-dependency-no-network is waiting for
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
 metadata:
   name: sharenetwork-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
+# Create the missing Subnet that sharenetwork-dependency-no-subnet is waiting for
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
 metadata:
   name: sharenetwork-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: sharenetwork-dependency
+    ipVersion: 4
+    cidr: 192.168.202.0/24

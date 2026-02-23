@@ -16,6 +16,8 @@ limitations under the License.
 
 package v1alpha1
 
+import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 // ShareNetworkResourceSpec contains the desired state of the resource.
 type ShareNetworkResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
@@ -38,14 +40,6 @@ type ShareNetworkResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="subnetRef is immutable"
 	SubnetRef *KubernetesNameRef `json:"subnetRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharenetworks
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
 }
 
 // ShareNetworkFilter defines an existing resource by its properties
@@ -60,15 +54,11 @@ type ShareNetworkFilter struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharenetworks
 }
 
 // ShareNetworkResourceStatus represents the observed state of the resource.
 type ShareNetworkResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
+	// name is a Human-readable name for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
@@ -78,17 +68,44 @@ type ShareNetworkResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// networkID is the ID of the Network to which the resource is associated.
+	// neutronNetID is the Neutron network ID.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	NetworkID string `json:"networkID,omitempty"`
+	NeutronNetID string `json:"neutronNetID,omitempty"`
 
-	// subnetID is the ID of the Subnet to which the resource is associated.
+	// neutronSubnetID is the Neutron subnet ID.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	SubnetID string `json:"subnetID,omitempty"`
+	NeutronSubnetID string `json:"neutronSubnetID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ShareNetwork structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharenetworks
+	// networkType is the network type (e.g., vlan, vxlan, flat).
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	NetworkType string `json:"networkType,omitempty"`
+
+	// segmentationID is the segmentation ID.
+	// +optional
+	SegmentationID *int32 `json:"segmentationID,omitempty"`
+
+	// cidr is the CIDR of the subnet.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	CIDR string `json:"cidr,omitempty"`
+
+	// ipVersion is the IP version (4 or 6).
+	// +optional
+	IPVersion *int32 `json:"ipVersion,omitempty"`
+
+	// projectID is the ID of the project that owns the share network.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ProjectID string `json:"projectID,omitempty"`
+
+	// createdAt shows the date and time when the resource was created.
+	// +optional
+	CreatedAt *metav1.Time `json:"createdAt,omitempty"`
+
+	// updatedAt shows the date and time when the resource was updated.
+	// +optional
+	UpdatedAt *metav1.Time `json:"updatedAt,omitempty"`
 }

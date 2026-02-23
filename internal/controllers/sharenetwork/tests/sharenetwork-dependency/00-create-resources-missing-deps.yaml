@@ -1,40 +1,107 @@
 ---
+# Create Network + Subnet for the "no-network" test
+# This ShareNetwork will reference a DIFFERENT (missing) network
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-dependency-no-network-available
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: sharenetwork-dependency-no-network-available
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: sharenetwork-dependency-no-network-available
+    ipVersion: 4
+    cidr: 192.168.203.0/24
+---
+# ShareNetwork waiting for Network (references missing "sharenetwork-dependency" network)
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
 metadata:
   name: sharenetwork-dependency-no-network
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     networkRef: sharenetwork-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource---
+    subnetRef: sharenetwork-dependency-no-network-available
+---
+# Create Network for the "no-subnet" test
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-dependency-no-subnet-available
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# ShareNetwork waiting for Subnet (references missing "sharenetwork-dependency" subnet)
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
 metadata:
   name: sharenetwork-dependency-no-subnet
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    networkRef: sharenetwork-dependency-no-subnet-available
     subnetRef: sharenetwork-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
 ---
+# Create Network + Subnet for the "no-secret" test
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-dependency-no-secret-available
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: sharenetwork-dependency-no-secret-available
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: sharenetwork-dependency-no-secret-available
+    ipVersion: 4
+    cidr: 192.168.204.0/24
+---
+# ShareNetwork waiting for Secret (references missing "sharenetwork-dependency" secret)
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
 metadata:
   name: sharenetwork-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: sharenetwork-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: sharenetwork-dependency-no-secret-available
+    subnetRef: sharenetwork-dependency-no-secret-available

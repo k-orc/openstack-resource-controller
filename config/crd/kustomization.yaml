@@ -20,6 +20,7 @@ resources:
 - bases/openstack.k-orc.cloud_servers.yaml
 - bases/openstack.k-orc.cloud_servergroups.yaml
 - bases/openstack.k-orc.cloud_services.yaml
+- bases/openstack.k-orc.cloud_sharenetworks.yaml
 - bases/openstack.k-orc.cloud_subnets.yaml
 - bases/openstack.k-orc.cloud_trunks.yaml
 - bases/openstack.k-orc.cloud_volumes.yaml

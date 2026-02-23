@@ -154,6 +154,14 @@ type ServiceListerExpansion interface{}
 // ServiceNamespaceLister.
 type ServiceNamespaceListerExpansion interface{}
 
+// ShareNetworkListerExpansion allows custom methods to be added to
+// ShareNetworkLister.
+type ShareNetworkListerExpansion interface{}
+
+// ShareNetworkNamespaceListerExpansion allows custom methods to be added to
+// ShareNetworkNamespaceLister.
+type ShareNetworkNamespaceListerExpansion interface{}
+
 // SubnetListerExpansion allows custom methods to be added to
 // SubnetLister.
 type SubnetListerExpansion interface{}
