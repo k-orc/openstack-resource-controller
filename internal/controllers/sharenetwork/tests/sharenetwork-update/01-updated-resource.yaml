@@ -7,4 +7,5 @@ spec:
   resource:
     name: sharenetwork-update-updated
     description: sharenetwork-update-updated
-    # TODO(scaffolding): update all mutable fields
+    networkRef: sharenetwork-update
+    subnetRef: sharenetwork-update

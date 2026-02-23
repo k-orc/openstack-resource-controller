@@ -36,7 +36,9 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk"
+        enabled_services: "openstack-cli-server,neutron-trunk,manila,m-api,m-sch,m-shr,m-dat"
+        conf_overrides: |
+            enable_plugin manila https://github.com/openstack/manila ${{ matrix.openstack_version }}
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab

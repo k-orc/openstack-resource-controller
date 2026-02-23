@@ -27,6 +27,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Server](#server)
 - [ServerGroup](#servergroup)
 - [Service](#service)
+- [ShareNetwork](#sharenetwork)
 - [Subnet](#subnet)
 - [Trunk](#trunk)
 - [Volume](#volume)
@@ -181,6 +182,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
+- [ShareNetworkSpec](#sharenetworkspec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [VolumeSpec](#volumespec)
@@ -1860,6 +1862,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
+- [ShareNetworkSpec](#sharenetworkspec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [VolumeSpec](#volumespec)
@@ -1896,6 +1899,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
+- [ShareNetworkSpec](#sharenetworkspec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [VolumeSpec](#volumespec)
@@ -3803,10 +3807,144 @@ _Appears in:_
 | `resource` _[ServiceResourceStatus](#serviceresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
+#### ShareNetwork
+
+
+
+ShareNetwork is the Schema for an ORC resource.
 
 
 
 
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ShareNetwork` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[ShareNetworkSpec](#sharenetworkspec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ShareNetworkStatus](#sharenetworkstatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### ShareNetworkFilter
+
+
+
+ShareNetworkFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ShareNetworkImport](#sharenetworkimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+
+
+#### ShareNetworkImport
+
+
+
+ShareNetworkImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ShareNetworkSpec](#sharenetworkspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br /> |
+| `filter` _[ShareNetworkFilter](#sharenetworkfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### ShareNetworkResourceSpec
+
+
+
+ShareNetworkResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ShareNetworkSpec](#sharenetworkspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef is a reference to the ORC Subnet which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+
+
+#### ShareNetworkResourceStatus
+
+
+
+ShareNetworkResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ShareNetworkStatus](#sharenetworkstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `neutronNetID` _string_ | neutronNetID is the Neutron network ID. |  | MaxLength: 1024 <br /> |
+| `neutronSubnetID` _string_ | neutronSubnetID is the Neutron subnet ID. |  | MaxLength: 1024 <br /> |
+| `networkType` _string_ | networkType is the network type (e.g., vlan, vxlan, flat). |  | MaxLength: 1024 <br /> |
+| `segmentationID` _integer_ | segmentationID is the segmentation ID. |  |  |
+| `cidr` _string_ | cidr is the CIDR of the subnet. |  | MaxLength: 1024 <br /> |
+| `ipVersion` _integer_ | ipVersion is the IP version (4 or 6). |  |  |
+| `projectID` _string_ | projectID is the ID of the project that owns the share network. |  | MaxLength: 1024 <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. |  |  |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. |  |  |
+
+
+#### ShareNetworkSpec
+
+
+
+ShareNetworkSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [ShareNetwork](#sharenetwork)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ShareNetworkImport](#sharenetworkimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[ShareNetworkResourceSpec](#sharenetworkresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### ShareNetworkStatus
+
+
+
+ShareNetworkStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [ShareNetwork](#sharenetwork)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br /> |
+| `resource` _[ShareNetworkResourceStatus](#sharenetworkresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Subnet
