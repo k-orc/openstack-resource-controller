@@ -45,6 +45,7 @@ type OpenstackV1alpha1Interface interface {
 	ServersGetter
 	ServerGroupsGetter
 	ServicesGetter
+	SharesGetter
 	SubnetsGetter
 	TrunksGetter
 	VolumesGetter
@@ -122,6 +123,10 @@ func (c *OpenstackV1alpha1Client) ServerGroups(namespace string) ServerGroupInte
 
 func (c *OpenstackV1alpha1Client) Services(namespace string) ServiceInterface {
 	return newServices(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) Shares(namespace string) ShareInterface {
+	return newShares(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Subnets(namespace string) SubnetInterface {

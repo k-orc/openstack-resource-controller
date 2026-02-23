@@ -25,11 +25,22 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const ShareStatusAvailable = "available"
-const ShareStatusInUse     = "in-use"
-const ShareStatusDeleting  = "deleting"
+
+const (
+	ShareStatusCreating         = "creating"
+	ShareStatusAvailable        = "available"
+	ShareStatusDeleting         = "deleting"
+	ShareStatusError            = "error"
+	ShareStatusErrorDeleting    = "error_deleting"
+	ShareStatusManageStarting   = "manage_starting"
+	ShareStatusManageError      = "manage_error"
+	ShareStatusUnmanageStarting = "unmanage_starting"
+	ShareStatusUnmanageError    = "unmanage_error"
+	ShareStatusExtending        = "extending"
+	ShareStatusExtendingError   = "extending_error"
+	ShareStatusShrinking        = "shrinking"
+	ShareStatusShrinkingError   = "shrinking_error"
+)
 
 type shareStatusWriter struct{}
 
@@ -50,10 +61,19 @@ func (shareStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Share, o
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
 
-	if osResource.Status == ShareStatusAvailable || osResource.Status == ShareStatusInUse {
+	if osResource.Status == ShareStatusAvailable {
 		return metav1.ConditionTrue, nil
+	}
+
+	// Terminal error states - don't poll
+	if osResource.Status == ShareStatusError ||
+		osResource.Status == ShareStatusErrorDeleting ||
+		osResource.Status == ShareStatusManageError ||
+		osResource.Status == ShareStatusUnmanageError ||
+		osResource.Status == ShareStatusExtendingError ||
+		osResource.Status == ShareStatusShrinkingError {
+		return metav1.ConditionFalse, nil
 	}
 
 	// Otherwise we should continue to poll
@@ -64,12 +84,13 @@ func (shareStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 	resourceStatus := orcapplyconfigv1alpha1.ShareResourceStatus().
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the ShareResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}
+
+	// TODO: Add more fields after running make generate to create apply configurations
+	// Fields to add: ShareProto, Status, Size, AvailabilityZone, IsPublic,
+	// ExportLocations, Metadata, CreatedAt, ProjectID
 
 	statusApply.WithResource(resourceStatus)
 }

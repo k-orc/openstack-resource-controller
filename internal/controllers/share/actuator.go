@@ -44,8 +44,10 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
 // The frequency to poll when waiting for the resource to become available
 const shareAvailablePollingPeriod = 15 * time.Second
+
 // The frequency to poll when waiting for the resource to be deleted
 const shareDeletingPollingPeriod = 15 * time.Second
 
@@ -75,30 +77,44 @@ func (actuator shareActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := shares.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
 	return actuator.osClient.ListShares(ctx, listOpts), true
 }
 
 func (actuator shareActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := shares.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	// NOTE: The API doesn't support filtering by description or shareProto
+	// we'll have to do it client-side.
+	if filter.Description != nil {
+		filters = append(filters, func(s *shares.Share) bool {
+			return s.Description == *filter.Description
+		})
+	}
+	if filter.ShareProto != nil {
+		filters = append(filters, func(s *shares.Share) bool {
+			return s.ShareProto == *filter.ShareProto
+		})
 	}
 
-	return actuator.osClient.ListShares(ctx, listOpts), nil
+	listOpts := shares.ListOpts{
+		Name:   string(ptr.Deref(filter.Name, "")),
+		Status: ptr.Deref(filter.Status, ""),
+	}
+
+	if filter.IsPublic != nil {
+		listOpts.IsPublic = filter.IsPublic
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator shareActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts shares.ListOptsBuilder) iter.Seq2[*shares.Share, error] {
+	shares := actuator.osClient.ListShares(ctx, listOpts)
+	return osclients.Filter(shares, filters...)
 }
 
 func (actuator shareActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -109,10 +125,20 @@ func (actuator shareActuator) CreateResource(ctx context.Context, obj orcObjectP
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
+	metadata := make(map[string]string)
+	for _, m := range resource.Metadata {
+		metadata[m.Name] = m.Value
+	}
+
 	createOpts := shares.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		Name:             getResourceName(obj),
+		Description:      ptr.Deref(resource.Description, ""),
+		Size:             int(resource.Size),
+		ShareProto:       resource.ShareProto,
+		AvailabilityZone: resource.AvailabilityZone,
+		Metadata:         metadata,
+		IsPublic:         resource.IsPublic,
 	}
 
 	osResource, err := actuator.osClient.CreateShare(ctx, createOpts)
@@ -145,10 +171,7 @@ func (actuator shareActuator) updateResource(ctx context.Context, obj orcObjectP
 
 	updateOpts := shares.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleIsPublicUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -188,17 +211,25 @@ func needsUpdate(updateOpts shares.UpdateOpts) (bool, error) {
 	return len(updateMap) > 0, nil
 }
 
-func handleNameUpdate(updateOpts *shares.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
+// NOTE: Manila API doesn't support updating name or description
+// func handleNameUpdate(updateOpts *shares.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+// 	name := getResourceName(obj)
+// 	if osResource.Name != name {
+// 		updateOpts.Name = &name
+// 	}
+// }
 
-func handleDescriptionUpdate(updateOpts *shares.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+// func handleDescriptionUpdate(updateOpts *shares.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+// 	description := ptr.Deref(resource.Description, "")
+// 	if osResource.Description != description {
+// 		updateOpts.Description = &description
+// 	}
+// }
+
+func handleIsPublicUpdate(updateOpts *shares.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	isPublic := ptr.Deref(resource.IsPublic, false)
+	if osResource.IsPublic != isPublic {
+		updateOpts.IsPublic = &isPublic
 	}
 }
 

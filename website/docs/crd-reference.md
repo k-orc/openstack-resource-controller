@@ -27,6 +27,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Server](#server)
 - [ServerGroup](#servergroup)
 - [Service](#service)
+- [Share](#share)
 - [Subnet](#subnet)
 - [Trunk](#trunk)
 - [Volume](#volume)
@@ -181,6 +182,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
+- [ShareSpec](#sharespec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [VolumeSpec](#volumespec)
@@ -1859,6 +1861,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
+- [ShareSpec](#sharespec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [VolumeSpec](#volumespec)
@@ -1895,6 +1898,7 @@ _Appears in:_
 - [ServerGroupSpec](#servergroupspec)
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
+- [ShareSpec](#sharespec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [VolumeSpec](#volumespec)
@@ -3802,10 +3806,201 @@ _Appears in:_
 | `resource` _[ServiceResourceStatus](#serviceresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
+#### Share
+
+
+
+Share is the Schema for an ORC resource.
 
 
 
 
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Share` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[ShareSpec](#sharespec)_ | spec specifies the desired state of the resource. |  |  |
+| `status` _[ShareStatus](#sharestatus)_ | status defines the observed state of the resource. |  |  |
+
+
+#### ShareExportLocation
+
+
+
+
+
+
+
+_Appears in:_
+- [ShareResourceStatus](#shareresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `path` _string_ | path is the export path for accessing the share |  | MaxLength: 1024 <br /> |
+| `preferred` _boolean_ | preferred indicates if this is the preferred export location |  |  |
+
+
+#### ShareFilter
+
+
+
+ShareFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ShareImport](#shareimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `shareProto` _string_ | shareProto is the file system protocol to filter by |  | Enum: [NFS CIFS GlusterFS HDFS CephFS MAPRFS] <br /> |
+| `status` _string_ | status is the share status to filter by |  | Enum: [creating available deleting error error_deleting manage_starting manage_error unmanage_starting unmanage_error extending extending_error shrinking shrinking_error] <br /> |
+| `isPublic` _boolean_ | isPublic filters by public visibility |  |  |
+
+
+#### ShareImport
+
+
+
+ShareImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ShareSpec](#sharespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br /> |
+| `filter` _[ShareFilter](#sharefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br /> |
+
+
+#### ShareMetadata
+
+
+
+
+
+
+
+_Appears in:_
+- [ShareResourceSpec](#shareresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the metadata |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the value of the metadata |  | MaxLength: 255 <br /> |
+
+
+#### ShareMetadataStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ShareResourceStatus](#shareresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the metadata |  | MaxLength: 255 <br /> |
+| `value` _string_ | value is the value of the metadata |  | MaxLength: 255 <br /> |
+
+
+#### ShareResourceSpec
+
+
+
+ShareResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ShareSpec](#sharespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `size` _integer_ | size is the size of the share, in gibibytes (GiB). |  | Minimum: 1 <br /> |
+| `shareProto` _string_ | shareProto is the file system protocol for the share.<br />Valid values are NFS, CIFS, GlusterFS, HDFS, CephFS, or MAPRFS. |  | Enum: [NFS CIFS GlusterFS HDFS CephFS MAPRFS] <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the share. |  | MaxLength: 255 <br /> |
+| `metadata` _[ShareMetadata](#sharemetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
+| `isPublic` _boolean_ | isPublic defines whether the share is publicly visible. |  |  |
+
+
+#### ShareResourceStatus
+
+
+
+ShareResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ShareStatus](#sharestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br /> |
+| `size` _integer_ | size is the size of the share in GiB. |  |  |
+| `shareProto` _string_ | shareProto is the file system protocol. |  | MaxLength: 1024 <br /> |
+| `status` _string_ | status represents the current status of the share. |  | MaxLength: 1024 <br /> |
+| `availabilityZone` _string_ | availabilityZone is which availability zone the share is in. |  | MaxLength: 1024 <br /> |
+| `exportLocations` _[ShareExportLocation](#shareexportlocation) array_ | exportLocations contains paths for accessing the share. |  | MaxItems: 32 <br /> |
+| `metadata` _[ShareMetadataStatus](#sharemetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br /> |
+| `isPublic` _boolean_ | isPublic indicates whether the share is publicly visible. |  |  |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601. |  |  |
+| `projectID` _string_ | projectID is the ID of the project that owns the share. |  | MaxLength: 1024 <br /> |
+
+
+#### ShareSpec
+
+
+
+ShareSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Share](#share)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ShareImport](#shareimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
+| `resource` _[ShareResourceSpec](#shareresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  |  |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  |  |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  |  |
+
+
+#### ShareStatus
+
+
+
+ShareStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Share](#share)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br /> |
+| `resource` _[ShareResourceStatus](#shareresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  |  |
 
 
 #### Subnet

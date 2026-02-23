@@ -5,13 +5,13 @@ metadata:
   name: share-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Share from "import error" test
-    # TODO(scaffolding): add any required field
+    size: 1
+    shareProto: NFS
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Share
@@ -19,10 +19,10 @@ metadata:
   name: share-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: Share from "import error" test
-    # TODO(scaffolding): add any required field
+    size: 1
+    shareProto: NFS

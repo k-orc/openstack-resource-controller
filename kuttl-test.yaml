@@ -19,8 +19,9 @@ testDirs:
 - ./internal/controllers/server/tests/
 - ./internal/controllers/servergroup/tests/
 - ./internal/controllers/service/tests/
+- ./internal/controllers/share/tests/
 - ./internal/controllers/subnet/tests/
 - ./internal/controllers/trunk/tests/
 - ./internal/controllers/volume/tests/
 - ./internal/controllers/volumetype/tests/
-timeout: 240
+timeout: 60

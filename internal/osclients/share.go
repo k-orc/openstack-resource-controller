@@ -52,7 +52,7 @@ func NewShareClient(providerClient *gophercloud.ProviderClient, providerClientOp
 }
 
 func (c shareClient) ListShares(ctx context.Context, listOpts shares.ListOptsBuilder) iter.Seq2[*shares.Share, error] {
-	pager := shares.List(c.client, listOpts)
+	pager := shares.ListDetail(c.client, listOpts)
 	return func(yield func(*shares.Share, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(shares.ExtractShares, yield))
 	}
