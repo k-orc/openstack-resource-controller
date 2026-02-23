@@ -25,11 +25,6 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const ShareNetworkStatusAvailable = "available"
-const ShareNetworkStatusInUse     = "in-use"
-const ShareNetworkStatusDeleting  = "deleting"
 
 type sharenetworkStatusWriter struct{}
 
@@ -46,31 +41,59 @@ func (sharenetworkStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.S
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
-		} else {
-			return metav1.ConditionUnknown, nil
 		}
-	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
-
-	if osResource.Status == ShareNetworkStatusAvailable || osResource.Status == ShareNetworkStatusInUse {
-		return metav1.ConditionTrue, nil
+		return metav1.ConditionUnknown, nil
 	}
 
-	// Otherwise we should continue to poll
-	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, sharenetworkAvailablePollingPeriod)
+	// Share networks become available immediately after creation
+	// No async operations to wait for
+	return metav1.ConditionTrue, nil
 }
 
 func (sharenetworkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
-	resourceStatus := orcapplyconfigv1alpha1.ShareNetworkResourceStatus().
-		WithNetworkID(osResource.NetworkID).
-		WithSubnetID(osResource.SubnetID).
-		WithName(osResource.Name)
+	resourceStatus := orcapplyconfigv1alpha1.ShareNetworkResourceStatus()
 
-	// TODO(scaffolding): add all of the fields supported in the ShareNetworkResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if osResource.Name != "" {
+		resourceStatus.WithName(osResource.Name)
+	}
+
+	if osResource.NeutronNetID != "" {
+		resourceStatus.WithNeutronNetID(osResource.NeutronNetID)
+	}
+
+	if osResource.NeutronSubnetID != "" {
+		resourceStatus.WithNeutronSubnetID(osResource.NeutronSubnetID)
+	}
+
+	if osResource.NetworkType != "" {
+		resourceStatus.WithNetworkType(osResource.NetworkType)
+	}
+
+	// Always set CIDR field, even if empty, so it's always present in status
+	resourceStatus.WithCIDR(osResource.CIDR)
+
+	if osResource.ProjectID != "" {
+		resourceStatus.WithProjectID(osResource.ProjectID)
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.SegmentationID != 0 {
+		resourceStatus.WithSegmentationID(int32(osResource.SegmentationID))
+	}
+
+	if osResource.IPVersion != 0 {
+		resourceStatus.WithIPVersion(int32(osResource.IPVersion))
+	}
+
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.Time{Time: osResource.CreatedAt})
+	}
+
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.Time{Time: osResource.UpdatedAt})
 	}
 
 	statusApply.WithResource(resourceStatus)

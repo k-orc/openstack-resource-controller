@@ -1,14 +1,42 @@
 ---
+# Create Network for the resource to be imported
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# Create Subnet for the resource to be imported
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: sharenetwork-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: sharenetwork-import-external
+    ipVersion: 4
+    cidr: 192.168.206.0/24
+---
+# Create the ShareNetwork to be imported
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
 metadata:
   name: sharenetwork-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: ShareNetwork sharenetwork-import-external from "sharenetwork-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    networkRef: sharenetwork-import-external
+    subnetRef: sharenetwork-import-external

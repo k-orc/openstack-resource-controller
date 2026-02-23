@@ -30,4 +30,3 @@ status:
   resource:
     name: sharenetwork-import-external
     description: ShareNetwork sharenetwork-import-external from "sharenetwork-import" test
-    # TODO(scaffolding): Add all fields the resource supports

@@ -39,7 +39,7 @@ type sharenetworkClient struct{ client *gophercloud.ServiceClient }
 
 // NewShareNetworkClient returns a new OpenStack client.
 func NewShareNetworkClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (ShareNetworkClient, error) {
-	client, err := openstack.NewSharedFilesystemV2(providerClient, gophercloud.EndpointOpts{
+	client, err := openstack.NewSharedFileSystemV2(providerClient, gophercloud.EndpointOpts{
 		Region:       providerClientOpts.RegionName,
 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
 	})
@@ -52,7 +52,7 @@ func NewShareNetworkClient(providerClient *gophercloud.ProviderClient, providerC
 }
 
 func (c sharenetworkClient) ListShareNetworks(ctx context.Context, listOpts sharenetworks.ListOptsBuilder) iter.Seq2[*sharenetworks.ShareNetwork, error] {
-	pager := sharenetworks.List(c.client, listOpts)
+	pager := sharenetworks.ListDetail(c.client, listOpts)
 	return func(yield func(*sharenetworks.ShareNetwork, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(sharenetworks.ExtractShareNetworks, yield))
 	}

@@ -16,7 +16,6 @@ metadata:
 status:
   resource:
     name: sharenetwork-update
-    # TODO(scaffolding): Add matches for more fields
   conditions:
   - type: Available
     status: "True"

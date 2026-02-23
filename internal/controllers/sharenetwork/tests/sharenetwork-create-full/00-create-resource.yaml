@@ -5,12 +5,11 @@ metadata:
   name: sharenetwork-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: sharenetwork-create-full-network
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Subnet
@@ -18,12 +17,14 @@ metadata:
   name: sharenetwork-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: sharenetwork-create-full-subnet
+    networkRef: sharenetwork-create-full
+    ipVersion: 4
+    cidr: 192.168.200.0/24
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
@@ -31,7 +32,6 @@ metadata:
   name: sharenetwork-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
@@ -40,4 +40,3 @@ spec:
     description: ShareNetwork from "create full" test
     networkRef: sharenetwork-create-full
     subnetRef: sharenetwork-create-full
-    # TODO(scaffolding): Add all fields the resource supports
