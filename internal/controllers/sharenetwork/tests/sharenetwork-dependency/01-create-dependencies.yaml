@@ -11,11 +11,9 @@ metadata:
   name: sharenetwork-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -24,9 +22,10 @@ metadata:
   name: sharenetwork-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    networkRef: sharenetwork-dependency
+    ipVersion: 4
+    cidr: 192.168.202.0/24

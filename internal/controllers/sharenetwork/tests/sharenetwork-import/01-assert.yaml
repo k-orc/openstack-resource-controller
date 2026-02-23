@@ -16,7 +16,6 @@ status:
   resource:
     name: sharenetwork-import-external-not-this-one
     description: ShareNetwork sharenetwork-import-external from "sharenetwork-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork

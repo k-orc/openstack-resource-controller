@@ -1,28 +1,84 @@
 ---
+# Create Network for first ShareNetwork
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-import-error-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# Create Subnet for first ShareNetwork
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: sharenetwork-import-error-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: sharenetwork-import-error-1
+    ipVersion: 4
+    cidr: 192.168.207.0/24
+---
+# Create first ShareNetwork with identical description
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
 metadata:
   name: sharenetwork-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: ShareNetwork from "import error" test
-    # TODO(scaffolding): add any required field
+    networkRef: sharenetwork-import-error-1
+    subnetRef: sharenetwork-import-error-1
 ---
+# Create Network for second ShareNetwork
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-import-error-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# Create Subnet for second ShareNetwork
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: sharenetwork-import-error-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: sharenetwork-import-error-2
+    ipVersion: 4
+    cidr: 192.168.208.0/24
+---
+# Create second ShareNetwork with identical description
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareNetwork
 metadata:
   name: sharenetwork-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: ShareNetwork from "import error" test
-    # TODO(scaffolding): add any required field
+    networkRef: sharenetwork-import-error-2
+    subnetRef: sharenetwork-import-error-2
