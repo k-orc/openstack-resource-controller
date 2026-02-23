@@ -1,0 +1,26 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareNetwork
+      name: sharenetwork-update
+      ref: sharenetwork
+assertAll:
+    - celExpr: "!has(sharenetwork.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: sharenetwork-update
+status:
+  resource:
+    name: sharenetwork-update
+    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
