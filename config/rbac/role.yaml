@@ -34,6 +34,7 @@ rules:
   - servergroups
   - servers
   - services
+  - shares
   - subnets
   - trunks
   - volumes
@@ -66,6 +67,7 @@ rules:
   - servergroups/status
   - servers/status
   - services/status
+  - shares/status
   - subnets/status
   - trunks/status
   - volumes/status

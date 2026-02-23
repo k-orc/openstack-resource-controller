@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-update
+spec:
+  resource:
+    size: 1
+    shareProto: NFS
+    isPublic: true
