@@ -13,6 +13,14 @@ resources:
     namespaced: true
   domain: k-orc.cloud
   group: openstack
+  kind: ApplicationCredential
+  path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: k-orc.cloud
+  group: openstack
   kind: Domain
   path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
