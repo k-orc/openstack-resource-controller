@@ -105,6 +105,54 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRole
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRoleStatus
+  map:
+    fields:
+    - name: domainID
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRule
+  map:
+    fields:
+    - name: method
+      type:
+        scalar: string
+    - name: path
+      type:
+        scalar: string
+    - name: service
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRuleStatus
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
+    - name: method
+      type:
+        scalar: string
+    - name: path
+      type:
+        scalar: string
+    - name: service
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialFilter
   map:
     fields:
@@ -114,6 +162,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: userID
+      type:
+        scalar: string
+      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialImport
   map:
     fields:
@@ -126,21 +178,75 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceSpec
   map:
     fields:
+    - name: accessRules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRule
+          elementRelationship: atomic
     - name: description
       type:
         scalar: string
+    - name: expiresAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: name
       type:
         scalar: string
+    - name: roles
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRole
+          elementRelationship: atomic
+    - name: secret
+      type:
+        scalar: string
+    - name: unrestricted
+      type:
+        scalar: boolean
+    - name: userID
+      type:
+        scalar: string
+      default: ""
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceStatus
   map:
     fields:
+    - name: accessRules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRuleStatus
+          elementRelationship: atomic
     - name: description
       type:
         scalar: string
+    - name: expiresAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: links
+      type:
+        map:
+          elementType:
+            scalar: string
     - name: name
       type:
         scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: roles
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRoleStatus
+          elementRelationship: atomic
+    - name: secret
+      type:
+        scalar: string
+    - name: unrestricted
+      type:
+        scalar: boolean
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialSpec
   map:
     fields:

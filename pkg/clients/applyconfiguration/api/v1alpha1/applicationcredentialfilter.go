@@ -25,6 +25,7 @@ import (
 // ApplicationCredentialFilterApplyConfiguration represents a declarative configuration of the ApplicationCredentialFilter type for use
 // with apply.
 type ApplicationCredentialFilterApplyConfiguration struct {
+	UserID      *string                    `json:"userID,omitempty"`
 	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
 	Description *string                    `json:"description,omitempty"`
 }
@@ -33,6 +34,14 @@ type ApplicationCredentialFilterApplyConfiguration struct {
 // apply.
 func ApplicationCredentialFilter() *ApplicationCredentialFilterApplyConfiguration {
 	return &ApplicationCredentialFilterApplyConfiguration{}
+}
+
+// WithUserID sets the UserID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UserID field is set to the value of the last call.
+func (b *ApplicationCredentialFilterApplyConfiguration) WithUserID(value string) *ApplicationCredentialFilterApplyConfiguration {
+	b.UserID = &value
+	return b
 }
 
 // WithName sets the Name field in the declarative configuration to the given value

@@ -44,6 +44,14 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.AllowedAddressPairStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredential"):
 		return &apiv1alpha1.ApplicationCredentialApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRole"):
+		return &apiv1alpha1.ApplicationCredentialAccessRoleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRoleStatus"):
+		return &apiv1alpha1.ApplicationCredentialAccessRoleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRule"):
+		return &apiv1alpha1.ApplicationCredentialAccessRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRuleStatus"):
+		return &apiv1alpha1.ApplicationCredentialAccessRuleStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialFilter"):
 		return &apiv1alpha1.ApplicationCredentialFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialImport"):

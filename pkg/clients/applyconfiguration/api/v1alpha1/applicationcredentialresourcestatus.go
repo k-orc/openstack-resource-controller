@@ -18,11 +18,22 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // ApplicationCredentialResourceStatusApplyConfiguration represents a declarative configuration of the ApplicationCredentialResourceStatus type for use
 // with apply.
 type ApplicationCredentialResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Name         *string                                                   `json:"name,omitempty"`
+	Description  *string                                                   `json:"description,omitempty"`
+	Unrestricted *bool                                                     `json:"unrestricted,omitempty"`
+	Secret       *string                                                   `json:"secret,omitempty"`
+	ProjectID    *string                                                   `json:"projectID,omitempty"`
+	Roles        []ApplicationCredentialAccessRoleStatusApplyConfiguration `json:"roles,omitempty"`
+	ExpiresAt    *v1.Time                                                  `json:"expiresAt,omitempty"`
+	AccessRules  []ApplicationCredentialAccessRuleStatusApplyConfiguration `json:"accessRules,omitempty"`
+	Links        map[string]string                                         `json:"links,omitempty"`
 }
 
 // ApplicationCredentialResourceStatusApplyConfiguration constructs a declarative configuration of the ApplicationCredentialResourceStatus type for use with
@@ -44,5 +55,77 @@ func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithName(value s
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithDescription(value string) *ApplicationCredentialResourceStatusApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithUnrestricted sets the Unrestricted field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Unrestricted field is set to the value of the last call.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithUnrestricted(value bool) *ApplicationCredentialResourceStatusApplyConfiguration {
+	b.Unrestricted = &value
+	return b
+}
+
+// WithSecret sets the Secret field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Secret field is set to the value of the last call.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithSecret(value string) *ApplicationCredentialResourceStatusApplyConfiguration {
+	b.Secret = &value
+	return b
+}
+
+// WithProjectID sets the ProjectID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectID field is set to the value of the last call.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithProjectID(value string) *ApplicationCredentialResourceStatusApplyConfiguration {
+	b.ProjectID = &value
+	return b
+}
+
+// WithRoles adds the given value to the Roles field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Roles field.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithRoles(values ...*ApplicationCredentialAccessRoleStatusApplyConfiguration) *ApplicationCredentialResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithRoles")
+		}
+		b.Roles = append(b.Roles, *values[i])
+	}
+	return b
+}
+
+// WithExpiresAt sets the ExpiresAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ExpiresAt field is set to the value of the last call.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithExpiresAt(value v1.Time) *ApplicationCredentialResourceStatusApplyConfiguration {
+	b.ExpiresAt = &value
+	return b
+}
+
+// WithAccessRules adds the given value to the AccessRules field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the AccessRules field.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithAccessRules(values ...*ApplicationCredentialAccessRuleStatusApplyConfiguration) *ApplicationCredentialResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithAccessRules")
+		}
+		b.AccessRules = append(b.AccessRules, *values[i])
+	}
+	return b
+}
+
+// WithLinks puts the entries into the Links field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, the entries provided by each call will be put on the Links field,
+// overwriting an existing map entries in Links field with the same key.
+func (b *ApplicationCredentialResourceStatusApplyConfiguration) WithLinks(entries map[string]string) *ApplicationCredentialResourceStatusApplyConfiguration {
+	if b.Links == nil && len(entries) > 0 {
+		b.Links = make(map[string]string, len(entries))
+	}
+	for k, v := range entries {
+		b.Links[k] = v
+	}
 	return b
 }
