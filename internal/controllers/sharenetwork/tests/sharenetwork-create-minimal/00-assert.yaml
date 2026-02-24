@@ -1,0 +1,38 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: sharenetwork-create-minimal
+status:
+  resource:
+    name: sharenetwork-create-minimal
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareNetwork
+      name: sharenetwork-create-minimal
+      ref: sharenetwork
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: sharenetwork-create-minimal
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: sharenetwork-create-minimal
+      ref: subnet
+assertAll:
+    - celExpr: "sharenetwork.status.id != ''"
+    - celExpr: "sharenetwork.status.resource.neutronNetID == network.status.id"
+    - celExpr: "sharenetwork.status.resource.neutronSubnetID == subnet.status.id"
+    - celExpr: "sharenetwork.status.resource.name == 'sharenetwork-create-minimal'"
+    - celExpr: "sharenetwork.status.resource.projectID != ''"
+    - celExpr: "has(sharenetwork.status.resource.createdAt)"

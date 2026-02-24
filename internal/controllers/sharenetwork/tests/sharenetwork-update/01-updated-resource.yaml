@@ -1,0 +1,11 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: sharenetwork-update
+spec:
+  resource:
+    name: sharenetwork-update-updated
+    description: sharenetwork-update-updated
+    networkRef: sharenetwork-update
+    subnetRef: sharenetwork-update

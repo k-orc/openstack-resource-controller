@@ -58,6 +58,8 @@ type Interface interface {
 	ServerGroups() ServerGroupInformer
 	// Services returns a ServiceInformer.
 	Services() ServiceInformer
+	// ShareNetworks returns a ShareNetworkInformer.
+	ShareNetworks() ShareNetworkInformer
 	// Subnets returns a SubnetInformer.
 	Subnets() SubnetInformer
 	// Trunks returns a TrunkInformer.
@@ -162,6 +164,11 @@ func (v *version) ServerGroups() ServerGroupInformer {
 // Services returns a ServiceInformer.
 func (v *version) Services() ServiceInformer {
 	return &serviceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ShareNetworks returns a ShareNetworkInformer.
+func (v *version) ShareNetworks() ShareNetworkInformer {
+	return &shareNetworkInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Subnets returns a SubnetInformer.

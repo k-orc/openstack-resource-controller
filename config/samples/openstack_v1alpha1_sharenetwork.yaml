@@ -1,0 +1,45 @@
+---
+# Create a Network for the ShareNetwork
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: sharenetwork-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Network for ShareNetwork sample
+---
+# Create a Subnet for the ShareNetwork
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: sharenetwork-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: sharenetwork-sample
+    ipVersion: 4
+    cidr: 192.168.100.0/24
+    description: Subnet for ShareNetwork sample
+---
+# Create a ShareNetwork for Manila shares
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: sharenetwork-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: my-share-network
+    description: Sample ShareNetwork for Manila shared filesystems
+    networkRef: sharenetwork-sample
+    subnetRef: sharenetwork-sample
