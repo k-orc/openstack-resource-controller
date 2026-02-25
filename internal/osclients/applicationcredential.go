@@ -55,6 +55,7 @@ func NewApplicationCredentialClient(providerClient *gophercloud.ProviderClient, 
 }
 
 func (c applicationcredentialClient) ListApplicationCredentials(ctx context.Context, userID string, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
+	userID = GetUserIDOrTokenID(userID, c.client.ProviderClient)
 	pager := applicationcredentials.List(c.client, userID, listOpts)
 	return func(yield func(*applicationcredentials.ApplicationCredential, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(applicationcredentials.ExtractApplicationCredentials, yield))
@@ -62,10 +63,12 @@ func (c applicationcredentialClient) ListApplicationCredentials(ctx context.Cont
 }
 
 func (c applicationcredentialClient) CreateApplicationCredential(ctx context.Context, userID string, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
+	userID = GetUserIDOrTokenID(userID, c.client.ProviderClient)
 	return applicationcredentials.Create(ctx, c.client, userID, opts).Extract()
 }
 
 func (c applicationcredentialClient) DeleteApplicationCredential(ctx context.Context, userID string, resourceID string) error {
+	userID = GetUserIDOrTokenID(userID, c.client.ProviderClient)
 	return applicationcredentials.Delete(ctx, c.client, userID, resourceID).ExtractErr()
 }
 
@@ -111,6 +114,19 @@ func (c applicationcredentialClient) GetApplicationCredential(ctx context.Contex
 		Name:         resourceID,
 		ResourceType: "ApplicationCredential",
 	}
+}
+
+func GetUserIDOrTokenID(userID string, providerClient *gophercloud.ProviderClient) string {
+	// FIXME: This is mostly for E2E tests. As soon as ORC supports user resources,
+	// this will be obsolete as the userID will become a UserRef to an existing user.
+	if userID == "token" {
+		tokenID, err := GetAuthenticatedUserID(providerClient)
+		if err == nil {
+			return tokenID
+		}
+	}
+
+	return userID
 }
 
 func GetAuthenticatedUserID(providerClient *gophercloud.ProviderClient) (string, error) {
