@@ -22,7 +22,7 @@ metadata:
 spec:
   cloudCredentialsRef:
     # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack-admin
+    cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
