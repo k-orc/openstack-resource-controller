@@ -3,6 +3,7 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
+- bases/openstack.k-orc.cloud_applicationcredentials.yaml
 - bases/openstack.k-orc.cloud_domains.yaml
 - bases/openstack.k-orc.cloud_endpoints.yaml
 - bases/openstack.k-orc.cloud_flavors.yaml

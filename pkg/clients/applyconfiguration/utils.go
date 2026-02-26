@@ -42,6 +42,28 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.AllowedAddressPairApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("AllowedAddressPairStatus"):
 		return &apiv1alpha1.AllowedAddressPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredential"):
+		return &apiv1alpha1.ApplicationCredentialApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRole"):
+		return &apiv1alpha1.ApplicationCredentialAccessRoleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRoleStatus"):
+		return &apiv1alpha1.ApplicationCredentialAccessRoleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRule"):
+		return &apiv1alpha1.ApplicationCredentialAccessRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialAccessRuleStatus"):
+		return &apiv1alpha1.ApplicationCredentialAccessRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialFilter"):
+		return &apiv1alpha1.ApplicationCredentialFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialImport"):
+		return &apiv1alpha1.ApplicationCredentialImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialResourceSpec"):
+		return &apiv1alpha1.ApplicationCredentialResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialResourceStatus"):
+		return &apiv1alpha1.ApplicationCredentialResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialSpec"):
+		return &apiv1alpha1.ApplicationCredentialSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ApplicationCredentialStatus"):
+		return &apiv1alpha1.ApplicationCredentialStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("CloudCredentialsReference"):
 		return &apiv1alpha1.CloudCredentialsReferenceApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Domain"):

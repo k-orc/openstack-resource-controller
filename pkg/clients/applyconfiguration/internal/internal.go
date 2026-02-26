@@ -84,6 +84,205 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: mac
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredential
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRole
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRoleStatus
+  map:
+    fields:
+    - name: domainID
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRule
+  map:
+    fields:
+    - name: method
+      type:
+        scalar: string
+    - name: path
+      type:
+        scalar: string
+    - name: service
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRuleStatus
+  map:
+    fields:
+    - name: id
+      type:
+        scalar: string
+    - name: method
+      type:
+        scalar: string
+    - name: path
+      type:
+        scalar: string
+    - name: service
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: userID
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceSpec
+  map:
+    fields:
+    - name: accessRules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRule
+          elementRelationship: atomic
+    - name: description
+      type:
+        scalar: string
+    - name: expiresAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: name
+      type:
+        scalar: string
+    - name: roles
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRole
+          elementRelationship: atomic
+    - name: secret
+      type:
+        scalar: string
+    - name: unrestricted
+      type:
+        scalar: boolean
+    - name: userID
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceStatus
+  map:
+    fields:
+    - name: accessRules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRuleStatus
+          elementRelationship: atomic
+    - name: description
+      type:
+        scalar: string
+    - name: expiresAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: links
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: roles
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialAccessRoleStatus
+          elementRelationship: atomic
+    - name: secret
+      type:
+        scalar: string
+    - name: unrestricted
+      type:
+        scalar: boolean
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
   map:
     fields:

@@ -17,6 +17,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - applicationcredentials
   - domains
   - endpoints
   - flavors
@@ -49,6 +50,7 @@ rules:
 - apiGroups:
   - openstack.k-orc.cloud
   resources:
+  - applicationcredentials/status
   - domains/status
   - endpoints/status
   - flavors/status

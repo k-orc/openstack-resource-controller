@@ -1,0 +1,23 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: applicationcredential-create-full-override
+    description: ApplicationCredential from "create full" test
+    userID: "token"
+    unrestricted: true
+    secret: "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
+    roles:
+      - name: "reader"
+    accessRules:
+      - method: "GET"
+        service: "compute"
+        path: "/v2.1/servers"
+    expiresAt: "2033-03-03T22:22:22Z"
