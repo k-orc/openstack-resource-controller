@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    ipVersion: 4
+    shared: true
