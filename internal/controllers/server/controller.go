@@ -73,13 +73,31 @@ var (
 		"spec.resource.imageRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
-			if resource == nil {
+			if resource == nil || resource.ImageRef == nil {
 				return nil
 			}
 
-			return []string{string(resource.ImageRef)}
+			return []string{string(*resource.ImageRef)}
 		},
 		finalizer, externalObjectFieldOwner,
+	)
+
+	// bootVolumeDependency handles the boot volume specified in bootVolume for boot-from-volume.
+	// This volume is attached at server creation time as the root disk.
+	// deletion guard is in place because the server cannot boot without its root volume.
+	// OverrideDependencyName is used to avoid conflict with volumeDependency which also
+	// creates a Volume deletion guard for Server.
+	bootVolumeDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Volume](
+		"spec.resource.bootVolume.volumeRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil || resource.BootVolume == nil {
+				return nil
+			}
+			return []string{string(resource.BootVolume.VolumeRef)}
+		},
+		finalizer, externalObjectFieldOwner,
+		dependency.OverrideDependencyName("bootvolume"),
 	)
 
 	portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Port](
@@ -196,6 +214,10 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	bootVolumeWatchEventHandler, err := bootVolumeDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
@@ -213,6 +235,9 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.ServerGroup{})),
 		).
 		Watches(&orcv1alpha1.Volume{}, volumeWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Volume{})),
+		).
+		Watches(&orcv1alpha1.Volume{}, bootVolumeWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Volume{})),
 		).
 		Watches(&orcv1alpha1.KeyPair{}, keypairWatchEventHandler,
@@ -234,6 +259,7 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		serverGroupDependency.AddToManager(ctx, mgr),
 		userDataDependency.AddToManager(ctx, mgr),
 		volumeDependency.AddToManager(ctx, mgr),
+		bootVolumeDependency.AddToManager(ctx, mgr),
 		keypairDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),

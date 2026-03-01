@@ -282,6 +282,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SecurityGroupStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Server"):
 		return &apiv1alpha1.ServerApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ServerBootVolumeSpec"):
+		return &apiv1alpha1.ServerBootVolumeSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerFilter"):
 		return &apiv1alpha1.ServerFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ServerGroup"):
