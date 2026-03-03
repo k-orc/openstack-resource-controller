@@ -1,4 +1,4 @@
-# Create a Endpoint with the minimum options
+# Create an Endpoint with the minimum options
 
 ## Step 00
 
