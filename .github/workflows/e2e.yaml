@@ -39,7 +39,7 @@ jobs:
         enabled_services: "openstack-cli-server,neutron-trunk"
 
     - name: Deploy a Kind Cluster
-      uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab
+      uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc
       with:
         cluster_name: orc
 
@@ -66,7 +66,7 @@ jobs:
 
     - name: Upload logs artifacts on failure
       if: failure()
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: e2e-${{ matrix.name }}-${{ github.run_id }}
         path: /tmp/artifacts/*
