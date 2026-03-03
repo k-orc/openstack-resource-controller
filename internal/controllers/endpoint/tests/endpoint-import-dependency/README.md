@@ -2,16 +2,16 @@
 
 ## Step 00
 
-Import a Endpoint that references other imported resources. The referenced imported resources have no matching resources yet.
+Import an Endpoint that references other imported resources. The referenced imported resources have no matching resources yet.
 Verify the Endpoint is waiting for the dependency to be ready.
 
 ## Step 01
 
-Create a Endpoint matching the import filter, except for referenced resources, and verify that it's not being imported.
+Create an Endpoint matching the import filter, except for referenced resources, and verify that it's not being imported.
 
 ## Step 02
 
-Create the referenced resources and a Endpoint matching the import filters.
+Create the referenced resources and an Endpoint matching the import filters.
 
 Verify that the observed status on the imported Endpoint corresponds to the spec of the created Endpoint.
 

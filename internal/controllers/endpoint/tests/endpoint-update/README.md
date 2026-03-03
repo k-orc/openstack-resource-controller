@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Create a Endpoint using only mandatory fields.
+Create an Endpoint using only mandatory fields.
 
 ## Step 01
 
