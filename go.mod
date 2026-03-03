@@ -9,7 +9,7 @@ require (
 	github.com/gophercloud/gophercloud/v2 v2.3.0
 	github.com/gophercloud/utils/v2 v2.0.0-20241209100706-e3a3b7c07d26
 	github.com/onsi/ginkgo/v2 v2.28.1
-	github.com/onsi/gomega v1.39.0
+	github.com/onsi/gomega v1.39.1
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
 	k8s.io/api v0.31.14
