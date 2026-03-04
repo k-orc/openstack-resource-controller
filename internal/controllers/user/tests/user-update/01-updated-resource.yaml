@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-update
+spec:
+  resource:
+    name: user-update-updated
+    description: user-update-updated
+    enabled: false

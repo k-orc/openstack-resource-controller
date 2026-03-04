@@ -1,0 +1,23 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: user-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: user-import-dependency-external
