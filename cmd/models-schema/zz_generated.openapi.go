@@ -201,6 +201,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus":          schema_openstack_resource_controller_v2_api_v1alpha1_ServiceResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_ServiceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_ServiceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetwork":                   schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetwork(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkFilter":             schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkImport":             schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkList":               schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceSpec":       schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceStatus":     schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkSpec":               schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkStatus":             schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Subnet":                         schema_openstack_resource_controller_v2_api_v1alpha1_Subnet(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_SubnetFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetGateway":                  schema_openstack_resource_controller_v2_api_v1alpha1_SubnetGateway(ref),
@@ -9390,6 +9398,394 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceStatus(ref comm
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetwork(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetwork is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkList contains a list of ShareNetwork.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of ShareNetwork.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetwork"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetwork", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"networkRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "networkRef is a reference to the ORC Network which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"subnetRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "subnetRef is a reference to the ORC Subnet which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"neutronNetID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "neutronNetID is the Neutron network ID.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"neutronSubnetID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "neutronSubnetID is the Neutron subnet ID.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"networkType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "networkType is the network type (e.g., vlan, vxlan, flat).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"segmentationID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "segmentationID is the segmentation ID.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"cidr": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cidr is the CIDR of the subnet.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"ipVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ipVersion is the IP version (4 or 6).",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the project that owns the share network.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceSpec"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ShareNetworkStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
 	}
 }
 

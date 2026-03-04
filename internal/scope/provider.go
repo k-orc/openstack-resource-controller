@@ -173,6 +173,10 @@ func (s *providerScope) NewEndpointClient() (clients.EndpointClient, error) {
 	return clients.NewEndpointClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewShareNetworkClient() (clients.ShareNetworkClient, error) {
+	return clients.NewShareNetworkClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewKeyPairClient() (clients.KeyPairClient, error) {
 	return clients.NewKeyPairClient(s.providerClient, s.providerClientOpts)
 }
