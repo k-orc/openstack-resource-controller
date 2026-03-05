@@ -1,0 +1,33 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: AddressScope
+      name: addressscope-import-external
+      ref: addressscope1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: AddressScope
+      name: addressscope-import-external-not-this-one
+      ref: addressscope2
+assertAll:
+    - celExpr: "addressscope1.status.id != addressscope2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: addressscope-import-external
+    ipVersion: 4
+    shared: true
