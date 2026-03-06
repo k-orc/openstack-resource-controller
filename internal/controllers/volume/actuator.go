@@ -156,9 +156,7 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 	var volumetypeID string
 	if resource.VolumeTypeRef != nil {
 		volumetype, volumetypeDepRS := volumetypeDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.VolumeType) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(volumetypeDepRS)
 		if volumetype != nil {
@@ -167,12 +165,10 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 	}
 
 	// Resolve image dependency for bootable volumes
-	image, imageDepRS := dependency.FetchDependency(
+	image, imageDepRS := dependency.FetchDependency[*orcv1alpha1.Image](
 		ctx, actuator.k8sClient, obj.Namespace,
 		resource.ImageRef, "Image",
-		func(dep *orcv1alpha1.Image) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(imageDepRS)
 	imageID := ptr.Deref(image.Status.ID, "")
