@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-update
+spec:
+  resource:
+    name: applicationcredential-update-updated
+    description: applicationcredential-update-updated
+    # TODO(scaffolding): update all mutable fields
