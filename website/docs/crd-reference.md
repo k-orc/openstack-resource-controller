@@ -256,6 +256,12 @@ _Appears in:_
 | `mac` _string_ | mac contains a MAC address which a server connected to the port can<br />send packets with. |  | MaxLength: 1024 <br /> |
 
 
+
+
+
+
+
+
 #### AvailabilityZoneHint
 
 _Underlying type:_ _string_
@@ -1915,6 +1921,8 @@ _Appears in:_
 - [Address](#address)
 - [AddressScopeFilter](#addressscopefilter)
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
+- [ApplicationCredentialFilter](#applicationcredentialfilter)
+- [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
 - [EndpointFilter](#endpointfilter)
 - [EndpointResourceSpec](#endpointresourcespec)
 - [ExternalGateway](#externalgateway)
@@ -2330,6 +2338,8 @@ _Validation:_
 _Appears in:_
 - [AddressScopeFilter](#addressscopefilter)
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
+- [ApplicationCredentialFilter](#applicationcredentialfilter)
+- [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
 - [FlavorFilter](#flavorfilter)
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)

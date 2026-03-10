@@ -18,6 +18,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - addressscopes
+  - applicationcredentials
   - domains
   - endpoints
   - flavors
@@ -52,6 +53,7 @@ rules:
   - openstack.k-orc.cloud
   resources:
   - addressscopes/status
+  - applicationcredentials/status
   - domains/status
   - endpoints/status
   - flavors/status
