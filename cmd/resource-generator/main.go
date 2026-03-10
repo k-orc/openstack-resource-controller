@@ -171,6 +171,9 @@ var resources []templateFields = []templateFields{
 		Name:       "Endpoint",
 		IsNotNamed: true,
 	},
+	{
+		Name: "ApplicationCredential",
+	},
 }
 
 // These resources won't be generated
