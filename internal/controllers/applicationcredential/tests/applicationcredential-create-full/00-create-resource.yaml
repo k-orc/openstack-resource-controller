@@ -1,0 +1,29 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: applicationcredential-create-full
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-create-full
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: applicationcredential-create-full-override
+    description: ApplicationCredential from "create full" test
+    userRef: applicationcredential-create-full
+    # TODO(scaffolding): Add all fields the resource supports
