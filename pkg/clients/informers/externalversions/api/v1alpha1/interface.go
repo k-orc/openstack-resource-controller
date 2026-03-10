@@ -26,6 +26,8 @@ import (
 type Interface interface {
 	// AddressScopes returns a AddressScopeInformer.
 	AddressScopes() AddressScopeInformer
+	// ApplicationCredentials returns a ApplicationCredentialInformer.
+	ApplicationCredentials() ApplicationCredentialInformer
 	// Domains returns a DomainInformer.
 	Domains() DomainInformer
 	// Endpoints returns a EndpointInformer.
@@ -86,6 +88,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // AddressScopes returns a AddressScopeInformer.
 func (v *version) AddressScopes() AddressScopeInformer {
 	return &addressScopeInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ApplicationCredentials returns a ApplicationCredentialInformer.
+func (v *version) ApplicationCredentials() ApplicationCredentialInformer {
+	return &applicationCredentialInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Domains returns a DomainInformer.

@@ -20,6 +20,8 @@ package v1alpha1
 
 type AddressScopeExpansion interface{}
 
+type ApplicationCredentialExpansion interface{}
+
 type DomainExpansion interface{}
 
 type EndpointExpansion interface{}

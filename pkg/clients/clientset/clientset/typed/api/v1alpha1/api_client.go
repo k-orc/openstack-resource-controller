@@ -29,6 +29,7 @@ import (
 type OpenstackV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	AddressScopesGetter
+	ApplicationCredentialsGetter
 	DomainsGetter
 	EndpointsGetter
 	FlavorsGetter
@@ -60,6 +61,10 @@ type OpenstackV1alpha1Client struct {
 
 func (c *OpenstackV1alpha1Client) AddressScopes(namespace string) AddressScopeInterface {
 	return newAddressScopes(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) ApplicationCredentials(namespace string) ApplicationCredentialInterface {
+	return newApplicationCredentials(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Domains(namespace string) DomainInterface {
