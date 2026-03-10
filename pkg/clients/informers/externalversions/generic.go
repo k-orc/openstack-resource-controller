@@ -55,6 +55,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=openstack.k-orc.cloud, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("addressscopes"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().AddressScopes().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("applicationcredentials"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().ApplicationCredentials().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("domains"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Openstack().V1alpha1().Domains().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("endpoints"):
