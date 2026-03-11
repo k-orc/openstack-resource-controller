@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: addressscope-dependency
+      ref: project
+    - apiVersion: v1
+      kind: Secret
+      name: addressscope-dependency
+      ref: secret
+assertAll:
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/addressscope' in project.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/addressscope' in secret.metadata.finalizers"

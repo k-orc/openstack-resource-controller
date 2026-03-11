@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-update
+spec:
+  resource:
+    name: addressscope-update-updated
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-update-shared
+spec:
+  resource:
+    shared: true
