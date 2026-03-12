@@ -1,0 +1,32 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 600
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-update
+      ref: loadbalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-update
+      ref: subnet
+assertAll:
+    - celExpr: "loadbalancer.status.resource.description == ''"
+    - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-update
+status:
+  resource:
+    name: loadbalancer-update
+    provisioningStatus: ACTIVE
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

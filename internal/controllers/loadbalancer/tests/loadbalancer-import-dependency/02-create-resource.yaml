@@ -1,0 +1,68 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: loadbalancer-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: loadbalancer-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: loadbalancer-import-dependency-external
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: loadbalancer-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: loadbalancer-import-dependency-external
+    projectRef: loadbalancer-import-dependency-external
+    ipVersion: 4
+    cidr: 10.201.0.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: loadbalancer-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: loadbalancer-import-dependency-external
+    projectRef: loadbalancer-import-dependency-external
+    addresses:
+      - subnetRef: loadbalancer-import-dependency-external
+        ip: 10.201.0.10
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipPortRef: loadbalancer-import-dependency-external
+    vipSubnetRef: loadbalancer-import-dependency-external
+    projectRef: loadbalancer-import-dependency-external
