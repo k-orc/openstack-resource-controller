@@ -135,6 +135,28 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 			defaultProjectID = ptr.Deref(project.Status.ID, "")
 		}
 	}
+
+	var password string
+	var passwordSecretVersion string
+	if resource.Password != nil {
+		secret, secretReconcileStatus := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace,
+			resource.Password.SecretRef, "Secret",
+			func(*corev1.Secret) bool { return true },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(secretReconcileStatus)
+		if secretReconcileStatus == nil {
+			passwordBytes, ok := secret.Data["password"]
+			if !ok {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.NewReconcileStatus().WithProgressMessage("Password secret does not contain \"password\" key"))
+			} else {
+				password = string(passwordBytes)
+				passwordSecretVersion = secret.ResourceVersion
+			}
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -144,6 +166,7 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 		DomainID:         domainID,
 		Enabled:          resource.Enabled,
 		DefaultProjectID: defaultProjectID,
+		Password:         password,
 	}
 
 	osResource, err := actuator.osClient.CreateUser(ctx, createOpts)
@@ -153,6 +176,15 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
 		return nil, progress.WrapError(err)
+	}
+
+	// Store the password Secret ResourceVersion after successful creation
+	if passwordSecretVersion != "" {
+		if err := actuator.updatePasswordSecretVersionAnnotation(ctx, obj, passwordSecretVersion); err != nil {
+			log := ctrl.LoggerFrom(ctx)
+			log.Error(err, "Failed to update password secret version annotation after creation")
+			// Don't fail the create just because we couldn't update the annotation
+		}
 	}
 
 	return osResource, nil
@@ -177,6 +209,11 @@ func (actuator userActuator) updateResource(ctx context.Context, obj orcObjectPT
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
 	handleEnabledUpdate(&updateOpts, resource, osResource)
 
+	newSecretVersion, passwordRS := actuator.handlePasswordUpdate(ctx, &updateOpts, obj)
+	if passwordRS != nil {
+		return passwordRS
+	}
+
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
 		return progress.WrapError(
@@ -196,6 +233,15 @@ func (actuator userActuator) updateResource(ctx context.Context, obj orcObjectPT
 
 	if err != nil {
 		return progress.WrapError(err)
+	}
+
+	// If password was updated, store the new Secret ResourceVersion in annotation
+	if newSecretVersion != "" {
+		if err := actuator.updatePasswordSecretVersionAnnotation(ctx, obj, newSecretVersion); err != nil {
+			log.Error(err, "Failed to update password secret version annotation")
+			// Don't fail the reconcile just because we couldn't update the annotation
+			// The password was already updated in OpenStack
+		}
 	}
 
 	return progress.NeedsRefresh()
@@ -234,6 +280,51 @@ func handleEnabledUpdate(updateOpts *users.UpdateOpts, resource *resourceSpecT, 
 	if osResource.Enabled != enabled {
 		updateOpts.Enabled = &enabled
 	}
+}
+
+func (actuator userActuator) updatePasswordSecretVersionAnnotation(ctx context.Context, obj orcObjectPT, secretVersion string) error {
+	// Create a patch to update just the annotation
+	patch := client.MergeFrom(obj.DeepCopy())
+
+	if obj.Annotations == nil {
+		obj.Annotations = make(map[string]string)
+	}
+	obj.Annotations["openstack.k-orc.cloud/password-secret-version"] = secretVersion
+
+	return actuator.k8sClient.Patch(ctx, obj, patch)
+}
+
+func (actuator userActuator) handlePasswordUpdate(ctx context.Context, updateOpts *users.UpdateOpts, obj orcObjectPT) (secretResourceVersion string, reconcileStatus progress.ReconcileStatus) {
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return "", nil
+	}
+
+	if resource.Password != nil && resource.Password.SecretRef != nil {
+		secret, secretReconcileStatus := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace,
+			resource.Password.SecretRef, "Secret",
+			func(*corev1.Secret) bool { return true },
+		)
+		if secretReconcileStatus != nil {
+			return "", secretReconcileStatus
+		}
+
+		// Check if password Secret has changed by comparing ResourceVersion
+		currentSecretVersion := secret.ResourceVersion
+		storedSecretVersion := obj.Annotations["openstack.k-orc.cloud/password-secret-version"]
+
+		// Only update password if Secret ResourceVersion changed
+		if storedSecretVersion != currentSecretVersion {
+			if passwordBytes, ok := secret.Data["password"]; ok {
+				password := string(passwordBytes)
+				updateOpts.Password = password
+				return currentSecretVersion, nil
+			}
+		}
+	}
+
+	return "", nil
 }
 
 func (actuator userActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
