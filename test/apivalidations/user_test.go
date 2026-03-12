@@ -41,7 +41,8 @@ func userStub(namespace *corev1.Namespace) *orcv1alpha1.User {
 }
 
 func testUserResource() *applyconfigv1alpha1.UserResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.UserResourceSpec()
+	return applyconfigv1alpha1.UserResourceSpec().
+		WithPasswordRef("user-password")
 }
 
 func baseUserPatch(user client.Object) *applyconfigv1alpha1.UserApplyConfiguration {
@@ -95,10 +96,12 @@ var _ = Describe("ORC User API validations", func() {
 		user := userStub(namespace)
 		patch := baseUserPatch(user)
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("user-password").
 			WithDomainRef("domain-a"))
 		Expect(applyObj(ctx, user, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("user-password").
 			WithDomainRef("domain-b"))
 		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
 	})
@@ -107,11 +110,25 @@ var _ = Describe("ORC User API validations", func() {
 		user := userStub(namespace)
 		patch := baseUserPatch(user)
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("user-password").
 			WithDefaultProjectRef("project-a"))
 		Expect(applyObj(ctx, user, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("user-password").
 			WithDefaultProjectRef("project-b"))
 		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("defaultProjectRef is immutable")))
+	})
+
+	It("should have immutable passwordRef", func(ctx context.Context) {
+		user := userStub(namespace)
+		patch := baseUserPatch(user)
+		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("password-a"))
+		Expect(applyObj(ctx, user, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("password-b"))
+		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("passwordRef is immutable")))
 	})
 })

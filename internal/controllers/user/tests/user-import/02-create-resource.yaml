@@ -11,3 +11,4 @@ spec:
   resource:
     description: User user-import-external from "user-import" test
     domainRef: user-import-external
+    passwordRef: user-import-password

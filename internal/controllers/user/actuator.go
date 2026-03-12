@@ -135,6 +135,26 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 			defaultProjectID = ptr.Deref(project.Status.ID, "")
 		}
 	}
+
+	var password string
+	{
+		secret, secretReconcileStatus := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace,
+			&resource.PasswordRef, "Secret",
+			func(*corev1.Secret) bool { return true },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(secretReconcileStatus)
+		if secretReconcileStatus == nil {
+			passwordBytes, ok := secret.Data["password"]
+			if !ok {
+				reconcileStatus = reconcileStatus.WithReconcileStatus(
+					progress.NewReconcileStatus().WithProgressMessage("Password secret does not contain \"password\" key"))
+			} else {
+				password = string(passwordBytes)
+			}
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -144,6 +164,7 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 		DomainID:         domainID,
 		Enabled:          resource.Enabled,
 		DefaultProjectID: defaultProjectID,
+		Password:         password,
 	}
 
 	osResource, err := actuator.osClient.CreateUser(ctx, createOpts)

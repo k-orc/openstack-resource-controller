@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 
+	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -86,6 +87,17 @@ var domainImportDependency = dependency.NewDependency[*orcv1alpha1.UserList, *or
 	},
 )
 
+var passwordDependency = dependency.NewDependency[*orcv1alpha1.UserList, *corev1.Secret](
+	"spec.resource.passwordRef",
+	func(user *orcv1alpha1.User) []string {
+		resource := user.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+		return []string{string(resource.PasswordRef)}
+	},
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c userReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -106,8 +118,14 @@ func (c userReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
+	passwordWatchEventHandler, err := passwordDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
+		For(&orcv1alpha1.User{}).
 		Watches(&orcv1alpha1.Domain{}, domainWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
 		).
@@ -118,12 +136,20 @@ func (c userReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		Watches(&orcv1alpha1.Domain{}, domainImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
 		).
-		For(&orcv1alpha1.User{})
+		// XXX: This is a general watch on secrets. A general watch on secrets
+		// is undesirable because:
+		// - It requires problematic RBAC
+		// - Secrets are arbitrarily large, and we don't want to cache their contents
+		//
+		// These will require separate solutions. For the latter we should
+		// probably use a MetadataOnly watch on secrets.
+		Watches(&corev1.Secret{}, passwordWatchEventHandler)
 
 	if err := errors.Join(
 		domainDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		domainImportDependency.AddToManager(ctx, mgr),
+		passwordDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

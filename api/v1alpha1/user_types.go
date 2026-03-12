@@ -42,6 +42,12 @@ type UserResourceSpec struct {
 	// enabled defines whether a user is enabled or disabled
 	// +optional
 	Enabled *bool `json:"enabled,omitempty"`
+
+	// passwordRef is a reference to a Secret containing the password
+	// for this user. The Secret must contain a key named "password".
+	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="passwordRef is immutable"
+	PasswordRef KubernetesNameRef `json:"passwordRef,omitempty"`
 }
 
 // UserFilter defines an existing resource by its properties
@@ -81,4 +87,9 @@ type UserResourceStatus struct {
 	// enabled defines whether a user is enabled or disabled
 	// +optional
 	Enabled bool `json:"enabled,omitempty"`
+
+	// passwordExpiresAt is the timestamp at which the user's password expires.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	PasswordExpiresAt string `json:"passwordExpiresAt,omitempty"`
 }

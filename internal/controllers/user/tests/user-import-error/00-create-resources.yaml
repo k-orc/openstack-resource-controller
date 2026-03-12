@@ -10,6 +10,14 @@ spec:
   managementPolicy: managed
   resource: {}
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-import-error-password
+type: Opaque
+stringData:
+  password: "TestPassword"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
 metadata:
@@ -22,7 +30,7 @@ spec:
   resource:
     description: User from "import error" test
     domainRef: user-import-error-domain
-
+    passwordRef: user-import-error-password
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
@@ -36,3 +44,4 @@ spec:
   resource:
     description: User from "import error" test
     domainRef: user-import-error-domain
+    passwordRef: user-import-error-password
