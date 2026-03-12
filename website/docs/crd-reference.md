@@ -1784,6 +1784,7 @@ _Appears in:_
 - [HostID](#hostid)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
+- [PasswordSpec](#passwordspec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
 - [RoleFilter](#rolefilter)
@@ -2216,6 +2217,24 @@ _Appears in:_
 - [VolumeTypeFilter](#volumetypefilter)
 - [VolumeTypeResourceSpec](#volumetyperesourcespec)
 
+
+
+#### PasswordSpec
+
+
+
+
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [UserResourceSpec](#userresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `secretRef` _[KubernetesNameRef](#kubernetesnameref)_ | secretRef is a reference to a Secret containing the password for this user. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 
 
 #### Port
@@ -4291,6 +4310,7 @@ _Appears in:_
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `defaultProjectRef` _[KubernetesNameRef](#kubernetesnameref)_ | defaultProjectRef is a reference to the Default Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `enabled` _boolean_ | enabled defines whether a user is enabled or disabled |  |  |
+| `password` _[PasswordSpec](#passwordspec)_ | password is the password set for the user |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 
 
 #### UserResourceStatus
@@ -4311,6 +4331,7 @@ _Appears in:_
 | `domainID` _string_ | domainID is the ID of the Domain to which the resource is associated. |  | MaxLength: 1024 <br /> |
 | `defaultProjectID` _string_ | defaultProjectID is the ID of the Default Project to which the user is associated with. |  | MaxLength: 1024 <br /> |
 | `enabled` _boolean_ | enabled defines whether a user is enabled or disabled |  |  |
+| `passwordExpiresAt` _string_ | passwordExpiresAt filters the response based on expriing passwords. |  | MaxLength: 255 <br /> |
 
 
 #### UserSpec
