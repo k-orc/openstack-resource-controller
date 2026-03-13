@@ -61,12 +61,35 @@ var _ = Describe("ORC KeyPair API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal keypair and managementPolicy should default to managed", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.WithResource(testKeypairResource())
-		Expect(applyObj(ctx, keypair, patch)).To(Succeed())
-		Expect(keypair.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.KeyPairApplyConfiguration]{
+		createObject:  func(ns *corev1.Namespace) client.Object { return keypairStub(ns) },
+		basePatch:     func(obj client.Object) *applyconfigv1alpha1.KeyPairApplyConfiguration { return baseKeypairPatch(obj) },
+		applyResource: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) { p.Spec.WithResource(testKeypairResource()) },
+		applyImport:   func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) { p.Spec.WithImport(testKeypairImport()) },
+		applyEmptyImport: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.KeyPairImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.KeyPairImport().WithFilter(applyconfigv1alpha1.KeyPairFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.KeyPairImport().WithFilter(applyconfigv1alpha1.KeyPairFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.KeyPairApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.KeyPair).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.KeyPair).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should reject a keypair without required field publicKey", func(ctx context.Context) {
@@ -100,95 +123,5 @@ var _ = Describe("ORC KeyPair API validations", func() {
 		patch.Spec.WithResource(applyconfigv1alpha1.KeyPairResourceSpec().
 			WithPublicKey(strings.Repeat("a", 16385)))
 		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("spec.resource.publicKey")))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testKeypairImport())
-		Expect(applyObj(ctx, keypair, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testKeypairImport()).
-			WithResource(testKeypairResource())
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.KeyPairImport())
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.KeyPairImport().
-				WithFilter(applyconfigv1alpha1.KeyPairFilter()))
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.KeyPairImport().
-				WithFilter(applyconfigv1alpha1.KeyPairFilter().WithName("foo")))
-		Expect(applyObj(ctx, keypair, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testKeypairResource())
-		Expect(applyObj(ctx, keypair, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.
-			WithImport(testKeypairImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testKeypairResource())
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.
-			WithImport(testKeypairImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, keypair, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		keypair := keypairStub(namespace)
-		patch := baseKeypairPatch(keypair)
-		patch.Spec.WithResource(testKeypairResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, keypair, patch)).To(Succeed())
-		Expect(keypair.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })

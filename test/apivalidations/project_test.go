@@ -60,12 +60,35 @@ var _ = Describe("ORC Project API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal project and managementPolicy should default to managed", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.WithResource(testProjectResource())
-		Expect(applyObj(ctx, project, patch)).To(Succeed())
-		Expect(project.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.ProjectApplyConfiguration]{
+		createObject:  func(ns *corev1.Namespace) client.Object { return projectStub(ns) },
+		basePatch:     func(obj client.Object) *applyconfigv1alpha1.ProjectApplyConfiguration { return baseProjectPatch(obj) },
+		applyResource: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) { p.Spec.WithResource(testProjectResource()) },
+		applyImport:   func(p *applyconfigv1alpha1.ProjectApplyConfiguration) { p.Spec.WithImport(testProjectImport()) },
+		applyEmptyImport: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.ProjectImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.ProjectImport().WithFilter(applyconfigv1alpha1.ProjectFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.ProjectImport().WithFilter(applyconfigv1alpha1.ProjectFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.ProjectApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Project).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Project).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should reject duplicate tags", func(ctx context.Context) {
@@ -82,95 +105,5 @@ var _ = Describe("ORC Project API validations", func() {
 		patch.Spec.WithResource(applyconfigv1alpha1.ProjectResourceSpec().
 			WithTags("foo", "bar"))
 		Expect(applyObj(ctx, project, patch)).To(Succeed())
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testProjectImport())
-		Expect(applyObj(ctx, project, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testProjectImport()).
-			WithResource(testProjectResource())
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.ProjectImport())
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.ProjectImport().
-				WithFilter(applyconfigv1alpha1.ProjectFilter()))
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.ProjectImport().
-				WithFilter(applyconfigv1alpha1.ProjectFilter().WithName("foo")))
-		Expect(applyObj(ctx, project, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testProjectResource())
-		Expect(applyObj(ctx, project, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.
-			WithImport(testProjectImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testProjectResource())
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.
-			WithImport(testProjectImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		project := projectStub(namespace)
-		patch := baseProjectPatch(project)
-		patch.Spec.WithResource(testProjectResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, project, patch)).To(Succeed())
-		Expect(project.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })

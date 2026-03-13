@@ -61,12 +61,41 @@ var _ = Describe("ORC FloatingIP API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal floatingip and managementPolicy should default to managed", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.WithResource(testFloatingIPResource())
-		Expect(applyObj(ctx, fip, patch)).To(Succeed())
-		Expect(fip.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.FloatingIPApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return floatingIPStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.FloatingIPApplyConfiguration {
+			return baseFloatingIPPatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithResource(testFloatingIPResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithImport(testFloatingIPImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.FloatingIPImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.FloatingIPImport().WithFilter(applyconfigv1alpha1.FloatingIPFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.FloatingIPImport().WithFilter(applyconfigv1alpha1.FloatingIPFilter().WithFloatingNetworkRef("my-network")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.FloatingIPApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.FloatingIP).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.FloatingIP).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should require exactly one of floatingNetworkRef or floatingSubnetRef", func(ctx context.Context) {
@@ -139,95 +168,5 @@ var _ = Describe("ORC FloatingIP API validations", func() {
 			WithFloatingNetworkRef("my-network").
 			WithProjectRef("project-b"))
 		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("projectRef is immutable")))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testFloatingIPImport())
-		Expect(applyObj(ctx, fip, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testFloatingIPImport()).
-			WithResource(testFloatingIPResource())
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.FloatingIPImport())
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.FloatingIPImport().
-				WithFilter(applyconfigv1alpha1.FloatingIPFilter()))
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with floatingNetworkRef", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.FloatingIPImport().
-				WithFilter(applyconfigv1alpha1.FloatingIPFilter().WithFloatingNetworkRef("my-network")))
-		Expect(applyObj(ctx, fip, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testFloatingIPResource())
-		Expect(applyObj(ctx, fip, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.
-			WithImport(testFloatingIPImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testFloatingIPResource())
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.
-			WithImport(testFloatingIPImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, fip, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		fip := floatingIPStub(namespace)
-		patch := baseFloatingIPPatch(fip)
-		patch.Spec.WithResource(testFloatingIPResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, fip, patch)).To(Succeed())
-		Expect(fip.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })

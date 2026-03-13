@@ -60,12 +60,39 @@ var _ = Describe("ORC VolumeType API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal volumetype and managementPolicy should default to managed", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.WithResource(testVolumeTypeResource())
-		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
-		Expect(volumeType.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.VolumeTypeApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return volumeTypeStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.VolumeTypeApplyConfiguration {
+			return baseVolumeTypePatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithResource(testVolumeTypeResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) { p.Spec.WithImport(testVolumeTypeImport()) },
+		applyEmptyImport: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.VolumeTypeImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.VolumeTypeImport().WithFilter(applyconfigv1alpha1.VolumeTypeFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.VolumeTypeImport().WithFilter(applyconfigv1alpha1.VolumeTypeFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.VolumeTypeApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.VolumeType).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.VolumeType).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should permit extraSpecs with required fields", func(ctx context.Context) {
@@ -75,95 +102,5 @@ var _ = Describe("ORC VolumeType API validations", func() {
 			WithExtraSpecs(applyconfigv1alpha1.VolumeTypeExtraSpec().
 				WithName("key").WithValue("value")))
 		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testVolumeTypeImport())
-		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testVolumeTypeImport()).
-			WithResource(testVolumeTypeResource())
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.VolumeTypeImport())
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.VolumeTypeImport().
-				WithFilter(applyconfigv1alpha1.VolumeTypeFilter()))
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.VolumeTypeImport().
-				WithFilter(applyconfigv1alpha1.VolumeTypeFilter().WithName("foo")))
-		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testVolumeTypeResource())
-		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.
-			WithImport(testVolumeTypeImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testVolumeTypeResource())
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.
-			WithImport(testVolumeTypeImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, volumeType, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		volumeType := volumeTypeStub(namespace)
-		patch := baseVolumeTypePatch(volumeType)
-		patch.Spec.WithResource(testVolumeTypeResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
-		Expect(volumeType.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })

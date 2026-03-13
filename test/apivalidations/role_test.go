@@ -60,103 +60,42 @@ var _ = Describe("ORC Role API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal role and managementPolicy should default to managed", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.WithResource(testRoleResource())
-		Expect(applyObj(ctx, role, patch)).To(Succeed())
-		Expect(role.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testRoleImport())
-		Expect(applyObj(ctx, role, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testRoleImport()).
-			WithResource(testRoleResource())
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.RoleImport())
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.RoleImport().
-				WithFilter(applyconfigv1alpha1.RoleFilter()))
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.RoleImport().
-				WithFilter(applyconfigv1alpha1.RoleFilter().WithName("foo")))
-		Expect(applyObj(ctx, role, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testRoleResource())
-		Expect(applyObj(ctx, role, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.
-			WithImport(testRoleImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testRoleResource())
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.
-			WithImport(testRoleImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, role, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		role := roleStub(namespace)
-		patch := baseRolePatch(role)
-		patch.Spec.WithResource(testRoleResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, role, patch)).To(Succeed())
-		Expect(role.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
-	})
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace },
+		managementPolicyTestArgs[*applyconfigv1alpha1.RoleApplyConfiguration]{
+			createObject: func(ns *corev1.Namespace) client.Object { return roleStub(ns) },
+			basePatch:    func(obj client.Object) *applyconfigv1alpha1.RoleApplyConfiguration { return baseRolePatch(obj) },
+			applyResource: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithResource(testRoleResource())
+			},
+			applyImport: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithImport(testRoleImport())
+			},
+			applyEmptyImport: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithImport(applyconfigv1alpha1.RoleImport())
+			},
+			applyEmptyFilter: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithImport(applyconfigv1alpha1.RoleImport().WithFilter(applyconfigv1alpha1.RoleFilter()))
+			},
+			applyValidFilter: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithImport(applyconfigv1alpha1.RoleImport().WithFilter(applyconfigv1alpha1.RoleFilter().WithName("foo")))
+			},
+			applyManaged: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+			},
+			applyUnmanaged: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+			},
+			applyManagedOptions: func(p *applyconfigv1alpha1.RoleApplyConfiguration) {
+				p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+			},
+			getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+				return obj.(*orcv1alpha1.Role).Spec.ManagementPolicy
+			},
+			getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+				return obj.(*orcv1alpha1.Role).Spec.ManagedOptions.OnDelete
+			},
+		},
+	)
 
 	It("should have immutable domainRef", func(ctx context.Context) {
 		role := roleStub(namespace)

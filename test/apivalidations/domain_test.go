@@ -17,10 +17,7 @@ limitations under the License.
 package apivalidations
 
 import (
-	"context"
-
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -60,101 +57,34 @@ var _ = Describe("ORC Domain API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal domain and managementPolicy should default to managed", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.WithResource(testDomainResource())
-		Expect(applyObj(ctx, domain, patch)).To(Succeed())
-		Expect(domain.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testDomainImport())
-		Expect(applyObj(ctx, domain, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testDomainImport()).
-			WithResource(testDomainResource())
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.DomainImport())
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.DomainImport().
-				WithFilter(applyconfigv1alpha1.DomainFilter()))
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.DomainImport().
-				WithFilter(applyconfigv1alpha1.DomainFilter().WithName("foo")))
-		Expect(applyObj(ctx, domain, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testDomainResource())
-		Expect(applyObj(ctx, domain, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.
-			WithImport(testDomainImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testDomainResource())
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.
-			WithImport(testDomainImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, domain, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		domain := domainStub(namespace)
-		patch := baseDomainPatch(domain)
-		patch.Spec.WithResource(testDomainResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, domain, patch)).To(Succeed())
-		Expect(domain.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.DomainApplyConfiguration]{
+		createObject:  func(ns *corev1.Namespace) client.Object { return domainStub(ns) },
+		basePatch:     func(obj client.Object) *applyconfigv1alpha1.DomainApplyConfiguration { return baseDomainPatch(obj) },
+		applyResource: func(p *applyconfigv1alpha1.DomainApplyConfiguration) { p.Spec.WithResource(testDomainResource()) },
+		applyImport:   func(p *applyconfigv1alpha1.DomainApplyConfiguration) { p.Spec.WithImport(testDomainImport()) },
+		applyEmptyImport: func(p *applyconfigv1alpha1.DomainApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.DomainImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.DomainApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.DomainImport().WithFilter(applyconfigv1alpha1.DomainFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.DomainApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.DomainImport().WithFilter(applyconfigv1alpha1.DomainFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.DomainApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.DomainApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.DomainApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Domain).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Domain).Spec.ManagedOptions.OnDelete
+		},
 	})
 })
