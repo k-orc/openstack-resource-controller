@@ -185,6 +185,7 @@ func main() {
 	render("data/controller", filepath.Join("internal", "controllers", fields.PackageName), &fields)
 	render("data/tests", filepath.Join("internal", "controllers", fields.PackageName, "tests"), &fields)
 	render("data/samples", filepath.Join("config", "samples"), &fields)
+	render("data/apivalidation", filepath.Join("test", "apivalidations"), &fields)
 }
 
 func render(srcDir, distDir string, resource *templateFields) {
@@ -231,6 +232,8 @@ func render(srcDir, distDir string, resource *templateFields) {
 			tplName = resource.PackageName + ".go"
 		case "sample.yaml":
 			tplName = "openstack_v1alpha1_" + resource.PackageName + ".yaml"
+		case "apivalidation_test.go":
+			tplName = resource.PackageName + "_test.go"
 		}
 
 		var funcMap = template.FuncMap{
