@@ -60,12 +60,41 @@ var _ = Describe("ORC Router API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal router and managementPolicy should default to managed", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.WithResource(testRouterResource())
-		Expect(applyObj(ctx, router, patch)).To(Succeed())
-		Expect(router.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.RouterApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return routerStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.RouterApplyConfiguration {
+			return baseRouterPatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithResource(testRouterResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithImport(testRouterImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.RouterImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.RouterImport().WithFilter(applyconfigv1alpha1.RouterFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.RouterImport().WithFilter(applyconfigv1alpha1.RouterFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.RouterApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Router).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Router).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should have immutable externalGateways", func(ctx context.Context) {
@@ -110,95 +139,5 @@ var _ = Describe("ORC Router API validations", func() {
 		patch.Spec.WithResource(applyconfigv1alpha1.RouterResourceSpec().
 			WithTags("foo", "bar", "foo"))
 		Expect(applyObj(ctx, router, patch)).NotTo(Succeed())
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testRouterImport())
-		Expect(applyObj(ctx, router, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testRouterImport()).
-			WithResource(testRouterResource())
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.RouterImport())
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.RouterImport().
-				WithFilter(applyconfigv1alpha1.RouterFilter()))
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.RouterImport().
-				WithFilter(applyconfigv1alpha1.RouterFilter().WithName("foo")))
-		Expect(applyObj(ctx, router, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testRouterResource())
-		Expect(applyObj(ctx, router, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.
-			WithImport(testRouterImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testRouterResource())
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.
-			WithImport(testRouterImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, router, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		router := routerStub(namespace)
-		patch := baseRouterPatch(router)
-		patch.Spec.WithResource(testRouterResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, router, patch)).To(Succeed())
-		Expect(router.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })

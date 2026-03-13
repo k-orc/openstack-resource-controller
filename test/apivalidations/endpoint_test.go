@@ -63,12 +63,35 @@ var _ = Describe("ORC Endpoint API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal endpoint and managementPolicy should default to managed", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.WithResource(testEndpointResource())
-		Expect(applyObj(ctx, endpoint, patch)).To(Succeed())
-		Expect(endpoint.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.EndpointApplyConfiguration]{
+		createObject:  func(ns *corev1.Namespace) client.Object { return endpointStub(ns) },
+		basePatch:     func(obj client.Object) *applyconfigv1alpha1.EndpointApplyConfiguration { return baseEndpointPatch(obj) },
+		applyResource: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) { p.Spec.WithResource(testEndpointResource()) },
+		applyImport:   func(p *applyconfigv1alpha1.EndpointApplyConfiguration) { p.Spec.WithImport(testEndpointImport()) },
+		applyEmptyImport: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.EndpointImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.EndpointImport().WithFilter(applyconfigv1alpha1.EndpointFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.EndpointImport().WithFilter(applyconfigv1alpha1.EndpointFilter().WithInterface("public")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.EndpointApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Endpoint).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Endpoint).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should reject an endpoint without required fields", func(ctx context.Context) {
@@ -147,95 +170,5 @@ var _ = Describe("ORC Endpoint API validations", func() {
 			WithServiceRef("my-service").
 			WithDescription("desc-b"))
 		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("description is immutable")))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testEndpointImport())
-		Expect(applyObj(ctx, endpoint, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testEndpointImport()).
-			WithResource(testEndpointResource())
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.EndpointImport())
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.EndpointImport().
-				WithFilter(applyconfigv1alpha1.EndpointFilter()))
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with interface", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.EndpointImport().
-				WithFilter(applyconfigv1alpha1.EndpointFilter().WithInterface("public")))
-		Expect(applyObj(ctx, endpoint, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testEndpointResource())
-		Expect(applyObj(ctx, endpoint, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.
-			WithImport(testEndpointImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testEndpointResource())
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.
-			WithImport(testEndpointImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, endpoint, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		endpoint := endpointStub(namespace)
-		patch := baseEndpointPatch(endpoint)
-		patch.Spec.WithResource(testEndpointResource()).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, endpoint, patch)).To(Succeed())
-		Expect(endpoint.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })

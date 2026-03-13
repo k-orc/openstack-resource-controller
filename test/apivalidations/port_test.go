@@ -42,6 +42,14 @@ func portStub(namespace *corev1.Namespace) *orcv1alpha1.Port {
 	return obj
 }
 
+func testPortResource() *applyconfigv1alpha1.PortResourceSpecApplyConfiguration {
+	return applyconfigv1alpha1.PortResourceSpec().WithNetworkRef(networkName)
+}
+
+func testPortImport() *applyconfigv1alpha1.PortImportApplyConfiguration {
+	return applyconfigv1alpha1.PortImport().WithID(portID)
+}
+
 func basePortPatch(port client.Object) *applyconfigv1alpha1.PortApplyConfiguration {
 	return applyconfigv1alpha1.Port(port.GetName(), port.GetNamespace()).
 		WithSpec(applyconfigv1alpha1.PortSpec().
@@ -54,12 +62,41 @@ var _ = Describe("ORC Port API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal port and managementPolicy should default to managed", func(ctx context.Context) {
-		port := portStub(namespace)
-		patch := basePortPatch(port)
-		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().WithNetworkRef(networkName))
-		Expect(applyObj(ctx, port, patch)).To(Succeed())
-		Expect(port.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.PortApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return portStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.PortApplyConfiguration {
+			return basePortPatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithResource(testPortResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithImport(testPortImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.PortImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.PortImport().WithFilter(applyconfigv1alpha1.PortFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.PortImport().WithFilter(applyconfigv1alpha1.PortFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.PortApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Port).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Port).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should allow to create a port with securityGroupRefs when portSecurity is enabled", func(ctx context.Context) {

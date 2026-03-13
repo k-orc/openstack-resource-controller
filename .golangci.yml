@@ -85,6 +85,9 @@ linters:
           - lll
         path: internal/*
       - linters:
+          - dupl
+        path: test/*
+      - linters:
         - dupl
         - goimports
         - unparam
