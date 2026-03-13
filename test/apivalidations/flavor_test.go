@@ -51,12 +51,6 @@ func baseFlavorPatch(flavor client.Object) *applyconfigv1alpha1.FlavorApplyConfi
 			WithCloudCredentialsRef(testCredentials()))
 }
 
-func baseWorkingFlavorPatch(flavor client.Object) *applyconfigv1alpha1.FlavorApplyConfiguration {
-	patch := baseFlavorPatch(flavor)
-	patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
-	return patch
-}
-
 func testFlavorImport() *applyconfigv1alpha1.FlavorImportApplyConfiguration {
 	return applyconfigv1alpha1.FlavorImport().WithID(flavorID)
 }
@@ -67,12 +61,41 @@ var _ = Describe("ORC Flavor API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal flavor and managementPolicy should default to managed", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
-		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-		Expect(flavor.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.FlavorApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return flavorStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.FlavorApplyConfiguration {
+			return baseFlavorPatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithResource(testFlavorResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithImport(testFlavorImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.FlavorImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.FlavorImport().WithFilter(applyconfigv1alpha1.FlavorFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.FlavorImport().WithFilter(applyconfigv1alpha1.FlavorFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.FlavorApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Flavor).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Flavor).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should be immutable", func(ctx context.Context) {
@@ -116,70 +139,6 @@ var _ = Describe("ORC Flavor API validations", func() {
 		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.description: Too long")))
 
 	})
-	It("should default to managementPolicy managed", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		flavor.Spec.Resource = &orcv1alpha1.FlavorResourceSpec{
-			RAM:   1,
-			Vcpus: 1,
-		}
-		flavor.Spec.CloudCredentialsRef = orcv1alpha1.CloudCredentialsReference{
-			SecretName: "my-secret",
-			CloudName:  "my-cloud",
-		}
-
-		Expect(k8sClient.Create(ctx, flavor)).To(Succeed())
-		Expect(flavor.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("import must be specified when policy is unmanaged")))
-
-		patch.Spec.WithImport(testFlavorImport())
-		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testFlavorImport()).
-			WithResource(testFlavorResource())
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("resource may not be specified when policy is unmanaged")))
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.FlavorImport())
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import in body should have at least 1 properties")))
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.FlavorImport().
-				WithFilter(applyconfigv1alpha1.FlavorFilter()))
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
-	})
-
-	It("should permit import filter with values within bound", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.FlavorImport().
-				WithFilter(applyconfigv1alpha1.FlavorFilter().
-					WithName("foo").WithRAM(1)))
-		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-	})
 
 	It("should reject import filter with value less than minimal", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
@@ -189,46 +148,5 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithImport(applyconfigv1alpha1.FlavorImport().
 				WithFilter(applyconfigv1alpha1.FlavorFilter().WithRAM(0)))
 		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import.filter.ram in body should be greater than or equal to 1")))
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("resource must be specified when policy is managed")))
-
-		patch.Spec.WithResource(testFlavorResource())
-		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.
-			WithImport(testFlavorImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testFlavorResource())
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("import may not be specified when policy is managed")))
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseFlavorPatch(flavor)
-		patch.Spec.
-			WithImport(testFlavorImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("managedOptions may only be provided when policy is managed")))
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		flavor := flavorStub(namespace)
-		patch := baseWorkingFlavorPatch(flavor)
-		patch.Spec.
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-		Expect(flavor.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 })
