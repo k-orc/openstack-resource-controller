@@ -1,0 +1,14 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Image
+      name: server-bdm-dependency
+      ref: image
+assertAll:
+    - celExpr: "image.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/server' in image.metadata.finalizers"
+commands:
+- script: "! kubectl get flavor server-bdm-dependency --namespace $NAMESPACE"
+  skipLogOutput: true

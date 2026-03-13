@@ -1,0 +1,35 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: server-create-bdm
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-create-bdm
+    addresses:
+      - subnetRef: server-create-bdm
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-create-bdm
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    flavorRef: server-create-bdm
+    ports:
+      - portRef: server-create-bdm
+    blockDevices:
+      - sourceType: image
+        imageRef: server-create-bdm
+        bootIndex: 0
+        volumeSizeGiB: 1
+        destinationType: volume
+        deleteOnTermination: true

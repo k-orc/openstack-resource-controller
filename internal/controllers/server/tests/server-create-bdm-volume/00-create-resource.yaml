@@ -1,0 +1,46 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: server-create-bdm-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-create-bdm-volume
+    addresses:
+      - subnetRef: server-create-bdm-volume
+---
+# Create a bootable volume from image
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: server-create-bdm-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    size: 1
+    imageRef: server-create-bdm-volume
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-create-bdm-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    flavorRef: server-create-bdm-volume
+    ports:
+      - portRef: server-create-bdm-volume
+    blockDevices:
+      - sourceType: volume
+        volumeRef: server-create-bdm-volume
+        bootIndex: 0
