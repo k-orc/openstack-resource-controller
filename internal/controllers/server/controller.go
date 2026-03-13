@@ -73,11 +73,11 @@ var (
 		"spec.resource.imageRef",
 		func(server *orcv1alpha1.Server) []string {
 			resource := server.Spec.Resource
-			if resource == nil {
+			if resource == nil || resource.ImageRef == nil {
 				return nil
 			}
 
-			return []string{string(resource.ImageRef)}
+			return []string{string(*resource.ImageRef)}
 		},
 		finalizer, externalObjectFieldOwner,
 	)
@@ -161,6 +161,46 @@ var (
 		},
 		finalizer, externalObjectFieldOwner,
 	)
+
+	bdmVolumeDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Volume](
+		"spec.resource.blockDevices.volumeRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			refs := make([]string, 0, len(resource.BlockDevices))
+			for i := range resource.BlockDevices {
+				bd := &resource.BlockDevices[i]
+				if bd.VolumeRef != nil {
+					refs = append(refs, string(*bd.VolumeRef))
+				}
+			}
+			return refs
+		},
+		finalizer, externalObjectFieldOwner,
+	)
+
+	bdmImageDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ServerList, *orcv1alpha1.Image](
+		"spec.resource.blockDevices.imageRef",
+		func(server *orcv1alpha1.Server) []string {
+			resource := server.Spec.Resource
+			if resource == nil {
+				return nil
+			}
+
+			refs := make([]string, 0, len(resource.BlockDevices))
+			for i := range resource.BlockDevices {
+				bd := &resource.BlockDevices[i]
+				if bd.ImageRef != nil {
+					refs = append(refs, string(*bd.ImageRef))
+				}
+			}
+			return refs
+		},
+		finalizer, externalObjectFieldOwner,
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -196,6 +236,14 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 	if err != nil {
 		return err
 	}
+	bdmVolumeWatchEventHandler, err := bdmVolumeDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+	bdmImageWatchEventHandler, err := bdmImageDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
@@ -218,6 +266,12 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.KeyPair{}, keypairWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.KeyPair{})),
 		).
+		Watches(&orcv1alpha1.Volume{}, bdmVolumeWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Volume{})),
+		).
+		Watches(&orcv1alpha1.Image{}, bdmImageWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Image{})),
+		).
 		// XXX: This is a general watch on secrets. A general watch on secrets
 		// is undesirable because:
 		// - It requires problematic RBAC
@@ -235,6 +289,8 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		userDataDependency.AddToManager(ctx, mgr),
 		volumeDependency.AddToManager(ctx, mgr),
 		keypairDependency.AddToManager(ctx, mgr),
+		bdmVolumeDependency.AddToManager(ctx, mgr),
+		bdmImageDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

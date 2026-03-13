@@ -1,0 +1,61 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: server-bdm-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: server-bdm-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: server-bdm-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-bdm-dependency
+    ipVersion: 4
+    cidr: 192.168.200.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: server-bdm-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: server-bdm-dependency
+    addresses:
+      - subnetRef: server-bdm-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-bdm-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    flavorRef: server-bdm-dependency
+    ports:
+      - portRef: server-bdm-dependency
+    blockDevices:
+      - sourceType: image
+        imageRef: server-bdm-dependency
+        bootIndex: 0
+        volumeSizeGiB: 1
+        destinationType: volume
+        deleteOnTermination: true
