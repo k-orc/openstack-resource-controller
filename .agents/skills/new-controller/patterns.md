@@ -122,7 +122,7 @@ if resource.VipSubnetRef != nil {
 subnet, depRS := subnetDependency.GetDependency(ctx, ...)  // Wrong if subnet is optional
 ```
 
-For detailed dependency implementation: @.agents/skills/add-dependency/SKILL.md
+For detailed dependency implementation, use the add-dependency skill.
 
 ## 6. Code Clarity
 

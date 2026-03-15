@@ -23,22 +23,36 @@ Ask the user one by one about:
 
 ## Step 1: Research the OpenStack Resource
 
-**Before scaffolding**, research the resource to understand the exact field names:
+**Before scaffolding**, research the resource to understand field names, types, and mutability:
 
-1. **Read the gophercloud struct** to get exact field names:
+1. **Read the gophercloud struct** to get exact field names and types:
 ```bash
 go doc <gophercloud-module>.<Type>
 go doc <gophercloud-module>.CreateOpts
 ```
+   - Note field types precisely: `int32` in gophercloud → `*int32` in status (not `*int`)
 
-2. **Look at a similar existing controller** for patterns (if user provided one):
+2. **Check OpenStack API documentation** for update capabilities:
+   - URL: `https://docs.openstack.org/api-ref/<service>/`
+   - Which fields can be updated? (determines mutability in spec)
+
+3. **Look at a similar existing controller** for patterns (if user provided one):
    - Check their `*_types.go` for API structure
    - Check their `actuator.go` for implementation patterns
 
-3. **Note the exact field names** from gophercloud - use these when defining API types:
-   - If gophercloud has `VipSubnetID`, name the ORC field `VipSubnetRef` (not just `SubnetRef`)
-   - If gophercloud has `FlavorID`, name the ORC field `FlavorRef`
-   - Preserve prefixes like `Vip`, `Source`, `Destination` etc.
+4. **Field naming rules for API types**:
+   - **Status**: Preserve gophercloud names exactly, just camelCase for JSON
+     - Example: gophercloud `ProjectID` → status `projectID`
+     - **Expose ALL fields from gophercloud struct** unless they contain sensitive data or are redundant
+     - Include: core fields (IDs, names), observability fields (state, network details), metadata (timestamps like `createdAt`, `updatedAt`)
+   - **Spec**: Convert OpenStack ID fields to ORC references using `*KubernetesNameRef` with `Ref` suffix
+     - **Naming rule**: Use the ORC resource name (e.g., `networkRef`, `subnetRef`, `flavorRef`)
+     - **Keep prefixes only if they have semantic meaning or prevent collision**:
+       - Keep semantic prefixes: `vipSubnetRef` (VIP has meaning), `floatingNetworkRef` (floating has meaning), `sourceSecurityGroupRef` (distinguishes from destination)
+       - Drop service prefixes: `NeutronNetID` → `networkRef` (not `neutronNetRef` - users think in terms of ORC Network resource)
+       - Keep distinguishing prefixes: If resource has both `NetworkID` and `ExternalNetworkID` → `networkRef` and `externalNetworkRef`
+     - **Only if ORC has a controller for that resource** - otherwise omit the field and add a TODO comment
+     - Example: `// TODO(controller): Add AvailabilityZoneRef when AvailabilityZone controller is implemented`
 
 ## Step 2: Run Scaffolding Tool
 
@@ -66,7 +80,7 @@ Use the field names discovered in Step 1 to inform your implementation later.
 | `-deleting-polling-period` | Polling period in seconds while waiting for resource to be deleted | `0` (deleted immediately) |
 | `-required-create-dependency` | Required dependency for creation (can repeat flag for multiple) | none |
 | `-optional-create-dependency` | Optional dependency for creation (can repeat flag for multiple) | none |
-| `-import-dependency` | Dependency for import filter (can repeat flag for multiple) | none |
+| `-import-dependency` | Dependency for import filter (can repeat flag for multiple). Prefer enabling all available dependencies that can be used for filtering. | none |
 | `-interactive` | Run in interactive mode | `true` (set to `false` for scripted use) |
 
 ### Common Gophercloud Clients
@@ -198,24 +212,38 @@ Implement:
 - `CreateResource()` - Build CreateOpts, call OpenStack API
 - `DeleteResource()` - Call delete API
 - `ListOSResourcesForImport()` - Apply filter to list results
-- `ListOSResourcesForAdoption()` - Match by spec fields
+- `ListOSResourcesForAdoption()` - Match by spec fields. **Include all available fields** that the OpenStack List API supports for filtering (e.g., name, description, and other immutable configuration fields)
 - `GetResourceReconcilers()` - (if resource supports updates)
 
 ### Implementation Patterns
 
-Follow the patterns in @.agents/skills/new-controller/patterns.md when implementing the actuator and API types.
+Follow the patterns in patterns.md when implementing the actuator and API types.
 
 ### Status Writer (internal/controllers/<kind>/status.go)
 
 Implement:
 - `ResourceAvailableStatus()` - When is resource available?
 - `ApplyResourceStatus()` - Map OpenStack fields to status
+  - **Expose ALL fields from the gophercloud struct** unless they contain sensitive data (passwords, tokens) or are redundant with ORC object metadata
+  - Include core fields (IDs, names, primary configuration)
+  - Include observability fields (state, status, network details, capacity information)
+  - Include metadata fields (timestamps like `createdAt`, `updatedAt` if available)
+  - Use conditional writes for optional/zero-value fields (see existing controllers for patterns)
 
 ## Step 7: Write and Run Tests
 
 **This step is required** - do not skip it.
 
-Complete the test stubs in `internal/controllers/<kind>/tests/` and run tests following @.agents/skills/testing/SKILL.md
+The scaffolding tool creates test directory stubs in `internal/controllers/<kind>/tests/` with README files explaining each test suite's purpose.
+
+**Read the README files** in each test directory to understand:
+- What each test suite validates
+- The test structure and steps
+- What assertions are needed
+
+Complete the test stubs and run tests following the testing skill.
+
+**Test Assertion Pattern**: In create-full tests, validate **all status fields** including optional ones (observability fields, timestamps), not just basic fields like name and description.
 
 ## Checklist
 
@@ -229,20 +257,31 @@ Complete the test stubs in `internal/controllers/<kind>/tests/` and run tests fo
 - [ ] OpenStack client added to scope
 - [ ] Controller registered in main.go
 - [ ] API types implemented:
-  - [ ] Correct field names (matching OpenStack conventions)
+  - [ ] Status field names match gophercloud exactly
+  - [ ] All gophercloud fields exposed in status (core, observability, metadata/timestamps)
+  - [ ] Field types match gophercloud precisely (int32 vs int)
+  - [ ] Spec ID fields converted to *KubernetesNameRef with Ref suffix using ORC resource names
+  - [ ] Semantic prefixes preserved (vip, floating, source, destination, external)
+  - [ ] Service prefixes dropped (neutron → network/subnet)
   - [ ] Stricter types where appropriate (IPvAny, custom tag types)
   - [ ] Status constants in types.go (if resource has provisioning states)
 - [ ] Actuator methods implemented:
   - [ ] DeleteResource: no cascade unless explicitly requested
   - [ ] DeleteResource: handles pending states and 409 Conflict (if resource has intermediate states)
+  - [ ] ListOSResourcesForAdoption: includes all available filterable fields (name, description, immutable config)
   - [ ] CreateResource includes tags with sorting (if applicable)
   - [ ] Proper error classification (Terminal vs retryable)
-  - [ ] Descriptive dependency variable names
-- [ ] Status writer implemented
+- [ ] Status writer implemented:
+  - [ ] All gophercloud fields mapped to status
+  - [ ] Conditional writes for optional/zero-value fields
+  - [ ] Timestamps included (createdAt, updatedAt if available)
 - [ ] Update reconciler includes tags update (if tags are mutable)
 - [ ] All TODOs resolved
 - [ ] `make generate` runs cleanly
 - [ ] `make lint` passes
 - [ ] `make test` passes
-- [ ] E2E tests written (including dependency tests if applicable)
+- [ ] E2E tests written:
+  - [ ] Read README files in test directories
+  - [ ] All test stubs completed
+  - [ ] Create-full test validates ALL status fields (not just name/description)
 - [ ] E2E tests passing
