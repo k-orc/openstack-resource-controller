@@ -84,6 +84,7 @@ kubectl delete -f $ORC_RELEASE
 | role                        |         |    ✔    |     ✔    |
 | router                      |         |    ◐    |     ◐    |
 | security group (incl. rule) |         |    ✔    |     ✔    |
+| share network               |         |    ◐    |     ◐    |
 | server                      |         |    ◐    |     ◐    |
 | server group                |         |    ✔    |     ✔    |
 | service                     |         |    ✔    |     ✔    |

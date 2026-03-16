@@ -104,10 +104,20 @@ spec:
       kind: Service
       name: services.openstack.k-orc.cloud
       version: v1alpha1
+    - description: ShareNetwork is the Schema for an ORC resource.
+      displayName: Share Network
+      kind: ShareNetwork
+      name: sharenetworks.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Subnet is the Schema for an ORC resource.
       displayName: Subnet
       kind: Subnet
       name: subnets.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: Trunk is the Schema for an ORC resource.
+      displayName: Trunk
+      kind: Trunk
+      name: trunks.openstack.k-orc.cloud
       version: v1alpha1
     - description: Volume is the Schema for an ORC resource.
       displayName: Volume
