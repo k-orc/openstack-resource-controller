@@ -60,6 +60,89 @@ type ServerPortSpec struct {
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
+// +kubebuilder:validation:Enum:=volume;image;blank
+type BlockDeviceSourceType string
+
+const (
+	BlockDeviceSourceTypeVolume BlockDeviceSourceType = "volume"
+	BlockDeviceSourceTypeImage  BlockDeviceSourceType = "image"
+	BlockDeviceSourceTypeBlank  BlockDeviceSourceType = "blank"
+)
+
+// +kubebuilder:validation:Enum:=volume;local
+type BlockDeviceDestinationType string
+
+const (
+	BlockDeviceDestinationTypeVolume BlockDeviceDestinationType = "volume"
+	BlockDeviceDestinationTypeLocal  BlockDeviceDestinationType = "local"
+)
+
+// +kubebuilder:validation:XValidation:rule="self.sourceType == 'volume' ? has(self.volumeRef) : !has(self.volumeRef)",message="volumeRef must be set when sourceType is 'volume', and must not be set otherwise"
+// +kubebuilder:validation:XValidation:rule="self.sourceType == 'image' ? has(self.imageRef) : !has(self.imageRef)",message="imageRef must be set when sourceType is 'image', and must not be set otherwise"
+// +kubebuilder:validation:XValidation:rule="self.sourceType in ['image', 'blank'] ? has(self.volumeSizeGiB) : true",message="volumeSizeGiB is required when sourceType is 'image' or 'blank'"
+type ServerBlockDeviceSpec struct {
+	// sourceType must be one of: "volume", "image", or "blank".
+	// +required
+	SourceType BlockDeviceSourceType `json:"sourceType"`
+
+	// volumeRef is a reference to an ORC Volume object. Required when
+	// sourceType is "volume".
+	// +optional
+	VolumeRef *KubernetesNameRef `json:"volumeRef,omitempty"`
+
+	// imageRef is a reference to an ORC Image object. Required when
+	// sourceType is "image".
+	// +optional
+	ImageRef *KubernetesNameRef `json:"imageRef,omitempty"`
+
+	// bootIndex is the boot index of the device. Use 0 for the boot device.
+	// Use -1 for a non-bootable device.
+	// +kubebuilder:validation:Minimum:=-1
+	// +required
+	BootIndex int32 `json:"bootIndex"`
+
+	// volumeSizeGiB is the size of the volume to create (in gibibytes).
+	// Required when sourceType is "image" or "blank".
+	// +kubebuilder:validation:Minimum:=1
+	// +optional
+	VolumeSizeGiB *int32 `json:"volumeSizeGiB,omitempty"`
+
+	// destinationType is the type of device created. Possible values are
+	// "volume" and "local". Defaults to "volume".
+	// +optional
+	DestinationType *BlockDeviceDestinationType `json:"destinationType,omitempty"`
+
+	// deleteOnTermination specifies whether or not to delete the
+	// attached volume when the server is deleted. Defaults to false.
+	// +optional
+	DeleteOnTermination *bool `json:"deleteOnTermination,omitempty"`
+
+	// diskBus is the bus type of the block device.
+	// Examples: "virtio", "scsi", "ide", "usb".
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	DiskBus *string `json:"diskBus,omitempty"`
+
+	// deviceType specifies the device type of the block device.
+	// Examples: "disk", "cdrom", "floppy".
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	DeviceType *string `json:"deviceType,omitempty"`
+
+	// volumeType is the volume type to use when creating a volume.
+	// Only applicable when destinationType is "volume".
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	VolumeType *string `json:"volumeType,omitempty"`
+
+	// tag is an arbitrary string that can be applied to a block device.
+	// Information about the device tags can be obtained from the metadata API
+	// and the config drive.
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Tag *string `json:"tag,omitempty"`
+}
+
 // +kubebuilder:validation:MinProperties:=1
 type ServerVolumeSpec struct {
 	// volumeRef is a reference to a Volume object. Server creation will wait for
@@ -122,6 +205,7 @@ type ServerInterfaceStatus struct {
 }
 
 // ServerResourceSpec contains the desired state of a server
+// +kubebuilder:validation:XValidation:rule="has(self.imageRef) || (has(self.blockDevices) && self.blockDevices.exists(bd, bd.bootIndex == 0))",message="either imageRef or a blockDevice with bootIndex 0 must be specified"
 type ServerResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -129,10 +213,10 @@ type ServerResourceSpec struct {
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// imageRef references the image to use for the server instance.
-	// NOTE: This is not required in case of boot from volume.
-	// +required
+	// This is not required when booting from a block device.
+	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
-	ImageRef KubernetesNameRef `json:"imageRef,omitempty"`
+	ImageRef *KubernetesNameRef `json:"imageRef,omitempty"`
 
 	// flavorRef references the flavor to use for the server instance.
 	// +required
@@ -152,11 +236,20 @@ type ServerResourceSpec struct {
 	// +required
 	Ports []ServerPortSpec `json:"ports,omitempty"`
 
-	// volumes is a list of volumes attached to the server.
+	// volumes is a list of volumes attached to the server after creation.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=atomic
 	// +optional
 	Volumes []ServerVolumeSpec `json:"volumes,omitempty"`
+
+	// blockDevices defines the block device mapping for the server at boot
+	// time. This controls how the server's disks are set up, including boot
+	// from volume. This is immutable after creation.
+	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="blockDevices is immutable"
+	// +listType=atomic
+	// +optional
+	BlockDevices []ServerBlockDeviceSpec `json:"blockDevices,omitempty"`
 
 	// serverGroupRef is a reference to a ServerGroup object. The server
 	// will be created in the server group.

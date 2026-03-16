@@ -161,7 +161,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	reconcileStatus := progress.NewReconcileStatus()
 
 	var image *orcv1alpha1.Image
-	{
+	if resource.ImageRef != nil {
 		dep, imageReconcileStatus := imageDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(image *orcv1alpha1.Image) bool {
 				return orcv1alpha1.IsAvailable(image) && image.Status.ID != nil
@@ -238,6 +238,28 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		}
 	}
 
+	var bdmVolumesMap map[string]*orcv1alpha1.Volume
+	if len(resource.BlockDevices) > 0 {
+		bdmVols, bdmVolReconcileStatus := bdmVolumeDependency.GetDependencies(
+			ctx, actuator.k8sClient, obj, func(vol *orcv1alpha1.Volume) bool {
+				return orcv1alpha1.IsAvailable(vol) && vol.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(bdmVolReconcileStatus)
+		bdmVolumesMap = bdmVols
+	}
+
+	var bdmImagesMap map[string]*orcv1alpha1.Image
+	if len(resource.BlockDevices) > 0 {
+		bdmImgs, bdmImgReconcileStatus := bdmImageDependency.GetDependencies(
+			ctx, actuator.k8sClient, obj, func(img *orcv1alpha1.Image) bool {
+				return orcv1alpha1.IsAvailable(img) && img.Status.ID != nil
+			},
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(bdmImgReconcileStatus)
+		bdmImagesMap = bdmImgs
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -254,9 +276,50 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		metadata[m.Key] = m.Value
 	}
 
+	var blockDevices []servers.BlockDevice
+	for i := range resource.BlockDevices {
+		bdSpec := &resource.BlockDevices[i]
+		bd := servers.BlockDevice{
+			SourceType:          servers.SourceType(bdSpec.SourceType),
+			BootIndex:           int(bdSpec.BootIndex),
+			DeleteOnTermination: ptr.Deref(bdSpec.DeleteOnTermination, false),
+		}
+
+		if bdSpec.DestinationType != nil {
+			bd.DestinationType = servers.DestinationType(*bdSpec.DestinationType)
+		}
+		if bdSpec.VolumeSizeGiB != nil {
+			bd.VolumeSize = int(*bdSpec.VolumeSizeGiB)
+		}
+		if bdSpec.DiskBus != nil {
+			bd.DiskBus = *bdSpec.DiskBus
+		}
+		if bdSpec.DeviceType != nil {
+			bd.DeviceType = *bdSpec.DeviceType
+		}
+		if bdSpec.VolumeType != nil {
+			bd.VolumeType = *bdSpec.VolumeType
+		}
+		if bdSpec.Tag != nil {
+			bd.Tag = *bdSpec.Tag
+		}
+
+		switch bdSpec.SourceType {
+		case orcv1alpha1.BlockDeviceSourceTypeVolume:
+			vol := bdmVolumesMap[string(*bdSpec.VolumeRef)]
+			bd.UUID = *vol.Status.ID
+		case orcv1alpha1.BlockDeviceSourceTypeImage:
+			img := bdmImagesMap[string(*bdSpec.ImageRef)]
+			bd.UUID = *img.Status.ID
+		case orcv1alpha1.BlockDeviceSourceTypeBlank:
+			// No UUID needed
+		}
+
+		blockDevices = append(blockDevices, bd)
+	}
+
 	serverCreateOpts := servers.CreateOpts{
 		Name:             getResourceName(obj),
-		ImageRef:         *image.Status.ID,
 		FlavorRef:        *flavor.Status.ID,
 		Networks:         portList,
 		UserData:         userData,
@@ -264,6 +327,10 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 		Metadata:         metadata,
 		AvailabilityZone: resource.AvailabilityZone,
 		ConfigDrive:      resource.ConfigDrive,
+		BlockDevice:      blockDevices,
+	}
+	if image != nil && image.Status.ID != nil {
+		serverCreateOpts.ImageRef = *image.Status.ID
 	}
 
 	/* keypairs.CreateOptsExt was merged into servers.CreateOpts in gopher cloud V3

@@ -25,18 +25,19 @@ import (
 // ServerResourceSpecApplyConfiguration represents a declarative configuration of the ServerResourceSpec type for use
 // with apply.
 type ServerResourceSpecApplyConfiguration struct {
-	Name             *apiv1alpha1.OpenStackName           `json:"name,omitempty"`
-	ImageRef         *apiv1alpha1.KubernetesNameRef       `json:"imageRef,omitempty"`
-	FlavorRef        *apiv1alpha1.KubernetesNameRef       `json:"flavorRef,omitempty"`
-	UserData         *UserDataSpecApplyConfiguration      `json:"userData,omitempty"`
-	Ports            []ServerPortSpecApplyConfiguration   `json:"ports,omitempty"`
-	Volumes          []ServerVolumeSpecApplyConfiguration `json:"volumes,omitempty"`
-	ServerGroupRef   *apiv1alpha1.KubernetesNameRef       `json:"serverGroupRef,omitempty"`
-	AvailabilityZone *string                              `json:"availabilityZone,omitempty"`
-	KeypairRef       *apiv1alpha1.KubernetesNameRef       `json:"keypairRef,omitempty"`
-	Tags             []apiv1alpha1.ServerTag              `json:"tags,omitempty"`
-	Metadata         []ServerMetadataApplyConfiguration   `json:"metadata,omitempty"`
-	ConfigDrive      *bool                                `json:"configDrive,omitempty"`
+	Name             *apiv1alpha1.OpenStackName                `json:"name,omitempty"`
+	ImageRef         *apiv1alpha1.KubernetesNameRef            `json:"imageRef,omitempty"`
+	FlavorRef        *apiv1alpha1.KubernetesNameRef            `json:"flavorRef,omitempty"`
+	UserData         *UserDataSpecApplyConfiguration           `json:"userData,omitempty"`
+	Ports            []ServerPortSpecApplyConfiguration        `json:"ports,omitempty"`
+	Volumes          []ServerVolumeSpecApplyConfiguration      `json:"volumes,omitempty"`
+	BlockDevices     []ServerBlockDeviceSpecApplyConfiguration `json:"blockDevices,omitempty"`
+	ServerGroupRef   *apiv1alpha1.KubernetesNameRef            `json:"serverGroupRef,omitempty"`
+	AvailabilityZone *string                                   `json:"availabilityZone,omitempty"`
+	KeypairRef       *apiv1alpha1.KubernetesNameRef            `json:"keypairRef,omitempty"`
+	Tags             []apiv1alpha1.ServerTag                   `json:"tags,omitempty"`
+	Metadata         []ServerMetadataApplyConfiguration        `json:"metadata,omitempty"`
+	ConfigDrive      *bool                                     `json:"configDrive,omitempty"`
 }
 
 // ServerResourceSpecApplyConfiguration constructs a declarative configuration of the ServerResourceSpec type for use with
@@ -99,6 +100,19 @@ func (b *ServerResourceSpecApplyConfiguration) WithVolumes(values ...*ServerVolu
 			panic("nil value passed to WithVolumes")
 		}
 		b.Volumes = append(b.Volumes, *values[i])
+	}
+	return b
+}
+
+// WithBlockDevices adds the given value to the BlockDevices field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the BlockDevices field.
+func (b *ServerResourceSpecApplyConfiguration) WithBlockDevices(values ...*ServerBlockDeviceSpecApplyConfiguration) *ServerResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithBlockDevices")
+		}
+		b.BlockDevices = append(b.BlockDevices, *values[i])
 	}
 	return b
 }

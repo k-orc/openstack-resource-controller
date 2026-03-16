@@ -272,6 +272,43 @@ _Appears in:_
 
 
 
+#### BlockDeviceDestinationType
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [volume local]
+
+_Appears in:_
+- [ServerBlockDeviceSpec](#serverblockdevicespec)
+
+| Field | Description |
+| --- | --- |
+| `volume` |  |
+| `local` |  |
+
+
+#### BlockDeviceSourceType
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [volume image blank]
+
+_Appears in:_
+- [ServerBlockDeviceSpec](#serverblockdevicespec)
+
+| Field | Description |
+| --- | --- |
+| `volume` |  |
+| `image` |  |
+| `blank` |  |
+
+
 #### CIDR
 
 _Underlying type:_ _string_
@@ -1934,6 +1971,7 @@ _Appears in:_
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
+- [ServerBlockDeviceSpec](#serverblockdevicespec)
 - [ServerPortSpec](#serverportspec)
 - [ServerResourceSpec](#serverresourcespec)
 - [ServerVolumeSpec](#servervolumespec)
@@ -3363,6 +3401,32 @@ Server is the Schema for an ORC resource.
 | `status` _[ServerStatus](#serverstatus)_ | status defines the observed state of the resource. |  |  |
 
 
+#### ServerBlockDeviceSpec
+
+
+
+
+
+
+
+_Appears in:_
+- [ServerResourceSpec](#serverresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `sourceType` _[BlockDeviceSourceType](#blockdevicesourcetype)_ | sourceType must be one of: "volume", "image", or "blank". |  | Enum: [volume image blank] <br /> |
+| `volumeRef` _[KubernetesNameRef](#kubernetesnameref)_ | volumeRef is a reference to an ORC Volume object. Required when<br />sourceType is "volume". |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef is a reference to an ORC Image object. Required when<br />sourceType is "image". |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `bootIndex` _integer_ | bootIndex is the boot index of the device. Use 0 for the boot device.<br />Use -1 for a non-bootable device. |  | Minimum: -1 <br /> |
+| `volumeSizeGiB` _integer_ | volumeSizeGiB is the size of the volume to create (in gibibytes).<br />Required when sourceType is "image" or "blank". |  | Minimum: 1 <br /> |
+| `destinationType` _[BlockDeviceDestinationType](#blockdevicedestinationtype)_ | destinationType is the type of device created. Possible values are<br />"volume" and "local". Defaults to "volume". |  | Enum: [volume local] <br /> |
+| `deleteOnTermination` _boolean_ | deleteOnTermination specifies whether or not to delete the<br />attached volume when the server is deleted. Defaults to false. |  |  |
+| `diskBus` _string_ | diskBus is the bus type of the block device.<br />Examples: "virtio", "scsi", "ide", "usb". |  | MaxLength: 255 <br /> |
+| `deviceType` _string_ | deviceType specifies the device type of the block device.<br />Examples: "disk", "cdrom", "floppy". |  | MaxLength: 255 <br /> |
+| `volumeType` _string_ | volumeType is the volume type to use when creating a volume.<br />Only applicable when destinationType is "volume". |  | MaxLength: 255 <br /> |
+| `tag` _string_ | tag is an arbitrary string that can be applied to a block device.<br />Information about the device tags can be obtained from the metadata API<br />and the config drive. |  | MaxLength: 255 <br /> |
+
+
 #### ServerFilter
 
 
@@ -3692,11 +3756,12 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br /> |
-| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />NOTE: This is not required in case of boot from volume. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
+| `imageRef` _[KubernetesNameRef](#kubernetesnameref)_ | imageRef references the image to use for the server instance.<br />This is not required when booting from a block device. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef references the flavor to use for the server instance. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `userData` _[UserDataSpec](#userdataspec)_ | userData specifies data which will be made available to the server at<br />boot time, either via the metadata service or a config drive. It is<br />typically read by a configuration service such as cloud-init or ignition. |  | MaxProperties: 1 <br />MinProperties: 1 <br /> |
 | `ports` _[ServerPortSpec](#serverportspec) array_ | ports defines a list of ports which will be attached to the server. |  | MaxItems: 64 <br />MaxProperties: 1 <br />MinProperties: 1 <br /> |
-| `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
+| `volumes` _[ServerVolumeSpec](#servervolumespec) array_ | volumes is a list of volumes attached to the server after creation. |  | MaxItems: 64 <br />MinProperties: 1 <br /> |
+| `blockDevices` _[ServerBlockDeviceSpec](#serverblockdevicespec) array_ | blockDevices defines the block device mapping for the server at boot<br />time. This controls how the server's disks are set up, including boot<br />from volume. This is immutable after creation. |  | MaxItems: 64 <br /> |
 | `serverGroupRef` _[KubernetesNameRef](#kubernetesnameref)_ | serverGroupRef is a reference to a ServerGroup object. The server<br />will be created in the server group. |  | MaxLength: 253 <br />MinLength: 1 <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone in which to create the server. |  | MaxLength: 255 <br /> |
 | `keypairRef` _[KubernetesNameRef](#kubernetesnameref)_ | keypairRef is a reference to a KeyPair object. The server will be<br />created with this keypair for SSH access. |  | MaxLength: 253 <br />MinLength: 1 <br /> |

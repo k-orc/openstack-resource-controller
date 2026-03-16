@@ -177,6 +177,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupSpec":              schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupStatus":            schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Server":                         schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBlockDeviceSpec":          schema_openstack_resource_controller_v2_api_v1alpha1_ServerBlockDeviceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerFilter":                   schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroup":                    schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroup(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupFilter":              schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupFilter(ref),
@@ -8256,6 +8257,98 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Server(ref common.Refe
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_ServerBlockDeviceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"sourceType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "sourceType must be one of: \"volume\", \"image\", or \"blank\".",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"volumeRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeRef is a reference to an ORC Volume object. Required when sourceType is \"volume\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"imageRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "imageRef is a reference to an ORC Image object. Required when sourceType is \"image\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"bootIndex": {
+						SchemaProps: spec.SchemaProps{
+							Description: "bootIndex is the boot index of the device. Use 0 for the boot device. Use -1 for a non-bootable device.",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"volumeSizeGiB": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeSizeGiB is the size of the volume to create (in gibibytes). Required when sourceType is \"image\" or \"blank\".",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"destinationType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "destinationType is the type of device created. Possible values are \"volume\" and \"local\". Defaults to \"volume\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"deleteOnTermination": {
+						SchemaProps: spec.SchemaProps{
+							Description: "deleteOnTermination specifies whether or not to delete the attached volume when the server is deleted. Defaults to false.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"diskBus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "diskBus is the bus type of the block device. Examples: \"virtio\", \"scsi\", \"ide\", \"usb\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"deviceType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "deviceType specifies the device type of the block device. Examples: \"disk\", \"cdrom\", \"floppy\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"volumeType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeType is the volume type to use when creating a volume. Only applicable when destinationType is \"volume\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tag": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tag is an arbitrary string that can be applied to a block device. Information about the device tags can be obtained from the metadata API and the config drive.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"sourceType", "bootIndex"},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_ServerFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -8992,7 +9085,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 					},
 					"imageRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "imageRef references the image to use for the server instance. NOTE: This is not required in case of boot from volume.",
+							Description: "imageRef references the image to use for the server instance. This is not required when booting from a block device.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9036,13 +9129,32 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "volumes is a list of volumes attached to the server.",
+							Description: "volumes is a list of volumes attached to the server after creation.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
 										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec"),
+									},
+								},
+							},
+						},
+					},
+					"blockDevices": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "blockDevices defines the block device mapping for the server at boot time. This controls how the server's disks are set up, including boot from volume. This is immutable after creation.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBlockDeviceSpec"),
 									},
 								},
 							},
@@ -9116,11 +9228,11 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerResourceSpec(ref
 						},
 					},
 				},
-				Required: []string{"imageRef", "flavorRef", "ports"},
+				Required: []string{"flavorRef", "ports"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerBlockDeviceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerMetadata", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerPortSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerVolumeSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserDataSpec"},
 	}
 }
 

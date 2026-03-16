@@ -1,0 +1,41 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Server
+      name: server-create-bdm
+      ref: server
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: server-create-bdm
+      ref: port
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: server-create-bdm
+      ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: server-create-bdm
+      ref: subnet
+assertAll:
+    - celExpr: "server.status.resource.hostID != ''"
+    - celExpr: "server.status.resource.availabilityZone != ''"
+    # Boot from volume: server should have at least one volume attached
+    - celExpr: "size(server.status.resource.volumes) >= 1"
+    - celExpr: "port.status.resource.deviceID == server.status.id"
+    - celExpr: "port.status.resource.status == 'ACTIVE'"
+    - celExpr: "size(server.status.resource.interfaces) == 1"
+    - celExpr: "server.status.resource.interfaces[0].portID == port.status.id"
+    - celExpr: "server.status.resource.interfaces[0].netID == network.status.id"
+    - celExpr: "server.status.resource.interfaces[0].macAddr != ''"
+    - celExpr: "size(server.status.resource.interfaces[0].fixedIPs) >= 1"
+    - celExpr: "server.status.resource.interfaces[0].fixedIPs[0].subnetID == subnet.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Server
+metadata:
+  name: server-create-bdm
+status:
+  resource:
+    status: ACTIVE

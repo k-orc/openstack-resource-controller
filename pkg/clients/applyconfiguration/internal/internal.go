@@ -2411,6 +2411,44 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerBlockDeviceSpec
+  map:
+    fields:
+    - name: bootIndex
+      type:
+        scalar: numeric
+      default: 0
+    - name: deleteOnTermination
+      type:
+        scalar: boolean
+    - name: destinationType
+      type:
+        scalar: string
+    - name: deviceType
+      type:
+        scalar: string
+    - name: diskBus
+      type:
+        scalar: string
+    - name: imageRef
+      type:
+        scalar: string
+    - name: sourceType
+      type:
+        scalar: string
+      default: ""
+    - name: tag
+      type:
+        scalar: string
+    - name: volumeRef
+      type:
+        scalar: string
+    - name: volumeSizeGiB
+      type:
+        scalar: numeric
+    - name: volumeType
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerFilter
   map:
     fields:
@@ -2627,6 +2665,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: availabilityZone
       type:
         scalar: string
+    - name: blockDevices
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerBlockDeviceSpec
+          elementRelationship: atomic
     - name: configDrive
       type:
         scalar: boolean
