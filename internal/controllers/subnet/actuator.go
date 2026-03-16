@@ -87,19 +87,15 @@ func (actuator subnetActuator) ListOSResourcesForAdoption(ctx context.Context, o
 func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	network, rs := dependency.FetchDependency(
+	network, rs := dependency.FetchDependency[*orcv1alpha1.Network](
 		ctx, actuator.k8sClient, obj.Namespace, &filter.NetworkRef, "Network",
-		func(dep *orcv1alpha1.Network) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	project, rs := dependency.FetchDependency(
+	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -137,16 +133,12 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 	}
 
 	network, reconcileStatus := networkDependency.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Network) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	if resource.RouterRef != nil {
 		_, routerDepRS := routerDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Router) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(routerDepRS)
 	}
@@ -154,9 +146,7 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 	var projectID string
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
-				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
 		if project != nil {
