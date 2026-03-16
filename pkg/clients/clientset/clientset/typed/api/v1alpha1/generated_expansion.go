@@ -18,6 +18,8 @@ limitations under the License.
 
 package v1alpha1
 
+type AddressScopeExpansion interface{}
+
 type DomainExpansion interface{}
 
 type EndpointExpansion interface{}

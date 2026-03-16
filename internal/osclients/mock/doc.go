@@ -35,6 +35,9 @@ import (
 //go:generate mockgen -package mock -destination=identity.go -source=../identity.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock IdentityClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt identity.go > _identity.go && mv _identity.go identity.go"
 
+//go:generate mockgen -package mock -destination=addressscope.go -source=../addressscope.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock AddressScopeClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt addressscope.go > _addressscope.go && mv _addressscope.go addressscope.go"
+
 //go:generate mockgen -package mock -destination=domain.go -source=../domain.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock DomainClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt domain.go > _domain.go && mv _domain.go domain.go"
 

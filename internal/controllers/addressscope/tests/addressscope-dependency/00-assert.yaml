@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/addressscope-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/addressscope-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: addressscope-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/addressscope-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/addressscope-dependency to be created
+      status: "True"
+      reason: Progressing
