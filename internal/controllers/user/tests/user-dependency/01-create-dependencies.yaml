@@ -26,3 +26,11 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-create-full
+type: Opaque
+stringData:
+  password: "TestPassword"

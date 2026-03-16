@@ -25,11 +25,12 @@ import (
 // UserResourceSpecApplyConfiguration represents a declarative configuration of the UserResourceSpec type for use
 // with apply.
 type UserResourceSpecApplyConfiguration struct {
-	Name              *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description       *string                        `json:"description,omitempty"`
-	DomainRef         *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
-	DefaultProjectRef *apiv1alpha1.KubernetesNameRef `json:"defaultProjectRef,omitempty"`
-	Enabled           *bool                          `json:"enabled,omitempty"`
+	Name              *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description       *string                         `json:"description,omitempty"`
+	DomainRef         *apiv1alpha1.KubernetesNameRef  `json:"domainRef,omitempty"`
+	DefaultProjectRef *apiv1alpha1.KubernetesNameRef  `json:"defaultProjectRef,omitempty"`
+	Enabled           *bool                           `json:"enabled,omitempty"`
+	Password          *PasswordSpecApplyConfiguration `json:"password,omitempty"`
 }
 
 // UserResourceSpecApplyConfiguration constructs a declarative configuration of the UserResourceSpec type for use with
@@ -75,5 +76,13 @@ func (b *UserResourceSpecApplyConfiguration) WithDefaultProjectRef(value apiv1al
 // If called multiple times, the Enabled field is set to the value of the last call.
 func (b *UserResourceSpecApplyConfiguration) WithEnabled(value bool) *UserResourceSpecApplyConfiguration {
 	b.Enabled = &value
+	return b
+}
+
+// WithPassword sets the Password field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Password field is set to the value of the last call.
+func (b *UserResourceSpecApplyConfiguration) WithPassword(value *PasswordSpecApplyConfiguration) *UserResourceSpecApplyConfiguration {
+	b.Password = value
 	return b
 }

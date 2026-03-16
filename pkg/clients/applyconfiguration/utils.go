@@ -208,6 +208,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.NetworkStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("NeutronStatusMetadata"):
 		return &apiv1alpha1.NeutronStatusMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("PasswordSpec"):
+		return &apiv1alpha1.PasswordSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Port"):
 		return &apiv1alpha1.PortApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("PortFilter"):

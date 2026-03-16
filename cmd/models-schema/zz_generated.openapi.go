@@ -127,6 +127,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_NetworkSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_NetworkStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NeutronStatusMetadata":          schema_openstack_resource_controller_v2_api_v1alpha1_NeutronStatusMetadata(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PasswordSpec":                   schema_openstack_resource_controller_v2_api_v1alpha1_PasswordSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Port":                           schema_openstack_resource_controller_v2_api_v1alpha1_Port(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortFilter":                     schema_openstack_resource_controller_v2_api_v1alpha1_PortFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortImport":                     schema_openstack_resource_controller_v2_api_v1alpha1_PortImport(ref),
@@ -5232,6 +5233,25 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_NeutronStatusMetadata(
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_PasswordSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"secretRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "secretRef is a reference to a Secret containing the password for this user.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -11393,9 +11413,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceSpec(ref c
 							Format:      "",
 						},
 					},
+					"password": {
+						SchemaProps: spec.SchemaProps{
+							Description: "password is the password set for the user",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PasswordSpec"),
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PasswordSpec"},
 	}
 }
 
@@ -11438,6 +11466,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceStatus(ref
 						SchemaProps: spec.SchemaProps{
 							Description: "enabled defines whether a user is enabled or disabled",
 							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"passwordExpiresAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "passwordExpiresAt filters the response based on expriing passwords.",
+							Type:        []string{"string"},
 							Format:      "",
 						},
 					},

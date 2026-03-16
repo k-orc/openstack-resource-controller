@@ -27,3 +27,5 @@ assertAll:
     - celExpr: "!has(user.status.resource.description)"
     - celExpr: "user.status.resource.domainID == 'default'"
     - celExpr: "!has(user.status.resource.defaultProjectID)"
+    - celExpr: "!has(user.status.resource.passwordExpiresAt)"
+
