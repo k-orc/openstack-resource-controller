@@ -25,15 +25,23 @@ import (
 // ApplicationCredentialFilterApplyConfiguration represents a declarative configuration of the ApplicationCredentialFilter type for use
 // with apply.
 type ApplicationCredentialFilterApplyConfiguration struct {
+	UserRef     *apiv1alpha1.KubernetesNameRef `json:"userRef,omitempty"`
 	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
 	Description *string                        `json:"description,omitempty"`
-	UserRef     *apiv1alpha1.KubernetesNameRef `json:"userRef,omitempty"`
 }
 
 // ApplicationCredentialFilterApplyConfiguration constructs a declarative configuration of the ApplicationCredentialFilter type for use with
 // apply.
 func ApplicationCredentialFilter() *ApplicationCredentialFilterApplyConfiguration {
 	return &ApplicationCredentialFilterApplyConfiguration{}
+}
+
+// WithUserRef sets the UserRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UserRef field is set to the value of the last call.
+func (b *ApplicationCredentialFilterApplyConfiguration) WithUserRef(value apiv1alpha1.KubernetesNameRef) *ApplicationCredentialFilterApplyConfiguration {
+	b.UserRef = &value
+	return b
 }
 
 // WithName sets the Name field in the declarative configuration to the given value
@@ -49,13 +57,5 @@ func (b *ApplicationCredentialFilterApplyConfiguration) WithName(value apiv1alph
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *ApplicationCredentialFilterApplyConfiguration) WithDescription(value string) *ApplicationCredentialFilterApplyConfiguration {
 	b.Description = &value
-	return b
-}
-
-// WithUserRef sets the UserRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the UserRef field is set to the value of the last call.
-func (b *ApplicationCredentialFilterApplyConfiguration) WithUserRef(value apiv1alpha1.KubernetesNameRef) *ApplicationCredentialFilterApplyConfiguration {
-	b.UserRef = &value
 	return b
 }
