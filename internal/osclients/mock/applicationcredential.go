@@ -58,32 +58,32 @@ func (m *MockApplicationCredentialClient) EXPECT() *MockApplicationCredentialCli
 }
 
 // CreateApplicationCredential mocks base method.
-func (m *MockApplicationCredentialClient) CreateApplicationCredential(ctx context.Context, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
+func (m *MockApplicationCredentialClient) CreateApplicationCredential(ctx context.Context, userID string, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateApplicationCredential", ctx, opts)
+	ret := m.ctrl.Call(m, "CreateApplicationCredential", ctx, userID, opts)
 	ret0, _ := ret[0].(*applicationcredentials.ApplicationCredential)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateApplicationCredential indicates an expected call of CreateApplicationCredential.
-func (mr *MockApplicationCredentialClientMockRecorder) CreateApplicationCredential(ctx, opts any) *gomock.Call {
+func (mr *MockApplicationCredentialClientMockRecorder) CreateApplicationCredential(ctx, userID, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApplicationCredential", reflect.TypeOf((*MockApplicationCredentialClient)(nil).CreateApplicationCredential), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApplicationCredential", reflect.TypeOf((*MockApplicationCredentialClient)(nil).CreateApplicationCredential), ctx, userID, opts)
 }
 
 // DeleteApplicationCredential mocks base method.
-func (m *MockApplicationCredentialClient) DeleteApplicationCredential(ctx context.Context, resourceID string) error {
+func (m *MockApplicationCredentialClient) DeleteApplicationCredential(ctx context.Context, userID, resourceID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteApplicationCredential", ctx, resourceID)
+	ret := m.ctrl.Call(m, "DeleteApplicationCredential", ctx, userID, resourceID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteApplicationCredential indicates an expected call of DeleteApplicationCredential.
-func (mr *MockApplicationCredentialClientMockRecorder) DeleteApplicationCredential(ctx, resourceID any) *gomock.Call {
+func (mr *MockApplicationCredentialClientMockRecorder) DeleteApplicationCredential(ctx, userID, resourceID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteApplicationCredential", reflect.TypeOf((*MockApplicationCredentialClient)(nil).DeleteApplicationCredential), ctx, resourceID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteApplicationCredential", reflect.TypeOf((*MockApplicationCredentialClient)(nil).DeleteApplicationCredential), ctx, userID, resourceID)
 }
 
 // GetApplicationCredential mocks base method.
@@ -102,30 +102,15 @@ func (mr *MockApplicationCredentialClientMockRecorder) GetApplicationCredential(
 }
 
 // ListApplicationCredentials mocks base method.
-func (m *MockApplicationCredentialClient) ListApplicationCredentials(ctx context.Context, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
+func (m *MockApplicationCredentialClient) ListApplicationCredentials(ctx context.Context, userID string, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListApplicationCredentials", ctx, listOpts)
+	ret := m.ctrl.Call(m, "ListApplicationCredentials", ctx, userID, listOpts)
 	ret0, _ := ret[0].(iter.Seq2[*applicationcredentials.ApplicationCredential, error])
 	return ret0
 }
 
 // ListApplicationCredentials indicates an expected call of ListApplicationCredentials.
-func (mr *MockApplicationCredentialClientMockRecorder) ListApplicationCredentials(ctx, listOpts any) *gomock.Call {
+func (mr *MockApplicationCredentialClientMockRecorder) ListApplicationCredentials(ctx, userID, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListApplicationCredentials", reflect.TypeOf((*MockApplicationCredentialClient)(nil).ListApplicationCredentials), ctx, listOpts)
-}
-
-// UpdateApplicationCredential mocks base method.
-func (m *MockApplicationCredentialClient) UpdateApplicationCredential(ctx context.Context, id string, opts applicationcredentials.UpdateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateApplicationCredential", ctx, id, opts)
-	ret0, _ := ret[0].(*applicationcredentials.ApplicationCredential)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateApplicationCredential indicates an expected call of UpdateApplicationCredential.
-func (mr *MockApplicationCredentialClientMockRecorder) UpdateApplicationCredential(ctx, id, opts any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateApplicationCredential", reflect.TypeOf((*MockApplicationCredentialClient)(nil).UpdateApplicationCredential), ctx, id, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListApplicationCredentials", reflect.TypeOf((*MockApplicationCredentialClient)(nil).ListApplicationCredentials), ctx, userID, listOpts)
 }
