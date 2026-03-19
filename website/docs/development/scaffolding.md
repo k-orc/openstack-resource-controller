@@ -62,6 +62,7 @@ The scaffolding tool generates the following files:
 
 ### Tests
 
+- `test/apivalidations/<kind>_test.go` - API validation tests (management policy, immutability)
 - `internal/controllers/<kind>/tests/<kind>-create-minimal/` - Minimal creation test
 - `internal/controllers/<kind>/tests/<kind>-create-full/` - Full creation test
 - `internal/controllers/<kind>/tests/<kind>-import/` - Import test
@@ -171,7 +172,7 @@ controllers := []interfaces.Controller{
 Search the generated code for `TODO(scaffolding)` markers and implement each one:
 
 ```bash
-grep -r "TODO(scaffolding)" api/ internal/controllers/<kind>/
+grep -r "TODO(scaffolding)" api/ internal/controllers/<kind>/ test/apivalidations/
 ```
 
 Key areas requiring implementation:
@@ -179,7 +180,8 @@ Key areas requiring implementation:
 - [API types](api-design.md): Define `Filter`, `ResourceSpec`, and `ResourceStatus` structs
 - [Actuator](interfaces.md#actuator): Implement `CreateResource`, `DeleteResource`, and optionally `GetResourceReconcilers`
 - [Status writer](interfaces.md#resourcestatuswriter): Implement `ResourceAvailableStatus` and `ApplyResourceStatus`
-- [Tests](writing-tests.md): Ensure the tests for your controller are complete
+- [Tests](writing-tests.md): Ensure the tests for your controller are complete, including
+  [API validation tests](writing-tests.md#api-validation-tests) for any resource-specific validations
 
 !!! note
 

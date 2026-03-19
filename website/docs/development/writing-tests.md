@@ -14,8 +14,11 @@ fields, you should add tests for those fields.
 All APIs are expected to have good API validation test coverage.
 
 API validation tests ensure that any validations defined in the
-API and included in the CRD perform as expected. Add API validation tests for
-your controller in `test/apivalidations`.
+API and included in the CRD perform as expected. They run against a real
+Kubernetes API server (via envtest) using Server-Side Apply, exercising the CEL
+rules and OpenAPI schema validations baked into the CRDs.
+
+Add API validation tests for your controller in `test/apivalidations/`.
 
 ### Controller-specific tests
 

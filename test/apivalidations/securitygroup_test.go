@@ -65,104 +65,41 @@ var _ = Describe("ORC SecurityGroup API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal security group and managementPolicy should default to managed", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec())
-		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-		Expect(securityGroup.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-
-		patch.Spec.WithImport(testSecurityGroupImport())
-		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testSecurityGroupImport()).
-			WithResource(testSecurityGroupResource())
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.SecurityGroupImport())
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.SecurityGroupImport().
-				WithFilter(applyconfigv1alpha1.SecurityGroupFilter()))
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.SecurityGroupImport().
-				WithFilter(applyconfigv1alpha1.SecurityGroupFilter().WithName("foo")))
-		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-
-		patch.Spec.WithResource(testSecurityGroupResource())
-		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.
-			WithImport(testSecurityGroupImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testSecurityGroupResource())
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.
-			WithImport(testSecurityGroupImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, securityGroup, patch)).NotTo(Succeed())
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		securityGroup := securityGroupStub(namespace)
-		patch := baseSecurityGroupPatch(securityGroup)
-		patch.Spec.WithResource(applyconfigv1alpha1.SecurityGroupResourceSpec())
-		patch.Spec.
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach)).WithResource(
-			applyconfigv1alpha1.SecurityGroupResourceSpec())
-		Expect(applyObj(ctx, securityGroup, patch)).To(Succeed())
-		Expect(securityGroup.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.SecurityGroupApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return securityGroupStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.SecurityGroupApplyConfiguration {
+			return baseSecurityGroupPatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithResource(testSecurityGroupResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithImport(testSecurityGroupImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.SecurityGroupImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.SecurityGroupImport().WithFilter(applyconfigv1alpha1.SecurityGroupFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.SecurityGroupImport().WithFilter(applyconfigv1alpha1.SecurityGroupFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.SecurityGroupApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.SecurityGroup).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.SecurityGroup).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	It("should not permit invalid direction", func(ctx context.Context) {
