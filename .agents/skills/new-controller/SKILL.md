@@ -215,7 +215,9 @@ Implement:
 
 **This step is required** - do not skip it.
 
-Complete the test stubs in `internal/controllers/<kind>/tests/` and run tests following @.agents/skills/testing/SKILL.md
+Complete the scaffolded API validation test in `test/apivalidations/<kind>_test.go` by adding tests for any resource-specific validations (enums, numeric ranges, tag uniqueness, format validation, cross-field rules). Look for `TODO(scaffolding)` markers in the generated file.
+
+Complete the E2E test stubs in `internal/controllers/<kind>/tests/` and run tests following @.agents/skills/testing/SKILL.md
 
 ## Checklist
 
@@ -241,6 +243,7 @@ Complete the test stubs in `internal/controllers/<kind>/tests/` and run tests fo
 - [ ] Status writer implemented
 - [ ] Update reconciler includes tags update (if tags are mutable)
 - [ ] All TODOs resolved
+- [ ] API validation tests complete (resource-specific validations added to scaffolded test)
 - [ ] `make generate` runs cleanly
 - [ ] `make lint` passes
 - [ ] `make test` passes
