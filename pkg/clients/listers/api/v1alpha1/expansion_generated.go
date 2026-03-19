@@ -26,6 +26,14 @@ type AddressScopeListerExpansion interface{}
 // AddressScopeNamespaceLister.
 type AddressScopeNamespaceListerExpansion interface{}
 
+// ApplicationCredentialListerExpansion allows custom methods to be added to
+// ApplicationCredentialLister.
+type ApplicationCredentialListerExpansion interface{}
+
+// ApplicationCredentialNamespaceListerExpansion allows custom methods to be added to
+// ApplicationCredentialNamespaceLister.
+type ApplicationCredentialNamespaceListerExpansion interface{}
+
 // DomainListerExpansion allows custom methods to be added to
 // DomainLister.
 type DomainListerExpansion interface{}
