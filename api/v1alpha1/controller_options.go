@@ -16,6 +16,12 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	"time"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // +kubebuilder:validation:Enum:=managed;unmanaged
 type ManagementPolicy string
 
@@ -53,6 +59,14 @@ type ManagedOptions struct {
 	// +kubebuilder:default:=delete
 	// +optional
 	OnDelete OnDelete `json:"onDelete,omitempty"`
+
+	// resyncPeriod specifies the interval after which a successfully
+	// reconciled resource will be reconciled again to detect drift from the
+	// desired state. Set to 0 to disable periodic resync. If not specified,
+	// the default is 10 hours.
+	// +kubebuilder:default:="10h"
+	// +optional
+	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"` //nolint:kubeapilinter
 }
 
 // GetOnDelete returns the delete behaviour from ManagedOptions. If called on a
@@ -62,4 +76,16 @@ func (o *ManagedOptions) GetOnDelete() OnDelete {
 		return OnDeleteDelete
 	}
 	return o.OnDelete
+}
+
+// DefaultResyncPeriod is the default interval for periodic resync to detect drift (10 hours).
+const DefaultResyncPeriod = 10 * time.Hour
+
+// GetResyncPeriod returns the resync period from ManagedOptions. If called on a
+// nil receiver or if ResyncPeriod is not set, it returns the default of 10 hours.
+func (o *ManagedOptions) GetResyncPeriod() time.Duration {
+	if o == nil || o.ResyncPeriod == nil {
+		return DefaultResyncPeriod
+	}
+	return o.ResyncPeriod.Duration
 }

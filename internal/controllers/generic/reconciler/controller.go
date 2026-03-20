@@ -19,6 +19,7 @@ package reconciler
 import (
 	"context"
 	"fmt"
+	"time"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -135,15 +136,16 @@ func (c *Controller[
 // status indicates that no further reconciliation is required.
 //
 // Specifically it looks at the Progressing condition. It has the following behaviour:
-// - Progressing condition is not present -> reconcile
-// - Progressing condition is present and True -> reconcile
-// - Progressing condition is present and False, but observedGeneration is old -> reconcile
-// - Progressing condition is false and observedGeneration is up to date -> do not reconcile
+//   - Progressing condition is not present -> reconcile
+//   - Progressing condition is present and True -> reconcile
+//   - Progressing condition is present and False, but observedGeneration is old -> reconcile
+//   - Progressing condition is false and observedGeneration is up to date -> do not reconcile
+//     (unless periodic resync is enabled and enough time has passed since the last sync)
 //
 // If shouldReconcile is preventing an object from being reconciled which should
 // be reconciled, consider if that object's actuator is correctly returning a
 // ProgressStatus indicating that the reconciliation should continue.
-func shouldReconcile(obj orcv1alpha1.ObjectWithConditions) bool {
+func shouldReconcile(obj orcv1alpha1.ObjectWithConditions, resyncPeriod time.Duration) bool {
 	progressing := meta.FindStatusCondition(obj.GetConditions(), orcv1alpha1.ConditionProgressing)
 	if progressing == nil {
 		return true
@@ -153,7 +155,17 @@ func shouldReconcile(obj orcv1alpha1.ObjectWithConditions) bool {
 		return true
 	}
 
-	return progressing.ObservedGeneration != obj.GetGeneration()
+	if progressing.ObservedGeneration != obj.GetGeneration() {
+		return true
+	}
+
+	// At this point, Progressing is False and generation is up to date.
+	// For periodic resync, check if enough time has passed since the last sync.
+	if resyncPeriod > 0 {
+		return time.Since(progressing.LastTransitionTime.Time) >= resyncPeriod
+	}
+
+	return false
 }
 
 func (c *Controller[
@@ -165,10 +177,13 @@ func (c *Controller[
 ]) reconcileNormal(ctx context.Context, objAdapter interfaces.APIObjectAdapter[orcObjectPT, resourceSpecT, filterT]) (reconcileStatus progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
+	// Get the resync period from the object's managed options
+	resyncPeriod := objAdapter.GetManagedOptions().GetResyncPeriod()
+
 	// We do this here rather than in a predicate because predicates only cover
 	// a single watch. Doing it here means we cover all sources of
 	// reconciliation, including our dependencies.
-	if !shouldReconcile(objAdapter.GetObject()) {
+	if !shouldReconcile(objAdapter.GetObject(), resyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		return reconcileStatus
 	}
@@ -204,8 +219,10 @@ func (c *Controller[
 		return reconcileStatus.WithError(fmt.Errorf("oResource is not set, but no wait events or error"))
 	}
 
-	if objAdapter.GetStatusID() == nil {
-		resourceID := actuator.GetResourceID(osResource)
+	resourceID := actuator.GetResourceID(osResource)
+	statusID := objAdapter.GetStatusID()
+	if statusID == nil || *statusID != resourceID {
+		// Update status ID if not set, or if it differs (e.g., after recreation due to drift detection)
 		if err := status.SetStatusID(ctx, c, objAdapter.GetObject(), resourceID, c.statusWriter); err != nil {
 			return reconcileStatus.WithError(err)
 		}
@@ -226,6 +243,15 @@ func (c *Controller[
 				updaterRS := updater(ctx, objAdapter.GetObject(), osResource)
 				reconcileStatus = updaterRS.WithReconcileStatus(reconcileStatus)
 			}
+		}
+	}
+
+	// If periodic resync is enabled and we're not already rescheduling for
+	// another reason, schedule the next resync to detect drift.
+	if resyncPeriod > 0 {
+		needsReschedule, _ := reconcileStatus.NeedsReschedule()
+		if !needsReschedule {
+			reconcileStatus = reconcileStatus.WithRequeue(resyncPeriod)
 		}
 	}
 
