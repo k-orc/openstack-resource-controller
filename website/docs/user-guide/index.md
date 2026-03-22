@@ -100,6 +100,47 @@ spec:
     # ...
 ```
 
+### Drift Detection
+
+ORC periodically reconciles managed resources to detect and correct drift from the desired state. This ensures that if someone modifies an OpenStack resource outside of ORC (e.g., through the OpenStack CLI or dashboard), ORC will detect the change and restore the resource to match the Kubernetes specification.
+
+**By default, drift detection is enabled with a resync period of 10 hours (`10h`).** The `managedOptions.resyncPeriod` field controls how often ORC checks for drift using standard duration format (e.g., `1h`, `30m`, `24h`):
+
+| Value | Description |
+|-------|-------------|
+| `10h` | Check for drift every 10 hours. This is the default. |
+| `1h` | Check for drift every hour. |
+| `30m` | Check for drift every 30 minutes. |
+| `0` | Disable periodic drift detection. Resources are only reconciled when their spec changes. |
+
+```yaml
+spec:
+  managementPolicy: managed
+  managedOptions:
+    resyncPeriod: 1h  # Check for drift every hour
+  resource:
+    # ...
+```
+
+!!! note
+
+    Drift detection only applies to managed resources. Unmanaged resources are never modified by ORC, so drift detection does not apply to them.
+
+!!! tip
+
+    For resources that are frequently modified outside of ORC, consider using a shorter resync period. For stable resources, the default of 10 hours is usually sufficient.
+
+!!! warning
+
+    Be aware of the side effects of drift detection, especially with a low `resyncPeriod`:
+
+    - **Increased OpenStack API load**: Each drift detection cycle queries the OpenStack API. A low resyncPeriod across many resources can generate significant API traffic and may trigger rate limiting.
+    - **Controller resource consumption**: Frequent reconciliation increases CPU and memory usage on the ORC controller.
+    - **Potential conflicts**: If resources are actively being modified by external systems (other controllers, automation scripts, or manual operations), frequent drift correction can cause conflicts or unexpected behavior.
+    - **Network overhead**: Each reconciliation involves network calls to OpenStack, which adds latency and bandwidth usage.
+
+    Consider your environment's scale and requirements when configuring resyncPeriod. For most use cases, the default of 10 hours provides a good balance between drift detection and resource efficiency.
+
 ### Resource References
 
 ORC resources reference each other using `*Ref` fields. These references:
