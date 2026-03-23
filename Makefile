@@ -318,7 +318,7 @@ GOLANGCI_LINT_VERSION ?= v2.11.4
 MOCKGEN_VERSION ?= v0.6.0
 KUTTL_VERSION ?= v0.25.0
 GOVULNCHECK_VERSION ?= v1.1.4
-OPERATOR_SDK_VERSION ?= v1.41.1
+OPERATOR_SDK_VERSION ?= v1.42.2
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
