@@ -328,7 +328,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to the ORC User which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to the ORC User which this resource is associated with.<br />Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
@@ -368,7 +368,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to the ORC User which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to the ORC User which this resource is associated with.<br />Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `unrestricted` _boolean_ | unrestricted is a flag indicating whether the application credential may be used for creation or destruction of other application credentials or trusts |  | Optional: \{\} <br /> |
 | `secretRef` _[KubernetesNameRef](#kubernetesnameref)_ | secretRef is a reference to a Secret containing the application credential secret |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `roleRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | roleRefs may only contain roles that the user has assigned on the project. If not provided, the roles assigned to the application credential will be the same as the roles in the current token. |  | MaxItems: 256 <br />MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
