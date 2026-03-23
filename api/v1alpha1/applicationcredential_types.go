@@ -65,6 +65,7 @@ type ApplicationCredentialResourceSpec struct {
 	Description *string `json:"description,omitempty"`
 
 	// userRef is a reference to the ORC User which this resource is associated with.
+	// Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried.
 	// +required
 	UserRef KubernetesNameRef `json:"userRef,omitempty"`
 
@@ -97,6 +98,7 @@ type ApplicationCredentialResourceSpec struct {
 // +kubebuilder:validation:MinProperties:=2
 type ApplicationCredentialFilter struct {
 	// userRef is a reference to the ORC User which this resource is associated with.
+	// Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried.
 	// +required
 	UserRef KubernetesNameRef `json:"userRef,omitempty"`
 
