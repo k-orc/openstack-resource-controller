@@ -1183,7 +1183,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ApplicationCredentialF
 				Properties: map[string]spec.Schema{
 					"userRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "userRef is a reference to the ORC User which this resource is associated with.",
+							Description: "userRef is a reference to the ORC User which this resource is associated with. Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1311,7 +1311,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ApplicationCredentialR
 					},
 					"userRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "userRef is a reference to the ORC User which this resource is associated with.",
+							Description: "userRef is a reference to the ORC User which this resource is associated with. Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
