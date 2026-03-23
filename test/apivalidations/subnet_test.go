@@ -41,6 +41,23 @@ func subnetStub(namespace *corev1.Namespace) *orcv1alpha1.Subnet {
 	return obj
 }
 
+func testSubnetResource() *applyconfigv1alpha1.SubnetResourceSpecApplyConfiguration {
+	return applyconfigv1alpha1.SubnetResourceSpec().
+		WithNetworkRef(networkName).
+		WithIPVersion(4).
+		WithCIDR("192.168.100.0/24")
+}
+
+func testSubnetImport() *applyconfigv1alpha1.SubnetImportApplyConfiguration {
+	return applyconfigv1alpha1.SubnetImport().WithID(subnetID)
+}
+
+func baseSubnetPatchBase(subnet client.Object) *applyconfigv1alpha1.SubnetApplyConfiguration {
+	return applyconfigv1alpha1.Subnet(subnet.GetName(), subnet.GetNamespace()).
+		WithSpec(applyconfigv1alpha1.SubnetSpec().
+			WithCloudCredentialsRef(testCredentials()))
+}
+
 func baseSubnetPatch(subnet client.Object) *applyconfigv1alpha1.SubnetApplyConfiguration {
 	return applyconfigv1alpha1.Subnet(subnet.GetName(), subnet.GetNamespace()).
 		WithSpec(applyconfigv1alpha1.SubnetSpec().
@@ -57,12 +74,43 @@ var _ = Describe("ORC Subnet API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal subnet and managementPolicy should default to managed", func(ctx context.Context) {
-		subnet := subnetStub(namespace)
-		patch := baseSubnetPatch(subnet)
-		Expect(applyObj(ctx, subnet, patch)).To(Succeed())
-		Expect(subnet.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.SubnetApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return subnetStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.SubnetApplyConfiguration {
+			return baseSubnetPatchBase(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithResource(testSubnetResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithImport(testSubnetImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.SubnetImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.SubnetImport().WithFilter(applyconfigv1alpha1.SubnetFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.SubnetImport().WithFilter(applyconfigv1alpha1.SubnetFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.SubnetApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Subnet).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Subnet).Spec.ManagedOptions.OnDelete
+		},
 	})
+
 	It("should allow valid tags", func(ctx context.Context) {
 		subnet := subnetStub(namespace)
 		patch := baseSubnetPatch(subnet)
@@ -201,16 +249,6 @@ var _ = Describe("ORC Subnet API validations", func() {
 					WithDescription("bar").
 					WithTags("kozo").WithTagsAny("anytag")))
 		Expect(applyObj(ctx, subnet, patch)).To(Succeed())
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		subnet := subnetStub(namespace)
-		patch := baseSubnetPatch(subnet)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.SubnetImport().
-				WithFilter(applyconfigv1alpha1.SubnetFilter()))
-		Expect(applyObj(ctx, subnet, patch)).NotTo(Succeed())
 	})
 
 	It("should not permit invalid import filter", func(ctx context.Context) {

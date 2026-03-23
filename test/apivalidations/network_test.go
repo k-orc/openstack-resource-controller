@@ -40,6 +40,14 @@ func networkStub(namespace *corev1.Namespace) *orcv1alpha1.Network {
 	return obj
 }
 
+func testNetworkResource() *applyconfigv1alpha1.NetworkResourceSpecApplyConfiguration {
+	return applyconfigv1alpha1.NetworkResourceSpec()
+}
+
+func testNetworkImport() *applyconfigv1alpha1.NetworkImportApplyConfiguration {
+	return applyconfigv1alpha1.NetworkImport().WithID(networkID)
+}
+
 func baseNetworkPatch(network client.Object) *applyconfigv1alpha1.NetworkApplyConfiguration {
 	return applyconfigv1alpha1.Network(network.GetName(), network.GetNamespace()).
 		WithSpec(applyconfigv1alpha1.NetworkSpec().
@@ -52,12 +60,41 @@ var _ = Describe("ORC Network API validations", func() {
 		namespace = createNamespace()
 	})
 
-	It("should allow to create a minimal network and managementPolicy should default to managed", func(ctx context.Context) {
-		network := networkStub(namespace)
-		patch := baseNetworkPatch(network)
-		patch.Spec.WithResource(applyconfigv1alpha1.NetworkResourceSpec())
-		Expect(applyObj(ctx, network, patch)).To(Succeed())
-		Expect(network.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.NetworkApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return networkStub(ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.NetworkApplyConfiguration {
+			return baseNetworkPatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithResource(testNetworkResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithImport(testNetworkImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.NetworkImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.NetworkImport().WithFilter(applyconfigv1alpha1.NetworkFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.NetworkImport().WithFilter(applyconfigv1alpha1.NetworkFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.NetworkApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Network).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Network).Spec.ManagedOptions.OnDelete
+		},
 	})
 
 	DescribeTable("should permit valid DNS domain",
@@ -150,16 +187,6 @@ var _ = Describe("ORC Network API validations", func() {
 					WithDescription("bar").
 					WithTags("kozo").WithTagsAny("anytag")))
 		Expect(applyObj(ctx, network, patch)).To(Succeed())
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		network := networkStub(namespace)
-		patch := baseNetworkPatch(network)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.NetworkImport().
-				WithFilter(applyconfigv1alpha1.NetworkFilter()))
-		Expect(applyObj(ctx, network, patch)).NotTo(Succeed())
 	})
 
 	It("should not permit invalid import filter", func(ctx context.Context) {

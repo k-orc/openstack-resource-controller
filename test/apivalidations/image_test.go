@@ -108,6 +108,43 @@ var _ = Describe("ORC Image API validations", func() {
 		namespace = createNamespace()
 	})
 
+	runManagementPolicyTests(func() *corev1.Namespace { return namespace }, managementPolicyTestArgs[*applyconfigv1alpha1.ImageApplyConfiguration]{
+		createObject: func(ns *corev1.Namespace) client.Object { return imageStub("image", ns) },
+		basePatch: func(obj client.Object) *applyconfigv1alpha1.ImageApplyConfiguration {
+			return basePatch(obj)
+		},
+		applyResource: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithResource(testImageResource())
+		},
+		applyImport: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithImport(testImageImport())
+		},
+		applyEmptyImport: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.ImageImport())
+		},
+		applyEmptyFilter: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.ImageImport().WithFilter(applyconfigv1alpha1.ImageFilter()))
+		},
+		applyValidFilter: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithImport(applyconfigv1alpha1.ImageImport().WithFilter(applyconfigv1alpha1.ImageFilter().WithName("foo")))
+		},
+		applyManaged: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
+		},
+		applyUnmanaged: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
+		},
+		applyManagedOptions: func(p *applyconfigv1alpha1.ImageApplyConfiguration) {
+			p.Spec.WithManagedOptions(applyconfigv1alpha1.ManagedOptions().WithOnDelete(orcv1alpha1.OnDeleteDetach))
+		},
+		getManagementPolicy: func(obj client.Object) orcv1alpha1.ManagementPolicy {
+			return obj.(*orcv1alpha1.Image).Spec.ManagementPolicy
+		},
+		getOnDelete: func(obj client.Object) orcv1alpha1.OnDelete {
+			return obj.(*orcv1alpha1.Image).Spec.ManagedOptions.OnDelete
+		},
+	})
+
 	It("should allow to create a minimal image", func(ctx context.Context) {
 		image := imageStub("image", namespace)
 		minimalPatch := minimalManagedPatch(image)
@@ -115,119 +152,11 @@ var _ = Describe("ORC Image API validations", func() {
 		Expect(applyObj(ctx, image, minimalPatch)).To(Succeed())
 	})
 
-	It("should default to managementPolicy managed", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		image.Spec.Resource = &orcv1alpha1.ImageResourceSpec{
-			Content: &orcv1alpha1.ImageContent{
-				DiskFormat: orcv1alpha1.ImageDiskFormatQCOW2,
-				Download: &orcv1alpha1.ImageContentSourceDownload{
-					URL: "https://example.com/example.img",
-				},
-			},
-		}
-		image.Spec.CloudCredentialsRef = orcv1alpha1.CloudCredentialsReference{
-			SecretName: "my-secret",
-			CloudName:  "my-cloud",
-		}
-
-		Expect(k8sClient.Create(ctx, image)).To(Succeed())
-		Expect(image.Spec.ManagementPolicy).To(Equal(orcv1alpha1.ManagementPolicyManaged))
-	})
-
-	It("should require import for unmanaged", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged)
-		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-
-		patch.Spec.WithImport(testImageImport())
-		Expect(applyObj(ctx, image, patch)).To(Succeed())
-	})
-
-	It("should not permit unmanaged with resource", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(testImageImport()).
-			WithResource(testImageResource())
-	})
-
-	It("should not permit empty import", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.ImageImport())
-		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-	})
-
-	It("should not permit empty import filter", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.ImageImport().
-				WithFilter(applyconfigv1alpha1.ImageFilter()))
-		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-	})
-
-	It("should permit import filter with name", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithImport(applyconfigv1alpha1.ImageImport().
-				WithFilter(applyconfigv1alpha1.ImageFilter().WithName("foo")))
-		Expect(applyObj(ctx, image, patch)).To(Succeed())
-	})
-
-	It("should require resource for managed", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
-		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-
-		patch.Spec.WithResource(testImageResource())
-		Expect(applyObj(ctx, image, patch)).To(Succeed())
-	})
-
-	It("should not permit managed with import", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.
-			WithImport(testImageImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged).
-			WithResource(testImageResource())
-		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-	})
-
 	It("should require content when not importing", func(ctx context.Context) {
 		image := imageStub("image", namespace)
 		patch := minimalManagedPatch(image)
 		patch.Spec.WithResource(applyconfigv1alpha1.ImageResourceSpec())
 		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-	})
-
-	It("should not permit managedOptions for unmanaged", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := basePatch(image)
-		patch.Spec.
-			WithImport(testImageImport()).
-			WithManagementPolicy(orcv1alpha1.ManagementPolicyUnmanaged).
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, image, patch)).NotTo(Succeed())
-	})
-
-	It("should permit managedOptions for managed", func(ctx context.Context) {
-		image := imageStub("image", namespace)
-		patch := minimalManagedPatch(image)
-		patch.Spec.
-			WithManagedOptions(applyconfigv1alpha1.ManagedOptions().
-				WithOnDelete(orcv1alpha1.OnDeleteDetach))
-		Expect(applyObj(ctx, image, patch)).To(Succeed())
-		Expect(image.Spec.ManagedOptions.OnDelete).To(Equal(orcv1alpha1.OnDelete("detach")))
 	})
 
 	DescribeTable("should permit containerFormat",
