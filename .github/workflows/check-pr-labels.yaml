@@ -9,6 +9,8 @@ on:
       - synchronize
       - unlabeled
 
+permissions: {}
+
 jobs:
   hold:
     if: github.event.pull_request.merged == false
