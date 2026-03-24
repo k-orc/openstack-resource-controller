@@ -18,6 +18,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6.0.2
+      with:
+        persist-credentials: false
 
     - name: Pip install
       run: pip install -Ur website/requirements.txt

@@ -18,6 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Calculate go version
         id: vars
