@@ -17,7 +17,7 @@ jobs:
     name: Publish to Cloudflare Pages
     steps:
     - name: Checkout
-      uses: actions/checkout@v6.0.2
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # tag=v6.0.2
       with:
         persist-credentials: false
 
@@ -28,7 +28,7 @@ jobs:
       run: mkdocs build --verbose --strict --config-file website/mkdocs.yml --site-dir rendered
 
     - name: Publish to Cloudflare Pages
-      uses: cloudflare/pages-action@v1
+      uses: cloudflare/pages-action@f0a1cd58cd66095dee69bfa18fa5efd1dde93bca # tag=v1
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
