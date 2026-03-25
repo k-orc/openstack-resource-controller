@@ -1,6 +1,7 @@
 name: Pull Request backporting
 
 on:
+  # zizmor: ignore[dangerous-triggers] only runs on merged PRs, never checks out code
   pull_request_target:
     types:
       - closed
@@ -30,8 +31,8 @@ jobs:
         id: generate_token
         uses: getsentry/action-github-app-token@5c1e90706fe007857338ac1bfbd7a4177db2f789 # tag=v4.0.0
         with:
-          app_id: ${{ secrets.BACKPORT_APP_ID }}
-          private_key: ${{ secrets.BACKPORT_APP_PRIVATE_KEY }}
+          app_id: ${{ secrets.BACKPORT_APP_ID }} # zizmor: ignore[secrets-outside-env]
+          private_key: ${{ secrets.BACKPORT_APP_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env]
 
       - name: Backporting
         if: >

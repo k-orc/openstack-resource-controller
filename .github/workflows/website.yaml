@@ -30,8 +30,8 @@ jobs:
     - name: Publish to Cloudflare Pages
       uses: cloudflare/pages-action@f0a1cd58cd66095dee69bfa18fa5efd1dde93bca # tag=v1
       with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} # zizmor: ignore[secrets-outside-env]
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # zizmor: ignore[secrets-outside-env]
         projectName: k-orc
         directory: website/rendered
         gitHubToken: ${{ secrets.GITHUB_TOKEN }}

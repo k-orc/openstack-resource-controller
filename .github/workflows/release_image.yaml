@@ -30,7 +30,7 @@ jobs:
       run: sudo apt-get install -y libgpgme-dev
 
     - run: |
-        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
+        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io # zizmor: ignore[secrets-outside-env]
         make docker-buildx IMG=${{ env.image_tag }}
         make build-bundle-image BUNDLE_IMG=${{ env.bundle_image_tag }}
         make docker-push IMG=${{ env.bundle_image_tag }}
