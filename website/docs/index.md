@@ -53,11 +53,13 @@ You define OpenStack resources as Kubernetes custom resources. ORC watches these
 
 ## Maturity
 
-While we currently cover a limited subset of OpenStack resources, we focus on
-making existing controllers as correct and predictable as possible.
-
 ORC is deployed and used in production environments and is notably a dependency
 of Cluster API's [OpenStack provider][capo].
+
+The Kubernetes API is currently `v1alpha1`. The core API patterns are stable and
+we do not anticipate major structural changes, but the API is still evolving as
+we add new controllers and features. We do not have a timeline for graduation to
+`v1beta1`.
 
 ORC versioning follows [semver]: there will be no breaking changes within a
 major release.

@@ -16,10 +16,13 @@ ORC is based on [Gophercloud][gophercloud], the OpenStack Go SDK.
 
 ## Maturity
 
-While we currently cover a limited subset of OpenStack resources, we focus on
-making existing controllers as correct and predictable as possible. We
-encourage you to contribute, file issues, and help improve the project as we
-continue to work on it!
+ORC is deployed and used in production environments and is notably a dependency
+of Cluster API's [OpenStack provider](https://github.com/kubernetes-sigs/cluster-api-provider-openstack).
+
+The Kubernetes API is currently `v1alpha1`. The core API patterns are stable and
+we do not anticipate major structural changes, but the API is still evolving as
+we add new controllers and features. We do not have a timeline for graduation to
+`v1beta1`.
 
 ORC versioning follows [semver](https://semver.org/spec/v2.0.0.html): there will be no breaking changes within a major release.
 
