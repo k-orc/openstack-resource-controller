@@ -9,6 +9,8 @@ updates:
   schedule:
     interval: "weekly"
     day: "monday"
+  cooldown:
+    default-days: 7
   target-branch: main
   groups:
     all-github-actions:
@@ -23,6 +25,8 @@ updates:
   schedule:
     interval: "weekly"
     day: "monday"
+  cooldown:
+    default-days: 7
   target-branch: main
   groups:
     all-go-mod-patch-and-minor:
@@ -46,6 +50,8 @@ updates:
   schedule:
     interval: "weekly"
     day: "monday"
+  cooldown:
+    default-days: 7
   target-branch: release-1.0
   groups:
     all-github-actions:
@@ -60,6 +66,8 @@ updates:
   schedule:
     interval: "weekly"
     day: "monday"
+  cooldown:
+    default-days: 7
   target-branch: release-1.0
   groups:
     all-go-mod-patch-and-minor:
