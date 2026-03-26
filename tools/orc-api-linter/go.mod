@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	golang.org/x/tools v0.41.0
-	sigs.k8s.io/kube-api-linter v0.0.0-20260205134631-d65d24a9df89
+	sigs.k8s.io/kube-api-linter v0.0.0-20260320123815-c9b9b51b278a
 )
 
 require (

@@ -3,7 +3,7 @@ IMG ?= controller:latest
 BUNDLE_IMG ?= bundle:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
-TRIVY_VERSION = 0.49.1
+TRIVY_VERSION = 0.69.3
 GO_VERSION ?= 1.25.8
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -311,14 +311,14 @@ GOVULNCHECK = $(LOCALBIN)/govulncheck
 OPERATOR_SDK = $(LOCALBIN)/operator-sdk
 
 ## Tool Versions
-KUSTOMIZE_VERSION ?= v5.6.0
-CONTROLLER_TOOLS_VERSION ?= v0.17.1
-ENVTEST_VERSION ?= release-0.22
-GOLANGCI_LINT_VERSION ?= v2.7.2
+KUSTOMIZE_VERSION ?= v5.8.1
+CONTROLLER_TOOLS_VERSION ?= v0.20.1
+ENVTEST_VERSION ?= release-0.23
+GOLANGCI_LINT_VERSION ?= v2.11.4
 MOCKGEN_VERSION ?= v0.6.0
-KUTTL_VERSION ?= v0.24.0
+KUTTL_VERSION ?= v0.25.0
 GOVULNCHECK_VERSION ?= v1.1.4
-OPERATOR_SDK_VERSION ?= v1.41.1
+OPERATOR_SDK_VERSION ?= v1.42.2
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.

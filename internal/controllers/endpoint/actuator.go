@@ -82,10 +82,11 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 		return nil, false
 	}
 
-	var filters []osclients.ResourceFilter[osResourceT]
-	filters = append(filters, func(e *endpoints.Endpoint) bool {
-		return e.URL == resourceSpec.URL
-	})
+	filters := []osclients.ResourceFilter[osResourceT]{
+		func(e *endpoints.Endpoint) bool {
+			return e.URL == resourceSpec.URL
+		},
+	}
 
 	listOpts := endpoints.ListOpts{
 		Availability: gophercloud.Availability(resourceSpec.Interface),

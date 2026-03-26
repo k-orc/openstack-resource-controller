@@ -78,10 +78,11 @@ func (actuator keypairActuator) ListOSResourcesForAdoption(ctx context.Context, 
 	// Filter by the expected resource name to avoid adopting wrong keypairs.
 	// The OpenStack Keypairs API does not support server-side filtering by name,
 	// so we must use client-side filtering.
-	var filters []osclients.ResourceFilter[osResourceT]
-	filters = append(filters, func(kp *keypairs.KeyPair) bool {
-		return kp.Name == getResourceName(orcObject)
-	})
+	filters := []osclients.ResourceFilter[osResourceT]{
+		func(kp *keypairs.KeyPair) bool {
+			return kp.Name == getResourceName(orcObject)
+		},
+	}
 
 	return actuator.listOSResources(ctx, filters, keypairs.ListOpts{}), true
 }

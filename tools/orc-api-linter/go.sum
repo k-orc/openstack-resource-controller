@@ -37,7 +37,7 @@ k8s.io/gengo/v2 v2.0.0-20250922181213-ec3ebc5fd46b h1:gMplByicHV/TJBizHd9aVEsTYo
 k8s.io/gengo/v2 v2.0.0-20250922181213-ec3ebc5fd46b/go.mod h1:CgujABENc3KuTrcsdpGmrrASjtQsWCT7R99mEV4U/fM=
 k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 h1:M3sRQVHv7vB20Xc2ybTt7ODCeFj6JSWYFzOFnYeS6Ro=
 k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
-sigs.k8s.io/kube-api-linter v0.0.0-20260205134631-d65d24a9df89 h1:QuWBEzbBkQyuwWPKDEaUBGr8QdHilkc4CdJYCeU1SIo=
-sigs.k8s.io/kube-api-linter v0.0.0-20260205134631-d65d24a9df89/go.mod h1:5mP60UakkCye+eOcZ5p98VnV2O49qreW1gq9TdsUf7Q=
+sigs.k8s.io/kube-api-linter v0.0.0-20260320123815-c9b9b51b278a h1:36He06lekH8jv21Z88RiGHRswh/cBoXKfSbFleF7ukM=
+sigs.k8s.io/kube-api-linter v0.0.0-20260320123815-c9b9b51b278a/go.mod h1:5mP60UakkCye+eOcZ5p98VnV2O49qreW1gq9TdsUf7Q=
 sigs.k8s.io/yaml v1.4.0 h1:Mk1wCc2gy/F0THH0TAp1QYyJNzRm2KCLy3o5ASXVI5E=
 sigs.k8s.io/yaml v1.4.0/go.mod h1:Ejl7/uTz7PSA4eKMyQCUTnhZYNmLIl+5c2lQPGR2BPY=

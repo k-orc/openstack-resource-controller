@@ -72,15 +72,13 @@ func (actuator servergroupActuator) ListOSResourcesForAdoption(ctx context.Conte
 		return nil, false
 	}
 
-	var filters []osclients.ResourceFilter[osResourceT]
-	listOpts := servergroups.ListOpts{}
-
-	filters = append(filters,
+	filters := []osclients.ResourceFilter[osResourceT]{
 		func(f *servergroups.ServerGroup) bool {
 			name := getResourceName(orcObject)
 			return f.Name == name
 		},
-	)
+	}
+	listOpts := servergroups.ListOpts{}
 
 	return actuator.listOSResources(ctx, filters, &listOpts), true
 }
