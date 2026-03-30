@@ -1,12 +1,4 @@
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: user-create-minimal
-type: Opaque
-stringData:
-  password: "TestPassword"
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
 metadata:
@@ -16,5 +8,4 @@ spec:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  resource:
-    passwordRef: user-create-minimal
+  resource: {}

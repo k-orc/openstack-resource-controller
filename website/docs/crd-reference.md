@@ -4436,7 +4436,7 @@ _Appears in:_
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `defaultProjectRef` _[KubernetesNameRef](#kubernetesnameref)_ | defaultProjectRef is a reference to the Default Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `enabled` _boolean_ | enabled defines whether a user is enabled or disabled |  | Optional: \{\} <br /> |
-| `passwordRef` _[KubernetesNameRef](#kubernetesnameref)_ | passwordRef is a reference to a Secret containing the password<br />for this user. The Secret must contain a key named "password". |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `passwordRef` _[KubernetesNameRef](#kubernetesnameref)_ | passwordRef is a reference to a Secret containing the password<br />for this user. The Secret must contain a key named "password".<br />If not specified, the user is created without a password. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### UserResourceStatus

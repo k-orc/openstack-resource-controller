@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 // UserResourceSpec contains the desired state of the resource.
+// +kubebuilder:validation:XValidation:rule="!has(oldSelf.passwordRef) || has(self.passwordRef)",message="passwordRef may not be removed once set"
 type UserResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
@@ -45,8 +46,9 @@ type UserResourceSpec struct {
 
 	// passwordRef is a reference to a Secret containing the password
 	// for this user. The Secret must contain a key named "password".
-	// +required
-	PasswordRef KubernetesNameRef `json:"passwordRef,omitempty"`
+	// If not specified, the user is created without a password.
+	// +optional
+	PasswordRef *KubernetesNameRef `json:"passwordRef,omitempty"`
 }
 
 // UserFilter defines an existing resource by its properties

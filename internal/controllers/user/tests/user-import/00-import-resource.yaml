@@ -1,12 +1,4 @@
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: user-import-password
-type: Opaque
-stringData:
-  password: "TestPassword"
----
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain
 metadata:

@@ -22,4 +22,3 @@ spec:
   managementPolicy: managed
   resource:
     domainRef: user-import-dependency-not-this-one
-    passwordRef: user-import-dependency-password

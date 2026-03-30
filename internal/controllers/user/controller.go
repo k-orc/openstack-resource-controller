@@ -91,10 +91,10 @@ var passwordDependency = dependency.NewDependency[*orcv1alpha1.UserList, *corev1
 	"spec.resource.passwordRef",
 	func(user *orcv1alpha1.User) []string {
 		resource := user.Spec.Resource
-		if resource == nil {
+		if resource == nil || resource.PasswordRef == nil {
 			return nil
 		}
-		return []string{string(resource.PasswordRef)}
+		return []string{string(*resource.PasswordRef)}
 	},
 )
 
