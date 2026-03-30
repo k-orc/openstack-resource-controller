@@ -10,7 +10,8 @@ assertAll:
     - celExpr: "!has(user.status.resource.description)"
     - celExpr: "user.status.resource.domainID == 'default'"
     - celExpr: "!has(user.status.resource.defaultProjectID)"
-    - celExpr: "!has(user.status.resource.passwordExpiresAt)"
+    # passwordExpiresAt depends on the Keystone security_compliance
+    # configuration and is not asserted here.
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User

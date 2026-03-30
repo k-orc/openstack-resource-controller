@@ -17,6 +17,8 @@ limitations under the License.
 package user
 
 import (
+	"time"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -60,6 +62,10 @@ func (userStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 
 	if osResource.DefaultProjectID != "" {
 		resourceStatus.WithDefaultProjectID(osResource.DefaultProjectID)
+	}
+
+	if !osResource.PasswordExpiresAt.IsZero() {
+		resourceStatus.WithPasswordExpiresAt(osResource.PasswordExpiresAt.Format(time.RFC3339))
 	}
 
 	statusApply.WithResource(resourceStatus)

@@ -10,6 +10,7 @@ spec:
   managementPolicy: managed
   resource:
     domainRef: user-dependency
+    passwordRef: user-dependency-password-existing
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
@@ -22,6 +23,7 @@ spec:
   managementPolicy: managed
   resource:
     defaultProjectRef: user-dependency
+    passwordRef: user-dependency-password-existing
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
@@ -32,4 +34,17 @@ spec:
     cloudName: openstack-admin
     secretName: user-dependency
   managementPolicy: managed
-  resource: {}
+  resource:
+    passwordRef: user-dependency-password-existing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: user-dependency-no-password
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    passwordRef: user-dependency-password

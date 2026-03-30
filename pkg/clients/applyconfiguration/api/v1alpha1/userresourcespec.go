@@ -30,6 +30,7 @@ type UserResourceSpecApplyConfiguration struct {
 	DomainRef         *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
 	DefaultProjectRef *apiv1alpha1.KubernetesNameRef `json:"defaultProjectRef,omitempty"`
 	Enabled           *bool                          `json:"enabled,omitempty"`
+	PasswordRef       *apiv1alpha1.KubernetesNameRef `json:"passwordRef,omitempty"`
 }
 
 // UserResourceSpecApplyConfiguration constructs a declarative configuration of the UserResourceSpec type for use with
@@ -75,5 +76,13 @@ func (b *UserResourceSpecApplyConfiguration) WithDefaultProjectRef(value apiv1al
 // If called multiple times, the Enabled field is set to the value of the last call.
 func (b *UserResourceSpecApplyConfiguration) WithEnabled(value bool) *UserResourceSpecApplyConfiguration {
 	b.Enabled = &value
+	return b
+}
+
+// WithPasswordRef sets the PasswordRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the PasswordRef field is set to the value of the last call.
+func (b *UserResourceSpecApplyConfiguration) WithPasswordRef(value apiv1alpha1.KubernetesNameRef) *UserResourceSpecApplyConfiguration {
+	b.PasswordRef = &value
 	return b
 }

@@ -3409,6 +3409,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: passwordRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceStatus
   map:
     fields:
@@ -3425,6 +3428,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: boolean
     - name: name
+      type:
+        scalar: string
+    - name: passwordExpiresAt
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserSpec

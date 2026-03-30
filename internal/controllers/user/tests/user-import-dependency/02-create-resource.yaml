@@ -21,3 +21,4 @@ spec:
   managementPolicy: managed
   resource:
     domainRef: user-import-dependency-external
+    passwordRef: user-import-dependency-password

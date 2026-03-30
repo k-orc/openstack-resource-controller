@@ -27,3 +27,6 @@ assertAll:
     - celExpr: "!has(user.status.resource.description)"
     - celExpr: "user.status.resource.domainID == 'default'"
     - celExpr: "!has(user.status.resource.defaultProjectID)"
+    # passwordExpiresAt depends on the Keystone security_compliance
+    # configuration and is not asserted here.
+

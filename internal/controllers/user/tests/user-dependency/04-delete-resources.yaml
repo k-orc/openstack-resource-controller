@@ -11,3 +11,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: User
   name: user-dependency-no-project
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: User
+  name: user-dependency-no-password

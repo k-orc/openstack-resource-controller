@@ -21,6 +21,14 @@ spec:
   managementPolicy: managed
   resource: {}
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-create-full
+type: Opaque
+stringData:
+  password: "TestPassword"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
 metadata:
@@ -36,3 +44,4 @@ spec:
     domainRef: user-create-full
     defaultProjectRef: user-create-full
     enabled: true
+    passwordRef: user-create-full

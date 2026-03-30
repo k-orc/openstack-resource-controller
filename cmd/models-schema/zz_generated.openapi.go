@@ -11393,7 +11393,15 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceSpec(ref c
 							Format:      "",
 						},
 					},
+					"passwordRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "passwordRef is a reference to a Secret containing the password for this user. The Secret must contain a key named \"password\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
+				Required: []string{"passwordRef"},
 			},
 		},
 	}
@@ -11438,6 +11446,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceStatus(ref
 						SchemaProps: spec.SchemaProps{
 							Description: "enabled defines whether a user is enabled or disabled",
 							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"passwordExpiresAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "passwordExpiresAt is the timestamp at which the user's password expires.",
+							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
