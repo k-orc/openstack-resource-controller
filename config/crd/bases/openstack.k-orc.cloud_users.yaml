@@ -193,9 +193,6 @@ spec:
                     maxLength: 253
                     minLength: 1
                     type: string
-                    x-kubernetes-validations:
-                    - message: passwordRef is immutable
-                      rule: self == oldSelf
                 required:
                 - passwordRef
                 type: object
@@ -302,6 +299,12 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  appliedPasswordRef:
+                    description: |-
+                      appliedPasswordRef is the name of the Secret containing the
+                      password that was last applied to the OpenStack resource.
+                    maxLength: 1024
+                    type: string
                   defaultProjectID:
                     description: defaultProjectID is the ID of the Default Project
                       to which the user is associated with.

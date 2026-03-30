@@ -21,12 +21,13 @@ package v1alpha1
 // UserResourceStatusApplyConfiguration represents a declarative configuration of the UserResourceStatus type for use
 // with apply.
 type UserResourceStatusApplyConfiguration struct {
-	Name              *string `json:"name,omitempty"`
-	Description       *string `json:"description,omitempty"`
-	DomainID          *string `json:"domainID,omitempty"`
-	DefaultProjectID  *string `json:"defaultProjectID,omitempty"`
-	Enabled           *bool   `json:"enabled,omitempty"`
-	PasswordExpiresAt *string `json:"passwordExpiresAt,omitempty"`
+	Name               *string `json:"name,omitempty"`
+	Description        *string `json:"description,omitempty"`
+	DomainID           *string `json:"domainID,omitempty"`
+	DefaultProjectID   *string `json:"defaultProjectID,omitempty"`
+	Enabled            *bool   `json:"enabled,omitempty"`
+	PasswordExpiresAt  *string `json:"passwordExpiresAt,omitempty"`
+	AppliedPasswordRef *string `json:"appliedPasswordRef,omitempty"`
 }
 
 // UserResourceStatusApplyConfiguration constructs a declarative configuration of the UserResourceStatus type for use with
@@ -80,5 +81,13 @@ func (b *UserResourceStatusApplyConfiguration) WithEnabled(value bool) *UserReso
 // If called multiple times, the PasswordExpiresAt field is set to the value of the last call.
 func (b *UserResourceStatusApplyConfiguration) WithPasswordExpiresAt(value string) *UserResourceStatusApplyConfiguration {
 	b.PasswordExpiresAt = &value
+	return b
+}
+
+// WithAppliedPasswordRef sets the AppliedPasswordRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AppliedPasswordRef field is set to the value of the last call.
+func (b *UserResourceStatusApplyConfiguration) WithAppliedPasswordRef(value string) *UserResourceStatusApplyConfiguration {
+	b.AppliedPasswordRef = &value
 	return b
 }

@@ -3415,6 +3415,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceStatus
   map:
     fields:
+    - name: appliedPasswordRef
+      type:
+        scalar: string
     - name: defaultProjectID
       type:
         scalar: string

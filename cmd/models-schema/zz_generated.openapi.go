@@ -11456,6 +11456,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceStatus(ref
 							Format:      "",
 						},
 					},
+					"appliedPasswordRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "appliedPasswordRef is the name of the Secret containing the password that was last applied to the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},

@@ -10,6 +10,7 @@ assertAll:
     - celExpr: "!has(user.status.resource.description)"
     # passwordExpiresAt depends on the Keystone security_compliance
     # configuration and is not asserted here.
+    - celExpr: "user.status.resource.appliedPasswordRef == 'user-update'"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
