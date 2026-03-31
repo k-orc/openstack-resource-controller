@@ -8,6 +8,7 @@ status:
     name: user-update-updated
     description: user-update-updated
     enabled: false
+    appliedPasswordRef: user-update-password-updated
   conditions:
   - type: Available
     status: "True"

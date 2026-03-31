@@ -46,7 +46,6 @@ type UserResourceSpec struct {
 	// passwordRef is a reference to a Secret containing the password
 	// for this user. The Secret must contain a key named "password".
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="passwordRef is immutable"
 	PasswordRef KubernetesNameRef `json:"passwordRef,omitempty"`
 }
 
@@ -92,4 +91,10 @@ type UserResourceStatus struct {
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	PasswordExpiresAt string `json:"passwordExpiresAt,omitempty"`
+
+	// appliedPasswordRef is the name of the Secret containing the
+	// password that was last applied to the OpenStack resource.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	AppliedPasswordRef string `json:"appliedPasswordRef,omitempty"`
 }

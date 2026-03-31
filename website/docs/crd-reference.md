@@ -4458,6 +4458,7 @@ _Appears in:_
 | `defaultProjectID` _string_ | defaultProjectID is the ID of the Default Project to which the user is associated with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `enabled` _boolean_ | enabled defines whether a user is enabled or disabled |  | Optional: \{\} <br /> |
 | `passwordExpiresAt` _string_ | passwordExpiresAt is the timestamp at which the user's password expires. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `appliedPasswordRef` _string_ | appliedPasswordRef is the name of the Secret containing the<br />password that was last applied to the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### UserSpec

@@ -120,7 +120,7 @@ var _ = Describe("ORC User API validations", func() {
 		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("defaultProjectRef is immutable")))
 	})
 
-	It("should have immutable passwordRef", func(ctx context.Context) {
+	It("should have mutable passwordRef", func(ctx context.Context) {
 		user := userStub(namespace)
 		patch := baseUserPatch(user)
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
@@ -129,6 +129,6 @@ var _ = Describe("ORC User API validations", func() {
 
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
 			WithPasswordRef("password-b"))
-		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("passwordRef is immutable")))
+		Expect(applyObj(ctx, user, patch)).To(Succeed())
 	})
 })

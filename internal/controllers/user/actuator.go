@@ -22,6 +22,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/users"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -31,8 +32,10 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 // OpenStack resource types
@@ -183,6 +186,75 @@ func (actuator userActuator) DeleteResource(ctx context.Context, _ orcObjectPT, 
 	return progress.WrapError(actuator.osClient.DeleteUser(ctx, resource.ID))
 }
 
+func (actuator userActuator) reconcilePassword(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return nil
+	}
+
+	currentRef := string(resource.PasswordRef)
+	var lastAppliedRef string
+	if obj.Status.Resource != nil {
+		lastAppliedRef = obj.Status.Resource.AppliedPasswordRef
+	}
+
+	if lastAppliedRef == currentRef {
+		return nil
+	}
+
+	// Read the password from the referenced Secret
+	secret, secretRS := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace,
+		&resource.PasswordRef, "Secret",
+		func(*corev1.Secret) bool { return true },
+	)
+	if secretRS != nil {
+		return secretRS
+	}
+
+	passwordBytes, ok := secret.Data["password"]
+	if !ok {
+		return progress.NewReconcileStatus().WithProgressMessage("Password secret does not contain \"password\" key")
+	}
+	password := string(passwordBytes)
+
+	// Only call UpdateUser if this is not the first reconcile after creation.
+	// CreateResource already set the initial password.
+	if lastAppliedRef != "" {
+		log.V(logging.Info).Info("Updating password")
+		_, err := actuator.osClient.UpdateUser(ctx, osResource.ID, users.UpdateOpts{
+			Password: password,
+		})
+
+		if orcerrors.IsConflict(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
+		if err != nil {
+			return progress.WrapError(err)
+		}
+	}
+
+	// Update the lastAppliedPasswordRef status field via a MergePatch.
+	// MergePatch sets only the specified fields without claiming SSA
+	// ownership, so the main SSA status update won't remove this field.
+	statusApply := orcapplyconfigv1alpha1.UserResourceStatus().
+		WithAppliedPasswordRef(currentRef)
+	applyConfig := orcapplyconfigv1alpha1.User(obj.Name, obj.Namespace).
+		WithUID(obj.UID).
+		WithStatus(orcapplyconfigv1alpha1.UserStatus().
+			WithResource(statusApply))
+	if err := actuator.k8sClient.Status().Patch(ctx, obj,
+		applyconfigs.Patch(types.MergePatchType, applyConfig)); err != nil {
+		return progress.WrapError(err)
+	}
+
+	if lastAppliedRef != "" {
+		return progress.NeedsRefresh()
+	}
+	return nil
+}
+
 func (actuator userActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
@@ -259,6 +331,7 @@ func handleEnabledUpdate(updateOpts *users.UpdateOpts, resource *resourceSpecT, 
 
 func (actuator userActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.reconcilePassword,
 		actuator.updateResource,
 	}, nil
 }

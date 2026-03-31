@@ -6,7 +6,7 @@ Create a User using only mandatory fields.
 
 ## Step 01
 
-Update all mutable fields.
+Update all mutable fields, including passwordRef (pointing to a new Secret).
 
 ## Step 02
 
