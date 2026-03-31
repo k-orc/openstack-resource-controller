@@ -1,10 +1,12 @@
 name: Label PR
 on:
+  # zizmor: ignore[dangerous-triggers] edits job only runs actions/labeler, no code checkout
   pull_request_target:
     types:
       - opened
       - synchronize
       - reopened
+  # zizmor: ignore[dangerous-triggers] semver-label job never checks out or executes untrusted code
   workflow_run:
     workflows: ["Semver analysis"]
     types:

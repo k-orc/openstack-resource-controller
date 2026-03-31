@@ -22,7 +22,7 @@ jobs:
         persist-credentials: false
 
     - run: |
-        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io
+        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io # zizmor: ignore[secrets-outside-env]
 
         docker build -t ${{ env.image_tag_branch }} .
         docker push ${{ env.image_tag_branch }}
