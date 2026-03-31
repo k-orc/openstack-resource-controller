@@ -28,17 +28,19 @@ jobs:
     runs-on: ubuntu-${{ matrix.ubuntu_version }}
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # tag=v6.0.2
+      with:
+        persist-credentials: false
 
     - name: Deploy devstack
-      uses: EmilienM/devstack-action@60ca1042045c0c9e3e001c64575d381654ffcba1
+      uses: gophercloud/devstack-action@60ca1042045c0c9e3e001c64575d381654ffcba1 # tag=v0.19
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
         enabled_services: "openstack-cli-server"
 
     - name: Deploy a Kind Cluster
-      uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc
+      uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # tag=v1.14.0
       with:
         cluster_name: orc
 
@@ -50,7 +52,7 @@ jobs:
     - name: Deploy orc
       run: |
         kubectl config use-context kind-orc
-        make deploy IMG=${{ env.image_tag }}
+        make deploy IMG=${{ env.image_tag }} LOGLEVEL=5
 
     - name: Run e2e tests
       run: make test-e2e
@@ -63,7 +65,7 @@ jobs:
 
     - name: Upload logs artifacts on failure
       if: failure()
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # tag=v7
       with:
         name: e2e-${{ matrix.name }}-${{ github.run_id }}
         path: /tmp/artifacts/*
