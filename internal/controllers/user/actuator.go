@@ -140,10 +140,10 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 	}
 
 	var password string
-	{
+	if resource.PasswordRef != nil {
 		secret, secretReconcileStatus := dependency.FetchDependency(
 			ctx, actuator.k8sClient, obj.Namespace,
-			&resource.PasswordRef, "Secret",
+			resource.PasswordRef, "Secret",
 			func(*corev1.Secret) bool { return true },
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(secretReconcileStatus)
@@ -189,11 +189,11 @@ func (actuator userActuator) DeleteResource(ctx context.Context, _ orcObjectPT, 
 func (actuator userActuator) reconcilePassword(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
+	if resource == nil || resource.PasswordRef == nil {
 		return nil
 	}
 
-	currentRef := string(resource.PasswordRef)
+	currentRef := string(*resource.PasswordRef)
 	var lastAppliedRef string
 	if obj.Status.Resource != nil {
 		lastAppliedRef = obj.Status.Resource.AppliedPasswordRef
@@ -206,7 +206,7 @@ func (actuator userActuator) reconcilePassword(ctx context.Context, obj orcObjec
 	// Read the password from the referenced Secret
 	secret, secretRS := dependency.FetchDependency(
 		ctx, actuator.k8sClient, obj.Namespace,
-		&resource.PasswordRef, "Secret",
+		resource.PasswordRef, "Secret",
 		func(*corev1.Secret) bool { return true },
 	)
 	if secretRS != nil {

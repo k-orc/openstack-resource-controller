@@ -41,8 +41,7 @@ func userStub(namespace *corev1.Namespace) *orcv1alpha1.User {
 }
 
 func testUserResource() *applyconfigv1alpha1.UserResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.UserResourceSpec().
-		WithPasswordRef("user-password")
+	return applyconfigv1alpha1.UserResourceSpec()
 }
 
 func baseUserPatch(user client.Object) *applyconfigv1alpha1.UserApplyConfiguration {
@@ -96,12 +95,10 @@ var _ = Describe("ORC User API validations", func() {
 		user := userStub(namespace)
 		patch := baseUserPatch(user)
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
-			WithPasswordRef("user-password").
 			WithDomainRef("domain-a"))
 		Expect(applyObj(ctx, user, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
-			WithPasswordRef("user-password").
 			WithDomainRef("domain-b"))
 		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
 	})
@@ -110,14 +107,19 @@ var _ = Describe("ORC User API validations", func() {
 		user := userStub(namespace)
 		patch := baseUserPatch(user)
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
-			WithPasswordRef("user-password").
 			WithDefaultProjectRef("project-a"))
 		Expect(applyObj(ctx, user, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
-			WithPasswordRef("user-password").
 			WithDefaultProjectRef("project-b"))
 		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("defaultProjectRef is immutable")))
+	})
+
+	It("should allow omitting passwordRef", func(ctx context.Context) {
+		user := userStub(namespace)
+		patch := baseUserPatch(user)
+		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec())
+		Expect(applyObj(ctx, user, patch)).To(Succeed())
 	})
 
 	It("should have mutable passwordRef", func(ctx context.Context) {
@@ -130,5 +132,17 @@ var _ = Describe("ORC User API validations", func() {
 		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
 			WithPasswordRef("password-b"))
 		Expect(applyObj(ctx, user, patch)).To(Succeed())
+	})
+
+	It("should not allow removing passwordRef once set", func(ctx context.Context) {
+		user := userStub(namespace)
+		patch := baseUserPatch(user)
+		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithPasswordRef("password-a"))
+		Expect(applyObj(ctx, user, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.UserResourceSpec().
+			WithDescription("updated"))
+		Expect(applyObj(ctx, user, patch)).To(MatchError(ContainSubstring("passwordRef may not be removed once set")))
 	})
 })

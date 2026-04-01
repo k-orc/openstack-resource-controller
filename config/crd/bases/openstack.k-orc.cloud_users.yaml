@@ -190,12 +190,14 @@ spec:
                     description: |-
                       passwordRef is a reference to a Secret containing the password
                       for this user. The Secret must contain a key named "password".
+                      If not specified, the user is created without a password.
                     maxLength: 253
                     minLength: 1
                     type: string
-                required:
-                - passwordRef
                 type: object
+                x-kubernetes-validations:
+                - message: passwordRef may not be removed once set
+                  rule: '!has(oldSelf.passwordRef) || has(self.passwordRef)'
             required:
             - cloudCredentialsRef
             type: object

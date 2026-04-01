@@ -11395,13 +11395,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserResourceSpec(ref c
 					},
 					"passwordRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "passwordRef is a reference to a Secret containing the password for this user. The Secret must contain a key named \"password\".",
+							Description: "passwordRef is a reference to a Secret containing the password for this user. The Secret must contain a key named \"password\". If not specified, the user is created without a password.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 				},
-				Required: []string{"passwordRef"},
 			},
 		},
 	}
