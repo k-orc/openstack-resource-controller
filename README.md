@@ -73,6 +73,7 @@ kubectl delete -f $ORC_RELEASE
 
 | **controller**              | **1.x** | **2.x** | **main** |
 |:---------------------------:|:-------:|:-------:|:--------:|
+| application credential      |         |    ◐    |     ◐    |
 | addressscope                |         |    ✔    |     ✔    |
 | domain                      |         |    ✔    |     ✔    |
 | endpoint                    |         |    ◐    |     ◐    |

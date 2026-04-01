@@ -174,6 +174,9 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "AddressScope",
 	},
+	{
+		Name: "ApplicationCredential",
+	},
 }
 
 // These resources won't be generated

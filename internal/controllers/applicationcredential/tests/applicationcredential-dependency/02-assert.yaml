@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: applicationcredential-dependency
+      ref: user
+    - apiVersion: v1
+      kind: Secret
+      name: applicationcredential-dependency
+      ref: secret
+assertAll:
+    - celExpr: "user.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/applicationcredential' in user.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/applicationcredential' in secret.metadata.finalizers"
