@@ -75,6 +75,18 @@ func (actuator roleActuator) ListOSResourcesForAdoption(ctx context.Context, orc
 		Name: getResourceName(orcObject),
 	}
 
+	if resourceSpec.DomainRef != nil {
+		domain, _ := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
+			func(dep *orcv1alpha1.Domain) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if domain.Status.ID != nil {
+			listOpts.DomainID = *domain.Status.ID
+		}
+	}
+
 	return actuator.osClient.ListRoles(ctx, listOpts), true
 }
 
