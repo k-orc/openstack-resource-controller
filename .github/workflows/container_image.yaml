@@ -27,9 +27,21 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # tag=v4
 
-    - run: |
+    - name: Build and push images
+      run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io # zizmor: ignore[secrets-outside-env]
         # Ensure we source identical build arguments for both builds
         source hack/version.sh && version::get_git_vars && version::get_build_date && \
           make docker-buildx IMG=${{ env.image_tag_branch }} && \
-          make docker-buildx IMG=${{ env.image_tag_commit }} DOCKER_BUILD_ARGS="--annotation quay.expires-after=4w"
+          make docker-buildx IMG=${{ env.image_tag_commit }}
+
+    - name: Set expiration on commit image
+      env:
+        QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }} # zizmor: ignore[secrets-outside-env]
+      run: |
+        EXPIRATION=$(($(date -u +%s) + 2419200))
+        curl -sf -X PUT \
+          -H "Authorization: Bearer ${QUAY_TOKEN}" \
+          -H "Content-Type: application/json" \
+          -d "{\"expiration\": $EXPIRATION}" \
+          "https://quay.io/api/v1/repository/orc/openstack-resource-controller/tag/commit-${GITHUB_SHA::7}"
