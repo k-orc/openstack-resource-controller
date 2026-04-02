@@ -37,11 +37,11 @@ jobs:
 
     - name: Set expiration on commit image
       env:
-        QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }} # zizmor: ignore[secrets-outside-env]
+        QUAY_OAUTH_TOKEN: ${{ secrets.QUAY_OAUTH_TOKEN }} # zizmor: ignore[secrets-outside-env]
       run: |
         EXPIRATION=$(($(date -u +%s) + 2419200))
         curl -sf -X PUT \
-          -H "Authorization: Bearer ${QUAY_TOKEN}" \
+          -H "Authorization: Bearer ${QUAY_OAUTH_TOKEN}" \
           -H "Content-Type: application/json" \
           -d "{\"expiration\": $EXPIRATION}" \
           "https://quay.io/api/v1/repository/orc/openstack-resource-controller/tag/commit-${GITHUB_SHA::7}"
