@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-update
+spec:
+  resource:
+    name: roleassignment-update-updated
+    description: roleassignment-update-updated
+    # TODO(scaffolding): update all mutable fields

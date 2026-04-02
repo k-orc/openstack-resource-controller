@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-update
+status:
+  resource:
+    name: roleassignment-update-updated
+    description: roleassignment-update-updated
+    # TODO(scaffolding): match all fields that were modified
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

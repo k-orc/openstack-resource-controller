@@ -1,0 +1,22 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RoleAssignment
+  name: roleassignment-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RoleAssignment
+  name: roleassignment-dependency-no-role
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RoleAssignment
+  name: roleassignment-dependency-no-user
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RoleAssignment
+  name: roleassignment-dependency-no-group
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RoleAssignment
+  name: roleassignment-dependency-no-project
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RoleAssignment
+  name: roleassignment-dependency-no-domain

@@ -1,0 +1,41 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Role
+      name: roleassignment-dependency
+      ref: role
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: roleassignment-dependency
+      ref: user
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Group
+      name: roleassignment-dependency
+      ref: group
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: roleassignment-dependency
+      ref: project
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: roleassignment-dependency
+      ref: domain
+    - apiVersion: v1
+      kind: Secret
+      name: roleassignment-dependency
+      ref: secret
+assertAll:
+    - celExpr: "role.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in role.metadata.finalizers"
+    - celExpr: "user.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in user.metadata.finalizers"
+    - celExpr: "group.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in group.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in project.metadata.finalizers"
+    - celExpr: "domain.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in domain.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in secret.metadata.finalizers"

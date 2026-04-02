@@ -1,0 +1,14 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get role.openstack.k-orc.cloud roleassignment-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get user.openstack.k-orc.cloud roleassignment-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get group.openstack.k-orc.cloud roleassignment-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get project.openstack.k-orc.cloud roleassignment-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+- script: "! kubectl get domain.openstack.k-orc.cloud roleassignment-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
