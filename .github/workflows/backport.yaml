@@ -38,7 +38,7 @@ jobs:
         if: >
           contains(github.event.pull_request.labels.*.name, 'semver:patch')
           || contains(github.event.label.name, 'semver:patch')
-        uses: kiegroup/git-backporting@82e45d73f8d39bc3d7eb4b41859d313696c93ed9 # tag=v4.9.0
+        uses: kiegroup/git-backporting@08da0b07ef2330d189f6074ec8db736b3aa9f465 # tag=v4.9.1
         with:
           target-branch: release-1.0
           pull-request: ${{ github.event.pull_request.url }}
