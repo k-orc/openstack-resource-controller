@@ -108,7 +108,8 @@ func runManagementPolicyTests[PatchT any](getNamespace func() *corev1.Namespace,
 		patch := args.basePatch(obj)
 		args.applyUnmanaged(patch)
 		args.applyEmptyFilter(patch)
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least 1 properties")))
+		// Do not force the maximum number of filter properties to be 1 by not hard-coding that string
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("spec.import.filter in body should have at least")))
 	})
 
 	It("should permit valid import filter", func(ctx context.Context) {
