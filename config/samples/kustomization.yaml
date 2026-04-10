@@ -2,6 +2,7 @@
 ## Append samples of your project ##
 resources:
 - openstack_v1alpha1_addressscope.yaml
+- openstack_v1alpha1_applicationcredential.yaml
 - openstack_v1alpha1_domain.yaml
 - openstack_v1alpha1_endpoint.yaml
 - openstack_v1alpha1_flavor.yaml

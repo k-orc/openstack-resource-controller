@@ -1,0 +1,19 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ApplicationCredential
+  name: applicationcredential-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ApplicationCredential
+  name: applicationcredential-dependency-no-user
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ApplicationCredential
+  name: applicationcredential-dependency-no-secret-ref
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ApplicationCredential
+  name: applicationcredential-dependency-no-role
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ApplicationCredential
+  name: applicationcredential-dependency-no-service

@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get applicationcredential.openstack.k-orc.cloud applicationcredential-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
