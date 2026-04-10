@@ -91,6 +91,12 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      domainRef:
+                        description: domainRef is a reference to the ORC Domain which
+                          this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       name:
                         description: name of the existing resource
                         maxLength: 64
@@ -195,6 +201,15 @@ spec:
                     maxLength: 65535
                     minLength: 1
                     type: string
+                  domainRef:
+                    description: domainRef is a reference to the ORC Domain which
+                      this resource is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: domainRef is immutable
+                      rule: self == oldSelf
                   enabled:
                     description: enabled defines whether a project is enabled or not.
                       Default is true.
@@ -325,6 +340,11 @@ spec:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 65535
+                    type: string
+                  domainID:
+                    description: domainID is the ID of the Domain to which the resource
+                      is associated.
+                    maxLength: 1024
                     type: string
                   enabled:
                     description: enabled represents whether a project is enabled or

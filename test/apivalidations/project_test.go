@@ -106,4 +106,16 @@ var _ = Describe("ORC Project API validations", func() {
 			WithTags("foo", "bar"))
 		Expect(applyObj(ctx, project, patch)).To(Succeed())
 	})
+
+	It("should have immutable domainRef", func(ctx context.Context) {
+		project := projectStub(namespace)
+		patch := baseProjectPatch(project)
+		patch.Spec.WithResource(applyconfigv1alpha1.ProjectResourceSpec().
+			WithDomainRef("domain-a"))
+		Expect(applyObj(ctx, project, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.ProjectResourceSpec().
+			WithDomainRef("domain-b"))
+		Expect(applyObj(ctx, project, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
+	})
 })

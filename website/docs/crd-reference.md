@@ -1927,6 +1927,8 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
+- [ProjectFilter](#projectfilter)
+- [ProjectResourceSpec](#projectresourcespec)
 - [RoleFilter](#rolefilter)
 - [RoleResourceSpec](#roleresourcespec)
 - [RouterFilter](#routerfilter)
@@ -2631,6 +2633,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[KeystoneName](#keystonename)_ | name of the existing resource |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tags` _[KeystoneTag](#keystonetag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tagsAny` _[KeystoneTag](#keystonetag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `notTags` _[KeystoneTag](#keystonetag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
@@ -2672,6 +2675,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _[KeystoneName](#keystonename)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description contains a free form description of the project. |  | MaxLength: 65535 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `enabled` _boolean_ | enabled defines whether a project is enabled or not. Default is true. |  | Optional: \{\} <br /> |
 | `tags` _[KeystoneTag](#keystonetag) array_ | tags is list of simple strings assigned to a project.<br />Tags can be used to classify projects into groups. |  | MaxItems: 80 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
@@ -2691,6 +2695,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the project. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 65535 <br />Optional: \{\} <br /> |
+| `domainID` _string_ | domainID is the ID of the Domain to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `enabled` _boolean_ | enabled represents whether a project is enabled or not. |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 80 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
 

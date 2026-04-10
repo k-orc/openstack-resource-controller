@@ -2,28 +2,25 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain
 metadata:
-  name: project-create-full
+  name: project-import-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
-  managementPolicy: managed
-  resource: {}
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: project-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: project-create-full
+  name: project-import-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    name: project-create-full-override
-    description: Project from "create full" test
-    domainRef: project-create-full
-    enabled: false
-    tags:
-      - tag1
-      - tag2
+  managementPolicy: unmanaged
+  import:
+    filter:
+      domainRef: project-import-dependency
