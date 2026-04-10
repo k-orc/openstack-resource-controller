@@ -2,6 +2,18 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
+  name: project-dependency-no-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: project-dependency
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
   name: project-dependency-no-secret
 spec:
   cloudCredentialsRef:

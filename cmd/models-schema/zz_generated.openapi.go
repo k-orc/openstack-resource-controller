@@ -6080,6 +6080,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectFilter(ref comm
 							Format:      "",
 						},
 					},
+					"domainRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainRef is a reference to the ORC Domain which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -6266,6 +6273,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectResourceSpec(re
 							Format:      "",
 						},
 					},
+					"domainRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainRef is a reference to the ORC Domain which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"enabled": {
 						SchemaProps: spec.SchemaProps{
 							Description: "enabled defines whether a project is enabled or not. Default is true.",
@@ -6316,6 +6330,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectResourceStatus(
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domainID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "domainID is the ID of the Domain to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

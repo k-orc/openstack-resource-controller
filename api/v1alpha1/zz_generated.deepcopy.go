@@ -3149,6 +3149,11 @@ func (in *ProjectFilter) DeepCopyInto(out *ProjectFilter) {
 		*out = new(KeystoneName)
 		**out = **in
 	}
+	if in.DomainRef != nil {
+		in, out := &in.DomainRef, &out.DomainRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
 	in.FilterByKeystoneTags.DeepCopyInto(&out.FilterByKeystoneTags)
 }
 
@@ -3230,6 +3235,11 @@ func (in *ProjectResourceSpec) DeepCopyInto(out *ProjectResourceSpec) {
 	if in.Description != nil {
 		in, out := &in.Description, &out.Description
 		*out = new(string)
+		**out = **in
+	}
+	if in.DomainRef != nil {
+		in, out := &in.DomainRef, &out.DomainRef
+		*out = new(KubernetesNameRef)
 		**out = **in
 	}
 	if in.Enabled != nil {

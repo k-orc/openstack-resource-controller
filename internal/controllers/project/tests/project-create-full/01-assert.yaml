@@ -4,7 +4,7 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Domain
-      name: project-dependency
+      name: project-create-full
       ref: domain
 assertAll:
     - celExpr: "domain.status.resource.enabled == false"
