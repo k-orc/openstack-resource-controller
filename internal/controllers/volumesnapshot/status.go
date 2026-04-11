@@ -17,18 +17,22 @@ limitations under the License.
 package volumesnapshot
 
 import (
+	"sort"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 const (
 	SnapshotStatusAvailable = "available"
 	SnapshotStatusDeleting  = "deleting"
+	SnapshotStatusError     = "error"
 )
 
 type volumesnapshotStatusWriter struct{}
@@ -53,6 +57,14 @@ func (volumesnapshotStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1
 	if osResource.Status == SnapshotStatusAvailable {
 		return metav1.ConditionTrue, nil
 	}
+	if osResource.Status == SnapshotStatusError {
+		return metav1.ConditionFalse, progress.WrapError(
+			orcerrors.Terminal(
+				orcv1alpha1.ConditionReasonUnrecoverableError,
+				"OpenStack volume snapshot is in error state",
+			),
+		)
+	}
 
 	// Otherwise we should continue to poll
 	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, volumesnapshotAvailablePollingPeriod)
@@ -64,7 +76,11 @@ func (volumesnapshotStatusWriter) ApplyResourceStatus(log logr.Logger, osResourc
 		WithVolumeID(osResource.VolumeID).
 		WithStatus(osResource.Status).
 		WithSize(int32(osResource.Size)).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+		WithConsumesQuota(osResource.ConsumesQuota)
+
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
 
 	if !osResource.UpdatedAt.IsZero() {
 		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
@@ -90,14 +106,15 @@ func (volumesnapshotStatusWriter) ApplyResourceStatus(log logr.Logger, osResourc
 		resourceStatus.WithGroupSnapshotID(osResource.GroupSnapshotID)
 	}
 
-	if osResource.ConsumesQuota {
-		resourceStatus.WithConsumesQuota(osResource.ConsumesQuota)
+	metadataKeys := make([]string, 0, len(osResource.Metadata))
+	for k := range osResource.Metadata {
+		metadataKeys = append(metadataKeys, k)
 	}
-
-	for k, v := range osResource.Metadata {
+	sort.Strings(metadataKeys)
+	for _, k := range metadataKeys {
 		resourceStatus.WithMetadata(orcapplyconfigv1alpha1.VolumeSnapshotMetadataStatus().
 			WithName(k).
-			WithValue(v))
+			WithValue(osResource.Metadata[k]))
 	}
 
 	statusApply.WithResource(resourceStatus)

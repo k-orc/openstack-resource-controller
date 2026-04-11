@@ -68,11 +68,9 @@ type VolumeSnapshotFilter struct {
 	// +optional
 	Status *string `json:"status,omitempty"`
 
-	// volumeID is the ID of the volume the snapshot was created from
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// volumeRef references the ORC Volume used to filter snapshots by source volume.
 	// +optional
-	VolumeID *string `json:"volumeID,omitempty"`
+	VolumeRef *KubernetesNameRef `json:"volumeRef,omitempty"`
 }
 
 // VolumeSnapshotResourceStatus represents the observed state of the resource.

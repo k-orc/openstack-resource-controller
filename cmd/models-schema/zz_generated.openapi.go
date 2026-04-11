@@ -12216,9 +12216,9 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSnapshotFilter(r
 							Format:      "",
 						},
 					},
-					"volumeID": {
+					"volumeRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "volumeID is the ID of the volume the snapshot was created from",
+							Description: "volumeRef references the ORC Volume used to filter snapshots by source volume.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

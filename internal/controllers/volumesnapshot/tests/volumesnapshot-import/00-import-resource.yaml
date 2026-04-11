@@ -1,5 +1,17 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volumesnapshot-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    size: 1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: VolumeSnapshot
 metadata:
   name: volumesnapshot-import
@@ -11,3 +23,4 @@ spec:
   import:
     filter:
       name: volumesnapshot-import-external
+      volumeRef: volumesnapshot-import

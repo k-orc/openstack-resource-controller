@@ -25,10 +25,10 @@ import (
 // VolumeSnapshotFilterApplyConfiguration represents a declarative configuration of the VolumeSnapshotFilter type for use
 // with apply.
 type VolumeSnapshotFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Description *string                    `json:"description,omitempty"`
-	Status      *string                    `json:"status,omitempty"`
-	VolumeID    *string                    `json:"volumeID,omitempty"`
+	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
+	Description *string                        `json:"description,omitempty"`
+	Status      *string                        `json:"status,omitempty"`
+	VolumeRef   *apiv1alpha1.KubernetesNameRef `json:"volumeRef,omitempty"`
 }
 
 // VolumeSnapshotFilterApplyConfiguration constructs a declarative configuration of the VolumeSnapshotFilter type for use with
@@ -61,10 +61,10 @@ func (b *VolumeSnapshotFilterApplyConfiguration) WithStatus(value string) *Volum
 	return b
 }
 
-// WithVolumeID sets the VolumeID field in the declarative configuration to the given value
+// WithVolumeRef sets the VolumeRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the VolumeID field is set to the value of the last call.
-func (b *VolumeSnapshotFilterApplyConfiguration) WithVolumeID(value string) *VolumeSnapshotFilterApplyConfiguration {
-	b.VolumeID = &value
+// If called multiple times, the VolumeRef field is set to the value of the last call.
+func (b *VolumeSnapshotFilterApplyConfiguration) WithVolumeRef(value apiv1alpha1.KubernetesNameRef) *VolumeSnapshotFilterApplyConfiguration {
+	b.VolumeRef = &value
 	return b
 }

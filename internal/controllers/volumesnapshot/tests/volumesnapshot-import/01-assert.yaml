@@ -24,10 +24,8 @@ metadata:
 status:
   conditions:
     - type: Available
-      message: Waiting for OpenStack resource to be created externally
       status: "False"
       reason: Progressing
     - type: Progressing
-      message: Waiting for OpenStack resource to be created externally
       status: "True"
       reason: Progressing

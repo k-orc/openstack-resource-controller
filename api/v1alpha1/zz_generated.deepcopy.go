@@ -6332,9 +6332,9 @@ func (in *VolumeSnapshotFilter) DeepCopyInto(out *VolumeSnapshotFilter) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.VolumeID != nil {
-		in, out := &in.VolumeID, &out.VolumeID
-		*out = new(string)
+	if in.VolumeRef != nil {
+		in, out := &in.VolumeRef, &out.VolumeRef
+		*out = new(KubernetesNameRef)
 		**out = **in
 	}
 }

@@ -23,6 +23,8 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/snapshots"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -100,13 +102,39 @@ func (actuator volumesnapshotActuator) ListOSResourcesForImport(ctx context.Cont
 		})
 	}
 
+	volumeID, reconcileStatus := actuator.getVolumeIDForImport(ctx, obj, filter)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
 	listOpts := snapshots.ListOpts{
 		Name:     string(ptr.Deref(filter.Name, "")),
 		Status:   ptr.Deref(filter.Status, ""),
-		VolumeID: ptr.Deref(filter.VolumeID, ""),
+		VolumeID: volumeID,
 	}
 
 	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator volumesnapshotActuator) getVolumeIDForImport(ctx context.Context, obj orcObjectPT, filter filterT) (string, progress.ReconcileStatus) {
+	if filter.VolumeRef == nil {
+		return "", nil
+	}
+
+	volumeName := string(*filter.VolumeRef)
+	volume := &orcv1alpha1.Volume{}
+	if err := actuator.k8sClient.Get(ctx, types.NamespacedName{Name: volumeName, Namespace: obj.GetNamespace()}, volume); err != nil {
+		if apierrors.IsNotFound(err) {
+			return "", progress.WaitingOnObject("Volume", volumeName, progress.WaitingOnCreation)
+		}
+		return "", progress.WrapError(err)
+	}
+
+	if !orcv1alpha1.IsAvailable(volume) || volume.Status.ID == nil || *volume.Status.ID == "" {
+		return "", progress.WaitingOnObject("Volume", volumeName, progress.WaitingOnReady)
+	}
+
+	return *volume.Status.ID, nil
 }
 
 func (actuator volumesnapshotActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts snapshots.ListOptsBuilder) iter.Seq2[*snapshots.Snapshot, error] {
