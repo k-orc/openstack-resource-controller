@@ -113,8 +113,10 @@ type TrunkFilter struct {
 	// +optional
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
-	// Contrary to what the neutron doc say, we can't filter by status
-	// https://github.com/gophercloud/gophercloud/issues/3626
+	// status indicates the trunk state to use as a filter.
+	// +kubebuilder:validation:MaxLength=64
+	// +optional
+	Status string `json:"status,omitempty"`
 
 	// adminStateUp is the administrative state of the trunk.
 	// +optional
