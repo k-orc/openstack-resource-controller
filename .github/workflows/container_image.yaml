@@ -21,11 +21,23 @@ jobs:
       with:
         persist-credentials: false
 
-    - run: |
+    - name: Build and push images
+      run: |
         docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io # zizmor: ignore[secrets-outside-env]
 
-        docker build -t ${{ env.image_tag_branch }} .
-        docker push ${{ env.image_tag_branch }}
+        make docker-build IMG=${{ env.image_tag_branch }} && \
+        make docker-build IMG=${{ env.image_tag_commit }}
 
-        docker build -t ${{ env.image_tag_commit }} --label quay.expires-after=4w .
-        docker push ${{ env.image_tag_commit }}
+        make docker-push IMG=${{ env.image_tag_branch }} && \
+        make docker-push IMG=${{ env.image_tag_commit }}
+
+    - name: Set expiration on commit image
+      env:
+        QUAY_OAUTH_TOKEN: ${{ secrets.QUAY_OAUTH_TOKEN }} # zizmor: ignore[secrets-outside-env]
+      run: |
+        EXPIRATION=$(($(date -u +%s) + 2419200))
+        curl -sf -X PUT \
+          -H "Authorization: Bearer ${QUAY_OAUTH_TOKEN}" \
+          -H "Content-Type: application/json" \
+          -d "{\"expiration\": $EXPIRATION}" \
+          "https://quay.io/api/v1/repository/orc/openstack-resource-controller/tag/commit-${GITHUB_SHA::7}"
