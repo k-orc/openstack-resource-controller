@@ -1,0 +1,37 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Volume
+metadata:
+  name: volumesnapshot-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    size: 1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-dependency-no-volume
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    volumeRef: volumesnapshot-dependency-pending
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: volumesnapshot-dependency
+  managementPolicy: managed
+  resource:
+    volumeRef: volumesnapshot-dependency

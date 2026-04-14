@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-update
+spec:
+  resource:
+    name: volumesnapshot-update-updated
+    description: volumesnapshot-update-updated

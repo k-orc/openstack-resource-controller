@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeSnapshot
+metadata:
+  name: volumesnapshot-import
+status:
+  conditions:
+    - type: Available
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      status: "True"
+      reason: Progressing
