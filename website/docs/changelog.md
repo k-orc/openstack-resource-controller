@@ -1,5 +1,46 @@
 # Changelog
 
+## v2.5 - April 16, 2026
+
+This release adds five new controllers spanning Neutron and Keystone services,
+plus significant improvements to existing controllers. This is expected to be
+the last v2 release before work begins on v3, which will include minor breaking
+API changes.
+
+### New controllers
+- Trunk: Manage Neutron trunk ports
+- AddressScope: Manage Neutron address scopes
+- Endpoint: Manage Keystone endpoints
+- User: Manage Keystone users
+- ApplicationCredential: Manage Keystone application credentials
+
+### New features
+
+* Port: Added `adminStateUp` and `macAddress` fields
+* Port: Added support for port binding
+* Server: Added `configdrive` and `metadata` fields
+* Volume: Added ability to create bootable volumes from images
+* Project: Added ability to specify domainRef
+* We now have a process for [lightweight enhancement proposals](https://github.com/k-orc/openstack-resource-controller/tree/main/enhancements). We even got a proposal for [drift detection](https://github.com/k-orc/openstack-resource-controller/blob/main/enhancements/drift-detection.md).
+
+### Bug fixes
+
+- SecurityGroup: Fixed inverted error handling for rule creation where retryable errors were marked terminal ([#672](https://github.com/k-orc/openstack-resource-controller/pull/672))
+- SecurityGroup: Fixed availability status by counting security group rules (Fixes [#120](https://github.com/k-orc/openstack-resource-controller/issues/120))
+- RouterInterface: Fixed missing status conditions when routerRef does not exist (Fixes [#314](https://github.com/k-orc/openstack-resource-controller/issues/314))
+- Role: Fixed adoption of domain-scoped roles failing with 409 Conflict ([#733](https://github.com/k-orc/openstack-resource-controller/pull/733))
+
+### Infrastructure improvements
+
+- Go: Bumped to version 1.25.9
+- Bumped dependencies, most notably gophercloud to v2.11.1
+- Added ORC API linter to enforce API design philosophy (no OpenStack IDs in spec fields)
+- Added API validation tests for all controllers, with scaffolding support for new controllers
+- Added AI agent instructions and skills for assisted development
+- CI: Hardened GitHub Actions security (pinned SHAs, scoped permissions, zizmor scanning)
+- CI: Added gazpacho, dropped dalmatian testing
+* Restored development container image expiration in Quay
+
 ## v2.4 - December 17, 2025
 
 ### New controllers
