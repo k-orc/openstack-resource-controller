@@ -1,0 +1,84 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: applicationcredential-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: admin
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-user
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency-pending
+    secretRef: applicationcredential-secret
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: applicationcredential-dependency
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-secret
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-secret-ref
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-secret
+    roleRefs:
+      - applicationcredential-dependency-pending
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ApplicationCredential
+metadata:
+  name: applicationcredential-dependency-no-service
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRef: applicationcredential-dependency
+    secretRef: applicationcredential-secret
+    accessRules:
+      - method: "GET"
+        serviceRef: applicationcredential-dependency-pending
+        path: "/v2.1/servers"

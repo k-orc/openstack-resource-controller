@@ -11,6 +11,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 
 ### Resource Types
 - [AddressScope](#addressscope)
+- [ApplicationCredential](#applicationcredential)
 - [Domain](#domain)
 - [Endpoint](#endpoint)
 - [Flavor](#flavor)
@@ -256,6 +257,203 @@ _Appears in:_
 | `mac` _string_ | mac contains a MAC address which a server connected to the port can<br />send packets with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
+#### ApplicationCredential
+
+
+
+ApplicationCredential is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ApplicationCredential` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[ApplicationCredentialSpec](#applicationcredentialspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[ApplicationCredentialStatus](#applicationcredentialstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialAccessRule
+
+
+
+ApplicationCredentialAccessRule defines an access rule
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `path` _string_ | path that the application credential is permitted to access |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `method` _[HTTPMethod](#httpmethod)_ | method that the application credential is permitted to use for a given API endpoint |  | Enum: [CONNECT DELETE GET HEAD OPTIONS PATCH POST PUT TRACE] <br />Optional: \{\} <br /> |
+| `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef identifier for the service that the application credential is permitted to access |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialAccessRuleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ApplicationCredentialResourceStatus](#applicationcredentialresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of this access rule |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `path` _string_ | path that the application credential is permitted to access |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `method` _string_ | method that the application credential is permitted to use for a given API endpoint |  | MaxLength: 32 <br />Optional: \{\} <br /> |
+| `service` _string_ | service type identifier for the service that the application credential is permitted to access |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialFilter
+
+
+
+ApplicationCredentialFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 2
+
+_Appears in:_
+- [ApplicationCredentialImport](#applicationcredentialimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to the ORC User which this resource is associated with.<br />Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialImport
+
+
+
+ApplicationCredentialImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ApplicationCredentialSpec](#applicationcredentialspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[ApplicationCredentialFilter](#applicationcredentialfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 2 <br />Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialResourceSpec
+
+
+
+ApplicationCredentialResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [ApplicationCredentialSpec](#applicationcredentialspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef is a reference to the ORC User which this resource is associated with.<br />Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `unrestricted` _boolean_ | unrestricted is a flag indicating whether the application credential may be used for creation or destruction of other application credentials or trusts |  | Optional: \{\} <br /> |
+| `secretRef` _[KubernetesNameRef](#kubernetesnameref)_ | secretRef is a reference to a Secret containing the application credential secret |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `roleRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | roleRefs may only contain roles that the user has assigned on the project. If not provided, the roles assigned to the application credential will be the same as the roles in the current token. |  | MaxItems: 256 <br />MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `accessRules` _[ApplicationCredentialAccessRule](#applicationcredentialaccessrule) array_ | accessRules is a list of fine grained access control rules |  | MaxItems: 256 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `expiresAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | expiresAt is the time of expiration for the application credential. If unset, the application credential does not expire. |  | Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialResourceStatus
+
+
+
+ApplicationCredentialResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ApplicationCredentialStatus](#applicationcredentialstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `unrestricted` _boolean_ | unrestricted is a flag indicating whether the application credential may be used for creation or destruction of other application credentials or trusts |  | Optional: \{\} <br /> |
+| `projectID` _string_ | projectID of the project the application credential was created for and that authentication requests using this application credential will be scoped to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `roles` _[ApplicationCredentialRoleStatus](#applicationcredentialrolestatus) array_ | roles is a list of role objects may only contain roles that the user has assigned on the project |  | MaxItems: 64 <br />Optional: \{\} <br /> |
+| `expiresAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | expiresAt is the time of expiration for the application credential. If unset, the application credential does not expire. |  | Optional: \{\} <br /> |
+| `accessRules` _[ApplicationCredentialAccessRuleStatus](#applicationcredentialaccessrulestatus) array_ | accessRules is a list of fine grained access control rules |  | MaxItems: 64 <br />Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialRoleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [ApplicationCredentialResourceStatus](#applicationcredentialresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name of an existing role |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the ID of a role |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `domainID` _string_ | domainID of the domain of this role |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### ApplicationCredentialSpec
+
+
+
+ApplicationCredentialSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [ApplicationCredential](#applicationcredential)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ApplicationCredentialImport](#applicationcredentialimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### ApplicationCredentialStatus
+
+
+
+ApplicationCredentialStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [ApplicationCredential](#applicationcredential)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[ApplicationCredentialResourceStatus](#applicationcredentialresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+
+
 #### AvailabilityZoneHint
 
 _Underlying type:_ _string_
@@ -303,6 +501,7 @@ CloudCredentialsReference is a reference to a secret containing OpenStack creden
 
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
+- [ApplicationCredentialSpec](#applicationcredentialspec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -1172,6 +1371,31 @@ _Appears in:_
 | `resource` _[GroupResourceStatus](#groupresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 
 
+#### HTTPMethod
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [CONNECT DELETE GET HEAD OPTIONS PATCH POST PUT TRACE]
+
+_Appears in:_
+- [ApplicationCredentialAccessRule](#applicationcredentialaccessrule)
+
+| Field | Description |
+| --- | --- |
+| `CONNECT` |  |
+| `DELETE` |  |
+| `GET` |  |
+| `HEAD` |  |
+| `OPTIONS` |  |
+| `PATCH` |  |
+| `POST` |  |
+| `PUT` |  |
+| `TRACE` |  |
+
+
 #### HostID
 
 
@@ -1915,6 +2139,9 @@ _Appears in:_
 - [Address](#address)
 - [AddressScopeFilter](#addressscopefilter)
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
+- [ApplicationCredentialAccessRule](#applicationcredentialaccessrule)
+- [ApplicationCredentialFilter](#applicationcredentialfilter)
+- [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
 - [EndpointFilter](#endpointfilter)
 - [EndpointResourceSpec](#endpointresourcespec)
 - [ExternalGateway](#externalgateway)
@@ -1991,6 +2218,7 @@ _Appears in:_
 
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
+- [ApplicationCredentialSpec](#applicationcredentialspec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -2029,6 +2257,7 @@ _Validation:_
 
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
+- [ApplicationCredentialSpec](#applicationcredentialspec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -2332,6 +2561,8 @@ _Validation:_
 _Appears in:_
 - [AddressScopeFilter](#addressscopefilter)
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
+- [ApplicationCredentialFilter](#applicationcredentialfilter)
+- [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
 - [FlavorFilter](#flavorfilter)
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)
