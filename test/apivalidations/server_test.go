@@ -157,22 +157,22 @@ var _ = Describe("ORC Server API validations", func() {
 		Expect(applyObj(ctx, server, patch)).To(MatchError(ContainSubstring("flavorRef is immutable")))
 	})
 
-	It("should have immutable serverGroupRef", func(ctx context.Context) {
+	It("should have immutable schedulerHints", func(ctx context.Context) {
 		server := serverStub(namespace)
 		patch := baseServerPatch(server)
 		patch.Spec.WithResource(applyconfigv1alpha1.ServerResourceSpec().
 			WithImageRef("my-image").
 			WithFlavorRef("my-flavor").
 			WithPorts(applyconfigv1alpha1.ServerPortSpec().WithPortRef("my-port")).
-			WithServerGroupRef("sg-a"))
+			WithSchedulerHints(applyconfigv1alpha1.ServerSchedulerHints().WithServerGroupRef("sg-a")))
 		Expect(applyObj(ctx, server, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.ServerResourceSpec().
 			WithImageRef("my-image").
 			WithFlavorRef("my-flavor").
 			WithPorts(applyconfigv1alpha1.ServerPortSpec().WithPortRef("my-port")).
-			WithServerGroupRef("sg-b"))
-		Expect(applyObj(ctx, server, patch)).To(MatchError(ContainSubstring("serverGroupRef is immutable")))
+			WithSchedulerHints(applyconfigv1alpha1.ServerSchedulerHints().WithServerGroupRef("sg-b")))
+		Expect(applyObj(ctx, server, patch)).To(MatchError(ContainSubstring("schedulerHints is immutable")))
 	})
 
 	It("should have immutable keypairRef", func(ctx context.Context) {
