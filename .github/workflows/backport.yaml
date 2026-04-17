@@ -6,13 +6,14 @@ on:
     types:
       - closed
       - labeled
-permissions:
-  contents: read
-  pull-requests: write
+permissions: {}
 
 jobs:
   backport_v1_0:
     name: "Backport to v1.0"
+    permissions:
+      contents: read
+      pull-requests: write
     # Only react to merged PRs for security reasons.
     # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target.
     if: >
@@ -72,6 +73,9 @@ jobs:
 
   backport_v2_0:
     name: "Backport to v2.0"
+    permissions:
+      contents: read
+      pull-requests: write
     # Only react to merged PRs for security reasons.
     # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target.
     if: >
