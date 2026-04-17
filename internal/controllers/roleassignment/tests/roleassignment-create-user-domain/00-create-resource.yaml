@@ -1,0 +1,54 @@
+---
+# Create a test role
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-ud-test-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-ud-test-role
+---
+# Create a test user
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: roleassignment-ud-test-user
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-ud-test-user
+---
+# Create a test domain
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: roleassignment-ud-test-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-ud-test-domain
+---
+# Create the role assignment
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-create-user-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: roleassignment-ud-test-role
+    userRef: roleassignment-ud-test-user
+    domainRef: roleassignment-ud-test-domain

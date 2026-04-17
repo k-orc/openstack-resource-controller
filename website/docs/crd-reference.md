@@ -23,6 +23,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Port](#port)
 - [Project](#project)
 - [Role](#role)
+- [RoleAssignment](#roleassignment)
 - [Router](#router)
 - [RouterInterface](#routerinterface)
 - [SecurityGroup](#securitygroup)
@@ -513,6 +514,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RoleAssignmentSpec](#roleassignmentspec)
 - [RoleSpec](#rolespec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
@@ -2157,6 +2159,8 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RoleAssignmentFilter](#roleassignmentfilter)
+- [RoleAssignmentResourceSpec](#roleassignmentresourcespec)
 - [RoleFilter](#rolefilter)
 - [RoleResourceSpec](#roleresourcespec)
 - [RouterFilter](#routerfilter)
@@ -2232,6 +2236,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RoleAssignmentSpec](#roleassignmentspec)
 - [RoleSpec](#rolespec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
@@ -2271,6 +2276,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RoleAssignmentSpec](#roleassignmentspec)
 - [RoleSpec](#rolespec)
 - [RouterSpec](#routerspec)
 - [SecurityGroupSpec](#securitygroupspec)
@@ -3066,6 +3072,149 @@ Role is the Schema for an ORC resource.
 | `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
 | `spec` _[RoleSpec](#rolespec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
 | `status` _[RoleStatus](#rolestatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### RoleAssignment
+
+
+
+RoleAssignment is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `RoleAssignment` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[RoleAssignmentSpec](#roleassignmentspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[RoleAssignmentStatus](#roleassignmentstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### RoleAssignmentFilter
+
+
+
+RoleAssignmentFilter defines import filter criteria for existing role assignments.
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [RoleAssignmentImport](#roleassignmentimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `roleRef` _[KubernetesNameRef](#kubernetesnameref)_ | roleRef filters by the referenced Role. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef filters by the referenced User. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `groupRef` _[KubernetesNameRef](#kubernetesnameref)_ | groupRef filters by the referenced Group. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef filters by the referenced Project scope. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef filters by the referenced Domain scope. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### RoleAssignmentImport
+
+
+
+RoleAssignmentImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [RoleAssignmentSpec](#roleassignmentspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[RoleAssignmentFilter](#roleassignmentfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### RoleAssignmentResourceSpec
+
+
+
+RoleAssignmentResourceSpec defines the desired role assignment.
+A role assignment grants a role to a user or group on a project or domain.
+Role assignments are immutable once created and identified by the combination
+of (role, actor, scope) rather than a separate ID.
+
+
+
+_Appears in:_
+- [RoleAssignmentSpec](#roleassignmentspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `roleRef` _[KubernetesNameRef](#kubernetesnameref)_ | roleRef references the Role being assigned. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef references the User receiving the role assignment.<br />Exactly one of userRef or groupRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `groupRef` _[KubernetesNameRef](#kubernetesnameref)_ | groupRef references the Group receiving the role assignment.<br />Exactly one of userRef or groupRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef references the Project scope for the assignment.<br />Exactly one of projectRef or domainRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef references the Domain scope for the assignment.<br />Exactly one of projectRef or domainRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### RoleAssignmentResourceStatus
+
+
+
+RoleAssignmentResourceStatus represents the observed state of the role assignment.
+Note: Role assignments do not have a unique ID in OpenStack - they are identified
+by the combination of role, actor (user/group), and scope (project/domain).
+
+
+
+_Appears in:_
+- [RoleAssignmentStatus](#roleassignmentstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `roleID` _string_ | roleID is the OpenStack ID of the assigned role. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `userID` _string_ | userID is the OpenStack ID of the user (if actorType is User). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `groupID` _string_ | groupID is the OpenStack ID of the group (if actorType is Group). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the OpenStack ID of the project scope (if scopeType is Project). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `domainID` _string_ | domainID is the OpenStack ID of the domain scope (if scopeType is Domain). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### RoleAssignmentSpec
+
+
+
+RoleAssignmentSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [RoleAssignment](#roleassignment)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[RoleAssignmentImport](#roleassignmentimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[RoleAssignmentResourceSpec](#roleassignmentresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### RoleAssignmentStatus
+
+
+
+RoleAssignmentStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [RoleAssignment](#roleassignment)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[RoleAssignmentResourceStatus](#roleassignmentresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 
 
 #### RoleFilter

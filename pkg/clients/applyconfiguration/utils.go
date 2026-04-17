@@ -266,6 +266,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Role"):
 		return &apiv1alpha1.RoleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignment"):
+		return &apiv1alpha1.RoleAssignmentApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignmentFilter"):
+		return &apiv1alpha1.RoleAssignmentFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignmentImport"):
+		return &apiv1alpha1.RoleAssignmentImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignmentResourceSpec"):
+		return &apiv1alpha1.RoleAssignmentResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignmentResourceStatus"):
+		return &apiv1alpha1.RoleAssignmentResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignmentSpec"):
+		return &apiv1alpha1.RoleAssignmentSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignmentStatus"):
+		return &apiv1alpha1.RoleAssignmentStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RoleFilter"):
 		return &apiv1alpha1.RoleFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RoleImport"):

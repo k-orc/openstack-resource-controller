@@ -15,6 +15,7 @@ testDirs:
 - ./internal/controllers/port/tests/
 - ./internal/controllers/project/tests/
 - ./internal/controllers/role/tests/
+- ./internal/controllers/roleassignment/tests/
 - ./internal/controllers/router/tests/
 - ./internal/controllers/routerinterface/tests/
 - ./internal/controllers/securitygroup/tests/

@@ -1,0 +1,54 @@
+---
+# Create a test role
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-up-test-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-up-test-role
+---
+# Create a test user
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: roleassignment-up-test-user
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-up-test-user
+---
+# Create a test project
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: roleassignment-up-test-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-up-test-project
+---
+# Create the role assignment
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-create-user-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: roleassignment-up-test-role
+    userRef: roleassignment-up-test-user
+    projectRef: roleassignment-up-test-project

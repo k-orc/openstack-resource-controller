@@ -2,16 +2,9 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 commands:
-# Dependencies that were prevented deletion before should now be gone
-- script: "! kubectl get role.openstack.k-orc.cloud roleassignment-dependency --namespace $NAMESPACE"
+# Verify RoleAssignment is deleted
+- script: "! kubectl get roleassignment roleassignment-dependency --namespace $NAMESPACE"
   skipLogOutput: true
-- script: "! kubectl get user.openstack.k-orc.cloud roleassignment-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get group.openstack.k-orc.cloud roleassignment-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get project.openstack.k-orc.cloud roleassignment-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get domain.openstack.k-orc.cloud roleassignment-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
-- script: "! kubectl get secret roleassignment-dependency --namespace $NAMESPACE"
+# Verify Project can now be deleted (finalizer removed)
+- script: "! kubectl get project roleassignment-dep-project --namespace $NAMESPACE"
   skipLogOutput: true

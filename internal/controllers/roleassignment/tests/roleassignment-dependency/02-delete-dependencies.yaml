@@ -1,17 +1,6 @@
 ---
+# Try to delete a dependency (should be blocked by finalizer)
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
-  # We expect the deletion to hang due to the finalizer, so use --wait=false
-  - command: kubectl delete role.openstack.k-orc.cloud roleassignment-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete user.openstack.k-orc.cloud roleassignment-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete group.openstack.k-orc.cloud roleassignment-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete project.openstack.k-orc.cloud roleassignment-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete domain.openstack.k-orc.cloud roleassignment-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete secret roleassignment-dependency --wait=false
-    namespaced: true
+  - command: kubectl delete project roleassignment-dep-project --namespace $NAMESPACE --wait=false

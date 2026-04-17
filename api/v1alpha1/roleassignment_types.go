@@ -16,129 +16,89 @@ limitations under the License.
 
 package v1alpha1
 
-// RoleAssignmentResourceSpec contains the desired state of the resource.
+// RoleAssignmentResourceSpec defines the desired role assignment.
+// A role assignment grants a role to a user or group on a project or domain.
+// Role assignments are immutable once created and identified by the combination
+// of (role, actor, scope) rather than a separate ID.
+// +kubebuilder:validation:XValidation:rule="(has(self.userRef) && !has(self.groupRef)) || (!has(self.userRef) && has(self.groupRef))",message="exactly one of userRef or groupRef is required"
+// +kubebuilder:validation:XValidation:rule="(has(self.projectRef) && !has(self.domainRef)) || (!has(self.projectRef) && has(self.domainRef))",message="exactly one of projectRef or domainRef is required"
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="RoleAssignmentResourceSpec is immutable"
 type RoleAssignmentResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// roleRef is a reference to the ORC Role which this resource is associated with.
+	// roleRef references the Role being assigned.
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="roleRef is immutable"
 	RoleRef KubernetesNameRef `json:"roleRef,omitempty"`
 
-	// userRef is a reference to the ORC User which this resource is associated with.
+	// userRef references the User receiving the role assignment.
+	// Exactly one of userRef or groupRef must be specified.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="userRef is immutable"
 	UserRef *KubernetesNameRef `json:"userRef,omitempty"`
 
-	// groupRef is a reference to the ORC Group which this resource is associated with.
+	// groupRef references the Group receiving the role assignment.
+	// Exactly one of userRef or groupRef must be specified.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="groupRef is immutable"
 	GroupRef *KubernetesNameRef `json:"groupRef,omitempty"`
 
-	// projectRef is a reference to the ORC Project which this resource is associated with.
+	// projectRef references the Project scope for the assignment.
+	// Exactly one of projectRef or domainRef must be specified.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
-	// domainRef is a reference to the ORC Domain which this resource is associated with.
+	// domainRef references the Domain scope for the assignment.
+	// Exactly one of projectRef or domainRef must be specified.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
 }
 
-// RoleAssignmentFilter defines an existing resource by its properties
+// RoleAssignmentFilter defines import filter criteria for existing role assignments.
 // +kubebuilder:validation:MinProperties:=1
 type RoleAssignmentFilter struct {
-	// name of the existing resource
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// roleRef is a reference to the ORC Role which this resource is associated with.
+	// roleRef filters by the referenced Role.
 	// +optional
 	RoleRef *KubernetesNameRef `json:"roleRef,omitempty"`
 
-	// userRef is a reference to the ORC User which this resource is associated with.
+	// userRef filters by the referenced User.
 	// +optional
 	UserRef *KubernetesNameRef `json:"userRef,omitempty"`
 
-	// groupRef is a reference to the ORC Group which this resource is associated with.
+	// groupRef filters by the referenced Group.
 	// +optional
 	GroupRef *KubernetesNameRef `json:"groupRef,omitempty"`
 
-	// projectRef is a reference to the ORC Project which this resource is associated with.
+	// projectRef filters by the referenced Project scope.
 	// +optional
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
-	// domainRef is a reference to the ORC Domain which this resource is associated with.
+	// domainRef filters by the referenced Domain scope.
 	// +optional
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles
 }
 
-// RoleAssignmentResourceStatus represents the observed state of the resource.
+// RoleAssignmentResourceStatus represents the observed state of the role assignment.
+// Note: Role assignments do not have a unique ID in OpenStack - they are identified
+// by the combination of role, actor (user/group), and scope (project/domain).
 type RoleAssignmentResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Name string `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Description string `json:"description,omitempty"`
-
-	// roleID is the ID of the Role to which the resource is associated.
+	// roleID is the OpenStack ID of the assigned role.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	RoleID string `json:"roleID,omitempty"`
 
-	// userID is the ID of the User to which the resource is associated.
+	// userID is the OpenStack ID of the user (if actorType is User).
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	UserID string `json:"userID,omitempty"`
 
-	// groupID is the ID of the Group to which the resource is associated.
+	// groupID is the OpenStack ID of the group (if actorType is Group).
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	GroupID string `json:"groupID,omitempty"`
 
-	// projectID is the ID of the Project to which the resource is associated.
+	// projectID is the OpenStack ID of the project scope (if scopeType is Project).
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
 
-	// domainID is the ID of the Domain to which the resource is associated.
+	// domainID is the OpenStack ID of the domain scope (if scopeType is Domain).
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the RoleAssignment structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles
 }

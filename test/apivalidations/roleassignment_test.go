@@ -42,7 +42,9 @@ func roleassignmentStub(namespace *corev1.Namespace) *orcv1alpha1.RoleAssignment
 
 func testRoleAssignmentResource() *applyconfigv1alpha1.RoleAssignmentResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.RoleAssignmentResourceSpec().
-		WithRoleRef("role")
+		WithRoleRef("role").
+		WithUserRef("user").
+		WithProjectRef("project")
 }
 
 func baseRoleAssignmentPatch(obj client.Object) *applyconfigv1alpha1.RoleAssignmentApplyConfiguration {
@@ -79,7 +81,7 @@ var _ = Describe("ORC RoleAssignment API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.RoleAssignmentImport().WithFilter(applyconfigv1alpha1.RoleAssignmentFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.RoleAssignmentApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.RoleAssignmentImport().WithFilter(applyconfigv1alpha1.RoleAssignmentFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.RoleAssignmentImport().WithFilter(applyconfigv1alpha1.RoleAssignmentFilter().WithRoleRef("admin")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.RoleAssignmentApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -105,64 +107,21 @@ var _ = Describe("ORC RoleAssignment API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
 	})
 
-	It("should have immutable roleRef", func(ctx context.Context) {
+	It("should have immutable RoleAssignmentResourceSpec", func(ctx context.Context) {
 		obj := roleassignmentStub(namespace)
 		patch := baseRoleAssignmentPatch(obj)
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithRoleRef("role-a"))
+		patch.Spec.WithResource(applyconfigv1alpha1.RoleAssignmentResourceSpec().
+			WithRoleRef("role").
+			WithUserRef("user").
+			WithProjectRef("project"))
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
 
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithRoleRef("role-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("roleRef is immutable")))
-	})
-
-	It("should have immutable userRef", func(ctx context.Context) {
-		obj := roleassignmentStub(namespace)
-		patch := baseRoleAssignmentPatch(obj)
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithUserRef("user-a"))
-		Expect(applyObj(ctx, obj, patch)).To(Succeed())
-
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithUserRef("user-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("userRef is immutable")))
-	})
-
-	It("should have immutable groupRef", func(ctx context.Context) {
-		obj := roleassignmentStub(namespace)
-		patch := baseRoleAssignmentPatch(obj)
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithGroupRef("group-a"))
-		Expect(applyObj(ctx, obj, patch)).To(Succeed())
-
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithGroupRef("group-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("groupRef is immutable")))
-	})
-
-	It("should have immutable projectRef", func(ctx context.Context) {
-		obj := roleassignmentStub(namespace)
-		patch := baseRoleAssignmentPatch(obj)
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithProjectRef("project-a"))
-		Expect(applyObj(ctx, obj, patch)).To(Succeed())
-
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithProjectRef("project-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("projectRef is immutable")))
-	})
-
-	It("should have immutable domainRef", func(ctx context.Context) {
-		obj := roleassignmentStub(namespace)
-		patch := baseRoleAssignmentPatch(obj)
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithDomainRef("domain-a"))
-		Expect(applyObj(ctx, obj, patch)).To(Succeed())
-
-		patch.Spec.WithResource(testRoleAssignmentResource().
-			WithDomainRef("domain-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
+		// Try to change any field - should fail because entire spec is immutable
+		patch.Spec.WithResource(applyconfigv1alpha1.RoleAssignmentResourceSpec().
+			WithRoleRef("role").
+			WithUserRef("user-changed").
+			WithProjectRef("project"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("RoleAssignmentResourceSpec is immutable")))
 	})
 
 	// TODO(scaffolding): Add more resource-specific validation tests.

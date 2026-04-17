@@ -1,90 +1,13 @@
 ---
+# Verify RoleAssignment is Progressing (waiting for dependencies)
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RoleAssignment
 metadata:
-  name: roleassignment-dependency-no-secret
+  name: roleassignment-dependency
 status:
   conditions:
-    - type: Available
-      message: Waiting for Secret/roleassignment-dependency to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for Secret/roleassignment-dependency to be created
-      status: "True"
-      reason: Progressing
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: RoleAssignment
-metadata:
-  name: roleassignment-dependency-no-role
-status:
-  conditions:
-    - type: Available
-      message: Waiting for Role/roleassignment-dependency-pending to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for Role/roleassignment-dependency-pending to be created
-      status: "True"
-      reason: Progressing
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: RoleAssignment
-metadata:
-  name: roleassignment-dependency-no-user
-status:
-  conditions:
-    - type: Available
-      message: Waiting for User/roleassignment-dependency to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for User/roleassignment-dependency to be created
-      status: "True"
-      reason: Progressing
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: RoleAssignment
-metadata:
-  name: roleassignment-dependency-no-group
-status:
-  conditions:
-    - type: Available
-      message: Waiting for Group/roleassignment-dependency to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for Group/roleassignment-dependency to be created
-      status: "True"
-      reason: Progressing
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: RoleAssignment
-metadata:
-  name: roleassignment-dependency-no-project
-status:
-  conditions:
-    - type: Available
-      message: Waiting for Project/roleassignment-dependency to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for Project/roleassignment-dependency to be created
-      status: "True"
-      reason: Progressing
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: RoleAssignment
-metadata:
-  name: roleassignment-dependency-no-domain
-status:
-  conditions:
-    - type: Available
-      message: Waiting for Domain/roleassignment-dependency to be created
-      status: "False"
-      reason: Progressing
-    - type: Progressing
-      message: Waiting for Domain/roleassignment-dependency to be created
-      status: "True"
-      reason: Progressing
+  - type: Available
+    status: "False"
+  - type: Progressing
+    status: "True"
+    reason: Progressing

@@ -125,6 +125,10 @@ var resources []templateFields = []templateFields{
 		Name: "Role",
 	},
 	{
+		Name:       "RoleAssignment",
+		IsNotNamed: true,
+	},
+	{
 		Name:             "Router",
 		ExistingOSClient: true,
 	},

@@ -27,7 +27,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
@@ -277,6 +276,10 @@ func (c roleassignmentReconcilerConstructor) SetupWithManager(ctx context.Contex
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, roleassignmentHelperFactory{}, roleassignmentStatusWriter{})
-	return builder.Complete(&r)
+	// Custom reconciler for role assignments (relationships, not resources with IDs)
+	reconciler := &roleassignmentReconciler{
+		client:       mgr.GetClient(),
+		scopeFactory: c.scopeFactory,
+	}
+	return builder.Complete(reconciler)
 }

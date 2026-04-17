@@ -1,0 +1,54 @@
+---
+# Create a test role
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-gd-test-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-gd-test-role
+---
+# Create a test group
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: roleassignment-gd-test-group
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-gd-test-group
+---
+# Create a test domain
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: roleassignment-gd-test-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-gd-test-domain
+---
+# Create role assignment (group on domain)
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-create-group-domain
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: roleassignment-gd-test-role
+    groupRef: roleassignment-gd-test-group
+    domainRef: roleassignment-gd-test-domain

@@ -1,71 +1,37 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-commands:
-  - command: kubectl create secret generic roleassignment-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
-    namespaced: true
----
+# Create the dependencies
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
 metadata:
-  name: roleassignment-dependency-pending
+  name: roleassignment-dep-role
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: roleassignment-dep-role
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
 metadata:
-  name: roleassignment-dependency
+  name: roleassignment-dep-user
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Group
-metadata:
-  name: roleassignment-dependency
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: roleassignment-dep-user
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: roleassignment-dependency
+  name: roleassignment-dep-project
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Domain
-metadata:
-  name: roleassignment-dependency
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: roleassignment-dep-project

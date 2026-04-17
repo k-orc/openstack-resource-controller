@@ -21,48 +21,65 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
-// OpenStack resource types
-type (
-	osResourceT = roles.RoleAssignment
-
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
-)
+// OpenStack resource type
+type osResourceT = roles.RoleAssignment
 
 type roleassignmentActuator struct {
 	osClient  osclients.RoleAssignmentClient
 	k8sClient client.Client
 }
 
-var _ createResourceActuator = roleassignmentActuator{}
-var _ deleteResourceActuator = roleassignmentActuator{}
-
-func (roleassignmentActuator) GetResourceID(osResource *osResourceT) string {
-	return osResource.ID
-}
-
-func (actuator roleassignmentActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetRoleAssignment(ctx, id)
-	if err != nil {
-		return nil, progress.WrapError(err)
+// GetResourceByComponents queries for the role assignment by its tuple (role, actor, scope).
+// OpenStack doesn't assign IDs to role assignments - they're identified by this tuple.
+// Exactly one of userID/groupID must be set, and exactly one of projectID/domainID must be set.
+func (actuator roleassignmentActuator) GetResourceByComponents(
+	ctx context.Context,
+	roleID string,
+	userID string,
+	groupID string,
+	projectID string,
+	domainID string,
+) (*osResourceT, progress.ReconcileStatus) {
+	// Build query options from components
+	listOpts := roles.ListAssignmentsOpts{
+		RoleID: roleID,
+		// Note: Don't set Effective parameter - it can cause issues with group assignments
 	}
-	return resource, nil
+
+	// Set actor (user OR group, never both)
+	if userID != "" {
+		listOpts.UserID = userID
+	} else if groupID != "" {
+		listOpts.GroupID = groupID
+	}
+
+	// Set scope (project OR domain, never both)
+	if projectID != "" {
+		listOpts.ScopeProjectID = projectID
+	} else if domainID != "" {
+		listOpts.ScopeDomainID = domainID
+	}
+
+	// Query with exact filters - should return exactly one result
+	for assignment, err := range actuator.osClient.ListRoleAssignments(ctx, listOpts) {
+		if err != nil {
+			return nil, progress.WrapError(err)
+		}
+		return assignment, nil
+	}
+
+	// Not found
+	return nil, nil
 }
 
 func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
@@ -71,75 +88,181 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	// Fetch all dependencies to build the exact filter
+	var roleID, userID, groupID, projectID, domainID string
 
-	listOpts := roles.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	// Role dependency (required)
+	role, _ := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.RoleRef, "Role",
+		func(dep *orcv1alpha1.Role) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	if role == nil {
+		return nil, false // Not ready
+	}
+	roleID = ptr.Deref(role.Status.ID, "")
+
+	// Actor dependency (user XOR group)
+	if resourceSpec.UserRef != nil {
+		user, _ := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.UserRef, "User",
+			func(dep *orcv1alpha1.User) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if user == nil {
+			return nil, false // Not ready
+		}
+		userID = ptr.Deref(user.Status.ID, "")
+	} else {
+		group, _ := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.GroupRef, "Group",
+			func(dep *orcv1alpha1.Group) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if group == nil {
+			return nil, false // Not ready
+		}
+		groupID = ptr.Deref(group.Status.ID, "")
+	}
+
+	// Scope dependency (project XOR domain)
+	if resourceSpec.ProjectRef != nil {
+		project, _ := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if project == nil {
+			return nil, false // Not ready
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	} else {
+		domain, _ := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
+			func(dep *orcv1alpha1.Domain) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if domain == nil {
+			return nil, false // Not ready
+		}
+		domainID = ptr.Deref(domain.Status.ID, "")
+	}
+
+	// Build query - only set fields that have values
+	listOpts := roles.ListAssignmentsOpts{
+		RoleID: roleID,
+		// Note: Don't set Effective parameter - it can cause issues with group assignments
+	}
+
+	// Set actor (user OR group, never both)
+	if userID != "" {
+		listOpts.UserID = userID
+	} else if groupID != "" {
+		listOpts.GroupID = groupID
+	}
+
+	// Set scope (project OR domain, never both)
+	if projectID != "" {
+		listOpts.ScopeProjectID = projectID
+	} else if domainID != "" {
+		listOpts.ScopeDomainID = domainID
 	}
 
 	return actuator.osClient.ListRoleAssignments(ctx, listOpts), true
 }
 
 func (actuator roleassignmentActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
-	role, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.RoleRef, "Role",
-		func(dep *orcv1alpha1.Role) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	// Build ListAssignmentsOpts from filter references
+	var roleID, userID, groupID, projectID, domainID string
 
-	user, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.UserRef, "User",
-		func(dep *orcv1alpha1.User) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	if filter.RoleRef != nil {
+		role, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, filter.RoleRef, "Role",
+			func(dep *orcv1alpha1.Role) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+		if role != nil && role.Status.ID != nil {
+			roleID = *role.Status.ID
+		}
+	}
 
-	group, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.GroupRef, "Group",
-		func(dep *orcv1alpha1.Group) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	if filter.UserRef != nil {
+		user, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, filter.UserRef, "User",
+			func(dep *orcv1alpha1.User) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+		if user != nil && user.Status.ID != nil {
+			userID = *user.Status.ID
+		}
+	}
 
-	project, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.ProjectRef, "Project",
-		func(dep *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	if filter.GroupRef != nil {
+		group, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, filter.GroupRef, "Group",
+			func(dep *orcv1alpha1.Group) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+		if group != nil && group.Status.ID != nil {
+			groupID = *group.Status.ID
+		}
+	}
 
-	domain, rs := dependency.FetchDependency(
-		ctx, actuator.k8sClient, obj.Namespace,
-		filter.DomainRef, "Domain",
-		func(dep *orcv1alpha1.Domain) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	if filter.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+		if project != nil && project.Status.ID != nil {
+			projectID = *project.Status.ID
+		}
+	}
+
+	if filter.DomainRef != nil {
+		domain, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, filter.DomainRef, "Domain",
+			func(dep *orcv1alpha1.Domain) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+		if domain != nil && domain.Status.ID != nil {
+			domainID = *domain.Status.ID
+		}
+	}
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
 
-	listOpts := roles.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		RoleID:  ptr.Deref(role.Status.ID, ""),
-		UserID:  ptr.Deref(user.Status.ID, ""),
-		GroupID:  ptr.Deref(group.Status.ID, ""),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
-		DomainID:  ptr.Deref(domain.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+	// Build query - only set fields that have values (filter fields are optional)
+	listOpts := roles.ListAssignmentsOpts{
+		// Note: Don't set Effective parameter - it can cause issues with group assignments
 	}
 
-	return actuator.osClient.ListRoleAssignments(ctx, listOpts), reconcileStatus
+	if roleID != "" {
+		listOpts.RoleID = roleID
+	}
+	if userID != "" {
+		listOpts.UserID = userID
+	}
+	if groupID != "" {
+		listOpts.GroupID = groupID
+	}
+	if projectID != "" {
+		listOpts.ScopeProjectID = projectID
+	}
+	if domainID != "" {
+		listOpts.ScopeDomainID = domainID
+	}
+
+	return actuator.osClient.ListRoleAssignments(ctx, listOpts), nil
 }
 
 func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -152,18 +275,20 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 	}
 	var reconcileStatus progress.ReconcileStatus
 
+	// Fetch role dependency (required)
+	role, roleDepRS := roleDependency.GetDependency(
+		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Role) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(roleDepRS)
 	var roleID string
-        role, roleDepRS := roleDependency.GetDependency(
-                ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Role) bool {
-                        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-                },
-        )
-        reconcileStatus = reconcileStatus.WithReconcileStatus(roleDepRS)
-        if role != nil {
-                roleID = ptr.Deref(role.Status.ID, "")
-        }
+	if role != nil {
+		roleID = ptr.Deref(role.Status.ID, "")
+	}
 
-	var userID string
+	// Fetch actor dependency (user XOR group)
+	var userID, groupID string
 	if resource.UserRef != nil {
 		user, userDepRS := userDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.User) bool {
@@ -174,10 +299,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 		if user != nil {
 			userID = ptr.Deref(user.Status.ID, "")
 		}
-	}
-
-	var groupID string
-	if resource.GroupRef != nil {
+	} else {
 		group, groupDepRS := groupDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Group) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -189,7 +311,8 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 		}
 	}
 
-	var projectID string
+	// Fetch scope dependency (project XOR domain)
+	var projectID, domainID string
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
@@ -200,10 +323,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 		if project != nil {
 			projectID = ptr.Deref(project.Status.ID, "")
 		}
-	}
-
-	var domainID string
-	if resource.DomainRef != nil {
+	} else {
 		domain, domainDepRS := domainDependency.GetDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Domain) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -214,146 +334,70 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 			domainID = ptr.Deref(domain.Status.ID, "")
 		}
 	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
-	createOpts := roles.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		RoleID:  roleID,
-		UserID:  userID,
-		GroupID:  groupID,
-		ProjectID:  projectID,
+
+	// Build AssignOpts
+	assignOpts := roles.AssignOpts{
+		UserID:    userID,
+		GroupID:   groupID,
+		ProjectID: projectID,
 		DomainID:  domainID,
-		// TODO(scaffolding): Add more fields
 	}
 
-	osResource, err := actuator.osClient.CreateRoleAssignment(ctx, createOpts)
+	// Assign the role (idempotent - returns 204 even if already exists)
+	err := actuator.osClient.AssignRole(ctx, roleID, assignOpts)
 	if err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
 		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating role assignment: "+err.Error(), err)
 		}
 		return nil, progress.WrapError(err)
 	}
 
-	return osResource, nil
+	// Verify the assignment was created by listing with exact filters
+	listOpts := roles.ListAssignmentsOpts{
+		RoleID: roleID,
+		// Note: Don't set Effective parameter - it can cause issues with group assignments
+	}
+
+	// Set actor (user OR group, never both)
+	if userID != "" {
+		listOpts.UserID = userID
+	} else if groupID != "" {
+		listOpts.GroupID = groupID
+	}
+
+	// Set scope (project OR domain, never both)
+	if projectID != "" {
+		listOpts.ScopeProjectID = projectID
+	} else if domainID != "" {
+		listOpts.ScopeDomainID = domainID
+	}
+
+	// Get the first matching assignment to return
+	for assignment, err := range actuator.osClient.ListRoleAssignments(ctx, listOpts) {
+		if err != nil {
+			return nil, progress.WrapError(err)
+		}
+		return assignment, nil
+	}
+
+	// This shouldn't happen - we just assigned it
+	return nil, progress.WrapError(
+		orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError,
+			"role assignment succeeded but could not be found in OpenStack"))
 }
 
-func (actuator roleassignmentActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteRoleAssignment(ctx, resource.ID))
-}
-
-func (actuator roleassignmentActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+func (actuator roleassignmentActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	// Build UnassignOpts from the osResource
+	unassignOpts := roles.UnassignOpts{
+		UserID:    osResource.User.ID,
+		GroupID:   osResource.Group.ID,
+		ProjectID: osResource.Scope.Project.ID,
+		DomainID:  osResource.Scope.Domain.ID,
 	}
 
-	updateOpts := roles.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
-	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
-	}
-
-	_, err = actuator.osClient.UpdateRoleAssignment(ctx, osResource.ID, updateOpts)
-
-	// We should require the spec to be updated before retrying an update which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
-
-	if err != nil {
-		return progress.WrapError(err)
-	}
-
-	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts roles.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToRoleAssignmentUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["role_assignment"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *roles.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *roles.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
-}
-
-func (actuator roleassignmentActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
-}
-
-type roleassignmentHelperFactory struct{}
-
-var _ helperFactory = roleassignmentHelperFactory{}
-
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.RoleAssignment, controller interfaces.ResourceController) (roleassignmentActuator, progress.ReconcileStatus) {
-	log := ctrl.LoggerFrom(ctx)
-
-	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
-		return roleassignmentActuator{}, reconcileStatus
-	}
-
-	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
-	if err != nil {
-		return roleassignmentActuator{}, progress.WrapError(err)
-	}
-	osClient, err := clientScope.NewRoleAssignmentClient()
-	if err != nil {
-		return roleassignmentActuator{}, progress.WrapError(err)
-	}
-
-	return roleassignmentActuator{
-		osClient:  osClient,
-		k8sClient: controller.GetK8sClient(),
-	}, nil
-}
-
-func (roleassignmentHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
-	return roleassignmentAdapter{obj}
-}
-
-func (roleassignmentHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
-	return newActuator(ctx, orcObject, controller)
-}
-
-func (roleassignmentHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
-	return newActuator(ctx, orcObject, controller)
+	return progress.WrapError(actuator.osClient.UnassignRole(ctx, osResource.Role.ID, unassignOpts))
 }

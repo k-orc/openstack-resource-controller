@@ -37,31 +37,47 @@ func (roleassignmentStatusWriter) GetApplyConfig(name, namespace string) *object
 	return orcapplyconfigv1alpha1.RoleAssignment(name, namespace)
 }
 
+// ResourceAvailableStatus returns the availability status of the role assignment.
+// Role assignments don't have Status.ID, so we just check if osResource exists.
 func (roleassignmentStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.RoleAssignment, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
-		if orcObject.Status.ID == nil {
-			return metav1.ConditionFalse, nil
-		} else {
+		// Check if we have any status IDs set (indicates we may have created it but can't find it)
+		if orcObject.Status.Resource != nil &&
+			(orcObject.Status.Resource.RoleID != "" ||
+				orcObject.Status.Resource.UserID != "" ||
+				orcObject.Status.Resource.GroupID != "" ||
+				orcObject.Status.Resource.ProjectID != "" ||
+				orcObject.Status.Resource.DomainID != "") {
 			return metav1.ConditionUnknown, nil
 		}
+		return metav1.ConditionFalse, nil
 	}
 	return metav1.ConditionTrue, nil
 }
 
+// ApplyResourceStatus extracts the role assignment details and applies them to status.
 func (roleassignmentStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
-	resourceStatus := orcapplyconfigv1alpha1.RoleAssignmentResourceStatus().
-		WithRoleID(osResource.RoleID).
-		WithUserID(osResource.UserID).
-		WithGroupID(osResource.GroupID).
-		WithProjectID(osResource.ProjectID).
-		WithDomainID(osResource.DomainID).
-		WithName(osResource.Name)
+	resourceStatus := orcapplyconfigv1alpha1.RoleAssignmentResourceStatus()
 
-	// TODO(scaffolding): add all of the fields supported in the RoleAssignmentResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	// Extract role ID
+	if osResource.Role.ID != "" {
+		resourceStatus.WithRoleID(osResource.Role.ID)
+	}
 
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+	// Extract actor ID (user XOR group)
+	if osResource.User.ID != "" {
+		resourceStatus.WithUserID(osResource.User.ID)
+	}
+	if osResource.Group.ID != "" {
+		resourceStatus.WithGroupID(osResource.Group.ID)
+	}
+
+	// Extract scope ID (project XOR domain)
+	if osResource.Scope.Project.ID != "" {
+		resourceStatus.WithProjectID(osResource.Scope.Project.ID)
+	}
+	if osResource.Scope.Domain.ID != "" {
+		resourceStatus.WithDomainID(osResource.Scope.Domain.ID)
 	}
 
 	statusApply.WithResource(resourceStatus)

@@ -122,6 +122,14 @@ type RoleListerExpansion interface{}
 // RoleNamespaceLister.
 type RoleNamespaceListerExpansion interface{}
 
+// RoleAssignmentListerExpansion allows custom methods to be added to
+// RoleAssignmentLister.
+type RoleAssignmentListerExpansion interface{}
+
+// RoleAssignmentNamespaceListerExpansion allows custom methods to be added to
+// RoleAssignmentNamespaceLister.
+type RoleAssignmentNamespaceListerExpansion interface{}
+
 // RouterListerExpansion allows custom methods to be added to
 // RouterLister.
 type RouterListerExpansion interface{}

@@ -29,6 +29,7 @@ rules:
   - networks
   - ports
   - projects
+  - roleassignments
   - roles
   - routerinterfaces
   - routers
@@ -64,6 +65,7 @@ rules:
   - networks/status
   - ports/status
   - projects/status
+  - roleassignments/status
   - roles/status
   - routerinterfaces/status
   - routers/status
