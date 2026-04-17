@@ -73,9 +73,7 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 	}
 
 	service, _ := serviceDependency.GetDependency(
-		ctx, actuator.k8sClient, orcObject, func(dep *orcv1alpha1.Service) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 	)
 
 	if service == nil {
@@ -99,10 +97,10 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 func (actuator endpointActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
-	service, rs := dependency.FetchDependency(
+	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ServiceRef, "Service",
-		func(dep *orcv1alpha1.Service) bool { return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil },
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -142,9 +140,7 @@ func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObje
 
 	var serviceID string
 	service, serviceDepRS := serviceDependency.GetDependency(
-		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Service) bool {
-			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-		},
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	reconcileStatus = reconcileStatus.WithReconcileStatus(serviceDepRS)
