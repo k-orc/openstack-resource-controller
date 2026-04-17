@@ -77,11 +77,33 @@ func (actuator securityGroupActuator) GetOSResourceByID(ctx context.Context, id 
 }
 
 func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.SecurityGroup) (securityGroupIterator, bool) {
-	if obj.Spec.Resource == nil {
+	resource := obj.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 
-	listOpts := groups.ListOpts{Name: getResourceName(obj)}
+	// Resolve the project ID from ProjectRef if set. Without the project
+	// ID, adoption with admin-scoped credentials could match a security
+	// group in the wrong project.
+	var projectID string
+	if resource.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
+	listOpts := groups.ListOpts{
+		Name:      getResourceName(obj),
+		ProjectID: projectID,
+		Stateful:  resource.Stateful,
+	}
 	return actuator.osClient.ListSecGroup(ctx, listOpts), true
 }
 
