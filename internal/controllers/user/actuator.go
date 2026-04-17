@@ -74,8 +74,25 @@ func (actuator userActuator) ListOSResourcesForAdoption(ctx context.Context, orc
 		return nil, false
 	}
 
+	// Resolve the domain ID from DomainRef if set. Without the domain
+	// ID, adoption could match a user in the wrong domain.
+	var domainID string
+	if resourceSpec.DomainRef != nil {
+		domain, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
+			func(dep *orcv1alpha1.Domain) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		domainID = ptr.Deref(domain.Status.ID, "")
+	}
+
 	listOpts := users.ListOpts{
-		Name: getResourceName(orcObject),
+		Name:     getResourceName(orcObject),
+		DomainID: domainID,
 	}
 
 	return actuator.osClient.ListUsers(ctx, listOpts), true
