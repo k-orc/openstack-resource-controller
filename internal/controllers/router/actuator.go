@@ -48,15 +48,11 @@ type (
 )
 
 type routerActuator struct {
-	osClient osclients.NetworkClient
-}
-
-type routerCreateActuator struct {
-	routerActuator
+	osClient  osclients.NetworkClient
 	k8sClient client.Client
 }
 
-var _ createResourceActuator = routerCreateActuator{}
+var _ createResourceActuator = routerActuator{}
 var _ deleteResourceActuator = routerActuator{}
 
 func (routerActuator) GetResourceID(osResource *osResourceT) string {
@@ -72,15 +68,37 @@ func (actuator routerActuator) GetOSResourceByID(ctx context.Context, id string)
 }
 
 func (actuator routerActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Router) (routerIterator, bool) {
-	if obj.Spec.Resource == nil {
+	resource := obj.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 
-	listOpts := routers.ListOpts{Name: getResourceName(obj)}
+	// Resolve the project ID from ProjectRef if set. Without the project
+	// ID, adoption with admin-scoped credentials could match a router
+	// in the wrong project.
+	var projectID string
+	if resource.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
+	listOpts := routers.ListOpts{
+		Name:        getResourceName(obj),
+		ProjectID:   projectID,
+		Distributed: resource.Distributed,
+	}
 	return actuator.osClient.ListRouter(ctx, listOpts), true
 }
 
-func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+func (actuator routerActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
 	project, rs := dependency.FetchDependency(
@@ -108,7 +126,7 @@ func (actuator routerCreateActuator) ListOSResourcesForImport(ctx context.Contex
 	return actuator.osClient.ListRouter(ctx, listOpts), nil
 }
 
-func (actuator routerCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) (*osResourceT, progress.ReconcileStatus) {
+func (actuator routerActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -274,7 +292,7 @@ func (routerHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (routerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
-	return newCreateActuator(ctx, orcObject, controller)
+	return newActuator(ctx, orcObject, controller)
 }
 
 func (routerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
@@ -300,18 +318,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller 
 	}
 
 	return routerActuator{
-		osClient: osClient,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller interfaces.ResourceController) (routerCreateActuator, progress.ReconcileStatus) {
-	routerActuator, reconcileStatus := newActuator(ctx, orcObject, controller)
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
-		return routerCreateActuator{}, reconcileStatus
-	}
-
-	return routerCreateActuator{
-		routerActuator: routerActuator,
-		k8sClient:      controller.GetK8sClient(),
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
 	}, nil
 }
