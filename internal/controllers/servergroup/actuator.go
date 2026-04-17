@@ -22,6 +22,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
@@ -75,7 +76,7 @@ func (actuator servergroupActuator) ListOSResourcesForAdoption(ctx context.Conte
 	filters := []osclients.ResourceFilter[osResourceT]{
 		func(f *servergroups.ServerGroup) bool {
 			name := getResourceName(orcObject)
-			return f.Name == name
+			return f.Name == name && ptr.Deref(f.Policy, "") == string(resourceSpec.Policy)
 		},
 	}
 	listOpts := servergroups.ListOpts{}
