@@ -112,11 +112,11 @@ var _ = Describe("ORC Server API validations", func() {
 			WithPorts(applyconfigv1alpha1.ServerPortSpec().WithPortRef("my-port")))
 		Expect(applyObj(ctx, server, patch)).To(MatchError(ContainSubstring("spec.resource.flavorRef")))
 
-		// Missing imageRef
+		// Missing imageRef or bootVolume
 		patch.Spec.WithResource(applyconfigv1alpha1.ServerResourceSpec().
 			WithFlavorRef("my-flavor").
 			WithPorts(applyconfigv1alpha1.ServerPortSpec().WithPortRef("my-port")))
-		Expect(applyObj(ctx, server, patch)).To(MatchError(ContainSubstring("spec.resource.imageRef")))
+		Expect(applyObj(ctx, server, patch)).To(MatchError(ContainSubstring("either imageRef or bootVolume must be specified")))
 
 		// Missing ports
 		patch.Spec.WithResource(applyconfigv1alpha1.ServerResourceSpec().
