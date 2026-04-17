@@ -3,7 +3,7 @@ name: container image
 on:
   push:
     branches:
-    - main
+    - release-2.0
 
 permissions:
   contents: read
