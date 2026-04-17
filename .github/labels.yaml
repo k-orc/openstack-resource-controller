@@ -4,6 +4,12 @@
 - color: '30ABB9'
   description: This PR targets v1.0
   name: v1.0
+- color: 'D97706'
+  description: This PR will be backported to v2.0
+  name: backport-v2.0
+- color: 'D97706'
+  description: This PR targets v2.0
+  name: v2.0
 
 - color: 'BCF611'
   description: A good issue for first-time contributors
