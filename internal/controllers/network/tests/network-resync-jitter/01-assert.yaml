@@ -1,0 +1,31 @@
+---
+# After the resync period elapses, all three networks should have been
+# independently re-reconciled. This assert waits (up to the timeout) for all
+# three lastSyncTime values to advance beyond their recorded initial values,
+# confirming that jitter-based scheduling works for multiple concurrent resources.
+#
+# Note: We verify that each resource independently reschedules (all update
+# their lastSyncTime), rather than testing for exact timestamp differences.
+# Exact jitter measurement is covered by unit tests; this E2E test verifies
+# the end-to-end resync flow for concurrent resources.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 60
+commands:
+  - script: |
+      INIT1=$(cat /tmp/network-resync-jitter-1-initial-sync-time)
+      INIT2=$(cat /tmp/network-resync-jitter-2-initial-sync-time)
+      INIT3=$(cat /tmp/network-resync-jitter-3-initial-sync-time)
+
+      CUR1=$(kubectl get network.openstack.k-orc.cloud network-resync-jitter-1 \
+        -n ${NAMESPACE} -o jsonpath='{.status.lastSyncTime}')
+      CUR2=$(kubectl get network.openstack.k-orc.cloud network-resync-jitter-2 \
+        -n ${NAMESPACE} -o jsonpath='{.status.lastSyncTime}')
+      CUR3=$(kubectl get network.openstack.k-orc.cloud network-resync-jitter-3 \
+        -n ${NAMESPACE} -o jsonpath='{.status.lastSyncTime}')
+
+      # All three must have updated their lastSyncTime, demonstrating that
+      # each resource was independently re-reconciled after the resync period.
+      [ "${CUR1}" != "${INIT1}" ] && \
+      [ "${CUR2}" != "${INIT2}" ] && \
+      [ "${CUR3}" != "${INIT3}" ]

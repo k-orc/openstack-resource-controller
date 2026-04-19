@@ -1,0 +1,9 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+# Wait for longer than the configured resyncPeriod (10s) to verify that the
+# terminal error state prevents the resync scheduler from firing.
+# If the scheduler incorrectly fires, the controller would reconcile again,
+# potentially changing the condition message or setting lastSyncTime.
+commands:
+  - script: |
+      sleep 15

@@ -1,0 +1,18 @@
+---
+# After the resyncPeriod (10s) elapses, the controller reconciles again and
+# updates lastSyncTime. This assertion waits (up to the kuttl step timeout)
+# for lastSyncTime to advance beyond the value recorded in step 01.
+#
+# The kuttl assert timeout gives plenty of time for the resync period to
+# elapse and the reconciliation to complete.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 60
+commands:
+  - script: |
+      INITIAL=$(cat /tmp/network-resync-period-initial-sync-time)
+      CURRENT=$(kubectl get network.openstack.k-orc.cloud network-resync-period \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.lastSyncTime}')
+      # Succeed only when lastSyncTime has been updated to a newer value.
+      [ -n "${INITIAL}" ] && [ -n "${CURRENT}" ] && [ "${CURRENT}" != "${INITIAL}" ]

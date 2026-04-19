@@ -1,0 +1,13 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-resync-disabled
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # resyncPeriod of 0s explicitly disables periodic resync. The controller
+  # should reconcile the resource once on creation and then not reschedule.
+  resyncPeriod: 0s
+  resource: {}

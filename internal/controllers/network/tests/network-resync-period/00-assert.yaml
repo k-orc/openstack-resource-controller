@@ -1,0 +1,33 @@
+---
+# Verify the network is available and lastSyncTime has been set after the first
+# successful reconciliation.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: network-resync-period
+      ref: network
+assertAll:
+    - celExpr: "has(network.status.lastSyncTime)"
+    - celExpr: "network.status.lastSyncTime != ''"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-resync-period
+status:
+  resource:
+    name: network-resync-period
+    adminStateUp: true
+    external: false
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

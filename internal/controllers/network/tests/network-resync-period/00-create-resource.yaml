@@ -1,0 +1,13 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-resync-period
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # resyncPeriod of 10s ensures the resource is re-reconciled quickly, making
+  # the test fast while still demonstrating periodic resync behaviour.
+  resyncPeriod: 10s
+  resource: {}
