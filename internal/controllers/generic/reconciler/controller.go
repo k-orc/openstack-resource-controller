@@ -230,8 +230,17 @@ func (c *Controller[
 	}
 
 	if osResource == nil {
-		// Programming error: if we don't have a resource we should either have an error or be waiting on something
-		return reconcileStatus.WithError(fmt.Errorf("oResource is not set, but no wait events or error"))
+		// GetOrCreateOSResource returns (nil, nil) when a managed, non-imported
+		// resource is detected as externally deleted. Clear status.id so the
+		// next reconciliation enters the standard creation path and assigns a
+		// new ID after the resource is recreated.
+		if objAdapter.GetStatusID() != nil {
+			log.V(logging.Info).Info("Clearing status.id after external deletion to enable recreation")
+			if err := status.ClearStatusID(ctx, c, objAdapter.GetObject()); err != nil {
+				return reconcileStatus.WithError(fmt.Errorf("clearing status ID after external deletion: %w", err))
+			}
+		}
+		return reconcileStatus.WithProgressMessage("OpenStack resource was deleted externally; will recreate on next reconcile")
 	}
 
 	if objAdapter.GetStatusID() == nil {

@@ -62,6 +62,19 @@ func SetStatusID[
 	return controller.GetK8sClient().Status().Patch(ctx, orcObject, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
+// ClearStatusID clears the status.id field of an ORC object using a JSON merge
+// patch. This is necessary when an externally deleted managed resource is
+// detected: clearing the ID allows the next reconciliation to enter the
+// standard creation path and assign a new ID after the resource is recreated.
+//
+// A JSON merge patch with an explicit null value is required because the
+// generated apply configuration types use omitempty on the ID field, meaning a
+// nil pointer would simply omit the field rather than clear it.
+func ClearStatusID(ctx context.Context, controller interfaces.ResourceController, orcObject client.Object) error {
+	patch := client.RawPatch(types.MergePatchType, []byte(`{"status":{"id":null}}`))
+	return controller.GetK8sClient().Status().Patch(ctx, orcObject, patch)
+}
+
 // shouldSetLastSyncTime reports whether lastSyncTime should be set on a status
 // update. It returns true only when the reconciliation completed successfully:
 // the reconcileStatus contains neither errors nor progress messages. A requeue
