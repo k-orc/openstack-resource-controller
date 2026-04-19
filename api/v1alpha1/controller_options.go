@@ -76,7 +76,6 @@ type CommonOptions struct {
 	// three-tier resolution: the per-resource value takes precedence over the
 	// global controller default; if neither is set, periodic resync is
 	// disabled. The value must be a valid Go duration string, e.g. "10m", "1h".
-	// +kubebuilder:validation:Pattern:=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
 	// +optional
 	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
 }

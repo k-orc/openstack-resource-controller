@@ -80,7 +80,6 @@ type UserSpec struct {
 	// the global default resync period. The value must be a valid Go duration
 	// string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for
 	// this resource.
-	// +kubebuilder:validation:Pattern:=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
 	// +optional
 	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
 

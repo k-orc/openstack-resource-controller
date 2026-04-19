@@ -19,15 +19,17 @@ limitations under the License.
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // KeyPairStatusApplyConfiguration represents a declarative configuration of the KeyPairStatus type for use
 // with apply.
 type KeyPairStatusApplyConfiguration struct {
-	Conditions []v1.ConditionApplyConfiguration         `json:"conditions,omitempty"`
-	ID         *string                                  `json:"id,omitempty"`
-	Resource   *KeyPairResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	Conditions   []v1.ConditionApplyConfiguration         `json:"conditions,omitempty"`
+	ID           *string                                  `json:"id,omitempty"`
+	Resource     *KeyPairResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	LastSyncTime *metav1.Time                             `json:"lastSyncTime,omitempty"`
 }
 
 // KeyPairStatusApplyConfiguration constructs a declarative configuration of the KeyPairStatus type for use with
@@ -62,5 +64,13 @@ func (b *KeyPairStatusApplyConfiguration) WithID(value string) *KeyPairStatusApp
 // If called multiple times, the Resource field is set to the value of the last call.
 func (b *KeyPairStatusApplyConfiguration) WithResource(value *KeyPairResourceStatusApplyConfiguration) *KeyPairStatusApplyConfiguration {
 	b.Resource = value
+	return b
+}
+
+// WithLastSyncTime sets the LastSyncTime field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the LastSyncTime field is set to the value of the last call.
+func (b *KeyPairStatusApplyConfiguration) WithLastSyncTime(value metav1.Time) *KeyPairStatusApplyConfiguration {
+	b.LastSyncTime = &value
 	return b
 }

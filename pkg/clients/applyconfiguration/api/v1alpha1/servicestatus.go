@@ -19,15 +19,17 @@ limitations under the License.
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // ServiceStatusApplyConfiguration represents a declarative configuration of the ServiceStatus type for use
 // with apply.
 type ServiceStatusApplyConfiguration struct {
-	Conditions []v1.ConditionApplyConfiguration         `json:"conditions,omitempty"`
-	ID         *string                                  `json:"id,omitempty"`
-	Resource   *ServiceResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	Conditions   []v1.ConditionApplyConfiguration         `json:"conditions,omitempty"`
+	ID           *string                                  `json:"id,omitempty"`
+	Resource     *ServiceResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	LastSyncTime *metav1.Time                             `json:"lastSyncTime,omitempty"`
 }
 
 // ServiceStatusApplyConfiguration constructs a declarative configuration of the ServiceStatus type for use with
@@ -62,5 +64,13 @@ func (b *ServiceStatusApplyConfiguration) WithID(value string) *ServiceStatusApp
 // If called multiple times, the Resource field is set to the value of the last call.
 func (b *ServiceStatusApplyConfiguration) WithResource(value *ServiceResourceStatusApplyConfiguration) *ServiceStatusApplyConfiguration {
 	b.Resource = value
+	return b
+}
+
+// WithLastSyncTime sets the LastSyncTime field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the LastSyncTime field is set to the value of the last call.
+func (b *ServiceStatusApplyConfiguration) WithLastSyncTime(value metav1.Time) *ServiceStatusApplyConfiguration {
+	b.LastSyncTime = &value
 	return b
 }
