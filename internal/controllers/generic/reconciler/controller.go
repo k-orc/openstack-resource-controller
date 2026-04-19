@@ -259,6 +259,14 @@ func (c *Controller[
 		}
 	}
 
+	// Schedule a resync requeue when the effective resync period is configured,
+	// there is no terminal error, and no other requeue is already pending (TS-006,
+	// TS-008, TS-012). Jitter of ±10% is applied to spread load across resources
+	// sharing the same period.
+	if resync.ShouldScheduleResync(effectiveResyncPeriod, reconcileStatus) {
+		reconcileStatus = reconcileStatus.WithRequeue(resync.CalculateJitteredDuration(effectiveResyncPeriod))
+	}
+
 	return reconcileStatus
 }
 
