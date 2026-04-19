@@ -18,6 +18,8 @@ limitations under the License.
 package applicationcredential
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 )
@@ -53,6 +55,10 @@ func (f adapterT) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
 
 func (f adapterT) GetManagedOptions() *orcv1alpha1.ManagedOptions {
 	return f.Spec.ManagedOptions
+}
+
+func (f adapterT) GetResyncPeriod() *metav1.Duration {
+	return f.Spec.ResyncPeriod
 }
 
 func (f adapterT) GetStatusID() *string {

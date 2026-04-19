@@ -75,6 +75,15 @@ type VolumeSpec struct {
 	// +optional
 	ManagedOptions *ManagedOptions `json:"managedOptions,omitempty"`
 
+	// resyncPeriod defines how frequently the controller will re-reconcile
+	// this resource even when no changes have been detected. This overrides
+	// the global default resync period. The value must be a valid Go duration
+	// string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for
+	// this resource.
+	// +kubebuilder:validation:Pattern:=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
+	// +optional
+	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
+
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required
 	CloudCredentialsRef CloudCredentialsReference `json:"cloudCredentialsRef,omitzero"`
@@ -112,6 +121,13 @@ type VolumeStatus struct {
 	// resource contains the observed state of the OpenStack resource.
 	// +optional
 	Resource *VolumeResourceStatus `json:"resource,omitempty"`
+
+	// lastSyncTime is the timestamp of the last successful reconciliation
+	// that fetched state from OpenStack. It is updated each time the
+	// controller successfully reads the resource state from the OpenStack
+	// API.
+	// +optional
+	LastSyncTime *metav1.Time `json:"lastSyncTime,omitempty"`
 }
 
 var _ ObjectWithConditions = &Volume{}
