@@ -19,6 +19,7 @@ package reconciler
 import (
 	"context"
 	"fmt"
+	"time"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -29,6 +30,7 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/resync"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
@@ -140,10 +142,22 @@ func (c *Controller[
 // - Progressing condition is present and False, but observedGeneration is old -> reconcile
 // - Progressing condition is false and observedGeneration is up to date -> do not reconcile
 //
+// If resyncPeriod > 0, periodic resync is also considered:
+//   - If lastSyncTime is nil (never synced), reconcile immediately.
+//   - If time.Since(lastSyncTime) >= resyncPeriod, a resync is due: reconcile.
+//   - If time.Since(lastSyncTime) < resyncPeriod, the next resync is not yet due:
+//     do not reconcile (unless condition-based logic above requires it).
+//
+// When resyncPeriod <= 0 (disabled), resync logic is not applied and the
+// existing condition-based behaviour is unchanged.
+//
+// The resync check uses the persisted lastSyncTime so that controller restarts
+// respect the time already elapsed, preventing a thundering herd (TS-015).
+//
 // If shouldReconcile is preventing an object from being reconciled which should
 // be reconciled, consider if that object's actuator is correctly returning a
 // ProgressStatus indicating that the reconciliation should continue.
-func shouldReconcile(obj orcv1alpha1.ObjectWithConditions) bool {
+func shouldReconcile(obj orcv1alpha1.ObjectWithConditions, lastSyncTime *metav1.Time, resyncPeriod time.Duration) bool {
 	progressing := meta.FindStatusCondition(obj.GetConditions(), orcv1alpha1.ConditionProgressing)
 	if progressing == nil {
 		return true
@@ -153,7 +167,22 @@ func shouldReconcile(obj orcv1alpha1.ObjectWithConditions) bool {
 		return true
 	}
 
-	return progressing.ObservedGeneration != obj.GetGeneration()
+	if progressing.ObservedGeneration != obj.GetGeneration() {
+		return true
+	}
+
+	// Condition-based check says no reconcile is needed. Now check if a
+	// periodic resync is due.
+	if resyncPeriod > 0 {
+		// Never synced: reconcile immediately.
+		if lastSyncTime == nil {
+			return true
+		}
+		// Resync is due when the elapsed time has reached the period.
+		return time.Since(lastSyncTime.Time) >= resyncPeriod
+	}
+
+	return false
 }
 
 func (c *Controller[
@@ -168,7 +197,8 @@ func (c *Controller[
 	// We do this here rather than in a predicate because predicates only cover
 	// a single watch. Doing it here means we cover all sources of
 	// reconciliation, including our dependencies.
-	if !shouldReconcile(objAdapter.GetObject()) {
+	effectiveResyncPeriod := resync.DetermineResyncPeriod(objAdapter.GetResyncPeriod(), 0)
+	if !shouldReconcile(objAdapter.GetObject(), objAdapter.GetLastSyncTime(), effectiveResyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		return reconcileStatus
 	}

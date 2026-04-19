@@ -61,6 +61,10 @@ func (f adapterT) GetResyncPeriod() *metav1.Duration {
 	return f.Spec.ResyncPeriod
 }
 
+func (f adapterT) GetLastSyncTime() *metav1.Time {
+	return f.Status.LastSyncTime
+}
+
 func (f adapterT) GetStatusID() *string {
 	return f.Status.ID
 }

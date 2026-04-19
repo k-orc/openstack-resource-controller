@@ -34,6 +34,7 @@ type APIObjectAdapter[orcObjectPT any, resourceSpecT any, filterT any] interface
 	GetManagementPolicy() orcv1alpha1.ManagementPolicy
 	GetManagedOptions() *orcv1alpha1.ManagedOptions
 	GetResyncPeriod() *metav1.Duration
+	GetLastSyncTime() *metav1.Time
 
 	GetStatusID() *string
 	GetResourceSpec() *resourceSpecT
