@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | implementable |
+| **Status** | implemented |
 | **Author(s)** | @eshulman |
 | **Created** | 2026-02-03 |
-| **Last Updated** | 2026-02-03 |
+| **Last Updated** | 2026-02-10 |
 | **Tracking Issue** | TBD |
 
 ## Summary
@@ -275,3 +275,37 @@ Implement a watcher that periodically lists all resources from OpenStack and com
 ## Implementation History
 
 - 2026-02-03: Enhancement proposed
+- 2026-02-03: Implemented — all tasks completed
+
+### Implemented Components
+
+The following have been implemented:
+
+**API Changes**
+- Added `spec.resyncPeriod` field (`*metav1.Duration`) to all ORC resource types
+- Added `status.lastSyncTime` field (`*metav1.Time`) to all ORC resource types
+
+**Periodic Resync**
+- `shouldReconcile` updated to check `lastSyncTime` against `resyncPeriod` for time-based resync
+- Jitter (±10%) applied to resync scheduling via `resync.CalculateJitteredDuration`
+- `status.lastSyncTime` written on every successful reconciliation cycle
+- Resources in terminal error state are not rescheduled
+
+**External Deletion Handling**
+- `IsImported()` method added to `APIObjectAdapter` interface (all resource adapters)
+- `GetOrCreateOSResource` branches on management policy and import status when 404 is received:
+  - Managed, non-imported resources → `(nil, nil)` to trigger recreation
+  - Unmanaged or imported resources → terminal error
+- `status.ClearStatusID` clears `status.id` before recreation (using JSON merge patch with explicit `null`)
+- `reconcileNormal` handles the `(nil, nil)` recreation signal from `GetOrCreateOSResource`
+
+**E2E Tests**
+- `network-resync-period`: verifies `lastSyncTime` is updated after configured period
+- `network-resync-disabled`: verifies `lastSyncTime` is not updated when `resyncPeriod: 0`
+- `network-resync-terminal-error`: verifies terminal errors are not rescheduled
+- `network-resync-jitter`: verifies independent jitter-based scheduling for multiple resources
+- `network-external-deletion`: verifies managed ORC-created network is recreated with new ID after external deletion
+- `network-external-deletion-import`: verifies imported network enters terminal error state after external deletion
+
+**Documentation**
+- `website/docs/user-guide/drift-detection.md`: user-facing documentation covering external deletion behavior, resync configuration, verification steps, and implications for dependent resources
