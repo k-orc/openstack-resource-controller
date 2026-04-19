@@ -80,6 +80,9 @@ func main() {
 	flag.IntVar(&orcOpts.ScopeCacheMaxSize, "scope-cache-max-size", 10,
 		"The maximum credentials count the operator should keep in cache. "+
 			"Setting this value to 0 means no cache.")
+	flag.DurationVar(&orcOpts.DefaultResyncPeriod, "default-resync-period", 0,
+		"Default resync period for all resources. Set to 0 to disable. "+
+			"Can be overridden per-resource via spec.resyncPeriod.")
 	flag.StringVar(&defaultCACertsPath, "default-ca-certs", "",
 		"The path to a PEM-encoded CA Certificate file to supply as default for OpenStack API requests.")
 	flag.Func("namespace", "A namespace that the controller watches to reconcile ORC objects. "+

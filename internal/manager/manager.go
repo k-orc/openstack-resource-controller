@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -49,6 +50,7 @@ type Options struct {
 	TLSOpts              []func(*tls.Config)
 	ScopeCacheMaxSize    int
 	WatchNamespaces      []string
+	DefaultResyncPeriod  time.Duration
 }
 
 func Run(ctx context.Context, opts *Options, restConfig *rest.Config, scheme *runtime.Scheme, setupLog, log logr.Logger, controllers []interfaces.Controller) error {
