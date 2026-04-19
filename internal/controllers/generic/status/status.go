@@ -62,6 +62,15 @@ func SetStatusID[
 	return controller.GetK8sClient().Status().Patch(ctx, orcObject, applyconfigs.Patch(types.MergePatchType, applyConfig))
 }
 
+// shouldSetLastSyncTime reports whether lastSyncTime should be set on a status
+// update. It returns true only when the reconciliation completed successfully:
+// the reconcileStatus contains neither errors nor progress messages. A requeue
+// alone (e.g., for a periodic resync) does not prevent the update.
+func shouldSetLastSyncTime(reconcileStatus progress.ReconcileStatus) bool {
+	needsReschedule, _ := reconcileStatus.NeedsReschedule()
+	return !needsReschedule
+}
+
 func UpdateStatus[
 	orcObjectPT interface {
 		client.Object
@@ -99,6 +108,13 @@ func UpdateStatus[
 	available, availableReconcileStatus := statusWriter.ResourceAvailableStatus(orcObject, osResource)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(availableReconcileStatus)
 	SetCommonConditions(orcObject, applyConfigStatus, available, reconcileStatus, now)
+
+	// Set lastSyncTime only on successful reconciliation: no errors and no
+	// progress messages indicate that the controller successfully fetched the
+	// resource state from OpenStack (TS-009, TS-013).
+	if shouldSetLastSyncTime(reconcileStatus) {
+		applyConfigStatus.WithLastSyncTime(now)
+	}
 
 	// Patch orcObject with the status transaction
 	k8sClient := controller.GetK8sClient()
