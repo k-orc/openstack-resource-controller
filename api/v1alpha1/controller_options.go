@@ -16,6 +16,10 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // +kubebuilder:validation:Enum:=managed;unmanaged
 type ManagementPolicy string
 
@@ -62,4 +66,26 @@ func (o *ManagedOptions) GetOnDelete() OnDelete {
 		return OnDeleteDelete
 	}
 	return o.OnDelete
+}
+
+// CommonOptions defines options which apply to all ORC objects regardless of
+// management policy.
+type CommonOptions struct {
+	// resyncPeriod defines how frequently the controller will re-reconcile this
+	// resource even when no changes have been detected. This implements a
+	// three-tier resolution: the per-resource value takes precedence over the
+	// global controller default; if neither is set, periodic resync is
+	// disabled. The value must be a valid Go duration string, e.g. "10m", "1h".
+	// +kubebuilder:validation:Pattern:=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
+	// +optional
+	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
+}
+
+// GetResyncPeriod returns the resync period from CommonOptions. If called on a
+// nil receiver it safely returns nil.
+func (o *CommonOptions) GetResyncPeriod() *metav1.Duration {
+	if o == nil {
+		return nil
+	}
+	return o.ResyncPeriod
 }
