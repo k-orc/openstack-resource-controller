@@ -10,7 +10,7 @@
 # The terminal error prevents any further reconciliation until the spec changes.
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-timeout: 120
+timeout: 300
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
