@@ -10,9 +10,9 @@ import (
 
 func TestFlavorAdapterIsImported(t *testing.T) {
 	tests := []struct {
-		name   string
-		spec   orcv1alpha1.FlavorSpec
-		want   bool
+		name string
+		spec orcv1alpha1.FlavorSpec
+		want bool
 	}{
 		{
 			name: "no import - created by ORC",

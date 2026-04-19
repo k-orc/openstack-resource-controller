@@ -77,7 +77,7 @@ type CommonOptions struct {
 	// global controller default; if neither is set, periodic resync is
 	// disabled. The value must be a valid Go duration string, e.g. "10m", "1h".
 	// +optional
-	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
+	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"` //nolint:kubeapilinter // metav1.Duration is appropriate for user-facing duration config
 }
 
 // GetResyncPeriod returns the resync period from CommonOptions. If called on a

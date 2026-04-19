@@ -154,41 +154,41 @@ func (a fakeAdapter) SetFinalizers(f []string)    { a.Flavor.SetFinalizers(f) }
 func (a fakeAdapter) GetObject() *orcv1alpha1.Flavor { return a.Flavor }
 
 func (a fakeAdapter) GetManagementPolicy() orcv1alpha1.ManagementPolicy {
-	return a.Flavor.Spec.ManagementPolicy
+	return a.Spec.ManagementPolicy
 }
 
 func (a fakeAdapter) GetManagedOptions() *orcv1alpha1.ManagedOptions {
-	return a.Flavor.Spec.ManagedOptions
+	return a.Spec.ManagedOptions
 }
 
 func (a fakeAdapter) GetResyncPeriod() *metav1.Duration {
-	return a.Flavor.Spec.ResyncPeriod
+	return a.Spec.ResyncPeriod
 }
 
 func (a fakeAdapter) GetLastSyncTime() *metav1.Time {
-	return a.Flavor.Status.LastSyncTime
+	return a.Status.LastSyncTime
 }
 
 func (a fakeAdapter) GetStatusID() *string {
-	return a.Flavor.Status.ID
+	return a.Status.ID
 }
 
 func (a fakeAdapter) GetResourceSpec() *orcv1alpha1.FlavorResourceSpec {
-	return a.Flavor.Spec.Resource
+	return a.Spec.Resource
 }
 
 func (a fakeAdapter) GetImportID() *string {
-	if a.Flavor.Spec.Import == nil {
+	if a.Spec.Import == nil {
 		return nil
 	}
-	return a.Flavor.Spec.Import.ID
+	return a.Spec.Import.ID
 }
 
 func (a fakeAdapter) GetImportFilter() *orcv1alpha1.FlavorFilter {
-	if a.Flavor.Spec.Import == nil {
+	if a.Spec.Import == nil {
 		return nil
 	}
-	return a.Flavor.Spec.Import.Filter
+	return a.Spec.Import.Filter
 }
 
 func (a fakeAdapter) IsImported() bool {

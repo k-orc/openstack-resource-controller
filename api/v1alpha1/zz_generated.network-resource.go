@@ -81,7 +81,7 @@ type NetworkSpec struct {
 	// string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for
 	// this resource.
 	// +optional
-	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
+	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"` //nolint:kubeapilinter // metav1.Duration is appropriate for user-facing duration config
 
 	// cloudCredentialsRef points to a secret containing OpenStack credentials
 	// +required

@@ -39,7 +39,7 @@ func makeObj(generation int64, conditions []metav1.Condition) orcv1alpha1.Object
 
 // makeProgressingCondition returns a Progressing condition with the given
 // status and observedGeneration.
-func makeProgressingCondition(status metav1.ConditionStatus, observedGeneration int64) metav1.Condition {
+func makeProgressingCondition(status metav1.ConditionStatus, observedGeneration int64) metav1.Condition { //nolint:unparam
 	return metav1.Condition{
 		Type:               orcv1alpha1.ConditionProgressing,
 		Status:             status,
