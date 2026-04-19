@@ -1,0 +1,28 @@
+---
+# After the OpenStack network is deleted externally, ORC detects on the next
+# reconcile (within the configured resyncPeriod of 10s) that the resource
+# referenced by status.id no longer exists.
+#
+# Because the resource was originally imported (IsImported() == true), ORC
+# cannot recreate it. Instead it returns a terminal error, which sets both
+# Progressing and Available to False with reason UnrecoverableError.
+#
+# The terminal error prevents any further reconciliation until the spec changes.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 120
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion-import
+status:
+  conditions:
+    - type: Available
+      message: resource has been deleted from OpenStack
+      status: "False"
+      reason: UnrecoverableError
+    - type: Progressing
+      message: resource has been deleted from OpenStack
+      status: "False"
+      reason: UnrecoverableError
