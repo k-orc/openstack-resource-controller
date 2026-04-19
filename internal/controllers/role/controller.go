@@ -19,6 +19,7 @@ package role
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "role"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=roles/status,verbs=get;update;patch
 
 type roleReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return roleReconcilerConstructor{scopeFactory: scopeFactory}
+	return &roleReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (roleReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *roleReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RoleList, *orcv1alpha1.Domain](
@@ -75,7 +81,7 @@ var domainImportDependency = dependency.NewDependency[*orcv1alpha1.RoleList, *or
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c roleReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *roleReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -109,6 +115,6 @@ func (c roleReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, roleHelperFactory{}, roleStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, roleHelperFactory{}, roleStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

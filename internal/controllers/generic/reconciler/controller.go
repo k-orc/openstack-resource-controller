@@ -60,13 +60,15 @@ func NewController[
 	name string, k8sClient client.Client, scopeFactory scope.Factory,
 	helperFactory interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT],
 	statusWriter interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT],
+	defaultResyncPeriod time.Duration,
 ) Controller[orcObjectPT, orcObjectT, resourceSpecT, filterT, objectApplyPT, statusApplyPT, statusApplyT, osResourceT] {
 	return Controller[orcObjectPT, orcObjectT, resourceSpecT, filterT, objectApplyPT, statusApplyPT, statusApplyT, osResourceT]{
-		name:          name,
-		client:        k8sClient,
-		scopeFactory:  scopeFactory,
-		helperFactory: helperFactory,
-		statusWriter:  statusWriter,
+		name:                name,
+		client:              k8sClient,
+		scopeFactory:        scopeFactory,
+		helperFactory:       helperFactory,
+		statusWriter:        statusWriter,
+		defaultResyncPeriod: defaultResyncPeriod,
 	}
 }
 
@@ -93,6 +95,13 @@ type Controller[
 
 	helperFactory interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 	statusWriter  interfaces.ResourceStatusWriter[orcObjectPT, *osResourceT, objectApplyPT, statusApplyPT]
+
+	// defaultResyncPeriod is the operator-level default resync period passed
+	// from the manager options. It is used as the fallback in
+	// resync.DetermineResyncPeriod when a resource does not specify its own
+	// spec.resyncPeriod. A value of 0 means periodic resync is disabled by
+	// default.
+	defaultResyncPeriod time.Duration
 }
 
 func (c *Controller[_, _, _, _, _, _, _, _]) GetName() string {
@@ -197,7 +206,7 @@ func (c *Controller[
 	// We do this here rather than in a predicate because predicates only cover
 	// a single watch. Doing it here means we cover all sources of
 	// reconciliation, including our dependencies.
-	effectiveResyncPeriod := resync.DetermineResyncPeriod(objAdapter.GetResyncPeriod(), 0)
+	effectiveResyncPeriod := resync.DetermineResyncPeriod(objAdapter.GetResyncPeriod(), c.defaultResyncPeriod)
 	if !shouldReconcile(objAdapter.GetObject(), objAdapter.GetLastSyncTime(), effectiveResyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		return reconcileStatus

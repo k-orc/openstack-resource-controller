@@ -19,6 +19,7 @@ package addressscope
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "addressscope"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=addressscopes/status,verbs=get;update;patch
 
 type addressscopeReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return addressscopeReconcilerConstructor{scopeFactory: scopeFactory}
+	return &addressscopeReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (addressscopeReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *addressscopeReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.AddressScopeList, *orcv1alpha1.Project](
@@ -75,7 +81,7 @@ var projectImportDependency = dependency.NewDependency[*orcv1alpha1.AddressScope
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c addressscopeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *addressscopeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -109,6 +115,6 @@ func (c addressscopeReconcilerConstructor) SetupWithManager(ctx context.Context,
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, addressscopeHelperFactory{}, addressscopeStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, addressscopeHelperFactory{}, addressscopeStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

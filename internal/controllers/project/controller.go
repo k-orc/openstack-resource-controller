@@ -19,6 +19,7 @@ package project
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "project"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=projects/status,verbs=get;update;patch
 
 type projectReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return projectReconcilerConstructor{scopeFactory: scopeFactory}
+	return &projectReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (projectReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *projectReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ProjectList, *orcv1alpha1.Domain](
@@ -75,7 +81,7 @@ var domainImportDependency = dependency.NewDependency[*orcv1alpha1.ProjectList, 
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c projectReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *projectReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -109,6 +115,6 @@ func (c projectReconcilerConstructor) SetupWithManager(ctx context.Context, mgr 
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, projectHelperFactory{}, projectStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, projectHelperFactory{}, projectStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }
