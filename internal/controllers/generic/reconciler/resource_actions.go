@@ -70,7 +70,16 @@ func GetOrCreateOSResource[
 		osResource, reconcileStatus := actuator.GetOSResourceByID(ctx, *resourceID)
 		if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
 			if orcerrors.IsNotFound(err) {
-				// An OpenStack resource we previously referenced has been deleted unexpectedly. We can't recover from this.
+				// The OpenStack resource referenced by status.id no longer exists.
+				// For managed, non-imported resources we trigger recreation by returning
+				// nil with no error: the caller will clear status.id and re-enter the
+				// creation path on the next reconcile.
+				// For unmanaged resources or resources that were originally imported we
+				// cannot recreate them, so we return a terminal error.
+				if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged && !objAdapter.IsImported() {
+					log.V(logging.Info).Info("OpenStack resource was deleted externally; clearing status ID to trigger recreation")
+					return nil, nil
+				}
 				return osResource, progress.WrapError(
 					orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "resource has been deleted from OpenStack"))
 			} else {

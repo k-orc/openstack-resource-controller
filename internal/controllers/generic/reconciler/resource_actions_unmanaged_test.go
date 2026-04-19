@@ -191,6 +191,10 @@ func (a fakeAdapter) GetImportFilter() *orcv1alpha1.FlavorFilter {
 	return a.Flavor.Spec.Import.Filter
 }
 
+func (a fakeAdapter) IsImported() bool {
+	return a.GetImportID() != nil || a.GetImportFilter() != nil
+}
+
 // --------------------------------------------------------------------------
 // fakeResourceController satisfies ResourceController for tests that pre-set
 // the finalizer on the ORC object so that no Kubernetes Patch is needed.
@@ -298,6 +302,50 @@ func unmanagedFlavorNoImport() fakeAdapter {
 			},
 			Spec: orcv1alpha1.FlavorSpec{
 				ManagementPolicy: orcv1alpha1.ManagementPolicyUnmanaged,
+			},
+		},
+	}
+}
+
+// managedFlavorWithStatusID builds a managed (non-imported) Flavor whose
+// status.ID is already set (the normal steady-state case).
+func managedFlavorWithStatusID(statusID string) fakeAdapter {
+	return fakeAdapter{
+		Flavor: &orcv1alpha1.Flavor{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:       "test-flavor",
+				Namespace:  "default",
+				Finalizers: []string{finalizerFor()},
+			},
+			Spec: orcv1alpha1.FlavorSpec{
+				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
+				Resource:         &orcv1alpha1.FlavorResourceSpec{},
+			},
+			Status: orcv1alpha1.FlavorStatus{
+				ID: ptr.To(statusID),
+			},
+		},
+	}
+}
+
+// managedFlavorImportedByID builds a managed Flavor that was imported by ID
+// (has a non-nil import.ID) and whose status.ID is already set.
+func managedFlavorImportedByID(statusID string) fakeAdapter {
+	return fakeAdapter{
+		Flavor: &orcv1alpha1.Flavor{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:       "test-flavor",
+				Namespace:  "default",
+				Finalizers: []string{finalizerFor()},
+			},
+			Spec: orcv1alpha1.FlavorSpec{
+				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
+				Import: &orcv1alpha1.FlavorImport{
+					ID: ptr.To(statusID),
+				},
+			},
+			Status: orcv1alpha1.FlavorStatus{
+				ID: ptr.To(statusID),
 			},
 		},
 	}
@@ -458,5 +506,64 @@ func TestGetOrCreateOSResource_UnmanagedStatusIDDeleted(t *testing.T) {
 	// The controller must still have attempted to fetch the resource.
 	if !actuator.getByIDCalled {
 		t.Error("GetOSResourceByID was not called: the controller should attempt to fetch the resource before concluding it is gone")
+	}
+}
+
+// TestGetOrCreateOSResource_ManagedStatusIDDeleted verifies that when a
+// managed (non-imported) resource's OpenStack resource has been deleted
+// externally, the controller returns (nil, nil) to trigger recreation rather
+// than a terminal error.
+func TestGetOrCreateOSResource_ManagedStatusIDDeleted(t *testing.T) {
+	t.Parallel()
+
+	const resourceID = "deleted-managed-flavor-id"
+
+	// Simulate OpenStack returning a 404 / not-found.
+	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
+	adapter := managedFlavorWithStatusID(resourceID)
+
+	got, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
+
+	// Expect (nil, nil): status.id should be cleared and recreation triggered.
+	needsReschedule, err := rs.NeedsReschedule()
+	if needsReschedule {
+		t.Fatalf("expected no rescheduling (nil reconcileStatus) for externally-deleted managed resource, got needsReschedule=%v err=%v", needsReschedule, err)
+	}
+	if got != nil {
+		t.Errorf("expected nil osResource for recreation path, got %v", got)
+	}
+
+	// The controller must still have attempted to fetch the resource.
+	if !actuator.getByIDCalled {
+		t.Error("GetOSResourceByID was not called")
+	}
+}
+
+// TestGetOrCreateOSResource_ManagedImportedByIDDeleted verifies that when a
+// managed resource that was imported by ID has been deleted externally, the
+// controller returns a terminal error (cannot recreate an imported resource).
+func TestGetOrCreateOSResource_ManagedImportedByIDDeleted(t *testing.T) {
+	t.Parallel()
+
+	const resourceID = "deleted-imported-flavor-id"
+
+	// Simulate OpenStack returning a 404 / not-found.
+	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
+	adapter := managedFlavorImportedByID(resourceID)
+
+	_, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
+
+	_, err := rs.NeedsReschedule()
+	if err == nil {
+		t.Fatal("expected a terminal error for externally-deleted imported resource, got nil")
+	}
+
+	var termErr *orcerrors.TerminalError
+	if !errors.As(err, &termErr) {
+		t.Errorf("expected a TerminalError for externally-deleted imported resource, got %T: %v", err, err)
+	}
+
+	if !actuator.getByIDCalled {
+		t.Error("GetOSResourceByID was not called")
 	}
 }
