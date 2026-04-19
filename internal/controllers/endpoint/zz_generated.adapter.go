@@ -86,3 +86,7 @@ func (f adapterT) GetImportFilter() *filterT {
 	}
 	return f.Spec.Import.Filter
 }
+
+func (f adapterT) IsImported() bool {
+	return f.GetImportID() != nil || f.GetImportFilter() != nil
+}

@@ -87,6 +87,10 @@ func (f adapterT) GetImportFilter() *filterT {
 	return f.Spec.Import.Filter
 }
 
+func (f adapterT) IsImported() bool {
+	return f.GetImportID() != nil || f.GetImportFilter() != nil
+}
+
 // getResourceName returns the name of the OpenStack resource we should use.
 // This method is not implemented as part of APIObjectAdapter as it is intended
 // to be used by resource actuators, which don't use the adapter.

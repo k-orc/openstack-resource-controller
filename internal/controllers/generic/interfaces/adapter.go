@@ -40,4 +40,11 @@ type APIObjectAdapter[orcObjectPT any, resourceSpecT any, filterT any] interface
 	GetResourceSpec() *resourceSpecT
 	GetImportID() *string
 	GetImportFilter() *filterT
+
+	// IsImported returns true if the resource was imported (rather than created
+	// by ORC). A resource is considered imported if it has a non-nil importID or
+	// a non-nil importFilter. This is used to decide how to handle external
+	// deletion: imported resources result in a terminal error, while ORC-created
+	// resources are recreated.
+	IsImported() bool
 }
