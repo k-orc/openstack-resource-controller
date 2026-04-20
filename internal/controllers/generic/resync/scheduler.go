@@ -26,25 +26,32 @@ import (
 )
 
 const (
-	// jitterFactor is the fraction by which the base duration may be varied
-	// in either direction. A value of 0.1 means the jitter range is ±10%,
-	// producing values in [base*0.9, base*1.1].
+	// jitterFactor is the fraction added to the base duration as positive-only
+	// jitter. A value of 0.1 means the jitter range is [0%, +20%], producing
+	// values in [base*1.0, base*1.2). Positive-only jitter ensures the requeue
+	// always fires after resyncPeriod has elapsed, so shouldReconcile always
+	// returns true when the requeue fires.
 	jitterFactor = 0.1
 )
 
-// CalculateJitteredDuration returns a duration in the range [base*0.9, base*1.1]
-// using uniform random jitter. Jitter prevents thundering-herd problems when
-// many resources share the same resync period: each resource independently
-// picks a slightly different schedule so they do not all reconcile at once.
+// CalculateJitteredDuration returns a duration in the range [base*1.0, base*1.2)
+// using uniform random positive-only jitter. Jitter prevents thundering-herd
+// problems when many resources share the same resync period: each resource
+// independently picks a slightly different schedule so they do not all reconcile
+// at once.
+//
+// Positive-only jitter guarantees the returned duration is always >= base,
+// ensuring the requeue fires after resyncPeriod has elapsed and shouldReconcile
+// returns true when the requeue fires.
 //
 // Each call produces an independent random value, so multiple resources calling
 // this function with the same base will receive different durations (TS-011).
 func CalculateJitteredDuration(base time.Duration) time.Duration {
 	// rand.Float64() returns a value in [0.0, 1.0).
 	// Multiplying by 2*jitterFactor gives [0.0, 0.2).
-	// Subtracting jitterFactor shifts to [-0.1, 0.1).
-	// Adding 1.0 gives a multiplier in [0.9, 1.1).
-	multiplier := 1.0 + (rand.Float64()*2*jitterFactor - jitterFactor) //nolint:gosec // math/rand/v2 is fine for jitter
+	// Adding 1.0 gives a multiplier in [1.0, 1.2).
+	// This ensures the result is always >= base.
+	multiplier := 1.0 + rand.Float64()*2*jitterFactor //nolint:gosec // math/rand/v2 is fine for jitter
 	return time.Duration(float64(base) * multiplier)
 }
 

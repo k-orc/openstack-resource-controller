@@ -26,7 +26,7 @@ import (
 )
 
 // TestCalculateJitteredDuration_Range verifies that the returned duration is
-// always within [base*0.9, base*1.1] across many calls (acceptance criterion).
+// always within [base*1.0, base*1.2) across many calls (acceptance criterion).
 func TestCalculateJitteredDuration_Range(t *testing.T) {
 	t.Parallel()
 
@@ -35,8 +35,8 @@ func TestCalculateJitteredDuration_Range(t *testing.T) {
 		samples = 1000
 	)
 
-	lo := time.Duration(float64(base) * 0.9)
-	hi := time.Duration(float64(base) * 1.1)
+	lo := time.Duration(float64(base) * 1.0)
+	hi := time.Duration(float64(base) * 1.2)
 
 	for i := range samples {
 		d := CalculateJitteredDuration(base)
@@ -48,7 +48,7 @@ func TestCalculateJitteredDuration_Range(t *testing.T) {
 
 // TestCalculateJitteredDuration_Uniformity verifies that the jitter
 // distribution is statistically uniform by checking that all 10 buckets across
-// [base*0.9, base*1.1] are populated with at least 1/20th of the expected
+// [base*1.0, base*1.2) are populated with at least 1/20th of the expected
 // frequency (very conservative check to avoid flakiness while still catching
 // obvious bias).
 func TestCalculateJitteredDuration_Uniformity(t *testing.T) {
@@ -60,8 +60,8 @@ func TestCalculateJitteredDuration_Uniformity(t *testing.T) {
 		buckets = 10
 	)
 
-	lo := float64(base) * (1 - jitterFactor)
-	hi := float64(base) * (1 + jitterFactor)
+	lo := float64(base) * 1.0
+	hi := float64(base) * (1 + 2*jitterFactor)
 	width := (hi - lo) / buckets
 
 	counts := make([]int, buckets)

@@ -345,9 +345,9 @@ func TestResyncRequeue_ScheduledWhenPeriodPositive(t *testing.T) {
 		t.Fatal("expected a non-zero requeue duration after resync scheduling; got 0")
 	}
 
-	// The requeue must be within the jitter range [period*0.9, period*1.1] (TS-006).
-	lo := time.Duration(float64(period) * 0.9)
-	hi := time.Duration(float64(period) * 1.1)
+	// The requeue must be within the jitter range [period*1.0, period*1.2) (TS-006).
+	lo := time.Duration(float64(period) * 1.0)
+	hi := time.Duration(float64(period) * 1.2)
 	if requeue < lo || requeue > hi {
 		t.Errorf("resync requeue %v is outside jitter range [%v, %v]", requeue, lo, hi)
 	}
@@ -420,15 +420,15 @@ func TestResyncRequeue_NotScheduledWhenRequeueAlreadyPending(t *testing.T) {
 
 // TestResyncRequeue_JitterIsApplied verifies that multiple scheduling calls
 // with the same period produce different requeue durations (jitter is random),
-// and all values are within the expected ±10% range (TS-006).
+// and all values are within the expected [+0%, +20%] range (TS-006).
 func TestResyncRequeue_JitterIsApplied(t *testing.T) {
 	t.Parallel()
 
 	const samples = 200
 	period := time.Hour
 
-	lo := time.Duration(float64(period) * 0.9)
-	hi := time.Duration(float64(period) * 1.1)
+	lo := time.Duration(float64(period) * 1.0)
+	hi := time.Duration(float64(period) * 1.2)
 
 	unique := make(map[time.Duration]struct{}, samples)
 	for i := range samples {
@@ -450,8 +450,8 @@ func TestResyncRequeue_JitterIsApplied(t *testing.T) {
 }
 
 // TestResyncRequeue_RequeueTimingRange verifies the requeue timing over many
-// samples remains within the ±10% jitter window, functioning as an integration
-// check of the scheduling logic used in reconcileNormal (TS-006).
+// samples remains within the [+0%, +20%] jitter window, functioning as an
+// integration check of the scheduling logic used in reconcileNormal (TS-006).
 func TestResyncRequeue_RequeueTimingRange(t *testing.T) {
 	t.Parallel()
 
@@ -466,8 +466,8 @@ func TestResyncRequeue_RequeueTimingRange(t *testing.T) {
 		t.Run(period.String(), func(t *testing.T) {
 			t.Parallel()
 
-			lo := time.Duration(float64(period) * 0.9)
-			hi := time.Duration(float64(period) * 1.1)
+			lo := time.Duration(float64(period) * 1.0)
+			hi := time.Duration(float64(period) * 1.2)
 
 			for i := range 50 {
 				var rs progress.ReconcileStatus
