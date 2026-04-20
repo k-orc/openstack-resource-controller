@@ -1668,7 +1668,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_CommonOptions(ref comm
 				Properties: map[string]spec.Schema{
 					"resyncPeriod": {
 						SchemaProps: spec.SchemaProps{
-							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This implements a three-tier resolution: the per-resource value takes precedence over the global controller default; if neither is set, periodic resync is disabled. The value must be a valid Go duration string, e.g. \"10m\", \"1h\".",
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This implements a two-tier resolution: the per-resource value takes precedence over the global controller default; if neither is set, periodic resync is disabled. The value must be a valid Go duration string, e.g. \"10m\", \"1h\".",
 							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
 						},
 					},
