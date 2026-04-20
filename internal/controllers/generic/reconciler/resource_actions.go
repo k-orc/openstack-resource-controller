@@ -77,7 +77,7 @@ func GetOrCreateOSResource[
 				// For unmanaged resources or resources that were originally imported we
 				// cannot recreate them, so we return a terminal error.
 				if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged && !objAdapter.IsImported() {
-					log.V(logging.Info).Info("OpenStack resource was deleted externally; clearing status ID to trigger recreation")
+					log.V(logging.Info).Info("OpenStack resource was deleted externally; will signal caller to clear status ID and trigger recreation")
 					return nil, nil
 				}
 				return osResource, progress.WrapError(

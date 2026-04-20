@@ -227,7 +227,7 @@ Drift detection covers all **mutable fields** that ORC actuators implement updat
 
 **Mitigation**:
 - Disabled by default; when enabled, recommend conservative intervals (e.g., 10 hours)
-- Add random jitter to resync times to avoid thundering herd: since reconciliation already uses "requeue after X duration", jitter simply adds a random offset (e.g., ±10%) to the resync period, spreading resyncs over time rather than having them fire simultaneously
+- Add random jitter to resync times to avoid thundering herd: since reconciliation already uses "requeue after X duration", jitter simply adds a random offset (e.g., [0%, +20%]) to the resync period, spreading resyncs over time rather than having them fire simultaneously
 - Allow operators to disable or lengthen resync for stable resources
 
 ### Controller Resource Consumption
@@ -287,7 +287,7 @@ The following have been implemented:
 
 **Periodic Resync**
 - `shouldReconcile` updated to check `lastSyncTime` against `resyncPeriod` for time-based resync
-- Jitter (±10%) applied to resync scheduling via `resync.CalculateJitteredDuration`
+- Jitter ([0%, +20%]) applied to resync scheduling via `resync.CalculateJitteredDuration`
 - `status.lastSyncTime` written on every successful reconciliation cycle
 - Resources in terminal error state are not rescheduled
 

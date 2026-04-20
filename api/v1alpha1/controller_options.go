@@ -73,7 +73,7 @@ func (o *ManagedOptions) GetOnDelete() OnDelete {
 type CommonOptions struct {
 	// resyncPeriod defines how frequently the controller will re-reconcile this
 	// resource even when no changes have been detected. This implements a
-	// three-tier resolution: the per-resource value takes precedence over the
+	// two-tier resolution: the per-resource value takes precedence over the
 	// global controller default; if neither is set, periodic resync is
 	// disabled. The value must be a valid Go duration string, e.g. "10m", "1h".
 	// +optional

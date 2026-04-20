@@ -38,7 +38,7 @@ After a resource reaches a stable state (`Progressing=False`), ORC schedules a r
 3. For **unmanaged** resources: ORC refreshes `status.resource` to reflect the current OpenStack state, but makes no changes.
 4. The next resync is scheduled.
 
-A small random jitter (±10%) is applied to `resyncPeriod` to spread reconciliations and avoid thundering-herd effects.
+A small random jitter ([0%, +20%]) is applied to `resyncPeriod` to spread reconciliations and avoid thundering-herd effects.
 
 !!! note
 

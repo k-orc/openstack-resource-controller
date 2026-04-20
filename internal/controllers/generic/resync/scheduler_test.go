@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
@@ -128,7 +129,7 @@ func TestCalculateJitteredDuration_ZeroBase(t *testing.T) {
 func TestShouldScheduleResync(t *testing.T) {
 	t.Parallel()
 
-	terminalErr := orcerrors.Terminal("InvalidConfiguration", "bad config")
+	terminalErr := orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "bad config")
 	transientErr := fmt.Errorf("transient error")
 
 	tests := []struct {

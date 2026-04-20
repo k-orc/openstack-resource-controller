@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -57,7 +58,7 @@ func TestShouldSetLastSyncTime_WithRequeueOnly(t *testing.T) {
 	t.Parallel()
 
 	// A requeue alone does not contribute to NeedsReschedule.
-	rs := progress.NewReconcileStatus().WithRequeue(10 * 60 * 1000000000) // 10 minutes in nanoseconds
+	rs := progress.NewReconcileStatus().WithRequeue(10 * time.Minute)
 	if !shouldSetLastSyncTime(rs) {
 		t.Error("shouldSetLastSyncTime(requeue-only) = false; want true: requeue alone should not prevent lastSyncTime update")
 	}

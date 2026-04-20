@@ -1,6 +1,6 @@
 ---
 # Create three networks all sharing the same resyncPeriod to exercise jitter
-# scheduling. Each network will be independently scheduled with ±10% jitter,
+# scheduling. Each network will be independently scheduled with [0%, +20%] jitter,
 # preventing them from all reconciling simultaneously.
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Network
