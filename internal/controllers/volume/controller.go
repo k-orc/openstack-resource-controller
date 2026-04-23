@@ -162,6 +162,12 @@ func serverToVolumeMapFunc(ctx context.Context, k8sClient client.Client) handler
 					log.V(logging.Verbose).Info("volume needs reconciliation: listed in server status but no attachment info",
 						"volume", client.ObjectKeyFromObject(volume),
 						"server", client.ObjectKeyFromObject(server))
+				} else if volumeStatus.Status != VolumeStatusInUse {
+					shouldReconcile = true
+					reason = "Volume attached to server but status is not in-use"
+					log.V(logging.Verbose).Info("volume needs reconciliation: attached to server but status is not in-use",
+						"volume", client.ObjectKeyFromObject(volume),
+						"server", client.ObjectKeyFromObject(server))
 				}
 			}
 
