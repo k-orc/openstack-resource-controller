@@ -1767,6 +1767,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: propagateUplinkStatus
+      type:
+        scalar: boolean
     - name: securityGroupRefs
       type:
         list:

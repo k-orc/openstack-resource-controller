@@ -23,7 +23,7 @@ status:
     name: port-update
     adminStateUp: true
     portSecurityEnabled: false
-    propagateUplinkStatus: false
+    propagateUplinkStatus: true
     revisionNumber: 1
     status: DOWN
     vnicType: normal
