@@ -11361,6 +11361,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkFilter(ref common
 							Format:      "",
 						},
 					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status indicates the trunk state to use as a filter.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"adminStateUp": {
 						SchemaProps: spec.SchemaProps{
 							Description: "adminStateUp is the administrative state of the trunk.",

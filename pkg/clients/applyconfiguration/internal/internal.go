@@ -3429,6 +3429,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: status
+      type:
+        scalar: string
     - name: tags
       type:
         list:
