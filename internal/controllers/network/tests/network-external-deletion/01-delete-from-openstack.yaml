@@ -1,0 +1,16 @@
+---
+# Delete the network directly in OpenStack, bypassing ORC.
+# This simulates an external deletion event (e.g., an operator accidentally
+# deleting the resource, or a garbage-collection script removing it).
+# The resyncPeriod configured on the ORC object ensures ORC will detect
+# the deletion within the configured period (10s) without needing a manual trigger.
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      NETWORK_ID=$(cat /tmp/network-external-deletion-original-id)
+
+      # Delete the network directly in OpenStack, bypassing ORC.
+      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
+      export OS_CLOUD=openstack
+      openstack network delete "${NETWORK_ID}"

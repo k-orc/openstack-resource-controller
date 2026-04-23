@@ -18,6 +18,8 @@ limitations under the License.
 package domain
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 )
@@ -55,6 +57,14 @@ func (f adapterT) GetManagedOptions() *orcv1alpha1.ManagedOptions {
 	return f.Spec.ManagedOptions
 }
 
+func (f adapterT) GetResyncPeriod() *metav1.Duration {
+	return f.Spec.ResyncPeriod
+}
+
+func (f adapterT) GetLastSyncTime() *metav1.Time {
+	return f.Status.LastSyncTime
+}
+
 func (f adapterT) GetStatusID() *string {
 	return f.Status.ID
 }
@@ -75,6 +85,10 @@ func (f adapterT) GetImportFilter() *filterT {
 		return nil
 	}
 	return f.Spec.Import.Filter
+}
+
+func (f adapterT) IsImported() bool {
+	return f.GetImportID() != nil || f.GetImportFilter() != nil
 }
 
 // getResourceName returns the name of the OpenStack resource we should use.

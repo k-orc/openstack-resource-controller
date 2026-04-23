@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -37,19 +38,24 @@ const controllerName = "service"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=services/status,verbs=get;update;patch
 
 type serviceReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return serviceReconcilerConstructor{scopeFactory: scopeFactory}
+	return &serviceReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (serviceReconcilerConstructor) GetName() string {
 	return controllerName
 }
 
+func (c *serviceReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
+}
+
 // SetupWithManager sets up the controller with the Manager.
-func (c serviceReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *serviceReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 
 	builder := ctrl.NewControllerManagedBy(mgr).
@@ -63,6 +69,6 @@ func (c serviceReconcilerConstructor) SetupWithManager(ctx context.Context, mgr 
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, serviceHelperFactory{}, serviceStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, serviceHelperFactory{}, serviceStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

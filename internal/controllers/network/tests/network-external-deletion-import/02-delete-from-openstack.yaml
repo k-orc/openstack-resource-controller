@@ -1,0 +1,23 @@
+---
+# Delete the OpenStack network directly (bypassing ORC). We get the OpenStack
+# ID from the unmanaged import's status.id and use the OpenStack CLI to remove
+# the network without going through ORC.
+#
+# After this deletion, the unmanaged ORC object (network-external-deletion-import)
+# still has status.id pointing to the now-deleted network. On the next reconcile
+# (triggered by the resyncPeriod), ORC calls GetOSResourceByID and gets NotFound.
+# Since the resource was originally imported (IsImported() == true), ORC cannot
+# recreate it and instead sets a terminal error (UnrecoverableError).
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      # Get the OpenStack ID referenced by the imported (unmanaged) ORC object.
+      NETWORK_ID=$(kubectl get network.openstack.k-orc.cloud network-external-deletion-import \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.id}')
+
+      # Delete the network directly in OpenStack, bypassing ORC.
+      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
+      export OS_CLOUD=openstack
+      openstack network delete "${NETWORK_ID}"

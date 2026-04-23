@@ -19,15 +19,17 @@ limitations under the License.
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // DomainStatusApplyConfiguration represents a declarative configuration of the DomainStatus type for use
 // with apply.
 type DomainStatusApplyConfiguration struct {
-	Conditions []v1.ConditionApplyConfiguration        `json:"conditions,omitempty"`
-	ID         *string                                 `json:"id,omitempty"`
-	Resource   *DomainResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	Conditions   []v1.ConditionApplyConfiguration        `json:"conditions,omitempty"`
+	ID           *string                                 `json:"id,omitempty"`
+	Resource     *DomainResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	LastSyncTime *metav1.Time                            `json:"lastSyncTime,omitempty"`
 }
 
 // DomainStatusApplyConfiguration constructs a declarative configuration of the DomainStatus type for use with
@@ -62,5 +64,13 @@ func (b *DomainStatusApplyConfiguration) WithID(value string) *DomainStatusApply
 // If called multiple times, the Resource field is set to the value of the last call.
 func (b *DomainStatusApplyConfiguration) WithResource(value *DomainResourceStatusApplyConfiguration) *DomainStatusApplyConfiguration {
 	b.Resource = value
+	return b
+}
+
+// WithLastSyncTime sets the LastSyncTime field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the LastSyncTime field is set to the value of the last call.
+func (b *DomainStatusApplyConfiguration) WithLastSyncTime(value metav1.Time) *DomainStatusApplyConfiguration {
+	b.LastSyncTime = &value
 	return b
 }

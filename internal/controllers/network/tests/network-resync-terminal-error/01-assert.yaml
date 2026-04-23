@@ -1,0 +1,29 @@
+---
+# Verify the import fails with a terminal error (InvalidConfiguration) and
+# that lastSyncTime is NOT set (no successful reconciliation occurred).
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: network-resync-terminal-error
+      ref: network
+assertAll:
+    # lastSyncTime must NOT be set: the reconciliation never succeeded, so
+    # there is no time of last successful sync to record.
+    - celExpr: "!has(network.status.lastSyncTime)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-resync-terminal-error
+status:
+  conditions:
+    - type: Available
+      message: found more than one matching OpenStack resource during import
+      status: "False"
+      reason: InvalidConfiguration
+    - type: Progressing
+      message: found more than one matching OpenStack resource during import
+      status: "False"
+      reason: InvalidConfiguration

@@ -35,10 +35,12 @@ type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[status
 }
 
 // ORCStatusApplyConfig is an interface implemented by the status of any apply
-// configuration for an ORC API object. It has Conditions and an ID field.
+// configuration for an ORC API object. It has Conditions, an ID field, and a
+// LastSyncTime field.
 type ORCStatusApplyConfig[statusApplyPT any] interface {
 	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
 	WithID(id string) statusApplyPT
+	WithLastSyncTime(metav1.Time) statusApplyPT
 }
 
 // ResourceStatusWriter defines methods for writing an ORC object status

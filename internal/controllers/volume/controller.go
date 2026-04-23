@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -51,15 +52,20 @@ const controllerName = "volume"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=volumes/status,verbs=get;update;patch
 
 type volumeReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return volumeReconcilerConstructor{scopeFactory: scopeFactory}
+	return &volumeReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (volumeReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *volumeReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var volumetypeDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.VolumeList, *orcv1alpha1.VolumeType](
@@ -213,7 +219,7 @@ func serverToVolumeMapFunc(ctx context.Context, k8sClient client.Client) handler
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (c volumeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *volumeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -249,6 +255,6 @@ func (c volumeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, volumeHelperFactory{}, volumeStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, volumeHelperFactory{}, volumeStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

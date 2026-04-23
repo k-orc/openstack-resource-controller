@@ -122,6 +122,15 @@ spec:
     ipVersion: 4
 ```
 
+### Drift Detection and External Deletion
+
+ORC can periodically reconcile resources to detect configuration drift and recreate managed resources that are deleted directly from OpenStack. See [Drift Detection](drift-detection.md) for details on:
+
+- How to enable periodic resync with `spec.resyncPeriod`
+- How ORC handles externally deleted resources (recreation vs. terminal error)
+- How to verify that recreation occurred by checking `status.id`
+- Implications for dependent resources
+
 ### Understanding Status and Conditions
 
 Every ORC resource reports its status through two conditions: `Available` (whether the resource is ready for use) and `Progressing` (whether ORC is still working on it). For detailed information about conditions and their meanings, see [Troubleshooting: Status Conditions Explained](../troubleshooting.md#status-conditions-explained).

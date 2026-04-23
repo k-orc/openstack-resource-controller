@@ -1,0 +1,15 @@
+---
+# Create a managed network in OpenStack via ORC. This network will later be
+# imported as an unmanaged resource, then deleted externally to verify that
+# ORC produces a terminal error (rather than recreating it).
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Network from "external-deletion-import" test

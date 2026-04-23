@@ -98,6 +98,18 @@ type NeutronStatusMetadata struct {
 // +kubebuilder:validation:MaxLength:=253
 type KubernetesNameRef string
 
+// CommonStatus defines status fields that are common to all ORC resources.
+type CommonStatus struct {
+	// lastSyncTime is the timestamp of the last successful reconciliation
+	// that fetched state from OpenStack. It is updated each time the
+	// controller successfully reads the resource state from the OpenStack
+	// API. It is not updated on reconciliations that do not contact
+	// OpenStack (e.g. when the object is being deleted and is waiting for
+	// dependents to be removed).
+	// +optional
+	LastSyncTime *metav1.Time `json:"lastSyncTime,omitempty"`
+}
+
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=64
 type KeystoneName string

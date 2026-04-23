@@ -20,6 +20,7 @@ package v1alpha1
 
 import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // ApplicationCredentialSpecApplyConfiguration represents a declarative configuration of the ApplicationCredentialSpec type for use
@@ -29,6 +30,7 @@ type ApplicationCredentialSpecApplyConfiguration struct {
 	Resource            *ApplicationCredentialResourceSpecApplyConfiguration `json:"resource,omitempty"`
 	ManagementPolicy    *apiv1alpha1.ManagementPolicy                        `json:"managementPolicy,omitempty"`
 	ManagedOptions      *ManagedOptionsApplyConfiguration                    `json:"managedOptions,omitempty"`
+	ResyncPeriod        *v1.Duration                                         `json:"resyncPeriod,omitempty"`
 	CloudCredentialsRef *CloudCredentialsReferenceApplyConfiguration         `json:"cloudCredentialsRef,omitempty"`
 }
 
@@ -67,6 +69,14 @@ func (b *ApplicationCredentialSpecApplyConfiguration) WithManagementPolicy(value
 // If called multiple times, the ManagedOptions field is set to the value of the last call.
 func (b *ApplicationCredentialSpecApplyConfiguration) WithManagedOptions(value *ManagedOptionsApplyConfiguration) *ApplicationCredentialSpecApplyConfiguration {
 	b.ManagedOptions = value
+	return b
+}
+
+// WithResyncPeriod sets the ResyncPeriod field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResyncPeriod field is set to the value of the last call.
+func (b *ApplicationCredentialSpecApplyConfiguration) WithResyncPeriod(value v1.Duration) *ApplicationCredentialSpecApplyConfiguration {
+	b.ResyncPeriod = &value
 	return b
 }
 

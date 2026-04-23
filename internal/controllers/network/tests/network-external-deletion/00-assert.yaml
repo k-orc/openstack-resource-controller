@@ -1,0 +1,41 @@
+---
+# Verify the network is available and has a status.id set (OpenStack network ID).
+# Record the original ID so we can compare after recreation in step 01.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Network
+    name: network-external-deletion
+    ref: network
+assertAll:
+  # Verify the OpenStack ID is set before we delete the network externally.
+  - celExpr: "has(network.status.id) && network.status.id != ''"
+commands:
+  - script: |
+      # Save the original OpenStack network ID for comparison in step 01.
+      kubectl get network.openstack.k-orc.cloud network-external-deletion \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.id}' \
+        > /tmp/network-external-deletion-original-id
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+  resource:
+    name: network-external-deletion
+    description: Network from "external-deletion" test
+    adminStateUp: true
+    external: false
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE

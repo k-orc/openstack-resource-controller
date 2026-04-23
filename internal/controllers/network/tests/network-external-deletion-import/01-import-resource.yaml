@@ -1,0 +1,19 @@
+---
+# Import the external network into ORC as an unmanaged resource. The import
+# filter uses the unique description to identify the network created in step 00.
+# A short resyncPeriod ensures ORC checks the network state periodically, so
+# external deletion is detected without requiring a manual trigger.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  # resyncPeriod of 10s ensures ORC detects the external deletion quickly.
+  resyncPeriod: 10s
+  import:
+    filter:
+      description: Network from "external-deletion-import" test

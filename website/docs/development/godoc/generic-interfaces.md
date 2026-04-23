@@ -20,10 +20,11 @@ import "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/g
 - [type ResourceHelperFactory](<#ResourceHelperFactory>)
 - [type ResourceReconciler](<#ResourceReconciler>)
 - [type ResourceStatusWriter](<#ResourceStatusWriter>)
+- [type ResyncConfigurable](<#ResyncConfigurable>)
 
 
 <a name="APIObjectAdapter"></a>
-## type [APIObjectAdapter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/adapter.go#L25-L41>)
+## type [APIObjectAdapter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/adapter.go#L25-L50>)
 
 
 
@@ -39,11 +40,20 @@ type APIObjectAdapter[orcObjectPT any, resourceSpecT any, filterT any] interface
 
     GetManagementPolicy() orcv1alpha1.ManagementPolicy
     GetManagedOptions() *orcv1alpha1.ManagedOptions
+    GetResyncPeriod() *metav1.Duration
+    GetLastSyncTime() *metav1.Time
 
     GetStatusID() *string
     GetResourceSpec() *resourceSpecT
     GetImportID() *string
     GetImportFilter() *filterT
+
+    // IsImported returns true if the resource was imported (rather than created
+    // by ORC). A resource is considered imported if it has a non-nil importID or
+    // a non-nil importFilter. This is used to decide how to handle external
+    // deletion: imported resources result in a terminal error, while ORC-created
+    // resources are recreated.
+    IsImported() bool
 }
 ```
 
@@ -90,7 +100,7 @@ type BaseResourceActuator[
 ```
 
 <a name="Controller"></a>
-## type [Controller](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L29-L32>)
+## type [Controller](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L30-L33>)
 
 
 
@@ -203,14 +213,15 @@ type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[status
 ```
 
 <a name="ORCStatusApplyConfig"></a>
-## type [ORCStatusApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L39-L42>)
+## type [ORCStatusApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L40-L44>)
 
-ORCStatusApplyConfig is an interface implemented by the status of any apply configuration for an ORC API object. It has Conditions and an ID field.
+ORCStatusApplyConfig is an interface implemented by the status of any apply configuration for an ORC API object. It has Conditions, an ID field, and a LastSyncTime field.
 
 ```go
 type ORCStatusApplyConfig[statusApplyPT any] interface {
     WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
     WithID(id string) statusApplyPT
+    WithLastSyncTime(metav1.Time) statusApplyPT
 }
 ```
 
@@ -245,7 +256,7 @@ type ReconcileResourceActuator[orcObjectPT, osResourceT any] interface {
 ```
 
 <a name="ResourceController"></a>
-## type [ResourceController](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L34-L39>)
+## type [ResourceController](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L43-L48>)
 
 
 
@@ -313,7 +324,7 @@ type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, 
 ```
 
 <a name="ResourceStatusWriter"></a>
-## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L45-L58>)
+## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L47-L60>)
 
 ResourceStatusWriter defines methods for writing an ORC object status
 
@@ -331,6 +342,17 @@ type ResourceStatusWriter[objectPT orcv1alpha1.ObjectWithConditions, osResourceP
     // ApplyResourceStatus writes status.resource to the given status apply
     // configuration based on the given osResource
     ApplyResourceStatus(log logr.Logger, osResource osResourcePT, statusApply statusApplyPT)
+}
+```
+
+<a name="ResyncConfigurable"></a>
+## type [ResyncConfigurable](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L39-L41>)
+
+ResyncConfigurable is an optional interface that Controller implementations may satisfy to receive the operator\-level default resync period. The manager calls SetDefaultResyncPeriod before SetupWithManager so that the value is available when the controller is built.
+
+```go
+type ResyncConfigurable interface {
+    SetDefaultResyncPeriod(time.Duration)
 }
 ```
 

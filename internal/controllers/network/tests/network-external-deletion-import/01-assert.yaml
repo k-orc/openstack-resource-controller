@@ -1,0 +1,22 @@
+---
+# Verify the imported network is available, confirming the import succeeded.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion-import
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+  resource:
+    name: network-external-deletion-import-external
+    description: Network from "external-deletion-import" test
+    adminStateUp: true
+    external: false
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE

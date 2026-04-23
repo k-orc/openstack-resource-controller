@@ -1,0 +1,15 @@
+---
+# Verify the network is still available and stable after the waiting period.
+# No changes should have occurred since no resync was triggered.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-resync-disabled
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

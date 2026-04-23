@@ -19,6 +19,7 @@ package server
 import (
 	"context"
 	"errors"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -38,15 +39,20 @@ import (
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=servers/status,verbs=get;update;patch
 
 type serverReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return serverReconcilerConstructor{scopeFactory: scopeFactory}
+	return &serverReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (serverReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *serverReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 const controllerName = "server"
@@ -182,7 +188,7 @@ var (
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
 
@@ -267,6 +273,6 @@ func (c serverReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, k8sClient, c.scopeFactory, serverHelperFactory{}, serverStatusWriter{})
+	r := reconciler.NewController(controllerName, k8sClient, c.scopeFactory, serverHelperFactory{}, serverStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }
