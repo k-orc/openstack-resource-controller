@@ -162,12 +162,10 @@ func (actuator serverActuator) getSchedulerHints(ctx context.Context, obj *orcv1
 	reconcileStatus := progress.NewReconcileStatus()
 
 	// Resolve ServerGroupRef to server group ID
-	sg, sgReconcileStatus := dependency.FetchDependency(
+	sg, sgReconcileStatus := dependency.FetchDependency[*orcv1alpha1.ServerGroup](
 		ctx, actuator.k8sClient, obj.Namespace,
 		schedHints.ServerGroupRef, "ServerGroup",
-		func(sg *orcv1alpha1.ServerGroup) bool {
-			return orcv1alpha1.IsAvailable(sg) && sg.Status.ID != nil
-		},
+		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(sgReconcileStatus)
 	if sg.Status.ID != nil {
@@ -274,9 +272,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	var blockDevices []servers.BlockDevice
 	if bootFromVolume {
 		bootVolume, bvReconcileStatus := bootVolumeDependency.GetDependency(
-			ctx, actuator.k8sClient, obj, func(volume *orcv1alpha1.Volume) bool {
-				return orcv1alpha1.IsAvailable(volume) && volume.Status.ID != nil
-			},
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(bvReconcileStatus)
 
