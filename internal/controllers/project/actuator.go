@@ -75,13 +75,31 @@ func (actuator projectActuator) GetOSResourceByID(ctx context.Context, id string
 }
 
 func (actuator projectActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
-	if obj.Spec.Resource == nil {
+	resource := obj.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 
+	// Resolve the domain ID from DomainRef if set. Without the domain
+	// ID, adoption could match a project in the wrong domain.
+	var domainID string
+	if resource.DomainRef != nil {
+		domain, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.DomainRef, "Domain",
+			func(dep *orcv1alpha1.Domain) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		domainID = ptr.Deref(domain.Status.ID, "")
+	}
+
 	listOpts := projects.ListOpts{
-		Name: getResourceName(obj),
-		Tags: tags.Join(obj.Spec.Resource.Tags),
+		Name:     getResourceName(obj),
+		DomainID: domainID,
+		Tags:     tags.Join(resource.Tags),
 	}
 
 	return actuator.osClient.ListProjects(ctx, listOpts), true
