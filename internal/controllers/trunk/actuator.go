@@ -73,9 +73,38 @@ func (actuator trunkActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
+	// Resolve the port ID from PortRef. Without the port ID, adoption
+	// could match a trunk associated with the wrong parent port.
+	port, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.PortRef, "Port",
+		func(dep *orcv1alpha1.Port) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, false
+	}
+
+	// Resolve the project ID from ProjectRef if set.
+	var projectID string
+	if resourceSpec.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
 	listOpts := trunks.ListOpts{
 		Name:        getResourceName(orcObject),
 		Description: string(ptr.Deref(resourceSpec.Description, "")),
+		PortID:      ptr.Deref(port.Status.ID, ""),
+		ProjectID:   projectID,
 	}
 
 	return actuator.osClient.ListTrunks(ctx, listOpts), true

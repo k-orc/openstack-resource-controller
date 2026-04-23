@@ -71,8 +71,25 @@ func (actuator addressscopeActuator) ListOSResourcesForAdoption(ctx context.Cont
 		return nil, false
 	}
 
+	// Resolve the project ID from ProjectRef if set.
+	var projectID string
+	if resourceSpec.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
 	listOpts := addressscopes.ListOpts{
-		Name: getResourceName(orcObject),
+		Name:      getResourceName(orcObject),
+		IPVersion: int(resourceSpec.IPVersion),
+		ProjectID: projectID,
 	}
 
 	return actuator.osClient.ListAddressScopes(ctx, listOpts), true

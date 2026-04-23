@@ -46,15 +46,11 @@ type (
 )
 
 type floatingipActuator struct {
-	osClient osclients.NetworkClient
-}
-
-type floatingipCreateActuator struct {
-	floatingipActuator
+	osClient  osclients.NetworkClient
 	k8sClient client.Client
 }
 
-var _ createResourceActuator = floatingipCreateActuator{}
+var _ createResourceActuator = floatingipActuator{}
 var _ deleteResourceActuator = floatingipActuator{}
 
 func (floatingipActuator) GetResourceID(osResource *osResourceT) string {
@@ -70,22 +66,69 @@ func (actuator floatingipActuator) GetOSResourceByID(ctx context.Context, id str
 }
 
 func (actuator floatingipActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.FloatingIP) (floatingipIterator, bool) {
-	if obj.Spec.Resource == nil {
+	resource := obj.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 	// we only support adoption of floatingips by IP as they don't have name
-	if obj.Spec.Resource.FloatingIP == nil {
+	if resource.FloatingIP == nil {
 		return nil, false
 	}
 
+	// Resolve the floating network ID from either FloatingNetworkRef or
+	// FloatingSubnetRef. Exactly one of these must be set per API
+	// validation. Without the network ID, adoption could match a floating
+	// IP on the wrong network.
+	var floatingNetworkID string
+	if resource.FloatingNetworkRef != nil {
+		network, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.FloatingNetworkRef, "Network",
+			func(dep *orcv1alpha1.Network) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		floatingNetworkID = ptr.Deref(network.Status.ID, "")
+	} else if resource.FloatingSubnetRef != nil {
+		subnet, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.FloatingSubnetRef, "Subnet",
+			func(dep *orcv1alpha1.Subnet) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil && dep.Status.Resource != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		floatingNetworkID = subnet.Status.Resource.NetworkID
+	}
+
+	// Resolve the project ID from ProjectRef if set.
+	var projectID string
+	if resource.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
 	listOpts := floatingips.ListOpts{
-		FloatingIP: string(ptr.Deref(obj.Spec.Resource.FloatingIP, "")),
-		Tags:       tags.Join(obj.Spec.Resource.Tags),
+		FloatingIP:        string(ptr.Deref(resource.FloatingIP, "")),
+		FloatingNetworkID: floatingNetworkID,
+		ProjectID:         projectID,
+		Tags:              tags.Join(resource.Tags),
 	}
 	return actuator.osClient.ListFloatingIP(ctx, listOpts), true
 }
 
-func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+func (actuator floatingipActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
 	network, rs := dependency.FetchDependency[*orcv1alpha1.Network](
@@ -126,7 +169,7 @@ func (actuator floatingipCreateActuator) ListOSResourcesForImport(ctx context.Co
 	return actuator.osClient.ListFloatingIP(ctx, listOpts), nil
 }
 
-func (actuator floatingipCreateActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.FloatingIP) (*osResourceT, progress.ReconcileStatus) {
+func (actuator floatingipActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.FloatingIP) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 	if resource == nil {
 		// Should have been caught by API validation
@@ -290,7 +333,7 @@ func (floatingipHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 }
 
 func (floatingipHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
-	return newCreateActuator(ctx, orcObject, controller)
+	return newActuator(ctx, orcObject, controller)
 }
 
 func (floatingipHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
@@ -316,18 +359,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.FloatingIP, control
 	}
 
 	return floatingipActuator{
-		osClient: osClient,
-	}, nil
-}
-
-func newCreateActuator(ctx context.Context, orcObject *orcv1alpha1.FloatingIP, controller interfaces.ResourceController) (floatingipCreateActuator, progress.ReconcileStatus) {
-	floatingipActuator, reconcileStatus := newActuator(ctx, orcObject, controller)
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
-		return floatingipCreateActuator{}, reconcileStatus
-	}
-
-	return floatingipCreateActuator{
-		floatingipActuator: floatingipActuator,
-		k8sClient:          controller.GetK8sClient(),
+		osClient:  osClient,
+		k8sClient: controller.GetK8sClient(),
 	}, nil
 }

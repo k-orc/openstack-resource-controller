@@ -117,11 +117,44 @@ func (actuator portActuator) GetOSResourceByID(ctx context.Context, id string) (
 }
 
 func (actuator portActuator) ListOSResourcesForAdoption(ctx context.Context, obj *orcv1alpha1.Port) (portIterator, bool) {
-	if obj.Spec.Resource == nil {
+	resource := obj.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 
-	listOpts := ports.ListOpts{Name: getResourceName(obj)}
+	// Resolve the network ID from NetworkRef. Without the network ID,
+	// adoption could match a port on the wrong network.
+	network, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, obj.Namespace, &resource.NetworkRef, "Network",
+		func(dep *orcv1alpha1.Network) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, false
+	}
+
+	// Resolve the project ID from ProjectRef if set.
+	var projectID string
+	if resource.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
+	listOpts := ports.ListOpts{
+		Name:       getResourceName(obj),
+		NetworkID:  ptr.Deref(network.Status.ID, ""),
+		MACAddress: resource.MACAddress,
+		ProjectID:  projectID,
+	}
 	return actuator.osClient.ListPort(ctx, listOpts), true
 }
 

@@ -72,11 +72,32 @@ func (actuator networkActuator) GetOSResourceByID(ctx context.Context, id string
 }
 
 func (actuator networkActuator) ListOSResourcesForAdoption(ctx context.Context, obj orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
-	if obj.Spec.Resource == nil {
+	resource := obj.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 
-	listOpts := networks.ListOpts{Name: getResourceName(obj)}
+	// Resolve the project ID from ProjectRef if set. Without the project
+	// ID, adoption with admin-scoped credentials could match a network
+	// in the wrong project.
+	var projectID string
+	if resource.ProjectRef != nil {
+		project, rs := dependency.FetchDependency(
+			ctx, actuator.k8sClient, obj.Namespace, resource.ProjectRef, "Project",
+			func(dep *orcv1alpha1.Project) bool {
+				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+			},
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		projectID = ptr.Deref(project.Status.ID, "")
+	}
+
+	listOpts := networks.ListOpts{
+		Name:      getResourceName(obj),
+		ProjectID: projectID,
+	}
 	return actuator.osClient.ListNetwork(ctx, listOpts), true
 }
 
