@@ -208,6 +208,12 @@ func serverToPortMapFunc(ctx context.Context, k8sClient client.Client) handler.M
 					log.V(logging.Verbose).Info("port needs reconciliation: listed in server status but deviceID not set",
 						"port", client.ObjectKeyFromObject(port),
 						"server", client.ObjectKeyFromObject(server))
+				} else if portStatus.Status == PortStatusDown {
+					shouldReconcile = true
+					reason = "Port attached to server but status is still DOWN"
+					log.V(logging.Verbose).Info("port needs reconciliation: attached to server but status is DOWN",
+						"port", client.ObjectKeyFromObject(port),
+						"server", client.ObjectKeyFromObject(server))
 				}
 			}
 
