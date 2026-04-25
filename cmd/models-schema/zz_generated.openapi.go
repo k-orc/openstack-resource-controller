@@ -6272,6 +6272,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceSpec(ref c
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.HostID"),
 						},
 					},
+					"trustedVIF": {
+						SchemaProps: spec.SchemaProps{
+							Description: "trustedVIF indicates whether the VF for the port will become trusted by physical function to perform some privileged operations. Only admin users can create ports with this field.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"networkRef"},
 			},
@@ -6453,6 +6460,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortResourceStatus(ref
 						SchemaProps: spec.SchemaProps{
 							Description: "hostID is the ID of host where the port resides.",
 							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"trustedVIF": {
+						SchemaProps: spec.SchemaProps{
+							Description: "trustedVIF indicates whether the VF for the port will become trusted by physical function to perform some privileged operations.",
+							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
