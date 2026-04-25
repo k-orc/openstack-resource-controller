@@ -1779,6 +1779,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: trustedVIF
+      type:
+        scalar: boolean
     - name: vnicType
       type:
         scalar: string
@@ -1851,6 +1854,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
+    - name: trustedVIF
+      type:
+        scalar: boolean
     - name: updatedAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time

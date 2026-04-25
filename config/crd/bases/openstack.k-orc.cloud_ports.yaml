@@ -401,6 +401,12 @@ spec:
                     maxItems: 64
                     type: array
                     x-kubernetes-list-type: set
+                  trustedVIF:
+                    description: |-
+                      trustedVIF indicates whether the VF for the port will become
+                      trusted by physical function to perform some privileged
+                      operations. Only admin users can create ports with this field.
+                    type: boolean
                   vnicType:
                     description: |-
                       vnicType specifies the type of vNIC which this port should be
@@ -650,6 +656,12 @@ spec:
                     maxItems: 64
                     type: array
                     x-kubernetes-list-type: atomic
+                  trustedVIF:
+                    description: |-
+                      trustedVIF indicates whether the VF for the port will become
+                      trusted by physical function to perform some privileged
+                      operations.
+                    type: boolean
                   updatedAt:
                     description: updatedAt shows the date and time when the resource
                       was updated. The date and time stamp format is ISO 8601

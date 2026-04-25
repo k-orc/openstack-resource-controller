@@ -32,6 +32,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portstrustedvif"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
@@ -56,6 +57,7 @@ type PortExt struct {
 	ports.Port
 	portsecurity.PortSecurityExt
 	portsbinding.PortsBindingExt
+	portstrustedvif.PortTrustedVIFExt
 }
 
 type NetworkClient interface {
