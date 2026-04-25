@@ -15,17 +15,26 @@ status:
     tags:
       - tag1
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-create-sriov-admin
+status:
+  resource:
+    name: port-create-sriov-admin
+    trustedVIF: true
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: port
       name: port-create-sriov
-      ref: port    
+      ref: port
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: subnet
       name: port-create-sriov
-      ref: subnet        
+      ref: subnet
 assertAll:
     - celExpr: "port.status.id != ''"
     - celExpr: "port.status.resource.createdAt != ''"

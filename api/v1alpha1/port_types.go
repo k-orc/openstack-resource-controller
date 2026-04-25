@@ -210,6 +210,12 @@ type PortResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="hostID is immutable"
 	HostID *HostID `json:"hostID,omitempty"` //nolint:kubeapilinter // HostID provides both raw ID and ServerRef options
+
+	// trustedVIF indicates whether the VF for the port will become
+	// trusted by physical function to perform some privileged
+	// operations. Only admin users can create ports with this field.
+	// +optional
+	TrustedVIF *bool `json:"trustedVIF,omitempty"`
 }
 
 type PortResourceStatus struct {
@@ -306,6 +312,12 @@ type PortResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=128
 	// +optional
 	HostID string `json:"hostID,omitempty"`
+
+	// trustedVIF indicates whether the VF for the port will become
+	// trusted by physical function to perform some privileged
+	// operations.
+	// +optional
+	TrustedVIF *bool `json:"trustedVIF,omitempty"`
 
 	NeutronStatusMetadata `json:",inline"`
 }

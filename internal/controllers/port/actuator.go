@@ -25,6 +25,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portstrustedvif"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
@@ -318,7 +319,14 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid value %s", resource.PortSecurity)))
 	}
 
-	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
+	portTrustedOpts := portstrustedvif.PortCreateOptsExt{
+		CreateOptsBuilder: portSecurityOpts,
+	}
+	if resource.TrustedVIF != nil {
+		portTrustedOpts.PortTrustedVIF = resource.TrustedVIF
+	}
+
+	osResource, err := actuator.osClient.CreatePort(ctx, &portTrustedOpts)
 	if err != nil {
 		// We should require the spec to be updated before retrying a create which returned a conflict
 		if orcerrors.IsConflict(err) {
@@ -416,6 +424,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 
 	updateOpts = handlePortBindingUpdate(updateOpts, resource, osResource)
 	updateOpts = handlePortSecurityUpdate(updateOpts, resource, osResource)
+	updateOpts = handlePortTrustedVIFUpdate(updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -585,6 +594,20 @@ func handleAdminStateUpUpdate(updateOpts *ports.UpdateOpts, resource *resourceSp
 			updateOpts.AdminStateUp = adminStateUp
 		}
 	}
+}
+
+func handlePortTrustedVIFUpdate(updateOpts ports.UpdateOptsBuilder, resource *resourceSpecT, osResource *osResourceT) ports.UpdateOptsBuilder {
+	trusted := resource.TrustedVIF
+	if trusted != nil {
+		if osResource.PortTrustedVIF == nil || *trusted != *osResource.PortTrustedVIF {
+			updateOpts = portstrustedvif.PortUpdateOptsExt{
+				UpdateOptsBuilder: updateOpts,
+				PortTrustedVIF:    trusted,
+			}
+		}
+	}
+
+	return updateOpts
 }
 
 type portHelperFactory struct{}

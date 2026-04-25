@@ -5,6 +5,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsbinding"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portstrustedvif"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
@@ -427,6 +428,40 @@ func TestHandleAdminStateUpUpdate(t *testing.T) {
 			updateOpts := &ports.UpdateOpts{}
 
 			handleAdminStateUpUpdate(updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleTrustedVIFUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue *bool
+		expectChange  bool
+	}{
+		{name: "Enabled when the value is not set", newValue: ptr.To(true), existingValue: nil, expectChange: true},
+		{name: "Enabled when was disabled", newValue: ptr.To(true), existingValue: ptr.To(false), expectChange: true},
+		{name: "Disabled when was enabled", newValue: ptr.To(false), existingValue: ptr.To(true), expectChange: true},
+		{name: "Keep the existing value if newValue is not set", newValue: nil, existingValue: ptr.To(true), expectChange: false},
+		{name: "Keep the existing value when they are the same (true)", newValue: ptr.To(true), existingValue: ptr.To(true), expectChange: false},
+		{name: "Keep the existing value when they are the same (false)", newValue: ptr.To(false), existingValue: ptr.To(false), expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.PortResourceSpec{TrustedVIF: tt.newValue}
+			osResource := &osclients.PortExt{
+				PortTrustedVIFExt: portstrustedvif.PortTrustedVIFExt{
+					PortTrustedVIF: tt.existingValue,
+				},
+			}
+
+			updateOpts := handlePortTrustedVIFUpdate(&ports.UpdateOpts{}, resource, osResource)
 
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {

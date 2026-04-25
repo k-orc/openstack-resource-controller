@@ -42,6 +42,7 @@ type PortResourceStatusApplyConfiguration struct {
 	VNICType                                *string                                      `json:"vnicType,omitempty"`
 	PortSecurityEnabled                     *bool                                        `json:"portSecurityEnabled,omitempty"`
 	HostID                                  *string                                      `json:"hostID,omitempty"`
+	TrustedVIF                              *bool                                        `json:"trustedVIF,omitempty"`
 	NeutronStatusMetadataApplyConfiguration `json:",inline"`
 }
 
@@ -198,6 +199,14 @@ func (b *PortResourceStatusApplyConfiguration) WithPortSecurityEnabled(value boo
 // If called multiple times, the HostID field is set to the value of the last call.
 func (b *PortResourceStatusApplyConfiguration) WithHostID(value string) *PortResourceStatusApplyConfiguration {
 	b.HostID = &value
+	return b
+}
+
+// WithTrustedVIF sets the TrustedVIF field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TrustedVIF field is set to the value of the last call.
+func (b *PortResourceStatusApplyConfiguration) WithTrustedVIF(value bool) *PortResourceStatusApplyConfiguration {
+	b.TrustedVIF = &value
 	return b
 }
 

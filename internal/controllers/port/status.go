@@ -104,5 +104,9 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		resourceStatus.WithFixedIPs(fixedIPs...)
 	}
 
+	if osResource.PortTrustedVIF != nil {
+		resourceStatus.WithTrustedVIF(*osResource.PortTrustedVIF)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }
