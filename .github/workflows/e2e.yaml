@@ -38,8 +38,10 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk"
+        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif"
         conf_overrides: |
+          enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
+
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter

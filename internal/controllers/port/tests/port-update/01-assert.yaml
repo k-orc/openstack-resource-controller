@@ -49,3 +49,21 @@ status:
   - type: Progressing
     status: "False"
     reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Port
+metadata:
+  name: port-update-admin
+status:
+  resource:
+    name: port-update-admin
+    trustedVIF: false
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success

@@ -2739,6 +2739,7 @@ _Appears in:_
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br />Optional: \{\} <br /> |
 | `hostID` _[HostID](#hostid)_ | hostID specifies the host where the port will be bound.<br />Note that when the port is attached to a server, OpenStack may<br />rebind the port to the server's actual compute host, which may<br />differ from the specified hostID if no matching scheduler hint<br />is used. In this case the port's status will reflect the actual<br />binding host, not the value specified here. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `trustedVIF` _boolean_ | trustedVIF indicates whether the VF for the port will become<br />trusted by physical function to perform some privileged<br />operations. Only admin users can create ports with this field. |  | Optional: \{\} <br /> |
 
 
 #### PortResourceStatus
@@ -2771,6 +2772,7 @@ _Appears in:_
 | `vnicType` _string_ | vnicType is the type of vNIC which this port is attached to. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
 | `portSecurityEnabled` _boolean_ | portSecurityEnabled indicates whether port security is enabled or not. |  | Optional: \{\} <br /> |
 | `hostID` _string_ | hostID is the ID of host where the port resides. |  | MaxLength: 128 <br />Optional: \{\} <br /> |
+| `trustedVIF` _boolean_ | trustedVIF indicates whether the VF for the port will become<br />trusted by physical function to perform some privileged<br />operations. |  | Optional: \{\} <br /> |
 | `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
 | `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
 | `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  | Optional: \{\} <br /> |
