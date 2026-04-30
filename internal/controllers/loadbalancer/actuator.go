@@ -54,13 +54,6 @@ const (
 	lbDeletingPollingPeriod = 15 * time.Second
 )
 
-// loadbalancer provisioning status constants.
-const (
-	lbProvisioningStatusPendingCreate = "PENDING_CREATE"
-	lbProvisioningStatusPendingUpdate = "PENDING_UPDATE"
-	lbProvisioningStatusPendingDelete = "PENDING_DELETE"
-)
-
 // Dependency declarations for use in CreateResource (with finalizer management)
 // and in controller.go (for watchers and index registration).
 var (
@@ -352,9 +345,9 @@ func (actuator loadbalancerActuator) DeleteResource(ctx context.Context, _ orcOb
 	// If the load balancer is in a PENDING_* state, we cannot delete it yet.
 	// Wait for it to stabilize before attempting deletion.
 	switch osResource.ProvisioningStatus {
-	case lbProvisioningStatusPendingCreate, lbProvisioningStatusPendingUpdate:
+	case ProvisioningStatusPendingCreate, ProvisioningStatusPendingUpdate:
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, lbDeletingPollingPeriod)
-	case lbProvisioningStatusPendingDelete:
+	case ProvisioningStatusPendingDelete:
 		// Already being deleted, wait for it to complete.
 		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, lbDeletingPollingPeriod)
 	}

@@ -17,6 +17,8 @@ limitations under the License.
 package loadbalancer
 
 import (
+	"time"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -25,9 +27,19 @@ import (
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
+// Octavia LoadBalancer provisioning_status constants.
 const (
-	lbProvisioningStatusActive = "ACTIVE"
+	ProvisioningStatusActive        = "ACTIVE"
+	ProvisioningStatusPendingCreate = "PENDING_CREATE"
+	ProvisioningStatusPendingUpdate = "PENDING_UPDATE"
+	ProvisioningStatusPendingDelete = "PENDING_DELETE"
+	ProvisioningStatusError         = "ERROR"
 )
+
+// provisioningPollingPeriod is the frequency to poll when waiting for a
+// load balancer to finish provisioning. LoadBalancers can take tens of
+// seconds to provision, so 15 seconds is a reasonable polling interval.
+const provisioningPollingPeriod = 15 * time.Second
 
 type objectApplyPT = *orcapplyconfigv1alpha1.LoadBalancerApplyConfiguration
 type statusApplyPT = *orcapplyconfigv1alpha1.LoadBalancerStatusApplyConfiguration
@@ -40,6 +52,14 @@ func (loadbalancerStatusWriter) GetApplyConfig(name, namespace string) objectApp
 	return orcapplyconfigv1alpha1.LoadBalancer(name, namespace)
 }
 
+// ResourceAvailableStatus maps Octavia provisioning_status to Kubernetes
+// Available condition status.
+//
+//   - ACTIVE → ConditionTrue (resource is fully provisioned and ready)
+//   - PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE → ConditionUnknown + requeue (transient)
+//   - ERROR → ConditionFalse (terminal, manual intervention required)
+//   - nil osResource, no ID → ConditionFalse (not yet created)
+//   - nil osResource, has ID → ConditionUnknown (ID known but resource not yet fetched)
 func (loadbalancerStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
@@ -48,13 +68,27 @@ func (loadbalancerStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, o
 		return metav1.ConditionUnknown, nil
 	}
 
-	if osResource.ProvisioningStatus == lbProvisioningStatusActive {
+	switch osResource.ProvisioningStatus {
+	case ProvisioningStatusActive:
 		return metav1.ConditionTrue, nil
-	}
 
-	return metav1.ConditionFalse, nil
+	case ProvisioningStatusPendingCreate, ProvisioningStatusPendingUpdate, ProvisioningStatusPendingDelete:
+		// Transient states: wait for OpenStack to complete the operation.
+		return metav1.ConditionUnknown, progress.WaitingOnOpenStack(progress.WaitingOnReady, provisioningPollingPeriod)
+
+	case ProvisioningStatusError:
+		// Terminal state: the load balancer is in an error state that
+		// requires manual intervention in OpenStack to resolve.
+		return metav1.ConditionFalse, nil
+
+	default:
+		// Unknown provisioning status: poll until we see a known state.
+		return metav1.ConditionUnknown, progress.WaitingOnOpenStack(progress.WaitingOnReady, provisioningPollingPeriod)
+	}
 }
 
+// ApplyResourceStatus populates the Kubernetes status.resource fields from
+// the OpenStack LoadBalancer response.
 func (loadbalancerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply statusApplyPT) {
 	resourceStatus := orcapplyconfigv1alpha1.LoadBalancerResourceStatus().
 		WithName(osResource.Name).
@@ -70,6 +104,13 @@ func (loadbalancerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource 
 		WithFlavorID(osResource.FlavorID).
 		WithProjectID(osResource.ProjectID).
 		WithTags(osResource.Tags...)
+
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	statusApply.WithResource(resourceStatus)
 }
