@@ -94,3 +94,26 @@ func NewServerTagReplacer(computeClient osclients.ComputeClient, resourceID stri
 		return err
 	}
 }
+
+// NewOctaviaTagReplacer returns a TagReplacer function for Octavia resources.
+// Octavia does not support the Neutron attributestags API; instead, tags are
+// updated via the resource's own Update endpoint.
+func NewOctaviaTagReplacer(lbClient osclients.LoadBalancerClient, resourceID string) TagReplacer {
+	return func(ctx context.Context, tagsToSet []string) error {
+		_, err := lbClient.UpdateLoadBalancer(ctx, resourceID, &octaviaTagUpdateOpts{tags: tagsToSet})
+		return err
+	}
+}
+
+// octaviaTagUpdateOpts is a minimal UpdateOptsBuilder that sets only the tags field.
+type octaviaTagUpdateOpts struct {
+	tags []string
+}
+
+func (o *octaviaTagUpdateOpts) ToLoadBalancerUpdateMap() (map[string]any, error) {
+	return map[string]any{
+		"loadbalancer": map[string]any{
+			"tags": o.tags,
+		},
+	}, nil
+}

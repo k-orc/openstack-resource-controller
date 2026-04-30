@@ -30,9 +30,11 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
 )
 
 const controllerName = "loadbalancer"
@@ -140,6 +142,7 @@ type loadbalancerActuator struct {
 
 var _ createResourceActuator = loadbalancerActuator{}
 var _ deleteResourceActuator = loadbalancerActuator{}
+var _ reconcileResourceActuator = loadbalancerActuator{}
 
 func (loadbalancerActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
@@ -353,6 +356,94 @@ func (actuator loadbalancerActuator) DeleteResource(ctx context.Context, _ orcOb
 	}
 
 	return progress.WrapError(actuator.osClient.DeleteLoadBalancer(ctx, osResource.ID, nil))
+}
+
+// GetResourceReconcilers returns the reconcilers for mutable LoadBalancer fields.
+// Updates are gated on the provisioning_status being ACTIVE; if the LB is in
+// a PENDING_* state, we wait for it to stabilise before attempting any update.
+func (actuator loadbalancerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, _ interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+	// Gate all updates on ACTIVE provisioning_status.
+	switch osResource.ProvisioningStatus {
+	case ProvisioningStatusPendingCreate, ProvisioningStatusPendingUpdate, ProvisioningStatusPendingDelete:
+		return nil, progress.WaitingOnOpenStack(progress.WaitingOnReady, provisioningPollingPeriod)
+	}
+
+	return []resourceReconciler{
+		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewOctaviaTagReplacer(actuator.osClient, osResource.ID)),
+		actuator.updateResource,
+	}, nil
+}
+
+func (actuator loadbalancerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := obj.Spec.Resource
+	if resource == nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+	}
+
+	updateOpts := loadbalancers.UpdateOpts{}
+
+	handleNameUpdate(&updateOpts, obj, osResource)
+	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	handleAdminStateUpUpdate(&updateOpts, resource, osResource)
+
+	needsUpd, err := needsUpdate(updateOpts)
+	if err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+	if !needsUpd {
+		log.V(logging.Debug).Info("No changes")
+		return nil
+	}
+
+	_, err = actuator.osClient.UpdateLoadBalancer(ctx, osResource.ID, updateOpts)
+	if orcerrors.IsConflict(err) {
+		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	}
+	if err != nil {
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
+}
+
+// needsUpdate reports whether updateOpts contains any fields to update.
+func needsUpdate(updateOpts loadbalancers.UpdateOpts) (bool, error) {
+	updateMap, err := updateOpts.ToLoadBalancerUpdateMap()
+	if err != nil {
+		return false, err
+	}
+
+	lbMap, ok := updateMap["loadbalancer"].(map[string]any)
+	if !ok {
+		return false, nil
+	}
+
+	return len(lbMap) > 0, nil
+}
+
+func handleNameUpdate(updateOpts *loadbalancers.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
+	name := getResourceName(obj)
+	if osResource.Name != name {
+		updateOpts.Name = &name
+	}
+}
+
+func handleDescriptionUpdate(updateOpts *loadbalancers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	description := string(ptr.Deref(resource.Description, ""))
+	if osResource.Description != description {
+		updateOpts.Description = &description
+	}
+}
+
+func handleAdminStateUpUpdate(updateOpts *loadbalancers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default is true
+	adminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != adminStateUp {
+		updateOpts.AdminStateUp = &adminStateUp
+	}
 }
 
 type loadbalancerHelperFactory struct{}
