@@ -57,6 +57,7 @@ type Scope interface {
 	NewIdentityClient() (osclients.IdentityClient, error)
 	NewImageClient() (osclients.ImageClient, error)
 	NewKeyPairClient() (osclients.KeyPairClient, error)
+	NewLoadBalancerClient() (osclients.LoadBalancerClient, error)
 	NewNetworkClient() (osclients.NetworkClient, error)
 	NewRoleClient() (osclients.RoleClient, error)
 	NewServiceClient() (osclients.ServiceClient, error)
