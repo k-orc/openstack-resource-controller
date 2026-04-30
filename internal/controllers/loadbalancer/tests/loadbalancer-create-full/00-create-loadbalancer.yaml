@@ -1,0 +1,19 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: loadbalancer-create-full-override
+    description: LoadBalancer from "create full" test
+    subnetRef: loadbalancer-create-full
+    adminStateUp: false
+    tags:
+      - tag1
+      - tag2
+    projectRef: loadbalancer-create-full
