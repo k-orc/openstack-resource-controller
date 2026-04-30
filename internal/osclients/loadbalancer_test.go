@@ -35,6 +35,12 @@ const (
 
 	// lbID is the UUID of the test load balancer.
 	lbID = "36e08a3e-a78f-4b40-a229-1e7e23eee1ab"
+
+	// testLBName is the name used for test load balancers.
+	testLBName = "test-lb"
+
+	// updatedLBName is the name used for updated load balancers.
+	updatedLBName = "updated-lb"
 )
 
 // lbSingleBody is the canned response body for a single load balancer.
@@ -148,8 +154,8 @@ func TestGetLoadBalancer_Success(t *testing.T) {
 	if lb.ID != lbID {
 		t.Errorf("expected ID %q, got %q", lbID, lb.ID)
 	}
-	if lb.Name != "test-lb" {
-		t.Errorf("expected name %q, got %q", "test-lb", lb.Name)
+	if lb.Name != testLBName {
+		t.Errorf("expected name %q, got %q", testLBName, lb.Name)
 	}
 	if lb.ProvisioningStatus != "ACTIVE" {
 		t.Errorf("expected provisioning status %q, got %q", "ACTIVE", lb.ProvisioningStatus)
@@ -222,8 +228,8 @@ func TestCreateLoadBalancer_Success(t *testing.T) {
 		if !ok {
 			t.Errorf("expected 'loadbalancer' key in request body, got: %v", body)
 		}
-		if lb["name"] != "test-lb" {
-			t.Errorf("expected name %q in body, got %q", "test-lb", lb["name"])
+		if lb["name"] != testLBName {
+			t.Errorf("expected name %q in body, got %q", testLBName, lb["name"])
 		}
 		if lb["vip_subnet_id"] != "9cedb85d-0759-4898-8a4b-fa5a5ea10086" {
 			t.Errorf("expected vip_subnet_id in body, got %q", lb["vip_subnet_id"])
@@ -240,7 +246,7 @@ func TestCreateLoadBalancer_Success(t *testing.T) {
 	client := newLBTestClient(server.URL)
 	adminStateUp := true
 	lb, err := client.CreateLoadBalancer(context.Background(), loadbalancers.CreateOpts{
-		Name:         "test-lb",
+		Name:         testLBName,
 		Description:  "test load balancer",
 		VipSubnetID:  "9cedb85d-0759-4898-8a4b-fa5a5ea10086",
 		Provider:     "haproxy",
@@ -256,8 +262,8 @@ func TestCreateLoadBalancer_Success(t *testing.T) {
 	if lb.ID != lbID {
 		t.Errorf("expected ID %q, got %q", lbID, lb.ID)
 	}
-	if lb.Name != "test-lb" {
-		t.Errorf("expected name %q, got %q", "test-lb", lb.Name)
+	if lb.Name != testLBName {
+		t.Errorf("expected name %q, got %q", testLBName, lb.Name)
 	}
 }
 
@@ -290,7 +296,7 @@ func TestCreateLoadBalancer_WithVipNetworkID(t *testing.T) {
 
 	client := newLBTestClient(server.URL)
 	lb, err := client.CreateLoadBalancer(context.Background(), loadbalancers.CreateOpts{
-		Name:         "test-lb",
+		Name:         testLBName,
 		VipNetworkID: "d0d217df-3958-4fbf-a3c2-8dad2908c709",
 	})
 	if err != nil {
@@ -380,7 +386,7 @@ func TestCreateLoadBalancer_Conflict(t *testing.T) {
 
 	client := newLBTestClient(server.URL)
 	_, err := client.CreateLoadBalancer(context.Background(), loadbalancers.CreateOpts{
-		Name:        "test-lb",
+		Name:        testLBName,
 		VipSubnetID: "9cedb85d-0759-4898-8a4b-fa5a5ea10086",
 	})
 	if err == nil {
@@ -414,8 +420,8 @@ func TestUpdateLoadBalancer_Success(t *testing.T) {
 		if !ok {
 			t.Errorf("expected 'loadbalancer' key in request body, got: %v", body)
 		}
-		if lb["name"] != "updated-lb" {
-			t.Errorf("expected name %q in body, got %q", "updated-lb", lb["name"])
+		if lb["name"] != updatedLBName {
+			t.Errorf("expected name %q in body, got %q", updatedLBName, lb["name"])
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -423,7 +429,7 @@ func TestUpdateLoadBalancer_Success(t *testing.T) {
 	})
 
 	client := newLBTestClient(server.URL)
-	newName := "updated-lb"
+	newName := updatedLBName
 	newDesc := "updated load balancer"
 	newTags := []string{"updated"}
 	lb, err := client.UpdateLoadBalancer(context.Background(), lbID, loadbalancers.UpdateOpts{
@@ -437,8 +443,8 @@ func TestUpdateLoadBalancer_Success(t *testing.T) {
 	if lb == nil {
 		t.Fatal("expected non-nil load balancer")
 	}
-	if lb.Name != "updated-lb" {
-		t.Errorf("expected name %q, got %q", "updated-lb", lb.Name)
+	if lb.Name != updatedLBName {
+		t.Errorf("expected name %q, got %q", updatedLBName, lb.Name)
 	}
 	if lb.Description != "updated load balancer" {
 		t.Errorf("expected description %q, got %q", "updated load balancer", lb.Description)
@@ -457,7 +463,7 @@ func TestUpdateLoadBalancer_NotFound(t *testing.T) {
 	})
 
 	client := newLBTestClient(server.URL)
-	newName := "updated-lb"
+	newName := updatedLBName
 	_, err := client.UpdateLoadBalancer(context.Background(), lbID, loadbalancers.UpdateOpts{
 		Name: &newName,
 	})
@@ -657,8 +663,8 @@ func TestListLoadBalancer_WithFilter(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers", func(w http.ResponseWriter, r *http.Request) {
 		// Verify the name filter is in the query
 		name := r.URL.Query().Get("name")
-		if name != "test-lb" {
-			t.Errorf("expected name filter %q, got %q", "test-lb", name)
+		if name != testLBName {
+			t.Errorf("expected name filter %q, got %q", testLBName, name)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		// Return only the matching lb
@@ -673,7 +679,7 @@ func TestListLoadBalancer_WithFilter(t *testing.T) {
 
 	client := newLBTestClient(server.URL)
 	var results []*loadbalancers.LoadBalancer
-	for lb, err := range client.ListLoadBalancer(context.Background(), loadbalancers.ListOpts{Name: "test-lb"}) {
+	for lb, err := range client.ListLoadBalancer(context.Background(), loadbalancers.ListOpts{Name: testLBName}) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -682,8 +688,8 @@ func TestListLoadBalancer_WithFilter(t *testing.T) {
 	if len(results) != 1 {
 		t.Errorf("expected 1 load balancer, got %d", len(results))
 	}
-	if results[0].Name != "test-lb" {
-		t.Errorf("expected name %q, got %q", "test-lb", results[0].Name)
+	if results[0].Name != testLBName {
+		t.Errorf("expected name %q, got %q", testLBName, results[0].Name)
 	}
 }
 

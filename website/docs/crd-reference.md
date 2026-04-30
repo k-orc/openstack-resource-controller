@@ -19,6 +19,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Group](#group)
 - [Image](#image)
 - [KeyPair](#keypair)
+- [LoadBalancer](#loadbalancer)
 - [Network](#network)
 - [Port](#port)
 - [Project](#project)
@@ -510,6 +511,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -893,6 +895,7 @@ _Appears in:_
 
 _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
+- [LoadBalancerFilter](#loadbalancerfilter)
 - [NetworkFilter](#networkfilter)
 - [PortFilter](#portfilter)
 - [RouterFilter](#routerfilter)
@@ -1532,6 +1535,7 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetGateway](#subnetgateway)
 - [SubnetResourceSpec](#subnetresourcespec)
@@ -2151,6 +2155,8 @@ _Appears in:_
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
 - [HostID](#hostid)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -2179,6 +2185,165 @@ _Appears in:_
 - [UserResourceSpec](#userresourcespec)
 - [VolumeResourceSpec](#volumeresourcespec)
 
+
+
+#### LoadBalancer
+
+
+
+LoadBalancer is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `LoadBalancer` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[LoadBalancerSpec](#loadbalancerspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[LoadBalancerStatus](#loadbalancerstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### LoadBalancerFilter
+
+
+
+LoadBalancerFilter specifies a query to select an OpenStack load balancer. At least one property must be set.
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [LoadBalancerImport](#loadbalancerimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipSubnetRef is a reference to the ORC Subnet on which the VIP is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipNetworkRef is a reference to the ORC Network on which the VIP is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerImport
+
+
+
+LoadBalancerImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [LoadBalancerSpec](#loadbalancerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[LoadBalancerFilter](#loadbalancerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerResourceSpec
+
+
+
+LoadBalancerResourceSpec contains the desired state of a load balancer.
+
+
+
+_Appears in:_
+- [LoadBalancerSpec](#loadbalancerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name is a human-readable name of the load balancer. If not set, the<br />object's name will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef is a reference to the ORC Subnet on which to allocate the VIP address.<br />Mutually exclusive with networkRef and vipPortRef. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network on which to allocate the VIP address.<br />Mutually exclusive with subnetRef and vipPortRef. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef is a reference to an ORC Port to use as the VIP port for the load balancer.<br />Mutually exclusive with subnetRef and networkRef. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipAddress` _[IPvAny](#ipvany)_ | vipAddress is the IP address of the VIP. If not specified, an available<br />IP from the specified subnet or network will be allocated. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer,<br />which is up (true) or down (false). Default is true. |  | Optional: \{\} <br /> |
+| `flavor` _[OpenStackName](#openstackname)_ | flavor is the name of the flavor for the load balancer. This is<br />provider-specific. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `provider` _string_ | provider is the name of the provider driver to use for the load<br />balancer. If not specified, the default provider will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the load balancer. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LoadBalancerResourceStatus
+
+
+
+LoadBalancerResourceStatus defines the observed state of a load balancer.
+
+
+
+_Appears in:_
+- [LoadBalancerStatus](#loadbalancerstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the human-readable name of the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the load balancer,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipAddress` _string_ | vipAddress is the IP address of the VIP. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipSubnetID` _string_ | vipSubnetID is the ID of the subnet on which the VIP is allocated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipNetworkID` _string_ | vipNetworkID is the ID of the network on which the VIP is allocated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `vipPortID` _string_ | vipPortID is the ID of the port for the VIP. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `provider` _string_ | provider is the name of the provider driver for the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `flavorID` _string_ | flavorID is the ID of the flavor for the load balancer. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the project owner of the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  | Optional: \{\} <br /> |
+
+
+#### LoadBalancerSpec
+
+
+
+LoadBalancerSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [LoadBalancer](#loadbalancer)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[LoadBalancerImport](#loadbalancerimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[LoadBalancerResourceSpec](#loadbalancerresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### LoadBalancerStatus
+
+
+
+LoadBalancerStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [LoadBalancer](#loadbalancer)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[LoadBalancerResourceStatus](#loadbalancerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 
 
 #### MAC
@@ -2229,6 +2394,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -2268,6 +2434,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LoadBalancerSpec](#loadbalancerspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
@@ -2461,6 +2628,8 @@ _Validation:_
 _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -2487,6 +2656,7 @@ _Appears in:_
 
 _Appears in:_
 - [FloatingIPResourceStatus](#floatingipresourcestatus)
+- [LoadBalancerResourceStatus](#loadbalancerresourcestatus)
 - [NetworkResourceStatus](#networkresourcestatus)
 - [PortResourceStatus](#portresourcestatus)
 - [SecurityGroupResourceStatus](#securitygroupresourcestatus)
@@ -2515,6 +2685,8 @@ _Appears in:_
 - [FilterByNeutronTags](#filterbyneutrontags)
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
@@ -2572,6 +2744,8 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
+- [LoadBalancerFilter](#loadbalancerfilter)
+- [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)

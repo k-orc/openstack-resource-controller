@@ -381,7 +381,7 @@ func deleteNamespace(ctx context.Context, name string) {
 // satisfy CRD validation requirements without needing a real network spec.
 // The loadbalancer finalizer is pre-added so that EnsureFinalizer (which uses
 // SSA patching) skips the patch operation in tests.
-func makeAvailableSubnet(ctx context.Context, namespace, name, subnetID string) *orcv1alpha1.Subnet {
+func makeAvailableSubnet(ctx context.Context, namespace, name, subnetID string) {
 	subnet := &orcv1alpha1.Subnet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       name,
@@ -413,7 +413,6 @@ func makeAvailableSubnet(ctx context.Context, namespace, name, subnetID string) 
 		},
 	}
 	Expect(k8sClient.Status().Update(ctx, subnet)).To(Succeed())
-	return subnet
 }
 
 // makeAvailableNetwork creates an available Network in the given namespace.
@@ -498,7 +497,7 @@ func makeAvailablePort(ctx context.Context, namespace, name, portID string) *orc
 // Uses unmanaged policy with ID import to satisfy CRD validation requirements.
 // The loadbalancer finalizer is pre-added so that EnsureFinalizer skips the
 // SSA patch operation in tests.
-func makeAvailableProject(ctx context.Context, namespace, name, projectID string) *orcv1alpha1.Project {
+func makeAvailableProject(ctx context.Context, namespace, name, projectID string) {
 	project := &orcv1alpha1.Project{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       name,
@@ -530,7 +529,6 @@ func makeAvailableProject(ctx context.Context, namespace, name, projectID string
 		},
 	}
 	Expect(k8sClient.Status().Update(ctx, project)).To(Succeed())
-	return project
 }
 
 // makeUnavailableSubnet creates a Subnet with no Available condition (not ready).
@@ -559,7 +557,7 @@ func makeUnavailableSubnet(ctx context.Context, namespace, name string) *orcv1al
 
 // makeUnavailableProject creates a Project with no Available condition (not ready).
 // Uses unmanaged policy with ID import to satisfy CRD validation requirements.
-func makeUnavailableProject(ctx context.Context, namespace, name string) *orcv1alpha1.Project {
+func makeUnavailableProject(ctx context.Context, namespace, name string) {
 	project := &orcv1alpha1.Project{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -577,7 +575,6 @@ func makeUnavailableProject(ctx context.Context, namespace, name string) *orcv1a
 		},
 	}
 	Expect(k8sClient.Create(ctx, project)).To(Succeed())
-	return project
 }
 
 // ---------------------------------------------------------------------------
@@ -607,7 +604,7 @@ var _ = Describe("CreateResource", func() {
 				lbID       = "bbbbbbbb-0000-0000-0000-000000000002"
 			)
 
-			_ = makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
+			makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
 
 			mockctrl := gomock.NewController(GinkgoT())
 			lbClient := mock.NewMockLoadBalancerClient(mockctrl)
@@ -838,8 +835,8 @@ var _ = Describe("CreateResource", func() {
 				subnetID    = "11111111-0000-0000-0000-000000000001"
 				projectName = "not-ready-project"
 			)
-			_ = makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
-			_ = makeUnavailableProject(ctx, namespace, projectName)
+			makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
+			makeUnavailableProject(ctx, namespace, projectName)
 
 			mockctrl := gomock.NewController(GinkgoT())
 			lbClient := mock.NewMockLoadBalancerClient(mockctrl)
@@ -880,8 +877,8 @@ var _ = Describe("CreateResource", func() {
 				lbID        = "44444444-0000-0000-0000-000000000004"
 			)
 
-			_ = makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
-			_ = makeAvailableProject(ctx, namespace, projectName, projectID)
+			makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
+			makeAvailableProject(ctx, namespace, projectName, projectID)
 
 			mockctrl := gomock.NewController(GinkgoT())
 			lbClient := mock.NewMockLoadBalancerClient(mockctrl)
@@ -1007,7 +1004,7 @@ var _ = Describe("ListOSResourcesForImport", func() {
 			projectID   = "55555555-0000-0000-0000-000000000005"
 		)
 
-		_ = makeAvailableProject(ctx, namespace, projectName, projectID)
+		makeAvailableProject(ctx, namespace, projectName, projectID)
 
 		mockctrl := gomock.NewController(GinkgoT())
 		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
@@ -1048,7 +1045,7 @@ var _ = Describe("ListOSResourcesForImport", func() {
 
 	It("should wait for project dependency when not available", func() {
 		const projectName = "not-ready-import-project"
-		_ = makeUnavailableProject(ctx, namespace, projectName)
+		makeUnavailableProject(ctx, namespace, projectName)
 
 		mockctrl := gomock.NewController(GinkgoT())
 		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
@@ -1081,7 +1078,7 @@ var _ = Describe("ListOSResourcesForImport", func() {
 			subnetID   = "66666666-0000-0000-0000-000000000006"
 		)
 
-		_ = makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
+		makeAvailableSubnet(ctx, namespace, subnetName, subnetID)
 
 		mockctrl := gomock.NewController(GinkgoT())
 		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
