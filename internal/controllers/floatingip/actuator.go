@@ -257,12 +257,10 @@ func (actuator floatingipActuator) CreateResource(ctx context.Context, obj *orcv
 
 	osResource, err := actuator.osClient.CreateFloatingIP(ctx, &createOpts)
 
-	// We should require the spec to be updated before retrying a create which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
-	}
-
 	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
+		}
 		return nil, progress.WrapError(err)
 	}
 	return osResource, nil
@@ -298,10 +296,10 @@ func (actuator floatingipActuator) updateResource(ctx context.Context, obj orcOb
 
 	_, err = actuator.osClient.UpdateFloatingIP(ctx, osResource.ID, updateOpts)
 
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
 	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
 		return progress.WrapError(err)
 	}
 

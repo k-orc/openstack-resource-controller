@@ -164,8 +164,8 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 
 	osResource, err := actuator.osClient.CreateSecGroup(ctx, &createOpts)
 	if err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
-		if orcerrors.IsConflict(err) {
+		// We should require the spec to be updated before retrying a create which returned a non-retryable error
+		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
 		return nil, progress.WrapError(err)
@@ -213,10 +213,10 @@ func (actuator securityGroupActuator) updateResource(ctx context.Context, obj or
 
 	_, err = actuator.osClient.UpdateSecGroup(ctx, osResource.ID, updateOpts)
 
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
 	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
 		return progress.WrapError(err)
 	}
 

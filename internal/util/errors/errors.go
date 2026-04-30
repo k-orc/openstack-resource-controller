@@ -51,15 +51,26 @@ func (e noMatchesError) Is(err error) bool {
 	return err == ErrFilterMatch
 }
 
+// IsRetryable returns true if err may succeed when retried without changes to
+// the spec. This includes HTTP error responses other than 409 Conflict, since
+// some HTTP errors (like 400 Bad Request) can be transient when a dependency
+// is not yet ready in OpenStack, and server errors (5xx) are typically
+// transient.
+//
+// Non-HTTP errors from gophercloud (e.g. client-side validation such as
+// banned value_spec keys), 409 Conflict, and 501 Not Implemented are not
+// retryable.
 func IsRetryable(err error) bool {
-	var errUnexpectedResponseCode gophercloud.ErrUnexpectedResponseCode
-	if errors.As(err, &errUnexpectedResponseCode) {
-		statusCode := errUnexpectedResponseCode.GetStatusCode()
-		return statusCode >= 500 && statusCode != http.StatusNotImplemented
+	if IsConflict(err) || IsNotImplementedError(err) {
+		return false
 	}
-	return false
+
+	var errUnexpectedResponseCode gophercloud.ErrUnexpectedResponseCode
+	return errors.As(err, &errUnexpectedResponseCode)
 }
 
+// IsNotFound returns true if err indicates the requested OpenStack resource
+// was not found (HTTP 404 or gophercloud's ErrResourceNotFound).
 func IsNotFound(err error) bool {
 	if err == nil {
 		return false
@@ -78,14 +89,17 @@ func IsNotFound(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusNotFound)
 }
 
+// IsInvalidError returns true if err is an HTTP 400 Bad Request response.
 func IsInvalidError(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusBadRequest)
 }
 
+// IsConflict returns true if err is an HTTP 409 Conflict response.
 func IsConflict(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusConflict)
 }
 
+// IsNotImplementedError returns true if err is an HTTP 501 Not Implemented response.
 func IsNotImplementedError(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusNotImplemented)
 }
