@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    subnetRef: loadbalancer-update
+    description: initial description
+    # Need to set the default value to revert it correctly in the 02-revert step.
+    adminStateUp: true
