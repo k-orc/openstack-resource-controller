@@ -53,6 +53,13 @@ func NewLoadBalancerClient(providerClient *gophercloud.ProviderClient, providerC
 	return &loadBalancerClient{client}, nil
 }
 
+// NewLoadBalancerClientFromServiceClient returns a LoadBalancerClient using
+// the given pre-configured gophercloud service client. This is intended for
+// use in tests.
+func NewLoadBalancerClientFromServiceClient(sc *gophercloud.ServiceClient) LoadBalancerClient {
+	return &loadBalancerClient{sc}
+}
+
 func (c loadBalancerClient) GetLoadBalancer(ctx context.Context, id string) (*loadbalancers.LoadBalancer, error) {
 	return loadbalancers.Get(ctx, c.client, id).Extract()
 }
