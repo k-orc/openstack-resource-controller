@@ -1782,6 +1782,14 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: trustedVIF
       type:
         scalar: boolean
+    - name: valueSpecs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortValueSpec
+          elementRelationship: associative
+          keys:
+          - key
     - name: vnicType
       type:
         scalar: string
@@ -1899,6 +1907,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortValueSpec
+  map:
+    fields:
+    - name: key
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Project
   map:
     fields:

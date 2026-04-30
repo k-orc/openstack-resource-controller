@@ -239,6 +239,15 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		return nil, reconcileStatus
 	}
 
+	var valueSpecs *map[string]string
+	if len(resource.ValueSpecs) > 0 {
+		vs := make(map[string]string, len(resource.ValueSpecs))
+		for _, valueSpec := range resource.ValueSpecs {
+			vs[valueSpec.Key] = *valueSpec.Value
+		}
+		valueSpecs = &vs
+	}
+
 	createOpts := ports.CreateOpts{
 		NetworkID:    *network.Status.ID,
 		Name:         getResourceName(obj),
@@ -246,6 +255,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		ProjectID:    projectID,
 		AdminStateUp: resource.AdminStateUp,
 		MACAddress:   resource.MACAddress,
+		ValueSpecs:   valueSpecs,
 	}
 
 	if len(resource.AllowedAddressPairs) > 0 {

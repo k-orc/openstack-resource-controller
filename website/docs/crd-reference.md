@@ -2740,6 +2740,7 @@ _Appears in:_
 | `macAddress` _string_ | macAddress is the MAC address of the port. |  | MaxLength: 32 <br />Optional: \{\} <br /> |
 | `hostID` _[HostID](#hostid)_ | hostID specifies the host where the port will be bound.<br />Note that when the port is attached to a server, OpenStack may<br />rebind the port to the server's actual compute host, which may<br />differ from the specified hostID if no matching scheduler hint<br />is used. In this case the port's status will reflect the actual<br />binding host, not the value specified here. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
 | `trustedVIF` _boolean_ | trustedVIF indicates whether the VF for the port will become<br />trusted by physical function to perform some privileged<br />operations. Only admin users can create ports with this field. |  | Optional: \{\} <br /> |
+| `valueSpecs` _[PortValueSpec](#portvaluespec) array_ | valueSpecs are extra parameters to include in the API request<br />with OpenStack. This is an extension point for the API, so what<br />they do and if they are supported, depends on the specific<br />OpenStack implementation. This was meant to work similar to the<br />property on Heat port resource. Since this depends on the<br />underlying implementation, we can't predict its fields, and<br />therefore, we don't know how to reconcile them in advance. Use<br />this field wisely and be aware of the expected behavior. |  | MaxItems: 128 <br />Optional: \{\} <br /> |
 
 
 #### PortResourceStatus
@@ -2833,6 +2834,23 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[PortResourceStatus](#portresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+
+
+#### PortValueSpec
+
+
+
+
+
+
+
+_Appears in:_
+- [PortResourceSpec](#portresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the name of the Neutron API extension parameter. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `value` _string_ | value is the value of the Neutron API extension parameter. |  | MaxLength: 255 <br />Required: \{\} <br /> |
 
 
 #### Project

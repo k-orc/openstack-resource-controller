@@ -174,6 +174,30 @@ var _ = Describe("ORC Port API validations", func() {
 		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("hostID is immutable")))
 	})
 
+	It("should not allow valueSpecs to be modified", func(ctx context.Context) {
+		port := portStub(namespace)
+		patch := basePortPatch(port)
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().
+			WithNetworkRef(networkName).
+			WithValueSpecs(applyconfigv1alpha1.PortValueSpec().WithKey("test-key").WithValue("test-value")))
+		Expect(applyObj(ctx, port, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().
+			WithNetworkRef(networkName).
+			WithValueSpecs(applyconfigv1alpha1.PortValueSpec().WithKey("test-key").WithValue("test-value-updated")))
+		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("valueSpecs is immutable")))
+	})
+
+	It("should not allow valueSpecs to have duplicate keys", func(ctx context.Context) {
+		port := portStub(namespace)
+		patch := basePortPatch(port)
+		patch.Spec.WithResource(applyconfigv1alpha1.PortResourceSpec().
+			WithNetworkRef(networkName).
+			WithValueSpecs(applyconfigv1alpha1.PortValueSpec().WithKey("test-key").WithValue("test-value-1")).
+			WithValueSpecs(applyconfigv1alpha1.PortValueSpec().WithKey("test-key").WithValue("test-value-2")))
+		Expect(applyObj(ctx, port, patch)).To(MatchError(ContainSubstring("duplicate entries for key")))
+	})
+
 	// Note: we can't create a test for when the portSecurity is set to Inherit and the securityGroupRefs are set, because
 	// the validation is done in the OpenStack API and not in the ORC API. The OpenStack API will return an error if
 	// the network has port security disabled and the port has security group references.

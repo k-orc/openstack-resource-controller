@@ -4,6 +4,11 @@
 
 Create a port using all available fields, and verify that the observed state corresponds to the spec.
 
+We're omitting the `ValueSpecs` field on purpose because we can't
+reliably test it, since the key-value pairs in this structure depend
+solely on the underlying OpenStack implementation, and thus the added
+fields are unpredictable.
+
 Also validate that the OpenStack resource uses the name from the spec when it is specified.
 
 ## Reference

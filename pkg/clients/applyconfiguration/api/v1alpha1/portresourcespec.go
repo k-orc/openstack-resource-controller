@@ -39,6 +39,7 @@ type PortResourceSpecApplyConfiguration struct {
 	MACAddress          *string                                `json:"macAddress,omitempty"`
 	HostID              *HostIDApplyConfiguration              `json:"hostID,omitempty"`
 	TrustedVIF          *bool                                  `json:"trustedVIF,omitempty"`
+	ValueSpecs          []PortValueSpecApplyConfiguration      `json:"valueSpecs,omitempty"`
 }
 
 // PortResourceSpecApplyConfiguration constructs a declarative configuration of the PortResourceSpec type for use with
@@ -170,5 +171,18 @@ func (b *PortResourceSpecApplyConfiguration) WithHostID(value *HostIDApplyConfig
 // If called multiple times, the TrustedVIF field is set to the value of the last call.
 func (b *PortResourceSpecApplyConfiguration) WithTrustedVIF(value bool) *PortResourceSpecApplyConfiguration {
 	b.TrustedVIF = &value
+	return b
+}
+
+// WithValueSpecs adds the given value to the ValueSpecs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ValueSpecs field.
+func (b *PortResourceSpecApplyConfiguration) WithValueSpecs(values ...*PortValueSpecApplyConfiguration) *PortResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithValueSpecs")
+		}
+		b.ValueSpecs = append(b.ValueSpecs, *values[i])
+	}
 	return b
 }
