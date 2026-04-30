@@ -37,6 +37,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/group"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/keypair"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/loadbalancer"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
@@ -123,6 +124,7 @@ func main() {
 		port.New(scopeFactory),
 		trunk.New(scopeFactory),
 		floatingip.New(scopeFactory),
+		loadbalancer.New(scopeFactory),
 		flavor.New(scopeFactory),
 		securitygroup.New(scopeFactory),
 		server.New(scopeFactory),
