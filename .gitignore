@@ -42,3 +42,6 @@ __pycache__/
 
 /bundle/
 bundle.Dockerfile
+
+# Forge workflow state (do not commit)
+.forge/
