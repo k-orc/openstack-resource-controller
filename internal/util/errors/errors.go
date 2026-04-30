@@ -17,6 +17,7 @@ limitations under the License.
 package errors
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -59,14 +60,33 @@ func (e noMatchesError) Is(err error) bool {
 //
 // Non-HTTP errors from gophercloud (e.g. client-side validation such as
 // banned value_spec keys), 409 Conflict, and 501 Not Implemented are not
-// retryable.
+// retryable. The exception is Neutron quota-exceeded errors, which are
+// returned as 409 but are retryable because quota can free up without spec
+// changes.
 func IsRetryable(err error) bool {
-	if IsConflict(err) || IsNotImplementedError(err) {
+	if IsConflict(err) {
+		// Neutron returns 409 for quota-exceeded errors, but these are
+		// retryable because quota can free up without spec changes.
+		return isNeutronQuotaError(err)
+	}
+
+	if IsNotImplementedError(err) {
 		return false
 	}
 
 	var errUnexpectedResponseCode gophercloud.ErrUnexpectedResponseCode
 	return errors.As(err, &errUnexpectedResponseCode)
+}
+
+// isNeutronQuotaError returns true if err is an HTTP error response whose
+// body indicates a Neutron quota-exceeded condition. Neutron returns quota
+// errors as 409 Conflict with an "OverQuota" type in the response body.
+func isNeutronQuotaError(err error) bool {
+	var errUnexpectedResponseCode gophercloud.ErrUnexpectedResponseCode
+	if !errors.As(err, &errUnexpectedResponseCode) {
+		return false
+	}
+	return bytes.Contains(errUnexpectedResponseCode.Body, []byte("OverQuota"))
 }
 
 // IsNotFound returns true if err indicates the requested OpenStack resource
