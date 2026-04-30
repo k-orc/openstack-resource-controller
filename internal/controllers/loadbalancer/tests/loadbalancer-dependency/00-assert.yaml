@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Subnet/loadbalancer-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Subnet/loadbalancer-dependency to be created
+      status: "True"
+      reason: Progressing

@@ -1,0 +1,41 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: loadbalancer-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-dependency
+      ref: loadbalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: loadbalancer-dependency
+      ref: subnet
+assertAll:
+    - celExpr: "loadbalancer.status.id != ''"
+    - celExpr: "loadbalancer.status.resource.vipSubnetID == subnet.status.id"
