@@ -134,7 +134,7 @@ func TestGetLoadBalancer_Success(t *testing.T) {
 			t.Errorf("expected token %q, got %q", lbTokenID, r.Header.Get("X-Auth-Token"))
 		}
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, lbSingleBody)
+		_, _ = fmt.Fprint(w, lbSingleBody)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -164,7 +164,7 @@ func TestGetLoadBalancer_NotFound(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers/"+lbID, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, `{"itemNotFound": {"message": "Load balancer not found", "code": 404}}`)
+		_, _ = fmt.Fprint(w, `{"itemNotFound": {"message": "Load balancer not found", "code": 404}}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -185,7 +185,7 @@ func TestGetLoadBalancer_ServerError(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers/"+lbID, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, `{"error": {"message": "Internal server error", "code": 500}}`)
+		_, _ = fmt.Fprint(w, `{"error": {"message": "Internal server error", "code": 500}}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -234,7 +234,7 @@ func TestCreateLoadBalancer_Success(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, lbSingleBody)
+		_, _ = fmt.Fprint(w, lbSingleBody)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -285,7 +285,7 @@ func TestCreateLoadBalancer_WithVipNetworkID(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, lbSingleBody)
+		_, _ = fmt.Fprint(w, lbSingleBody)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -341,7 +341,7 @@ func TestCreateLoadBalancer_WithAllParameters(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprint(w, lbSingleBody)
+		_, _ = fmt.Fprint(w, lbSingleBody)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -375,7 +375,7 @@ func TestCreateLoadBalancer_Conflict(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusConflict)
-		fmt.Fprint(w, `{"NeutronError": {"message": "Quota exceeded for loadbalancers", "code": 409}}`)
+		_, _ = fmt.Fprint(w, `{"NeutronError": {"message": "Quota exceeded for loadbalancers", "code": 409}}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -419,7 +419,7 @@ func TestUpdateLoadBalancer_Success(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, lbUpdatedBody)
+		_, _ = fmt.Fprint(w, lbUpdatedBody)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -453,7 +453,7 @@ func TestUpdateLoadBalancer_NotFound(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers/"+lbID, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, `{"itemNotFound": {"message": "Load balancer not found", "code": 404}}`)
+		_, _ = fmt.Fprint(w, `{"itemNotFound": {"message": "Load balancer not found", "code": 404}}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -530,7 +530,7 @@ func TestDeleteLoadBalancer_NotFound(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers/"+lbID, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, `{"itemNotFound": {"message": "Load balancer not found", "code": 404}}`)
+		_, _ = fmt.Fprint(w, `{"itemNotFound": {"message": "Load balancer not found", "code": 404}}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -551,7 +551,7 @@ func TestDeleteLoadBalancer_Conflict(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers/"+lbID, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusConflict)
-		fmt.Fprint(w, `{"NeutronError": {"message": "Load balancer is in use", "code": 409}}`)
+		_, _ = fmt.Fprint(w, `{"NeutronError": {"message": "Load balancer is in use", "code": 409}}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -599,7 +599,7 @@ func TestListLoadBalancer_Success(t *testing.T) {
 			t.Errorf("expected token %q, got %q", lbTokenID, r.Header.Get("X-Auth-Token"))
 		}
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, lbListBody)
+		_, _ = fmt.Fprint(w, lbListBody)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -633,7 +633,7 @@ func TestListLoadBalancer_Empty(t *testing.T) {
 
 	mux.HandleFunc("/lbaas/loadbalancers", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, `{"loadbalancers": []}`)
+		_, _ = fmt.Fprint(w, `{"loadbalancers": []}`)
 	})
 
 	client := newLBTestClient(server.URL)
@@ -662,7 +662,7 @@ func TestListLoadBalancer_WithFilter(t *testing.T) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		// Return only the matching lb
-		fmt.Fprint(w, `{"loadbalancers": [{
+		_, _ = fmt.Fprint(w, `{"loadbalancers": [{
 			"id": "36e08a3e-a78f-4b40-a229-1e7e23eee1ab",
 			"name": "test-lb",
 			"provisioning_status": "ACTIVE",
@@ -699,7 +699,7 @@ func TestListLoadBalancer_Pagination(t *testing.T) {
 		switch marker {
 		case "":
 			// First page: return 2 lbs with a next link
-			fmt.Fprintf(w, `{
+			_, _ = fmt.Fprintf(w, `{
 				"loadbalancers": [
 					{"id": "c331058c-6a40-4144-948e-b9fb1df9db4b", "name": "web-lb", "admin_state_up": true},
 					{"id": "36e08a3e-a78f-4b40-a229-1e7e23eee1ab", "name": "test-lb", "admin_state_up": true}
@@ -710,7 +710,7 @@ func TestListLoadBalancer_Pagination(t *testing.T) {
 			}`, server.URL)
 		case "36e08a3e-a78f-4b40-a229-1e7e23eee1ab":
 			// Second page: empty
-			fmt.Fprint(w, `{"loadbalancers": []}`)
+			_, _ = fmt.Fprint(w, `{"loadbalancers": []}`)
 		default:
 			t.Errorf("unexpected marker: %q", marker)
 			w.WriteHeader(http.StatusBadRequest)
@@ -739,7 +739,7 @@ func TestListLoadBalancer_IterationBreak(t *testing.T) {
 	mux.HandleFunc("/lbaas/loadbalancers", func(w http.ResponseWriter, r *http.Request) {
 		called++
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, lbListBody)
+		_, _ = fmt.Fprint(w, lbListBody)
 	})
 
 	client := newLBTestClient(server.URL)
