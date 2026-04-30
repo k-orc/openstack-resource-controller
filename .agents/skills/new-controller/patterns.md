@@ -86,17 +86,22 @@ Distinguish between errors that can be retried vs those requiring user action.
 | **Terminal** | Invalid configuration, bad input, permission denied | No retry until spec changes |
 
 ```go
-// Terminal: User must fix the spec
-if !orcerrors.IsRetryable(err) {
-    err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-        "invalid configuration: "+err.Error(), err)
+// Terminal on create: User must fix the spec
+if err != nil {
+    if !orcerrors.IsRetryable(err) {
+        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+            "invalid configuration creating resource: "+err.Error(), err)
+    }
+    return nil, progress.WrapError(err)
 }
 
-// Conflict on update: Treat as terminal (spec likely conflicts with existing state)
-// unless resource has intermediate states that could cause transient conflicts
-if orcerrors.IsConflict(err) {
-    err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-        "invalid configuration updating resource: "+err.Error(), err)
+// Terminal on update: Treat as terminal (spec likely conflicts with existing state)
+if err != nil {
+    if !orcerrors.IsRetryable(err) {
+        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+            "invalid configuration updating resource: "+err.Error(), err)
+    }
+    return progress.WrapError(err)
 }
 ```
 

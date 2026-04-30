@@ -89,15 +89,17 @@ reconcileStatus.WithProgressMessage("waiting...") // Add progress message
 ### Error Classification
 
 - **Transient errors** (5xx, API unavailable): Default handling with exponential backoff
-- **Terminal errors** (400, invalid config): Wrap with `orcerrors.Terminal()` - no retry
+- **Non-recoverable errors** (409 Conflict, non-HTTP gophercloud errors): Wrap with `orcerrors.Terminal()` - no retry
 
 ```go
-// Terminal error example
-if !orcerrors.IsRetryable(err) {
-    err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-        "invalid configuration: "+err.Error(), err)
+// Non-recoverable error example
+if err != nil {
+    if !orcerrors.IsRetryable(err) {
+        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+            "invalid configuration: "+err.Error(), err)
+    }
+    return nil, progress.WrapError(err)
 }
-return nil, progress.WrapError(err)
 ```
 
 ## Dependencies

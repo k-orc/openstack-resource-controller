@@ -454,10 +454,10 @@ func (actuator serverActuator) updateResource(ctx context.Context, obj orcObject
 
 	_, err = actuator.osClient.UpdateServer(ctx, osResource.ID, updateOpts)
 
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
 	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
 		return progress.WrapError(err)
 	}
 
