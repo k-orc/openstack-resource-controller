@@ -38,13 +38,20 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif"
+        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,o-api,o-cw,o-hm,o-hk"
         conf_overrides: |
           enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
+          enable_plugin octavia https://github.com/openstack/octavia ${{ matrix.openstack_version }}
 
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
+
+          [[post-config|/etc/octavia/octavia.conf]]
+          [controller_worker]
+          amphora_driver = amphora_noop_driver
+          compute_driver = compute_noop_driver
+          network_driver = network_noop_driver
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # tag=v1.14.0
