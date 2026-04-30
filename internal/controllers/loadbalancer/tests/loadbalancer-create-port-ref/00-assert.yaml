@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: loadbalancer-create-port-ref
+status:
+  resource:
+    adminStateUp: true
+    provisioningStatus: ACTIVE
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: LoadBalancer
+      name: loadbalancer-create-port-ref
+      ref: loadbalancer
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: loadbalancer-create-port-ref
+      ref: port
+assertAll:
+    - celExpr: "loadbalancer.status.id != ''"
+    - celExpr: "loadbalancer.status.resource.vipPortID == port.status.id"
