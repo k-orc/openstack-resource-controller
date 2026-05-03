@@ -20,6 +20,9 @@ jobs:
           - name: "flamingo"
             openstack_version: "stable/2025.2"
             ubuntu_version: "24.04"
+            devstack_conf_overrides: |
+              LIBVIRT_CPU_MODE=host-passthrough
+              OCTAVIA_AMP_DISTRIBUTION_RELEASE_ID=jammy
           - name: "epoxy"
             openstack_version: "stable/2025.1"
             ubuntu_version: "24.04"
@@ -33,30 +36,42 @@ jobs:
       with:
         persist-credentials: false
 
+    - name: Enable KVM access
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
     - name: Deploy devstack
       uses: gophercloud/devstack-action@60ca1042045c0c9e3e001c64575d381654ffcba1 # tag=v0.19
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,o-api,o-cw,o-hm,o-hk"
+        enabled_services: "openstack-cli-server,neutron-trunk,octavia,o-api,o-cw,o-hm,o-hk,o-da,neutron-port-trusted-vif"
         conf_overrides: |
-          enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
+          ${{ matrix.devstack_conf_overrides }}
           enable_plugin octavia https://github.com/openstack/octavia ${{ matrix.openstack_version }}
+          enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
 
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
-
-          [[post-config|/etc/octavia/octavia.conf]]
-          [controller_worker]
-          amphora_driver = amphora_noop_driver
-          compute_driver = compute_noop_driver
-          network_driver = network_noop_driver
+          [quota]
+          instances = 50
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # tag=v1.14.0
       with:
         cluster_name: orc
+
+    - name: Calculate go version
+      id: vars
+      run: echo "go_version=$(make go-version)" >> $GITHUB_OUTPUT
+
+    - name: Set up Go
+      uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # tag=v6.1.0
+      with:
+        go-version: ${{ steps.vars.outputs.go_version }}
 
     - name: Build and push a container image to Kind
       run: |
