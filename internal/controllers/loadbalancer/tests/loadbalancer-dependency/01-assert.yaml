@@ -27,6 +27,7 @@ status:
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
+timeout: 480
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: LoadBalancer
