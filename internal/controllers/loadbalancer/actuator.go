@@ -318,6 +318,7 @@ func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orc
 		VipPortID:    vipPortID,
 		ProjectID:    projectID,
 		AdminStateUp: resource.AdminStateUp,
+		FlavorID:     string(ptr.Deref(resource.Flavor, "")),
 		Provider:     ptr.Deref(resource.Provider, ""),
 	}
 
