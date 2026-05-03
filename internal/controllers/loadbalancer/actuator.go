@@ -400,9 +400,6 @@ func (actuator loadbalancerActuator) updateResource(ctx context.Context, obj orc
 	}
 
 	_, err = actuator.osClient.UpdateLoadBalancer(ctx, osResource.ID, updateOpts)
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
 	if err != nil {
 		return progress.WrapError(err)
 	}

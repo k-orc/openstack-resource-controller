@@ -35,3 +35,5 @@ spec:
   managementPolicy: managed
   resource:
     networkRef: loadbalancer-create-port-ref
+    addresses:
+      - subnetRef: loadbalancer-create-port-ref
