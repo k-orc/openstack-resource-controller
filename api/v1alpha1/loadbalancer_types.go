@@ -54,6 +54,28 @@ type LoadBalancerFilter struct {
 	// +kubebuilder:validation:MaxLength:=255
 	Provider *string `json:"provider,omitempty"`
 
+	// adminStateUp filters load balancers by administrative state.
+	// +optional
+	AdminStateUp *bool `json:"adminStateUp,omitempty"`
+
+	// operatingStatus filters load balancers by operating status.
+	// Possible values: ONLINE, DRAINING, OFFLINE, DEGRADED, ERROR, NO_MONITOR.
+	// +optional
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=64
+	OperatingStatus *string `json:"operatingStatus,omitempty"`
+
+	// provisioningStatus filters load balancers by provisioning status.
+	// Possible values: ACTIVE, DELETED, ERROR, PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE.
+	// +optional
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=64
+	ProvisioningStatus *string `json:"provisioningStatus,omitempty"`
+
+	// flavorRef is a reference to the ORC Flavor used for the load balancer.
+	// +optional
+	FlavorRef *KubernetesNameRef `json:"flavorRef,omitempty"`
+
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional

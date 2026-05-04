@@ -2229,6 +2229,10 @@ _Appears in:_
 | `vipAddress` _[IPvAny](#ipvany)_ | vipAddress is the IP address of the VIP. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `availabilityZone` _string_ | availabilityZone is the availability zone of the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `provider` _string_ | provider is the name of the provider driver for the load balancer. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp filters load balancers by administrative state. |  | Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus filters load balancers by operating status.<br />Possible values: ONLINE, DRAINING, OFFLINE, DEGRADED, ERROR, NO_MONITOR. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus filters load balancers by provisioning status.<br />Possible values: ACTIVE, DELETED, ERROR, PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef is a reference to the ORC Flavor used for the load balancer. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |

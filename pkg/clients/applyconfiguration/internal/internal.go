@@ -1438,10 +1438,16 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerFilter
   map:
     fields:
+    - name: adminStateUp
+      type:
+        scalar: boolean
     - name: availabilityZone
       type:
         scalar: string
     - name: description
+      type:
+        scalar: string
+    - name: flavorRef
       type:
         scalar: string
     - name: name
@@ -1459,10 +1465,16 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: operatingStatus
+      type:
+        scalar: string
     - name: projectRef
       type:
         scalar: string
     - name: provider
+      type:
+        scalar: string
+    - name: provisioningStatus
       type:
         scalar: string
     - name: tags

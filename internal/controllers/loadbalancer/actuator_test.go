@@ -531,6 +531,63 @@ func makeAvailableProject(ctx context.Context, namespace, name, projectID string
 	Expect(k8sClient.Status().Update(ctx, project)).To(Succeed())
 }
 
+// makeAvailableFlavor creates an available Flavor in the given namespace.
+// Uses unmanaged policy with ID import to satisfy CRD validation requirements.
+func makeAvailableFlavor(ctx context.Context, namespace, name, flavorID string) {
+	flavor := &orcv1alpha1.Flavor{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: orcv1alpha1.FlavorSpec{
+			CloudCredentialsRef: orcv1alpha1.CloudCredentialsReference{
+				SecretName: "credentials",
+				CloudName:  "openstack",
+			},
+			ManagementPolicy: orcv1alpha1.ManagementPolicyUnmanaged,
+			Import: &orcv1alpha1.FlavorImport{
+				ID: ptr.To(flavorID),
+			},
+		},
+	}
+	Expect(k8sClient.Create(ctx, flavor)).To(Succeed())
+
+	flavor.Status = orcv1alpha1.FlavorStatus{
+		ID: ptr.To(flavorID),
+		Conditions: []metav1.Condition{
+			{
+				Type:               orcv1alpha1.ConditionAvailable,
+				Status:             metav1.ConditionTrue,
+				Reason:             orcv1alpha1.ConditionReasonSuccess,
+				LastTransitionTime: metav1.Now(),
+			},
+		},
+	}
+	Expect(k8sClient.Status().Update(ctx, flavor)).To(Succeed())
+}
+
+// makeUnavailableFlavor creates a Flavor with no Available condition (not ready).
+// Uses unmanaged policy with ID import to satisfy CRD validation requirements.
+func makeUnavailableFlavor(ctx context.Context, namespace, name string) {
+	flavor := &orcv1alpha1.Flavor{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: orcv1alpha1.FlavorSpec{
+			CloudCredentialsRef: orcv1alpha1.CloudCredentialsReference{
+				SecretName: "credentials",
+				CloudName:  "openstack",
+			},
+			ManagementPolicy: orcv1alpha1.ManagementPolicyUnmanaged,
+			Import: &orcv1alpha1.FlavorImport{
+				ID: ptr.To("cccccccc-0000-0000-0000-000000000000"),
+			},
+		},
+	}
+	Expect(k8sClient.Create(ctx, flavor)).To(Succeed())
+}
+
 // makeUnavailableSubnet creates a Subnet with no Available condition (not ready).
 // makeUnavailableSubnet creates a Subnet with no Available condition (not ready).
 // Uses unmanaged policy with ID import to satisfy CRD validation requirements.
@@ -1274,5 +1331,194 @@ var _ = Describe("ListOSResourcesForImport", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(needsReschedule).To(BeFalse())
 		Expect(capturedListOpts.VipAddress).To(Equal("192.168.1.50"))
+	})
+
+	It("should pass adminStateUp to list opts", func() {
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-admin-state-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			AdminStateUp: ptr.To(false),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.AdminStateUp).ToNot(BeNil())
+		Expect(*capturedListOpts.AdminStateUp).To(BeFalse())
+	})
+
+	It("should pass operatingStatus to list opts", func() {
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-operating-status-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			OperatingStatus: ptr.To("ONLINE"),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.OperatingStatus).To(Equal("ONLINE"))
+	})
+
+	It("should pass provisioningStatus to list opts", func() {
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-prov-status-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			ProvisioningStatus: ptr.To("ACTIVE"),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.ProvisioningStatus).To(Equal("ACTIVE"))
+	})
+
+	It("should resolve flavorRef and pass flavor ID to list opts", func() {
+		const (
+			flavorName = "import-filter-flavor"
+			flavorID   = "88888888-0000-0000-0000-000000000008"
+		)
+
+		makeAvailableFlavor(ctx, namespace, flavorName, flavorID)
+
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-flavor-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			FlavorRef: ptr.To[orcv1alpha1.KubernetesNameRef](orcv1alpha1.KubernetesNameRef(flavorName)),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.FlavorID).To(Equal(flavorID))
+	})
+
+	It("should wait for flavorRef dependency when not available", func() {
+		const flavorName = "not-ready-import-flavor"
+		makeUnavailableFlavor(ctx, namespace, flavorName)
+
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+		// No ListLoadBalancer call expected
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-wait-flavor",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			FlavorRef: ptr.To[orcv1alpha1.KubernetesNameRef](orcv1alpha1.KubernetesNameRef(flavorName)),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, _ := rs.NeedsReschedule()
+		Expect(needsReschedule).To(BeTrue(), "expected reschedule while waiting on flavor dependency")
 	})
 })

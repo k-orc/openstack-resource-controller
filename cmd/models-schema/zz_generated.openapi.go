@@ -5237,6 +5237,34 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerFilter(ref
 							Format:      "",
 						},
 					},
+					"adminStateUp": {
+						SchemaProps: spec.SchemaProps{
+							Description: "adminStateUp filters load balancers by administrative state.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"operatingStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "operatingStatus filters load balancers by operating status. Possible values: ONLINE, DRAINING, OFFLINE, DEGRADED, ERROR, NO_MONITOR.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provisioningStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provisioningStatus filters load balancers by provisioning status. Possible values: ACTIVE, DELETED, ERROR, PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"flavorRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "flavorRef is a reference to the ORC Flavor used for the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",

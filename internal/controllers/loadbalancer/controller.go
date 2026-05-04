@@ -93,6 +93,11 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 		return err
 	}
 
+	flavorImportWatchEventHandler, err := flavorImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		For(&orcv1alpha1.LoadBalancer{}).
@@ -123,6 +128,9 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Project{}, projectImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		).
+		Watches(&orcv1alpha1.Flavor{}, flavorImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
 		)
 
 	if err := errors.Join(
@@ -134,6 +142,7 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 		portImportDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
+		flavorImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, k8sClient, builder, credentialsDependency),
 	); err != nil {

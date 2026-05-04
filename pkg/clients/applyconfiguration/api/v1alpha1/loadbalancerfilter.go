@@ -33,6 +33,10 @@ type LoadBalancerFilterApplyConfiguration struct {
 	VIPAddress                            *apiv1alpha1.IPvAny             `json:"vipAddress,omitempty"`
 	AvailabilityZone                      *string                         `json:"availabilityZone,omitempty"`
 	Provider                              *string                         `json:"provider,omitempty"`
+	AdminStateUp                          *bool                           `json:"adminStateUp,omitempty"`
+	OperatingStatus                       *string                         `json:"operatingStatus,omitempty"`
+	ProvisioningStatus                    *string                         `json:"provisioningStatus,omitempty"`
+	FlavorRef                             *apiv1alpha1.KubernetesNameRef  `json:"flavorRef,omitempty"`
 	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
@@ -104,6 +108,38 @@ func (b *LoadBalancerFilterApplyConfiguration) WithAvailabilityZone(value string
 // If called multiple times, the Provider field is set to the value of the last call.
 func (b *LoadBalancerFilterApplyConfiguration) WithProvider(value string) *LoadBalancerFilterApplyConfiguration {
 	b.Provider = &value
+	return b
+}
+
+// WithAdminStateUp sets the AdminStateUp field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AdminStateUp field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithAdminStateUp(value bool) *LoadBalancerFilterApplyConfiguration {
+	b.AdminStateUp = &value
+	return b
+}
+
+// WithOperatingStatus sets the OperatingStatus field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the OperatingStatus field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithOperatingStatus(value string) *LoadBalancerFilterApplyConfiguration {
+	b.OperatingStatus = &value
+	return b
+}
+
+// WithProvisioningStatus sets the ProvisioningStatus field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProvisioningStatus field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithProvisioningStatus(value string) *LoadBalancerFilterApplyConfiguration {
+	b.ProvisioningStatus = &value
+	return b
+}
+
+// WithFlavorRef sets the FlavorRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the FlavorRef field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithFlavorRef(value apiv1alpha1.KubernetesNameRef) *LoadBalancerFilterApplyConfiguration {
+	b.FlavorRef = &value
 	return b
 }
 

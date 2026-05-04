@@ -91,6 +91,10 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      adminStateUp:
+                        description: adminStateUp filters load balancers by administrative
+                          state.
+                        type: boolean
                       availabilityZone:
                         description: availabilityZone is the availability zone of
                           the load balancer.
@@ -99,6 +103,12 @@ spec:
                       description:
                         description: description of the existing resource
                         maxLength: 255
+                        minLength: 1
+                        type: string
+                      flavorRef:
+                        description: flavorRef is a reference to the ORC Flavor used
+                          for the load balancer.
+                        maxLength: 253
                         minLength: 1
                         type: string
                       name:
@@ -135,6 +145,13 @@ spec:
                         maxItems: 64
                         type: array
                         x-kubernetes-list-type: set
+                      operatingStatus:
+                        description: |-
+                          operatingStatus filters load balancers by operating status.
+                          Possible values: ONLINE, DRAINING, OFFLINE, DEGRADED, ERROR, NO_MONITOR.
+                        maxLength: 64
+                        minLength: 1
+                        type: string
                       projectRef:
                         description: |-
                           projectRef is a reference to the ORC Project this resource is associated with.
@@ -146,6 +163,13 @@ spec:
                         description: provider is the name of the provider driver for
                           the load balancer.
                         maxLength: 255
+                        minLength: 1
+                        type: string
+                      provisioningStatus:
+                        description: |-
+                          provisioningStatus filters load balancers by provisioning status.
+                          Possible values: ACTIVE, DELETED, ERROR, PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE.
+                        maxLength: 64
                         minLength: 1
                         type: string
                       tags:

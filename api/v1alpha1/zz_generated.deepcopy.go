@@ -2840,6 +2840,26 @@ func (in *LoadBalancerFilter) DeepCopyInto(out *LoadBalancerFilter) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.AdminStateUp != nil {
+		in, out := &in.AdminStateUp, &out.AdminStateUp
+		*out = new(bool)
+		**out = **in
+	}
+	if in.OperatingStatus != nil {
+		in, out := &in.OperatingStatus, &out.OperatingStatus
+		*out = new(string)
+		**out = **in
+	}
+	if in.ProvisioningStatus != nil {
+		in, out := &in.ProvisioningStatus, &out.ProvisioningStatus
+		*out = new(string)
+		**out = **in
+	}
+	if in.FlavorRef != nil {
+		in, out := &in.FlavorRef, &out.FlavorRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
 	if in.ProjectRef != nil {
 		in, out := &in.ProjectRef, &out.ProjectRef
 		*out = new(KubernetesNameRef)

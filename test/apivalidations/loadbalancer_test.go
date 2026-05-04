@@ -301,4 +301,67 @@ var _ = Describe("ORC LoadBalancer API validations", func() {
 				WithVIPAddress("192.168.1.100")))
 		Expect(applyObj(ctx, lb, patch)).To(Succeed())
 	})
+
+	It("should accept filter with adminStateUp=true", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithAdminStateUp(true)))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should accept filter with adminStateUp=false", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithAdminStateUp(false)))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should accept filter with operatingStatus", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithOperatingStatus("ONLINE")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should reject filter with empty operatingStatus", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithOperatingStatus("")))
+		Expect(applyObj(ctx, lb, patch)).To(MatchError(ContainSubstring("spec.import.filter.operatingStatus")))
+	})
+
+	It("should accept filter with provisioningStatus", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithProvisioningStatus("ACTIVE")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should reject filter with empty provisioningStatus", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithProvisioningStatus("")))
+		Expect(applyObj(ctx, lb, patch)).To(MatchError(ContainSubstring("spec.import.filter.provisioningStatus")))
+	})
+
+	It("should accept filter with flavorRef", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithFlavorRef("my-flavor")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
 })
