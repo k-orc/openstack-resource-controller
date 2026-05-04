@@ -2825,6 +2825,21 @@ func (in *LoadBalancerFilter) DeepCopyInto(out *LoadBalancerFilter) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
+	if in.VIPPortRef != nil {
+		in, out := &in.VIPPortRef, &out.VIPPortRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
+	if in.VIPAddress != nil {
+		in, out := &in.VIPAddress, &out.VIPAddress
+		*out = new(IPvAny)
+		**out = **in
+	}
+	if in.Provider != nil {
+		in, out := &in.Provider, &out.Provider
+		*out = new(string)
+		**out = **in
+	}
 	if in.ProjectRef != nil {
 		in, out := &in.ProjectRef, &out.ProjectRef
 		*out = new(KubernetesNameRef)

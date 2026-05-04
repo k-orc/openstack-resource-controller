@@ -256,4 +256,49 @@ var _ = Describe("ORC LoadBalancer API validations", func() {
 			WithTags("foo", "bar", "foo"))
 		Expect(applyObj(ctx, lb, patch)).NotTo(Succeed())
 	})
+
+	It("should accept filter with vipPortRef", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithVIPPortRef("my-port")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should accept filter with availabilityZone", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithAvailabilityZone("us-east-1a")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should accept filter with provider", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithProvider("amphora")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
+
+	It("should reject filter provider with empty string", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithProvider("")))
+		Expect(applyObj(ctx, lb, patch)).To(MatchError(ContainSubstring("spec.import.filter.provider")))
+	})
+
+	It("should accept filter with vipAddress", func(ctx context.Context) {
+		lb := loadBalancerStub(namespace)
+		patch := baseLoadBalancerPatch(lb)
+		patch.Spec.WithImport(applyconfigv1alpha1.LoadBalancerImport().
+			WithFilter(applyconfigv1alpha1.LoadBalancerFilter().
+				WithVIPAddress("192.168.1.100")))
+		Expect(applyObj(ctx, lb, patch)).To(Succeed())
+	})
 })

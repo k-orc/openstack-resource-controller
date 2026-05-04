@@ -1116,4 +1116,163 @@ var _ = Describe("ListOSResourcesForImport", func() {
 		Expect(needsReschedule).To(BeFalse())
 		Expect(capturedListOpts.VipSubnetID).To(Equal(subnetID))
 	})
+
+	It("should resolve vipPortRef dependency and pass port ID to list opts", func() {
+		const (
+			portName = "import-filter-port"
+			portID   = "77777777-0000-0000-0000-000000000007"
+		)
+
+		_ = makeAvailablePort(ctx, namespace, portName, portID)
+
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-port-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			VIPPortRef: ptr.To[orcv1alpha1.KubernetesNameRef](orcv1alpha1.KubernetesNameRef(portName)),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.VipPortID).To(Equal(portID))
+	})
+
+	It("should pass availabilityZone to list opts", func() {
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-az-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			AvailabilityZone: "us-east-1a",
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.AvailabilityZone).To(Equal("us-east-1a"))
+	})
+
+	It("should pass provider to list opts", func() {
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-provider-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			Provider: ptr.To("amphora"),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.Provider).To(Equal("amphora"))
+	})
+
+	It("should pass vipAddress to list opts", func() {
+		mockctrl := gomock.NewController(GinkgoT())
+		lbClient := mock.NewMockLoadBalancerClient(mockctrl)
+
+		var capturedListOpts loadbalancers.ListOpts
+		lbClient.EXPECT().
+			ListLoadBalancer(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, opts loadbalancers.ListOptsBuilder) iter.Seq2[*loadbalancers.LoadBalancer, error] {
+				lo, ok := opts.(loadbalancers.ListOpts)
+				if ok {
+					capturedListOpts = lo
+				}
+				return func(yield func(*loadbalancers.LoadBalancer, error) bool) {}
+			})
+
+		actuator := loadbalancerActuator{
+			osClient:  lbClient,
+			k8sClient: k8sClient,
+		}
+
+		orcLB := &orcv1alpha1.LoadBalancer{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-import-lb-vip-address-filter",
+				Namespace: namespace,
+			},
+		}
+
+		filter := orcv1alpha1.LoadBalancerFilter{
+			VIPAddress: ptr.To[orcv1alpha1.IPvAny]("192.168.1.50"),
+		}
+
+		_, rs := actuator.ListOSResourcesForImport(ctx, orcLB, filter)
+		needsReschedule, err := rs.NeedsReschedule()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(needsReschedule).To(BeFalse())
+		Expect(capturedListOpts.VipAddress).To(Equal("192.168.1.50"))
+	})
 })

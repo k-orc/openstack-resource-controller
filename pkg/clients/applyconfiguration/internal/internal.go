@@ -1438,6 +1438,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LoadBalancerFilter
   map:
     fields:
+    - name: availabilityZone
+      type:
+        scalar: string
     - name: description
       type:
         scalar: string
@@ -1459,6 +1462,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: provider
+      type:
+        scalar: string
     - name: tags
       type:
         list:
@@ -1471,7 +1477,13 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: associative
+    - name: vipAddress
+      type:
+        scalar: string
     - name: vipNetworkRef
+      type:
+        scalar: string
+    - name: vipPortRef
       type:
         scalar: string
     - name: vipSubnetRef

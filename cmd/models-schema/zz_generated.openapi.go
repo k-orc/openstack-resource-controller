@@ -5209,6 +5209,34 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LoadBalancerFilter(ref
 							Format:      "",
 						},
 					},
+					"vipPortRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipPortRef is a reference to the ORC Port used as the VIP port for the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vipAddress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vipAddress is the IP address of the VIP.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"availabilityZone": {
+						SchemaProps: spec.SchemaProps{
+							Description: "availabilityZone is the availability zone of the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Description: "provider is the name of the provider driver for the load balancer.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",

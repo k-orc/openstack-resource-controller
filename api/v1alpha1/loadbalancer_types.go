@@ -35,6 +35,25 @@ type LoadBalancerFilter struct {
 	// +optional
 	VIPNetworkRef *KubernetesNameRef `json:"vipNetworkRef,omitempty"`
 
+	// vipPortRef is a reference to the ORC Port used as the VIP port for the load balancer.
+	// +optional
+	VIPPortRef *KubernetesNameRef `json:"vipPortRef,omitempty"`
+
+	// vipAddress is the IP address of the VIP.
+	// +optional
+	VIPAddress *IPvAny `json:"vipAddress,omitempty"`
+
+	// availabilityZone is the availability zone of the load balancer.
+	// +optional
+	// +kubebuilder:validation:MaxLength=255
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+
+	// provider is the name of the provider driver for the load balancer.
+	// +optional
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	Provider *string `json:"provider,omitempty"`
+
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional

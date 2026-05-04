@@ -1535,6 +1535,7 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
+- [LoadBalancerFilter](#loadbalancerfilter)
 - [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetGateway](#subnetgateway)
@@ -2224,6 +2225,10 @@ _Appears in:_
 | `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `vipSubnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipSubnetRef is a reference to the ORC Subnet on which the VIP is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `vipNetworkRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipNetworkRef is a reference to the ORC Network on which the VIP is allocated. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipPortRef` _[KubernetesNameRef](#kubernetesnameref)_ | vipPortRef is a reference to the ORC Port used as the VIP port for the load balancer. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `vipAddress` _[IPvAny](#ipvany)_ | vipAddress is the IP address of the VIP. |  | MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `availabilityZone` _string_ | availabilityZone is the availability zone of the load balancer. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `provider` _string_ | provider is the name of the provider driver for the load balancer. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |

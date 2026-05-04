@@ -29,6 +29,10 @@ type LoadBalancerFilterApplyConfiguration struct {
 	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
 	VIPSubnetRef                          *apiv1alpha1.KubernetesNameRef  `json:"vipSubnetRef,omitempty"`
 	VIPNetworkRef                         *apiv1alpha1.KubernetesNameRef  `json:"vipNetworkRef,omitempty"`
+	VIPPortRef                            *apiv1alpha1.KubernetesNameRef  `json:"vipPortRef,omitempty"`
+	VIPAddress                            *apiv1alpha1.IPvAny             `json:"vipAddress,omitempty"`
+	AvailabilityZone                      *string                         `json:"availabilityZone,omitempty"`
+	Provider                              *string                         `json:"provider,omitempty"`
 	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
 	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
@@ -68,6 +72,38 @@ func (b *LoadBalancerFilterApplyConfiguration) WithVIPSubnetRef(value apiv1alpha
 // If called multiple times, the VIPNetworkRef field is set to the value of the last call.
 func (b *LoadBalancerFilterApplyConfiguration) WithVIPNetworkRef(value apiv1alpha1.KubernetesNameRef) *LoadBalancerFilterApplyConfiguration {
 	b.VIPNetworkRef = &value
+	return b
+}
+
+// WithVIPPortRef sets the VIPPortRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the VIPPortRef field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithVIPPortRef(value apiv1alpha1.KubernetesNameRef) *LoadBalancerFilterApplyConfiguration {
+	b.VIPPortRef = &value
+	return b
+}
+
+// WithVIPAddress sets the VIPAddress field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the VIPAddress field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithVIPAddress(value apiv1alpha1.IPvAny) *LoadBalancerFilterApplyConfiguration {
+	b.VIPAddress = &value
+	return b
+}
+
+// WithAvailabilityZone sets the AvailabilityZone field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the AvailabilityZone field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithAvailabilityZone(value string) *LoadBalancerFilterApplyConfiguration {
+	b.AvailabilityZone = &value
+	return b
+}
+
+// WithProvider sets the Provider field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Provider field is set to the value of the last call.
+func (b *LoadBalancerFilterApplyConfiguration) WithProvider(value string) *LoadBalancerFilterApplyConfiguration {
+	b.Provider = &value
 	return b
 }
 

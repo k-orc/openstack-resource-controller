@@ -83,6 +83,11 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 		return err
 	}
 
+	portImportWatchEventHandler, err := portImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	projectImportWatchEventHandler, err := projectImportDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -108,6 +113,10 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 		Watches(&orcv1alpha1.Port{}, vipPortWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Port{}, portImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
+		).
 		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
 		).
@@ -122,6 +131,7 @@ func (c loadbalancerReconcilerConstructor) SetupWithManager(ctx context.Context,
 		networkDependency.AddToManager(ctx, mgr),
 		networkImportDependency.AddToManager(ctx, mgr),
 		portDependency.AddToManager(ctx, mgr),
+		portImportDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),

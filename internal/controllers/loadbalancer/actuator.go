@@ -124,6 +124,16 @@ var (
 		},
 	)
 
+	portImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Port](
+		"spec.import.filter.vipPortRef",
+		func(lb *orcv1alpha1.LoadBalancer) []string {
+			if lb.Spec.Import == nil || lb.Spec.Import.Filter == nil || lb.Spec.Import.Filter.VIPPortRef == nil {
+				return nil
+			}
+			return []string{string(*lb.Spec.Import.Filter.VIPPortRef)}
+		},
+	)
+
 	projectImportDependency = dependency.NewDependency[*orcv1alpha1.LoadBalancerList, *orcv1alpha1.Project](
 		"spec.import.filter.projectRef",
 		func(lb *orcv1alpha1.LoadBalancer) []string {
@@ -191,6 +201,7 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 
 	var vipSubnetID string
 	var vipNetworkID string
+	var vipPortID string
 
 	if filter.VIPSubnetRef != nil {
 		subnet, rs := dependency.FetchDependency[*orcv1alpha1.Subnet](
@@ -214,6 +225,17 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 		}
 	}
 
+	if filter.VIPPortRef != nil {
+		port, rs := dependency.FetchDependency[*orcv1alpha1.Port](
+			ctx, actuator.k8sClient, obj.Namespace, filter.VIPPortRef, "Port",
+			orcv1alpha1.IsAvailable,
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+		if port != nil {
+			vipPortID = ptr.Deref(port.Status.ID, "")
+		}
+	}
+
 	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
 		ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
 		orcv1alpha1.IsAvailable,
@@ -225,15 +247,19 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 	}
 
 	listOpts := loadbalancers.ListOpts{
-		Name:         string(ptr.Deref(filter.Name, "")),
-		Description:  string(ptr.Deref(filter.Description, "")),
-		VipSubnetID:  vipSubnetID,
-		VipNetworkID: vipNetworkID,
-		ProjectID:    ptr.Deref(project.Status.ID, ""),
-		Tags:         neutronTagsToStrings(filter.Tags),
-		TagsAny:      neutronTagsToStrings(filter.TagsAny),
-		TagsNot:      neutronTagsToStrings(filter.NotTags),
-		TagsNotAny:   neutronTagsToStrings(filter.NotTagsAny),
+		Name:             string(ptr.Deref(filter.Name, "")),
+		Description:      string(ptr.Deref(filter.Description, "")),
+		VipSubnetID:      vipSubnetID,
+		VipNetworkID:     vipNetworkID,
+		VipPortID:        vipPortID,
+		VipAddress:       string(ptr.Deref(filter.VIPAddress, "")),
+		AvailabilityZone: filter.AvailabilityZone,
+		Provider:         ptr.Deref(filter.Provider, ""),
+		ProjectID:        ptr.Deref(project.Status.ID, ""),
+		Tags:             neutronTagsToStrings(filter.Tags),
+		TagsAny:          neutronTagsToStrings(filter.TagsAny),
+		TagsNot:          neutronTagsToStrings(filter.NotTags),
+		TagsNotAny:       neutronTagsToStrings(filter.NotTagsAny),
 	}
 
 	return actuator.osClient.ListLoadBalancer(ctx, listOpts), nil
