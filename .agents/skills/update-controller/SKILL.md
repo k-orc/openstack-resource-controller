@@ -218,17 +218,22 @@ See also `@.agents/skills/new-controller/patterns.md` for more details on this p
 Ensure proper error classification:
 
 ```go
-// Terminal: Invalid configuration - user must fix spec
-if !orcerrors.IsRetryable(err) {
-    err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-        "invalid configuration: "+err.Error(), err)
+// Terminal on create: Invalid configuration - user must fix spec
+if err != nil {
+    if !orcerrors.IsRetryable(err) {
+        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+            "invalid configuration creating resource: "+err.Error(), err)
+    }
+    return nil, progress.WrapError(err)
 }
-return nil, progress.WrapError(err)
 
-// Conflict on update: Treat as terminal
-if orcerrors.IsConflict(err) {
-    err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-        "invalid configuration updating resource: "+err.Error(), err)
+// Terminal on update:
+if err != nil {
+    if !orcerrors.IsRetryable(err) {
+        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+            "invalid configuration updating resource: "+err.Error(), err)
+    }
+    return progress.WrapError(err)
 }
 ```
 

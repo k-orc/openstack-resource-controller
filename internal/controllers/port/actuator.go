@@ -332,8 +332,8 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 
 	osResource, err := actuator.osClient.CreatePort(ctx, &portSecurityOpts)
 	if err != nil {
-		// We should require the spec to be updated before retrying a create which returned a conflict
-		if orcerrors.IsConflict(err) {
+		// We should require the spec to be updated before retrying a create which returned a non-retryable error
+		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
 		}
 		return nil, progress.WrapError(err)
@@ -443,12 +443,10 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 
 	_, err = actuator.osClient.UpdatePort(ctx, osResource.ID, updateOpts)
 
-	// We should require the spec to be updated before retrying an update which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
-
 	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
 		return progress.WrapError(err)
 	}
 

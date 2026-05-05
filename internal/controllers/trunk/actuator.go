@@ -261,12 +261,10 @@ func (actuator trunkActuator) updateResource(ctx context.Context, obj orcObjectP
 
 	_, err = actuator.osClient.UpdateTrunk(ctx, osResource.ID, updateOpts)
 
-	// We should require the spec to be updated before retrying an update which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
-
 	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
 		return progress.WrapError(err)
 	}
 
@@ -392,7 +390,7 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 			Subports: subportsToRemove,
 		}
 		if err := actuator.osClient.RemoveSubports(ctx, osResource.ID, removeOpts); err != nil {
-			if orcerrors.IsConflict(err) {
+			if !orcerrors.IsRetryable(err) {
 				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration removing subports: "+err.Error(), err)
 			}
 			return reconcileStatus.WithError(err)
@@ -406,7 +404,7 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 			Subports: subportsToAdd,
 		}
 		if _, err := actuator.osClient.AddSubports(ctx, osResource.ID, addOpts); err != nil {
-			if orcerrors.IsConflict(err) {
+			if !orcerrors.IsRetryable(err) {
 				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration adding subports: "+err.Error(), err)
 			}
 			return reconcileStatus.WithError(err)

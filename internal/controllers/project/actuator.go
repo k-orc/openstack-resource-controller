@@ -222,8 +222,11 @@ func (actuator projectActuator) updateResource(ctx context.Context, obj orcObjec
 
 	_, err = actuator.osClient.UpdateProject(ctx, osResource.ID, updateOpts)
 
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
+		return progress.WrapError(err)
 	}
 	if err != nil {
 		return progress.WrapError(err)
