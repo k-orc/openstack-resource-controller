@@ -29,7 +29,7 @@ import (
 
 type RegisteredLimitClient interface {
 	ListRegisteredLimits(ctx context.Context, listOpts registeredlimits.ListOptsBuilder) iter.Seq2[*registeredlimits.RegisteredLimit, error]
-	CreateRegisteredLimit(ctx context.Context, opts registeredlimits.CreateOptsBuilder) (*registeredlimits.RegisteredLimit, error)
+	CreateRegisteredLimit(ctx context.Context, opts registeredlimits.BatchCreateOptsBuilder) (*registeredlimits.RegisteredLimit, error)
 	DeleteRegisteredLimit(ctx context.Context, resourceID string) error
 	GetRegisteredLimit(ctx context.Context, resourceID string) (*registeredlimits.RegisteredLimit, error)
 	UpdateRegisteredLimit(ctx context.Context, id string, opts registeredlimits.UpdateOptsBuilder) (*registeredlimits.RegisteredLimit, error)
@@ -58,8 +58,14 @@ func (c registeredlimitClient) ListRegisteredLimits(ctx context.Context, listOpt
 	}
 }
 
-func (c registeredlimitClient) CreateRegisteredLimit(ctx context.Context, opts registeredlimits.CreateOptsBuilder) (*registeredlimits.RegisteredLimit, error) {
-	return registeredlimits.Create(ctx, c.client, opts).Extract()
+func (c registeredlimitClient) CreateRegisteredLimit(ctx context.Context, opts registeredlimits.BatchCreateOptsBuilder) (*registeredlimits.RegisteredLimit, error) {
+	batch, err := registeredlimits.BatchCreate(ctx, c.client, opts).Extract()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &batch[0], nil
 }
 
 func (c registeredlimitClient) DeleteRegisteredLimit(ctx context.Context, resourceID string) error {
@@ -87,7 +93,7 @@ func (e registeredlimitErrorClient) ListRegisteredLimits(_ context.Context, _ re
 	}
 }
 
-func (e registeredlimitErrorClient) CreateRegisteredLimit(_ context.Context, _ registeredlimits.CreateOptsBuilder) (*registeredlimits.RegisteredLimit, error) {
+func (e registeredlimitErrorClient) CreateRegisteredLimit(_ context.Context, _ registeredlimits.BatchCreateOptsBuilder) (*registeredlimits.RegisteredLimit, error) {
 	return nil, e.error
 }
 
