@@ -2069,6 +2069,105 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: segmentationID
       type:
         scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimit
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: serviceRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitResourceStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: serviceID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Role
   map:
     fields:

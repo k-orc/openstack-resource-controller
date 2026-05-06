@@ -42,6 +42,8 @@ type PortExpansion interface{}
 
 type ProjectExpansion interface{}
 
+type RegisteredLimitExpansion interface{}
+
 type RoleExpansion interface{}
 
 type RouterExpansion interface{}
