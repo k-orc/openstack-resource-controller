@@ -79,7 +79,7 @@ var _ = Describe("ORC RegisteredLimit API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.RegisteredLimitImport().WithFilter(applyconfigv1alpha1.RegisteredLimitFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.RegisteredLimitApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.RegisteredLimitImport().WithFilter(applyconfigv1alpha1.RegisteredLimitFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.RegisteredLimitImport().WithFilter(applyconfigv1alpha1.RegisteredLimitFilter().WithDescription("foo")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.RegisteredLimitApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
