@@ -75,8 +75,7 @@ func (actuator registeredlimitActuator) ListOSResourcesForAdoption(ctx context.C
 	// Check osclients.ResourceFilter
 
 	listOpts := registeredlimits.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		// TODO(scaffolding): Add import filters
 	}
 
 	return actuator.osClient.ListRegisteredLimits(ctx, listOpts), true
@@ -88,9 +87,7 @@ func (actuator registeredlimitActuator) ListOSResourcesForImport(ctx context.Con
 	// Check osclients.ResourceFilter
 
 	listOpts := registeredlimits.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		// TODO(scaffolding): Add import filters
 	}
 
 	return actuator.osClient.ListRegisteredLimits(ctx, listOpts), nil
@@ -118,13 +115,15 @@ func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj 
 		return nil, reconcileStatus
 	}
 	createOpts := registeredlimits.CreateOpts{
-		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:  serviceID,
+		ServiceID:   serviceID,
 		// TODO(scaffolding): Add more fields
 	}
+	batchCreateOpts := registeredlimits.BatchCreateOpts{
+		createOpts,
+	}
 
-	osResource, err := actuator.osClient.CreateRegisteredLimit(ctx, createOpts)
+	osResource, err := actuator.osClient.CreateRegisteredLimit(ctx, batchCreateOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -150,7 +149,6 @@ func (actuator registeredlimitActuator) updateResource(ctx context.Context, obj 
 
 	updateOpts := registeredlimits.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
 
 	// TODO(scaffolding): add handler for all fields supporting mutability
@@ -189,13 +187,6 @@ func needsUpdate(updateOpts registeredlimits.UpdateOpts) (bool, error) {
 	}
 
 	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *registeredlimits.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
 }
 
 func handleDescriptionUpdate(updateOpts *registeredlimits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {

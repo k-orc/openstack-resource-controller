@@ -58,7 +58,7 @@ func (m *MockRegisteredLimitClient) EXPECT() *MockRegisteredLimitClientMockRecor
 }
 
 // CreateRegisteredLimit mocks base method.
-func (m *MockRegisteredLimitClient) CreateRegisteredLimit(ctx context.Context, opts registeredlimits.CreateOptsBuilder) (*registeredlimits.RegisteredLimit, error) {
+func (m *MockRegisteredLimitClient) CreateRegisteredLimit(ctx context.Context, opts registeredlimits.BatchCreateOptsBuilder) (*registeredlimits.RegisteredLimit, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateRegisteredLimit", ctx, opts)
 	ret0, _ := ret[0].(*registeredlimits.RegisteredLimit)
