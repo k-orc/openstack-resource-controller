@@ -1,0 +1,33 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RegisteredLimit
+      name: registeredlimit-import-external
+      ref: registeredlimit1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RegisteredLimit
+      name: registeredlimit-import-external-not-this-one
+      ref: registeredlimit2
+assertAll:
+    - celExpr: "registeredlimit1.status.id != registeredlimit2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registeredlimit-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: registeredlimit-import-external
+    description: RegisteredLimit registeredlimit-import-external from "registeredlimit-import" test
+    # TODO(scaffolding): Add all fields the resource supports

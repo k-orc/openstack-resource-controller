@@ -2157,6 +2157,7 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RoleFilter](#rolefilter)
 - [RoleResourceSpec](#roleresourcespec)
 - [RouterFilter](#routerfilter)
@@ -2576,6 +2577,8 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
+- [RegisteredLimitFilter](#registeredlimitfilter)
+- [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -3047,6 +3050,12 @@ _Appears in:_
 | `networkType` _string_ | networkType is the type of physical network that this<br />network should be mapped to. Supported values are flat, vlan, vxlan, and gre.<br />Valid values depend on the networking back-end. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `physicalNetwork` _string_ | physicalNetwork is the physical network where this network<br />should be implemented. The Networking API v2.0 does not provide a<br />way to list available physical networks. For example, the Open<br />vSwitch plug-in configuration file defines a symbolic name that maps<br />to specific bridges on each compute host. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `segmentationID` _integer_ | segmentationID is the ID of the isolated segment on the<br />physical network. The network_type attribute defines the<br />segmentation model. For example, if the network_type value is vlan,<br />this ID is a vlan identifier. If the network_type value is gre, this<br />ID is a gre key. |  | Optional: \{\} <br /> |
+
+
+
+
+
+
 
 
 #### Role

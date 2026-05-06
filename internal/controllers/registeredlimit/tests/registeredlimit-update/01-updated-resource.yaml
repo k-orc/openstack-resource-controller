@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registeredlimit-update
+spec:
+  resource:
+    name: registeredlimit-update-updated
+    description: registeredlimit-update-updated
+    # TODO(scaffolding): update all mutable fields
