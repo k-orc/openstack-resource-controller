@@ -7205,16 +7205,23 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitFilter(
 				Description: "RegisteredLimitFilter defines an existing resource by its properties",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
+					"description": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name of the existing resource",
+							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"description": {
+					"serviceRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
+							Description: "serviceRef is a reference to the ORC Service which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceName is name of the resource to be limited.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7311,13 +7318,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourc
 				Description: "RegisteredLimitResourceSpec contains the desired state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
@@ -7332,8 +7332,22 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourc
 							Format:      "",
 						},
 					},
+					"resourceName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceName is name of the resource to be limited.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"defaultLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultLimit is limit of the specified resource in the given context.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 				},
-				Required: []string{"serviceRef"},
+				Required: []string{"serviceRef", "resourceName", "defaultLimit"},
 			},
 		},
 	}
@@ -7346,13 +7360,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourc
 				Description: "RegisteredLimitResourceStatus represents the observed state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
@@ -7360,11 +7367,32 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourc
 							Format:      "",
 						},
 					},
-					"serviceID": {
+					"resourceName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "serviceID is the ID of the Service to which the resource is associated.",
+							Description: "resourceName is name of the resource to be limited.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"regionID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionID is the ID of the region that contains the service endpoint.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serviceID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serviceID is a reference to the ORC Service which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"defaultLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultLimit is limit of the specified resource in the given context.",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 				},

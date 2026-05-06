@@ -25,8 +25,9 @@ import (
 // RegisteredLimitFilterApplyConfiguration represents a declarative configuration of the RegisteredLimitFilter type for use
 // with apply.
 type RegisteredLimitFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Description *string                    `json:"description,omitempty"`
+	Description  *string                        `json:"description,omitempty"`
+	ServiceRef   *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	ResourceName *string                        `json:"resourceName,omitempty"`
 }
 
 // RegisteredLimitFilterApplyConfiguration constructs a declarative configuration of the RegisteredLimitFilter type for use with
@@ -35,18 +36,26 @@ func RegisteredLimitFilter() *RegisteredLimitFilterApplyConfiguration {
 	return &RegisteredLimitFilterApplyConfiguration{}
 }
 
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *RegisteredLimitFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *RegisteredLimitFilterApplyConfiguration {
-	b.Name = &value
-	return b
-}
-
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *RegisteredLimitFilterApplyConfiguration) WithDescription(value string) *RegisteredLimitFilterApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithServiceRef sets the ServiceRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ServiceRef field is set to the value of the last call.
+func (b *RegisteredLimitFilterApplyConfiguration) WithServiceRef(value apiv1alpha1.KubernetesNameRef) *RegisteredLimitFilterApplyConfiguration {
+	b.ServiceRef = &value
+	return b
+}
+
+// WithResourceName sets the ResourceName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceName field is set to the value of the last call.
+func (b *RegisteredLimitFilterApplyConfiguration) WithResourceName(value string) *RegisteredLimitFilterApplyConfiguration {
+	b.ResourceName = &value
 	return b
 }

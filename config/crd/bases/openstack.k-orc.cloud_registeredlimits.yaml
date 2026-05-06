@@ -96,11 +96,16 @@ spec:
                         maxLength: 255
                         minLength: 1
                         type: string
-                      name:
-                        description: name of the existing resource
+                      resourceName:
+                        description: resourceName is name of the resource to be limited.
                         maxLength: 255
                         minLength: 1
-                        pattern: ^[^,]+$
+                        type: string
+                      serviceRef:
+                        description: serviceRef is a reference to the ORC Service
+                          which this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
                         type: string
                     type: object
                   id:
@@ -150,20 +155,30 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
+                  defaultLimit:
+                    description: defaultLimit is limit of the specified resource in
+                      the given context.
+                    format: int32
+                    maximum: 2147483647
+                    minimum: -1
+                    type: integer
+                    x-kubernetes-validations:
+                    - message: defaultLimit is immutable
+                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 255
                     minLength: 1
                     type: string
-                  name:
-                    description: |-
-                      name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
+                  resourceName:
+                    description: resourceName is name of the resource to be limited.
                     maxLength: 255
                     minLength: 1
-                    pattern: ^[^,]+$
                     type: string
+                    x-kubernetes-validations:
+                    - message: resourceName is immutable
+                      rule: self == oldSelf
                   serviceRef:
                     description: serviceRef is a reference to the ORC Service which
                       this resource is associated with.
@@ -174,6 +189,8 @@ spec:
                     - message: serviceRef is immutable
                       rule: self == oldSelf
                 required:
+                - defaultLimit
+                - resourceName
                 - serviceRef
                 type: object
             required:
@@ -279,19 +296,29 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
+                  defaultLimit:
+                    description: defaultLimit is limit of the specified resource in
+                      the given context.
+                    format: int32
+                    type: integer
                   description:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 1024
                     type: string
-                  name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
+                  regionID:
+                    description: regionID is the ID of the region that contains the
+                      service endpoint.
                     maxLength: 1024
                     type: string
+                  resourceName:
+                    description: resourceName is name of the resource to be limited.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
                   serviceID:
-                    description: serviceID is the ID of the Service to which the resource
-                      is associated.
+                    description: serviceID is a reference to the ORC Service which
+                      this resource is associated with.
                     maxLength: 1024
                     type: string
                 type: object

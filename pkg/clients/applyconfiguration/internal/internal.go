@@ -2096,7 +2096,10 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
-    - name: name
+    - name: resourceName
+      type:
+        scalar: string
+    - name: serviceRef
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitImport
@@ -2111,10 +2114,13 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitResourceSpec
   map:
     fields:
+    - name: defaultLimit
+      type:
+        scalar: numeric
     - name: description
       type:
         scalar: string
-    - name: name
+    - name: resourceName
       type:
         scalar: string
     - name: serviceRef
@@ -2123,10 +2129,16 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RegisteredLimitResourceStatus
   map:
     fields:
+    - name: defaultLimit
+      type:
+        scalar: numeric
     - name: description
       type:
         scalar: string
-    - name: name
+    - name: regionID
+      type:
+        scalar: string
+    - name: resourceName
       type:
         scalar: string
     - name: serviceID

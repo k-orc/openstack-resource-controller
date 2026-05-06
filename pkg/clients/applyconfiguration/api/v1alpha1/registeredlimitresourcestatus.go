@@ -21,23 +21,17 @@ package v1alpha1
 // RegisteredLimitResourceStatusApplyConfiguration represents a declarative configuration of the RegisteredLimitResourceStatus type for use
 // with apply.
 type RegisteredLimitResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	ServiceID   *string `json:"serviceID,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	ResourceName *string `json:"resourceName,omitempty"`
+	RegionID     *string `json:"regionID,omitempty"`
+	ServiceID    *string `json:"serviceID,omitempty"`
+	DefaultLimit *int32  `json:"defaultLimit,omitempty"`
 }
 
 // RegisteredLimitResourceStatusApplyConfiguration constructs a declarative configuration of the RegisteredLimitResourceStatus type for use with
 // apply.
 func RegisteredLimitResourceStatus() *RegisteredLimitResourceStatusApplyConfiguration {
 	return &RegisteredLimitResourceStatusApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *RegisteredLimitResourceStatusApplyConfiguration) WithName(value string) *RegisteredLimitResourceStatusApplyConfiguration {
-	b.Name = &value
-	return b
 }
 
 // WithDescription sets the Description field in the declarative configuration to the given value
@@ -48,10 +42,34 @@ func (b *RegisteredLimitResourceStatusApplyConfiguration) WithDescription(value 
 	return b
 }
 
+// WithResourceName sets the ResourceName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceName field is set to the value of the last call.
+func (b *RegisteredLimitResourceStatusApplyConfiguration) WithResourceName(value string) *RegisteredLimitResourceStatusApplyConfiguration {
+	b.ResourceName = &value
+	return b
+}
+
+// WithRegionID sets the RegionID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionID field is set to the value of the last call.
+func (b *RegisteredLimitResourceStatusApplyConfiguration) WithRegionID(value string) *RegisteredLimitResourceStatusApplyConfiguration {
+	b.RegionID = &value
+	return b
+}
+
 // WithServiceID sets the ServiceID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ServiceID field is set to the value of the last call.
 func (b *RegisteredLimitResourceStatusApplyConfiguration) WithServiceID(value string) *RegisteredLimitResourceStatusApplyConfiguration {
 	b.ServiceID = &value
+	return b
+}
+
+// WithDefaultLimit sets the DefaultLimit field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultLimit field is set to the value of the last call.
+func (b *RegisteredLimitResourceStatusApplyConfiguration) WithDefaultLimit(value int32) *RegisteredLimitResourceStatusApplyConfiguration {
+	b.DefaultLimit = &value
 	return b
 }
