@@ -41,6 +41,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/region"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/registeredlimit"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/role"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/roleassignment"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/router"
@@ -143,6 +144,7 @@ func main() {
 		keypair.New(scopeFactory),
 		group.New(scopeFactory),
 		region.New(scopeFactory),
+		registeredlimit.New(scopeFactory),
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
 	}
