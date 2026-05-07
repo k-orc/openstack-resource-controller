@@ -31,6 +31,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
@@ -70,27 +71,65 @@ func (actuator registeredlimitActuator) ListOSResourcesForAdoption(ctx context.C
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	service, _ := dependency.FetchDependency[*orcv1alpha1.Service](
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Service",
+		orcv1alpha1.IsAvailable,
+	)
 
-	listOpts := registeredlimits.ListOpts{
-		// TODO(scaffolding): Add import filters
+	if service.Status.ID == nil {
+		return nil, false
 	}
 
-	return actuator.osClient.ListRegisteredLimits(ctx, listOpts), true
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// Add client-side filters
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(f *registeredlimits.RegisteredLimit) bool {
+			return f.Description == *resourceSpec.Description
+		})
+	}
+
+	listOpts := registeredlimits.ListOpts{
+		ResourceName: resourceSpec.ResourceName,
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator registeredlimitActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var reconcileStatus progress.ReconcileStatus
 
-	listOpts := registeredlimits.ListOpts{
-		// TODO(scaffolding): Add import filters
+	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
+		ctx, actuator.k8sClient, obj.Namespace, filter.ServiceRef, "Service",
+		orcv1alpha1.IsAvailable,
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
 	}
 
-	return actuator.osClient.ListRegisteredLimits(ctx, listOpts), nil
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// Add client-side filters
+	if filter.Description != nil {
+		filters = append(filters, func(f *registeredlimits.RegisteredLimit) bool {
+			return f.Description == *filter.Description
+		})
+	}
+
+	listOpts := registeredlimits.ListOpts{
+		ResourceName: ptr.Deref(filter.ResourceName, ""),
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator registeredlimitActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts registeredlimits.ListOptsBuilder) iter.Seq2[*registeredlimits.RegisteredLimit, error] {
+	registeredLimits := actuator.osClient.ListRegisteredLimits(ctx, listOpts)
+	return osclients.Filter(registeredLimits, filters...)
 }
 
 func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -115,9 +154,10 @@ func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj 
 		return nil, reconcileStatus
 	}
 	createOpts := registeredlimits.CreateOpts{
-		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:   serviceID,
-		// TODO(scaffolding): Add more fields
+		ServiceID:    serviceID,
+		ResourceName: resource.ResourceName,
+		DefaultLimit: int(*resource.DefaultLimit),
+		Description:  ptr.Deref(resource.Description, ""),
 	}
 	batchCreateOpts := registeredlimits.BatchCreateOpts{
 		createOpts,
@@ -181,7 +221,7 @@ func needsUpdate(updateOpts registeredlimits.UpdateOpts) (bool, error) {
 		return false, err
 	}
 
-	updateMap, ok := updateOptsMap["registered_limits"].(map[string]any)
+	updateMap, ok := updateOptsMap["registered_limit"].(map[string]any)
 	if !ok {
 		updateMap = make(map[string]any)
 	}
