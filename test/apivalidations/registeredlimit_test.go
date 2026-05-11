@@ -42,7 +42,9 @@ func registeredlimitStub(namespace *corev1.Namespace) *orcv1alpha1.RegisteredLim
 
 func testRegisteredLimitResource() *applyconfigv1alpha1.RegisteredLimitResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.RegisteredLimitResourceSpec().
-		WithServiceRef("service")
+		WithServiceRef("service").
+		WithDefaultLimit(999).
+		WithResourceName("ports")
 }
 
 func baseRegisteredLimitPatch(obj client.Object) *applyconfigv1alpha1.RegisteredLimitApplyConfiguration {

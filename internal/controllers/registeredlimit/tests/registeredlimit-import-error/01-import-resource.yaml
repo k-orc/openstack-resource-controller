@@ -5,9 +5,9 @@ metadata:
   name: registeredlimit-import-error
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      description: RegisteredLimit from "import error" test
+      resourceName: vcpus

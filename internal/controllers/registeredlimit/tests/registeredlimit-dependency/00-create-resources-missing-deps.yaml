@@ -5,12 +5,11 @@ metadata:
   name: registeredlimit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    type: registeredlimit-test
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
@@ -18,14 +17,13 @@ metadata:
   name: registeredlimit-dependency-no-service
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     serviceRef: registeredlimit-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
-
+    resourceName: vcpus
+    defaultLimit: 5
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
@@ -33,10 +31,10 @@ metadata:
   name: registeredlimit-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: registeredlimit-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
     serviceRef: registeredlimit-dependency
+    resourceName: vcpus
+    defaultLimit: 5
