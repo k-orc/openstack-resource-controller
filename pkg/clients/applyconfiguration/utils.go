@@ -420,6 +420,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SubnetGatewayApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetImport"):
 		return &apiv1alpha1.SubnetImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPool"):
+		return &apiv1alpha1.SubnetPoolApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolFilter"):
+		return &apiv1alpha1.SubnetPoolFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolImport"):
+		return &apiv1alpha1.SubnetPoolImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolResourceSpec"):
+		return &apiv1alpha1.SubnetPoolResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolResourceStatus"):
+		return &apiv1alpha1.SubnetPoolResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolSpec"):
+		return &apiv1alpha1.SubnetPoolSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SubnetPoolStatus"):
+		return &apiv1alpha1.SubnetPoolStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetResourceSpec"):
 		return &apiv1alpha1.SubnetResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetResourceStatus"):

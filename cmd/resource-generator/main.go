@@ -189,6 +189,9 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "ApplicationCredential",
 	},
+	{
+		Name: "SubnetPool",
+	},
 }
 
 // These resources won't be generated
@@ -207,7 +210,8 @@ func main() {
 	kuttlTestTemplate := template.Must(template.New("kuttl-test").Parse(kuttl_test_template))
 	crdKustomizationTemplate := template.Must(template.New("crd-kustomization").Parse(crd_kustomization_template))
 	samplesKustomizationTemplate := template.Must(
-		template.New("samples-kustomization").Parse(samples_kustomization_template))
+		template.New("samples-kustomization").Parse(samples_kustomization_template),
+	)
 	mockDocTemplate := template.Must(template.New("mock-doc").Parse(mock_doc_template))
 
 	addDefaults(resources)
@@ -223,7 +227,7 @@ func main() {
 
 		controllerDirPath := filepath.Join("internal", "controllers", resource.NameLower)
 		if _, err := os.Stat(controllerDirPath); os.IsNotExist(err) {
-			err = os.Mkdir(controllerDirPath, 0755)
+			err = os.Mkdir(controllerDirPath, 0o755)
 			if err != nil {
 				panic(err)
 			}

@@ -47,6 +47,7 @@ type MockScopeFactory struct {
 	RoleClient                  *mock.MockRoleClient
 	RoleAssignmentClient        *mock.MockRoleAssignmentClient
 	ServiceClient               *mock.MockServiceClient
+	SubnetPoolClient            *mock.MockSubnetPoolClient
 	UserClient                  *mock.MockUserClient
 	VolumeClient                *mock.MockVolumeClient
 	VolumeTypeClient            *mock.MockVolumeTypeClient
@@ -69,6 +70,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	roleClient := mock.NewMockRoleClient(mockCtrl)
 	roleassignmentClient := mock.NewMockRoleAssignmentClient(mockCtrl)
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
+	subnetPoolClient := mock.NewMockSubnetPoolClient(mockCtrl)
 	userClient := mock.NewMockUserClient(mockCtrl)
 	sharenetworkClient := mock.NewMockShareNetworkClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
@@ -89,6 +91,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		RoleAssignmentClient:        roleassignmentClient,
 		ServiceClient:               serviceClient,
 		ShareNetworkClient:          sharenetworkClient,
+		SubnetPoolClient:            subnetPoolClient,
 		UserClient:                  userClient,
 		VolumeClient:                volumeClient,
 		VolumeTypeClient:            volumetypeClient,
@@ -148,6 +151,10 @@ func (f *MockScopeFactory) NewServiceClient() (osclients.ServiceClient, error) {
 
 func (f *MockScopeFactory) NewShareNetworkClient() (osclients.ShareNetworkClient, error) {
 	return f.ShareNetworkClient, nil
+}
+
+func (f *MockScopeFactory) NewSubnetPoolClient() (osclients.SubnetPoolClient, error) {
+	return f.SubnetPoolClient, nil
 }
 
 func (f *MockScopeFactory) NewKeyPairClient() (osclients.KeyPairClient, error) {

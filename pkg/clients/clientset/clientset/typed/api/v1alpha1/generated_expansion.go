@@ -62,6 +62,8 @@ type ShareNetworkExpansion interface{}
 
 type SubnetExpansion interface{}
 
+type SubnetPoolExpansion interface{}
+
 type TrunkExpansion interface{}
 
 type UserExpansion interface{}

@@ -50,6 +50,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/service"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/sharenetwork"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnetpool"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/trunk"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/user"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
@@ -132,6 +133,7 @@ func main() {
 		securitygroup.New(scopeFactory),
 		server.New(scopeFactory),
 		servergroup.New(scopeFactory),
+		subnetpool.New(scopeFactory),
 		project.New(scopeFactory),
 		user.New(scopeFactory),
 		volume.New(scopeFactory),
