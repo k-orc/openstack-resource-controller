@@ -1,0 +1,38 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-create-full
+status:
+  resource:
+    name: subnetpool-create-full-override
+    description: SubnetPool from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SubnetPool
+      name: subnetpool-create-full
+      ref: subnetpool
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: subnetpool-create-full
+      ref: project
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: AddressScope
+      name: subnetpool-create-full
+      ref: addressScope
+assertAll:
+    - celExpr: "subnetpool.status.id != ''"
+    - celExpr: "subnetpool.status.resource.projectID == project.status.id"
+    - celExpr: "subnetpool.status.resource.addressScopeID == addressScope.status.id"
+    # TODO(scaffolding): Add more checks

@@ -2232,6 +2232,8 @@ _Appears in:_
 - [ServerVolumeSpec](#servervolumespec)
 - [ShareNetworkResourceSpec](#sharenetworkresourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
+- [SubnetPoolResourceSpec](#subnetpoolresourcespec)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -2657,6 +2659,8 @@ _Appears in:_
 - [ShareNetworkFilter](#sharenetworkfilter)
 - [ShareNetworkResourceSpec](#sharenetworkresourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
+- [SubnetPoolResourceSpec](#subnetpoolresourcespec)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -4722,6 +4726,12 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
 | `filter` _[SubnetFilter](#subnetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+
+
+
+
 
 
 #### SubnetResourceSpec
