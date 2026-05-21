@@ -12,9 +12,9 @@ require (
 	github.com/onsi/gomega v1.40.0
 	github.com/ulikunitz/xz v0.5.15
 	go.uber.org/mock v0.6.0
-	golang.org/x/text v0.36.0
+	golang.org/x/text v0.37.0
 	k8s.io/api v0.34.7
-	k8s.io/apimachinery v0.34.7
+	k8s.io/apimachinery v0.34.8
 	k8s.io/client-go v0.34.7
 	k8s.io/code-generator v0.34.7
 	k8s.io/klog/v2 v2.130.1
