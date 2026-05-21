@@ -1,7 +1,4 @@
 - color: '30ABB9'
-  description: This PR will be backported to v1.0
-  name: backport-v1.0
-- color: '30ABB9'
   description: This PR targets v1.0
   name: v1.0
 - color: 'D97706'
