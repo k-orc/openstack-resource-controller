@@ -888,6 +888,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeSpec(ref c
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -900,7 +906,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeSpec(ref c
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -948,11 +954,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_AddressScopeStatus(ref
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.AddressScopeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -1549,6 +1561,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ApplicationCredentialS
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -1561,7 +1579,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ApplicationCredentialS
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -1609,11 +1627,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ApplicationCredentialS
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ApplicationCredentialResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -1902,6 +1926,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DomainSpec(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -1914,7 +1944,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DomainSpec(ref common.
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -1962,11 +1992,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DomainStatus(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.DomainResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -2264,6 +2300,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_EndpointSpec(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -2276,7 +2318,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_EndpointSpec(ref commo
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -2324,11 +2366,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_EndpointStatus(ref com
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.EndpointResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -3123,6 +3171,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorSpec(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -3135,7 +3189,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorSpec(ref common.
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -3183,11 +3237,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorStatus(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -3686,6 +3746,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPSpec(ref com
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -3698,7 +3764,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPSpec(ref com
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -3746,11 +3812,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FloatingIPStatus(ref c
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FloatingIPResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -4011,6 +4083,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_GroupSpec(ref common.R
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -4023,7 +4101,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_GroupSpec(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -4071,11 +4149,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_GroupStatus(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.GroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -4812,6 +4896,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageSpec(ref common.R
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -4824,7 +4914,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageSpec(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -4872,6 +4962,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageStatus(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 					"downloadAttempts": {
 						SchemaProps: spec.SchemaProps{
 							Description: "downloadAttempts is the number of times the controller has attempted to download the image contents",
@@ -4883,7 +4979,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImageStatus(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ImageResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -5164,6 +5260,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairSpec(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -5176,7 +5278,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairSpec(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceSpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -5224,11 +5326,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_KeyPairStatus(ref comm
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.KeyPairResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -5820,6 +5928,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkSpec(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -5832,7 +5946,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkSpec(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -5880,11 +5994,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_NetworkStatus(ref comm
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.NetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -6669,6 +6789,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortSpec(ref common.Re
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -6681,7 +6807,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortSpec(ref common.Re
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -6729,11 +6855,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_PortStatus(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.PortResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -7155,6 +7287,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectSpec(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -7167,7 +7305,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectSpec(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -7215,11 +7353,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProjectStatus(ref comm
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -7513,6 +7657,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RoleSpec(ref common.Re
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -7525,7 +7675,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RoleSpec(ref common.Re
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -7573,11 +7723,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RoleStatus(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -8254,6 +8410,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterSpec(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -8266,7 +8428,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterSpec(ref common.
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -8314,11 +8476,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RouterStatus(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RouterResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -8907,6 +9075,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref 
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -8919,7 +9093,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupSpec(ref 
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -8967,11 +9141,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SecurityGroupStatus(re
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SecurityGroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -9466,6 +9646,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupSpec(ref co
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -9478,7 +9664,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupSpec(ref co
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -9526,11 +9712,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerGroupStatus(ref 
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerGroupResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -10230,6 +10422,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerSpec(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -10242,7 +10440,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerSpec(ref common.
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -10290,11 +10488,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServerStatus(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServerResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -10616,6 +10820,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceSpec(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -10628,7 +10838,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceSpec(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -10676,11 +10886,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ServiceStatus(ref comm
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ServiceResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -11005,6 +11221,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkSpec(ref c
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -11017,7 +11239,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkSpec(ref c
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -11065,11 +11287,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ShareNetworkStatus(ref
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ShareNetworkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -11777,6 +12005,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -11789,7 +12023,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetSpec(ref common.
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -11837,11 +12071,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SubnetStatus(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.SubnetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -12347,6 +12587,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSpec(ref common.R
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -12359,7 +12605,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkSpec(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -12407,11 +12653,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_TrunkStatus(ref common
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.TrunkResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -12809,6 +13061,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserSpec(ref common.Re
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -12821,7 +13079,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserSpec(ref common.Re
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -12869,11 +13127,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_UserStatus(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.UserResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -13447,6 +13711,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSpec(ref common.
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -13459,7 +13729,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeSpec(ref common.
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -13507,11 +13777,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeStatus(ref commo
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -13876,6 +14152,12 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeSpec(ref com
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
 						},
 					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
 					"cloudCredentialsRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
@@ -13888,7 +14170,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeSpec(ref com
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeResourceSpec"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -13936,11 +14218,17 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_VolumeTypeStatus(ref c
 							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeResourceStatus"),
 						},
 					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition"},
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.VolumeTypeResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
