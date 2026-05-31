@@ -1,0 +1,50 @@
+---
+# After the OpenStack network is deleted externally, ORC detects the deletion
+# via the configured resyncPeriod (10s). ORC clears status.id and recreates the
+# network in OpenStack. Verify that:
+# 1. The network is available again with correct conditions and resource status.
+# 2. The OpenStack ID (status.id) has changed - a brand-new network was created.
+#
+# The timeout is set generously to allow for the resyncPeriod to elapse, the
+# deletion to be detected, and the new network to be created and reach ACTIVE.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 300
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Network
+    name: network-external-deletion
+    ref: network
+assertAll:
+  # The new OpenStack ID must be set and non-empty.
+  - celExpr: "has(network.status.id) && network.status.id != ''"
+commands:
+  - script: |
+      ORIGINAL=$(cat /tmp/network-external-deletion-original-id)
+      CURRENT=$(kubectl get network.openstack.k-orc.cloud network-external-deletion \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.id}')
+      # Succeed only when both IDs are set and the new ID differs from the original,
+      # confirming that ORC detected the external deletion and recreated the network.
+      [ -n "${ORIGINAL}" ] && [ -n "${CURRENT}" ] && [ "${CURRENT}" != "${ORIGINAL}" ]
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+  resource:
+    name: network-external-deletion
+    description: Network from "external-deletion" test
+    adminStateUp: true
+    external: false
+    portSecurityEnabled: true
+    shared: false
+    status: ACTIVE
