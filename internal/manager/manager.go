@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -49,6 +50,7 @@ type Options struct {
 	TLSOpts              []func(*tls.Config)
 	ScopeCacheMaxSize    int
 	WatchNamespaces      []string
+	DefaultResyncPeriod  time.Duration
 }
 
 func Run(ctx context.Context, opts *Options, restConfig *rest.Config, scheme *runtime.Scheme, setupLog, log logr.Logger, controllers []interfaces.Controller) error {
@@ -142,6 +144,11 @@ func Run(ctx context.Context, opts *Options, restConfig *rest.Config, scheme *ru
 	}
 
 	for _, c := range controllers {
+		// If the controller supports a configurable default resync period, wire
+		// in the operator-level default before setup.
+		if rc, ok := c.(interfaces.ResyncConfigurable); ok {
+			rc.SetDefaultResyncPeriod(opts.DefaultResyncPeriod)
+		}
 		if err := c.SetupWithManager(ctx, mgr, controller.Options{}); err != nil {
 			return fmt.Errorf("unable to create %s controller: %w", c.GetName(), err)
 		}

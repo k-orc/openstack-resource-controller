@@ -42,6 +42,8 @@ type reconcileStatus struct {
 	requeue  time.Duration
 
 	err error
+
+	externallyDeleted bool
 }
 
 // NewReconcileStatus returns an empty ReconcileStatus
@@ -177,9 +179,38 @@ func (r ReconcileStatus) WithReconcileStatus(o ReconcileStatus) ReconcileStatus 
 		return o
 	}
 
-	return r.WithProgressMessage(o.GetProgressMessages()...).
+	r = r.WithProgressMessage(o.GetProgressMessages()...).
 		WithRequeue(o.GetRequeue()).
 		WithError(o.GetError())
+	if o != nil && o.externallyDeleted {
+		r.externallyDeleted = true
+	}
+	return r
+}
+
+// ExternallyDeleted returns a ReconcileStatus indicating that the OpenStack
+// resource referenced by status.id has been deleted outside of ORC. The caller
+// is expected to clear status.id and add an appropriate progress message.
+func (r ReconcileStatus) ExternallyDeleted() ReconcileStatus {
+	if r == nil {
+		r = &reconcileStatus{}
+	}
+	r.externallyDeleted = true
+	return r
+}
+
+// ExternallyDeleted is a convenience method which returns a new ReconcileStatus with ExternallyDeleted.
+func ExternallyDeleted() ReconcileStatus {
+	return NewReconcileStatus().ExternallyDeleted()
+}
+
+// IsExternallyDeleted returns true if the ReconcileStatus indicates that the
+// OpenStack resource was deleted externally.
+func (r ReconcileStatus) IsExternallyDeleted() bool {
+	if r == nil {
+		return false
+	}
+	return r.externallyDeleted
 }
 
 // WaitingOnEvent represents the type of event we are waiting on

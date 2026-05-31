@@ -19,6 +19,7 @@ package group
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "group"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=groups/status,verbs=get;update;patch
 
 type groupReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return groupReconcilerConstructor{scopeFactory: scopeFactory}
+	return &groupReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (groupReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *groupReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.GroupList, *orcv1alpha1.Domain](
@@ -75,7 +81,7 @@ var domainImportDependency = dependency.NewDependency[*orcv1alpha1.GroupList, *o
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c groupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *groupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -109,6 +115,6 @@ func (c groupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, groupHelperFactory{}, groupStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, groupHelperFactory{}, groupStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }
