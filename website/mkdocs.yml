@@ -7,7 +7,9 @@ nav:
   - Getting Started:
     - Installation: installation.md
     - Quick Start: getting-started.md
-  - User Guide: user-guide/index.md
+  - User Guide:
+    - Overview: user-guide/index.md
+    - Drift Detection: user-guide/drift-detection.md
   - CRD Reference: crd-reference.md
   - Troubleshooting: troubleshooting.md
   - Contributing:
