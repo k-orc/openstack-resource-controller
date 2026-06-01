@@ -190,8 +190,8 @@ func (actuator registeredlimitActuator) updateResource(ctx context.Context, obj 
 	updateOpts := registeredlimits.UpdateOpts{}
 
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleResourceNameUpdate(&updateOpts, resource, osResource)
+	handleDefaultLimitUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -233,6 +233,20 @@ func handleDescriptionUpdate(updateOpts *registeredlimits.UpdateOpts, resource *
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleResourceNameUpdate(updateOpts *registeredlimits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	resourceName := resource.ResourceName
+	if osResource.ResourceName != resourceName {
+		updateOpts.ResourceName = resourceName
+	}
+}
+
+func handleDefaultLimitUpdate(updateOpts *registeredlimits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	defaultLimit := int(*resource.DefaultLimit)
+	if osResource.DefaultLimit != defaultLimit {
+		updateOpts.DefaultLimit = &defaultLimit
 	}
 }
 

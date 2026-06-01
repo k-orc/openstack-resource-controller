@@ -162,9 +162,6 @@ spec:
                     maximum: 2147483647
                     minimum: -1
                     type: integer
-                    x-kubernetes-validations:
-                    - message: defaultLimit is immutable
-                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -176,9 +173,6 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
-                    x-kubernetes-validations:
-                    - message: resourceName is immutable
-                      rule: self == oldSelf
                   serviceRef:
                     description: serviceRef is a reference to the ORC Service which
                       this resource is associated with.

@@ -33,14 +33,12 @@ type RegisteredLimitResourceSpec struct {
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="resourceName is immutable"
 	ResourceName string `json:"resourceName,omitempty"`
 
 	// defaultLimit is limit of the specified resource in the given context.
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=2147483647
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="defaultLimit is immutable"
 	DefaultLimit *int32 `json:"defaultLimit,omitempty"`
 }
 
