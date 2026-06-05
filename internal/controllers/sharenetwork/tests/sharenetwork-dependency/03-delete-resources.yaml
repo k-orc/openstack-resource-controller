@@ -1,0 +1,13 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ShareNetwork
+  name: sharenetwork-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ShareNetwork
+  name: sharenetwork-dependency-no-network
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: ShareNetwork
+  name: sharenetwork-dependency-no-subnet

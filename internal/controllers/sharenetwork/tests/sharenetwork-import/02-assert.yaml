@@ -1,0 +1,32 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareNetwork
+      name: sharenetwork-import-external
+      ref: sharenetwork1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareNetwork
+      name: sharenetwork-import-external-not-this-one
+      ref: sharenetwork2
+assertAll:
+    - celExpr: "sharenetwork1.status.id != sharenetwork2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: sharenetwork-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: sharenetwork-import-external
+    description: ShareNetwork sharenetwork-import-external from "sharenetwork-import" test

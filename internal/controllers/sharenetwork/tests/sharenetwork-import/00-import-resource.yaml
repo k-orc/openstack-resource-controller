@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: sharenetwork-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: sharenetwork-import-external
+      description: ShareNetwork sharenetwork-import-external from "sharenetwork-import" test
