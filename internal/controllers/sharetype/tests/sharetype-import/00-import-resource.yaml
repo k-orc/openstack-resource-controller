@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: sharetype-import-external
+      description: ShareType sharetype-import-external from "sharetype-import" test
+      # TODO(scaffolding): Add all fields supported by the filter
