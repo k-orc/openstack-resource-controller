@@ -19,6 +19,16 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: AddressScope is the Schema for an ORC resource.
+      displayName: Address Scope
+      kind: AddressScope
+      name: addressscopes.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: ApplicationCredential is the Schema for an ORC resource.
+      displayName: Application Credential
+      kind: ApplicationCredential
+      name: applicationcredentials.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Domain is the Schema for an ORC resource.
       displayName: Domain
       kind: Domain
@@ -118,6 +128,11 @@ spec:
       displayName: Trunk
       kind: Trunk
       name: trunks.openstack.k-orc.cloud
+      version: v1alpha1
+    - description: User is the Schema for an ORC resource.
+      displayName: User
+      kind: User
+      name: users.openstack.k-orc.cloud
       version: v1alpha1
     - description: Volume is the Schema for an ORC resource.
       displayName: Volume
