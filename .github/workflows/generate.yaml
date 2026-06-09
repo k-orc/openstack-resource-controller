@@ -20,3 +20,9 @@ jobs:
       - run: |
           make generate
           git diff --exit-code
+
+      - run: sudo apt-get install -y libgpgme-dev
+
+      - run: |
+          make generate-bundle
+          git diff --exit-code
