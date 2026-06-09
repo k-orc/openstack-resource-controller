@@ -152,6 +152,7 @@ func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObject
 		IsPublic:    resource.IsPublic,
 		Ephemeral:   ptr.To(int(resource.Ephemeral)),
 		Description: ptr.Deref(resource.Description, ""),
+		ID:          resource.ID,
 	}
 
 	osResource, err := actuator.osClient.CreateFlavor(ctx, createOpts)

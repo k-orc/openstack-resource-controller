@@ -678,6 +678,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ephemeral
       type:
         scalar: numeric
+    - name: id
+      type:
+        scalar: string
     - name: isPublic
       type:
         scalar: boolean
