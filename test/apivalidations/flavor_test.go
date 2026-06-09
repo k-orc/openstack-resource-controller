@@ -137,7 +137,6 @@ var _ = Describe("ORC Flavor API validations", func() {
 		maxString := strings.Repeat("a", 65536)
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDescription(maxString))
 		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.description: Too long")))
-
 	})
 
 	It("should reject import filter with value less than minimal", func(ctx context.Context) {
@@ -148,5 +147,21 @@ var _ = Describe("ORC Flavor API validations", func() {
 			WithImport(applyconfigv1alpha1.FlavorImport().
 				WithFilter(applyconfigv1alpha1.FlavorFilter().WithRAM(0)))
 		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.import.filter.ram in body should be greater than or equal to 1")))
+	})
+
+	It("should reject flavor IDs which are not according to the specified regex", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		maxString := strings.Repeat("a", 256)
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID(" test").WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.id: Invalid value")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID("test ").WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.id: Invalid value")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID(maxString).WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.id: Too long")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID("").WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.id in body should be at least 1 chars long")))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID("test.id -123_").WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
 	})
 })
