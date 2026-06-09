@@ -1,11 +1,14 @@
-# Create a ShareType with all the options
+# sharetype-create-full
 
-## Step 00
+Creates a ShareType with all available configuration options:
+- Custom name override
+- isPublic set to false (private share type)
+- driverHandlesShareServers set to false
+- snapshotSupport set to true
 
-Create a ShareType using all available fields, and verify that the observed state corresponds to the spec.
-
-Also validate that the OpenStack resource uses the name from the spec when it is specified.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#create-full
+Validates that:
+- The ShareType is created with the overridden name
+- isPublic is false
+- All extra specs are correctly set
+- Resource becomes Available
+- Resource is deleted when credentials are removed

@@ -1,13 +1,10 @@
-# Import ShareType with more than one matching resources
+# sharetype-import-error
 
-## Step 00
+Tests error handling when import filter doesn't match any existing resource.
 
-Create two ShareTypes with identical specs.
+The test:
+1. Creates an unmanaged ShareType with import filter for non-existent name
+2. Verifies it enters and stays in Progressing state waiting for the resource
+3. Verifies no ID is assigned (resource not found)
 
-## Step 01
-
-Ensure that an imported ShareType with a filter matching the resources returns an error.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#import-error
+This ensures graceful handling when import criteria don't match anything.

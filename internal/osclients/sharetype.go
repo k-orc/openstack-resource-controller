@@ -31,15 +31,14 @@ type ShareTypeClient interface {
 	ListShareTypes(ctx context.Context, listOpts sharetypes.ListOptsBuilder) iter.Seq2[*sharetypes.ShareType, error]
 	CreateShareType(ctx context.Context, opts sharetypes.CreateOptsBuilder) (*sharetypes.ShareType, error)
 	DeleteShareType(ctx context.Context, resourceID string) error
-	GetShareType(ctx context.Context, resourceID string) (*sharetypes.ShareType, error)
-	UpdateShareType(ctx context.Context, id string, opts sharetypes.UpdateOptsBuilder) (*sharetypes.ShareType, error)
+	GetExtraSpecs(ctx context.Context, resourceID string) (sharetypes.ExtraSpecs, error)
 }
 
 type sharetypeClient struct{ client *gophercloud.ServiceClient }
 
 // NewShareTypeClient returns a new OpenStack client.
 func NewShareTypeClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (ShareTypeClient, error) {
-	client, err := openstack.NewSharedFilesystemV2(providerClient, gophercloud.EndpointOpts{
+	client, err := openstack.NewSharedFileSystemV2(providerClient, gophercloud.EndpointOpts{
 		Region:       providerClientOpts.RegionName,
 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
 	})
@@ -66,12 +65,8 @@ func (c sharetypeClient) DeleteShareType(ctx context.Context, resourceID string)
 	return sharetypes.Delete(ctx, c.client, resourceID).ExtractErr()
 }
 
-func (c sharetypeClient) GetShareType(ctx context.Context, resourceID string) (*sharetypes.ShareType, error) {
-	return sharetypes.Get(ctx, c.client, resourceID).Extract()
-}
-
-func (c sharetypeClient) UpdateShareType(ctx context.Context, id string, opts sharetypes.UpdateOptsBuilder) (*sharetypes.ShareType, error) {
-	return sharetypes.Update(ctx, c.client, id, opts).Extract()
+func (c sharetypeClient) GetExtraSpecs(ctx context.Context, resourceID string) (sharetypes.ExtraSpecs, error) {
+	return sharetypes.GetExtraSpecs(ctx, c.client, resourceID).Extract()
 }
 
 type sharetypeErrorClient struct{ error }
@@ -95,10 +90,6 @@ func (e sharetypeErrorClient) DeleteShareType(_ context.Context, _ string) error
 	return e.error
 }
 
-func (e sharetypeErrorClient) GetShareType(_ context.Context, _ string) (*sharetypes.ShareType, error) {
-	return nil, e.error
-}
-
-func (e sharetypeErrorClient) UpdateShareType(_ context.Context, _ string, _ sharetypes.UpdateOptsBuilder) (*sharetypes.ShareType, error) {
+func (e sharetypeErrorClient) GetExtraSpecs(_ context.Context, _ string) (sharetypes.ExtraSpecs, error) {
 	return nil, e.error
 }

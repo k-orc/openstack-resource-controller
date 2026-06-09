@@ -178,6 +178,14 @@ type ShareNetworkListerExpansion interface{}
 // ShareNetworkNamespaceLister.
 type ShareNetworkNamespaceListerExpansion interface{}
 
+// ShareTypeListerExpansion allows custom methods to be added to
+// ShareTypeLister.
+type ShareTypeListerExpansion interface{}
+
+// ShareTypeNamespaceListerExpansion allows custom methods to be added to
+// ShareTypeNamespaceLister.
+type ShareTypeNamespaceListerExpansion interface{}
+
 // SubnetListerExpansion allows custom methods to be added to
 // SubnetLister.
 type SubnetListerExpansion interface{}

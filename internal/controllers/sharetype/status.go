@@ -50,13 +50,17 @@ func (sharetypeStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Shar
 
 func (sharetypeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.ShareTypeResourceStatus().
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithIsPublic(osResource.IsPublic)
 
-	// TODO(scaffolding): add all of the fields supported in the ShareTypeResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+	if len(osResource.ExtraSpecs) > 0 {
+		extraSpecs := make(map[string]string)
+		for k, v := range osResource.ExtraSpecs {
+			if str, ok := v.(string); ok {
+				extraSpecs[k] = str
+			}
+		}
+		resourceStatus.WithExtraSpecs(extraSpecs)
 	}
 
 	statusApply.WithResource(resourceStatus)

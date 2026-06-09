@@ -6,7 +6,7 @@ metadata:
 status:
   resource:
     name: sharetype-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    isPublic: true
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +24,7 @@ resourceRefs:
       ref: sharetype
 assertAll:
     - celExpr: "sharetype.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "sharetype.status.resource.name == 'sharetype-create-minimal'"
+    - celExpr: "sharetype.status.resource.isPublic == true"
+    - celExpr: "has(sharetype.status.resource.extraSpecs)"
+    - celExpr: "sharetype.status.resource.extraSpecs['driver_handles_share_servers'] == 'True'"

@@ -1,14 +1,73 @@
 ---
+# Sample ShareType with all configuration options
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: ShareType
 metadata:
   name: sharetype-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    # ShareTypes require admin credentials
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Sample ShareType
-    # TODO(scaffolding): Add all fields the resource supports
+    # Optional: override the name in OpenStack (defaults to metadata.name)
+    name: my-share-type
+    
+    # Optional: make the share type public (default: true)
+    # Set to false to create a private share type
+    isPublic: true
+    
+    # Optional: determines if the storage backend manages share servers (default: true)
+    # true = driver handles share server lifecycle
+    # false = driver does not handle share servers (admin must configure)
+    driverHandlesShareServers: true
+    
+    # Optional: indicates if the backend supports share snapshots
+    # When set, filters backends by snapshot support capability
+    snapshotSupport: true
+---
+# Example: Minimal ShareType (uses all defaults)
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# Example: Private ShareType without DHSS
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-private
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: private-no-dhss
+    isPublic: false
+    driverHandlesShareServers: false
+---
+# Example: Import existing ShareType (unmanaged)
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-imported
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  # Use unmanaged to import existing resources
+  managementPolicy: unmanaged
+  import:
+    # Import by exact name
+    filter:
+      name: existing-share-type
+      # Optional: filter by public/private
+      isPublic: true

@@ -62,6 +62,9 @@ import (
 //go:generate mockgen -package mock -destination=sharenetwork.go -source=../sharenetwork.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock ShareNetworkClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt sharenetwork.go > _sharenetwork.go && mv _sharenetwork.go sharenetwork.go"
 
+//go:generate mockgen -package mock -destination=sharetype.go -source=../sharetype.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock ShareTypeClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt sharetype.go > _sharetype.go && mv _sharetype.go sharetype.go"
+
 //go:generate mockgen -package mock -destination=user.go -source=../user.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock UserClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt user.go > _user.go && mv _user.go user.go"
 

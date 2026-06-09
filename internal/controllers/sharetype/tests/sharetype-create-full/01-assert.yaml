@@ -4,4 +4,4 @@ kind: TestAssert
 assertAbsent:
   - apiVersion: openstack.k-orc.cloud/v1alpha1
     kind: ShareType
-    name: sharetype-create-minimal
+    name: sharetype-create-full

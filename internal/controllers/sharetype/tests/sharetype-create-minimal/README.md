@@ -1,15 +1,10 @@
-# Create a ShareType with the minimum options
+# sharetype-create-minimal
 
-## Step 00
+Creates a ShareType with the minimal required configuration (only driverHandlesShareServers set to true).
 
-Create a minimal ShareType, that sets only the required fields, and verify that the observed state corresponds to the spec.
-
-Also validate that the OpenStack resource uses the name of the ORC object when no name is explicitly specified.
-
-## Step 01
-
-Try deleting the secret and ensure that it is not deleted thanks to the finalizer.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#create-minimal
+Validates that:
+- The ShareType is created with the correct name
+- Default isPublic is true
+- The required driver_handles_share_servers extra spec is set
+- Resource becomes Available
+- Resource is deleted when credentials are removed

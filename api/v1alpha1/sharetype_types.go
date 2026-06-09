@@ -17,25 +17,28 @@ limitations under the License.
 package v1alpha1
 
 // ShareTypeResourceSpec contains the desired state of the resource.
+// All fields are immutable after creation.
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ShareTypeResourceSpec is immutable"
 type ShareTypeResourceSpec struct {
 	// name will be the name of the created resource. If not specified, the
 	// name of the ORC object will be used.
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// isPublic indicates whether a share type is publicly accessible.
+	// +kubebuilder:default:=true
 	// +optional
-	Description *string `json:"description,omitempty"`
+	IsPublic *bool `json:"isPublic,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// driverHandlesShareServers defines the driver mode for share server, or storage, life cycle management.
+	// This is a required extra specification for share types.
+	// +kubebuilder:default:=true
+	// +optional
+	DriverHandlesShareServers *bool `json:"driverHandlesShareServers,omitempty"`
+
+	// snapshotSupport filters back ends by whether they do or do not support share snapshots.
+	// +optional
+	SnapshotSupport *bool `json:"snapshotSupport,omitempty"`
 }
 
 // ShareTypeFilter defines an existing resource by its properties
@@ -45,15 +48,9 @@ type ShareTypeFilter struct {
 	// +optional
 	Name *OpenStackName `json:"name,omitempty"`
 
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// isPublic selects public types, private types, or both
 	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes
+	IsPublic *bool `json:"isPublic,omitempty"`
 }
 
 // ShareTypeResourceStatus represents the observed state of the resource.
@@ -63,12 +60,11 @@ type ShareTypeResourceStatus struct {
 	// +optional
 	Name string `json:"name,omitempty"`
 
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MaxLength=1024
+	// isPublic indicates whether a share type is publicly accessible.
 	// +optional
-	Description string `json:"description,omitempty"`
+	IsPublic bool `json:"isPublic,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ShareType structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes
+	// extraSpecs contains the extra specifications for the share type.
+	// +optional
+	ExtraSpecs map[string]string `json:"extraSpecs,omitempty"`
 }
