@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.6 - June 10, 2026
+
+### Bug fixes
+
+- Tightened adoption filters across multiple controllers (AddressScope, FloatingIP, Group, Network, Port, Project, Router, SecurityGroup, ServerGroup, Subnet, Trunk, User) to prevent adopting resources that don't fully match the spec
+- Fixed terminal error classification: use `IsRetryable` instead of `IsConflict` so non-HTTP gophercloud errors (e.g., client-side validation failures) are no longer retried indefinitely (Fixes [#241](https://github.com/k-orc/openstack-resource-controller/issues/241))
+- Treated Neutron quota-exceeded 409 errors as retryable so controllers retry when quota becomes available (Fixes [#667](https://github.com/k-orc/openstack-resource-controller/issues/667))
+- Fixed port status not updating to ACTIVE after server interface attachment
+- Fixed volume status not updating to in-use after server attachment
+
+### Infrastructure improvements
+
+- Bumped Go to 1.25.11
+- Bumped kuttl to v0.26.0
+- Bumped golang.org/x/net to v0.53.0 and other dependency updates
+- Added CI verification for `generate-bundle`
+
 ## v2.5 - April 16, 2026
 
 This release adds five new controllers spanning Neutron and Keystone services,
