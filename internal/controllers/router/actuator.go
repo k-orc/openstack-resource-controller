@@ -26,14 +26,14 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/tags"
 )
 
 type (

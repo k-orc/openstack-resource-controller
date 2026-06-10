@@ -160,7 +160,7 @@ projectID := ptr.Deref(project.Status.ID, "")
 For one-off lookups that don't need finalizers (e.g., resolving refs in `ListOSResourcesForAdoption` or import filters), use `dependency.FetchDependency` instead of a declared dependency:
 
 ```go
-import "github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+import "github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 
 project, rs := dependency.FetchDependency(
     ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
@@ -261,7 +261,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller 
 Neutron resources use a separate tags API instead of the resource's Update API. The `internal/util/tags` package provides a reusable reconciler:
 
 ```go
-import "github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
+import "github.com/k-orc/openstack-resource-controller/v3/internal/util/tags"
 
 func (actuator myActuator) GetResourceReconcilers(...) ([]resourceReconciler, progress.ReconcileStatus) {
     return []resourceReconciler{
@@ -335,7 +335,7 @@ type FlavorResourceStatus struct {
 ## Logging Levels
 
 ```go
-import "github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+import "github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 
 log.V(logging.Status).Info("...")   // Always shown: startup, shutdown
 log.V(logging.Info).Info("...")     // Default: creation/deletion, reconcile complete

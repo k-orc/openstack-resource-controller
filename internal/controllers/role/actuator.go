@@ -21,18 +21,18 @@ import (
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/roles"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 // OpenStack resource types

@@ -20,8 +20,8 @@ package group
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
-	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v3/internal/util/strings"
 )
 
 var (

@@ -22,8 +22,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"iter"
 	"testing"
 
-	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"k8s.io/utils/ptr"
 )
 

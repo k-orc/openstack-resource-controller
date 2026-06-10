@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"k8s.io/utils/ptr"
 )
 

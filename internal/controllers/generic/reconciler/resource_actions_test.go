@@ -32,7 +32,7 @@ import (
 
 	"github.com/go-logr/logr"
 
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 // --------------------------------------------------------------------------
