@@ -26,13 +26,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
-	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/finalizers"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v3/internal/util/strings"
 )
 
 const (

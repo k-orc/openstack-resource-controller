@@ -109,7 +109,7 @@ version::ldflags() {
         fi
 
         ldflags+=(
-            "-X 'github.com/k-orc/openstack-resource-controller/v2/internal/version.${key}=${val}'"
+            "-X 'github.com/k-orc/openstack-resource-controller/v3/internal/version.${key}=${val}'"
         )
     }
 

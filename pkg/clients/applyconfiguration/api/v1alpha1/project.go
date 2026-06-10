@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	internal "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/internal"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	internal "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
@@ -71,7 +71,7 @@ func ExtractProjectStatus(project *apiv1alpha1.Project, fieldManager string) (*P
 
 func extractProject(project *apiv1alpha1.Project, fieldManager string, subresource string) (*ProjectApplyConfiguration, error) {
 	b := &ProjectApplyConfiguration{}
-	err := managedfields.ExtractInto(project, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Project"), fieldManager, b, subresource)
+	err := managedfields.ExtractInto(project, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.Project"), fieldManager, b, subresource)
 	if err != nil {
 		return nil, err
 	}

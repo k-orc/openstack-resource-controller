@@ -23,10 +23,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/applyconfigs"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 type WithConditionsApplyConfiguration[T any] interface {

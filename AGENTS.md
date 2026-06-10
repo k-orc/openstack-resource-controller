@@ -231,7 +231,7 @@ type FlavorResourceStatus struct {
 ## Logging Levels
 
 ```go
-import "github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+import "github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 
 log.V(logging.Status).Info("...")   // Always shown: startup, shutdown
 log.V(logging.Info).Info("...")     // Default: creation/deletion, reconcile complete

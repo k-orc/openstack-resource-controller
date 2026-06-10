@@ -30,9 +30,9 @@ import (
 	// corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 func (actuator imageActuator) hashVerifier(ctx context.Context, expectedValue string) hashCompletionHandler {
