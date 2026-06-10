@@ -91,7 +91,7 @@ kubectl delete -f $ORC_RELEASE
 | server                      |         |    ◐    |     ◐    |
 | server group                |         |    ✔    |     ✔    |
 | service                     |         |    ✔    |     ✔    |
-| share network               |         |    ◐    |     ◐    |
+| share network               |         |         |     ◐    |
 | subnet                      |         |    ◐    |     ◐    |
 | trunk                       |         |    ✔    |     ✔    |
 | user                        |         |    ◐    |     ◐    |
