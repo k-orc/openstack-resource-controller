@@ -163,7 +163,7 @@ func TestShouldReconcile_ResyncEnabled_NilLastSyncTime(t *testing.T) {
 	t.Parallel()
 
 	// When resyncPeriod > 0 and lastSyncTime is nil (never synced), reconcile
-	// immediately (TS-015: persisted time is absent → treat as overdue).
+	// immediately (persisted time is absent → treat as overdue).
 	obj := makeObj(1, []metav1.Condition{
 		makeProgressingCondition(metav1.ConditionFalse, 1),
 	})
@@ -243,7 +243,7 @@ func TestShouldReconcile_ResyncEnabled_ProgressingTrue_IgnoresResyncNotElapsed(t
 func TestShouldReconcile_ResyncEnabled_ControllerRestart_PersistsLastSyncTime(t *testing.T) {
 	t.Parallel()
 
-	// Thundering-herd prevention (TS-015): after a controller restart,
+	// Thundering-herd prevention: after a controller restart,
 	// lastSyncTime is read from the persisted Kubernetes status. If the
 	// persisted time is recent, shouldReconcile should return false so the
 	// controller does not immediately hammer OpenStack for all resources at once.
@@ -257,7 +257,7 @@ func TestShouldReconcile_ResyncEnabled_ControllerRestart_PersistsLastSyncTime(t 
 
 	got := shouldReconcile(obj, lastSyncTime, resyncPeriod)
 	if got {
-		t.Error("shouldReconcile() = true; want false: controller should respect persisted lastSyncTime after restart (TS-015)")
+		t.Error("shouldReconcile() = true; want false: controller should respect persisted lastSyncTime after restart")
 	}
 }
 
@@ -329,7 +329,7 @@ func scheduleResyncRequeue(reconcileStatus progress.ReconcileStatus, period time
 }
 
 // TestResyncRequeue_ScheduledWhenPeriodPositive verifies that a resync requeue
-// is added to a clean ReconcileStatus when resyncPeriod > 0 (TS-006).
+// is added to a clean ReconcileStatus when resyncPeriod > 0.
 func TestResyncRequeue_ScheduledWhenPeriodPositive(t *testing.T) {
 	t.Parallel()
 
@@ -345,7 +345,7 @@ func TestResyncRequeue_ScheduledWhenPeriodPositive(t *testing.T) {
 		t.Fatal("expected a non-zero requeue duration after resync scheduling; got 0")
 	}
 
-	// The requeue must be within the jitter range [period*1.0, period*1.2) (TS-006).
+	// The requeue must be within the jitter range [period*1.0, period*1.2).
 	lo := time.Duration(float64(period) * 1.0)
 	hi := time.Duration(float64(period) * 1.2)
 	if requeue < lo || requeue > hi {
@@ -380,8 +380,8 @@ func TestResyncRequeue_NotScheduledWhenPeriodNegative(t *testing.T) {
 }
 
 // TestResyncRequeue_NotScheduledWhenTerminalError verifies that no resync
-// requeue is scheduled when the ReconcileStatus contains a terminal error
-// (TS-008). Terminal errors indicate the resource is in a non-retryable state;
+// requeue is scheduled when the ReconcileStatus contains a terminal error.
+// Terminal errors indicate the resource is in a non-retryable state;
 // resyncing would be pointless and wasteful.
 func TestResyncRequeue_NotScheduledWhenTerminalError(t *testing.T) {
 	t.Parallel()
@@ -398,7 +398,7 @@ func TestResyncRequeue_NotScheduledWhenTerminalError(t *testing.T) {
 }
 
 // TestResyncRequeue_NotScheduledWhenRequeueAlreadyPending verifies that no
-// additional resync requeue is scheduled when one is already set (TS-012).
+// additional resync requeue is scheduled when one is already set.
 // This prevents redundant requeues when the reconciler is already waiting on
 // an OpenStack event or dependency.
 func TestResyncRequeue_NotScheduledWhenRequeueAlreadyPending(t *testing.T) {
@@ -420,7 +420,7 @@ func TestResyncRequeue_NotScheduledWhenRequeueAlreadyPending(t *testing.T) {
 
 // TestResyncRequeue_JitterIsApplied verifies that multiple scheduling calls
 // with the same period produce different requeue durations (jitter is random),
-// and all values are within the expected [+0%, +20%] range (TS-006).
+// and all values are within the expected [+0%, +20%] range.
 func TestResyncRequeue_JitterIsApplied(t *testing.T) {
 	t.Parallel()
 
@@ -451,7 +451,7 @@ func TestResyncRequeue_JitterIsApplied(t *testing.T) {
 
 // TestResyncRequeue_RequeueTimingRange verifies the requeue timing over many
 // samples remains within the [+0%, +20%] jitter window, functioning as an
-// integration check of the scheduling logic used in reconcileNormal (TS-006).
+// integration check of the scheduling logic used in reconcileNormal.
 func TestResyncRequeue_RequeueTimingRange(t *testing.T) {
 	t.Parallel()
 

@@ -17,12 +17,10 @@ limitations under the License.
 // Package reconciler contains unit tests for external deletion handling in
 // GetOrCreateOSResource.
 //
-// These tests cover all combinations of management policy and import status
-// when a resource's OpenStack counterpart is not found (404), verifying that:
+// These tests cover management policy behaviour when a resource's OpenStack
+// counterpart is not found (404), verifying that:
 //
 //   - Managed, ORC-created resources trigger recreation (IsExternallyDeleted)
-//   - Managed, imported-by-ID resources return a terminal error
-//   - Managed, imported-by-filter resources return a terminal error
 //   - Unmanaged resources return a terminal error
 //   - Managed, existing resources continue through the normal update flow
 package reconciler
@@ -33,47 +31,9 @@ import (
 	"testing"
 
 	"github.com/go-logr/logr"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/ptr"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
-
-// --------------------------------------------------------------------------
-// Helpers for building test Flavors used in external-deletion tests.
-//
-// All helpers pre-set the controller finalizer so that GetOrCreateOSResource
-// does not attempt to call the Kubernetes client to add it.
-// --------------------------------------------------------------------------
-
-// managedFlavorImportedByFilter builds a managed Flavor that was imported via
-// a filter (has a non-nil import.Filter) and whose status.ID is already set.
-// When GetOSResourceByID returns a not-found error, IsImported() returns true
-// because GetImportFilter() is non-nil, so the controller must return a
-// terminal error rather than triggering recreation.
-func managedFlavorImportedByFilter(statusID string) fakeAdapter {
-	return fakeAdapter{
-		Flavor: &orcv1alpha1.Flavor{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:       "test-flavor",
-				Namespace:  "default",
-				Finalizers: []string{finalizerFor()},
-			},
-			Spec: orcv1alpha1.FlavorSpec{
-				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
-				Import: &orcv1alpha1.FlavorImport{
-					Filter: &orcv1alpha1.FlavorFilter{
-						Name: ptr.To[orcv1alpha1.OpenStackName]("my-flavor"),
-					},
-				},
-			},
-			Status: orcv1alpha1.FlavorStatus{
-				ID: ptr.To(statusID),
-			},
-		},
-	}
-}
 
 // --------------------------------------------------------------------------
 // External deletion tests — all use GetOrCreateOSResource directly.
@@ -101,62 +61,6 @@ func TestGetOrCreateOSResource_ExternalDeletion_ManagedOrcCreated(t *testing.T) 
 	}
 	if !actuator.getByIDCalled {
 		t.Error("GetOSResourceByID was not called: controller must attempt to fetch the resource")
-	}
-}
-
-// TestGetOrCreateOSResource_ExternalDeletion_ManagedImportedByID verifies that
-// when a managed resource originally imported by ID is externally deleted, the
-// controller returns a terminal error. Recreation is not possible for imported
-// resources because we cannot know the original creation parameters.
-func TestGetOrCreateOSResource_ExternalDeletion_ManagedImportedByID(t *testing.T) {
-	t.Parallel()
-
-	const resourceID = "imported-by-id-flavor-id"
-
-	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
-	adapter := managedFlavorImportedByID(resourceID)
-
-	_, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
-
-	_, err := rs.NeedsReschedule()
-	if err == nil {
-		t.Fatal("expected a terminal error for externally-deleted imported-by-ID resource, got nil")
-	}
-
-	var termErr *orcerrors.TerminalError
-	if !errors.As(err, &termErr) {
-		t.Errorf("expected a TerminalError for externally-deleted imported-by-ID resource, got %T: %v", err, err)
-	}
-	if !actuator.getByIDCalled {
-		t.Error("GetOSResourceByID was not called")
-	}
-}
-
-// TestGetOrCreateOSResource_ExternalDeletion_ManagedImportedByFilter verifies
-// that when a managed resource originally imported via a filter is externally
-// deleted, the controller returns a terminal error. As with import-by-ID,
-// recreation is not possible.
-func TestGetOrCreateOSResource_ExternalDeletion_ManagedImportedByFilter(t *testing.T) {
-	t.Parallel()
-
-	const resourceID = "imported-by-filter-flavor-id"
-
-	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
-	adapter := managedFlavorImportedByFilter(resourceID)
-
-	_, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
-
-	_, err := rs.NeedsReschedule()
-	if err == nil {
-		t.Fatal("expected a terminal error for externally-deleted imported-by-filter resource, got nil")
-	}
-
-	var termErr *orcerrors.TerminalError
-	if !errors.As(err, &termErr) {
-		t.Errorf("expected a TerminalError for externally-deleted imported-by-filter resource, got %T: %v", err, err)
-	}
-	if !actuator.getByIDCalled {
-		t.Error("GetOSResourceByID was not called")
 	}
 }
 

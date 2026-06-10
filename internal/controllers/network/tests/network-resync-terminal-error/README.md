@@ -27,4 +27,4 @@ resource remains in the terminal error state. Specifically:
 ## Reference
 
 Tests that resources in a terminal error state are excluded from the periodic
-resync scheduler, as specified by acceptance criterion TS-008.
+resync scheduler.

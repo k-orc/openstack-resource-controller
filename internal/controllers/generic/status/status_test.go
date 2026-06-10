@@ -38,8 +38,7 @@ import (
 
 // TestShouldSetLastSyncTime_SuccessfulReconciliation verifies that lastSyncTime
 // is set when reconcileStatus is nil (clean success, no errors, no progress
-// messages). This is the common case after a successful OpenStack API read
-// (TS-009, TS-013).
+// messages). This is the common case after a successful OpenStack API read.
 func TestShouldSetLastSyncTime_SuccessfulReconciliation(t *testing.T) {
 	t.Parallel()
 
@@ -53,7 +52,7 @@ func TestShouldSetLastSyncTime_SuccessfulReconciliation(t *testing.T) {
 // TestShouldSetLastSyncTime_WithRequeueOnly verifies that a requeue alone
 // (e.g., for a periodic resync) does not prevent lastSyncTime from being set.
 // A pending requeue without errors or progress messages still counts as a
-// successful reconciliation cycle (TS-009).
+// successful reconciliation cycle.
 func TestShouldSetLastSyncTime_WithRequeueOnly(t *testing.T) {
 	t.Parallel()
 
@@ -66,7 +65,7 @@ func TestShouldSetLastSyncTime_WithRequeueOnly(t *testing.T) {
 
 // TestShouldSetLastSyncTime_WithError verifies that lastSyncTime is NOT set
 // when reconcileStatus contains an error. An error means the controller did not
-// successfully complete the reconciliation cycle (TS-009, TS-013).
+// successfully complete the reconciliation cycle.
 func TestShouldSetLastSyncTime_WithError(t *testing.T) {
 	t.Parallel()
 
@@ -78,7 +77,7 @@ func TestShouldSetLastSyncTime_WithError(t *testing.T) {
 
 // TestShouldSetLastSyncTime_WithTerminalError verifies that lastSyncTime is NOT
 // set when reconcileStatus contains a terminal error. Terminal errors indicate
-// a non-retryable failure; the reconciliation did not succeed (TS-009, TS-013).
+// a non-retryable failure; the reconciliation did not succeed.
 func TestShouldSetLastSyncTime_WithTerminalError(t *testing.T) {
 	t.Parallel()
 
@@ -92,8 +91,7 @@ func TestShouldSetLastSyncTime_WithTerminalError(t *testing.T) {
 // TestShouldSetLastSyncTime_WithProgressMessage verifies that lastSyncTime is
 // NOT set when reconcileStatus contains a progress message. Progress messages
 // indicate that the reconciliation is still ongoing (waiting on a dependency,
-// resource not yet ready, etc.) and has not completed successfully (TS-009,
-// TS-013).
+// resource not yet ready, etc.) and has not completed successfully.
 func TestShouldSetLastSyncTime_WithProgressMessage(t *testing.T) {
 	t.Parallel()
 

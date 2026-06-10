@@ -161,7 +161,7 @@ func (c *Controller[
 // existing condition-based behaviour is unchanged.
 //
 // The resync check uses the persisted lastSyncTime so that controller restarts
-// respect the time already elapsed, preventing a thundering herd (TS-015).
+// respect the time already elapsed, preventing a thundering herd\.
 //
 // If shouldReconcile is preventing an object from being reconciled which should
 // be reconciled, consider if that object's actuator is correctly returning a
@@ -273,9 +273,9 @@ func (c *Controller[
 	}
 
 	// Schedule a resync requeue when the effective resync period is configured,
-	// there is no terminal error, and no other requeue is already pending (TS-006,
-	// TS-008, TS-012). Positive-only jitter of [0%, +20%] is applied to spread
-	// load across resources sharing the same period.
+	// there is no terminal error, and no other requeue is already pending.
+	// Positive-only jitter of [0%, +20%] is applied to spread load across
+	// resources sharing the same period.
 	if resync.ShouldScheduleResync(effectiveResyncPeriod, reconcileStatus) {
 		reconcileStatus = reconcileStatus.WithRequeue(resync.CalculateJitteredDuration(effectiveResyncPeriod))
 	}

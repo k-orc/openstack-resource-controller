@@ -124,7 +124,7 @@ func UpdateStatus[
 
 	// Set lastSyncTime only on successful reconciliation: no errors and no
 	// progress messages indicate that the controller successfully fetched the
-	// resource state from OpenStack (TS-009, TS-013).
+	// resource state from OpenStack.
 	if shouldSetLastSyncTime(reconcileStatus) {
 		applyConfigStatus.WithLastSyncTime(now)
 	}

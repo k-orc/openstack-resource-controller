@@ -90,7 +90,7 @@ func TestCalculateJitteredDuration_Uniformity(t *testing.T) {
 }
 
 // TestCalculateJitteredDuration_Independence verifies that multiple resources
-// receive independent jitter values (TS-011): calling the function twice with
+// receive independent jitter values: calling the function twice with
 // the same base should produce different values in the vast majority of cases.
 func TestCalculateJitteredDuration_Independence(t *testing.T) {
 	t.Parallel()
@@ -139,7 +139,7 @@ func TestShouldScheduleResync(t *testing.T) {
 		want            bool
 	}{
 		{
-			// TS-007: resync disabled globally
+			// resync disabled globally
 			name:            "resyncPeriod 0, nil status, returns false",
 			resyncPeriod:    0,
 			reconcileStatus: nil,
@@ -153,14 +153,14 @@ func TestShouldScheduleResync(t *testing.T) {
 			want:            false,
 		},
 		{
-			// TS-008: terminal error → no resync
+			// terminal error → no resync
 			name:            "terminal error in status, returns false",
 			resyncPeriod:    time.Hour,
 			reconcileStatus: progress.WrapError(terminalErr),
 			want:            false,
 		},
 		{
-			// TS-012: requeue already pending → resync is redundant
+			// requeue already pending → resync is redundant
 			name:            "requeue already pending in status, returns false",
 			resyncPeriod:    time.Hour,
 			reconcileStatus: progress.NewReconcileStatus().WithRequeue(5 * time.Second),

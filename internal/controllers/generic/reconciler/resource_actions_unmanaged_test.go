@@ -17,7 +17,7 @@ limitations under the License.
 // Package reconciler contains integration tests verifying that unmanaged ORC
 // resources do not invoke any OpenStack write operations during periodic resync.
 //
-// Acceptance criteria covered (TS-007):
+// Acceptance criteria covered:
 //   - Unmanaged resources update status without invoking actuator updates.
 //   - Unmanaged resources still fetch current OpenStack state (read-only).
 //   - CreateResource is NEVER called for unmanaged resources.
@@ -59,7 +59,7 @@ type fakeOSResource struct {
 }
 
 // --------------------------------------------------------------------------
-// Mock actuator that enforces "no write operations" (TS-007).
+// Mock actuator that enforces "no write operations".
 //
 // GetOSResourceByID and ListOSResourcesForImport are read-only operations and
 // are expected to be called for unmanaged resources. CreateResource is a write
@@ -118,9 +118,9 @@ func (a *noWriteActuator) ListOSResourcesForImport(_ context.Context, _ *orcv1al
 	}, nil
 }
 
-// CreateResource is a write operation: MUST NOT be called for unmanaged resources (TS-007).
+// CreateResource is a write operation: MUST NOT be called for unmanaged resources.
 func (a *noWriteActuator) CreateResource(_ context.Context, _ *orcv1alpha1.Flavor) (*fakeOSResource, progress.ReconcileStatus) {
-	a.t.Fatal("CreateResource was called for an unmanaged resource: this is a write operation and MUST NOT be invoked (TS-007)")
+	a.t.Fatal("CreateResource was called for an unmanaged resource: this is a write operation and MUST NOT be invoked")
 	return nil, nil
 }
 
@@ -328,29 +328,6 @@ func managedFlavorWithStatusID(statusID string) fakeAdapter {
 	}
 }
 
-// managedFlavorImportedByID builds a managed Flavor that was imported by ID
-// (has a non-nil import.ID) and whose status.ID is already set.
-func managedFlavorImportedByID(statusID string) fakeAdapter {
-	return fakeAdapter{
-		Flavor: &orcv1alpha1.Flavor{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:       "test-flavor",
-				Namespace:  "default",
-				Finalizers: []string{finalizerFor()},
-			},
-			Spec: orcv1alpha1.FlavorSpec{
-				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
-				Import: &orcv1alpha1.FlavorImport{
-					ID: ptr.To(statusID),
-				},
-			},
-			Status: orcv1alpha1.FlavorStatus{
-				ID: ptr.To(statusID),
-			},
-		},
-	}
-}
-
 // notFoundErr returns a gophercloud not-found error that orcerrors.IsNotFound
 // will recognise.
 func notFoundErr() error {
@@ -364,7 +341,7 @@ func notFoundErr() error {
 // TestGetOrCreateOSResource_UnmanagedByStatusID verifies that for an unmanaged
 // resource whose status.ID is already set (the periodic resync case), only
 // GetOSResourceByID is called. No write operation (CreateResource) must be
-// invoked (TS-007: unmanaged resources update status without invoking actuator
+// invoked (unmanaged resources update status without invoking actuator
 // updates).
 func TestGetOrCreateOSResource_UnmanagedByStatusID(t *testing.T) {
 	t.Parallel()
@@ -395,7 +372,7 @@ func TestGetOrCreateOSResource_UnmanagedByStatusID(t *testing.T) {
 
 // TestGetOrCreateOSResource_UnmanagedByImportID verifies that for an unmanaged
 // resource using import-by-ID (no statusID yet), GetOSResourceByID is called
-// as a read-only operation and CreateResource is never invoked (TS-007).
+// as a read-only operation and CreateResource is never invoked.
 func TestGetOrCreateOSResource_UnmanagedByImportID(t *testing.T) {
 	t.Parallel()
 
@@ -420,7 +397,7 @@ func TestGetOrCreateOSResource_UnmanagedByImportID(t *testing.T) {
 
 // TestGetOrCreateOSResource_UnmanagedByFilter verifies that for an unmanaged
 // resource using filter-based import, ListOSResourcesForImport is called as a
-// read-only operation and CreateResource is never invoked (TS-007).
+// read-only operation and CreateResource is never invoked.
 func TestGetOrCreateOSResource_UnmanagedByFilter(t *testing.T) {
 	t.Parallel()
 
@@ -447,7 +424,7 @@ func TestGetOrCreateOSResource_UnmanagedByFilter(t *testing.T) {
 
 // TestGetOrCreateOSResource_UnmanagedNoImport verifies that an unmanaged
 // resource with no import configuration returns a terminal error without calling
-// CreateResource (TS-007). API validation should prevent this state in
+// CreateResource. API validation should prevent this state in
 // production, but the reconciler must handle it safely.
 func TestGetOrCreateOSResource_UnmanagedNoImport(t *testing.T) {
 	t.Parallel()
@@ -479,7 +456,7 @@ func TestGetOrCreateOSResource_UnmanagedNoImport(t *testing.T) {
 // TestGetOrCreateOSResource_UnmanagedStatusIDDeleted verifies that when an
 // unmanaged resource's OpenStack resource has been deleted externally (the
 // controller receives a not-found error), the controller returns a terminal
-// error rather than calling CreateResource (TS-007).
+// error rather than calling CreateResource.
 func TestGetOrCreateOSResource_UnmanagedStatusIDDeleted(t *testing.T) {
 	t.Parallel()
 
@@ -534,35 +511,6 @@ func TestGetOrCreateOSResource_ManagedStatusIDDeleted(t *testing.T) {
 	}
 
 	// The controller must still have attempted to fetch the resource.
-	if !actuator.getByIDCalled {
-		t.Error("GetOSResourceByID was not called")
-	}
-}
-
-// TestGetOrCreateOSResource_ManagedImportedByIDDeleted verifies that when a
-// managed resource that was imported by ID has been deleted externally, the
-// controller returns a terminal error (cannot recreate an imported resource).
-func TestGetOrCreateOSResource_ManagedImportedByIDDeleted(t *testing.T) {
-	t.Parallel()
-
-	const resourceID = "deleted-imported-flavor-id"
-
-	// Simulate OpenStack returning a 404 / not-found.
-	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
-	adapter := managedFlavorImportedByID(resourceID)
-
-	_, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
-
-	_, err := rs.NeedsReschedule()
-	if err == nil {
-		t.Fatal("expected a terminal error for externally-deleted imported resource, got nil")
-	}
-
-	var termErr *orcerrors.TerminalError
-	if !errors.As(err, &termErr) {
-		t.Errorf("expected a TerminalError for externally-deleted imported resource, got %T: %v", err, err)
-	}
-
 	if !actuator.getByIDCalled {
 		t.Error("GetOSResourceByID was not called")
 	}

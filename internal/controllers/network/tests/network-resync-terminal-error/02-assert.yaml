@@ -2,7 +2,7 @@
 # After waiting longer than the configured resyncPeriod, the resource must
 # still be in the terminal error state and lastSyncTime must still be absent.
 # This confirms that the periodic resync scheduler correctly skips resources
-# that have a terminal error (TS-008).
+# that have a terminal error.
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:

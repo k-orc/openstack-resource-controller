@@ -95,15 +95,7 @@ If you imported an existing resource using `spec.import`, ORC reports a **termin
 ORC does **not** recreate imported resources because it did not create them originally, and recreating a new empty resource would not restore what was lost.
 
 ```yaml
-# This type of resource enters terminal error if deleted from OpenStack
-spec:
-  managementPolicy: managed
-  import:
-    id: "12345678-1234-1234-1234-123456789abc"  # Was imported by ID
-```
-
-```yaml
-# This type also enters terminal error if deleted from OpenStack
+# Unmanaged resources enter terminal error if deleted from OpenStack
 spec:
   managementPolicy: unmanaged
   import:
@@ -111,15 +103,13 @@ spec:
       name: public  # Was imported by filter
 ```
 
-To recover: manually recreate the OpenStack resource and update the ORC object's `spec.import.id` to the new resource ID, or delete and recreate the ORC object.
+To recover: delete and recreate the ORC object pointing at a newly created OpenStack resource.
 
 ### Summary Table
 
 | Resource Type | How Obtained | External Deletion Behavior |
 |--------------|--------------|---------------------------|
-| Managed, ORC-created | `spec.resource` | **Recreated** automatically |
-| Managed, imported by ID | `spec.import.id` | **Terminal error** |
-| Managed, imported by filter | `spec.import.filter` | **Terminal error** |
+| Managed | `spec.resource` | **Recreated** automatically |
 | Unmanaged | `spec.import.*` | **Terminal error** |
 
 ## Verifying Recreation Occurred

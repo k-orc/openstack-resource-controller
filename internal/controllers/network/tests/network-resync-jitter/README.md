@@ -26,6 +26,6 @@ differences (which would be flaky at sub-second granularity).
 
 ## Reference
 
-Tests the jitter-based resync scheduling feature (TS-011): multiple resources
+Tests the jitter-based resync scheduling feature: multiple resources
 with the same `resyncPeriod` should be independently scheduled rather than
 all reconciling simultaneously.

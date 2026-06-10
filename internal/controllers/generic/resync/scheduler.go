@@ -46,11 +46,11 @@ func CalculateJitteredDuration(base time.Duration) time.Duration {
 // based on the effective resync period and the current reconcile status.
 //
 // It returns false (do not schedule) when:
-//   - resyncPeriod <= 0: periodic resync is disabled (TS-007).
+//   - resyncPeriod <= 0: periodic resync is disabled.
 //   - reconcileStatus contains a terminal error: the resource is in a
-//     non-retryable error state; resync would be pointless (TS-008).
+//     non-retryable error state; resync would be pointless.
 //   - reconcileStatus already requests a requeue: another reconcile is
-//     already pending so a resync requeue would be redundant (TS-012).
+//     already pending so a resync requeue would be redundant.
 //
 // When it returns true, the caller should schedule a requeue after
 // CalculateJitteredDuration(resyncPeriod).

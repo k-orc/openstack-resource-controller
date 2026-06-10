@@ -33,35 +33,35 @@ func TestDetermineResyncPeriod(t *testing.T) {
 		want          time.Duration
 	}{
 		{
-			// TS-004: spec nil, global disabled → disabled
+			// spec nil, global disabled → disabled
 			name:          "spec nil, global 0, returns 0 (disabled)",
 			specValue:     nil,
 			globalDefault: 0,
 			want:          0,
 		},
 		{
-			// TS-005: spec nil, global set → use global
+			// spec nil, global set → use global
 			name:          "spec nil, global 1h, returns 1h",
 			specValue:     nil,
 			globalDefault: time.Hour,
 			want:          time.Hour,
 		},
 		{
-			// TS-010: spec overrides global
+			// spec overrides global
 			name:          "spec 30m, global 1h, returns 30m (spec overrides)",
 			specValue:     &metav1.Duration{Duration: 30 * time.Minute},
 			globalDefault: time.Hour,
 			want:          30 * time.Minute,
 		},
 		{
-			// TS-004 variant: explicit 0s in spec disables resync regardless of global
+			// explicit 0s in spec disables resync regardless of global
 			name:          "spec 0s (explicit), global 1h, returns 0 (explicitly disabled)",
 			specValue:     &metav1.Duration{Duration: 0},
 			globalDefault: time.Hour,
 			want:          0,
 		},
 		{
-			// TS-010 variant: spec enables resync even when global is disabled
+			// spec enables resync even when global is disabled
 			name:          "spec 2h, global 0, returns 2h (spec enables despite global disabled)",
 			specValue:     &metav1.Duration{Duration: 2 * time.Hour},
 			globalDefault: 0,
