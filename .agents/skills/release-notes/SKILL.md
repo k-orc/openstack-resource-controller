@@ -20,6 +20,7 @@ Use this skill when:
 Ask the user for:
 1. **New version number** (e.g., `v2.5.0`)
 2. **Release date** (default: today)
+3. **Release branch** (optional): The branch from which the release will be cut. Defaults to `HEAD`. When the release is cut from a different branch (e.g., `release-2.0`), use that branch as the upper bound of the commit range instead of `HEAD`. Release notes may be written on `main` even though the release is cut from a release branch.
 
 Then determine the previous release tag automatically:
 ```bash
@@ -28,25 +29,25 @@ git tag --sort=-v:refname | head -1
 
 ## Step 2: Collect Git History
 
-Run these commands to gather the raw data (replace `<prev>` with the previous tag):
+Run these commands to gather the raw data. Replace `<prev>` with the previous tag and `<release>` with the release branch (e.g., `upstream/release-2.0`) or `HEAD` if releasing from the current branch:
 
 ```bash
 # Full commit log
-git log <prev>..HEAD --oneline
+git log <prev>..<release> --oneline
 
 # Contributors with commit counts
-git shortlog -sne <prev>..HEAD
+git shortlog -sne <prev>..<release>
 
 # New controller directories (compare directory listings)
 diff <(git ls-tree -d --name-only <prev> internal/controllers/ | sort) \
-     <(git ls-tree -d --name-only HEAD internal/controllers/ | sort) \
+     <(git ls-tree -d --name-only <release> internal/controllers/ | sort) \
   | grep '^>'
 
 # All authors who ever contributed before this release
 git log <prev> --format='%aN' | sort -u > /tmp/old-contributors.txt
 
 # Authors in this release
-git log <prev>..HEAD --format='%aN' | sort -u > /tmp/new-contributors.txt
+git log <prev>..<release> --format='%aN' | sort -u > /tmp/new-contributors.txt
 
 # First-time contributors
 comm -13 /tmp/old-contributors.txt /tmp/new-contributors.txt
@@ -54,9 +55,11 @@ comm -13 /tmp/old-contributors.txt /tmp/new-contributors.txt
 
 For each first-time contributor, find the PR number of their first contribution:
 ```bash
-git log <prev>..HEAD --author="<name>" --oneline --reverse | head -1
+git log <prev>..<release> --author="<name>" --oneline --reverse | head -1
 ```
 Then look up the corresponding PR number from the merge commit message (format: `Merge pull request #NNN`).
+
+> **Note**: When using a release branch, make sure to fetch it first (e.g., `git fetch upstream release-2.0`). The merge commit on the release branch may reference a backport PR number rather than the original PR. Use the original PR number from `main` for release notes since that's where the review and discussion happened.
 
 ## Step 3: Categorize Changes
 
