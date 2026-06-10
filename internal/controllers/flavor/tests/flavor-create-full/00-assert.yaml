@@ -4,6 +4,7 @@ kind: Flavor
 metadata:
   name: flavor-create-full
 status:
+  id: testId-123
   resource:
     name: flavor-create-full-override
     description: Flavor from "create full" test

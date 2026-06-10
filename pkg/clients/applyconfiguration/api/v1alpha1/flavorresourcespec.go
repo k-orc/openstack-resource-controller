@@ -26,6 +26,7 @@ import (
 // with apply.
 type FlavorResourceSpecApplyConfiguration struct {
 	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	ID          *string                    `json:"id,omitempty"`
 	Description *string                    `json:"description,omitempty"`
 	RAM         *int32                     `json:"ram,omitempty"`
 	Vcpus       *int32                     `json:"vcpus,omitempty"`
@@ -46,6 +47,14 @@ func FlavorResourceSpec() *FlavorResourceSpecApplyConfiguration {
 // If called multiple times, the Name field is set to the value of the last call.
 func (b *FlavorResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *FlavorResourceSpecApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithID sets the ID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ID field is set to the value of the last call.
+func (b *FlavorResourceSpecApplyConfiguration) WithID(value string) *FlavorResourceSpecApplyConfiguration {
+	b.ID = &value
 	return b
 }
 
