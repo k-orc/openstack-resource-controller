@@ -35,6 +35,9 @@ spec:
     networkRef: floatingip-create-full-external
     ipVersion: 4
     cidr: 192.168.155.0/24
+    allocationPools:
+      - start: 192.168.155.100
+        end: 192.168.155.200
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Router
