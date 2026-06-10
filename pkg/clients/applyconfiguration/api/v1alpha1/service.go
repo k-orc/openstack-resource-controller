@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	internal "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/internal"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	internal "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
@@ -71,7 +71,7 @@ func ExtractServiceStatus(service *apiv1alpha1.Service, fieldManager string) (*S
 
 func extractService(service *apiv1alpha1.Service, fieldManager string, subresource string) (*ServiceApplyConfiguration, error) {
 	b := &ServiceApplyConfiguration{}
-	err := managedfields.ExtractInto(service, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Service"), fieldManager, b, subresource)
+	err := managedfields.ExtractInto(service, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.Service"), fieldManager, b, subresource)
 	if err != nil {
 		return nil, err
 	}

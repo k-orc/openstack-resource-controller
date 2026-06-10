@@ -3,7 +3,7 @@
 # progress
 
 ```go
-import "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+import "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 ```
 
 ## Index

@@ -127,8 +127,8 @@ import (
     "github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
     ctrl "sigs.k8s.io/controller-runtime"
 
-    orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-    "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+    orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+    "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 )
 ```
 

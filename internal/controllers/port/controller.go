@@ -32,18 +32,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	applyconfigv1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/pkg/predicates"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	applyconfigv1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/pkg/predicates"
 
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/credentials"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
-	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/applyconfigs"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/credentials"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v3/internal/util/strings"
 )
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=ports,verbs=get;list;watch;create;update;patch;delete

@@ -24,8 +24,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/go-logr/logr"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 // ReconcileStatus represents the status of the current reconcile.

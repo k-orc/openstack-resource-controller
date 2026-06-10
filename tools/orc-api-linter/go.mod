@@ -1,4 +1,4 @@
-module github.com/k-orc/openstack-resource-controller/v2/tools/orc-api-linter
+module github.com/k-orc/openstack-resource-controller/v3/tools/orc-api-linter
 
 go 1.24.0
 

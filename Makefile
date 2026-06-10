@@ -345,7 +345,7 @@ version:  $(GOLANGCI_LINT_VERSION)
 name: golangci-kube-api-linter
 destination: $(LOCALBIN)
 plugins:
-- module: 'github.com/k-orc/openstack-resource-controller/v2/tools/orc-api-linter'
+- module: 'github.com/k-orc/openstack-resource-controller/v3/tools/orc-api-linter'
   path: ./tools/orc-api-linter
 endef
 export custom-gcl

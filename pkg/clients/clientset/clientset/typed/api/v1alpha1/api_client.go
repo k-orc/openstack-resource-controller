@@ -21,8 +21,8 @@ package v1alpha1
 import (
 	http "net/http"
 
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	scheme "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset/scheme"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	scheme "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/clientset/clientset/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

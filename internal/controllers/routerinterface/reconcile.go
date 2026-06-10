@@ -29,14 +29,14 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
-	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/finalizers"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v3/internal/util/strings"
 )
 
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=routerinterfaces,verbs=get;list;watch;create;update;patch;delete
