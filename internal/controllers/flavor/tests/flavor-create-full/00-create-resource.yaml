@@ -17,3 +17,4 @@ spec:
     swap: 2
     isPublic: false
     ephemeral: 1
+    id: testId-123
