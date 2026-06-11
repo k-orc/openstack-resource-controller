@@ -15,3 +15,8 @@ spec:
     swap: 2
     isPublic: false
     ephemeral: 1
+    extraSpecs:
+    - name: spec1
+      value: foo
+    - name: spec2
+      value: bar

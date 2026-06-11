@@ -1,18 +1,14 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: VolumeType
+kind: Flavor
 metadata:
-  name: volumetype-sample
+  name: flavor-update
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Sample VolumeType
-    isPublic: false
     extraSpecs:
-    - name: spec1
-      value: foo
-    - name: spec2
-      value: bar
+    - name: spec
+      value: specValue

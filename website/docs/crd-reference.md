@@ -965,6 +965,40 @@ Flavor is the Schema for an ORC resource.
 | `status` _[FlavorStatus](#flavorstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
 
 
+#### FlavorExtraSpec
+
+
+
+
+
+
+
+_Appears in:_
+- [FlavorResourceSpec](#flavorresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the extraspec |  | MaxLength: 255 <br />Pattern: `^[a-zA-Z0-9-_:. ]+$` <br />Required: \{\} <br /> |
+| `value` _string_ | value is the value of the extraspec |  | MaxLength: 255 <br />Required: \{\} <br /> |
+
+
+#### FlavorExtraSpecStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [FlavorResourceStatus](#flavorresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the extraspec |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `value` _string_ | value is the value of the extraspec |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+
+
 #### FlavorFilter
 
 
@@ -1025,6 +1059,7 @@ _Appears in:_
 | `vcpus` _integer_ | vcpus is the number of vcpus for the flavor. |  | Minimum: 1 <br />Required: \{\} <br /> |
 | `disk` _integer_ | disk is the size of the root disk that will be created in GiB. If 0<br />the root disk will be set to exactly the size of the image used to<br />deploy the instance. However, in this case the scheduler cannot<br />select the compute host based on the virtual image size. Therefore,<br />0 should only be used for volume booted instances or for testing<br />purposes. Volume-backed instances can be enforced for flavors with<br />zero root disk via the<br />os_compute_api:servers:create:zero_disk_flavor policy rule. |  | Minimum: 0 <br />Required: \{\} <br /> |
 | `swap` _integer_ | swap is the size of a dedicated swap disk that will be allocated, in<br />MiB. If 0 (the default), no dedicated swap disk will be created. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `extraSpecs` _[FlavorExtraSpec](#flavorextraspec) array_ | extraSpecs is a list of key-value pairs that define extra specifications for the flavor. |  | MaxItems: 128 <br />Optional: \{\} <br /> |
 | `isPublic` _boolean_ | isPublic flags a flavor as being available to all projects or not. |  | Optional: \{\} <br /> |
 | `ephemeral` _integer_ | ephemeral is the size of the ephemeral disk that will be created, in GiB.<br />Ephemeral disks may be written over on server state changes. So should only<br />be used as a scratch space for applications that are aware of its<br />limitations. Defaults to 0. |  | Minimum: 0 <br />Optional: \{\} <br /> |
 
@@ -1048,6 +1083,7 @@ _Appears in:_
 | `vcpus` _integer_ | vcpus is the number of vcpus for the flavor. |  | Optional: \{\} <br /> |
 | `disk` _integer_ | disk is the size of the root disk that will be created in GiB. |  | Optional: \{\} <br /> |
 | `swap` _integer_ | swap is the size of a dedicated swap disk that will be allocated, in<br />MiB. |  | Optional: \{\} <br /> |
+| `extraSpecs` _[FlavorExtraSpecStatus](#flavorextraspecstatus) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the flavor. |  | MaxItems: 128 <br />Optional: \{\} <br /> |
 | `isPublic` _boolean_ | isPublic flags a flavor as being available to all projects or not. |  | Optional: \{\} <br /> |
 | `ephemeral` _integer_ | ephemeral is the size of the ephemeral disk, in GiB. |  | Optional: \{\} <br /> |
 

@@ -78,6 +78,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FilterByServerTags":                    schema_openstack_resource_controller_v2_api_v1alpha1_FilterByServerTags(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FixedIPStatus":                         schema_openstack_resource_controller_v2_api_v1alpha1_FixedIPStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Flavor":                                schema_openstack_resource_controller_v2_api_v1alpha1_Flavor(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorExtraSpec":                       schema_openstack_resource_controller_v2_api_v1alpha1_FlavorExtraSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorExtraSpecStatus":                 schema_openstack_resource_controller_v2_api_v1alpha1_FlavorExtraSpecStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorFilter":                          schema_openstack_resource_controller_v2_api_v1alpha1_FlavorFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorImport":                          schema_openstack_resource_controller_v2_api_v1alpha1_FlavorImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorList":                            schema_openstack_resource_controller_v2_api_v1alpha1_FlavorList(ref),
@@ -2722,6 +2724,61 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_Flavor(ref common.Refe
 	}
 }
 
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorExtraSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the extraspec",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the extraspec",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorExtraSpecStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the extraspec",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Description: "value is the value of the extraspec",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -2899,6 +2956,28 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref
 							Format:      "int32",
 						},
 					},
+					"extraSpecs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "extraSpecs is a list of key-value pairs that define extra specifications for the flavor.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorExtraSpec"),
+									},
+								},
+							},
+						},
+					},
 					"isPublic": {
 						SchemaProps: spec.SchemaProps{
 							Description: "isPublic flags a flavor as being available to all projects or not.",
@@ -2917,6 +2996,8 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceSpec(ref
 				Required: []string{"ram", "vcpus", "disk"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorExtraSpec"},
 	}
 }
 
@@ -2969,6 +3050,25 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceStatus(r
 							Format:      "int32",
 						},
 					},
+					"extraSpecs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "extraSpecs is a map of key-value pairs that define extra specifications for the flavor.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorExtraSpecStatus"),
+									},
+								},
+							},
+						},
+					},
 					"isPublic": {
 						SchemaProps: spec.SchemaProps{
 							Description: "isPublic flags a flavor as being available to all projects or not.",
@@ -2986,6 +3086,8 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_FlavorResourceStatus(r
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.FlavorExtraSpecStatus"},
 	}
 }
 

@@ -641,6 +641,26 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorExtraSpec
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: value
+      type:
+        scalar: string
+      default: ""
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorExtraSpecStatus
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+    - name: value
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorFilter
   map:
     fields:
@@ -678,6 +698,14 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ephemeral
       type:
         scalar: numeric
+    - name: extraSpecs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorExtraSpec
+          elementRelationship: associative
+          keys:
+          - name
     - name: id
       type:
         scalar: string
@@ -708,6 +736,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: ephemeral
       type:
         scalar: numeric
+    - name: extraSpecs
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorExtraSpecStatus
+          elementRelationship: atomic
     - name: isPublic
       type:
         scalar: boolean
