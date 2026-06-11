@@ -7,11 +7,10 @@ status:
   resource:
     name: share-update-updated
     description: share-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    shareProto: NFS
+    size: 4
+    isPublic: true
   conditions:
-  - type: Available
-    status: "True"
-    reason: Success
   - type: Progressing
     status: "False"
     reason: Success

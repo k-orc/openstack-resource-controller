@@ -104,6 +104,10 @@ func (c *FakeOpenstackV1alpha1) Services(namespace string) v1alpha1.ServiceInter
 	return newFakeServices(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Shares(namespace string) v1alpha1.ShareInterface {
+	return newFakeShares(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) ShareNetworks(namespace string) v1alpha1.ShareNetworkInterface {
 	return newFakeShareNetworks(c, namespace)
 }

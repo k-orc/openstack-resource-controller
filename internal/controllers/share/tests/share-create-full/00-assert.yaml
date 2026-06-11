@@ -7,7 +7,13 @@ status:
   resource:
     name: share-create-full-override
     description: Share from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    shareProto: NFS
+    size: 10
+    status: available
+    isPublic: false
+    metadata:
+      test: full
+      component: e2e
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +36,7 @@ resourceRefs:
 assertAll:
     - celExpr: "share.status.id != ''"
     - celExpr: "share.status.resource.shareNetworkID == shareNetwork.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "share.status.resource.shareProto == 'NFS'"
+    - celExpr: "share.status.resource.size == 10"
+    - celExpr: "share.status.resource.isPublic == false"
+    - celExpr: "share.status.resource.metadata.test == 'full'"

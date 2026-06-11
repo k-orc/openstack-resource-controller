@@ -41,7 +41,9 @@ func shareStub(namespace *corev1.Namespace) *orcv1alpha1.Share {
 }
 
 func testShareResource() *applyconfigv1alpha1.ShareResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.ShareResourceSpec()
+	return applyconfigv1alpha1.ShareResourceSpec().
+		WithShareProto("NFS").
+		WithSize(1)
 }
 
 func baseSharePatch(obj client.Object) *applyconfigv1alpha1.ShareApplyConfiguration {

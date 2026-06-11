@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   shares.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   shares.UpdateOpts{DisplayName: ptr.To("updated")},
 			expectChange: true,
 		},
 	}

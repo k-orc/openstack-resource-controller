@@ -7,4 +7,6 @@ spec:
   resource:
     name: share-update-updated
     description: share-update-updated
-    # TODO(scaffolding): update all mutable fields
+    shareProto: NFS
+    size: 4
+    isPublic: true

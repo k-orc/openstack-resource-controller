@@ -15,8 +15,10 @@ metadata:
   name: share-update
 status:
   resource:
-    name: share-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    name: share-update-original
+    shareProto: NFS
+    size: 4
+    isPublic: false
   conditions:
   - type: Available
     status: "True"

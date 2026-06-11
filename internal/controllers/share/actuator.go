@@ -44,8 +44,10 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
 // The frequency to poll when waiting for the resource to become available
 const shareAvailablePollingPeriod = 15 * time.Second
+
 // The frequency to poll when waiting for the resource to be deleted
 const shareDeletingPollingPeriod = 15 * time.Second
 
@@ -75,30 +77,36 @@ func (actuator shareActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := shares.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		Name: getResourceName(orcObject),
 	}
 
-	return actuator.osClient.ListShares(ctx, listOpts), true
+	// Filter by ShareProto and Size client-side since they're not in ListOpts
+	iter := actuator.osClient.ListShares(ctx, listOpts)
+	iter = osclients.Filter(iter, func(share *shares.Share) bool {
+		return share.ShareProto == resourceSpec.ShareProto &&
+			share.Size == int(resourceSpec.Size)
+	})
+
+	return iter, true
 }
 
 func (actuator shareActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := shares.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Name:               string(ptr.Deref(filter.Name, "")),
+		DescriptionPattern: ptr.Deref(filter.Description, ""),
+		Status:             ptr.Deref(filter.Status, ""),
 	}
 
-	return actuator.osClient.ListShares(ctx, listOpts), nil
+	// ShareProto is not directly supported by ListOpts, so we'll need client-side filtering
+	iter := actuator.osClient.ListShares(ctx, listOpts)
+	if filter.ShareProto != nil {
+		iter = osclients.Filter(iter, func(share *shares.Share) bool {
+			return share.ShareProto == *filter.ShareProto
+		})
+	}
+
+	return iter, nil
 }
 
 func (actuator shareActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -125,10 +133,15 @@ func (actuator shareActuator) CreateResource(ctx context.Context, obj orcObjectP
 		return nil, reconcileStatus
 	}
 	createOpts := shares.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		ShareNetworkID:  shareNetworkID,
-		// TODO(scaffolding): Add more fields
+		ShareProto:       resource.ShareProto,
+		Size:             int(resource.Size),
+		Name:             getResourceName(obj),
+		Description:      ptr.Deref(resource.Description, ""),
+		ShareNetworkID:   shareNetworkID,
+		AvailabilityZone: ptr.Deref(resource.AvailabilityZone, ""),
+		ShareType:        ptr.Deref(resource.ShareType, ""),
+		Metadata:         resource.Metadata,
+		IsPublic:         resource.IsPublic,
 	}
 
 	osResource, err := actuator.osClient.CreateShare(ctx, createOpts)
@@ -162,8 +175,7 @@ func (actuator shareActuator) updateResource(ctx context.Context, obj orcObjectP
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleIsPublicUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -204,14 +216,20 @@ func needsUpdate(updateOpts shares.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *shares.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.DisplayName = &name
 	}
 }
 
 func handleDescriptionUpdate(updateOpts *shares.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
-		updateOpts.Description = &description
+		updateOpts.DisplayDescription = &description
+	}
+}
+
+func handleIsPublicUpdate(updateOpts *shares.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if resource.IsPublic != nil && *resource.IsPublic != osResource.IsPublic {
+		updateOpts.IsPublic = resource.IsPublic
 	}
 }
 

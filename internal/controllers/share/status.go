@@ -25,11 +25,28 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const ShareStatusAvailable = "available"
-const ShareStatusInUse     = "in-use"
-const ShareStatusDeleting  = "deleting"
+
+// Manila share status constants
+// Based on https://docs.openstack.org/manila/latest/contributor/share_status.html
+const (
+	ShareStatusCreating            = "creating"
+	ShareStatusAvailable           = "available"
+	ShareStatusDeleting            = "deleting"
+	ShareStatusError               = "error"
+	ShareStatusErrorDeleting       = "error_deleting"
+	ShareStatusManageStarting      = "manage_starting"
+	ShareStatusManageError         = "manage_error"
+	ShareStatusUnmanageStarting    = "unmanage_starting"
+	ShareStatusUnmanageError       = "unmanage_error"
+	ShareStatusExtending           = "extending"
+	ShareStatusExtendingError      = "extending_error"
+	ShareStatusShrinking           = "shrinking"
+	ShareStatusShrinkingError      = "shrinking_error"
+	ShareStatusMigrating           = "migrating"
+	ShareStatusMigratingTo         = "migrating_to"
+	ShareStatusRevertingToSnapshot = "reverting_to_snapshot"
+	ShareStatusRevertingError      = "reverting_error"
+)
 
 type shareStatusWriter struct{}
 
@@ -50,27 +67,60 @@ func (shareStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Share, o
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
 
-	if osResource.Status == ShareStatusAvailable || osResource.Status == ShareStatusInUse {
+	// Share is available when it's in available status
+	if osResource.Status == ShareStatusAvailable {
 		return metav1.ConditionTrue, nil
 	}
 
-	// Otherwise we should continue to poll
+	// Error states are terminal - won't become available without intervention
+	switch osResource.Status {
+	case ShareStatusError, ShareStatusErrorDeleting, ShareStatusManageError,
+		ShareStatusUnmanageError, ShareStatusExtendingError, ShareStatusShrinkingError,
+		ShareStatusRevertingError:
+		return metav1.ConditionFalse, nil
+	}
+
+	// Otherwise we're in a transitional state, continue polling
 	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, shareAvailablePollingPeriod)
 }
 
 func (shareStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.ShareResourceStatus().
-		WithShareNetworkID(osResource.ShareNetworkID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the ShareResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithStatus(osResource.Status).
+		WithShareProto(osResource.ShareProto).
+		WithSize(int32(osResource.Size))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}
+
+	if osResource.AvailabilityZone != "" {
+		resourceStatus.WithAvailabilityZone(osResource.AvailabilityZone)
+	}
+
+	if osResource.ShareType != "" {
+		resourceStatus.WithShareType(osResource.ShareType)
+	}
+
+	if osResource.ShareTypeName != "" {
+		resourceStatus.WithShareTypeName(osResource.ShareTypeName)
+	}
+
+	if osResource.ShareNetworkID != "" {
+		resourceStatus.WithShareNetworkID(osResource.ShareNetworkID)
+	}
+
+	resourceStatus.WithIsPublic(osResource.IsPublic)
+
+	if len(osResource.Metadata) > 0 {
+		resourceStatus.WithMetadata(osResource.Metadata)
+	}
+
+	// Note: Export locations need to be fetched separately via ListExportLocations API
+	// They are not included in the basic Share struct from Get/List operations
+	// We'll skip them for now and can add them later as a separate reconciler if needed
 
 	statusApply.WithResource(resourceStatus)
 }

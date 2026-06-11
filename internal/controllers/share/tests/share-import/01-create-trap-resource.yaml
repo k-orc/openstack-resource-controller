@@ -8,10 +8,13 @@ metadata:
   name: share-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: share-import-external-not-this-one
     description: Share share-import-external from "share-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    shareProto: NFS
+    size: 7
+    shareType: default
+    shareNetworkRef: share-import

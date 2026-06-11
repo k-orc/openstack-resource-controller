@@ -3144,6 +3144,51 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Share
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: shareProto
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareFilter
+    - name: id
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareNetwork
   map:
     fields:
@@ -3271,6 +3316,119 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareNetworkResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareResourceSpec
+  map:
+    fields:
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: isPublic
+      type:
+        scalar: boolean
+    - name: metadata
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: shareNetworkRef
+      type:
+        scalar: string
+    - name: shareProto
+      type:
+        scalar: string
+      default: ""
+    - name: shareType
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareResourceStatus
+  map:
+    fields:
+    - name: availabilityZone
+      type:
+        scalar: string
+    - name: description
+      type:
+        scalar: string
+    - name: exportLocations
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: isPublic
+      type:
+        scalar: boolean
+    - name: metadata
+      type:
+        map:
+          elementType:
+            scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: shareNetworkID
+      type:
+        scalar: string
+    - name: shareProto
+      type:
+        scalar: string
+    - name: shareType
+      type:
+        scalar: string
+    - name: shareTypeName
+      type:
+        scalar: string
+    - name: size
+      type:
+        scalar: numeric
+    - name: status
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Subnet
   map:
     fields:

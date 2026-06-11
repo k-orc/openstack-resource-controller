@@ -29,18 +29,42 @@ type ShareResourceSpec struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
+	// shareProto is the shared file system protocol (e.g., NFS, CIFS).
+	// +required
+	// +kubebuilder:validation:MaxLength=255
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="shareProto is immutable"
+	ShareProto string `json:"shareProto"`
+
+	// size is the size of the share in GB.
+	// +required
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="size is immutable"
+	Size int32 `json:"size,omitempty"`
+
 	// shareNetworkRef is a reference to the ORC ShareNetwork which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="shareNetworkRef is immutable"
 	ShareNetworkRef *KubernetesNameRef `json:"shareNetworkRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/shares
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// availabilityZone is the availability zone in which to create the share.
+	// +optional
+	// +kubebuilder:validation:MaxLength=255
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="availabilityZone is immutable"
+	AvailabilityZone *string `json:"availabilityZone,omitempty"`
+
+	// shareType is the share type to use. If not specified, the default share type is used.
+	// +optional
+	// +kubebuilder:validation:MaxLength=255
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="shareType is immutable"
+	ShareType *string `json:"shareType,omitempty"`
+
+	// metadata contains key-value pairs of metadata for the share.
+	// +optional
+	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// isPublic determines whether the share is public.
+	// +optional
+	IsPublic *bool `json:"isPublic,omitempty"`
 }
 
 // ShareFilter defines an existing resource by its properties
@@ -56,9 +80,15 @@ type ShareFilter struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/shares
+	// status filters by share status
+	// +optional
+	// +kubebuilder:validation:MaxLength=255
+	Status *string `json:"status,omitempty"`
+
+	// shareProto filters by share protocol
+	// +optional
+	// +kubebuilder:validation:MaxLength=255
+	ShareProto *string `json:"shareProto,omitempty"`
 }
 
 // ShareResourceStatus represents the observed state of the resource.
@@ -73,12 +103,52 @@ type ShareResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
+	// status is the current status of the share.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Status string `json:"status,omitempty"`
+
+	// shareProto is the shared file system protocol.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ShareProto string `json:"shareProto,omitempty"`
+
+	// size is the size of the share in GB.
+	// +optional
+	Size *int32 `json:"size,omitempty"`
+
+	// availabilityZone is the availability zone of the share.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+
+	// shareType is the UUID of the share type.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ShareType string `json:"shareType,omitempty"`
+
+	// shareTypeName is the name of the share type.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ShareTypeName string `json:"shareTypeName,omitempty"`
+
 	// shareNetworkID is the ID of the ShareNetwork to which the resource is associated.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ShareNetworkID string `json:"shareNetworkID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Share structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/shares
+	// isPublic indicates the visibility of the share.
+	// +optional
+	IsPublic *bool `json:"isPublic,omitempty"`
+
+	// metadata contains key-value pairs of custom metadata.
+	// +optional
+	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// exportLocations contains the export locations for mounting the share.
+	// +listType=atomic
+	// +kubebuilder:validation:MaxItems=100
+	// +kubebuilder:validation:items:MaxLength=1024
+	// +optional
+	ExportLocations []string `json:"exportLocations,omitempty"`
 }

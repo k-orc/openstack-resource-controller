@@ -6,7 +6,9 @@ metadata:
 status:
   resource:
     name: share-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    shareProto: NFS
+    size: 1
+    status: available
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +26,6 @@ resourceRefs:
       ref: share
 assertAll:
     - celExpr: "share.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "share.status.resource.shareProto == 'NFS'"
+    - celExpr: "share.status.resource.size == 1"
+    - celExpr: "share.status.resource.status == 'available'"
