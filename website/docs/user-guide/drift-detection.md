@@ -25,6 +25,20 @@ The `resyncPeriod` field accepts any Go duration string: `10m`, `1h`, `24h`, etc
 
 **Default:** `0` (disabled). When disabled, ORC only reconciles resources in response to spec changes or controller restarts.
 
+### Setting a Global Default
+
+To enable drift detection for all resources without setting `resyncPeriod` on each one, configure the manager's `--default-resync-period` flag:
+
+```yaml
+spec:
+  containers:
+  - name: manager
+    args:
+    - --default-resync-period=10h
+```
+
+Per-resource `spec.resyncPeriod` takes precedence over this default when set.
+
 !!! note
 
     Conservative resync periods (e.g., `1h` or `10h`) are recommended in production to avoid excessive OpenStack API calls.
