@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-update
+spec:
+  resource:
+    name: share-update-updated
+    description: share-update-updated
+    # TODO(scaffolding): update all mutable fields
