@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-update
+status:
+  resource:
+    name: qospolicy-update-updated
+    description: qospolicy-update-updated
+    shared: true
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

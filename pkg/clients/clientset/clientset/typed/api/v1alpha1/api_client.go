@@ -41,6 +41,7 @@ type OpenstackV1alpha1Interface interface {
 	NetworksGetter
 	PortsGetter
 	ProjectsGetter
+	QosPoliciesGetter
 	RegionsGetter
 	RegisteredLimitsGetter
 	RolesGetter
@@ -114,6 +115,10 @@ func (c *OpenstackV1alpha1Client) Ports(namespace string) PortInterface {
 
 func (c *OpenstackV1alpha1Client) Projects(namespace string) ProjectInterface {
 	return newProjects(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) QosPolicies(namespace string) QosPolicyInterface {
+	return newQosPolicies(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Regions(namespace string) RegionInterface {

@@ -168,6 +168,24 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectSpec":                           schema_openstack_resource_controller_v2_api_v1alpha1_ProjectSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectStatus":                         schema_openstack_resource_controller_v2_api_v1alpha1_ProjectStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProviderPropertiesStatus":              schema_openstack_resource_controller_v2_api_v1alpha1_ProviderPropertiesStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosBandwidthLimitRule":                 schema_openstack_resource_controller_v2_api_v1alpha1_QosBandwidthLimitRule(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosBandwidthLimitRuleStatus":           schema_openstack_resource_controller_v2_api_v1alpha1_QosBandwidthLimitRuleStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosDscpMarkingRule":                    schema_openstack_resource_controller_v2_api_v1alpha1_QosDscpMarkingRule(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosDscpMarkingRuleStatus":              schema_openstack_resource_controller_v2_api_v1alpha1_QosDscpMarkingRuleStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumBandwidthRule":               schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumBandwidthRule(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumBandwidthRuleStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumBandwidthRuleStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateLimitRule":         schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateLimitRule(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateLimitRuleStatus":   schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateLimitRuleStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateRule":              schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateRule(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateRuleStatus":        schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateRuleStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicy":                             schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicy(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyFilter":                       schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyImport":                       schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyList":                         schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyList(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyResourceSpec":                 schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyResourceStatus":               schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicySpec":                         schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicySpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyStatus":                       schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Region":                                schema_openstack_resource_controller_v2_api_v1alpha1_Region(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionFilter":                          schema_openstack_resource_controller_v2_api_v1alpha1_RegionFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionImport":                          schema_openstack_resource_controller_v2_api_v1alpha1_RegionImport(ref),
@@ -7859,6 +7877,1025 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProviderPropertiesStat
 				},
 			},
 		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosBandwidthLimitRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosBandwidthLimitRule defines a QoS bandwidth limit rule",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied. Can be ingress or egress.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxkbps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxkbps is the maximum KBPS (kilobits per second) value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxburstkbps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxburstkbps is the maximum burst size (in kilobits).",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosBandwidthLimitRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of the bandwidth limit rule.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxkbps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxkbps is the maximum KBPS (kilobits per second) value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxburstkbps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxburstkbps is the maximum burst size (in kilobits).",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosDscpMarkingRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosDscpMarkingRule defines a QoS DSCP Marking rule",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"dscpmark": {
+						SchemaProps: spec.SchemaProps{
+							Description: "dscpmark is the DSCP mark value to apply to packets. Valid values are: 0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 46, 48, 56.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosDscpMarkingRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of the DSCP marking rule.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"dscpmark": {
+						SchemaProps: spec.SchemaProps{
+							Description: "dscpmark is the DSCP mark value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumBandwidthRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosMinimumBandwidthRule defines a QoS Minimum Bandwidth rule",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied. Can be ingress or egress.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"minkbps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minkbps is the minimum KBPS (kilobits per second) value which should be available for the port.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumBandwidthRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of the minimum bandwidth rule.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"minkbps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minkbps is the minimum KBPS (kilobits per second) value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateLimitRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosMinimumPacketRateLimitRule defines a QoS Packet Rate Limit rule",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied. Can be ingress or egress.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxkpps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxkpps is the maximum KPPS (kilo packets per second) value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxburstkpps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxburstkpps is the maximum burst size (in kilo packets per second).",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateLimitRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of the packet rate limit rule.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxkpps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxkpps is the maximum KPPS (kilo packets per second) value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxburstkpps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxburstkpps is the maximum burst size (in kilo packets per second).",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosMinimumPacketRateRule defines a QoS Minimum Packet Rate rule",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied. Can be ingress or egress.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"minkpps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minkpps is the minimum KPPS (kilo packets per second) value which should be available for the port.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosMinimumPacketRateRuleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of the minimum packet rate rule.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"direction": {
+						SchemaProps: spec.SchemaProps{
+							Description: "direction represents the direction in which the rule is applied.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"minkpps": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minkpps is the minimum KPPS (kilo packets per second) value.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicy(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicy is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicySpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicySpec", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicyFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicyImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicyList contains a list of QosPolicy.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of QosPolicy.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicy"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicy", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicyResourceSpec contains the desired state of a QoS Policy",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the QoS policy.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"shared": {
+						SchemaProps: spec.SchemaProps{
+							Description: "shared indicates whether this resource is shared across all projects. By default, only administrative users can change this value.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"bandwidthlimitrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "bandwidthlimitrules is a list of bandwidth limit rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosBandwidthLimitRule"),
+									},
+								},
+							},
+						},
+					},
+					"dscpmarkingrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "dscpmarkingrules is a list of DSCP marking rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosDscpMarkingRule"),
+									},
+								},
+							},
+						},
+					},
+					"minimumbandwidthrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "minimumbandwidthrules is a list of minimum bandwidth rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumBandwidthRule"),
+									},
+								},
+							},
+						},
+					},
+					"minimumpacketraterules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "minimumpacketraterules is a list of minimum packet rate rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateRule"),
+									},
+								},
+							},
+						},
+					},
+					"minimumpacketratelimitrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "minimumpacketratelimitrules is a list of minimum packet rate limit rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateLimitRule"),
+									},
+								},
+							},
+						},
+					},
+					"projectRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectRef is a reference to the ORC Project this resource is associated with. Typically, only used by admin.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosBandwidthLimitRule", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosDscpMarkingRule", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumBandwidthRule", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateLimitRule", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateRule"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicyResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the QoS Policy. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the project owner of the QoS Policy.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"shared": {
+						SchemaProps: spec.SchemaProps{
+							Description: "shared indicates whether this resource is shared across all projects. By default, only administrative users can change this value.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"bandwidthlimitrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "bandwidthlimitrules is a list of bandwidth limit rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosBandwidthLimitRuleStatus"),
+									},
+								},
+							},
+						},
+					},
+					"dscpmarkingrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "dscpmarkingrules is a list of DSCP marking rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosDscpMarkingRuleStatus"),
+									},
+								},
+							},
+						},
+					},
+					"minimumbandwidthrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "minimumbandwidthrules is a list of minimum bandwidth rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumBandwidthRuleStatus"),
+									},
+								},
+							},
+						},
+					},
+					"minimumpacketraterules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "minimumpacketraterules is a list of minimum packet rate rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateRuleStatus"),
+									},
+								},
+							},
+						},
+					},
+					"minimumpacketratelimitrules": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "minimumpacketratelimitrules is a list of packet rate limit rules belonging to this QoS.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateLimitRuleStatus"),
+									},
+								},
+							},
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"revisionNumber": {
+						SchemaProps: spec.SchemaProps{
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosBandwidthLimitRuleStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosDscpMarkingRuleStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumBandwidthRuleStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateLimitRuleStatus", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosMinimumPacketRateRuleStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicySpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicySpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyImport", "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_QosPolicyStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "QosPolicyStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.QosPolicyResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

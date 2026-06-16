@@ -2323,6 +2323,342 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: segmentationID
       type:
         scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosBandwidthLimitRule
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: direction
+      type:
+        scalar: string
+    - name: maxburstkbps
+      type:
+        scalar: numeric
+    - name: maxkbps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosBandwidthLimitRuleStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: direction
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: maxburstkbps
+      type:
+        scalar: numeric
+    - name: maxkbps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosDscpMarkingRule
+  map:
+    fields:
+    - name: dscpmark
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosDscpMarkingRuleStatus
+  map:
+    fields:
+    - name: dscpmark
+      type:
+        scalar: numeric
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumBandwidthRule
+  map:
+    fields:
+    - name: direction
+      type:
+        scalar: string
+    - name: minkbps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumBandwidthRuleStatus
+  map:
+    fields:
+    - name: direction
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: minkbps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateLimitRule
+  map:
+    fields:
+    - name: direction
+      type:
+        scalar: string
+    - name: maxburstkpps
+      type:
+        scalar: numeric
+    - name: maxkpps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateLimitRuleStatus
+  map:
+    fields:
+    - name: direction
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: maxburstkpps
+      type:
+        scalar: numeric
+    - name: maxkpps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateRule
+  map:
+    fields:
+    - name: direction
+      type:
+        scalar: string
+    - name: minkpps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateRuleStatus
+  map:
+    fields:
+    - name: direction
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: minkpps
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicy
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicySpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyResourceSpec
+  map:
+    fields:
+    - name: bandwidthlimitrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosBandwidthLimitRule
+          elementRelationship: atomic
+    - name: description
+      type:
+        scalar: string
+    - name: dscpmarkingrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosDscpMarkingRule
+          elementRelationship: atomic
+    - name: minimumbandwidthrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumBandwidthRule
+          elementRelationship: atomic
+    - name: minimumpacketratelimitrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateLimitRule
+          elementRelationship: atomic
+    - name: minimumpacketraterules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateRule
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyResourceStatus
+  map:
+    fields:
+    - name: bandwidthlimitrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosBandwidthLimitRuleStatus
+          elementRelationship: atomic
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: description
+      type:
+        scalar: string
+    - name: dscpmarkingrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosDscpMarkingRuleStatus
+          elementRelationship: atomic
+    - name: minimumbandwidthrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumBandwidthRuleStatus
+          elementRelationship: atomic
+    - name: minimumpacketratelimitrules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateLimitRuleStatus
+          elementRelationship: atomic
+    - name: minimumpacketraterules
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosMinimumPacketRateRuleStatus
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicySpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.QosPolicyResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Region
   map:
     fields:

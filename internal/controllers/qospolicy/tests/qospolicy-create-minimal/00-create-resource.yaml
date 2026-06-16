@@ -1,0 +1,12 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # QosPolicy has no mandatory resource fields.
+  resource: {}

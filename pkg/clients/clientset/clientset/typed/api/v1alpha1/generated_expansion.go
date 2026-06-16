@@ -44,6 +44,8 @@ type PortExpansion interface{}
 
 type ProjectExpansion interface{}
 
+type QosPolicyExpansion interface{}
+
 type RegionExpansion interface{}
 
 type RegisteredLimitExpansion interface{}

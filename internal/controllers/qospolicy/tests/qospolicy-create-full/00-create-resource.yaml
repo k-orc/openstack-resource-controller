@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: qospolicy-create-full-override
+    description: QosPolicy from "create full" test
+    shared: true
+    tags:
+    - qospolicy-tag-1
+    - qospolicy-tag-2

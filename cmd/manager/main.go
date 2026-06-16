@@ -41,6 +41,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/qospolicy"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/region"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/registeredlimit"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/role"
@@ -136,6 +137,7 @@ func main() {
 		server.New(scopeFactory),
 		servergroup.New(scopeFactory),
 		project.New(scopeFactory),
+		qospolicy.New(scopeFactory),
 		user.New(scopeFactory),
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),

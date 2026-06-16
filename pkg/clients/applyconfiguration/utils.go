@@ -282,6 +282,40 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProjectStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosBandwidthLimitRule"):
+		return &apiv1alpha1.QosBandwidthLimitRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosBandwidthLimitRuleStatus"):
+		return &apiv1alpha1.QosBandwidthLimitRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosDscpMarkingRule"):
+		return &apiv1alpha1.QosDscpMarkingRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosDscpMarkingRuleStatus"):
+		return &apiv1alpha1.QosDscpMarkingRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosMinimumBandwidthRule"):
+		return &apiv1alpha1.QosMinimumBandwidthRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosMinimumBandwidthRuleStatus"):
+		return &apiv1alpha1.QosMinimumBandwidthRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosMinimumPacketRateLimitRule"):
+		return &apiv1alpha1.QosMinimumPacketRateLimitRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosMinimumPacketRateLimitRuleStatus"):
+		return &apiv1alpha1.QosMinimumPacketRateLimitRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosMinimumPacketRateRule"):
+		return &apiv1alpha1.QosMinimumPacketRateRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosMinimumPacketRateRuleStatus"):
+		return &apiv1alpha1.QosMinimumPacketRateRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicy"):
+		return &apiv1alpha1.QosPolicyApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicyFilter"):
+		return &apiv1alpha1.QosPolicyFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicyImport"):
+		return &apiv1alpha1.QosPolicyImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicyResourceSpec"):
+		return &apiv1alpha1.QosPolicyResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicyResourceStatus"):
+		return &apiv1alpha1.QosPolicyResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicySpec"):
+		return &apiv1alpha1.QosPolicySpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("QosPolicyStatus"):
+		return &apiv1alpha1.QosPolicyStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Region"):
 		return &apiv1alpha1.RegionApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RegionFilter"):

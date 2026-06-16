@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      description: QosPolicy from "import error" test
