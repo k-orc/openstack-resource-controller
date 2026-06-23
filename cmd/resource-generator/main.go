@@ -71,6 +71,10 @@ type templateFields struct {
 	// OpenStack-assigned ID. When true, the generator omits import.id,
 	// status.ID, and the ID print column from the generated API types.
 	NoResourceID bool
+	// HasCustomImport indicates that the resource defines its own Import type in the
+	// non-generated *_types.go file. When true, the Import type will not be generated.
+	// Default is false (Import type is generated).
+	HasCustomImport bool
 }
 
 var resources []templateFields = []templateFields{
@@ -188,6 +192,10 @@ var resources []templateFields = []templateFields{
 	},
 	{
 		Name: "ApplicationCredential",
+	},
+	{
+		Name:            "SwiftContainer",
+		HasCustomImport: true, // SwiftContainerImport is defined in swiftcontainer_types.go
 	},
 }
 

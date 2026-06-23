@@ -50,6 +50,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/service"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/sharenetwork"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/subnet"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/swiftcontainer"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/trunk"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/user"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/volume"
@@ -140,6 +141,7 @@ func main() {
 		group.New(scopeFactory),
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
+		swiftcontainer.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

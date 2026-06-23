@@ -7,6 +7,10 @@
 bin/*
 Dockerfile.cross
 
+# Root-level compiled binaries
+/manager
+/resource-generator
+
 # Test binary, built with `go test -c`
 *.test
 

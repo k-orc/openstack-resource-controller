@@ -1,5 +1,5 @@
 /*
-Copyright The ORC Authors.
+Copyright 2024 The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,84 +19,152 @@ package swiftcontainer
 import (
 	"context"
 	"iter"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/objectstorage/v1/containers"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	generic "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 )
 
+// osContainerT wraps containers.GetHeader with the container name and
+// metadata, since GetHeader does not include the container name and the
+// X-Container-Meta-* headers are returned separately via ExtractMetadata.
+type osContainerT struct {
+	Name     string
+	Metadata map[string]string
+	containers.GetHeader
+}
+
 // OpenStack resource types
 type (
-	osResourceT = containers.Container
+	osResourceT = osContainerT
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type swiftcontainerActuator struct {
-	osClient  osclients.SwiftContainerClient
-	k8sClient client.Client
+	osClient osclients.SwiftContainerClient
 }
 
 var _ createResourceActuator = swiftcontainerActuator{}
 var _ deleteResourceActuator = swiftcontainerActuator{}
+var _ reconcileResourceActuator = swiftcontainerActuator{}
 
-func (swiftcontainerActuator) GetResourceID(osResource *osResourceT) string {
-	return osResource.ID
+func (swiftcontainerActuator) GetResourceID(osResource *osContainerT) string {
+	// Swift containers are identified by name
+	return osResource.Name
 }
 
-func (actuator swiftcontainerActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetSwiftContainer(ctx, id)
+func (actuator swiftcontainerActuator) GetOSResourceByID(ctx context.Context, id string) (*osContainerT, progress.ReconcileStatus) {
+	header, err := actuator.osClient.GetContainer(ctx, id, nil)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
-	return resource, nil
+	metadata, err := actuator.osClient.GetContainerMetadata(ctx, id)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+	return &osContainerT{Name: id, Metadata: metadata, GetHeader: *header}, nil
 }
 
-func (actuator swiftcontainerActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
+func (actuator swiftcontainerActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osContainerT, error], bool) {
 	resourceSpec := orcObject.Spec.Resource
 	if resourceSpec == nil {
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	listOpts := containers.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-	}
-
-	return actuator.osClient.ListSwiftContainers(ctx, listOpts), true
+	name := getResourceName(orcObject)
+	return func(yield func(*osContainerT, error) bool) {
+		header, err := actuator.osClient.GetContainer(ctx, name, nil)
+		if err != nil {
+			if !orcerrors.IsNotFound(err) {
+				yield(nil, err)
+			}
+			return
+		}
+		metadata, err := actuator.osClient.GetContainerMetadata(ctx, name)
+		if err != nil {
+			yield(nil, err)
+			return
+		}
+		yield(&osContainerT{Name: name, Metadata: metadata, GetHeader: *header}, nil)
+	}, true
 }
 
-func (actuator swiftcontainerActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+func (actuator swiftcontainerActuator) ListOSResourcesForImport(ctx context.Context, _ orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
+	return func(yield func(*osContainerT, error) bool) {
+		if filter.Name != nil {
+			name := string(*filter.Name)
+			// If a prefix filter is also set, verify the name satisfies it.
+			// Without this check a filter {name: "x", prefix: "y-"} would
+			// silently import "x" even though it does not match the prefix.
+			if filter.Prefix != nil && !hasPrefix(name, *filter.Prefix) {
+				return
+			}
+			header, err := actuator.osClient.GetContainer(ctx, name, nil)
+			if err != nil {
+				if !orcerrors.IsNotFound(err) {
+					yield(nil, err)
+				}
+				return
+			}
+			metadata, err := actuator.osClient.GetContainerMetadata(ctx, name)
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+			yield(&osContainerT{Name: name, Metadata: metadata, GetHeader: *header}, nil)
+		} else {
+			// List all containers and filter by prefix
+			listOpts := containers.ListOpts{}
+			for container, err := range actuator.osClient.ListContainers(ctx, listOpts) {
+				if err != nil {
+					yield(nil, err)
+					return
+				}
 
-	listOpts := containers.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
-	}
+				if filter.Prefix != nil && !hasPrefix(container.Name, *filter.Prefix) {
+					continue
+				}
 
-	return actuator.osClient.ListSwiftContainers(ctx, listOpts), nil
+				header, err := actuator.osClient.GetContainer(ctx, container.Name, nil)
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				metadata, err := actuator.osClient.GetContainerMetadata(ctx, container.Name)
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				if !yield(&osContainerT{Name: container.Name, Metadata: metadata, GetHeader: *header}, nil) {
+					return
+				}
+			}
+		}
+	}, nil
 }
 
-func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
+// hasPrefix checks if name starts with prefix.
+func hasPrefix(name, prefix string) bool {
+	if len(prefix) > len(name) {
+		return false
+	}
+	return name[:len(prefix)] == prefix
+}
+
+func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osContainerT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -104,13 +172,49 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
-	createOpts := containers.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+
+	name := getResourceName(obj)
+
+	// Swift treats '/' as a path separator in container names, making the name
+	// invalid at the API level. Validate explicitly to provide a clear error
+	// message rather than a confusing HTTP error from gophercloud.
+	if strings.Contains(name, "/") {
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"container name must not contain forward slashes"))
 	}
 
-	osResource, err := actuator.osClient.CreateSwiftContainer(ctx, createOpts)
+	// Swift limits container names to 256 UTF-8 bytes. The kubebuilder
+	// MaxLength:=256 marker counts Unicode code points, not bytes, so a name
+	// with multi-byte UTF-8 characters can pass API validation yet exceed the
+	// byte limit. Validate explicitly here to produce a clear error message.
+	if len(name) > 256 {
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"container name must not exceed 256 bytes"))
+	}
+
+	createOpts := containers.CreateOpts{}
+
+	if resource.ContainerRead != nil {
+		createOpts.ContainerRead = *resource.ContainerRead
+	}
+	if resource.ContainerWrite != nil {
+		createOpts.ContainerWrite = *resource.ContainerWrite
+	}
+	if resource.StoragePolicy != nil {
+		createOpts.StoragePolicy = *resource.StoragePolicy
+	}
+
+	if len(resource.Metadata) > 0 {
+		metadata := make(map[string]string, len(resource.Metadata))
+		for _, m := range resource.Metadata {
+			metadata[m.Key] = m.Value
+		}
+		createOpts.Metadata = metadata
+	}
+
+	_, err := actuator.osClient.CreateContainer(ctx, name, createOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -118,44 +222,69 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 		return nil, progress.WrapError(err)
 	}
 
-	return osResource, nil
-}
-
-func (actuator swiftcontainerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteSwiftContainer(ctx, resource.ID))
-}
-
-func (actuator swiftcontainerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
-	updateOpts := containers.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
+	// Fetch the created container to return its header and metadata
+	header, err := actuator.osClient.GetContainer(ctx, name, nil)
 	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+		return nil, progress.WrapError(err)
 	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
+	fetchedMetadata, err := actuator.osClient.GetContainerMetadata(ctx, name)
+	if err != nil {
+		return nil, progress.WrapError(err)
+	}
+
+	return &osContainerT{Name: name, Metadata: fetchedMetadata, GetHeader: *header}, nil
+}
+
+func (actuator swiftcontainerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osContainerT) progress.ReconcileStatus {
+	err := actuator.osClient.DeleteContainer(ctx, osResource.Name)
+	return progress.WrapError(err)
+}
+
+func (actuator swiftcontainerActuator) GetResourceReconcilers(_ context.Context, _ orcObjectPT, _ *osResourceT, _ generic.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+	return []resourceReconciler{
+		actuator.reconcileACLs,
+		actuator.reconcileMetadata,
+	}, nil
+}
+
+// reconcileACLs compares the desired ACLs from the spec with the current
+// container ACLs and calls UpdateContainer if they differ.
+func (actuator swiftcontainerActuator) reconcileACLs(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := orcObject.Spec.Resource
+	if resource == nil {
 		return nil
 	}
 
-	_, err = actuator.osClient.UpdateSwiftContainer(ctx, osResource.ID, updateOpts)
+	// GetHeader.Read and GetHeader.Write are []string parsed from the ACL
+	// headers. We join them back to a comma-separated string for comparison
+	// with the spec which stores ACLs as a single string.
+	currentRead := strings.Join(osResource.Read, ",")
+	currentWrite := strings.Join(osResource.Write, ",")
 
+	desiredRead := ""
+	if resource.ContainerRead != nil {
+		desiredRead = *resource.ContainerRead
+	}
+	desiredWrite := ""
+	if resource.ContainerWrite != nil {
+		desiredWrite = *resource.ContainerWrite
+	}
+
+	if currentRead == desiredRead && currentWrite == desiredWrite {
+		log.V(logging.Debug).Info("Container ACLs are up to date")
+		return nil
+	}
+
+	log.V(logging.Info).Info("Updating container ACLs")
+	updateOpts := containers.UpdateOpts{
+		ContainerRead:  &desiredRead,
+		ContainerWrite: &desiredWrite,
+	}
+	_, err := actuator.osClient.UpdateContainer(ctx, osResource.Name, updateOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating container ACLs: "+err.Error(), err)
 		}
 		return progress.WrapError(err)
 	}
@@ -163,45 +292,88 @@ func (actuator swiftcontainerActuator) updateResource(ctx context.Context, obj o
 	return progress.NeedsRefresh()
 }
 
-func needsUpdate(updateOpts containers.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToContainerUpdateMap()
+// reconcileMetadata compares the desired metadata from the spec with the
+// current container metadata and calls UpdateContainer if they differ.
+func (actuator swiftcontainerActuator) reconcileMetadata(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	resource := orcObject.Spec.Resource
+	if resource == nil {
+		return nil
+	}
+
+	// Fetch current metadata via GetContainerMetadata. Keys are returned in
+	// canonical HTTP header form (e.g. "Env", not "env") because Go's net/http
+	// canonicalises header keys on retrieval.
+	currentMetadata, err := actuator.osClient.GetContainerMetadata(ctx, osResource.Name)
 	if err != nil {
-		return false, err
+		return progress.WrapError(err)
 	}
 
-	updateMap, ok := updateOptsMap["container"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
+	// Build a lowercase-keyed view of current metadata for case-insensitive
+	// comparison. We also track the original canonical key so we can form
+	// correct X-Remove-Container-Meta-<Key> headers when removing entries.
+	currentLower := make(map[string]string, len(currentMetadata))     // lowercase key -> value
+	currentCanonical := make(map[string]string, len(currentMetadata)) // lowercase key -> canonical key
+	for k, v := range currentMetadata {
+		lk := strings.ToLower(k)
+		currentLower[lk] = v
+		currentCanonical[lk] = k
 	}
 
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *containers.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
+	// Build the desired metadata map from the spec with lowercase keys so that
+	// comparisons are case-insensitive (metadata key casing is not significant
+	// in Swift).
+	desiredMetadata := make(map[string]string, len(resource.Metadata))
+	for _, m := range resource.Metadata {
+		desiredMetadata[strings.ToLower(m.Key)] = m.Value
 	}
-}
 
-func handleDescriptionUpdate(updateOpts *containers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+	// Find keys to add/update and keys to remove.
+	var toSet map[string]string
+	var toRemove []string
+
+	for key, desiredVal := range desiredMetadata {
+		if currentVal, exists := currentLower[key]; !exists || currentVal != desiredVal {
+			if toSet == nil {
+				toSet = make(map[string]string)
+			}
+			toSet[key] = desiredVal
+		}
 	}
-}
+	for lk := range currentLower {
+		if _, desired := desiredMetadata[lk]; !desired {
+			// Use the canonical key so that the X-Remove-Container-Meta-<Key>
+			// header matches what Swift has stored.
+			toRemove = append(toRemove, currentCanonical[lk])
+		}
+	}
 
-func (actuator swiftcontainerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
+	if len(toSet) == 0 && len(toRemove) == 0 {
+		log.V(logging.Debug).Info("Container metadata is up to date")
+		return nil
+	}
+
+	log.V(logging.Info).Info("Updating container metadata")
+	updateOpts := containers.UpdateOpts{
+		Metadata:       toSet,
+		RemoveMetadata: toRemove,
+	}
+	_, err = actuator.osClient.UpdateContainer(ctx, osResource.Name, updateOpts)
+	if err != nil {
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating container metadata: "+err.Error(), err)
+		}
+		return progress.WrapError(err)
+	}
+
+	return progress.NeedsRefresh()
 }
 
 type swiftcontainerHelperFactory struct{}
 
 var _ helperFactory = swiftcontainerHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.SwiftContainer, controller interfaces.ResourceController) (swiftcontainerActuator, progress.ReconcileStatus) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.SwiftContainer, controller generic.ResourceController) (swiftcontainerActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
@@ -220,8 +392,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.SwiftContainer, con
 	}
 
 	return swiftcontainerActuator{
-		osClient:  osClient,
-		k8sClient: controller.GetK8sClient(),
+		osClient: osClient,
 	}, nil
 }
 
@@ -229,10 +400,10 @@ func (swiftcontainerHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI
 	return swiftcontainerAdapter{obj}
 }
 
-func (swiftcontainerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+func (swiftcontainerHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }
 
-func (swiftcontainerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+func (swiftcontainerHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }

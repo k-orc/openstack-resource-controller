@@ -27,17 +27,19 @@ import (
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
+// SwiftContainerClient is an interface for interacting with OpenStack Swift containers.
 type SwiftContainerClient interface {
-	ListSwiftContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*containers.Container, error]
-	CreateSwiftContainer(ctx context.Context, opts containers.CreateOptsBuilder) (*containers.Container, error)
-	DeleteSwiftContainer(ctx context.Context, resourceID string) error
-	GetSwiftContainer(ctx context.Context, resourceID string) (*containers.Container, error)
-	UpdateSwiftContainer(ctx context.Context, id string, opts containers.UpdateOptsBuilder) (*containers.Container, error)
+	ListContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*containers.Container, error]
+	CreateContainer(ctx context.Context, containerName string, opts containers.CreateOptsBuilder) (*containers.CreateHeader, error)
+	GetContainer(ctx context.Context, containerName string, opts containers.GetOptsBuilder) (*containers.GetHeader, error)
+	GetContainerMetadata(ctx context.Context, containerName string) (map[string]string, error)
+	DeleteContainer(ctx context.Context, containerName string) error
+	UpdateContainer(ctx context.Context, containerName string, opts containers.UpdateOptsBuilder) (*containers.UpdateHeader, error)
 }
 
-type swiftcontainerClient struct{ client *gophercloud.ServiceClient }
+type swiftContainerClient struct{ client *gophercloud.ServiceClient }
 
-// NewSwiftContainerClient returns a new OpenStack client.
+// NewSwiftContainerClient returns a new OpenStack Swift object storage client.
 func NewSwiftContainerClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (SwiftContainerClient, error) {
 	client, err := openstack.NewObjectStorageV1(providerClient, gophercloud.EndpointOpts{
 		Region:       providerClientOpts.RegionName,
@@ -48,57 +50,72 @@ func NewSwiftContainerClient(providerClient *gophercloud.ProviderClient, provide
 		return nil, fmt.Errorf("failed to create swiftcontainer service client: %v", err)
 	}
 
-	return &swiftcontainerClient{client}, nil
+	return NewSwiftContainerClientFromServiceClient(client), nil
 }
 
-func (c swiftcontainerClient) ListSwiftContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*containers.Container, error] {
+// NewSwiftContainerClientFromServiceClient returns a SwiftContainerClient wrapping
+// the given gophercloud ServiceClient. This is primarily useful for testing.
+func NewSwiftContainerClientFromServiceClient(client *gophercloud.ServiceClient) SwiftContainerClient {
+	return &swiftContainerClient{client}
+}
+
+func (c swiftContainerClient) ListContainers(ctx context.Context, listOpts containers.ListOptsBuilder) iter.Seq2[*containers.Container, error] {
 	pager := containers.List(c.client, listOpts)
 	return func(yield func(*containers.Container, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(containers.ExtractContainers, yield))
+		_ = pager.EachPage(ctx, yieldPage(containers.ExtractInfo, yield))
 	}
 }
 
-func (c swiftcontainerClient) CreateSwiftContainer(ctx context.Context, opts containers.CreateOptsBuilder) (*containers.Container, error) {
-	return containers.Create(ctx, c.client, opts).Extract()
+func (c swiftContainerClient) CreateContainer(ctx context.Context, containerName string, opts containers.CreateOptsBuilder) (*containers.CreateHeader, error) {
+	return containers.Create(ctx, c.client, containerName, opts).Extract()
 }
 
-func (c swiftcontainerClient) DeleteSwiftContainer(ctx context.Context, resourceID string) error {
-	return containers.Delete(ctx, c.client, resourceID).ExtractErr()
+func (c swiftContainerClient) GetContainer(ctx context.Context, containerName string, opts containers.GetOptsBuilder) (*containers.GetHeader, error) {
+	return containers.Get(ctx, c.client, containerName, opts).Extract()
 }
 
-func (c swiftcontainerClient) GetSwiftContainer(ctx context.Context, resourceID string) (*containers.Container, error) {
-	return containers.Get(ctx, c.client, resourceID).Extract()
+func (c swiftContainerClient) GetContainerMetadata(ctx context.Context, containerName string) (map[string]string, error) {
+	return containers.Get(ctx, c.client, containerName, nil).ExtractMetadata()
 }
 
-func (c swiftcontainerClient) UpdateSwiftContainer(ctx context.Context, id string, opts containers.UpdateOptsBuilder) (*containers.Container, error) {
-	return containers.Update(ctx, c.client, id, opts).Extract()
+func (c swiftContainerClient) DeleteContainer(ctx context.Context, containerName string) error {
+	_, err := containers.Delete(ctx, c.client, containerName).Extract()
+	return err
 }
 
-type swiftcontainerErrorClient struct{ error }
+func (c swiftContainerClient) UpdateContainer(ctx context.Context, containerName string, opts containers.UpdateOptsBuilder) (*containers.UpdateHeader, error) {
+	return containers.Update(ctx, c.client, containerName, opts).Extract()
+}
+
+type swiftContainerErrorClient struct{ error }
 
 // NewSwiftContainerErrorClient returns a SwiftContainerClient in which every method returns the given error.
 func NewSwiftContainerErrorClient(e error) SwiftContainerClient {
-	return swiftcontainerErrorClient{e}
+	return swiftContainerErrorClient{e}
 }
 
-func (e swiftcontainerErrorClient) ListSwiftContainers(_ context.Context, _ containers.ListOptsBuilder) iter.Seq2[*containers.Container, error] {
+func (e swiftContainerErrorClient) ListContainers(_ context.Context, _ containers.ListOptsBuilder) iter.Seq2[*containers.Container, error] {
 	return func(yield func(*containers.Container, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e swiftcontainerErrorClient) CreateSwiftContainer(_ context.Context, _ containers.CreateOptsBuilder) (*containers.Container, error) {
+func (e swiftContainerErrorClient) CreateContainer(_ context.Context, _ string, _ containers.CreateOptsBuilder) (*containers.CreateHeader, error) {
 	return nil, e.error
 }
 
-func (e swiftcontainerErrorClient) DeleteSwiftContainer(_ context.Context, _ string) error {
+func (e swiftContainerErrorClient) GetContainer(_ context.Context, _ string, _ containers.GetOptsBuilder) (*containers.GetHeader, error) {
+	return nil, e.error
+}
+
+func (e swiftContainerErrorClient) GetContainerMetadata(_ context.Context, _ string) (map[string]string, error) {
+	return nil, e.error
+}
+
+func (e swiftContainerErrorClient) DeleteContainer(_ context.Context, _ string) error {
 	return e.error
 }
 
-func (e swiftcontainerErrorClient) GetSwiftContainer(_ context.Context, _ string) (*containers.Container, error) {
-	return nil, e.error
-}
-
-func (e swiftcontainerErrorClient) UpdateSwiftContainer(_ context.Context, _ string, _ containers.UpdateOptsBuilder) (*containers.Container, error) {
+func (e swiftContainerErrorClient) UpdateContainer(_ context.Context, _ string, _ containers.UpdateOptsBuilder) (*containers.UpdateHeader, error) {
 	return nil, e.error
 }
