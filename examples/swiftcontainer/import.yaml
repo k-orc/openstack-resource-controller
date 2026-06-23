@@ -1,0 +1,12 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: my-existing-bucket
+spec:
+  cloudCredentialsRef:
+    secretName: openstack-clouds
+    cloudName: openstack
+  managementPolicy: unmanaged
+  import:
+    # name specifies the exact name of an existing Swift container to import.
+    name: my-existing-container
