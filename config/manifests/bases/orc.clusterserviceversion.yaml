@@ -124,6 +124,11 @@ spec:
       kind: Subnet
       name: subnets.openstack.k-orc.cloud
       version: v1alpha1
+    - description: SwiftContainer is the Schema for an ORC resource.
+      displayName: Swift Container
+      kind: SwiftContainer
+      name: swiftcontainers.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Trunk is the Schema for an ORC resource.
       displayName: Trunk
       kind: Trunk
