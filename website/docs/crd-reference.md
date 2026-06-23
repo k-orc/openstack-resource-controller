@@ -31,6 +31,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Service](#service)
 - [ShareNetwork](#sharenetwork)
 - [Subnet](#subnet)
+- [SwiftContainer](#swiftcontainer)
 - [Trunk](#trunk)
 - [User](#user)
 - [Volume](#volume)
@@ -522,6 +523,7 @@ _Appears in:_
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
 - [SubnetSpec](#subnetspec)
+- [SwiftContainerSpec](#swiftcontainerspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
 - [VolumeSpec](#volumespec)
@@ -2244,6 +2246,7 @@ _Appears in:_
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
 - [SubnetSpec](#subnetspec)
+- [SwiftContainerSpec](#swiftcontainerspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
 - [VolumeSpec](#volumespec)
@@ -2284,6 +2287,7 @@ _Appears in:_
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
 - [SubnetSpec](#subnetspec)
+- [SwiftContainerSpec](#swiftcontainerspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
 - [VolumeSpec](#volumespec)
@@ -2596,8 +2600,6 @@ _Appears in:_
 - [ShareNetworkResourceSpec](#sharenetworkresourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
-- [SwiftContainerFilter](#swiftcontainerfilter)
-- [SwiftContainerResourceSpec](#swiftcontainerresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
 - [UserFilter](#userfilter)
@@ -4603,10 +4605,200 @@ _Appears in:_
 | `resource` _[SubnetResourceStatus](#subnetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 
 
+#### SwiftContainer
+
+
+
+SwiftContainer is the Schema for an ORC resource.
 
 
 
 
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `SwiftContainer` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[SwiftContainerSpec](#swiftcontainerspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[SwiftContainerStatus](#swiftcontainerstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### SwiftContainerFilter
+
+
+
+SwiftContainerFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [SwiftContainerImport](#swiftcontainerimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[SwiftContainerName](#swiftcontainername)_ | name of the existing resource |  | MaxLength: 256 <br />MinLength: 1 <br />Pattern: `^[^/]+$` <br />Optional: \{\} <br /> |
+| `prefix` _string_ | prefix filters containers by name prefix. Only containers whose names<br />begin with this prefix will be considered. |  | MaxLength: 256 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### SwiftContainerImport
+
+
+
+SwiftContainerImport specifies an existing resource which will be imported
+instead of creating a new one. Swift containers are identified by name
+rather than UUID.
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [SwiftContainerSpec](#swiftcontainerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[SwiftContainerName](#swiftcontainername)_ | name contains the name of an existing Swift container to import. Note<br />that when specifying an import by name, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | MaxLength: 256 <br />MinLength: 1 <br />Pattern: `^[^/]+$` <br />Optional: \{\} <br /> |
+| `filter` _[SwiftContainerFilter](#swiftcontainerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### SwiftContainerMetadata
+
+
+
+SwiftContainerMetadata defines a key-value pair to be set as a Swift
+container metadata header (X-Container-Meta-<key>: <value>).
+
+
+
+_Appears in:_
+- [SwiftContainerResourceSpec](#swiftcontainerresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the name of the metadata item. It will be used as the suffix of<br />the X-Container-Meta-* header. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `value` _string_ | value is the value of the metadata item. |  | MaxLength: 255 <br />Required: \{\} <br /> |
+
+
+#### SwiftContainerMetadataStatus
+
+
+
+SwiftContainerMetadataStatus represents an observed metadata key-value pair
+on a Swift container.
+
+
+
+_Appears in:_
+- [SwiftContainerResourceStatus](#swiftcontainerresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `key` _string_ | key is the name of the metadata item. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `value` _string_ | value is the value of the metadata item. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+
+
+#### SwiftContainerName
+
+_Underlying type:_ _string_
+
+SwiftContainerName is the name of a Swift container. It must be between 1
+and 256 characters long and must not contain forward slashes.
+
+_Validation:_
+- MaxLength: 256
+- MinLength: 1
+- Pattern: `^[^/]+$`
+
+_Appears in:_
+- [SwiftContainerFilter](#swiftcontainerfilter)
+- [SwiftContainerImport](#swiftcontainerimport)
+- [SwiftContainerResourceSpec](#swiftcontainerresourcespec)
+
+
+
+#### SwiftContainerResourceSpec
+
+
+
+SwiftContainerResourceSpec contains the desired state of a Swift container.
+
+
+
+_Appears in:_
+- [SwiftContainerSpec](#swiftcontainerspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[SwiftContainerName](#swiftcontainername)_ | name will be the name of the created Swift container. If not specified,<br />the name of the ORC object will be used. The name must be unique within<br />the account and must not contain forward slashes. |  | MaxLength: 256 <br />MinLength: 1 <br />Pattern: `^[^/]+$` <br />Optional: \{\} <br /> |
+| `metadata` _[SwiftContainerMetadata](#swiftcontainermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
+| `containerRead` _string_ | containerRead sets the X-Container-Read ACL header which defines who<br />can read objects in the container. Common values include ".r:*" for<br />public read access or a comma-separated list of account/container<br />combinations. |  | MaxLength: 256 <br />Optional: \{\} <br /> |
+| `containerWrite` _string_ | containerWrite sets the X-Container-Write ACL header which defines who<br />can write objects to the container. Common values include a<br />comma-separated list of account/container combinations. |  | MaxLength: 256 <br />Optional: \{\} <br /> |
+| `storagePolicy` _string_ | storagePolicy is the name of the storage policy to use for this<br />container. If not specified, the cluster's default storage policy will<br />be used. This field is immutable after creation. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### SwiftContainerResourceStatus
+
+
+
+SwiftContainerResourceStatus represents the observed state of a Swift container.
+
+
+
+_Appears in:_
+- [SwiftContainerStatus](#swiftcontainerstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the Swift container. |  | MaxLength: 256 <br />Optional: \{\} <br /> |
+| `bytesUsed` _integer_ | bytesUsed is the total number of bytes stored in the container. |  | Optional: \{\} <br /> |
+| `objectCount` _integer_ | objectCount is the number of objects stored in the container. |  | Optional: \{\} <br /> |
+| `metadata` _[SwiftContainerMetadataStatus](#swiftcontainermetadatastatus) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
+| `containerRead` _string_ | containerRead is the current X-Container-Read ACL, defining who can<br />read objects in the container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `containerWrite` _string_ | containerWrite is the current X-Container-Write ACL, defining who can<br />write objects to the container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `storagePolicy` _string_ | storagePolicy is the name of the storage policy assigned to the container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `versions` _string_ | versions is the container where object versions are stored, if versioning<br />is enabled on this container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `quotaBytes` _integer_ | quotaBytes is the quota on the maximum number of bytes that can be<br />stored in the container, if set. |  | Optional: \{\} <br /> |
+| `quotaCount` _integer_ | quotaCount is the quota on the maximum number of objects that can be<br />stored in the container, if set. |  | Optional: \{\} <br /> |
+
+
+#### SwiftContainerSpec
+
+
+
+SwiftContainerSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [SwiftContainer](#swiftcontainer)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[SwiftContainerImport](#swiftcontainerimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[SwiftContainerResourceSpec](#swiftcontainerresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### SwiftContainerStatus
+
+
+
+SwiftContainerStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [SwiftContainer](#swiftcontainer)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[SwiftContainerResourceStatus](#swiftcontainerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 
 
 #### Trunk

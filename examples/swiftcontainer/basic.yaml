@@ -1,0 +1,9 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: my-bucket
+spec:
+  cloudCredentialsRef:
+    secretName: openstack-clouds
+    cloudName: openstack
+  resource: {}
