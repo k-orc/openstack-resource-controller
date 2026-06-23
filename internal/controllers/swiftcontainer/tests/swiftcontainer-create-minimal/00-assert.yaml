@@ -6,7 +6,6 @@ metadata:
 status:
   resource:
     name: swiftcontainer-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +23,7 @@ resourceRefs:
       ref: swiftcontainer
 assertAll:
     - celExpr: "swiftcontainer.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "swiftcontainer.status.id == 'swiftcontainer-create-minimal'"
+    - celExpr: "!has(swiftcontainer.status.resource.metadata)"
+    - celExpr: "!has(swiftcontainer.status.resource.containerRead)"
+    - celExpr: "!has(swiftcontainer.status.resource.containerWrite)"

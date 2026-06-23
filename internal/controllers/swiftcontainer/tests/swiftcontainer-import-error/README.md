@@ -1,12 +1,14 @@
-# Import SwiftContainer with more than one matching resources
+# Import SwiftContainer with more than one matching resource
 
 ## Step 00
 
-Create two SwiftContainers with identical specs.
+Create two Swift containers whose names share the same prefix
+(`swiftcontainer-import-error-external`).
 
 ## Step 01
 
-Ensure that an imported SwiftContainer with a filter matching the resources returns an error.
+Ensure that an imported SwiftContainer using a prefix filter that matches both
+resources returns an error.
 
 ## Reference
 

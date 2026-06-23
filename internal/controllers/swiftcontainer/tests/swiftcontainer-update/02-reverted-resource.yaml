@@ -1,5 +1,5 @@
 # NOTE: kuttl only does patch updates, which means we can't delete a field.
-# We have to use a kubectl apply command instead.
+# We have to use a kubectl replace command instead.
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:

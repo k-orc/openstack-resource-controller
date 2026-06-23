@@ -6,8 +6,7 @@ metadata:
 status:
   resource:
     name: swiftcontainer-create-full-override
-    description: SwiftContainer from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    containerRead: ".r:*,.rlistings"
   conditions:
   - type: Available
     status: "True"
@@ -25,4 +24,9 @@ resourceRefs:
       ref: swiftcontainer
 assertAll:
     - celExpr: "swiftcontainer.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "swiftcontainer.status.id == 'swiftcontainer-create-full-override'"
+    - celExpr: "swiftcontainer.status.resource.name == 'swiftcontainer-create-full-override'"
+    - celExpr: "swiftcontainer.status.resource.containerRead == '.r:*,.rlistings'"
+    - celExpr: "has(swiftcontainer.status.resource.metadata)"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Environment' && m.value == 'test')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Owner' && m.value == 'orc-e2e')"

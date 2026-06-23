@@ -15,8 +15,6 @@ status:
       reason: Success
   resource:
     name: swiftcontainer-import-external-not-this-one
-    description: SwiftContainer swiftcontainer-import-external from "swiftcontainer-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer

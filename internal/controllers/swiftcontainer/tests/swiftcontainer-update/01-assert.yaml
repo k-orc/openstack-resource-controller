@@ -1,13 +1,26 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SwiftContainer
+      name: swiftcontainer-update
+      ref: swiftcontainer
+assertAll:
+    - celExpr: "swiftcontainer.status.id == 'swiftcontainer-update'"
+    - celExpr: "has(swiftcontainer.status.resource.metadata)"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Environment' && m.value == 'staging')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Team' && m.value == 'platform')"
+    - celExpr: "swiftcontainer.status.resource.containerRead == '.r:*,.rlistings'"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
 metadata:
   name: swiftcontainer-update
 status:
   resource:
-    name: swiftcontainer-update-updated
-    description: swiftcontainer-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    name: swiftcontainer-update
+    containerRead: ".r:*,.rlistings"
   conditions:
   - type: Available
     status: "True"

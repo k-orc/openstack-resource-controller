@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: SwiftContainer from "import error" test
+      prefix: swiftcontainer-import-error-external

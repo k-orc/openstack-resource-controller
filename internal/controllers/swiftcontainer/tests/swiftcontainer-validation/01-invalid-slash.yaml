@@ -1,0 +1,12 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Attempt to create a SwiftContainer with a forward slash in its name. The
+  # CRD pattern constraint (^[^/]+$) on SwiftContainerName rejects this at the
+  # Kubernetes API level, so the command is expected to fail. We set
+  # ignoreFailure: true so the test step does not abort; the assertion in
+  # 01-assert.yaml then verifies that the object was not created.
+  - command: >-
+      echo '{"apiVersion":"openstack.k-orc.cloud/v1alpha1","kind":"SwiftContainer","metadata":{"name":"swiftcontainer-validation-slash"},"spec":{"cloudCredentialsRef":{"cloudName":"openstack","secretName":"openstack-clouds"},"managementPolicy":"managed","resource":{"name":"invalid/slash/name"}}}' | kubectl apply -n ${NAMESPACE} -f -
+    namespaced: true
+    ignoreFailure: true
