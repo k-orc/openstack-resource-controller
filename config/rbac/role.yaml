@@ -38,6 +38,7 @@ rules:
   - services
   - sharenetworks
   - subnets
+  - swiftcontainers
   - trunks
   - users
   - volumes
@@ -74,6 +75,7 @@ rules:
   - services/status
   - sharenetworks/status
   - subnets/status
+  - swiftcontainers/status
   - trunks/status
   - users/status
   - volumes/status
