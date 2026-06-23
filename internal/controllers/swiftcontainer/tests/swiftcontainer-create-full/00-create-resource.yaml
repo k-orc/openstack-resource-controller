@@ -5,11 +5,14 @@ metadata:
   name: swiftcontainer-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: swiftcontainer-create-full-override
-    description: SwiftContainer from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    metadata:
+      - key: environment
+        value: test
+      - key: owner
+        value: orc-e2e
+    containerRead: ".r:*,.rlistings"

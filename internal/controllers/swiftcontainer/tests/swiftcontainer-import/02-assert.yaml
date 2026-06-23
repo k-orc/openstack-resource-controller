@@ -10,8 +10,13 @@ resourceRefs:
       kind: SwiftContainer
       name: swiftcontainer-import-external-not-this-one
       ref: swiftcontainer2
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SwiftContainer
+      name: swiftcontainer-import
+      ref: swiftcontainerImport
 assertAll:
     - celExpr: "swiftcontainer1.status.id != swiftcontainer2.status.id"
+    - celExpr: "swiftcontainerImport.status.id == swiftcontainer1.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
@@ -29,5 +34,3 @@ status:
       reason: Success
   resource:
     name: swiftcontainer-import-external
-    description: SwiftContainer swiftcontainer-import-external from "swiftcontainer-import" test
-    # TODO(scaffolding): Add all fields the resource supports

@@ -5,6 +5,9 @@ metadata:
   name: swiftcontainer-update
 spec:
   resource:
-    name: swiftcontainer-update-updated
-    description: swiftcontainer-update-updated
-    # TODO(scaffolding): update all mutable fields
+    metadata:
+      - key: environment
+        value: staging
+      - key: team
+        value: platform
+    containerRead: ".r:*,.rlistings"

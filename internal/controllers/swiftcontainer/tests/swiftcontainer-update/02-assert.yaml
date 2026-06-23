@@ -7,7 +7,10 @@ resourceRefs:
       name: swiftcontainer-update
       ref: swiftcontainer
 assertAll:
-    - celExpr: "!has(swiftcontainer.status.resource.description)"
+    - celExpr: "swiftcontainer.status.id == 'swiftcontainer-update'"
+    - celExpr: "!has(swiftcontainer.status.resource.metadata)"
+    - celExpr: "!has(swiftcontainer.status.resource.containerRead)"
+    - celExpr: "!has(swiftcontainer.status.resource.containerWrite)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
@@ -16,7 +19,6 @@ metadata:
 status:
   resource:
     name: swiftcontainer-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
   conditions:
   - type: Available
     status: "True"

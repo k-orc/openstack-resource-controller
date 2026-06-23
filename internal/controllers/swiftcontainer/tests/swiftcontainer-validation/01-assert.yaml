@@ -1,0 +1,23 @@
+---
+# The valid container from step 00 must continue to be available.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-validation-valid
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  # Verify that the invalid SwiftContainer does NOT exist in the cluster.
+  # The CRD pattern validation should have rejected the apply command in the
+  # previous step, so this object must be absent.
+  - script: "! kubectl get swiftcontainer swiftcontainer-validation-slash --namespace $NAMESPACE"
+    skipLogOutput: true

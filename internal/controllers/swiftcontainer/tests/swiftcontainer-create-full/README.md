@@ -2,9 +2,17 @@
 
 ## Step 00
 
-Create a SwiftContainer using all available fields, and verify that the observed state corresponds to the spec.
+Create a Swift container using all available fields, and verify that the
+observed state corresponds to the spec.
 
-Also validate that the OpenStack resource uses the name from the spec when it is specified.
+Validates that:
+- The OpenStack resource uses the name from `spec.resource.name` when it is
+  specified, rather than the ORC object name (SC-002).
+- Custom metadata key-value pairs are applied and reflected in
+  `status.resource.metadata`.
+- Read ACL (`containerRead`) and write ACL (`containerWrite`) are configured
+  and reflected in `status.resource`.
+- `Available=True` and `Progressing=False` conditions are set.
 
 ## Reference
 

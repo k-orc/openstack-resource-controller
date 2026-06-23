@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
 metadata:
-  name: swiftcontainer-create-minimal
+  name: swiftcontainer-validation-valid
 spec:
   cloudCredentialsRef:
     cloudName: openstack
