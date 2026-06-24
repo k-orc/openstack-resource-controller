@@ -161,7 +161,7 @@ func (c *Controller[
 // existing condition-based behaviour is unchanged.
 //
 // The resync check uses the persisted lastSyncTime so that controller restarts
-// respect the time already elapsed, preventing a thundering herd\.
+// respect the time already elapsed, preventing a thundering herd.
 //
 // If shouldReconcile is preventing an object from being reconciled which should
 // be reconciled, consider if that object's actuator is correctly returning a

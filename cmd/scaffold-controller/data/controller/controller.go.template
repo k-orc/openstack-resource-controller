@@ -19,6 +19,7 @@ package {{ .PackageName }}
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 {{- if or (len .AllCreateDependencies) (len .ImportDependencies) }}
@@ -44,15 +45,20 @@ const controllerName = "{{ .PackageName }}"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName }}s/status,verbs=get;update;patch
 
 type {{ .PackageName }}ReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return {{ .PackageName }}ReconcilerConstructor{scopeFactory: scopeFactory}
+	return &{{ .PackageName }}ReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func ({{ .PackageName }}ReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *{{ .PackageName }}ReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 {{- $kind := .Kind }}
@@ -100,7 +106,7 @@ var {{ $depNameCamelCase }}ImportDependency = dependency.NewDependency[*orcv1alp
 {{- end }}
 
 // SetupWithManager sets up the controller with the Manager.
-func (c {{ .PackageName }}ReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *{{ .PackageName }}ReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 {{- if or (len .AllCreateDependencies) (len .ImportDependencies) }}
 	k8sClient := mgr.GetClient()
@@ -148,6 +154,6 @@ func (c {{ .PackageName }}ReconcilerConstructor) SetupWithManager(ctx context.Co
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, {{ .PackageName }}HelperFactory{}, {{ .PackageName }}StatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, {{ .PackageName }}HelperFactory{}, {{ .PackageName }}StatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

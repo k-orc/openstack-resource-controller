@@ -71,12 +71,12 @@ func GetOrCreateOSResource[
 		if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
 			if orcerrors.IsNotFound(err) {
 				// The OpenStack resource referenced by status.id no longer exists.
-				// For managed resources we trigger recreation by returning nil with no
-				// error: the caller will clear status.id and re-enter the creation path
-				// on the next reconcile.
-				// For unmanaged resources we cannot recreate them, so we return a
-				// terminal error.
-				if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged {
+				// For managed, non-imported resources we trigger recreation by
+				// returning a typed signal: the caller will clear status.id and
+				// re-enter the creation path on the next reconcile.
+				// For unmanaged or imported resources we cannot recreate them, so we
+				// return a terminal error.
+				if objAdapter.GetManagementPolicy() == orcv1alpha1.ManagementPolicyManaged && !objAdapter.IsImported() {
 					log.V(logging.Info).Info("OpenStack resource was deleted externally; will signal caller to clear status ID and trigger recreation")
 					return nil, progress.ExternallyDeleted()
 				}

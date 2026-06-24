@@ -192,9 +192,9 @@ Currently, `GetOrCreateOSResource` returns a terminal error when fetching a reso
 1. Check if `managementPolicy == managed` and the resource was not imported (no `importID` or `importFilter`)
 2. If both conditions are met, return a typed `ExternallyDeleted` signal via `ReconcileStatus` so the caller can clear `status.id` and trigger recreation on the next reconcile
 3. If the resource was imported or is unmanaged, retain the existing terminal error behavior
-4. If `GetOSResourceByID` returns a nil resource with no error (actuator bug), return an explicit error rather than silently misinterpreting it as external deletion
+4. If `GetOSResourceByID` returns a nil resource with no error, return an explicit error rather than silently misinterpreting the invalid actuator response as external deletion
 
-This ensures that managed resources created by ORC are automatically recreated, while imported or unmanaged resources correctly fail with a terminal error when deleted externally. The typed signal avoids ambiguity with nil returns from actuator bugs.
+This ensures that managed resources created by ORC are automatically recreated, while imported or unmanaged resources correctly fail with a terminal error when deleted externally. The typed signal keeps the external-deletion path distinct from invalid actuator responses.
 
 **Behavior when drift detection is disabled** (`resyncPeriod: 0`): Periodic resyncs do not occur, so discovery of external deletion depends on other triggers (spec change, controller restart). When discovered, ORC will still recreate managed resources (not a terminal error). The difference is timing of discovery, not the recreation behavior itself.
 
@@ -297,7 +297,7 @@ The following have been implemented:
 - `GetOrCreateOSResource` branches on management policy and import status when 404 is received:
   - Managed, non-imported resources → typed `ExternallyDeleted` signal via `ReconcileStatus`
   - Unmanaged or imported resources → terminal error
-  - Nil resource with no error (actuator bug) → explicit programming error
+  - Nil resource with no error (invalid actuator response) → explicit programming error
 - `status.ClearStatusID` clears `status.id` before recreation (using JSON merge patch with explicit `null`)
 - `reconcileNormal` checks `IsExternallyDeleted()` on the `ReconcileStatus` to trigger recreation
 

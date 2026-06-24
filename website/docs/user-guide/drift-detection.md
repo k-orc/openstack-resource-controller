@@ -150,7 +150,7 @@ kubectl get network my-network -w
 
 During recreation, you will observe:
 
-1. `Available=False`, `Progressing=True` — ORC is recreating the resource
+1. `Available=Unknown`, `Progressing=True` — ORC is recreating the resource
 2. `Available=True`, `Progressing=False` — Recreation complete, `status.id` has new value
 
 ## Implications for Dependent Resources
@@ -186,7 +186,7 @@ spec:
 
 ## Drift Detection Without Resync
 
-Even with `resyncPeriod: 0` (the default, disabled), ORC will still detect external deletion when another event triggers reconciliation — for example, when you make a spec change or the controller restarts. The recreation or terminal error behavior is the same; the difference is only in how quickly ORC detects the deletion.
+With `resyncPeriod: 0` (the default, disabled), ORC does not periodically poll OpenStack for external deletion. It can still discover deletion when another event causes a full reconciliation that fetches the OpenStack resource by `status.id`, such as a controller restart or a spec change that is not filtered out by the controller. When deletion is discovered, the recreation or terminal error behavior is the same; the difference is how quickly and reliably ORC notices it.
 
 !!! tip
 

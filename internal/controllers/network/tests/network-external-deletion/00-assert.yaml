@@ -10,7 +10,7 @@ resourceRefs:
     ref: network
 assertAll:
   # Verify the OpenStack ID is set before we delete the network externally.
-  - celExpr: "has(network.status.id) && network.status.id != ''"
+  - celExpr: "network.status.id != ''"
 commands:
   - script: |
       # Save the original OpenStack network ID for comparison in step 01.

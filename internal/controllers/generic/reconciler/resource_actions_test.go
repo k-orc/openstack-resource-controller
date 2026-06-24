@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -85,6 +85,37 @@ func TestGetOrCreateOSResource_ExternalDeletion_Unmanaged(t *testing.T) {
 	var termErr *orcerrors.TerminalError
 	if !errors.As(err, &termErr) {
 		t.Errorf("expected a TerminalError for externally-deleted unmanaged resource, got %T: %v", err, err)
+	}
+	if !actuator.getByIDCalled {
+		t.Error("GetOSResourceByID was not called: controller must attempt to fetch the resource")
+	}
+}
+
+// TestGetOrCreateOSResource_ExternalDeletion_ManagedImported verifies that
+// imported resources are not recreated after external deletion, even if the
+// management policy is managed.
+func TestGetOrCreateOSResource_ExternalDeletion_ManagedImported(t *testing.T) {
+	t.Parallel()
+
+	const resourceID = "managed-imported-deleted-flavor-id"
+
+	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
+	adapter := managedImportedFlavorWithStatusID(resourceID)
+
+	_, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
+
+	if rs.IsExternallyDeleted() {
+		t.Fatal("expected imported resource deletion to be terminal, not externally-deleted recreation")
+	}
+
+	_, err := rs.NeedsReschedule()
+	if err == nil {
+		t.Fatal("expected a terminal error for externally-deleted imported resource, got nil")
+	}
+
+	var termErr *orcerrors.TerminalError
+	if !errors.As(err, &termErr) {
+		t.Errorf("expected a TerminalError for externally-deleted imported resource, got %T: %v", err, err)
 	}
 	if !actuator.getByIDCalled {
 		t.Error("GetOSResourceByID was not called: controller must attempt to fetch the resource")

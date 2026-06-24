@@ -17,7 +17,7 @@ resourceRefs:
     ref: network
 assertAll:
   # The new OpenStack ID must be set and non-empty.
-  - celExpr: "has(network.status.id) && network.status.id != ''"
+  - celExpr: "network.status.id != ''"
 commands:
   - script: |
       ORIGINAL=$(cat /tmp/network-external-deletion-original-id)

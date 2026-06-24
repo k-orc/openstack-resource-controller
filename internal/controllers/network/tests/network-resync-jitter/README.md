@@ -12,9 +12,8 @@ Record the initial `lastSyncTime` for all three networks.
 
 ## Step 02
 
-After the resync period elapses, verify that all three networks have been
-independently re-reconciled (i.e., all three `lastSyncTime` values have been
-updated to newer timestamps).
+After the resync period elapses, verify that the three recorded timestamps have
+advanced, showing that all three networks were independently re-reconciled.
 
 The test verifies that all three resources are scheduled for resync
 independently. The jitter mechanism ([0%, +20%]) ensures they are not all

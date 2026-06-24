@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -328,6 +328,31 @@ func managedFlavorWithStatusID(statusID string) fakeAdapter {
 	}
 }
 
+// managedImportedFlavorWithStatusID builds a managed Flavor that was imported
+// and already has status.ID set. API validation normally prevents this
+// combination, but the reconciler still treats imported resources as
+// non-recreatable defensively.
+func managedImportedFlavorWithStatusID(statusID string) fakeAdapter {
+	return fakeAdapter{
+		Flavor: &orcv1alpha1.Flavor{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:       "test-flavor",
+				Namespace:  "default",
+				Finalizers: []string{finalizerFor()},
+			},
+			Spec: orcv1alpha1.FlavorSpec{
+				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
+				Import: &orcv1alpha1.FlavorImport{
+					ID: ptr.To(statusID),
+				},
+			},
+			Status: orcv1alpha1.FlavorStatus{
+				ID: ptr.To(statusID),
+			},
+		},
+	}
+}
+
 // notFoundErr returns a gophercloud not-found error that orcerrors.IsNotFound
 // will recognise.
 func notFoundErr() error {
@@ -488,8 +513,8 @@ func TestGetOrCreateOSResource_UnmanagedStatusIDDeleted(t *testing.T) {
 
 // TestGetOrCreateOSResource_ManagedStatusIDDeleted verifies that when a
 // managed (non-imported) resource's OpenStack resource has been deleted
-// externally, the controller returns (nil, nil) to trigger recreation rather
-// than a terminal error.
+// externally, the controller returns an ExternallyDeleted status to trigger
+// recreation rather than a terminal error.
 func TestGetOrCreateOSResource_ManagedStatusIDDeleted(t *testing.T) {
 	t.Parallel()
 
@@ -501,7 +526,10 @@ func TestGetOrCreateOSResource_ManagedStatusIDDeleted(t *testing.T) {
 
 	got, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
 
-	// Expect (nil, nil): status.id should be cleared and recreation triggered.
+	// Expect a typed signal: status.id should be cleared and recreation triggered.
+	if !rs.IsExternallyDeleted() {
+		t.Fatal("expected IsExternallyDeleted for externally-deleted managed resource")
+	}
 	needsReschedule, err := rs.NeedsReschedule()
 	if needsReschedule {
 		t.Fatalf("expected no rescheduling (nil reconcileStatus) for externally-deleted managed resource, got needsReschedule=%v err=%v", needsReschedule, err)
