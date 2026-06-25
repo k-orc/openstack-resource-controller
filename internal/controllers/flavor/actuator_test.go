@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/flavors"
@@ -44,7 +46,15 @@ func (l mockFlavorClient) CreateFlavor(_ context.Context, _ flavors.CreateOptsBu
 	return nil, errNotImplemented
 }
 
+func (l mockFlavorClient) CreateFlavorExtraSpecs(_ context.Context, _ string, _ flavors.CreateExtraSpecsOptsBuilder) (map[string]string, error) {
+	return nil, errNotImplemented
+}
+
 func (l mockFlavorClient) DeleteFlavor(_ context.Context, _ string) error {
+	return errNotImplemented
+}
+
+func (l mockFlavorClient) DeleteFlavorExtraSpec(_ context.Context, _, _ string) error {
 	return errNotImplemented
 }
 
@@ -372,6 +382,187 @@ func TestGetFlavorBySpec(t *testing.T) {
 			for _, check := range tc.checks {
 				if e := check(flavorResults); e != nil {
 					t.Error(e)
+				}
+			}
+		})
+	}
+}
+
+func TestExtraSpecUpdates(t *testing.T) {
+	tests := []struct {
+		name     string
+		desired  map[string]string
+		current  map[string]string
+		expected map[string]string
+	}{
+		{
+			name:     "No changes",
+			desired:  map[string]string{"a": "1"},
+			current:  map[string]string{"a": "1"},
+			expected: map[string]string{},
+		},
+		{
+			name:     "Create new key",
+			desired:  map[string]string{"a": "1"},
+			current:  map[string]string{},
+			expected: map[string]string{"a": "1"},
+		},
+		{
+			name:     "Update value",
+			desired:  map[string]string{"a": "2"},
+			current:  map[string]string{"a": "1"},
+			expected: map[string]string{"a": "2"},
+		},
+		{
+			name:     "Multiple keys mixed",
+			desired:  map[string]string{"a": "2", "b": "1"},
+			current:  map[string]string{"a": "1", "c": "9"},
+			expected: map[string]string{"a": "2", "b": "1"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := extraSpecUpdates(tt.desired, tt.current)
+
+			if !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("extraSpecUpdates() = %#v, want %#v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestExtraSpecDeletes(t *testing.T) {
+	tests := []struct {
+		name     string
+		desired  map[string]string
+		current  map[string]string
+		expected []string
+	}{
+		{
+			name:     "No deletes",
+			desired:  map[string]string{"a": "1"},
+			current:  map[string]string{"a": "1"},
+			expected: nil,
+		},
+		{
+			name:     "Delete missing key",
+			desired:  map[string]string{},
+			current:  map[string]string{"a": "1"},
+			expected: []string{"a"},
+		},
+		{
+			name:     "Partial delete",
+			desired:  map[string]string{"a": "1"},
+			current:  map[string]string{"a": "1", "b": "2"},
+			expected: []string{"b"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := extraSpecDeletes(tt.desired, tt.current)
+
+			sort.Strings(got)
+			sort.Strings(tt.expected)
+
+			if !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("extraSpecDeletes() = %#v, want %#v", got, tt.expected)
+			}
+		})
+	}
+}
+
+type updateMockFlavorClient struct {
+	mockFlavorClient
+	errCreate error
+	errDelete error
+}
+
+func (m updateMockFlavorClient) CreateFlavorExtraSpecs(_ context.Context, _ string, _ flavors.CreateExtraSpecsOptsBuilder) (map[string]string, error) {
+	return nil, m.errCreate
+}
+
+func (m updateMockFlavorClient) DeleteFlavorExtraSpec(_ context.Context, _, _ string) error {
+	return m.errDelete
+}
+
+func TestReconcileExtraSpecs(t *testing.T) {
+	tests := []struct {
+		name          string
+		specSpecs     []orcv1alpha1.FlavorExtraSpec
+		currSpecs     map[string]string
+		client        updateMockFlavorClient
+		expectError   error
+		expectRefresh bool
+	}{
+		{
+			name:          "No changes needed",
+			specSpecs:     []orcv1alpha1.FlavorExtraSpec{{Name: "hw:numa_nodes", Value: "2"}},
+			currSpecs:     map[string]string{"hw:numa_nodes": "2"},
+			client:        updateMockFlavorClient{},
+			expectError:   nil,
+			expectRefresh: false,
+		},
+		{
+			name:          "Successful modification",
+			specSpecs:     []orcv1alpha1.FlavorExtraSpec{{Name: "hw:numa_nodes", Value: "4"}},
+			currSpecs:     map[string]string{"hw:numa_nodes": "2"},
+			client:        updateMockFlavorClient{},
+			expectError:   nil,
+			expectRefresh: true,
+		},
+		{
+			name:          "Update fails early",
+			specSpecs:     []orcv1alpha1.FlavorExtraSpec{{Name: "new_key", Value: "true"}},
+			currSpecs:     map[string]string{},
+			client:        updateMockFlavorClient{errCreate: errTest},
+			expectError:   errTest,
+			expectRefresh: false,
+		},
+		{
+			name:          "Update succeeds but delete fails",
+			specSpecs:     []orcv1alpha1.FlavorExtraSpec{},
+			currSpecs:     map[string]string{"old_key": "remove-me"},
+			client:        updateMockFlavorClient{errDelete: errTest},
+			expectError:   errTest,
+			expectRefresh: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+
+			actuator := flavorActuator{tt.client}
+
+			obj := &orcv1alpha1.Flavor{
+				Spec: orcv1alpha1.FlavorSpec{
+					Resource: &orcv1alpha1.FlavorResourceSpec{
+						ExtraSpecs: tt.specSpecs,
+					},
+				},
+			}
+
+			osResource := &flavors.Flavor{
+				ID:         "test-flavor-id",
+				ExtraSpecs: tt.currSpecs,
+			}
+
+			status := actuator.reconcileExtraSpecs(ctx, obj, osResource)
+
+			if tt.expectError != nil {
+				if status == nil || status.GetError() == nil {
+					t.Fatalf("Expected error %v, got none", tt.expectError)
+				}
+				if !errors.Is(status.GetError(), tt.expectError) {
+					t.Errorf("Expected error %v, got %v", tt.expectError, status.GetError())
+				}
+			} else {
+				if status != nil && status.GetError() != nil {
+					t.Errorf("Unexpected error: %v", status.GetError())
+				}
+				gotRefresh := (status != nil)
+				if gotRefresh != tt.expectRefresh {
+					t.Errorf("Refresh expectation mismatch: expected %v, got %v", tt.expectRefresh, gotRefresh)
 				}
 			}
 		})

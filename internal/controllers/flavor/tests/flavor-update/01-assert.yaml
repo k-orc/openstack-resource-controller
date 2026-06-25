@@ -1,0 +1,22 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-update
+status:
+  resource:
+    disk: 0
+    extraSpecs:
+    - name: spec
+      value: specValue
+    isPublic: true
+    name: flavor-update
+    ram: 1
+    vcpus: 2
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

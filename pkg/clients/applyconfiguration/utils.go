@@ -120,6 +120,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.FixedIPStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Flavor"):
 		return &apiv1alpha1.FlavorApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("FlavorExtraSpec"):
+		return &apiv1alpha1.FlavorExtraSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("FlavorExtraSpecStatus"):
+		return &apiv1alpha1.FlavorExtraSpecStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("FlavorFilter"):
 		return &apiv1alpha1.FlavorFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("FlavorImport"):

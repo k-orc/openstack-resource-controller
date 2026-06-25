@@ -98,13 +98,51 @@ var _ = Describe("ORC Flavor API validations", func() {
 		},
 	})
 
-	It("should be immutable", func(ctx context.Context) {
+	It("should be immutable except extraSpecs", func(ctx context.Context) {
 		flavor := flavorStub(namespace)
+
 		patch := baseFlavorPatch(flavor)
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(1).WithVcpus(1).WithDisk(1))
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().
+			WithName("base-name").
+			WithID("base-id").
+			WithDescription("base-desc").
+			WithRAM(1).
+			WithVcpus(1).
+			WithDisk(1).
+			WithSwap(1).
+			WithIsPublic(true).
+			WithEphemeral(1).
+			WithExtraSpecs(
+				applyconfigv1alpha1.FlavorExtraSpec().
+					WithName("spec").
+					WithValue("specValue"),
+			),
+		)
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
-		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithRAM(2).WithVcpus(1).WithDisk(1))
-		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("FlavorResourceSpec is immutable")))
+
+		patch = baseFlavorPatch(flavor)
+		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().
+			WithName("mutated-name").
+			WithID("mutated-id").
+			WithDescription("mutated-desc").
+			WithRAM(2).
+			WithVcpus(2).
+			WithDisk(2).
+			WithSwap(2).
+			WithIsPublic(false).
+			WithEphemeral(2).
+			WithExtraSpecs(
+				applyconfigv1alpha1.FlavorExtraSpec().
+					WithName("spec2").
+					WithValue("specValue2"),
+			),
+		)
+		err := applyObj(ctx, flavor, patch)
+		fields := []string{"name", "id", "description", "ram", "vcpus", "disk", "swap", "isPublic", "ephemeral"}
+		for _, field := range fields {
+			Expect(err).To(MatchError(ContainSubstring(field + " is immutable")))
+		}
+		Expect(err.Error()).To(Not(ContainSubstring("extraSpecs is immutable")))
 	})
 
 	It("should reject a flavor without required fields", func(ctx context.Context) {
@@ -162,6 +200,15 @@ var _ = Describe("ORC Flavor API validations", func() {
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID("").WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
 		Expect(applyObj(ctx, flavor, patch)).To(MatchError(ContainSubstring("spec.resource.id in body should be at least 1 chars long")))
 		patch.Spec.WithResource(applyconfigv1alpha1.FlavorResourceSpec().WithID("test.id -123_").WithRAM(1).WithVcpus(1).WithDescription("test").WithDisk(1))
+		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
+	})
+
+	It("should permit extraSpecs with required fields", func(ctx context.Context) {
+		flavor := flavorStub(namespace)
+		patch := baseFlavorPatch(flavor)
+		patch.Spec.WithResource(testFlavorResource().
+			WithExtraSpecs(applyconfigv1alpha1.FlavorExtraSpec().
+				WithName("key").WithValue("value")))
 		Expect(applyObj(ctx, flavor, patch)).To(Succeed())
 	})
 })
