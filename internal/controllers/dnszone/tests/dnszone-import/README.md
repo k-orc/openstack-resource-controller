@@ -1,18 +1,18 @@
-# Import DNSZone
+# Import DNSZone (Unmanaged ID Scenario)
 
 ## Step 00
 
-Import a dnszone that matches all fields in the filter, and verify it is waiting for the external resource to be created.
+- Create the credentials secret `openstack-clouds`.
+- Pre-create a DNS zone in Designate using the `openstack` CLI.
+- Dynamically generate `01-import-resource.yaml` with the ID of the pre-created zone.
 
 ## Step 01
 
-Create a dnszone whose name is a superstring of the one specified in the import filter, otherwise matching the filter, and verify that it's not being imported.
+- Apply the unmanaged `DNSZone` CR with `spec.import.id` pointing to the pre-created zone.
+- Assert that ORC imports the zone successfully and populates status correctly.
 
 ## Step 02
 
-Create a dnszone matching the filter and verify that the observed status on the imported dnszone corresponds to the spec of the created dnszone.
-Also, confirm that it does not adopt any dnszone whose name is a superstring of its own.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#import
+- Delete the `DNSZone` CR.
+- Verify that the `DNSZone` CR is deleted from Kubernetes, but the actual zone still exists in Designate.
+- Clean up the pre-created zone in Designate.

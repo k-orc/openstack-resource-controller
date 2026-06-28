@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-lifecycle-primary
+spec:
+  resource:
+    email: newadmin@example.com
+    description: "Primary DNS Zone lifecycle test - Updated"
+    ttl: 7200

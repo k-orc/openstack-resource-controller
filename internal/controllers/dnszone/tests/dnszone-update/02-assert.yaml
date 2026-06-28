@@ -15,8 +15,8 @@ metadata:
   name: dnszone-update
 status:
   resource:
-    name: dnszone-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    name: update-updated.example.com.
+    email: admin@example.com
   conditions:
   - type: Available
     status: "True"

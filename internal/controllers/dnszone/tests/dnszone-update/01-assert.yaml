@@ -5,9 +5,9 @@ metadata:
   name: dnszone-update
 status:
   resource:
-    name: dnszone-update-updated
+    name: update-updated.example.com.
     description: dnszone-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    email: admin@example.com
   conditions:
   - type: Available
     status: "True"

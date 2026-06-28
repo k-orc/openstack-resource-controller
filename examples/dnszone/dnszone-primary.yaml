@@ -1,0 +1,24 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-primary
+spec:
+  cloudCredentialsRef:
+    secretName: openstack-clouds
+    cloudName: openstack
+  managementPolicy: managed
+  resource:
+    # name specifies the name of the DNS Zone. Must end with a period.
+    # Defaults to the ORC object name if not specified.
+    # Immutable after creation.
+    name: primary.example.com.
+    # email is the email address of the administrator for the zone.
+    # Required for PRIMARY zones.
+    email: admin@example.com
+    # description is a human-readable description for the DNS Zone.
+    description: "Complete managed primary DNS zone example"
+    # ttl is the Time To Live for the zone in seconds.
+    ttl: 3600
+    # type specifies the type of the zone. Can be 'PRIMARY' or 'SECONDARY'.
+    # Immutable after creation.
+    type: PRIMARY

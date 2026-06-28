@@ -17,7 +17,10 @@ limitations under the License.
 package apivalidations
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -38,7 +41,7 @@ func dnszoneStub(namespace *corev1.Namespace) *orcv1alpha1.DNSZone {
 }
 
 func testDNSZoneResource() *applyconfigv1alpha1.DNSZoneResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.DNSZoneResourceSpec()
+	return applyconfigv1alpha1.DNSZoneResourceSpec().WithEmail("admin@example.com")
 }
 
 func baseDNSZonePatch(obj client.Object) *applyconfigv1alpha1.DNSZoneApplyConfiguration {
@@ -75,7 +78,7 @@ var _ = Describe("ORC DNSZone API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneImport().WithFilter(applyconfigv1alpha1.DNSZoneFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.DNSZoneApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneImport().WithFilter(applyconfigv1alpha1.DNSZoneFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneImport().WithFilter(applyconfigv1alpha1.DNSZoneFilter().WithName("foo.")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.DNSZoneApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -102,4 +105,174 @@ var _ = Describe("ORC DNSZone API validations", func() {
 	// - Tag uniqueness (if the resource has tags with listType=set)
 	// - Format validation (CIDR, UUID, etc.)
 	// - Cross-field validation rules
+	It("should reject a dnszone without required fields (email)", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec())
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("email is required for PRIMARY zones")))
+	})
+
+	It("should reject invalid type enum value", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithType(orcv1alpha1.DNSZoneType("INVALID")))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("Unsupported value")))
+	})
+
+	DescribeTable("should permit valid type enum values",
+		func(ctx context.Context, ztype orcv1alpha1.DNSZoneType) {
+			dnszone := dnszoneStub(namespace)
+			patch := baseDNSZonePatch(dnszone)
+			patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+				WithEmail("admin@example.com").
+				WithType(ztype))
+			Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+		},
+		Entry("PRIMARY", orcv1alpha1.DNSZoneTypePrimary),
+	)
+
+	It("should reject SECONDARY type without masters", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("masters: required when type is SECONDARY")))
+	})
+
+	It("should reject SECONDARY type with email specified", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithEmail("admin@example.com").
+			WithMasters("1.2.3.4"))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("email: must not be specified when type is SECONDARY")))
+	})
+
+	It("should permit SECONDARY type with masters", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithMasters("1.2.3.4"))
+		Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+	})
+
+	It("should reject PRIMARY type with masters specified", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypePrimary).
+			WithEmail("admin@example.com").
+			WithMasters("1.2.3.4"))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("masters: must not be specified when type is PRIMARY")))
+	})
+
+	It("should reject invalid email formats", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("invalid-email"))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("spec.resource.email")))
+	})
+
+	It("should have immutable name", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithName(orcv1alpha1.OpenStackName("example.com.")))
+		Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithName(orcv1alpha1.OpenStackName("different.com.")))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("name is immutable")))
+	})
+
+	It("should have immutable type", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithType(orcv1alpha1.DNSZoneTypePrimary))
+		Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithMasters("1.2.3.4"))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("type is immutable")))
+	})
+
+	It("should accept a valid DNSZone manifest", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithName("example.com.").
+			WithEmail("admin@example.com").
+			WithTTL(3600).
+			WithType(orcv1alpha1.DNSZoneTypePrimary))
+		Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+	})
+
+	It("should reject invalid TTL values", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithTTL(0))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("should be greater than or equal to 1")))
+	})
+
+	It("should reject TTL values greater than 2147483647", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := map[string]interface{}{
+			"apiVersion": "openstack.k-orc.cloud/v1alpha1",
+			"kind":       "DNSZone",
+			"metadata": map[string]interface{}{
+				"name":      dnszone.Name,
+				"namespace": dnszone.Namespace,
+			},
+			"spec": map[string]interface{}{
+				"cloudCredentialsRef": map[string]interface{}{
+					"secretName": "openstack-credentials",
+					"cloudName":  "openstack",
+				},
+				"resource": map[string]interface{}{
+					"email": "admin@example.com",
+					"ttl":   2147483648,
+				},
+			},
+		}
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("should be less than or equal to 2147483647")))
+	})
+
+	It("should permit valid TTL values", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithTTL(300))
+		Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+	})
+
+	It("should reject Name if it does not end with a period", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithName(orcv1alpha1.OpenStackName("example.com")))
+		Expect(applyObj(ctx, dnszone, patch)).To(MatchError(ContainSubstring("name must end with a period")))
+	})
+
+	It("should permit Name ending with a period", func(ctx context.Context) {
+		dnszone := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(dnszone)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithEmail("admin@example.com").
+			WithName(orcv1alpha1.OpenStackName("example.com.")))
+		Expect(applyObj(ctx, dnszone, patch)).To(Succeed())
+	})
 })

@@ -10,5 +10,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: sample.example.com.
+    email: admin@example.com
     description: Sample DNSZone
     # TODO(scaffolding): Add all fields the resource supports

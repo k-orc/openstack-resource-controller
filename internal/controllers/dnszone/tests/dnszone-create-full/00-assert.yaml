@@ -5,9 +5,9 @@ metadata:
   name: dnszone-create-full
 status:
   resource:
-    name: dnszone-create-full-override
+    name: create-full.example.com.
     description: DNSZone from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    email: admin@example.com
   conditions:
   - type: Available
     status: "True"

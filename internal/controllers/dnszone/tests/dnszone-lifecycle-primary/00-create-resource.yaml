@@ -2,14 +2,15 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone
 metadata:
-  name: dnszone-create-full
+  name: dnszone-lifecycle-primary
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: create-full.example.com.
-    description: DNSZone from "create full" test
+    name: lifecycle-primary.example.com.
     email: admin@example.com
+    description: "Primary DNS Zone lifecycle test"
+    ttl: 3600
+    type: PRIMARY

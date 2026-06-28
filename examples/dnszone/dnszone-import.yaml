@@ -1,0 +1,20 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-import
+spec:
+  cloudCredentialsRef:
+    secretName: openstack-clouds
+    cloudName: openstack
+  managementPolicy: unmanaged
+  import:
+    # id specifies the UUID of an existing DNS Zone in OpenStack Designate to import.
+    # Note that when specifying an import by ID, the resource MUST already exist.
+    id: "12345678-1234-1234-1234-1234567890ab"
+
+    # Alternatively, you can import an existing DNS Zone by matching properties using filter.
+    # The filter must match exactly one DNS Zone, otherwise the controller will enter an error state.
+    # filter:
+    #   name: existing-zone.example.com.
+    #   email: admin@example.com
+    #   ttl: 3600
