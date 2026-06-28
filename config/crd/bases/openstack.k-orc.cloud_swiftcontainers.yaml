@@ -166,6 +166,7 @@ spec:
                       public read access or a comma-separated list of account/container
                       combinations.
                     maxLength: 256
+                    minLength: 1
                     type: string
                   containerWrite:
                     description: |-
@@ -173,6 +174,7 @@ spec:
                       can write objects to the container. Common values include a
                       comma-separated list of account/container combinations.
                     maxLength: 256
+                    minLength: 1
                     type: string
                   metadata:
                     description: |-
@@ -183,9 +185,9 @@ spec:
                         SwiftContainerMetadata defines a key-value pair to be set as a Swift
                         container metadata header (X-Container-Meta-<key>: <value>).
                       properties:
-                        key:
+                        name:
                           description: |-
-                            key is the name of the metadata item. It will be used as the suffix of
+                            name is the name of the metadata item. It will be used as the suffix of
                             the X-Container-Meta-* header.
                           maxLength: 255
                           minLength: 1
@@ -195,12 +197,14 @@ spec:
                           maxLength: 255
                           type: string
                       required:
-                      - key
+                      - name
                       - value
                       type: object
                     maxItems: 64
                     type: array
-                    x-kubernetes-list-type: atomic
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
                   name:
                     description: |-
                       name will be the name of the created Swift container. If not specified,
@@ -355,18 +359,23 @@ spec:
                         SwiftContainerMetadataStatus represents an observed metadata key-value pair
                         on a Swift container.
                       properties:
-                        key:
-                          description: key is the name of the metadata item.
+                        name:
+                          description: name is the name of the metadata item.
                           maxLength: 255
+                          minLength: 1
                           type: string
                         value:
                           description: value is the value of the metadata item.
                           maxLength: 255
                           type: string
+                      required:
+                      - name
                       type: object
                     maxItems: 64
                     type: array
-                    x-kubernetes-list-type: atomic
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
                   name:
                     description: name is the name of the Swift container.
                     maxLength: 256

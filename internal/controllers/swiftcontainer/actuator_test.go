@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -150,7 +150,7 @@ func wantError(wantErr error) checkFunc {
 			return fmt.Errorf("unexpected error: %w", result.err)
 		}
 		// If we get here, no error was found anywhere
-		return nil
+		return fmt.Errorf("expected error %v", wantErr)
 	}
 }
 
@@ -396,8 +396,8 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 		actuator := swiftcontainerActuator{client}
 		orcObject := newSwiftContainerObject("my-object", &orcv1alpha1.SwiftContainerResourceSpec{
 			Metadata: []orcv1alpha1.SwiftContainerMetadata{
-				{Key: "env", Value: "prod"},
-				{Key: "team", Value: "infra"},
+				{Name: "env", Value: "prod"},
+				{Name: "team", Value: "infra"},
 			},
 		})
 
@@ -471,12 +471,12 @@ func TestCreateResource(t *testing.T) {
 		orcObject := newSwiftContainerObject("full-container", &orcv1alpha1.SwiftContainerResourceSpec{
 			Name: ptr.To[orcv1alpha1.SwiftContainerName]("full-container"),
 			Metadata: []orcv1alpha1.SwiftContainerMetadata{
-				{Key: "project", Value: "orc"},
-				{Key: "env", Value: "test"},
+				{Name: "project", Value: "orc"},
+				{Name: "env", Value: "test"},
 			},
-			ContainerRead:  ptr.To(".r:*"),
-			ContainerWrite: ptr.To("account:user"),
-			StoragePolicy:  ptr.To("gold"),
+			ContainerRead:  ".r:*",
+			ContainerWrite: "account:user",
+			StoragePolicy:  "gold",
 		})
 
 		result, reconcileStatus := actuator.CreateResource(ctx, orcObject)

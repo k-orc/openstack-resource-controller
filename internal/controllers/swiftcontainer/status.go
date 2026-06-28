@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ func (swiftcontainerStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource 
 		for _, k := range keys {
 			resourceStatus.WithMetadata(
 				orcapplyconfigv1alpha1.SwiftContainerMetadataStatus().
-					WithKey(k).
+					WithName(k).
 					WithValue(osResource.Metadata[k]),
 			)
 		}

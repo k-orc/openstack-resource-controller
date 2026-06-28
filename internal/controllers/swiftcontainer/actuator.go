@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -196,20 +196,20 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 
 	createOpts := containers.CreateOpts{}
 
-	if resource.ContainerRead != nil {
-		createOpts.ContainerRead = *resource.ContainerRead
+	if resource.ContainerRead != "" {
+		createOpts.ContainerRead = resource.ContainerRead
 	}
-	if resource.ContainerWrite != nil {
-		createOpts.ContainerWrite = *resource.ContainerWrite
+	if resource.ContainerWrite != "" {
+		createOpts.ContainerWrite = resource.ContainerWrite
 	}
-	if resource.StoragePolicy != nil {
-		createOpts.StoragePolicy = *resource.StoragePolicy
+	if resource.StoragePolicy != "" {
+		createOpts.StoragePolicy = resource.StoragePolicy
 	}
 
 	if len(resource.Metadata) > 0 {
 		metadata := make(map[string]string, len(resource.Metadata))
 		for _, m := range resource.Metadata {
-			metadata[m.Key] = m.Value
+			metadata[m.Name] = m.Value
 		}
 		createOpts.Metadata = metadata
 	}
@@ -237,6 +237,9 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 
 func (actuator swiftcontainerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osContainerT) progress.ReconcileStatus {
 	err := actuator.osClient.DeleteContainer(ctx, osResource.Name)
+	if orcerrors.IsNotFound(err) {
+		return nil
+	}
 	return progress.WrapError(err)
 }
 
@@ -262,14 +265,8 @@ func (actuator swiftcontainerActuator) reconcileACLs(ctx context.Context, orcObj
 	currentRead := strings.Join(osResource.Read, ",")
 	currentWrite := strings.Join(osResource.Write, ",")
 
-	desiredRead := ""
-	if resource.ContainerRead != nil {
-		desiredRead = *resource.ContainerRead
-	}
-	desiredWrite := ""
-	if resource.ContainerWrite != nil {
-		desiredWrite = *resource.ContainerWrite
-	}
+	desiredRead := resource.ContainerRead
+	desiredWrite := resource.ContainerWrite
 
 	if currentRead == desiredRead && currentWrite == desiredWrite {
 		log.V(logging.Debug).Info("Container ACLs are up to date")
@@ -325,7 +322,7 @@ func (actuator swiftcontainerActuator) reconcileMetadata(ctx context.Context, or
 	// in Swift).
 	desiredMetadata := make(map[string]string, len(resource.Metadata))
 	for _, m := range resource.Metadata {
-		desiredMetadata[strings.ToLower(m.Key)] = m.Value
+		desiredMetadata[strings.ToLower(m.Name)] = m.Value
 	}
 
 	// Find keys to add/update and keys to remove.
