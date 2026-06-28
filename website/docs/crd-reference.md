@@ -585,7 +585,11 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `email` _string_ | email of the existing resource |  | Format: email <br />MaxLength: 255 <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl of the existing resource |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type of the existing resource |  | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
+| `masters` _string array_ | masters of the existing resource |  | MaxItems: 32 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneImport
@@ -622,7 +626,11 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `email` _string_ | email is the email address of the administrator for the zone. |  | Format: email <br />MaxLength: 255 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the Time To Live for the zone in seconds. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type is the type of the zone. | PRIMARY | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
+| `masters` _string array_ | masters specifies zone masters if this is a secondary zone. |  | MaxItems: 32 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneResourceStatus
@@ -639,7 +647,13 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `email` _string_ | email is the email contact of the zone. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the Time to Live for the zone in seconds. |  | Optional: \{\} <br /> |
+| `type` _string_ | type is the type of the zone. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `masters` _string array_ | masters specifies zone masters if this is a secondary zone. |  | MaxItems: 32 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
+| `transferredAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | transferredAt is the last time an update was retrieved from the master servers. |  | Optional: \{\} <br /> |
+| `status` _string_ | status is the status of the resource. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneSpec
@@ -678,6 +692,25 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[DNSZoneResourceStatus](#dnszoneresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+
+
+#### DNSZoneType
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [PRIMARY SECONDARY]
+
+_Appears in:_
+- [DNSZoneFilter](#dnszonefilter)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `PRIMARY` |  |
+| `SECONDARY` |  |
 
 
 #### Domain

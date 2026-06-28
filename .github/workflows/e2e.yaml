@@ -42,10 +42,17 @@ jobs:
         conf_overrides: |
           enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
           enable_plugin manila https://github.com/openstack/manila ${{ matrix.openstack_version }}
+          enable_plugin designate https://github.com/openstack/designate ${{ matrix.openstack_version }}
 
           [[post-config|/etc/nova/nova.conf]]
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
+
+    - name: Verify Designate CLI
+      run: |
+        openstack zone list
+      env:
+        OS_CLOUD: devstack
 
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # tag=v1.14.0
