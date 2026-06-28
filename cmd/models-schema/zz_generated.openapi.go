@@ -1718,11 +1718,52 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DNSZoneFilter(ref comm
 							Format:      "",
 						},
 					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl of the existing resource",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters of the existing resource",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -1824,11 +1865,52 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DNSZoneResourceSpec(re
 							Format:      "",
 						},
 					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email is the email address of the administrator for the zone.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the Time To Live for the zone in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the type of the zone.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters specifies zone masters if this is a secondary zone.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -1851,6 +1933,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DNSZoneResourceStatus(
 							Format:      "",
 						},
 					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email is the email contact of the zone.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
@@ -1858,9 +1947,58 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_DNSZoneResourceStatus(
 							Format:      "",
 						},
 					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the Time to Live for the zone in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the type of the zone.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters specifies zone masters if this is a secondary zone.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"transferredAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "transferredAt is the last time an update was retrieved from the master servers.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status is the status of the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

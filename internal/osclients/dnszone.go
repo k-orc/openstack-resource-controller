@@ -28,14 +28,14 @@ import (
 )
 
 type DNSZoneClient interface {
-	ListDNSZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error]
-	CreateDNSZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error)
-	DeleteDNSZone(ctx context.Context, resourceID string) error
-	GetDNSZone(ctx context.Context, resourceID string) (*zones.Zone, error)
-	UpdateDNSZone(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.Zone, error)
+	ListZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error]
+	CreateZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error)
+	DeleteZone(ctx context.Context, resourceID string) error
+	GetZone(ctx context.Context, resourceID string) (*zones.Zone, error)
+	UpdateZone(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.Zone, error)
 }
 
-type dnszoneClient struct{ client *gophercloud.ServiceClient }
+type dnsZoneClient struct{ client *gophercloud.ServiceClient }
 
 // NewDNSZoneClient returns a new OpenStack client.
 func NewDNSZoneClient(providerClient *gophercloud.ProviderClient, providerClientOpts *clientconfig.ClientOpts) (DNSZoneClient, error) {
@@ -48,58 +48,58 @@ func NewDNSZoneClient(providerClient *gophercloud.ProviderClient, providerClient
 		return nil, fmt.Errorf("failed to create dnszone service client: %v", err)
 	}
 
-	return &dnszoneClient{client}, nil
+	return &dnsZoneClient{client}, nil
 }
 
-func (c dnszoneClient) ListDNSZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error] {
+func (c dnsZoneClient) ListZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error] {
 	pager := zones.List(c.client, listOpts)
 	return func(yield func(*zones.Zone, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(zones.ExtractZones, yield))
 	}
 }
 
-func (c dnszoneClient) CreateDNSZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error) {
+func (c dnsZoneClient) CreateZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error) {
 	return zones.Create(ctx, c.client, opts).Extract()
 }
 
-func (c dnszoneClient) DeleteDNSZone(ctx context.Context, resourceID string) error {
+func (c dnsZoneClient) DeleteZone(ctx context.Context, resourceID string) error {
 	_, err := zones.Delete(ctx, c.client, resourceID).Extract()
 	return err
 }
 
-func (c dnszoneClient) GetDNSZone(ctx context.Context, resourceID string) (*zones.Zone, error) {
+func (c dnsZoneClient) GetZone(ctx context.Context, resourceID string) (*zones.Zone, error) {
 	return zones.Get(ctx, c.client, resourceID).Extract()
 }
 
-func (c dnszoneClient) UpdateDNSZone(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.Zone, error) {
+func (c dnsZoneClient) UpdateZone(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.Zone, error) {
 	return zones.Update(ctx, c.client, id, opts).Extract()
 }
 
-type dnszoneErrorClient struct{ error }
+type dnsZoneErrorClient struct{ error }
 
 // NewDNSZoneErrorClient returns a DNSZoneClient in which every method returns the given error.
 func NewDNSZoneErrorClient(e error) DNSZoneClient {
-	return dnszoneErrorClient{e}
+	return dnsZoneErrorClient{e}
 }
 
-func (e dnszoneErrorClient) ListDNSZones(_ context.Context, _ zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error] {
+func (e dnsZoneErrorClient) ListZones(_ context.Context, _ zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error] {
 	return func(yield func(*zones.Zone, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e dnszoneErrorClient) CreateDNSZone(_ context.Context, _ zones.CreateOptsBuilder) (*zones.Zone, error) {
+func (e dnsZoneErrorClient) CreateZone(_ context.Context, _ zones.CreateOptsBuilder) (*zones.Zone, error) {
 	return nil, e.error
 }
 
-func (e dnszoneErrorClient) DeleteDNSZone(_ context.Context, _ string) error {
+func (e dnsZoneErrorClient) DeleteZone(_ context.Context, _ string) error {
 	return e.error
 }
 
-func (e dnszoneErrorClient) GetDNSZone(_ context.Context, _ string) (*zones.Zone, error) {
+func (e dnsZoneErrorClient) GetZone(_ context.Context, _ string) (*zones.Zone, error) {
 	return nil, e.error
 }
 
-func (e dnszoneErrorClient) UpdateDNSZone(_ context.Context, _ string, _ zones.UpdateOptsBuilder) (*zones.Zone, error) {
+func (e dnsZoneErrorClient) UpdateZone(_ context.Context, _ string, _ zones.UpdateOptsBuilder) (*zones.Zone, error) {
 	return nil, e.error
 }

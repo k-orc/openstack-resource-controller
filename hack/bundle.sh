@@ -2,7 +2,7 @@
 
 REGISTRY=${REGISTRY:-quay.io/orc}
 IMAGE=${BASE_IMAGE:-openstack-resource-controller}
-TAG=${BASE_IMAGE:-$(git describe --abbrev=0 --tags)}
+TAG=${TAG:-$(git describe --abbrev=0 --tags 2>/dev/null || echo "v0.0.1")}
 IMG=${REGISTRY}/${IMAGE}:${TAG}
 
 # Update config/manifests/bases/orc.clusterserviceversion.yaml if needed

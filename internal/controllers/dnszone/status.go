@@ -17,27 +17,39 @@ limitations under the License.
 package dnszone
 
 import (
+	"time"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
-type dnszoneStatusWriter struct{}
+const (
+	ZoneStatusActive  = "ACTIVE"
+	ZoneStatusPending = "PENDING"
+	ZoneStatusError   = "ERROR"
+
+	// The time to wait before reconciling again when we are expecting OpenStack to finish some task and update status.
+	externalUpdatePollingPeriod = 15 * time.Second
+)
+
+type dnsZoneStatusWriter struct{}
 
 type objectApplyT = orcapplyconfigv1alpha1.DNSZoneApplyConfiguration
 type statusApplyT = orcapplyconfigv1alpha1.DNSZoneStatusApplyConfiguration
 
-var _ interfaces.ResourceStatusWriter[*orcv1alpha1.DNSZone, *osResourceT, *objectApplyT, *statusApplyT] = dnszoneStatusWriter{}
+var _ interfaces.ResourceStatusWriter[*orcv1alpha1.DNSZone, *osResourceT, *objectApplyT, *statusApplyT] = dnsZoneStatusWriter{}
 
-func (dnszoneStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
+func (dnsZoneStatusWriter) GetApplyConfig(name, namespace string) *objectApplyT {
 	return orcapplyconfigv1alpha1.DNSZone(name, namespace)
 }
 
-func (dnszoneStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.DNSZone, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
+func (dnsZoneStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.DNSZone, osResource *osResourceT) (metav1.ConditionStatus, progress.ReconcileStatus) {
 	if osResource == nil {
 		if orcObject.Status.ID == nil {
 			return metav1.ConditionFalse, nil
@@ -45,18 +57,51 @@ func (dnszoneStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.DNSZon
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	return metav1.ConditionTrue, nil
+
+	switch osResource.Status {
+	case ZoneStatusActive:
+		return metav1.ConditionTrue, nil
+	case ZoneStatusPending:
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, externalUpdatePollingPeriod)
+	case ZoneStatusError:
+		return metav1.ConditionFalse, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "OpenStack zone is in ERROR status"))
+	default:
+		// Fallback for any other/unexpected status
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, externalUpdatePollingPeriod)
+	}
 }
 
-func (dnszoneStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
+func (dnsZoneStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.DNSZoneResourceStatus().
 		WithName(osResource.Name)
 
-	// TODO(scaffolding): add all of the fields supported in the DNSZoneResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if osResource.Email != "" {
+		resourceStatus.WithEmail(osResource.Email)
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.TTL > 0 {
+		resourceStatus.WithTTL(int32(osResource.TTL))
+	}
+
+	if osResource.Type != "" {
+		resourceStatus.WithType(osResource.Type)
+	}
+
+	if len(osResource.Masters) > 0 {
+		resourceStatus.WithMasters(osResource.Masters...)
+	}
+
+	if !osResource.TransferredAt.IsZero() {
+		resourceStatus.WithTransferredAt(metav1.NewTime(osResource.TransferredAt))
+	}
+
+	if osResource.Status != "" {
+		resourceStatus.WithStatus(osResource.Status)
 	}
 
 	statusApply.WithResource(resourceStatus)

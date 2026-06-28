@@ -63,6 +63,6 @@ func (c dnszoneReconcilerConstructor) SetupWithManager(ctx context.Context, mgr 
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, dnszoneHelperFactory{}, dnszoneStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, dnszoneHelperFactory{}, dnsZoneStatusWriter{})
 	return builder.Complete(&r)
 }
