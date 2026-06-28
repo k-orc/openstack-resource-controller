@@ -51,6 +51,7 @@ type Scope interface {
 	NewAddressScopeClient() (osclients.AddressScopeClient, error)
 	NewApplicationCredentialClient() (osclients.ApplicationCredentialClient, error)
 	NewComputeClient() (osclients.ComputeClient, error)
+	NewDNSZoneClient() (osclients.DNSZoneClient, error)
 	NewDomainClient() (osclients.DomainClient, error)
 	NewEndpointClient() (osclients.EndpointClient, error)
 	NewGroupClient() (osclients.GroupClient, error)
