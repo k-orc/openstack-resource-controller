@@ -3724,7 +3724,7 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SwiftContainerMetadata
   map:
     fields:
-    - name: key
+    - name: name
       type:
         scalar: string
     - name: value
@@ -3734,7 +3734,7 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SwiftContainerMetadataStatus
   map:
     fields:
-    - name: key
+    - name: name
       type:
         scalar: string
     - name: value
@@ -3754,7 +3754,9 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SwiftContainerMetadata
-          elementRelationship: atomic
+          elementRelationship: associative
+          keys:
+          - name
     - name: name
       type:
         scalar: string
@@ -3778,7 +3780,9 @@ var schemaYAML = typed.YAMLObject(`types:
         list:
           elementType:
             namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SwiftContainerMetadataStatus
-          elementRelationship: atomic
+          elementRelationship: associative
+          keys:
+          - name
     - name: name
       type:
         scalar: string

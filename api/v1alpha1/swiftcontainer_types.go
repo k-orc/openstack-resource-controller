@@ -27,12 +27,12 @@ type SwiftContainerName string
 // SwiftContainerMetadata defines a key-value pair to be set as a Swift
 // container metadata header (X-Container-Meta-<key>: <value>).
 type SwiftContainerMetadata struct {
-	// key is the name of the metadata item. It will be used as the suffix of
+	// name is the name of the metadata item. It will be used as the suffix of
 	// the X-Container-Meta-* header.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +required
-	Key string `json:"key,omitempty"`
+	Name string `json:"name,omitempty"`
 
 	// value is the value of the metadata item.
 	// +kubebuilder:validation:MaxLength:=255
@@ -43,10 +43,11 @@ type SwiftContainerMetadata struct {
 // SwiftContainerMetadataStatus represents an observed metadata key-value pair
 // on a Swift container.
 type SwiftContainerMetadataStatus struct {
-	// key is the name of the metadata item.
+	// name is the name of the metadata item.
+	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Key string `json:"key,omitempty"`
+	// +required
+	Name string `json:"name,omitempty"`
 
 	// value is the value of the metadata item.
 	// +kubebuilder:validation:MaxLength:=255
@@ -101,7 +102,8 @@ type SwiftContainerResourceSpec struct {
 	// metadata is a list of key-value pairs which will be set as
 	// X-Container-Meta-* headers on the Swift container.
 	// +kubebuilder:validation:MaxItems:=64
-	// +listType=atomic
+	// +listType=map
+	// +listMapKey=name
 	// +optional
 	Metadata []SwiftContainerMetadata `json:"metadata,omitempty"`
 
@@ -109,16 +111,18 @@ type SwiftContainerResourceSpec struct {
 	// can read objects in the container. Common values include ".r:*" for
 	// public read access or a comma-separated list of account/container
 	// combinations.
+	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=256
 	// +optional
-	ContainerRead *string `json:"containerRead,omitempty"`
+	ContainerRead string `json:"containerRead,omitempty"`
 
 	// containerWrite sets the X-Container-Write ACL header which defines who
 	// can write objects to the container. Common values include a
 	// comma-separated list of account/container combinations.
+	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=256
 	// +optional
-	ContainerWrite *string `json:"containerWrite,omitempty"`
+	ContainerWrite string `json:"containerWrite,omitempty"`
 
 	// storagePolicy is the name of the storage policy to use for this
 	// container. If not specified, the cluster's default storage policy will
@@ -127,7 +131,7 @@ type SwiftContainerResourceSpec struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="storagePolicy is immutable"
-	StoragePolicy *string `json:"storagePolicy,omitempty"`
+	StoragePolicy string `json:"storagePolicy,omitempty"`
 }
 
 // SwiftContainerResourceStatus represents the observed state of a Swift container.
@@ -147,7 +151,8 @@ type SwiftContainerResourceStatus struct {
 
 	// metadata is the list of observed metadata key-value pairs on the container.
 	// +kubebuilder:validation:MaxItems:=64
-	// +listType=atomic
+	// +listType=map
+	// +listMapKey=name
 	// +optional
 	Metadata []SwiftContainerMetadataStatus `json:"metadata,omitempty"`
 

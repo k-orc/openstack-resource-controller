@@ -7,6 +7,7 @@ status:
   resource:
     name: swiftcontainer-create-full-override
     containerRead: ".r:*,.rlistings"
+    containerWrite: "openstack:*"
   conditions:
   - type: Available
     status: "True"
@@ -27,6 +28,7 @@ assertAll:
     - celExpr: "swiftcontainer.status.id == 'swiftcontainer-create-full-override'"
     - celExpr: "swiftcontainer.status.resource.name == 'swiftcontainer-create-full-override'"
     - celExpr: "swiftcontainer.status.resource.containerRead == '.r:*,.rlistings'"
+    - celExpr: "swiftcontainer.status.resource.containerWrite == 'openstack:*'"
     - celExpr: "has(swiftcontainer.status.resource.metadata)"
-    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Environment' && m.value == 'test')"
-    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Owner' && m.value == 'orc-e2e')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.name == 'Environment' && m.value == 'test')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.name == 'Owner' && m.value == 'orc-e2e')"

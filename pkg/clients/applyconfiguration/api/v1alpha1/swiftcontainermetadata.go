@@ -21,7 +21,7 @@ package v1alpha1
 // SwiftContainerMetadataApplyConfiguration represents a declarative configuration of the SwiftContainerMetadata type for use
 // with apply.
 type SwiftContainerMetadataApplyConfiguration struct {
-	Key   *string `json:"key,omitempty"`
+	Name  *string `json:"name,omitempty"`
 	Value *string `json:"value,omitempty"`
 }
 
@@ -31,11 +31,11 @@ func SwiftContainerMetadata() *SwiftContainerMetadataApplyConfiguration {
 	return &SwiftContainerMetadataApplyConfiguration{}
 }
 
-// WithKey sets the Key field in the declarative configuration to the given value
+// WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Key field is set to the value of the last call.
-func (b *SwiftContainerMetadataApplyConfiguration) WithKey(value string) *SwiftContainerMetadataApplyConfiguration {
-	b.Key = &value
+// If called multiple times, the Name field is set to the value of the last call.
+func (b *SwiftContainerMetadataApplyConfiguration) WithName(value string) *SwiftContainerMetadataApplyConfiguration {
+	b.Name = &value
 	return b
 }
 
