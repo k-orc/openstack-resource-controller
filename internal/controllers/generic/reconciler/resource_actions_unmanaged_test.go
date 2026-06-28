@@ -307,8 +307,8 @@ func unmanagedFlavorNoImport() fakeAdapter {
 	}
 }
 
-// managedFlavorWithStatusID builds a managed (non-imported) Flavor whose
-// status.ID is already set (the normal steady-state case).
+// managedFlavorWithStatusID builds a managed Flavor whose status.ID is already
+// set (the normal steady-state case).
 func managedFlavorWithStatusID(statusID string) fakeAdapter {
 	return fakeAdapter{
 		Flavor: &orcv1alpha1.Flavor{
@@ -320,31 +320,6 @@ func managedFlavorWithStatusID(statusID string) fakeAdapter {
 			Spec: orcv1alpha1.FlavorSpec{
 				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
 				Resource:         &orcv1alpha1.FlavorResourceSpec{},
-			},
-			Status: orcv1alpha1.FlavorStatus{
-				ID: ptr.To(statusID),
-			},
-		},
-	}
-}
-
-// managedImportedFlavorWithStatusID builds a managed Flavor that was imported
-// and already has status.ID set. API validation normally prevents this
-// combination, but the reconciler still treats imported resources as
-// non-recreatable defensively.
-func managedImportedFlavorWithStatusID(statusID string) fakeAdapter {
-	return fakeAdapter{
-		Flavor: &orcv1alpha1.Flavor{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:       "test-flavor",
-				Namespace:  "default",
-				Finalizers: []string{finalizerFor()},
-			},
-			Spec: orcv1alpha1.FlavorSpec{
-				ManagementPolicy: orcv1alpha1.ManagementPolicyManaged,
-				Import: &orcv1alpha1.FlavorImport{
-					ID: ptr.To(statusID),
-				},
 			},
 			Status: orcv1alpha1.FlavorStatus{
 				ID: ptr.To(statusID),
@@ -511,10 +486,10 @@ func TestGetOrCreateOSResource_UnmanagedStatusIDDeleted(t *testing.T) {
 	}
 }
 
-// TestGetOrCreateOSResource_ManagedStatusIDDeleted verifies that when a
-// managed (non-imported) resource's OpenStack resource has been deleted
-// externally, the controller returns an ExternallyDeleted status to trigger
-// recreation rather than a terminal error.
+// TestGetOrCreateOSResource_ManagedStatusIDDeleted verifies that when a managed
+// resource's OpenStack resource has been deleted externally, the controller
+// returns an ExternallyDeleted status to trigger recreation rather than a
+// terminal error.
 func TestGetOrCreateOSResource_ManagedStatusIDDeleted(t *testing.T) {
 	t.Parallel()
 

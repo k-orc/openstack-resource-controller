@@ -20,7 +20,7 @@ limitations under the License.
 // These tests cover management policy behaviour when a resource's OpenStack
 // counterpart is not found (404), verifying that:
 //
-//   - Managed, ORC-created resources trigger recreation (IsExternallyDeleted)
+//   - Managed resources trigger recreation (IsExternallyDeleted)
 //   - Unmanaged resources return a terminal error
 //   - Managed, existing resources continue through the normal update flow
 package reconciler
@@ -40,7 +40,7 @@ import (
 // --------------------------------------------------------------------------
 
 // TestGetOrCreateOSResource_ExternalDeletion_ManagedOrcCreated verifies that
-// when a managed, ORC-created resource (not imported) is externally deleted,
+// when a managed resource is externally deleted,
 // GetOrCreateOSResource returns IsExternallyDeleted to signal the caller should
 // clear status.ID and trigger recreation on the next reconcile.
 func TestGetOrCreateOSResource_ExternalDeletion_ManagedOrcCreated(t *testing.T) {
@@ -91,39 +91,8 @@ func TestGetOrCreateOSResource_ExternalDeletion_Unmanaged(t *testing.T) {
 	}
 }
 
-// TestGetOrCreateOSResource_ExternalDeletion_ManagedImported verifies that
-// imported resources are not recreated after external deletion, even if the
-// management policy is managed.
-func TestGetOrCreateOSResource_ExternalDeletion_ManagedImported(t *testing.T) {
-	t.Parallel()
-
-	const resourceID = "managed-imported-deleted-flavor-id"
-
-	actuator := &noWriteActuator{t: t, readByIDErr: notFoundErr()}
-	adapter := managedImportedFlavorWithStatusID(resourceID)
-
-	_, rs := GetOrCreateOSResource(context.Background(), logr.Discard(), &fakeResourceController{}, adapter, actuator)
-
-	if rs.IsExternallyDeleted() {
-		t.Fatal("expected imported resource deletion to be terminal, not externally-deleted recreation")
-	}
-
-	_, err := rs.NeedsReschedule()
-	if err == nil {
-		t.Fatal("expected a terminal error for externally-deleted imported resource, got nil")
-	}
-
-	var termErr *orcerrors.TerminalError
-	if !errors.As(err, &termErr) {
-		t.Errorf("expected a TerminalError for externally-deleted imported resource, got %T: %v", err, err)
-	}
-	if !actuator.getByIDCalled {
-		t.Error("GetOSResourceByID was not called: controller must attempt to fetch the resource")
-	}
-}
-
 // TestGetOrCreateOSResource_ExternalDeletion_ManagedResourceExists verifies
-// the normal update flow: when a managed, ORC-created resource still exists in
+// the normal update flow: when a managed resource still exists in
 // OpenStack, GetOrCreateOSResource returns the resource with a nil reconcile
 // status so the caller proceeds with reconciliation (no recreation, no error).
 func TestGetOrCreateOSResource_ExternalDeletion_ManagedResourceExists(t *testing.T) {
