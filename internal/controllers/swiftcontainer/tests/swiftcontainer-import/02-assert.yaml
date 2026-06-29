@@ -34,3 +34,5 @@ status:
       reason: Success
   resource:
     name: swiftcontainer-import-external
+    bytesUsed: 0
+    objectCount: 0

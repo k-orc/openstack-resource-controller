@@ -4942,8 +4942,6 @@ _Appears in:_
 | `containerWrite` _string_ | containerWrite is the current X-Container-Write ACL, defining who can<br />write objects to the container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `storagePolicy` _string_ | storagePolicy is the name of the storage policy assigned to the container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `versions` _string_ | versions is the container where object versions are stored, if versioning<br />is enabled on this container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `quotaBytes` _integer_ | quotaBytes is the quota on the maximum number of bytes that can be<br />stored in the container, if set. |  | Optional: \{\} <br /> |
-| `quotaCount` _integer_ | quotaCount is the quota on the maximum number of objects that can be<br />stored in the container, if set. |  | Optional: \{\} <br /> |
 
 
 #### SwiftContainerSpec

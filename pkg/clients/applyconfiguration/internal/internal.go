@@ -3789,12 +3789,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: objectCount
       type:
         scalar: numeric
-    - name: quotaBytes
-      type:
-        scalar: numeric
-    - name: quotaCount
-      type:
-        scalar: numeric
     - name: storagePolicy
       type:
         scalar: string

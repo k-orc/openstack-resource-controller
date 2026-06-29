@@ -385,18 +385,6 @@ spec:
                       container.
                     format: int64
                     type: integer
-                  quotaBytes:
-                    description: |-
-                      quotaBytes is the quota on the maximum number of bytes that can be
-                      stored in the container, if set.
-                    format: int64
-                    type: integer
-                  quotaCount:
-                    description: |-
-                      quotaCount is the quota on the maximum number of objects that can be
-                      stored in the container, if set.
-                    format: int64
-                    type: integer
                   storagePolicy:
                     description: storagePolicy is the name of the storage policy assigned
                       to the container.
