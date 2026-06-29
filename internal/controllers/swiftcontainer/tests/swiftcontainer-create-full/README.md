@@ -12,6 +12,8 @@ Validates that:
   `status.resource.metadata`.
 - Read ACL (`containerRead`) and write ACL (`containerWrite`) are configured
   and reflected in `status.resource`.
+- Storage policy (`storagePolicy`) is configured and reflected in
+  `status.resource`.
 - `Available=True` and `Progressing=False` conditions are set.
 
 ## Reference

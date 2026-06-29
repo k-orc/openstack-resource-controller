@@ -17,3 +17,4 @@ spec:
         value: orc-e2e
     containerRead: ".r:*,.rlistings"
     containerWrite: "openstack:*"
+    storagePolicy: Policy-0

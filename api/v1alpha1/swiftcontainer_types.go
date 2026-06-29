@@ -178,14 +178,4 @@ type SwiftContainerResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Versions string `json:"versions,omitempty"`
-
-	// quotaBytes is the quota on the maximum number of bytes that can be
-	// stored in the container, if set.
-	// +optional
-	QuotaBytes *int64 `json:"quotaBytes,omitempty"`
-
-	// quotaCount is the quota on the maximum number of objects that can be
-	// stored in the container, if set.
-	// +optional
-	QuotaCount *int64 `json:"quotaCount,omitempty"`
 }

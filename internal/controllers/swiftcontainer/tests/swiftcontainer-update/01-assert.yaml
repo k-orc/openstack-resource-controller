@@ -21,6 +21,8 @@ metadata:
 status:
   resource:
     name: swiftcontainer-update
+    bytesUsed: 0
+    objectCount: 0
     containerRead: ".r:*,.rlistings"
     containerWrite: "openstack:*"
   conditions:

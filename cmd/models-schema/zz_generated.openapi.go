@@ -12110,20 +12110,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerResource
 							Format:      "",
 						},
 					},
-					"quotaBytes": {
-						SchemaProps: spec.SchemaProps{
-							Description: "quotaBytes is the quota on the maximum number of bytes that can be stored in the container, if set.",
-							Type:        []string{"integer"},
-							Format:      "int64",
-						},
-					},
-					"quotaCount": {
-						SchemaProps: spec.SchemaProps{
-							Description: "quotaCount is the quota on the maximum number of objects that can be stored in the container, if set.",
-							Type:        []string{"integer"},
-							Format:      "int64",
-						},
-					},
 				},
 			},
 		},

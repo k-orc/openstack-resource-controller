@@ -6,6 +6,8 @@ metadata:
 status:
   resource:
     name: swiftcontainer-create-minimal
+    bytesUsed: 0
+    objectCount: 0
   conditions:
   - type: Available
     status: "True"

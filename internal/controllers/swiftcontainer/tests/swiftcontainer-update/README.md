@@ -9,7 +9,7 @@ and verify that the observed state corresponds to the spec.
 
 Update all mutable fields:
 - Add custom metadata key-value pairs
-- Set a read ACL (`containerRead`)
+- Set read and write ACLs (`containerRead` and `containerWrite`)
 
 Verify that all updated properties are reflected in the resource status.
 
@@ -19,7 +19,7 @@ Revert the resource to its original value (no metadata, no ACLs) and verify
 the resulting object matches the initial creation state.
 
 Validates that:
-- Clearing `containerRead` (by removing the field) removes the ACL from the container.
+- Clearing `containerRead` and `containerWrite` (by removing the fields) removes the ACLs from the container.
 - Removing metadata entries removes them from the container.
 - `Available=True` and `Progressing=False` conditions are set after each step.
 

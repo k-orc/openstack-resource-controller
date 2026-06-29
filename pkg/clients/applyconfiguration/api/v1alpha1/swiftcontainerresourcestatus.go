@@ -29,8 +29,6 @@ type SwiftContainerResourceStatusApplyConfiguration struct {
 	ContainerWrite *string                                          `json:"containerWrite,omitempty"`
 	StoragePolicy  *string                                          `json:"storagePolicy,omitempty"`
 	Versions       *string                                          `json:"versions,omitempty"`
-	QuotaBytes     *int64                                           `json:"quotaBytes,omitempty"`
-	QuotaCount     *int64                                           `json:"quotaCount,omitempty"`
 }
 
 // SwiftContainerResourceStatusApplyConfiguration constructs a declarative configuration of the SwiftContainerResourceStatus type for use with
@@ -105,21 +103,5 @@ func (b *SwiftContainerResourceStatusApplyConfiguration) WithStoragePolicy(value
 // If called multiple times, the Versions field is set to the value of the last call.
 func (b *SwiftContainerResourceStatusApplyConfiguration) WithVersions(value string) *SwiftContainerResourceStatusApplyConfiguration {
 	b.Versions = &value
-	return b
-}
-
-// WithQuotaBytes sets the QuotaBytes field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the QuotaBytes field is set to the value of the last call.
-func (b *SwiftContainerResourceStatusApplyConfiguration) WithQuotaBytes(value int64) *SwiftContainerResourceStatusApplyConfiguration {
-	b.QuotaBytes = &value
-	return b
-}
-
-// WithQuotaCount sets the QuotaCount field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the QuotaCount field is set to the value of the last call.
-func (b *SwiftContainerResourceStatusApplyConfiguration) WithQuotaCount(value int64) *SwiftContainerResourceStatusApplyConfiguration {
-	b.QuotaCount = &value
 	return b
 }
