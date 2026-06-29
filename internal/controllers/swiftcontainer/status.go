@@ -88,7 +88,7 @@ func (swiftcontainerStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource 
 		for _, k := range keys {
 			resourceStatus.WithMetadata(
 				orcapplyconfigv1alpha1.SwiftContainerMetadataStatus().
-					WithName(k).
+					WithKey(k).
 					WithValue(osResource.Metadata[k]),
 			)
 		}

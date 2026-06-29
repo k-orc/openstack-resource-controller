@@ -9,8 +9,8 @@ resourceRefs:
 assertAll:
     - celExpr: "swiftcontainer.status.id == 'swiftcontainer-update'"
     - celExpr: "has(swiftcontainer.status.resource.metadata)"
-    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.name == 'Environment' && m.value == 'staging')"
-    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.name == 'Team' && m.value == 'platform')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Environment' && m.value == 'staging')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Team' && m.value == 'platform')"
     - celExpr: "swiftcontainer.status.resource.containerRead == '.r:*,.rlistings'"
     - celExpr: "swiftcontainer.status.resource.containerWrite == 'openstack:*'"
 ---

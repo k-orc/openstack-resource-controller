@@ -30,5 +30,5 @@ assertAll:
     - celExpr: "swiftcontainer.status.id != ''"
     - celExpr: "swiftcontainer.status.id == 'swiftcontainer-create-full-override'"
     - celExpr: "has(swiftcontainer.status.resource.metadata)"
-    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.name == 'Environment' && m.value == 'test')"
-    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.name == 'Owner' && m.value == 'orc-e2e')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Environment' && m.value == 'test')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Owner' && m.value == 'orc-e2e')"

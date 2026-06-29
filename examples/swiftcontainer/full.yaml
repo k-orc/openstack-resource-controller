@@ -12,9 +12,9 @@ spec:
     name: my-custom-bucket
     # metadata sets arbitrary key-value pairs as X-Container-Meta-* headers.
     metadata:
-      - name: owner
+      - key: owner
         value: myteam
-      - name: environment
+      - key: environment
         value: production
     # containerRead sets the X-Container-Read ACL. Use ".r:*" for public read access.
     containerRead: .r:*,.rlistings

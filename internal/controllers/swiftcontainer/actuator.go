@@ -209,7 +209,7 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 	if len(resource.Metadata) > 0 {
 		metadata := make(map[string]string, len(resource.Metadata))
 		for _, m := range resource.Metadata {
-			metadata[m.Name] = m.Value
+			metadata[m.Key] = m.Value
 		}
 		createOpts.Metadata = metadata
 	}
@@ -322,7 +322,7 @@ func (actuator swiftcontainerActuator) reconcileMetadata(ctx context.Context, or
 	// in Swift).
 	desiredMetadata := make(map[string]string, len(resource.Metadata))
 	for _, m := range resource.Metadata {
-		desiredMetadata[strings.ToLower(m.Name)] = m.Value
+		desiredMetadata[strings.ToLower(m.Key)] = m.Value
 	}
 
 	// Find keys to add/update and keys to remove.

@@ -396,8 +396,8 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 		actuator := swiftcontainerActuator{client}
 		orcObject := newSwiftContainerObject("my-object", &orcv1alpha1.SwiftContainerResourceSpec{
 			Metadata: []orcv1alpha1.SwiftContainerMetadata{
-				{Name: "env", Value: "prod"},
-				{Name: "team", Value: "infra"},
+				{Key: "env", Value: "prod"},
+				{Key: "team", Value: "infra"},
 			},
 		})
 
@@ -471,8 +471,8 @@ func TestCreateResource(t *testing.T) {
 		orcObject := newSwiftContainerObject("full-container", &orcv1alpha1.SwiftContainerResourceSpec{
 			Name: ptr.To[orcv1alpha1.SwiftContainerName]("full-container"),
 			Metadata: []orcv1alpha1.SwiftContainerMetadata{
-				{Name: "project", Value: "orc"},
-				{Name: "env", Value: "test"},
+				{Key: "project", Value: "orc"},
+				{Key: "env", Value: "test"},
 			},
 			ContainerRead:  ".r:*",
 			ContainerWrite: "account:user",

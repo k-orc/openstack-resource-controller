@@ -185,9 +185,9 @@ spec:
                         SwiftContainerMetadata defines a key-value pair to be set as a Swift
                         container metadata header (X-Container-Meta-<key>: <value>).
                       properties:
-                        name:
+                        key:
                           description: |-
-                            name is the name of the metadata item. It will be used as the suffix of
+                            key is the key of the metadata item. It will be used as the suffix of
                             the X-Container-Meta-* header.
                           maxLength: 255
                           minLength: 1
@@ -197,13 +197,13 @@ spec:
                           maxLength: 255
                           type: string
                       required:
-                      - name
+                      - key
                       - value
                       type: object
                     maxItems: 64
                     type: array
                     x-kubernetes-list-map-keys:
-                    - name
+                    - key
                     x-kubernetes-list-type: map
                   name:
                     description: |-
@@ -359,8 +359,8 @@ spec:
                         SwiftContainerMetadataStatus represents an observed metadata key-value pair
                         on a Swift container.
                       properties:
-                        name:
-                          description: name is the name of the metadata item.
+                        key:
+                          description: key is the key of the metadata item.
                           maxLength: 255
                           minLength: 1
                           type: string
@@ -369,12 +369,12 @@ spec:
                           maxLength: 255
                           type: string
                       required:
-                      - name
+                      - key
                       type: object
                     maxItems: 64
                     type: array
                     x-kubernetes-list-map-keys:
-                    - name
+                    - key
                     x-kubernetes-list-type: map
                   name:
                     description: name is the name of the Swift container.
