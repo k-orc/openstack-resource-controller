@@ -12395,9 +12395,9 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerMetadata
 				Description: "SwiftContainerMetadata defines a key-value pair to be set as a Swift container metadata header (X-Container-Meta-<key>: <value>).",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
+					"key": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the name of the metadata item. It will be used as the suffix of the X-Container-Meta-* header.",
+							Description: "key is the key of the metadata item. It will be used as the suffix of the X-Container-Meta-* header.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -12411,7 +12411,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerMetadata
 						},
 					},
 				},
-				Required: []string{"name", "value"},
+				Required: []string{"key", "value"},
 			},
 		},
 	}
@@ -12424,9 +12424,9 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerMetadata
 				Description: "SwiftContainerMetadataStatus represents an observed metadata key-value pair on a Swift container.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
+					"key": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the name of the metadata item.",
+							Description: "key is the key of the metadata item.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -12439,7 +12439,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerMetadata
 						},
 					},
 				},
-				Required: []string{"name"},
+				Required: []string{"key"},
 			},
 		},
 	}
@@ -12463,7 +12463,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerResource
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
 								"x-kubernetes-list-map-keys": []interface{}{
-									"name",
+									"key",
 								},
 								"x-kubernetes-list-type": "map",
 							},
@@ -12542,7 +12542,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerResource
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
 								"x-kubernetes-list-map-keys": []interface{}{
-									"name",
+									"key",
 								},
 								"x-kubernetes-list-type": "map",
 							},

@@ -6,9 +6,9 @@ metadata:
 spec:
   resource:
     metadata:
-      - name: environment
+      - key: environment
         value: staging
-      - name: team
+      - key: team
         value: platform
     containerRead: ".r:*,.rlistings"
     containerWrite: "openstack:*"

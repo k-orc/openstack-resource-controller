@@ -27,12 +27,12 @@ type SwiftContainerName string
 // SwiftContainerMetadata defines a key-value pair to be set as a Swift
 // container metadata header (X-Container-Meta-<key>: <value>).
 type SwiftContainerMetadata struct {
-	// name is the name of the metadata item. It will be used as the suffix of
+	// key is the key of the metadata item. It will be used as the suffix of
 	// the X-Container-Meta-* header.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +required
-	Name string `json:"name,omitempty"`
+	Key string `json:"key,omitempty"`
 
 	// value is the value of the metadata item.
 	// +kubebuilder:validation:MaxLength:=255
@@ -43,11 +43,11 @@ type SwiftContainerMetadata struct {
 // SwiftContainerMetadataStatus represents an observed metadata key-value pair
 // on a Swift container.
 type SwiftContainerMetadataStatus struct {
-	// name is the name of the metadata item.
+	// key is the key of the metadata item.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +required
-	Name string `json:"name,omitempty"`
+	Key string `json:"key,omitempty"`
 
 	// value is the value of the metadata item.
 	// +kubebuilder:validation:MaxLength:=255
@@ -103,7 +103,7 @@ type SwiftContainerResourceSpec struct {
 	// X-Container-Meta-* headers on the Swift container.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=map
-	// +listMapKey=name
+	// +listMapKey=key
 	// +optional
 	Metadata []SwiftContainerMetadata `json:"metadata,omitempty"`
 
@@ -152,7 +152,7 @@ type SwiftContainerResourceStatus struct {
 	// metadata is the list of observed metadata key-value pairs on the container.
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=map
-	// +listMapKey=name
+	// +listMapKey=key
 	// +optional
 	Metadata []SwiftContainerMetadataStatus `json:"metadata,omitempty"`
 

@@ -11,9 +11,9 @@ spec:
   resource:
     name: swiftcontainer-create-full-override
     metadata:
-      - name: environment
+      - key: environment
         value: test
-      - name: owner
+      - key: owner
         value: orc-e2e
     containerRead: ".r:*,.rlistings"
     containerWrite: "openstack:*"

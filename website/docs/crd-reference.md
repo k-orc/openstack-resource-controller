@@ -4860,7 +4860,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is the name of the metadata item. It will be used as the suffix of<br />the X-Container-Meta-* header. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `key` _string_ | key is the key of the metadata item. It will be used as the suffix of<br />the X-Container-Meta-* header. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `value` _string_ | value is the value of the metadata item. |  | MaxLength: 255 <br />Required: \{\} <br /> |
 
 
@@ -4878,7 +4878,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is the name of the metadata item. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `key` _string_ | key is the key of the metadata item. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `value` _string_ | value is the value of the metadata item. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
