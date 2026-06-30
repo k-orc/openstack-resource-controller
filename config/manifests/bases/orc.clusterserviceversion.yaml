@@ -64,6 +64,11 @@ spec:
       kind: KeyPair
       name: keypairs.openstack.k-orc.cloud
       version: v1alpha1
+    - description: LoadBalancer is the Schema for an ORC resource.
+      displayName: Load Balancer
+      kind: LoadBalancer
+      name: loadbalancers.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Network is the Schema for an ORC resource.
       displayName: Network
       kind: Network
