@@ -19,7 +19,7 @@ package {{ .APIVersion }}
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
+{{ if not .HasCustomImport }}
 // {{ .Name }}Import specifies an existing resource which will be imported instead of
 // creating a new one
 // +kubebuilder:validation:MinProperties:=1
@@ -50,7 +50,7 @@ type {{ .Name }}Import struct {
 	// +optional
 	Filter *{{ .Name }}Filter `json:"filter,omitempty"`
 }
-
+{{ end }}
 // {{ .Name }}Spec defines the desired state of an ORC object.
 // +kubebuilder:validation:XValidation:rule="self.managementPolicy == 'managed' ? has(self.resource) : true",message="resource must be specified when policy is managed"
 // +kubebuilder:validation:XValidation:rule="self.managementPolicy == 'managed' ? !has(self.__import__) : true",message="import may not be specified when policy is managed"

@@ -60,6 +60,8 @@ type ShareNetworkExpansion interface{}
 
 type SubnetExpansion interface{}
 
+type SwiftContainerExpansion interface{}
+
 type TrunkExpansion interface{}
 
 type UserExpansion interface{}

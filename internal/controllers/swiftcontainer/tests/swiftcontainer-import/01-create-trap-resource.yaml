@@ -1,0 +1,15 @@
+---
+# This `swiftcontainer-import-external-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource whose name is a superstring
+#   of the import filter name (i.e. it's not being adopted by the import CR)
+# - ensure that importing a resource whose name matches the filter will not pick this one.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}

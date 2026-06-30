@@ -414,6 +414,24 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.SubnetSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetStatus"):
 		return &apiv1alpha1.SubnetStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainer"):
+		return &apiv1alpha1.SwiftContainerApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerFilter"):
+		return &apiv1alpha1.SwiftContainerFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerImport"):
+		return &apiv1alpha1.SwiftContainerImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerMetadata"):
+		return &apiv1alpha1.SwiftContainerMetadataApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerMetadataStatus"):
+		return &apiv1alpha1.SwiftContainerMetadataStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerResourceSpec"):
+		return &apiv1alpha1.SwiftContainerResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerResourceStatus"):
+		return &apiv1alpha1.SwiftContainerResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerSpec"):
+		return &apiv1alpha1.SwiftContainerSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("SwiftContainerStatus"):
+		return &apiv1alpha1.SwiftContainerStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Trunk"):
 		return &apiv1alpha1.TrunkApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("TrunkFilter"):

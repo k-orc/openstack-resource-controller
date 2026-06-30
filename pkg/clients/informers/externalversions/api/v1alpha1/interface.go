@@ -66,6 +66,8 @@ type Interface interface {
 	ShareNetworks() ShareNetworkInformer
 	// Subnets returns a SubnetInformer.
 	Subnets() SubnetInformer
+	// SwiftContainers returns a SwiftContainerInformer.
+	SwiftContainers() SwiftContainerInformer
 	// Trunks returns a TrunkInformer.
 	Trunks() TrunkInformer
 	// Users returns a UserInformer.
@@ -190,6 +192,11 @@ func (v *version) ShareNetworks() ShareNetworkInformer {
 // Subnets returns a SubnetInformer.
 func (v *version) Subnets() SubnetInformer {
 	return &subnetInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// SwiftContainers returns a SwiftContainerInformer.
+func (v *version) SwiftContainers() SwiftContainerInformer {
+	return &swiftContainerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Trunks returns a TrunkInformer.

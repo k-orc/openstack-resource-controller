@@ -67,6 +67,10 @@ type templateFields struct {
 	// When true, the UUID validation will be omitted from the Import.ID field.
 	// Default is false (uses UUID).
 	UsesNameAsID bool
+	// HasCustomImport indicates that the resource defines its own Import type in the
+	// non-generated *_types.go file. When true, the Import type will not be generated.
+	// Default is false (Import type is generated).
+	HasCustomImport bool
 }
 
 var resources []templateFields = []templateFields{
@@ -179,6 +183,10 @@ var resources []templateFields = []templateFields{
 	},
 	{
 		Name: "ApplicationCredential",
+	},
+	{
+		Name:            "SwiftContainer",
+		HasCustomImport: true, // SwiftContainerImport is defined in swiftcontainer_types.go
 	},
 }
 

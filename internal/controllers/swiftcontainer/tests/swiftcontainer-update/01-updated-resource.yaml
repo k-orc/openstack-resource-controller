@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-update
+spec:
+  resource:
+    metadata:
+      - key: environment
+        value: staging
+      - key: team
+        value: platform
+    containerRead: ".r:*,.rlistings"
+    containerWrite: "openstack:*"
