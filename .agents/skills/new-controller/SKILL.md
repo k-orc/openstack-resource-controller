@@ -201,9 +201,28 @@ Implement:
 - `ListOSResourcesForAdoption()` - Match by spec fields
 - `GetResourceReconcilers()` - (if resource supports updates)
 
+**ReconcileResourceActuator is optional**: The generic reconciler detects it via type assertion at runtime — there is no factory method to implement. To opt in, add the `reconcileResourceActuator` type alias and interface assertion in `actuator.go`, then implement `GetResourceReconcilers` on the actuator struct:
+
+```go
+type (
+    reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+    resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+)
+
+var _ reconcileResourceActuator = myActuator{}
+
+func (actuator myActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+    return []resourceReconciler{
+        actuator.updateResource,
+    }, nil
+}
+```
+
+If the resource is fully immutable (no mutable fields, no tags, no sub-resources), skip this entirely — the generic reconciler will not call it.
+
 ### Implementation Patterns
 
-Follow the patterns in @.agents/skills/new-controller/patterns.md when implementing the actuator and API types.
+Follow the patterns in [patterns.md](patterns.md) when implementing the actuator and API types.
 
 ### Status Writer (internal/controllers/<kind>/status.go)
 
@@ -217,7 +236,7 @@ Implement:
 
 Complete the scaffolded API validation test in `test/apivalidations/<kind>_test.go` by adding tests for any resource-specific validations (enums, numeric ranges, tag uniqueness, format validation, cross-field rules). Look for `TODO(scaffolding)` markers in the generated file.
 
-Complete the E2E test stubs in `internal/controllers/<kind>/tests/` and run tests following @.agents/skills/testing/SKILL.md
+Complete the E2E test stubs in `internal/controllers/<kind>/tests/` and run tests following [testing](../testing/SKILL.md)
 
 ## Checklist
 

@@ -20,9 +20,13 @@ make test
 
 ## E2E Test Prerequisites
 
-E2E tests require `E2E_OSCLOUDS` environment variable pointing to a `clouds.yaml` file containing:
-- A cloud named `openstack` - regular user credentials
-- A cloud named `devstack-admin` - admin credentials
+E2E tests require `E2E_OSCLOUDS` environment variable pointing to a `clouds.yaml` file containing cloud entries for regular and admin credentials. The cloud names are configurable via environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|--------|
+| `E2E_OSCLOUDS` | Path to `clouds.yaml` | `/etc/openstack/clouds.yaml` |
+| `E2E_OPENSTACK_CLOUD_NAME` | Cloud name for regular credentials | `devstack` |
+| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Cloud name for admin credentials | `devstack-admin-demo` |
 
 If the user did not provide `E2E_OSCLOUDS`, tell them local E2E testing will be skipped and they should run it manually later or in CI.
 
