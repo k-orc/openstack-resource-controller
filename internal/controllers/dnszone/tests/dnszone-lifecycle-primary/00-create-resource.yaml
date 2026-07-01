@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-lifecycle-primary
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: lifecycle-primary.example.com.
+    email: admin@example.com
+    description: "Primary DNS Zone lifecycle test"
+    ttl: 3600
+    type: PRIMARY

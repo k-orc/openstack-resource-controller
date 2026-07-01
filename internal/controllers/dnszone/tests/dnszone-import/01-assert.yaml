@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-import-unmanaged
+status:
+  resource:
+    name: kuttl-import.example.com.
+    email: admin@example.com
+    description: "KUTTL Import test zone"
+    ttl: 3600
+    type: PRIMARY
+    status: ACTIVE
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: DNSZone
+    name: dnszone-import-unmanaged
+    ref: dnszone
+assertAll:
+  - celExpr: "dnszone.status.id != ''"

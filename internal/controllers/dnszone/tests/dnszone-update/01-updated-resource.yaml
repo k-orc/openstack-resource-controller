@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-update
+spec:
+  resource:
+    name: update-updated.example.com.
+    email: admin@example.com
+    description: dnszone-update-updated

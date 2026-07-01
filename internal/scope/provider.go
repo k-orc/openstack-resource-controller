@@ -149,6 +149,10 @@ func (s *providerScope) NewComputeClient() (clients.ComputeClient, error) {
 	return clients.NewComputeClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewDNSZoneClient() (clients.DNSZoneClient, error) {
+	return clients.NewDNSZoneClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewNetworkClient() (clients.NetworkClient, error) {
 	return clients.NewNetworkClient(s.providerClient, s.providerClientOpts)
 }

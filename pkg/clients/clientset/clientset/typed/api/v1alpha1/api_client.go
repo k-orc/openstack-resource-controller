@@ -30,6 +30,7 @@ type OpenstackV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	AddressScopesGetter
 	ApplicationCredentialsGetter
+	DNSZonesGetter
 	DomainsGetter
 	EndpointsGetter
 	FlavorsGetter
@@ -66,6 +67,10 @@ func (c *OpenstackV1alpha1Client) AddressScopes(namespace string) AddressScopeIn
 
 func (c *OpenstackV1alpha1Client) ApplicationCredentials(namespace string) ApplicationCredentialInterface {
 	return newApplicationCredentials(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) DNSZones(namespace string) DNSZoneInterface {
+	return newDNSZones(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Domains(namespace string) DomainInterface {

@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-import-nonexistent
+status:
+  conditions:
+    - type: Available
+      message: "referenced resource does not exist in OpenStack"
+      status: "False"
+      reason: UnrecoverableError
+    - type: Progressing
+      message: "referenced resource does not exist in OpenStack"
+      status: "False"
+      reason: UnrecoverableError

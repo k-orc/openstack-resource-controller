@@ -1,0 +1,15 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: "! kubectl get dnszone.openstack.k-orc.cloud dnszone-import-unmanaged --namespace $NAMESPACE"
+    skipLogOutput: true
+  - script: |
+      export OS_CLIENT_CONFIG_FILE=${E2E_KUTTL_OSCLOUDS}
+      export OS_CLOUD=openstack
+
+      # Assert that the zone still exists in Designate
+      openstack zone show kuttl-import.example.com.
+
+      # Clean up (delete the zone from Designate so we don't leak resources)
+      openstack zone delete kuttl-import.example.com.

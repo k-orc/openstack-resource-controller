@@ -29,6 +29,7 @@ import (
 
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/addressscope"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/applicationcredential"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/dnszone"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/endpoint"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/flavor"
@@ -133,6 +134,7 @@ func main() {
 		volume.New(scopeFactory),
 		volumetype.New(scopeFactory),
 		domain.New(scopeFactory),
+		dnszone.New(scopeFactory),
 		service.New(scopeFactory),
 		sharenetwork.New(scopeFactory),
 		keypair.New(scopeFactory),

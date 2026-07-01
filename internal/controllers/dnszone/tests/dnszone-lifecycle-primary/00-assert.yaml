@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-lifecycle-primary
+status:
+  resource:
+    name: lifecycle-primary.example.com.
+    email: admin@example.com
+    description: "Primary DNS Zone lifecycle test"
+    ttl: 3600
+    type: PRIMARY
+    status: ACTIVE
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZone
+      name: dnszone-lifecycle-primary
+      ref: dnszone
+assertAll:
+    - celExpr: "dnszone.status.id != ''"

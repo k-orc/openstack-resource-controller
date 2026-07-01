@@ -28,6 +28,8 @@ type Interface interface {
 	AddressScopes() AddressScopeInformer
 	// ApplicationCredentials returns a ApplicationCredentialInformer.
 	ApplicationCredentials() ApplicationCredentialInformer
+	// DNSZones returns a DNSZoneInformer.
+	DNSZones() DNSZoneInformer
 	// Domains returns a DomainInformer.
 	Domains() DomainInformer
 	// Endpoints returns a EndpointInformer.
@@ -95,6 +97,11 @@ func (v *version) AddressScopes() AddressScopeInformer {
 // ApplicationCredentials returns a ApplicationCredentialInformer.
 func (v *version) ApplicationCredentials() ApplicationCredentialInformer {
 	return &applicationCredentialInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// DNSZones returns a DNSZoneInformer.
+func (v *version) DNSZones() DNSZoneInformer {
+	return &dNSZoneInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Domains returns a DomainInformer.
