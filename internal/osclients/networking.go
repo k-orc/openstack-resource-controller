@@ -18,6 +18,7 @@ package osclients
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"iter"
 
@@ -58,6 +59,41 @@ type PortExt struct {
 	portsecurity.PortSecurityExt
 	portsbinding.PortsBindingExt
 	portstrustedvif.PortTrustedVIFExt
+
+	// PropagateUplinkStatusPtr is a pointer variant of ports.Port.PropagateUplinkStatus.
+	// The embedded field is a non-pointer bool that defaults to false, making it
+	// impossible to distinguish "extension not enabled" from "explicitly false".
+	// This pointer allows detecting whether the field was present in the API response.
+	// It won't be needed with Gophercloud v3.
+	PropagateUplinkStatusPtr *bool `json:"propagate_uplink_status,omitempty"`
+}
+
+// TODO(winiciusallan): Drop this custom unmarshaler once Gophercloud is
+// on V3, so we have the following change
+// https://github.com/gophercloud/gophercloud/pull/3609.
+func (p *PortExt) UnmarshalJSON(b []byte) error {
+	if err := json.Unmarshal(b, &p.Port); err != nil {
+		return err
+	}
+	if err := json.Unmarshal(b, &p.PortSecurityExt); err != nil {
+		return err
+	}
+	if err := json.Unmarshal(b, &p.PortsBindingExt); err != nil {
+		return err
+	}
+	if err := json.Unmarshal(b, &p.PortTrustedVIFExt); err != nil {
+		return err
+	}
+
+	var tmp struct {
+		PropagateUplinkStatusPtr *bool `json:"propagate_uplink_status"`
+	}
+	if err := json.Unmarshal(b, &tmp); err != nil {
+		return err
+	}
+
+	p.PropagateUplinkStatusPtr = tmp.PropagateUplinkStatusPtr
+	return nil
 }
 
 type NetworkClient interface {
@@ -189,6 +225,7 @@ func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder)
 		}
 		return resources, nil
 	}
+
 	pager := ports.List(c.serviceClient, opts)
 	return func(yield func(*PortExt, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(extractPortExt, yield))

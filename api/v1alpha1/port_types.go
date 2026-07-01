@@ -244,6 +244,15 @@ type PortResourceSpec struct {
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="valueSpecs is immutable"
 	ValueSpecs []PortValueSpec `json:"valueSpecs,omitempty"`
+
+	// propagateUplinkStatus represents the uplink status propagation of
+	// the port.
+	// The field is now immutable due to a limitation on
+	// Dalmatian (2024.2) release, we should address this later.
+	// https://github.com/k-orc/openstack-resource-controller/pull/641#discussion_r2694783787
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="propagateUplinkStatus is immutable"
+	PropagateUplinkStatus *bool `json:"propagateUplinkStatus,omitempty"`
 }
 
 type PortResourceStatus struct {

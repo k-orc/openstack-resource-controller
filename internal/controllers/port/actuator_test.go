@@ -462,7 +462,6 @@ func TestHandleTrustedVIFUpdate(t *testing.T) {
 			}
 
 			updateOpts := handlePortTrustedVIFUpdate(&ports.UpdateOpts{}, resource, osResource)
-
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
 				t.Errorf("expected needsUpdate=%v, got %v", tt.expectChange, got)
