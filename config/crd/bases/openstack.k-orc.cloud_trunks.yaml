@@ -146,6 +146,11 @@ spec:
                         maxLength: 253
                         minLength: 1
                         type: string
+                      status:
+                        description: status indicates the trunk state to use as a
+                          filter.
+                        maxLength: 64
+                        type: string
                       tags:
                         description: |-
                           tags is a list of tags to filter by. If specified, the resource must
