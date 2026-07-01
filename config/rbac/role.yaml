@@ -37,6 +37,7 @@ rules:
   - servers
   - services
   - sharenetworks
+  - sharetypes
   - subnets
   - trunks
   - users
@@ -73,6 +74,7 @@ rules:
   - servers/status
   - services/status
   - sharenetworks/status
+  - sharetypes/status
   - subnets/status
   - trunks/status
   - users/status

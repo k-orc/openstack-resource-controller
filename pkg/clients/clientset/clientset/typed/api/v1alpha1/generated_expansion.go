@@ -58,6 +58,8 @@ type ServiceExpansion interface{}
 
 type ShareNetworkExpansion interface{}
 
+type ShareTypeExpansion interface{}
+
 type SubnetExpansion interface{}
 
 type TrunkExpansion interface{}

@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-create-full
+status:
+  resource:
+    name: sharetype-create-full-override
+    isPublic: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareType
+      name: sharetype-create-full
+      ref: sharetype
+assertAll:
+    - celExpr: "sharetype.status.id != ''"
+    - celExpr: "sharetype.status.resource.name == 'sharetype-create-full-override'"
+    - celExpr: "sharetype.status.resource.isPublic == false"
+    - celExpr: "has(sharetype.status.resource.extraSpecs)"
+    - celExpr: "sharetype.status.resource.extraSpecs['driver_handles_share_servers'] == 'False'"
+    - celExpr: "sharetype.status.resource.extraSpecs['snapshot_support'] == 'True'"

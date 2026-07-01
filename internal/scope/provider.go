@@ -189,6 +189,10 @@ func (s *providerScope) NewShareNetworkClient() (clients.ShareNetworkClient, err
 	return clients.NewShareNetworkClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewShareTypeClient() (clients.ShareTypeClient, error) {
+	return clients.NewShareTypeClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewKeyPairClient() (clients.KeyPairClient, error) {
 	return clients.NewKeyPairClient(s.providerClient, s.providerClientOpts)
 }

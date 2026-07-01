@@ -398,6 +398,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ShareNetworkSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ShareNetworkStatus"):
 		return &apiv1alpha1.ShareNetworkStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareType"):
+		return &apiv1alpha1.ShareTypeApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareTypeFilter"):
+		return &apiv1alpha1.ShareTypeFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareTypeImport"):
+		return &apiv1alpha1.ShareTypeImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareTypeResourceSpec"):
+		return &apiv1alpha1.ShareTypeResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareTypeResourceStatus"):
+		return &apiv1alpha1.ShareTypeResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareTypeSpec"):
+		return &apiv1alpha1.ShareTypeSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ShareTypeStatus"):
+		return &apiv1alpha1.ShareTypeStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Subnet"):
 		return &apiv1alpha1.SubnetApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("SubnetFilter"):
