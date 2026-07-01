@@ -85,49 +85,17 @@ Distinguish between errors that can be retried vs those requiring user action.
 | **Retryable** (default) | Transient issues (network, API unavailable) | Automatic retry with backoff |
 | **Terminal** | Invalid configuration, bad input, permission denied | No retry until spec changes |
 
-```go
-// Terminal on create: User must fix the spec
-if err != nil {
-    if !orcerrors.IsRetryable(err) {
-        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-            "invalid configuration creating resource: "+err.Error(), err)
-    }
-    return nil, progress.WrapError(err)
-}
-
-// Terminal on update: Treat as terminal (spec likely conflicts with existing state)
-if err != nil {
-    if !orcerrors.IsRetryable(err) {
-        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-            "invalid configuration updating resource: "+err.Error(), err)
-    }
-    return progress.WrapError(err)
-}
-```
+Use `orcerrors.IsRetryable(err)` to check; wrap non-retryable errors with `orcerrors.Terminal()`. See AGENTS.md "Error Classification" for the code pattern.
 
 ## 5. Dependency Timing
 
-Resolve dependencies as late as possible, as close to the point of use as possible.
+Resolve dependencies as late as possible, as close to the point of use as possible. Only fetch a dependency when you actually need its ID for the current operation.
 
-**Rationale**: Avoid injecting dependency requirements where not strictly required. This reduces coupling and gives users greater flexibility when fixing failed deployments.
-
-**Examples:**
 - A Subnet depends on Network for creation, but not for import by ID or deletion
 - Don't require recreating a deleted Network just to delete a Subnet whose `status.ID` is already set
-- Add finalizers to dependencies only immediately before the OpenStack create/update call that references them
+- Only fetch optional dependencies conditionally (`if resource.SubnetRef != nil`)
 
-```go
-// Good: Only fetch dependency when needed for creation
-if resource.VipSubnetRef != nil {
-    subnet, depRS := subnetDependency.GetDependency(ctx, ...)
-    reconcileStatus = reconcileStatus.WithReconcileStatus(depRS)
-}
-
-// Bad: Fetching dependency unconditionally even when not needed
-subnet, depRS := subnetDependency.GetDependency(ctx, ...)  // Wrong if subnet is optional
-```
-
-For detailed dependency implementation: @.agents/skills/add-dependency/SKILL.md
+For detailed implementation: [add-dependency](../add-dependency/SKILL.md)
 
 ## 6. Code Clarity
 
