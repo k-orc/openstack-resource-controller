@@ -56,6 +56,9 @@ import (
 //go:generate mockgen -package mock -destination=role.go -source=../role.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RoleClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt role.go > _role.go && mv _role.go role.go"
 
+//go:generate mockgen -package mock -destination=roleassignment.go -source=../roleassignment.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RoleAssignmentClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt roleassignment.go > _roleassignment.go && mv _roleassignment.go roleassignment.go"
+
 //go:generate mockgen -package mock -destination=service.go -source=../service.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock ServiceClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt service.go > _service.go && mv _service.go service.go"
 

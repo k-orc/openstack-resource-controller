@@ -80,6 +80,10 @@ func (c *FakeOpenstackV1alpha1) Roles(namespace string) v1alpha1.RoleInterface {
 	return newFakeRoles(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) RoleAssignments(namespace string) v1alpha1.RoleAssignmentInterface {
+	return newFakeRoleAssignments(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Routers(namespace string) v1alpha1.RouterInterface {
 	return newFakeRouters(c, namespace)
 }

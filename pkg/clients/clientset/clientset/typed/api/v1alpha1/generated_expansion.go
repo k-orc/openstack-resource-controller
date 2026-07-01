@@ -44,6 +44,8 @@ type ProjectExpansion interface{}
 
 type RoleExpansion interface{}
 
+type RoleAssignmentExpansion interface{}
+
 type RouterExpansion interface{}
 
 type RouterInterfaceExpansion interface{}

@@ -1,0 +1,47 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Verify RoleAssignment is deleted
+- script: "! kubectl get roleassignment roleassignment-create-group-project --namespace $NAMESPACE"
+  skipLogOutput: true
+---
+# Verify dependencies still exist (deletion guard should keep them)
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-gp-test-role
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: roleassignment-gp-test-group
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: roleassignment-gp-test-project
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

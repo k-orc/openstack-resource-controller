@@ -1,0 +1,386 @@
+/*
+Copyright The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package roleassignment
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
+	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
+)
+
+// roleassignmentReconciler reconciles RoleAssignment objects.
+// Unlike other ORC resources, role assignments are relationships (not resources with IDs),
+// so this uses a custom reconciler instead of the generic framework.
+type roleassignmentReconciler struct {
+	client       client.Client
+	scopeFactory scope.Factory
+}
+
+// Reconcile is the main entry point for reconciliation.
+// It fetches the RoleAssignment object and routes to either reconcileNormal or reconcileDelete.
+func (r *roleassignmentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	orcObject := new(orcObjectT)
+	err := r.client.Get(ctx, req.NamespacedName, orcObject)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			// Object deleted, nothing to do
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	log := ctrl.LoggerFrom(ctx)
+
+	// Check if object is being deleted
+	if !orcObject.GetDeletionTimestamp().IsZero() {
+		return r.reconcileDelete(ctx, orcObject).Return(log)
+	}
+
+	return r.reconcileNormal(ctx, orcObject).Return(log)
+}
+
+// shouldReconcile determines if reconciliation should proceed based on the Progressing condition.
+// Returns true if:
+// - Progressing condition is not present
+// - Progressing condition is True
+// - Progressing condition is False but observedGeneration is stale
+func shouldReconcile(obj orcObjectPT) bool {
+	progressing := meta.FindStatusCondition(obj.GetConditions(), orcv1alpha1.ConditionProgressing)
+	if progressing == nil {
+		return true
+	}
+
+	if progressing.Status == metav1.ConditionTrue {
+		return true
+	}
+
+	return progressing.ObservedGeneration != obj.GetGeneration()
+}
+
+// reconcileNormal handles the normal reconciliation flow:
+// 1. Check if we should reconcile (based on Progressing condition)
+// 2. Create actuator (OpenStack client)
+// 3. Get or create the role assignment
+// 4. Update status
+func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObject orcObjectPT) (reconcileStatus progress.ReconcileStatus) {
+	log := ctrl.LoggerFrom(ctx)
+
+	// Check if we should skip reconciliation
+	if !shouldReconcile(orcObject) {
+		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
+		return reconcileStatus
+	}
+
+	log.V(logging.Verbose).Info("Reconciling role assignment")
+
+	var osResource *osResourceT
+
+	// Ensure we always update status at the end
+	defer func() {
+		reconcileStatus = reconcileStatus.WithReconcileStatus(
+			r.updateStatus(ctx, orcObject, osResource, reconcileStatus))
+	}()
+
+	// Phase 3: Add finalizer if not present
+	finalizer := orcstrings.GetFinalizerName(controllerName)
+	if !controllerutil.ContainsFinalizer(orcObject, finalizer) {
+		patch := finalizers.SetFinalizerPatch(orcObject, finalizer)
+		if err := r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer)); err != nil {
+			return progress.WrapError(fmt.Errorf("setting finalizer: %w", err))
+		}
+	}
+
+	// Phase 3: Create actuator
+	actuator, actuatorRS := r.newActuator(ctx, orcObject)
+	if needsReschedule, err := actuatorRS.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Waiting on events before creation")
+		}
+		return actuatorRS.WithReconcileStatus(reconcileStatus)
+	}
+
+	// Phase 4: Check if role assignment exists using Status.Resource components
+	if orcObject.Status.Resource != nil {
+		statusResource := orcObject.Status.Resource
+		// If we have all components in status, try to fetch the role assignment
+		if statusResource.RoleID != "" &&
+			(statusResource.UserID != "" || statusResource.GroupID != "") &&
+			(statusResource.ProjectID != "" || statusResource.DomainID != "") {
+
+			osResource, getRS := actuator.GetResourceByComponents(
+				ctx,
+				statusResource.RoleID,
+				statusResource.UserID,
+				statusResource.GroupID,
+				statusResource.ProjectID,
+				statusResource.DomainID,
+			)
+			if needsReschedule, err := getRS.NeedsReschedule(); needsReschedule {
+				if orcerrors.IsNotFound(err) {
+					// Resource we previously created has been deleted unexpectedly
+					return progress.WrapError(
+						orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "role assignment has been deleted from OpenStack"))
+				}
+				return getRS.WithReconcileStatus(reconcileStatus)
+			}
+
+			if osResource != nil {
+				log.V(logging.Verbose).Info("Got existing role assignment")
+				return reconcileStatus
+			}
+		}
+	}
+
+	// Phase 5: Fetch dependencies and create role assignment
+	osResource, createRS := actuator.CreateResource(ctx, orcObject)
+	if needsReschedule, err := createRS.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Waiting on dependencies or creation")
+		}
+		return createRS.WithReconcileStatus(reconcileStatus)
+	}
+
+	if osResource == nil {
+		return reconcileStatus.WithError(fmt.Errorf("osResource is not set, but no wait events or error"))
+	}
+
+	log.V(logging.Info).Info("Role assignment created or adopted")
+	return reconcileStatus
+}
+
+// reconcileDelete handles deletion of the RoleAssignment:
+// 1. Check finalizer
+// 2. Fetch the role assignment (using Status.Resource components)
+// 3. Check management policy
+// 4. Delete from OpenStack
+// 5. Remove finalizer
+func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObject orcObjectPT) (reconcileStatus progress.ReconcileStatus) {
+	log := ctrl.LoggerFrom(ctx)
+	log.V(logging.Verbose).Info("Reconciling role assignment delete")
+
+	var osResource *osResourceT
+	deleted := false
+
+	// Update status unless we've removed the finalizer
+	defer func() {
+		if !deleted {
+			reconcileStatus = reconcileStatus.WithReconcileStatus(
+				r.updateStatus(ctx, orcObject, osResource, reconcileStatus))
+		}
+	}()
+
+	finalizer := orcstrings.GetFinalizerName(controllerName)
+
+	// Check if our finalizer is present
+	var foundFinalizer bool
+	for _, f := range orcObject.GetFinalizers() {
+		if f == finalizer {
+			foundFinalizer = true
+		} else {
+			reconcileStatus = reconcileStatus.WaitingOnFinalizer(f)
+		}
+	}
+
+	// Cleanup not required if our finalizer is not present
+	if !foundFinalizer {
+		return reconcileStatus
+	}
+
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Deferring resource cleanup due to remaining external finalizers")
+		}
+		return reconcileStatus
+	}
+
+	removeFinalizer := func(reconcileStatus progress.ReconcileStatus) progress.ReconcileStatus {
+		if err := r.client.Patch(ctx, orcObject, finalizers.RemoveFinalizerPatch(orcObject), orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer)); err != nil {
+			return reconcileStatus.WithError(fmt.Errorf("removing finalizer: %w", err))
+		}
+		deleted = true
+		return reconcileStatus
+	}
+
+	// Check management policy
+	managementPolicy := orcObject.Spec.ManagementPolicy
+	managedOptions := orcObject.Spec.ManagedOptions
+	if managementPolicy == orcv1alpha1.ManagementPolicyUnmanaged || managedOptions.GetOnDelete() == orcv1alpha1.OnDeleteDetach {
+		logPolicy := []any{"managementPolicy", managementPolicy}
+		if managementPolicy == orcv1alpha1.ManagementPolicyManaged {
+			logPolicy = append(logPolicy, "onDelete", managedOptions.GetOnDelete())
+		}
+		log.V(logging.Verbose).Info("Not deleting OpenStack resource due to policy", logPolicy...)
+		return removeFinalizer(reconcileStatus)
+	}
+
+	// Fetch the role assignment using Status.Resource components
+	if orcObject.Status.Resource != nil {
+		statusResource := orcObject.Status.Resource
+		if statusResource.RoleID != "" &&
+			(statusResource.UserID != "" || statusResource.GroupID != "") &&
+			(statusResource.ProjectID != "" || statusResource.DomainID != "") {
+
+			// Create actuator for deletion
+			actuator, actuatorRS := r.newActuator(ctx, orcObject)
+			if needsReschedule, err := actuatorRS.NeedsReschedule(); needsReschedule {
+				if err == nil {
+					log.V(logging.Verbose).Info("Waiting on events before deletion")
+				}
+				return actuatorRS.WithReconcileStatus(reconcileStatus)
+			}
+
+			osResource, getRS := actuator.GetResourceByComponents(
+				ctx,
+				statusResource.RoleID,
+				statusResource.UserID,
+				statusResource.GroupID,
+				statusResource.ProjectID,
+				statusResource.DomainID,
+			)
+			if needsReschedule, err := getRS.NeedsReschedule(); needsReschedule {
+				// NotFound is our success condition for delete
+				if err == nil || !orcerrors.IsNotFound(err) {
+					return getRS.WithReconcileStatus(reconcileStatus)
+				}
+				osResource = nil
+			}
+
+			if osResource != nil {
+				log.V(logging.Info).Info("Deleting role assignment from OpenStack")
+				deleteRS := actuator.DeleteResource(ctx, orcObject, osResource)
+				if needsReschedule, _ := deleteRS.NeedsReschedule(); needsReschedule {
+					return deleteRS.WithReconcileStatus(reconcileStatus)
+				}
+			}
+		}
+	}
+
+	log.V(logging.Info).Info("Role assignment deletion confirmed")
+	return removeFinalizer(reconcileStatus)
+}
+
+// newActuator creates a roleassignmentActuator with OpenStack client setup.
+func (r *roleassignmentReconciler) newActuator(ctx context.Context, orcObject orcObjectPT) (roleassignmentActuator, progress.ReconcileStatus) {
+	log := ctrl.LoggerFrom(ctx)
+
+	// Ensure credential secrets exist and have our finalizer
+	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, r.client, orcObject, func(*corev1.Secret) bool { return true })
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return roleassignmentActuator{}, reconcileStatus
+	}
+
+	clientScope, err := r.scopeFactory.NewClientScopeFromObject(ctx, r.client, log, orcObject)
+	if err != nil {
+		return roleassignmentActuator{}, progress.WrapError(err)
+	}
+	osClient, err := clientScope.NewRoleAssignmentClient()
+	if err != nil {
+		return roleassignmentActuator{}, progress.WrapError(err)
+	}
+
+	return roleassignmentActuator{
+		osClient:  osClient,
+		k8sClient: r.client,
+	}, nil
+}
+
+// updateStatus writes the observed state back to the Kubernetes object.
+// This sets Status.Resource fields and conditions (Available, Progressing).
+// Note: Status.ID is intentionally left nil for role assignments.
+func (r *roleassignmentReconciler) updateStatus(
+	ctx context.Context,
+	orcObject orcObjectPT,
+	osResource *osResourceT,
+	reconcileStatus progress.ReconcileStatus,
+) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+	now := metav1.NewTime(time.Now())
+
+	// Create apply configuration for status
+	statusApply := orcapplyconfigv1alpha1.RoleAssignmentStatus()
+	applyConfig := orcapplyconfigv1alpha1.RoleAssignment(orcObject.Name, orcObject.Namespace).
+		WithUID(orcObject.GetUID()).
+		WithStatus(statusApply)
+
+	// Write resource status fields from osResource
+	if osResource != nil {
+		resourceStatus := orcapplyconfigv1alpha1.RoleAssignmentResourceStatus()
+
+		if osResource.Role.ID != "" {
+			resourceStatus.WithRoleID(osResource.Role.ID)
+		}
+		if osResource.User.ID != "" {
+			resourceStatus.WithUserID(osResource.User.ID)
+		}
+		if osResource.Group.ID != "" {
+			resourceStatus.WithGroupID(osResource.Group.ID)
+		}
+		if osResource.Scope.Project.ID != "" {
+			resourceStatus.WithProjectID(osResource.Scope.Project.ID)
+		}
+		if osResource.Scope.Domain.ID != "" {
+			resourceStatus.WithDomainID(osResource.Scope.Domain.ID)
+		}
+
+		statusApply.WithResource(resourceStatus)
+	}
+
+	// Determine Available status
+	availableStatus := metav1.ConditionFalse
+	if osResource != nil {
+		availableStatus = metav1.ConditionTrue
+	} else if orcObject.Status.Resource != nil &&
+		(orcObject.Status.Resource.RoleID != "" ||
+			orcObject.Status.Resource.UserID != "" ||
+			orcObject.Status.Resource.GroupID != "" ||
+			orcObject.Status.Resource.ProjectID != "" ||
+			orcObject.Status.Resource.DomainID != "") {
+		availableStatus = metav1.ConditionUnknown
+	}
+
+	// Set common conditions (Available and Progressing)
+	status.SetCommonConditions(orcObject, statusApply, availableStatus, reconcileStatus, now)
+
+	// Patch status
+	ssaFieldOwner := orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionStatus)
+	if err := r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner); err != nil {
+		return progress.WrapError(fmt.Errorf("patching status: %w", err))
+	}
+
+	log.V(logging.Debug).Info("Updated status")
+	return nil
+}
