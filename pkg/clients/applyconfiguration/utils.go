@@ -268,6 +268,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProjectStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimit"):
+		return &apiv1alpha1.RegisteredLimitApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitFilter"):
+		return &apiv1alpha1.RegisteredLimitFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitImport"):
+		return &apiv1alpha1.RegisteredLimitImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitResourceSpec"):
+		return &apiv1alpha1.RegisteredLimitResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitResourceStatus"):
+		return &apiv1alpha1.RegisteredLimitResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitSpec"):
+		return &apiv1alpha1.RegisteredLimitSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegisteredLimitStatus"):
+		return &apiv1alpha1.RegisteredLimitStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Role"):
 		return &apiv1alpha1.RoleApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RoleFilter"):

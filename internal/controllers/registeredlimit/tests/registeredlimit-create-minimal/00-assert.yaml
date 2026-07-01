@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registeredlimit-create-minimal
+status:
+  resource:
+    resourceName: vcpus
+    defaultLimit: 5
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RegisteredLimit
+      name: registeredlimit-create-minimal
+      ref: registeredlimit
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: registeredlimit-create-minimal
+      ref: service
+assertAll:
+    - celExpr: "registeredlimit.status.id != ''"
+    - celExpr: "registeredlimit.status.resource.serviceID == service.status.id"
+    - celExpr: "!has(registeredlimit.status.resource.name)"

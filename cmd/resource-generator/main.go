@@ -180,6 +180,10 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "ApplicationCredential",
 	},
+	{
+		Name:       "RegisteredLimit",
+		IsNotNamed: true,
+	},
 }
 
 // These resources won't be generated

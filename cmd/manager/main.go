@@ -40,6 +40,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/project"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/registeredlimit"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/role"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/router"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/routerinterface"
@@ -138,6 +139,7 @@ func main() {
 		keypair.New(scopeFactory),
 		group.New(scopeFactory),
 		role.New(scopeFactory),
+		registeredlimit.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
