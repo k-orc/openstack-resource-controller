@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Status** | implementable |
+| **Status** | implemented |
 | **Author(s)** | @eshulman |
 | **Created** | 2026-02-03 |
-| **Last Updated** | 2026-02-03 |
+| **Last Updated** | 2026-02-10 |
 | **Tracking Issue** | TBD |
 
 ## Summary
@@ -190,10 +190,11 @@ When a resource with `managementPolicy=managed` is deleted from OpenStack but th
 Currently, `GetOrCreateOSResource` returns a terminal error when fetching a resource by `status.id` results in a 404. To support resource recreation, this logic must be updated to:
 
 1. Check if `managementPolicy == managed` and the resource was not imported (no `importID` or `importFilter`)
-2. If both conditions are met, clear `status.id` and proceed to the creation path instead of returning an error
+2. If both conditions are met, return a typed `ExternallyDeleted` signal via `ReconcileStatus` so the caller can clear `status.id` and trigger recreation on the next reconcile
 3. If the resource was imported or is unmanaged, retain the existing terminal error behavior
+4. If `GetOSResourceByID` returns a nil resource with no error, return an explicit error rather than silently misinterpreting the invalid actuator response as external deletion
 
-This ensures that managed resources created by ORC are automatically recreated, while imported or unmanaged resources correctly fail with a terminal error when deleted externally.
+This ensures that managed resources created by ORC are automatically recreated, while imported or unmanaged resources correctly fail with a terminal error when deleted externally. The typed signal keeps the external-deletion path distinct from invalid actuator responses.
 
 **Behavior when drift detection is disabled** (`resyncPeriod: 0`): Periodic resyncs do not occur, so discovery of external deletion depends on other triggers (spec change, controller restart). When discovered, ORC will still recreate managed resources (not a terminal error). The difference is timing of discovery, not the recreation behavior itself.
 
@@ -227,7 +228,7 @@ Drift detection covers all **mutable fields** that ORC actuators implement updat
 
 **Mitigation**:
 - Disabled by default; when enabled, recommend conservative intervals (e.g., 10 hours)
-- Add random jitter to resync times to avoid thundering herd: since reconciliation already uses "requeue after X duration", jitter simply adds a random offset (e.g., ±10%) to the resync period, spreading resyncs over time rather than having them fire simultaneously
+- Add random jitter to resync times to avoid thundering herd: since reconciliation already uses "requeue after X duration", jitter simply adds a random offset (e.g., [0%, +20%]) to the resync period, spreading resyncs over time rather than having them fire simultaneously
 - Allow operators to disable or lengthen resync for stable resources
 
 ### Controller Resource Consumption
@@ -275,3 +276,38 @@ Implement a watcher that periodically lists all resources from OpenStack and com
 ## Implementation History
 
 - 2026-02-03: Enhancement proposed
+- 2026-02-03: Implemented — all tasks completed
+
+### Implemented Components
+
+The following have been implemented:
+
+**API Changes**
+- Added `spec.resyncPeriod` field (`*metav1.Duration`) to all ORC resource types
+- Added `status.lastSyncTime` field (`*metav1.Time`) to all ORC resource types
+
+**Periodic Resync**
+- `shouldReconcile` updated to check `lastSyncTime` against `resyncPeriod` for time-based resync
+- Jitter ([0%, +20%]) applied to resync scheduling via `resync.CalculateJitteredDuration`
+- `status.lastSyncTime` written on every successful reconciliation cycle
+- Resources in terminal error state are not rescheduled
+
+**External Deletion Handling**
+- `IsImported()` method added to `APIObjectAdapter` interface (all resource adapters)
+- `GetOrCreateOSResource` branches on management policy and import status when 404 is received:
+  - Managed, non-imported resources → typed `ExternallyDeleted` signal via `ReconcileStatus`
+  - Unmanaged or imported resources → terminal error
+  - Nil resource with no error (invalid actuator response) → explicit programming error
+- `status.ClearStatusID` clears `status.id` before recreation (using JSON merge patch with explicit `null`)
+- `reconcileNormal` checks `IsExternallyDeleted()` on the `ReconcileStatus` to trigger recreation
+
+**E2E Tests**
+- `network-resync-period`: verifies `lastSyncTime` is updated after configured period
+- `network-resync-disabled`: verifies `lastSyncTime` is not updated when `resyncPeriod: 0`
+- `network-resync-terminal-error`: verifies terminal errors are not rescheduled
+- `network-resync-jitter`: verifies independent jitter-based scheduling for multiple resources
+- `network-external-deletion`: verifies managed ORC-created network is recreated with new ID after external deletion
+- `network-external-deletion-import`: verifies imported network enters terminal error state after external deletion
+
+**Documentation**
+- `website/docs/user-guide/drift-detection.md`: user-facing documentation covering external deletion behavior, resync configuration, verification steps, and implications for dependent resources

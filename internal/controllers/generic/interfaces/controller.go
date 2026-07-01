@@ -18,6 +18,7 @@ package interfaces
 
 import (
 	"context"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -29,6 +30,14 @@ import (
 type Controller interface {
 	SetupWithManager(context.Context, ctrl.Manager, controller.Options) error
 	GetName() string
+}
+
+// ResyncConfigurable is an optional interface that Controller implementations
+// may satisfy to receive the operator-level default resync period. The manager
+// calls SetDefaultResyncPeriod before SetupWithManager so that the value is
+// available when the controller is built.
+type ResyncConfigurable interface {
+	SetDefaultResyncPeriod(time.Duration)
 }
 
 type ResourceController interface {

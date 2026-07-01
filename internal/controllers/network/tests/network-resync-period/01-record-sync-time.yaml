@@ -1,0 +1,10 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+# Record the current lastSyncTime so that the following assert can detect
+# when the controller performs a second reconciliation (updating lastSyncTime).
+commands:
+  - script: |
+      kubectl get network.openstack.k-orc.cloud network-resync-period \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.lastSyncTime}' \
+        > /tmp/network-resync-period-initial-sync-time

@@ -310,6 +310,14 @@ spec:
                     type: array
                     x-kubernetes-list-type: set
                 type: object
+              resyncPeriod:
+                description: |-
+                  resyncPeriod defines how frequently the controller will re-reconcile
+                  this resource even when no changes have been detected. This overrides
+                  the global default resync period. The value must be a valid Go duration
+                  string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for
+                  this resource.
+                type: string
             required:
             - cloudCredentialsRef
             type: object
@@ -408,6 +416,14 @@ spec:
               id:
                 description: id is the unique identifier of the OpenStack resource.
                 maxLength: 1024
+                type: string
+              lastSyncTime:
+                description: |-
+                  lastSyncTime is the timestamp of the last successful reconciliation
+                  that fetched state from OpenStack. It is updated each time the
+                  controller successfully reads the resource state from the OpenStack
+                  API.
+                format: date-time
                 type: string
               resource:
                 description: resource contains the observed state of the OpenStack

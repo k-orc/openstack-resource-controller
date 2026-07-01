@@ -19,15 +19,17 @@ limitations under the License.
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // EndpointStatusApplyConfiguration represents a declarative configuration of the EndpointStatus type for use
 // with apply.
 type EndpointStatusApplyConfiguration struct {
-	Conditions []v1.ConditionApplyConfiguration          `json:"conditions,omitempty"`
-	ID         *string                                   `json:"id,omitempty"`
-	Resource   *EndpointResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	Conditions   []v1.ConditionApplyConfiguration          `json:"conditions,omitempty"`
+	ID           *string                                   `json:"id,omitempty"`
+	Resource     *EndpointResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	LastSyncTime *metav1.Time                              `json:"lastSyncTime,omitempty"`
 }
 
 // EndpointStatusApplyConfiguration constructs a declarative configuration of the EndpointStatus type for use with
@@ -62,5 +64,13 @@ func (b *EndpointStatusApplyConfiguration) WithID(value string) *EndpointStatusA
 // If called multiple times, the Resource field is set to the value of the last call.
 func (b *EndpointStatusApplyConfiguration) WithResource(value *EndpointResourceStatusApplyConfiguration) *EndpointStatusApplyConfiguration {
 	b.Resource = value
+	return b
+}
+
+// WithLastSyncTime sets the LastSyncTime field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the LastSyncTime field is set to the value of the last call.
+func (b *EndpointStatusApplyConfiguration) WithLastSyncTime(value metav1.Time) *EndpointStatusApplyConfiguration {
+	b.LastSyncTime = &value
 	return b
 }

@@ -19,6 +19,7 @@ package trunk
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -41,15 +42,20 @@ const controllerName = "trunk"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=trunks/status,verbs=get;update;patch
 
 type trunkReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return trunkReconcilerConstructor{scopeFactory: scopeFactory}
+	return &trunkReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (trunkReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *trunkReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.TrunkList, *orcv1alpha1.Port](
@@ -119,7 +125,7 @@ var subportPortDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.T
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -182,6 +188,6 @@ func (c trunkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ct
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, trunkHelperFactory{}, trunkStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, trunkHelperFactory{}, trunkStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

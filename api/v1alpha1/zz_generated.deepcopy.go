@@ -227,6 +227,11 @@ func (in *AddressScopeSpec) DeepCopyInto(out *AddressScopeSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -259,6 +264,10 @@ func (in *AddressScopeStatus) DeepCopyInto(out *AddressScopeStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(AddressScopeResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -638,6 +647,11 @@ func (in *ApplicationCredentialSpec) DeepCopyInto(out *ApplicationCredentialSpec
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -670,6 +684,10 @@ func (in *ApplicationCredentialStatus) DeepCopyInto(out *ApplicationCredentialSt
 		in, out := &in.Resource, &out.Resource
 		*out = new(ApplicationCredentialResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -875,6 +893,11 @@ func (in *DomainSpec) DeepCopyInto(out *DomainSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -907,6 +930,10 @@ func (in *DomainStatus) DeepCopyInto(out *DomainStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(DomainResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -1087,6 +1114,11 @@ func (in *EndpointSpec) DeepCopyInto(out *EndpointSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -1119,6 +1151,10 @@ func (in *EndpointStatus) DeepCopyInto(out *EndpointStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(EndpointResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -1534,6 +1570,11 @@ func (in *FlavorSpec) DeepCopyInto(out *FlavorSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -1566,6 +1607,10 @@ func (in *FlavorStatus) DeepCopyInto(out *FlavorStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(FlavorResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -1798,6 +1843,11 @@ func (in *FloatingIPSpec) DeepCopyInto(out *FloatingIPSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -1830,6 +1880,10 @@ func (in *FloatingIPStatus) DeepCopyInto(out *FloatingIPStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(FloatingIPResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -2015,6 +2069,11 @@ func (in *GroupSpec) DeepCopyInto(out *GroupSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -2047,6 +2106,10 @@ func (in *GroupStatus) DeepCopyInto(out *GroupStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(GroupResourceStatus)
 		**out = **in
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -2542,6 +2605,11 @@ func (in *ImageSpec) DeepCopyInto(out *ImageSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -2574,6 +2642,10 @@ func (in *ImageStatus) DeepCopyInto(out *ImageStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(ImageResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 	in.ImageStatusExtra.DeepCopyInto(&out.ImageStatusExtra)
 }
@@ -2770,6 +2842,11 @@ func (in *KeyPairSpec) DeepCopyInto(out *KeyPairSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -2802,6 +2879,10 @@ func (in *KeyPairStatus) DeepCopyInto(out *KeyPairStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(KeyPairResourceStatus)
 		**out = **in
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -3099,6 +3180,11 @@ func (in *NetworkSpec) DeepCopyInto(out *NetworkSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -3131,6 +3217,10 @@ func (in *NetworkStatus) DeepCopyInto(out *NetworkStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(NetworkResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -3477,6 +3567,11 @@ func (in *PortSpec) DeepCopyInto(out *PortSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -3509,6 +3604,10 @@ func (in *PortStatus) DeepCopyInto(out *PortStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(PortResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -3735,6 +3834,11 @@ func (in *ProjectSpec) DeepCopyInto(out *ProjectSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -3767,6 +3871,10 @@ func (in *ProjectStatus) DeepCopyInto(out *ProjectStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(ProjectResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -3972,6 +4080,11 @@ func (in *RoleSpec) DeepCopyInto(out *RoleSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -4004,6 +4117,10 @@ func (in *RoleStatus) DeepCopyInto(out *RoleStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(RoleResourceStatus)
 		**out = **in
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -4346,6 +4463,11 @@ func (in *RouterSpec) DeepCopyInto(out *RouterSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -4378,6 +4500,10 @@ func (in *RouterStatus) DeepCopyInto(out *RouterStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(RouterResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -4659,6 +4785,11 @@ func (in *SecurityGroupSpec) DeepCopyInto(out *SecurityGroupSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -4691,6 +4822,10 @@ func (in *SecurityGroupStatus) DeepCopyInto(out *SecurityGroupStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(SecurityGroupResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -4974,6 +5109,11 @@ func (in *ServerGroupSpec) DeepCopyInto(out *ServerGroupSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -5006,6 +5146,10 @@ func (in *ServerGroupStatus) DeepCopyInto(out *ServerGroupStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(ServerGroupResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -5342,6 +5486,11 @@ func (in *ServerSpec) DeepCopyInto(out *ServerSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -5374,6 +5523,10 @@ func (in *ServerStatus) DeepCopyInto(out *ServerStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(ServerResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -5599,6 +5752,11 @@ func (in *ServiceSpec) DeepCopyInto(out *ServiceSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -5631,6 +5789,10 @@ func (in *ServiceStatus) DeepCopyInto(out *ServiceStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(ServiceResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -5839,6 +6001,11 @@ func (in *ShareNetworkSpec) DeepCopyInto(out *ShareNetworkSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -5871,6 +6038,10 @@ func (in *ShareNetworkStatus) DeepCopyInto(out *ShareNetworkStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(ShareNetworkResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -6183,6 +6354,11 @@ func (in *SubnetSpec) DeepCopyInto(out *SubnetSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -6215,6 +6391,10 @@ func (in *SubnetStatus) DeepCopyInto(out *SubnetStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(SubnetResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -6447,6 +6627,11 @@ func (in *TrunkSpec) DeepCopyInto(out *TrunkSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -6479,6 +6664,10 @@ func (in *TrunkStatus) DeepCopyInto(out *TrunkStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(TrunkResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -6729,6 +6918,11 @@ func (in *UserSpec) DeepCopyInto(out *UserSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -6761,6 +6955,10 @@ func (in *UserStatus) DeepCopyInto(out *UserStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(UserResourceStatus)
 		**out = **in
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -7050,6 +7248,11 @@ func (in *VolumeSpec) DeepCopyInto(out *VolumeSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -7082,6 +7285,10 @@ func (in *VolumeStatus) DeepCopyInto(out *VolumeStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(VolumeResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 
@@ -7317,6 +7524,11 @@ func (in *VolumeTypeSpec) DeepCopyInto(out *VolumeTypeSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -7349,6 +7561,10 @@ func (in *VolumeTypeStatus) DeepCopyInto(out *VolumeTypeStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(VolumeTypeResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 

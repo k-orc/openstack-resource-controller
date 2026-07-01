@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -40,15 +41,20 @@ import (
 )
 
 type subnetReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return subnetReconcilerConstructor{scopeFactory: scopeFactory}
+	return &subnetReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (subnetReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *subnetReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 const controllerName = "subnet"
@@ -114,7 +120,7 @@ var (
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	controllerName := c.GetName()
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 	k8sClient := mgr.GetClient()
@@ -195,6 +201,6 @@ func (c subnetReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, k8sClient, c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{})
+	r := reconciler.NewController(controllerName, k8sClient, c.scopeFactory, subnetHelperFactory{}, subnetStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }
