@@ -161,6 +161,9 @@ var resources []templateFields = []templateFields{
 		Name: "Service",
 	},
 	{
+		Name: "Share",
+	},
+	{
 		Name: "ShareNetwork",
 	},
 	{

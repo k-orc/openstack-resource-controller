@@ -119,6 +119,11 @@ spec:
       kind: ShareNetwork
       name: sharenetworks.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Share is the Schema for an ORC resource.
+      displayName: Share
+      kind: Share
+      name: shares.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Subnet is the Schema for an ORC resource.
       displayName: Subnet
       kind: Subnet
