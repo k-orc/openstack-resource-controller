@@ -199,7 +199,31 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 		}
 	}
 
-	// Phase 6: Fetch dependencies and create role assignment
+	// Phase 6: Adoption - check for existing resource before creating
+	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
+		// We never create an unmanaged resource
+		// API validation should have ensured that one of the above functions returned
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Not creating unmanaged resource"))
+	}
+
+	resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, orcObject)
+	if canAdopt {
+		var err error
+		osResource, err = atMostOne(resourceIter,
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"found more than one matching OpenStack resource during adoption"))
+		if err != nil {
+			return progress.WrapError(err)
+		}
+		if osResource != nil {
+			log.V(logging.Info).Info("Adopted previously created resource")
+			return reconcileStatus
+		}
+	}
+
+	// Phase 7: Fetch dependencies and create role assignment
+	log.V(logging.Info).Info("Creating resource")
 	osResource, createRS := actuator.CreateResource(ctx, orcObject)
 	if needsReschedule, err := createRS.NeedsReschedule(); needsReschedule {
 		if err == nil {
@@ -307,6 +331,15 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 		return removeFinalizer(reconcileStatus)
 	}
 
+	// Create actuator for OpenStack operations
+	actuator, actuatorRS := r.newActuator(ctx, orcObject)
+	if needsReschedule, err := actuatorRS.NeedsReschedule(); needsReschedule {
+		if err == nil {
+			log.V(logging.Verbose).Info("Waiting on events before deletion")
+		}
+		return actuatorRS.WithReconcileStatus(reconcileStatus)
+	}
+
 	// Fetch the role assignment using Status.Resource components
 	if orcObject.Status.Resource != nil {
 		statusResource := orcObject.Status.Resource
@@ -314,16 +347,8 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 			(statusResource.UserID != "" || statusResource.GroupID != "") &&
 			(statusResource.ProjectID != "" || statusResource.DomainID != "") {
 
-			// Create actuator for deletion
-			actuator, actuatorRS := r.newActuator(ctx, orcObject)
-			if needsReschedule, err := actuatorRS.NeedsReschedule(); needsReschedule {
-				if err == nil {
-					log.V(logging.Verbose).Info("Waiting on events before deletion")
-				}
-				return actuatorRS.WithReconcileStatus(reconcileStatus)
-			}
-
-			osResource, getRS := actuator.GetResourceByComponents(
+			var getRS progress.ReconcileStatus
+			osResource, getRS = actuator.GetResourceByComponents(
 				ctx,
 				statusResource.RoleID,
 				statusResource.UserID,
@@ -338,15 +363,32 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 				}
 				osResource = nil
 			}
+		}
+	}
 
-			if osResource != nil {
-				log.V(logging.Info).Info("Deleting role assignment from OpenStack")
-				deleteRS := actuator.DeleteResource(ctx, orcObject, osResource)
-				if needsReschedule, _ := deleteRS.NeedsReschedule(); needsReschedule {
-					return deleteRS.WithReconcileStatus(reconcileStatus)
-				}
+	// If status was never populated, check for orphaned resources via adoption
+	if osResource == nil && orcObject.Status.Resource == nil {
+		resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, orcObject)
+		if canAdopt {
+			var err error
+			osResource, err = atMostOne(resourceIter,
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+					"found more than one matching OpenStack resource during adoption"))
+			if err != nil {
+				return reconcileStatus.WithError(err)
 			}
 		}
+	}
+
+	if osResource == nil {
+		log.V(logging.Info).Info("Role assignment deletion confirmed")
+		return removeFinalizer(reconcileStatus)
+	}
+
+	log.V(logging.Info).Info("Deleting role assignment from OpenStack")
+	deleteRS := actuator.DeleteResource(ctx, orcObject, osResource)
+	if needsReschedule, _ := deleteRS.NeedsReschedule(); needsReschedule {
+		return deleteRS.WithReconcileStatus(reconcileStatus)
 	}
 
 	log.V(logging.Info).Info("Role assignment deletion confirmed")
