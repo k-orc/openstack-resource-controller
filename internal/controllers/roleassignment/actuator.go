@@ -98,37 +98,37 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 	var roleID, userID, groupID, projectID, domainID string
 
 	// Role dependency (required)
-	role, _ := dependency.FetchDependency(
+	role, rs := dependency.FetchDependency(
 		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.RoleRef, "Role",
 		func(dep *orcv1alpha1.Role) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
-	if role == nil {
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 		return nil, false // Not ready
 	}
 	roleID = ptr.Deref(role.Status.ID, "")
 
 	// Actor dependency (user XOR group)
 	if resourceSpec.UserRef != nil {
-		user, _ := dependency.FetchDependency(
+		user, rs := dependency.FetchDependency(
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.UserRef, "User",
 			func(dep *orcv1alpha1.User) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
 		)
-		if user == nil {
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 			return nil, false // Not ready
 		}
 		userID = ptr.Deref(user.Status.ID, "")
 	} else {
-		group, _ := dependency.FetchDependency(
+		group, rs := dependency.FetchDependency(
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.GroupRef, "Group",
 			func(dep *orcv1alpha1.Group) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
 		)
-		if group == nil {
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 			return nil, false // Not ready
 		}
 		groupID = ptr.Deref(group.Status.ID, "")
@@ -136,24 +136,24 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 
 	// Scope dependency (project XOR domain)
 	if resourceSpec.ProjectRef != nil {
-		project, _ := dependency.FetchDependency(
+		project, rs := dependency.FetchDependency(
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
 			func(dep *orcv1alpha1.Project) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
 		)
-		if project == nil {
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 			return nil, false // Not ready
 		}
 		projectID = ptr.Deref(project.Status.ID, "")
 	} else {
-		domain, _ := dependency.FetchDependency(
+		domain, rs := dependency.FetchDependency(
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
 			func(dep *orcv1alpha1.Domain) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
 		)
-		if domain == nil {
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 			return nil, false // Not ready
 		}
 		domainID = ptr.Deref(domain.Status.ID, "")

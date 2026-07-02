@@ -292,6 +292,70 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 			checks:    checks(noError, findsN(0)),
 		},
 		{
+			name: "role dependency not found, returns false",
+			orcObject: &orcv1alpha1.RoleAssignment{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-ra", Namespace: testNamespace},
+				Spec: orcv1alpha1.RoleAssignmentSpec{
+					Resource: &orcv1alpha1.RoleAssignmentResourceSpec{
+						RoleRef:    "missing-role",
+						UserRef:    ptr.To[orcv1alpha1.KubernetesNameRef]("test-user"),
+						ProjectRef: ptr.To[orcv1alpha1.KubernetesNameRef]("test-project"),
+					},
+				},
+			},
+			k8sObjects: []client.Object{
+				// role is missing
+				availableUser("test-user", "user-id-1"),
+				availableProject("test-project", "project-id-1"),
+			},
+			// OS client has a match — must NOT be queried
+			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{userProjectAssignment}},
+			wantAdopt: false,
+		},
+		{
+			name: "user dependency not ready, returns false",
+			orcObject: &orcv1alpha1.RoleAssignment{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-ra", Namespace: testNamespace},
+				Spec: orcv1alpha1.RoleAssignmentSpec{
+					Resource: &orcv1alpha1.RoleAssignmentResourceSpec{
+						RoleRef:    "test-role",
+						UserRef:    ptr.To[orcv1alpha1.KubernetesNameRef]("test-user"),
+						ProjectRef: ptr.To[orcv1alpha1.KubernetesNameRef]("test-project"),
+					},
+				},
+			},
+			k8sObjects: []client.Object{
+				availableRole("test-role", "role-id-1"),
+				// user exists but is not available (no Available condition, no Status.ID)
+				&orcv1alpha1.User{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-user", Namespace: testNamespace},
+				},
+				availableProject("test-project", "project-id-1"),
+			},
+			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{userProjectAssignment}},
+			wantAdopt: false,
+		},
+		{
+			name: "project dependency not found, returns false",
+			orcObject: &orcv1alpha1.RoleAssignment{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-ra", Namespace: testNamespace},
+				Spec: orcv1alpha1.RoleAssignmentSpec{
+					Resource: &orcv1alpha1.RoleAssignmentResourceSpec{
+						RoleRef:    "test-role",
+						GroupRef:   ptr.To[orcv1alpha1.KubernetesNameRef]("test-group"),
+						ProjectRef: ptr.To[orcv1alpha1.KubernetesNameRef]("missing-project"),
+					},
+				},
+			},
+			k8sObjects: []client.Object{
+				availableRole("test-role", "role-id-2"),
+				availableGroup("test-group", "group-id-2"),
+				// project is missing
+			},
+			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{groupDomainAssignment}},
+			wantAdopt: false,
+		},
+		{
 			name: "OS client returns error",
 			orcObject: &orcv1alpha1.RoleAssignment{
 				ObjectMeta: metav1.ObjectMeta{Name: "test-ra", Namespace: testNamespace},
