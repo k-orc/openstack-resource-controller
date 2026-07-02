@@ -39,7 +39,14 @@ var (
 	errTest           = errors.New("test error")
 )
 
-const testNamespace = "test-ns"
+const (
+	testNamespace   = "test-ns"
+	testRoleName    = "test-role"
+	testUserName    = "test-user"
+	testGroupName   = "test-group"
+	testProjectName = "test-project"
+	testDomainName  = "test-domain"
+)
 
 // mockRoleAssignmentClient is a simple mock that returns pre-configured assignments.
 type mockRoleAssignmentClient struct {
@@ -129,10 +136,10 @@ func newFakeK8sClient(objects ...client.Object) client.Client {
 }
 
 // availableRole returns a Role object that is available with the given status ID.
-func availableRole(name, statusID string) *orcv1alpha1.Role {
+func availableRole(statusID string) *orcv1alpha1.Role {
 	return &orcv1alpha1.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
+			Name:      testRoleName,
 			Namespace: testNamespace,
 		},
 		Status: orcv1alpha1.RoleStatus{
@@ -143,10 +150,10 @@ func availableRole(name, statusID string) *orcv1alpha1.Role {
 }
 
 // availableUser returns a User object that is available with the given status ID.
-func availableUser(name, statusID string) *orcv1alpha1.User {
+func availableUser(statusID string) *orcv1alpha1.User {
 	return &orcv1alpha1.User{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
+			Name:      testUserName,
 			Namespace: testNamespace,
 		},
 		Status: orcv1alpha1.UserStatus{
@@ -157,10 +164,10 @@ func availableUser(name, statusID string) *orcv1alpha1.User {
 }
 
 // availableGroup returns a Group object that is available with the given status ID.
-func availableGroup(name, statusID string) *orcv1alpha1.Group {
+func availableGroup(statusID string) *orcv1alpha1.Group {
 	return &orcv1alpha1.Group{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
+			Name:      testGroupName,
 			Namespace: testNamespace,
 		},
 		Status: orcv1alpha1.GroupStatus{
@@ -171,10 +178,10 @@ func availableGroup(name, statusID string) *orcv1alpha1.Group {
 }
 
 // availableProject returns a Project object that is available with the given status ID.
-func availableProject(name, statusID string) *orcv1alpha1.Project {
+func availableProject(statusID string) *orcv1alpha1.Project {
 	return &orcv1alpha1.Project{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
+			Name:      testProjectName,
 			Namespace: testNamespace,
 		},
 		Status: orcv1alpha1.ProjectStatus{
@@ -185,10 +192,10 @@ func availableProject(name, statusID string) *orcv1alpha1.Project {
 }
 
 // availableDomain returns a Domain object that is available with the given status ID.
-func availableDomain(name, statusID string) *orcv1alpha1.Domain {
+func availableDomain(statusID string) *orcv1alpha1.Domain {
 	return &orcv1alpha1.Domain{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
+			Name:      testDomainName,
 			Namespace: testNamespace,
 		},
 		Status: orcv1alpha1.DomainStatus{
@@ -241,9 +248,9 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				},
 			},
 			k8sObjects: []client.Object{
-				availableRole("test-role", "role-id-1"),
-				availableUser("test-user", "user-id-1"),
-				availableProject("test-project", "project-id-1"),
+				availableRole("role-id-1"),
+				availableUser("user-id-1"),
+				availableProject("project-id-1"),
 			},
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{userProjectAssignment}},
 			wantAdopt: true,
@@ -262,9 +269,9 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				},
 			},
 			k8sObjects: []client.Object{
-				availableRole("test-role", "role-id-2"),
-				availableGroup("test-group", "group-id-2"),
-				availableDomain("test-domain", "domain-id-2"),
+				availableRole("role-id-2"),
+				availableGroup("group-id-2"),
+				availableDomain("domain-id-2"),
 			},
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{groupDomainAssignment}},
 			wantAdopt: true,
@@ -283,9 +290,9 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				},
 			},
 			k8sObjects: []client.Object{
-				availableRole("test-role", "role-id-1"),
-				availableUser("test-user", "user-id-1"),
-				availableProject("test-project", "project-id-1"),
+				availableRole("role-id-1"),
+				availableUser("user-id-2"),
+				availableProject("project-id-2"),
 			},
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{}},
 			wantAdopt: true,
@@ -305,8 +312,8 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 			},
 			k8sObjects: []client.Object{
 				// role is missing
-				availableUser("test-user", "user-id-1"),
-				availableProject("test-project", "project-id-1"),
+				availableUser("user-id-1"),
+				availableProject("project-id-1"),
 			},
 			// OS client has a match — must NOT be queried
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{userProjectAssignment}},
@@ -325,12 +332,12 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				},
 			},
 			k8sObjects: []client.Object{
-				availableRole("test-role", "role-id-1"),
+				availableRole("role-id-1"),
 				// user exists but is not available (no Available condition, no Status.ID)
 				&orcv1alpha1.User{
 					ObjectMeta: metav1.ObjectMeta{Name: "test-user", Namespace: testNamespace},
 				},
-				availableProject("test-project", "project-id-1"),
+				availableProject("project-id-1"),
 			},
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{userProjectAssignment}},
 			wantAdopt: false,
@@ -348,8 +355,8 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				},
 			},
 			k8sObjects: []client.Object{
-				availableRole("test-role", "role-id-2"),
-				availableGroup("test-group", "group-id-2"),
+				availableRole("role-id-2"),
+				availableGroup("group-id-2"),
 				// project is missing
 			},
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{groupDomainAssignment}},
@@ -368,9 +375,9 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				},
 			},
 			k8sObjects: []client.Object{
-				availableRole("test-role", "role-id-1"),
-				availableUser("test-user", "user-id-1"),
-				availableProject("test-project", "project-id-1"),
+				availableRole("role-id-1"),
+				availableUser("user-id-1"),
+				availableProject("project-id-1"),
 			},
 			osClient:  osclients.NewRoleAssignmentErrorClient(errTest),
 			wantAdopt: true,
