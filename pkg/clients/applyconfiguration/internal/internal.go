@@ -2130,6 +2130,120 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignment
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentFilter
+  map:
+    fields:
+    - name: domainRef
+      type:
+        scalar: string
+    - name: groupRef
+      type:
+        scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+    - name: roleRef
+      type:
+        scalar: string
+    - name: userRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentFilter
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceSpec
+  map:
+    fields:
+    - name: domainRef
+      type:
+        scalar: string
+    - name: groupRef
+      type:
+        scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+    - name: roleRef
+      type:
+        scalar: string
+    - name: userRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceStatus
+  map:
+    fields:
+    - name: domainID
+      type:
+        scalar: string
+    - name: groupID
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: roleID
+      type:
+        scalar: string
+    - name: userID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleFilter
   map:
     fields:

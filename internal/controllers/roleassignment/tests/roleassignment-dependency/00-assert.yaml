@@ -1,0 +1,13 @@
+---
+# Verify RoleAssignment is Progressing (waiting for dependencies)
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-dependency
+status:
+  conditions:
+  - type: Available
+    status: "False"
+  - type: Progressing
+    status: "True"
+    reason: Progressing

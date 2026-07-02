@@ -1,0 +1,6 @@
+---
+# Try to delete a dependency (should be blocked by finalizer)
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl delete project roleassignment-dep-project --namespace $NAMESPACE --wait=false

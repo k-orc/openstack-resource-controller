@@ -59,6 +59,7 @@ type Scope interface {
 	NewKeyPairClient() (osclients.KeyPairClient, error)
 	NewNetworkClient() (osclients.NetworkClient, error)
 	NewRoleClient() (osclients.RoleClient, error)
+	NewRoleAssignmentClient() (osclients.RoleAssignmentClient, error)
 	NewServiceClient() (osclients.ServiceClient, error)
 	NewShareNetworkClient() (osclients.ShareNetworkClient, error)
 	NewUserClient() (osclients.UserClient, error)

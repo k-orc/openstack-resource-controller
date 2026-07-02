@@ -1,0 +1,39 @@
+---
+# Verify the imported role assignment matches the created one
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RoleAssignment
+      name: roleassignment-import-dep
+      ref: importedRA
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RoleAssignment
+      name: roleassignment-import-dep-external
+      ref: externalRA
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Role
+      name: roleassignment-import-dep-role
+      ref: role
+assertAll:
+    # Import should have same component IDs as external
+    - celExpr: "importedRA.status.resource.roleID == externalRA.status.resource.roleID"
+    - celExpr: "importedRA.status.resource.userID == externalRA.status.resource.userID"
+    - celExpr: "importedRA.status.resource.projectID == externalRA.status.resource.projectID"
+    # The roleID should match the unmanaged Role's imported status.id
+    - celExpr: "importedRA.status.resource.roleID == role.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-import-dep
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success

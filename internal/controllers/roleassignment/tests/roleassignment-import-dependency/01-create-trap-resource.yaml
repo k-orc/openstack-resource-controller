@@ -1,0 +1,28 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-import-dep-trap-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-import-dep-trap-role
+---
+# This role assignment uses a different role but the same user and project.
+# It should not be picked by the import filter.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-import-dep-trap
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: roleassignment-import-dep-trap-role
+    userRef: roleassignment-import-dep-user
+    projectRef: roleassignment-import-dep-project

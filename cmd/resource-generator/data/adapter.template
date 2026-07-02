@@ -55,7 +55,11 @@ func (f adapterT) GetManagedOptions() *orcv1alpha1.ManagedOptions {
 }
 
 func (f adapterT) GetStatusID() *string {
+{{- if .NoResourceID }}
+	return nil
+{{- else }}
 	return f.Status.ID
+{{- end }}
 }
 
 func (f adapterT) GetResourceSpec() *resourceSpecT {
@@ -63,10 +67,14 @@ func (f adapterT) GetResourceSpec() *resourceSpecT {
 }
 
 func (f adapterT) GetImportID() *string {
+{{- if .NoResourceID }}
+	return nil
+{{- else }}
 	if f.Spec.Import == nil {
 		return nil
 	}
 	return f.Spec.Import.ID
+{{- end }}
 }
 
 func (f adapterT) GetImportFilter() *filterT {

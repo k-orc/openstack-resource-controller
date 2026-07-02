@@ -1,0 +1,76 @@
+---
+# Verify dependencies are Available
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-dep-role
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: User
+metadata:
+  name: roleassignment-dep-user
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: roleassignment-dep-project
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+# Verify RoleAssignment is now Available
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-dependency
+status:
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+# Verify deletion guard finalizers are set on dependencies
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Role
+      name: roleassignment-dep-role
+      ref: role
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: User
+      name: roleassignment-dep-user
+      ref: user
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: roleassignment-dep-project
+      ref: project
+assertAll:
+    # Check that deletion guard finalizers are present
+    - celExpr: "role.metadata.finalizers.exists(f, f.startsWith('openstack.k-orc.cloud/roleassignment'))"
+    - celExpr: "user.metadata.finalizers.exists(f, f.startsWith('openstack.k-orc.cloud/roleassignment'))"
+    - celExpr: "project.metadata.finalizers.exists(f, f.startsWith('openstack.k-orc.cloud/roleassignment'))"

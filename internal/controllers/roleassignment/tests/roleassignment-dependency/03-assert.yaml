@@ -1,0 +1,10 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+# Verify RoleAssignment is deleted
+- script: "! kubectl get roleassignment roleassignment-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
+# Verify Project can now be deleted (finalizer removed)
+- script: "! kubectl get project roleassignment-dep-project --namespace $NAMESPACE"
+  skipLogOutput: true

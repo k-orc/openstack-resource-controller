@@ -41,6 +41,7 @@ type OpenstackV1alpha1Interface interface {
 	PortsGetter
 	ProjectsGetter
 	RolesGetter
+	RoleAssignmentsGetter
 	RoutersGetter
 	RouterInterfacesGetter
 	SecurityGroupsGetter
@@ -110,6 +111,10 @@ func (c *OpenstackV1alpha1Client) Projects(namespace string) ProjectInterface {
 
 func (c *OpenstackV1alpha1Client) Roles(namespace string) RoleInterface {
 	return newRoles(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) RoleAssignments(namespace string) RoleAssignmentInterface {
+	return newRoleAssignments(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Routers(namespace string) RouterInterface {

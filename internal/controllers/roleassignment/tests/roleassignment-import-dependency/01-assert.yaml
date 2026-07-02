@@ -1,0 +1,30 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-import-dep-trap
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-import-dep
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Role/roleassignment-import-dep-role to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Role/roleassignment-import-dep-role to be ready
+      status: "True"
+      reason: Progressing

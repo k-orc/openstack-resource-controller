@@ -1,0 +1,29 @@
+---
+# Create the managed Role that satisfies the unmanaged Role's import filter.
+# The unmanaged Role imports by filter name: roleassignment-import-dep-ext-role
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Role
+metadata:
+  name: roleassignment-import-dep-ext-role
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: roleassignment-import-dep-ext-role
+---
+# Create the role assignment matching the import filter
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-import-dep-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: roleassignment-import-dep-ext-role
+    userRef: roleassignment-import-dep-user
+    projectRef: roleassignment-import-dep-project
