@@ -39,6 +39,32 @@ type roleassignmentActuator struct {
 	k8sClient client.Client
 }
 
+// buildListOpts constructs a ListAssignmentsOpts from component IDs.
+// Only non-empty fields are set, so this works for both exact queries
+// (all fields populated) and partial filter queries.
+func buildListOpts(roleID, userID, groupID, projectID, domainID string) roles.ListAssignmentsOpts {
+	// Note: Don't set Effective parameter - it can cause issues with group assignments
+	listOpts := roles.ListAssignmentsOpts{}
+
+	if roleID != "" {
+		listOpts.RoleID = roleID
+	}
+	if userID != "" {
+		listOpts.UserID = userID
+	}
+	if groupID != "" {
+		listOpts.GroupID = groupID
+	}
+	if projectID != "" {
+		listOpts.ScopeProjectID = projectID
+	}
+	if domainID != "" {
+		listOpts.ScopeDomainID = domainID
+	}
+
+	return listOpts
+}
+
 // GetResourceByComponents queries for the role assignment by its tuple (role, actor, scope).
 // OpenStack doesn't assign IDs to role assignments - they're identified by this tuple.
 // Exactly one of userID/groupID must be set, and exactly one of projectID/domainID must be set.
@@ -50,25 +76,7 @@ func (actuator roleassignmentActuator) GetResourceByComponents(
 	projectID string,
 	domainID string,
 ) (*osResourceT, progress.ReconcileStatus) {
-	// Build query options from components
-	listOpts := roles.ListAssignmentsOpts{
-		RoleID: roleID,
-		// Note: Don't set Effective parameter - it can cause issues with group assignments
-	}
-
-	// Set actor (user OR group, never both)
-	if userID != "" {
-		listOpts.UserID = userID
-	} else if groupID != "" {
-		listOpts.GroupID = groupID
-	}
-
-	// Set scope (project OR domain, never both)
-	if projectID != "" {
-		listOpts.ScopeProjectID = projectID
-	} else if domainID != "" {
-		listOpts.ScopeDomainID = domainID
-	}
+	listOpts := buildListOpts(roleID, userID, groupID, projectID, domainID)
 
 	// Query with exact filters - should return exactly one result
 	osResource, err := atMostOne(actuator.osClient.ListRoleAssignments(ctx, listOpts),
@@ -151,27 +159,7 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 		domainID = ptr.Deref(domain.Status.ID, "")
 	}
 
-	// Build query - only set fields that have values
-	listOpts := roles.ListAssignmentsOpts{
-		RoleID: roleID,
-		// Note: Don't set Effective parameter - it can cause issues with group assignments
-	}
-
-	// Set actor (user OR group, never both)
-	if userID != "" {
-		listOpts.UserID = userID
-	} else if groupID != "" {
-		listOpts.GroupID = groupID
-	}
-
-	// Set scope (project OR domain, never both)
-	if projectID != "" {
-		listOpts.ScopeProjectID = projectID
-	} else if domainID != "" {
-		listOpts.ScopeDomainID = domainID
-	}
-
-	return actuator.osClient.ListRoleAssignments(ctx, listOpts), true
+	return actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID)), true
 }
 
 func (actuator roleassignmentActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
@@ -239,28 +227,7 @@ func (actuator roleassignmentActuator) ListOSResourcesForImport(ctx context.Cont
 		return nil, reconcileStatus
 	}
 
-	// Build query - only set fields that have values (filter fields are optional)
-	listOpts := roles.ListAssignmentsOpts{
-		// Note: Don't set Effective parameter - it can cause issues with group assignments
-	}
-
-	if roleID != "" {
-		listOpts.RoleID = roleID
-	}
-	if userID != "" {
-		listOpts.UserID = userID
-	}
-	if groupID != "" {
-		listOpts.GroupID = groupID
-	}
-	if projectID != "" {
-		listOpts.ScopeProjectID = projectID
-	}
-	if domainID != "" {
-		listOpts.ScopeDomainID = domainID
-	}
-
-	return actuator.osClient.ListRoleAssignments(ctx, listOpts), nil
+	return actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID)), nil
 }
 
 func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -355,37 +322,19 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 	}
 
 	// Verify the assignment was created by listing with exact filters
-	listOpts := roles.ListAssignmentsOpts{
-		RoleID: roleID,
-		// Note: Don't set Effective parameter - it can cause issues with group assignments
-	}
-
-	// Set actor (user OR group, never both)
-	if userID != "" {
-		listOpts.UserID = userID
-	} else if groupID != "" {
-		listOpts.GroupID = groupID
-	}
-
-	// Set scope (project OR domain, never both)
-	if projectID != "" {
-		listOpts.ScopeProjectID = projectID
-	} else if domainID != "" {
-		listOpts.ScopeDomainID = domainID
-	}
-
-	// Get the first matching assignment to return
-	for assignment, err := range actuator.osClient.ListRoleAssignments(ctx, listOpts) {
-		if err != nil {
-			return nil, progress.WrapError(err)
-		}
-		return assignment, nil
-	}
-
-	// This shouldn't happen - we just assigned it
-	return nil, progress.WrapError(
+	osResource, verifyErr := atMostOne(actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID)),
 		orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError,
-			"role assignment succeeded but could not be found in OpenStack"))
+			"found more than one matching role assignment after creation"))
+	if verifyErr != nil {
+		return nil, progress.WrapError(verifyErr)
+	}
+	if osResource == nil {
+		// This shouldn't happen - we just assigned it
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError,
+				"role assignment succeeded but could not be found in OpenStack"))
+	}
+	return osResource, nil
 }
 
 func (actuator roleassignmentActuator) DeleteResource(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
