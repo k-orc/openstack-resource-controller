@@ -51,7 +51,7 @@ func NewController[
 	objectApplyPT interfaces.ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
-		interfaces.ORCStatusApplyConfig[statusApplyPT]
+		interfaces.ORCStatusApplyConfigWithID[statusApplyPT]
 	}, statusApplyT any,
 	osResourceT any,
 ](
@@ -80,7 +80,7 @@ type Controller[
 	objectApplyPT interfaces.ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
-		interfaces.ORCStatusApplyConfig[statusApplyPT]
+		interfaces.ORCStatusApplyConfigWithID[statusApplyPT]
 	},
 	statusApplyT any,
 	osResourceT any,

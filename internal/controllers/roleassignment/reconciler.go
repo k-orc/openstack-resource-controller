@@ -26,7 +26,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -36,11 +35,9 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/util/applyconfigs"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
 	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
-	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 const (
@@ -54,7 +51,13 @@ const (
 type roleassignmentReconciler struct {
 	client       client.Client
 	scopeFactory scope.Factory
+
+	statusWriter roleassignmentStatusWriter
 }
+
+func (r *roleassignmentReconciler) GetName() string                { return controllerName }
+func (r *roleassignmentReconciler) GetK8sClient() client.Client    { return r.client }
+func (r *roleassignmentReconciler) GetScopeFactory() scope.Factory { return r.scopeFactory }
 
 // Reconcile is the main entry point for reconciliation.
 // It fetches the RoleAssignment object and routes to either reconcileNormal or reconcileDelete.
@@ -118,7 +121,7 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 	// Ensure we always update status at the end
 	defer func() {
 		reconcileStatus = reconcileStatus.WithReconcileStatus(
-			r.updateStatus(ctx, orcObject, osResource, reconcileStatus))
+			status.UpdateStatus(ctx, r, r.statusWriter, orcObject, osResource, reconcileStatus))
 	}()
 
 	// Phase 3: Add finalizer if not present
@@ -256,7 +259,7 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 	defer func() {
 		if !deleted {
 			reconcileStatus = reconcileStatus.WithReconcileStatus(
-				r.updateStatus(ctx, orcObject, osResource, reconcileStatus))
+				status.UpdateStatus(ctx, r, r.statusWriter, orcObject, osResource, reconcileStatus))
 		}
 	}()
 
@@ -373,71 +376,4 @@ func (r *roleassignmentReconciler) newActuator(ctx context.Context, orcObject or
 		osClient:  osClient,
 		k8sClient: r.client,
 	}, nil
-}
-
-// updateStatus writes the observed state back to the Kubernetes object.
-// This sets Status.Resource fields and conditions (Available, Progressing).
-// Note: Status.ID is intentionally left nil for role assignments.
-func (r *roleassignmentReconciler) updateStatus(
-	ctx context.Context,
-	orcObject orcObjectPT,
-	osResource *osResourceT,
-	reconcileStatus progress.ReconcileStatus,
-) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	now := metav1.NewTime(time.Now())
-
-	// Create apply configuration for status
-	statusApply := orcapplyconfigv1alpha1.RoleAssignmentStatus()
-	applyConfig := orcapplyconfigv1alpha1.RoleAssignment(orcObject.Name, orcObject.Namespace).
-		WithUID(orcObject.GetUID()).
-		WithStatus(statusApply)
-
-	// Write resource status fields from osResource
-	if osResource != nil {
-		resourceStatus := orcapplyconfigv1alpha1.RoleAssignmentResourceStatus()
-
-		if osResource.Role.ID != "" {
-			resourceStatus.WithRoleID(osResource.Role.ID)
-		}
-		if osResource.User.ID != "" {
-			resourceStatus.WithUserID(osResource.User.ID)
-		}
-		if osResource.Group.ID != "" {
-			resourceStatus.WithGroupID(osResource.Group.ID)
-		}
-		if osResource.Scope.Project.ID != "" {
-			resourceStatus.WithProjectID(osResource.Scope.Project.ID)
-		}
-		if osResource.Scope.Domain.ID != "" {
-			resourceStatus.WithDomainID(osResource.Scope.Domain.ID)
-		}
-
-		statusApply.WithResource(resourceStatus)
-	}
-
-	// Determine Available status
-	availableStatus := metav1.ConditionFalse
-	if osResource != nil {
-		availableStatus = metav1.ConditionTrue
-	} else if orcObject.Status.Resource != nil &&
-		(orcObject.Status.Resource.RoleID != "" ||
-			orcObject.Status.Resource.UserID != "" ||
-			orcObject.Status.Resource.GroupID != "" ||
-			orcObject.Status.Resource.ProjectID != "" ||
-			orcObject.Status.Resource.DomainID != "") {
-		availableStatus = metav1.ConditionUnknown
-	}
-
-	// Set common conditions (Available and Progressing)
-	status.SetCommonConditions(orcObject, statusApply, availableStatus, reconcileStatus, now)
-
-	// Patch status
-	ssaFieldOwner := orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionStatus)
-	if err := r.client.Status().Patch(ctx, orcObject, applyconfigs.Patch(types.ApplyPatchType, applyConfig), client.ForceOwnership, ssaFieldOwner); err != nil {
-		return progress.WrapError(fmt.Errorf("patching status: %w", err))
-	}
-
-	log.V(logging.Debug).Info("Updated status")
-	return nil
 }

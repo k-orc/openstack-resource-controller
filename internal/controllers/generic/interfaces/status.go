@@ -35,9 +35,17 @@ type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[status
 }
 
 // ORCStatusApplyConfig is an interface implemented by the status of any apply
-// configuration for an ORC API object. It has Conditions and an ID field.
+// configuration for an ORC API object.
 type ORCStatusApplyConfig[statusApplyPT any] interface {
 	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
+}
+
+// ORCStatusApplyConfigWithID extends ORCStatusApplyConfig with an ID field.
+// This is required by resources that have an OpenStack-assigned ID stored in
+// status.id. Resources without an ID (e.g. relationship resources like
+// RoleAssignment) use only ORCStatusApplyConfig.
+type ORCStatusApplyConfigWithID[statusApplyPT any] interface {
+	ORCStatusApplyConfig[statusApplyPT]
 	WithID(id string) statusApplyPT
 }
 

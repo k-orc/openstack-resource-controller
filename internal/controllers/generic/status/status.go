@@ -41,7 +41,7 @@ func SetStatusID[
 	objectApplyPT interfaces.ORCApplyConfig[objectApplyPT, statusApplyPT],
 	statusApplyPT interface {
 		*statusApplyT
-		interfaces.ORCStatusApplyConfig[statusApplyPT]
+		interfaces.ORCStatusApplyConfigWithID[statusApplyPT]
 	},
 	statusApplyT any,
 	osResourcePT any,

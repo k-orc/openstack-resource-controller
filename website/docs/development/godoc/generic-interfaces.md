@@ -15,6 +15,7 @@ import "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/g
 - [type DeleteResourceActuator](<#DeleteResourceActuator>)
 - [type ORCApplyConfig](<#ORCApplyConfig>)
 - [type ORCStatusApplyConfig](<#ORCStatusApplyConfig>)
+- [type ORCStatusApplyConfigWithID](<#ORCStatusApplyConfigWithID>)
 - [type ReconcileResourceActuator](<#ReconcileResourceActuator>)
 - [type ResourceController](<#ResourceController>)
 - [type ResourceHelperFactory](<#ResourceHelperFactory>)
@@ -203,14 +204,25 @@ type ORCApplyConfig[objectApplyPT any, statusApplyPT ORCStatusApplyConfig[status
 ```
 
 <a name="ORCStatusApplyConfig"></a>
-## type [ORCStatusApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L39-L42>)
+## type [ORCStatusApplyConfig](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L39-L41>)
 
-ORCStatusApplyConfig is an interface implemented by the status of any apply configuration for an ORC API object. It has Conditions and an ID field.
+ORCStatusApplyConfig is an interface implemented by the status of any apply configuration for an ORC API object.
 
 ```go
 type ORCStatusApplyConfig[statusApplyPT any] interface {
     WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
+}
+```
+
+<a name="ORCStatusApplyConfigWithID"></a>
+## type [ORCStatusApplyConfigWithID](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L47-L50>)
+
+ORCStatusApplyConfigWithID extends ORCStatusApplyConfig with an ID field. This is required by resources that have an OpenStack\-assigned ID stored in status.id. Resources without an ID \(e.g. relationship resources like RoleAssignment\) use only ORCStatusApplyConfig.
+
+```go
+type ORCStatusApplyConfigWithID[statusApplyPT any] interface {
     WithID(id string) statusApplyPT
+    // contains filtered or unexported methods
 }
 ```
 
@@ -313,7 +325,7 @@ type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, 
 ```
 
 <a name="ResourceStatusWriter"></a>
-## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L45-L58>)
+## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L53-L66>)
 
 ResourceStatusWriter defines methods for writing an ORC object status
 
