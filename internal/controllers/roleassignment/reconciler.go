@@ -125,7 +125,6 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 	}()
 
 	// Phase 3: Add finalizer if not present
-	finalizer := orcstrings.GetFinalizerName(controllerName)
 	if !controllerutil.ContainsFinalizer(orcObject, finalizer) {
 		patch := finalizers.SetFinalizerPatch(orcObject, finalizer)
 		if err := r.client.Patch(ctx, orcObject, patch, client.ForceOwnership, orcstrings.GetSSAFieldOwnerWithTxn(controllerName, orcstrings.SSATransactionFinalizer)); err != nil {
@@ -286,8 +285,6 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 				status.UpdateStatus(ctx, r, r.statusWriter, orcObject, osResource, reconcileStatus))
 		}
 	}()
-
-	finalizer := orcstrings.GetFinalizerName(controllerName)
 
 	// Check if our finalizer is present
 	var foundFinalizer bool
