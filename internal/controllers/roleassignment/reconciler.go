@@ -157,12 +157,7 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 				statusResource.ProjectID,
 				statusResource.DomainID,
 			)
-			if needsReschedule, err := getRS.NeedsReschedule(); needsReschedule {
-				if orcerrors.IsNotFound(err) {
-					// Resource we previously created has been deleted unexpectedly
-					return progress.WrapError(
-						orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "role assignment has been deleted from OpenStack"))
-				}
+			if needsReschedule, _ := getRS.NeedsReschedule(); needsReschedule {
 				return getRS.WithReconcileStatus(reconcileStatus)
 			}
 
@@ -170,6 +165,13 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 				log.V(logging.Verbose).Info("Got existing role assignment")
 				return reconcileStatus
 			}
+
+			// Status was fully populated but the resource no longer
+			// exists in OpenStack. GetResourceByComponents uses a
+			// LIST query which returns (nil, nil) for empty results
+			// rather than a 404 error, so we detect deletion here.
+			return progress.WrapError(
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "role assignment has been deleted from OpenStack"))
 		}
 	}
 
