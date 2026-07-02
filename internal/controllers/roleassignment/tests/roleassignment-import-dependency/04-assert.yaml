@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get roleassignment roleassignment-import-dep --namespace $NAMESPACE"
+  skipLogOutput: true

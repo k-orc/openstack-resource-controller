@@ -1,0 +1,15 @@
+---
+# Create the role assignment matching the import filter
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RoleAssignment
+metadata:
+  name: roleassignment-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    roleRef: roleassignment-import-role
+    userRef: roleassignment-import-user
+    projectRef: roleassignment-import-project

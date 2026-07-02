@@ -19,6 +19,7 @@ package roleassignment
 import (
 	"context"
 	"fmt"
+	"iter"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -40,6 +41,11 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/finalizers"
 	orcstrings "github.com/k-orc/openstack-resource-controller/v2/internal/util/strings"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
+)
+
+const (
+	// The time to wait before reconciling again when we are waiting for some change in OpenStack
+	externalUpdatePollingPeriod = 15 * time.Second
 )
 
 // roleassignmentReconciler reconciles RoleAssignment objects.
@@ -165,7 +171,32 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 		}
 	}
 
-	// Phase 5: Fetch dependencies and create role assignment
+	// Phase 5: Import by filter
+	if importSpec := orcObject.Spec.Import; importSpec != nil {
+		if filter := importSpec.Filter; filter != nil {
+			resourceIter, importRS := actuator.ListOSResourcesForImport(ctx, orcObject, *filter)
+			if needsReschedule, _ := importRS.NeedsReschedule(); needsReschedule {
+				return importRS.WithReconcileStatus(reconcileStatus)
+			}
+
+			var err error
+			osResource, err = atMostOne(resourceIter,
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+					"found more than one matching OpenStack resource during import"))
+			if err != nil {
+				return progress.WrapError(err)
+			}
+
+			if osResource == nil {
+				return progress.WaitingOnOpenStack(progress.WaitingOnCreation, externalUpdatePollingPeriod)
+			}
+
+			log.V(logging.Info).Info("Imported role assignment")
+			return reconcileStatus
+		}
+	}
+
+	// Phase 6: Fetch dependencies and create role assignment
 	osResource, createRS := actuator.CreateResource(ctx, orcObject)
 	if needsReschedule, err := createRS.NeedsReschedule(); needsReschedule {
 		if err == nil {
@@ -180,6 +211,32 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 
 	log.V(logging.Info).Info("Role assignment created or adopted")
 	return reconcileStatus
+}
+
+// atMostOne returns the first element from the iterator, or nil if it's empty.
+// It returns multipleErr if the iterator yields more than one element.
+func atMostOne(resourceIter iter.Seq2[*osResourceT, error], multipleErr error) (*osResourceT, error) {
+	next, stop := iter.Pull2(resourceIter)
+	defer stop()
+
+	// Try to fetch the first result
+	osResource, err, ok := next()
+	if err != nil {
+		return nil, err
+	} else if !ok {
+		// No first result
+		return nil, nil
+	}
+
+	// Check that there are no other results
+	_, err, ok = next()
+	if err != nil {
+		return nil, err
+	} else if ok {
+		return nil, multipleErr
+	}
+
+	return osResource, nil
 }
 
 // reconcileDelete handles deletion of the RoleAssignment:
