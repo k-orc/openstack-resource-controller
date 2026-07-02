@@ -180,6 +180,9 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "ApplicationCredential",
 	},
+	{
+		Name: "LoadBalancer",
+	},
 }
 
 // These resources won't be generated
