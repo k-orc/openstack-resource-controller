@@ -23,8 +23,11 @@ import (
 // {{ .Name }}Import specifies an existing resource which will be imported instead of
 // creating a new one
 // +kubebuilder:validation:MinProperties:=1
+{{- if not .NoResourceID }}
 // +kubebuilder:validation:MaxProperties:=1
+{{- end }}
 type {{ .Name }}Import struct {
+{{- if not .NoResourceID }}
 {{- if .UsesNameAsID }}
 	// id contains the name of an existing resource. Note: This resource uses
 	// the resource name as the unique identifier, not a UUID.
@@ -41,6 +44,7 @@ type {{ .Name }}Import struct {
 	// +kubebuilder:validation:MaxLength:=36
 	// +optional
 	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
+{{- end }}
 {{- end }}
 
 	// filter contains a resource query which is expected to return a single
@@ -118,11 +122,13 @@ type {{ .Name }}Status struct {
 	// +listMapKey=type
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+{{- if not .NoResourceID }}
 
 	// id is the unique identifier of the OpenStack resource.
 	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ID *string `json:"id,omitempty"`
+{{- end }}
 
 	// resource contains the observed state of the OpenStack resource.
 	// +optional
@@ -143,7 +149,9 @@ func (i *{{ .Name }}) GetConditions() []metav1.Condition {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:categories=openstack
 // +kubebuilder:subresource:status
+{{- if not .NoResourceID }}
 // +kubebuilder:printcolumn:name="ID",type="string",JSONPath=".status.id",description="Resource ID"
+{{- end }}
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"
 {{- range .AdditionalPrintColumns }}
 // +kubebuilder:printcolumn:name="{{ .Name }}",type="{{ .Type }}",JSONPath="{{ .JSONPath }}",description="{{ .Description }}"

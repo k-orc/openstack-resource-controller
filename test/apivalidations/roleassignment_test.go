@@ -30,7 +30,6 @@ import (
 
 const (
 	roleassignmentName = "roleassignment"
-	roleassignmentID   = "265c9e4f-0f5a-46e4-9f3f-fb8de25ae120"
 )
 
 func roleassignmentStub(namespace *corev1.Namespace) *orcv1alpha1.RoleAssignment {
@@ -54,7 +53,8 @@ func baseRoleAssignmentPatch(obj client.Object) *applyconfigv1alpha1.RoleAssignm
 }
 
 func testRoleAssignmentImport() *applyconfigv1alpha1.RoleAssignmentImportApplyConfiguration {
-	return applyconfigv1alpha1.RoleAssignmentImport().WithID(roleassignmentID)
+	return applyconfigv1alpha1.RoleAssignmentImport().
+		WithFilter(applyconfigv1alpha1.RoleAssignmentFilter().WithRoleRef("admin"))
 }
 
 var _ = Describe("ORC RoleAssignment API validations", func() {

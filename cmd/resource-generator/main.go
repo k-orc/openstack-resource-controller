@@ -67,6 +67,10 @@ type templateFields struct {
 	// When true, the UUID validation will be omitted from the Import.ID field.
 	// Default is false (uses UUID).
 	UsesNameAsID bool
+	// NoResourceID indicates this is a relationship resource without an
+	// OpenStack-assigned ID. When true, the generator omits import.id,
+	// status.ID, and the ID print column from the generated API types.
+	NoResourceID bool
 }
 
 var resources []templateFields = []templateFields{
@@ -125,8 +129,9 @@ var resources []templateFields = []templateFields{
 		Name: "Role",
 	},
 	{
-		Name:       "RoleAssignment",
-		IsNotNamed: true,
+		Name:         "RoleAssignment",
+		IsNotNamed:   true,
+		NoResourceID: true,
 	},
 	{
 		Name:             "Router",

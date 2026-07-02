@@ -2135,9 +2135,6 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: filter
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentFilter
-    - name: id
-      type:
-        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceSpec
   map:
     fields:
@@ -2204,9 +2201,6 @@ var schemaYAML = typed.YAMLObject(`types:
           elementRelationship: associative
           keys:
           - type
-    - name: id
-      type:
-        scalar: string
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceStatus

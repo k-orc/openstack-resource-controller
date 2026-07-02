@@ -21,7 +21,6 @@ package v1alpha1
 // RoleAssignmentImportApplyConfiguration represents a declarative configuration of the RoleAssignmentImport type for use
 // with apply.
 type RoleAssignmentImportApplyConfiguration struct {
-	ID     *string                                 `json:"id,omitempty"`
 	Filter *RoleAssignmentFilterApplyConfiguration `json:"filter,omitempty"`
 }
 
@@ -29,14 +28,6 @@ type RoleAssignmentImportApplyConfiguration struct {
 // apply.
 func RoleAssignmentImport() *RoleAssignmentImportApplyConfiguration {
 	return &RoleAssignmentImportApplyConfiguration{}
-}
-
-// WithID sets the ID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ID field is set to the value of the last call.
-func (b *RoleAssignmentImportApplyConfiguration) WithID(value string) *RoleAssignmentImportApplyConfiguration {
-	b.ID = &value
-	return b
 }
 
 // WithFilter sets the Filter field in the declarative configuration to the given value

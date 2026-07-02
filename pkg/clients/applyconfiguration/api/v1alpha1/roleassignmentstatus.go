@@ -26,7 +26,6 @@ import (
 // with apply.
 type RoleAssignmentStatusApplyConfiguration struct {
 	Conditions []v1.ConditionApplyConfiguration                `json:"conditions,omitempty"`
-	ID         *string                                         `json:"id,omitempty"`
 	Resource   *RoleAssignmentResourceStatusApplyConfiguration `json:"resource,omitempty"`
 }
 
@@ -46,14 +45,6 @@ func (b *RoleAssignmentStatusApplyConfiguration) WithConditions(values ...*v1.Co
 		}
 		b.Conditions = append(b.Conditions, *values[i])
 	}
-	return b
-}
-
-// WithID sets the ID field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ID field is set to the value of the last call.
-func (b *RoleAssignmentStatusApplyConfiguration) WithID(value string) *RoleAssignmentStatusApplyConfiguration {
-	b.ID = &value
 	return b
 }
 

@@ -24,15 +24,7 @@ import (
 // RoleAssignmentImport specifies an existing resource which will be imported instead of
 // creating a new one
 // +kubebuilder:validation:MinProperties:=1
-// +kubebuilder:validation:MaxProperties:=1
 type RoleAssignmentImport struct {
-	// id contains the unique identifier of an existing OpenStack resource. Note
-	// that when specifying an import by ID, the resource MUST already exist.
-	// The ORC object will enter an error state if the resource does not exist.
-	// +kubebuilder:validation:Format:=uuid
-	// +kubebuilder:validation:MaxLength:=36
-	// +optional
-	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 
 	// filter contains a resource query which is expected to return a single
 	// result. The controller will continue to retry if filter returns no
@@ -104,11 +96,6 @@ type RoleAssignmentStatus struct {
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
-	// id is the unique identifier of the OpenStack resource.
-	// +kubebuilder:validation:MaxLength:=1024
-	// +optional
-	ID *string `json:"id,omitempty"`
-
 	// resource contains the observed state of the OpenStack resource.
 	// +optional
 	Resource *RoleAssignmentResourceStatus `json:"resource,omitempty"`
@@ -124,7 +111,6 @@ func (i *RoleAssignment) GetConditions() []metav1.Condition {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:categories=openstack
 // +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="ID",type="string",JSONPath=".status.id",description="Resource ID"
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"
 // +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Progressing')].message",description="Message describing current progress status"
 

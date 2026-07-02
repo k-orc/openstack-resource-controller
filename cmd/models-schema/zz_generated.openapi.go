@@ -7304,13 +7304,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RoleAssignmentImport(r
 				Description: "RoleAssignmentImport specifies an existing resource which will be imported instead of creating a new one",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"id": {
-						SchemaProps: spec.SchemaProps{
-							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"filter": {
 						SchemaProps: spec.SchemaProps{
 							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
@@ -7550,13 +7543,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RoleAssignmentStatus(r
 									},
 								},
 							},
-						},
-					},
-					"id": {
-						SchemaProps: spec.SchemaProps{
-							Description: "id is the unique identifier of the OpenStack resource.",
-							Type:        []string{"string"},
-							Format:      "",
 						},
 					},
 					"resource": {
