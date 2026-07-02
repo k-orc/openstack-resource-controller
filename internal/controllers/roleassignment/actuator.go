@@ -71,15 +71,13 @@ func (actuator roleassignmentActuator) GetResourceByComponents(
 	}
 
 	// Query with exact filters - should return exactly one result
-	for assignment, err := range actuator.osClient.ListRoleAssignments(ctx, listOpts) {
-		if err != nil {
-			return nil, progress.WrapError(err)
-		}
-		return assignment, nil
+	osResource, err := atMostOne(actuator.osClient.ListRoleAssignments(ctx, listOpts),
+		orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError,
+			"found more than one matching role assignment for the same (role, actor, scope) tuple"))
+	if err != nil {
+		return nil, progress.WrapError(err)
 	}
-
-	// Not found
-	return nil, nil
+	return osResource, nil
 }
 
 func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
