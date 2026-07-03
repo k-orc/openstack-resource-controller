@@ -18,13 +18,27 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // SubnetPoolResourceStatusApplyConfiguration represents a declarative configuration of the SubnetPoolResourceStatus type for use
 // with apply.
 type SubnetPoolResourceStatusApplyConfiguration struct {
-	Name           *string `json:"name,omitempty"`
-	Description    *string `json:"description,omitempty"`
-	ProjectID      *string `json:"projectID,omitempty"`
-	AddressScopeID *string `json:"addressScopeID,omitempty"`
+	Name                                    *string  `json:"name,omitempty"`
+	Description                             *string  `json:"description,omitempty"`
+	ProjectID                               *string  `json:"projectID,omitempty"`
+	AddressScopeID                          *string  `json:"addressScopeID,omitempty"`
+	Prefixes                                []string `json:"prefixes,omitempty"`
+	DefaultQuota                            *int32   `json:"defaultQuota,omitempty"`
+	MinPrefixLength                         *int32   `json:"minPrefixLength,omitempty"`
+	MaxPrefixLength                         *int32   `json:"maxPrefixLength,omitempty"`
+	DefaultPrefixLength                     *int32   `json:"defaultPrefixLength,omitempty"`
+	IsDefault                               *bool    `json:"isDefault,omitempty"`
+	Shared                                  *bool    `json:"shared,omitempty"`
+	IPVersion                               *int32   `json:"ipVersion,omitempty"`
+	Tags                                    []string `json:"tags,omitempty"`
+	NeutronStatusMetadataApplyConfiguration `json:",inline"`
 }
 
 // SubnetPoolResourceStatusApplyConfiguration constructs a declarative configuration of the SubnetPoolResourceStatus type for use with
@@ -62,5 +76,105 @@ func (b *SubnetPoolResourceStatusApplyConfiguration) WithProjectID(value string)
 // If called multiple times, the AddressScopeID field is set to the value of the last call.
 func (b *SubnetPoolResourceStatusApplyConfiguration) WithAddressScopeID(value string) *SubnetPoolResourceStatusApplyConfiguration {
 	b.AddressScopeID = &value
+	return b
+}
+
+// WithPrefixes adds the given value to the Prefixes field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Prefixes field.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithPrefixes(values ...string) *SubnetPoolResourceStatusApplyConfiguration {
+	for i := range values {
+		b.Prefixes = append(b.Prefixes, values[i])
+	}
+	return b
+}
+
+// WithDefaultQuota sets the DefaultQuota field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultQuota field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithDefaultQuota(value int32) *SubnetPoolResourceStatusApplyConfiguration {
+	b.DefaultQuota = &value
+	return b
+}
+
+// WithMinPrefixLength sets the MinPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MinPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithMinPrefixLength(value int32) *SubnetPoolResourceStatusApplyConfiguration {
+	b.MinPrefixLength = &value
+	return b
+}
+
+// WithMaxPrefixLength sets the MaxPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MaxPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithMaxPrefixLength(value int32) *SubnetPoolResourceStatusApplyConfiguration {
+	b.MaxPrefixLength = &value
+	return b
+}
+
+// WithDefaultPrefixLength sets the DefaultPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithDefaultPrefixLength(value int32) *SubnetPoolResourceStatusApplyConfiguration {
+	b.DefaultPrefixLength = &value
+	return b
+}
+
+// WithIsDefault sets the IsDefault field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IsDefault field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithIsDefault(value bool) *SubnetPoolResourceStatusApplyConfiguration {
+	b.IsDefault = &value
+	return b
+}
+
+// WithShared sets the Shared field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Shared field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithShared(value bool) *SubnetPoolResourceStatusApplyConfiguration {
+	b.Shared = &value
+	return b
+}
+
+// WithIPVersion sets the IPVersion field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IPVersion field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithIPVersion(value int32) *SubnetPoolResourceStatusApplyConfiguration {
+	b.IPVersion = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithTags(values ...string) *SubnetPoolResourceStatusApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
+	return b
+}
+
+// WithCreatedAt sets the CreatedAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the CreatedAt field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *SubnetPoolResourceStatusApplyConfiguration {
+	b.NeutronStatusMetadataApplyConfiguration.CreatedAt = &value
+	return b
+}
+
+// WithUpdatedAt sets the UpdatedAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UpdatedAt field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *SubnetPoolResourceStatusApplyConfiguration {
+	b.NeutronStatusMetadataApplyConfiguration.UpdatedAt = &value
+	return b
+}
+
+// WithRevisionNumber sets the RevisionNumber field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RevisionNumber field is set to the value of the last call.
+func (b *SubnetPoolResourceStatusApplyConfiguration) WithRevisionNumber(value int64) *SubnetPoolResourceStatusApplyConfiguration {
+	b.NeutronStatusMetadataApplyConfiguration.RevisionNumber = &value
 	return b
 }

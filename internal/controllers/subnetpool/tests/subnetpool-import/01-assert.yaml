@@ -16,7 +16,14 @@ status:
   resource:
     name: subnetpool-import-external-not-this-one
     description: SubnetPool subnetpool-import-external from "subnetpool-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    prefixes:
+    - 10.0.0.0/16
+    minPrefixLength: 16
+    maxPrefixLength: 28
+    ipVersion: 4
+    shared: false
+    isDefault: false
+    revisionNumber: 0
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SubnetPool

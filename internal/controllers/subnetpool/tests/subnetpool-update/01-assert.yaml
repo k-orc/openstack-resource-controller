@@ -7,7 +7,11 @@ status:
   resource:
     name: subnetpool-update-updated
     description: subnetpool-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    prefixes:
+    - 10.0.0.0/16
+    - 192.168.10.0/24
+    minPrefixLength: 7
+    maxPrefixLength: 30
   conditions:
   - type: Available
     status: "True"

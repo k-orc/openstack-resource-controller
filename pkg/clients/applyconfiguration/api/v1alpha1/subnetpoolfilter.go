@@ -25,10 +25,18 @@ import (
 // SubnetPoolFilterApplyConfiguration represents a declarative configuration of the SubnetPoolFilter type for use
 // with apply.
 type SubnetPoolFilterApplyConfiguration struct {
-	Name            *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description     *string                        `json:"description,omitempty"`
-	ProjectRef      *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
-	AddressScopeRef *apiv1alpha1.KubernetesNameRef `json:"addressScopeRef,omitempty"`
+	Name                                  *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description                           *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
+	ProjectRef                            *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
+	AddressScopeRef                       *apiv1alpha1.KubernetesNameRef  `json:"addressScopeRef,omitempty"`
+	MinPrefixLength                       *int32                          `json:"minPrefixLength,omitempty"`
+	MaxPrefixLength                       *int32                          `json:"maxPrefixLength,omitempty"`
+	IPVersion                             *apiv1alpha1.IPVersion          `json:"ipVersion,omitempty"`
+	Shared                                *bool                           `json:"shared,omitempty"`
+	DefaultPrefixLength                   *int32                          `json:"defaultPrefixLength,omitempty"`
+	IsDefault                             *bool                           `json:"isDefault,omitempty"`
+	RevisionNumber                        *int64                          `json:"revisionNumber,omitempty"`
+	FilterByNeutronTagsApplyConfiguration `json:",inline"`
 }
 
 // SubnetPoolFilterApplyConfiguration constructs a declarative configuration of the SubnetPoolFilter type for use with
@@ -48,7 +56,7 @@ func (b *SubnetPoolFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStac
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SubnetPoolFilterApplyConfiguration) WithDescription(value string) *SubnetPoolFilterApplyConfiguration {
+func (b *SubnetPoolFilterApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SubnetPoolFilterApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -66,5 +74,101 @@ func (b *SubnetPoolFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.Ku
 // If called multiple times, the AddressScopeRef field is set to the value of the last call.
 func (b *SubnetPoolFilterApplyConfiguration) WithAddressScopeRef(value apiv1alpha1.KubernetesNameRef) *SubnetPoolFilterApplyConfiguration {
 	b.AddressScopeRef = &value
+	return b
+}
+
+// WithMinPrefixLength sets the MinPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MinPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithMinPrefixLength(value int32) *SubnetPoolFilterApplyConfiguration {
+	b.MinPrefixLength = &value
+	return b
+}
+
+// WithMaxPrefixLength sets the MaxPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MaxPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithMaxPrefixLength(value int32) *SubnetPoolFilterApplyConfiguration {
+	b.MaxPrefixLength = &value
+	return b
+}
+
+// WithIPVersion sets the IPVersion field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IPVersion field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithIPVersion(value apiv1alpha1.IPVersion) *SubnetPoolFilterApplyConfiguration {
+	b.IPVersion = &value
+	return b
+}
+
+// WithShared sets the Shared field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Shared field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithShared(value bool) *SubnetPoolFilterApplyConfiguration {
+	b.Shared = &value
+	return b
+}
+
+// WithDefaultPrefixLength sets the DefaultPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithDefaultPrefixLength(value int32) *SubnetPoolFilterApplyConfiguration {
+	b.DefaultPrefixLength = &value
+	return b
+}
+
+// WithIsDefault sets the IsDefault field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IsDefault field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithIsDefault(value bool) *SubnetPoolFilterApplyConfiguration {
+	b.IsDefault = &value
+	return b
+}
+
+// WithRevisionNumber sets the RevisionNumber field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RevisionNumber field is set to the value of the last call.
+func (b *SubnetPoolFilterApplyConfiguration) WithRevisionNumber(value int64) *SubnetPoolFilterApplyConfiguration {
+	b.RevisionNumber = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *SubnetPoolFilterApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *SubnetPoolFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.Tags = append(b.FilterByNeutronTagsApplyConfiguration.Tags, values[i])
+	}
+	return b
+}
+
+// WithTagsAny adds the given value to the TagsAny field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the TagsAny field.
+func (b *SubnetPoolFilterApplyConfiguration) WithTagsAny(values ...apiv1alpha1.NeutronTag) *SubnetPoolFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.TagsAny = append(b.FilterByNeutronTagsApplyConfiguration.TagsAny, values[i])
+	}
+	return b
+}
+
+// WithNotTags adds the given value to the NotTags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the NotTags field.
+func (b *SubnetPoolFilterApplyConfiguration) WithNotTags(values ...apiv1alpha1.NeutronTag) *SubnetPoolFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.NotTags = append(b.FilterByNeutronTagsApplyConfiguration.NotTags, values[i])
+	}
+	return b
+}
+
+// WithNotTagsAny adds the given value to the NotTagsAny field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the NotTagsAny field.
+func (b *SubnetPoolFilterApplyConfiguration) WithNotTagsAny(values ...apiv1alpha1.NeutronTag) *SubnetPoolFilterApplyConfiguration {
+	for i := range values {
+		b.FilterByNeutronTagsApplyConfiguration.NotTagsAny = append(b.FilterByNeutronTagsApplyConfiguration.NotTagsAny, values[i])
+	}
 	return b
 }

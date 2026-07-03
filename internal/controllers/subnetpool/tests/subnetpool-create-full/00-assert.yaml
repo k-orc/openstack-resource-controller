@@ -7,7 +7,28 @@ status:
   resource:
     name: subnetpool-create-full-override
     description: SubnetPool from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    prefixes:
+      - 192.168.11.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
+    defaultPrefixLength: 24
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-create-full-admin
+status:
+  resource:
+    name: subnetpool-create-full-admin
+    isDefault: false
+    shared: true
   conditions:
   - type: Available
     status: "True"
@@ -24,6 +45,10 @@ resourceRefs:
       name: subnetpool-create-full
       ref: subnetpool
     - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SubnetPool
+      name: subnetpool-create-full-admin
+      ref: subnetpoolAdmin
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: Project
       name: subnetpool-create-full
       ref: project
@@ -33,6 +58,5 @@ resourceRefs:
       ref: addressScope
 assertAll:
     - celExpr: "subnetpool.status.id != ''"
-    - celExpr: "subnetpool.status.resource.projectID == project.status.id"
+    - celExpr: "subnetpoolAdmin.status.resource.projectID == project.status.id"
     - celExpr: "subnetpool.status.resource.addressScopeID == addressScope.status.id"
-    # TODO(scaffolding): Add more checks

@@ -5,11 +5,9 @@ metadata:
   name: subnetpool-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -18,12 +16,11 @@ metadata:
   name: subnetpool-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    ipVersion: 4
 ---
 # This `subnetpool-import-dependency-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -32,11 +29,13 @@ metadata:
   name: subnetpool-import-dependency-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     projectRef: subnetpool-import-dependency-not-this-one
     addressScopeRef: subnetpool-import-dependency-not-this-one
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    prefixes:
+    - 192.168.12.0/24
+    minPrefixLength: 8
+    maxPrefixLength: 32

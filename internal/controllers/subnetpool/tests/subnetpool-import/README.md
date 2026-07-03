@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Import a subnetpool that matches all fields in the filter, and verify it is waiting for the external resource to be created.
+Import a subnetpool that matches all fields in the filter (name, description, minPrefixLength), and verify it is waiting for the external resource to be created.
 
 ## Step 01
 

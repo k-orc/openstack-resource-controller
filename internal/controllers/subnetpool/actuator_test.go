@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   subnetpools.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   subnetpools.UpdateOpts{Name: "updated"},
 			expectChange: true,
 		},
 	}
@@ -83,7 +83,6 @@ func TestHandleNameUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-
 	}
 }
 
@@ -114,6 +113,154 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
+	}
+}
 
+func TestHandleMinPrefixLengthUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      int32
+		existingValue int
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: 8, existingValue: 8, expectChange: false},
+		{name: "Different", newValue: 16, existingValue: 8, expectChange: true},
+		{name: "Increased", newValue: 24, existingValue: 16, expectChange: true},
+		{name: "Decreased", newValue: 8, existingValue: 16, expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.SubnetPoolResourceSpec{MinPrefixLength: tt.newValue}
+			osResource := &osResourceT{MinPrefixLen: tt.existingValue}
+
+			updateOpts := subnetpools.UpdateOpts{}
+			handleMinPrefixLengthUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleMaxPrefixLengthUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      int32
+		existingValue int
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: 32, existingValue: 32, expectChange: false},
+		{name: "Different", newValue: 28, existingValue: 32, expectChange: true},
+		{name: "Increased", newValue: 128, existingValue: 32, expectChange: true},
+		{name: "Decreased", newValue: 24, existingValue: 32, expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.SubnetPoolResourceSpec{MaxPrefixLength: tt.newValue}
+			osResource := &osResourceT{MaxPrefixLen: tt.existingValue}
+
+			updateOpts := subnetpools.UpdateOpts{}
+			handleMaxPrefixLengthUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandlePrefixesUpdate(t *testing.T) {
+	testCases := []struct {
+		name             string
+		newPrefixes      []orcv1alpha1.CIDR
+		existingPrefixes []string
+		expectChange     bool
+	}{
+		{
+			name:             "Identical prefixes",
+			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24", "10.0.0.0/16"},
+			existingPrefixes: []string{"192.168.0.0/24", "10.0.0.0/16"},
+			expectChange:     false,
+		},
+		{
+			name:             "Different prefixes",
+			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24"},
+			existingPrefixes: []string{"10.0.0.0/16"},
+			expectChange:     true,
+		},
+		{
+			name:             "Prefixes out of order",
+			newPrefixes:      []orcv1alpha1.CIDR{"10.0.0.0/16", "192.168.0.0/24"},
+			existingPrefixes: []string{"192.168.0.0/24", "10.0.0.0/16"},
+			expectChange:     false,
+		},
+		{
+			name:             "Extra prefix in existing",
+			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24"},
+			existingPrefixes: []string{"192.168.0.0/24", "10.0.0.0/16"},
+			expectChange:     true,
+		},
+		{
+			name:             "Extra prefix in new",
+			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24", "10.0.0.0/16"},
+			existingPrefixes: []string{"192.168.0.0/24"},
+			expectChange:     true,
+		},
+		{
+			name:             "Empty prefixes",
+			newPrefixes:      []orcv1alpha1.CIDR{},
+			existingPrefixes: []string{},
+			expectChange:     false,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.SubnetPoolResourceSpec{Prefixes: tt.newPrefixes}
+			osResource := &osResourceT{Prefixes: tt.existingPrefixes}
+
+			updateOpts := subnetpools.UpdateOpts{}
+			handlePrefixesUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleIsDefaultUpdate(t *testing.T) {
+	ptrToBool := ptr.To[bool]
+	testCases := []struct {
+		name          string
+		newValue      *bool
+		existingValue bool
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: ptrToBool(true), existingValue: true, expectChange: false},
+		{name: "Different", newValue: ptrToBool(true), existingValue: false, expectChange: true},
+		{name: "No value provided, existing is set", newValue: nil, existingValue: true, expectChange: true},
+		{name: "No value provided, existing is default", newValue: nil, existingValue: false, expectChange: false},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.SubnetPoolResourceSpec{IsDefault: tt.newValue}
+			osResource := &osResourceT{IsDefault: tt.existingValue}
+
+			updateOpts := subnetpools.UpdateOpts{}
+			handleIsDefaultUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
 	}
 }

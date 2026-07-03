@@ -2,14 +2,18 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SubnetPool
 metadata:
-  name: subnetpool-create-minimal
+  name: subnetpool-update
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    # prefixes must be a superset of the previous value because
+    # OpenStack does not allow removing existing prefixes from a
+    # subnet pool. Thus, using a separated file to revert changes.
     prefixes:
+    - 10.0.0.0/16
     - 192.168.10.0/24
     minPrefixLength: 8
     maxPrefixLength: 32

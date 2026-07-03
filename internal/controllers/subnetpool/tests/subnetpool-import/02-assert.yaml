@@ -30,4 +30,11 @@ status:
   resource:
     name: subnetpool-import-external
     description: SubnetPool subnetpool-import-external from "subnetpool-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    prefixes:
+    - 192.168.10.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 32
+    defaultPrefixLength: 16
+    shared: false
+    isDefault: false
+    revisionNumber: 0

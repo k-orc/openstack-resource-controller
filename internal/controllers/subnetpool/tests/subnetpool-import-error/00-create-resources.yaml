@@ -5,13 +5,15 @@ metadata:
   name: subnetpool-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    minPrefixLength: 8
+    maxPrefixLength: 32
+    prefixes:
+    - 192.168.10.0/24
     description: SubnetPool from "import error" test
-    # TODO(scaffolding): add any required field
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SubnetPool
@@ -19,10 +21,12 @@ metadata:
   name: subnetpool-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    minPrefixLength: 8
+    maxPrefixLength: 32
+    prefixes:
+    - 192.168.10.0/24
     description: SubnetPool from "import error" test
-    # TODO(scaffolding): add any required field

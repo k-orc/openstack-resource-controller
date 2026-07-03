@@ -7,7 +7,9 @@ resourceRefs:
       name: subnetpool-update
       ref: subnetpool
 assertAll:
+    - celExpr: "subnetpool.status.id != ''"
     - celExpr: "!has(subnetpool.status.resource.description)"
+    - celExpr: "!has(subnetpool.status.resource.addressScopeID)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SubnetPool
@@ -16,7 +18,10 @@ metadata:
 status:
   resource:
     name: subnetpool-update
-    # TODO(scaffolding): Add matches for more fields
+    prefixes:
+      - 192.168.10.0/24
+    minPrefixLength: 8
+    maxPrefixLength: 32
   conditions:
   - type: Available
     status: "True"

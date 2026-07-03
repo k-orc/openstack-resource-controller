@@ -51,14 +51,33 @@ func (subnetpoolStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Sub
 func (subnetpoolStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.SubnetPoolResourceStatus().
 		WithProjectID(osResource.ProjectID).
-		WithAddressScopeID(osResource.AddressScopeID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the SubnetPoolResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithPrefixes(osResource.Prefixes...).
+		WithMinPrefixLength(int32(osResource.MinPrefixLen)).
+		WithMaxPrefixLength(int32(osResource.MaxPrefixLen)).
+		WithDefaultPrefixLength(int32(osResource.DefaultPrefixLen)).
+		WithIsDefault(osResource.IsDefault).
+		WithShared(osResource.Shared).
+		WithDefaultQuota(int32(osResource.DefaultQuota)).
+		WithRevisionNumber(int64(osResource.RevisionNumber)).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
+		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt)).
+		WithIPVersion(int32(osResource.IPversion))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.AddressScopeID != "" {
+		resourceStatus.WithAddressScopeID(osResource.AddressScopeID)
+	}
+
+	if osResource.ProjectID != "" {
+		resourceStatus.WithProjectID(osResource.ProjectID)
+	}
+
+	if len(osResource.Tags) != 0 {
+		resourceStatus.WithTags(osResource.Tags...)
 	}
 
 	statusApply.WithResource(resourceStatus)

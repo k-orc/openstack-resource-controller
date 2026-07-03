@@ -5,11 +5,9 @@ metadata:
   name: subnetpool-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -18,12 +16,11 @@ metadata:
   name: subnetpool-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    ipVersion: 4
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SubnetPool
@@ -31,13 +28,38 @@ metadata:
   name: subnetpool-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: subnetpool-create-full-override
     description: SubnetPool from "create full" test
-    projectRef: subnetpool-create-full
     addressScopeRef: subnetpool-create-full
-    # TODO(scaffolding): Add all fields the resource supports
+    prefixes:
+    - 192.168.11.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
+    defaultPrefixLength: 24
+    isDefault: false
+---
+# Creating a SubnetPool as admin to test `projectRef` and `shared`
+# fields.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-create-full-admin
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: subnetpool-create-full
+    prefixes:
+    - 192.168.12.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
+    # Devstack automatically creates a default subnet pool that
+    # prevent us to create a new default pool.
+    isDefault: false
+    shared: true

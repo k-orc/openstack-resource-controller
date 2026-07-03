@@ -3666,15 +3666,60 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: addressScopeRef
       type:
         scalar: string
+    - name: defaultPrefixLength
+      type:
+        scalar: numeric
     - name: description
       type:
         scalar: string
+    - name: ipVersion
+      type:
+        scalar: numeric
+    - name: isDefault
+      type:
+        scalar: boolean
+    - name: maxPrefixLength
+      type:
+        scalar: numeric
+    - name: minPrefixLength
+      type:
+        scalar: numeric
     - name: name
       type:
         scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: projectRef
       type:
         scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolImport
   map:
     fields:
@@ -3690,30 +3735,93 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: addressScopeRef
       type:
         scalar: string
+    - name: defaultPrefixLength
+      type:
+        scalar: numeric
     - name: description
       type:
         scalar: string
+    - name: isDefault
+      type:
+        scalar: boolean
+    - name: maxPrefixLength
+      type:
+        scalar: numeric
+    - name: minPrefixLength
+      type:
+        scalar: numeric
     - name: name
       type:
         scalar: string
+    - name: prefixes
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
     - name: projectRef
       type:
         scalar: string
+    - name: shared
+      type:
+        scalar: boolean
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceStatus
   map:
     fields:
     - name: addressScopeID
       type:
         scalar: string
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: defaultPrefixLength
+      type:
+        scalar: numeric
+    - name: defaultQuota
+      type:
+        scalar: numeric
     - name: description
       type:
         scalar: string
+    - name: ipVersion
+      type:
+        scalar: numeric
+    - name: isDefault
+      type:
+        scalar: boolean
+    - name: maxPrefixLength
+      type:
+        scalar: numeric
+    - name: minPrefixLength
+      type:
+        scalar: numeric
     - name: name
       type:
         scalar: string
+    - name: prefixes
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
     - name: projectID
       type:
         scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolSpec
   map:
     fields:

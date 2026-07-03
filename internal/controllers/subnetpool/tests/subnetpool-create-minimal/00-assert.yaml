@@ -6,7 +6,10 @@ metadata:
 status:
   resource:
     name: subnetpool-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    prefixes:
+      - 192.168.10.0/24
+    minPrefixLength: 8
+    maxPrefixLength: 32
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +27,5 @@ resourceRefs:
       ref: subnetpool
 assertAll:
     - celExpr: "subnetpool.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(subnetpool.status.resource.description)"
+    - celExpr: "!has(subnetpool.status.resource.addressScopeID)"

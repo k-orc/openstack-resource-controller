@@ -493,6 +493,7 @@ _Appears in:_
 - [SecurityGroupRule](#securitygrouprule)
 - [ServerSchedulerHints](#serverschedulerhints)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolResourceSpec](#subnetpoolresourcespec)
 - [SubnetResourceSpec](#subnetresourcespec)
 
 
@@ -912,6 +913,7 @@ _Appears in:_
 - [RouterFilter](#routerfilter)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [TrunkFilter](#trunkfilter)
 
 | Field | Description | Default | Validation |
@@ -1521,6 +1523,7 @@ _Appears in:_
 - [AddressScopeFilter](#addressscopefilter)
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 
 
@@ -2545,6 +2548,7 @@ _Appears in:_
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [SecurityGroupRule](#securitygrouprule)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -2564,6 +2568,7 @@ _Appears in:_
 - [NetworkResourceStatus](#networkresourcestatus)
 - [PortResourceStatus](#portresourcestatus)
 - [SecurityGroupResourceStatus](#securitygroupresourcestatus)
+- [SubnetPoolResourceStatus](#subnetpoolresourcestatus)
 - [SubnetResourceStatus](#subnetresourcestatus)
 - [TrunkResourceStatus](#trunkresourcestatus)
 
@@ -2598,6 +2603,7 @@ _Appears in:_
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -4766,9 +4772,20 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `addressScopeRef` _[KubernetesNameRef](#kubernetesnameref)_ | addressScopeRef is a reference to the ORC AddressScope which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `minPrefixLength` _integer_ | minPrefixLength allows filtering the subnet pool list result by<br />the smallest prefix that can be allocated from a subnet pool. |  | Optional: \{\} <br /> |
+| `maxPrefixLength` _integer_ | maxPrefixLength allows filtering the subnet pool list result by<br />the maximum prefix size that can be allocated from the subnet<br />pool. |  | Optional: \{\} <br /> |
+| `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP protocol version. It can be either 4 or 6 |  | Enum: [4 6] <br />Optional: \{\} <br /> |
+| `shared` _boolean_ | shared allows filtering the list result based on whether the<br />resource is shared across all projects. This field is<br />admin-only. |  | Optional: \{\} <br /> |
+| `defaultPrefixLength` _integer_ | defaultPrefixLength allows filtering the subnet pool list<br />result by the size of the prefix to allocate when the cidr or<br />prefixlen attributes are omitted when you create the subnet. |  | Optional: \{\} <br /> |
+| `isDefault` _boolean_ | isDefault allows filtering the subnet pool list result based on<br />if it is a default pool or not. |  | Optional: \{\} <br /> |
+| `revisionNumber` _integer_ | revisionNumber allows filtering the list result by the revision<br />number of the resource. |  | Optional: \{\} <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### SubnetPoolImport
@@ -4808,6 +4825,12 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `addressScopeRef` _[KubernetesNameRef](#kubernetesnameref)_ | addressScopeRef is a reference to the ORC AddressScope which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `prefixes` _[CIDR](#cidr) array_ | prefixes is the list of subnet prefixes to assign to the subnet<br />pool. The API merges adjacent prefixes and treats them as a<br />single prefix. Each subnet prefix must be unique across all<br />subnet pools associated with address scope. |  | Format: cidr <br />MaxItems: 64 <br />MaxLength: 49 <br />MinItems: 1 <br />MinLength: 1 <br />Optional: \{\} <br />Required: \{\} <br /> |
+| `minPrefixLength` _integer_ | minPrefixLength is the smallest prefix that can be allocated<br />from a subnet pool. For IPv4 subnet pools, default is 8. For<br />IPv6 subnet pools, default is 64. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `maxPrefixLength` _integer_ | maxPrefixLength is the maximum prefix size that can be allocated<br />from the subnet pool. For IPv4 subnet pools, default is 32. For<br />IPv6 subnet pools, default is 128. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all projects.<br />By default, it is false, and only administrative users can<br />change this value. |  | Optional: \{\} <br /> |
+| `defaultPrefixLength` _integer_ | defaultPrefixLength is the size of the prefix to allocate when<br />the cidr or prefixlen attributes are omitted when you create<br />the subnet. Default is MinPrefixLength. |  | Optional: \{\} <br /> |
+| `isDefault` _boolean_ | isDefault defines whether the subnetpool is default pool or<br />not. |  | Optional: \{\} <br /> |
 
 
 #### SubnetPoolResourceStatus
@@ -4827,6 +4850,18 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `addressScopeID` _string_ | addressScopeID is the ID of the AddressScope to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `prefixes` _string array_ | prefixes is a list of prefixes to assign to the SubnetPool. |  | MaxItems: 1024 <br />items:MaxLength: 64 <br />Optional: \{\} <br /> |
+| `defaultQuota` _integer_ | defaultQuota is a per-project quota on the prefix space that<br />can be allocated from the SubnetPool for project subnets. |  | Optional: \{\} <br /> |
+| `minPrefixLength` _integer_ | minPrefixLength is the smallest prefix that can be allocated<br />from a subnet pool. |  | Optional: \{\} <br /> |
+| `maxPrefixLength` _integer_ | maxPrefixLength is the maximum prefix size that can be<br />allocated from the subnet pool. |  | Optional: \{\} <br /> |
+| `defaultPrefixLength` _integer_ | defaultPrefixLength is the size of the prefix to allocate when<br />the cidr or prefixlen attributes are omitted when you create<br />the subnet. |  | Optional: \{\} <br /> |
+| `isDefault` _boolean_ | isDefault indicates whether the SubnetPool is the default pool<br />when creating subnets. |  | Optional: \{\} <br /> |
+| `shared` _boolean_ | shared indicates whether the SubnetPool is shared across all projects. |  | Optional: \{\} <br /> |
+| `ipVersion` _integer_ | ipVersion is the IP protocol version. It can be either 4 or 6 |  | Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  | Optional: \{\} <br /> |
 
 
 #### SubnetPoolSpec
