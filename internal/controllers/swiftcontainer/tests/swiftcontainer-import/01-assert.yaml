@@ -2,7 +2,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer
 metadata:
-  name: swiftcontainer-import-external-not-this-one
+  name: swiftcontainer-import-trap
 status:
   conditions:
     - type: Available
@@ -14,7 +14,7 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: swiftcontainer-import-external-not-this-one
+    name: swiftcontainer-import-trap
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SwiftContainer

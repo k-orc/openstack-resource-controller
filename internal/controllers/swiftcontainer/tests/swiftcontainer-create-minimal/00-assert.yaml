@@ -8,6 +8,7 @@ status:
     name: swiftcontainer-create-minimal
     bytesUsed: 0
     objectCount: 0
+    storagePolicy: Policy-0
   conditions:
   - type: Available
     status: "True"

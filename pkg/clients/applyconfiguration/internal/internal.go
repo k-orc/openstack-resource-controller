@@ -3706,9 +3706,6 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SwiftContainerFilter
   map:
     fields:
-    - name: name
-      type:
-        scalar: string
     - name: prefix
       type:
         scalar: string

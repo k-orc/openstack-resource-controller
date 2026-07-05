@@ -104,64 +104,33 @@ func (actuator swiftcontainerActuator) ListOSResourcesForAdoption(ctx context.Co
 
 func (actuator swiftcontainerActuator) ListOSResourcesForImport(ctx context.Context, _ orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	return func(yield func(*osContainerT, error) bool) {
-		if filter.Name != nil {
-			name := string(*filter.Name)
-			// If a prefix filter is also set, verify the name satisfies it.
-			// Without this check a filter {name: "x", prefix: "y-"} would
-			// silently import "x" even though it does not match the prefix.
-			if filter.Prefix != nil && !hasPrefix(name, *filter.Prefix) {
-				return
-			}
-			header, err := actuator.osClient.GetContainer(ctx, name, nil)
-			if err != nil {
-				if !orcerrors.IsNotFound(err) {
-					yield(nil, err)
-				}
-				return
-			}
-			metadata, err := actuator.osClient.GetContainerMetadata(ctx, name)
+		// List all containers and filter by prefix.
+		listOpts := containers.ListOpts{}
+		for container, err := range actuator.osClient.ListContainers(ctx, listOpts) {
 			if err != nil {
 				yield(nil, err)
 				return
 			}
-			yield(&osContainerT{Name: name, Metadata: metadata, GetHeader: *header}, nil)
-		} else {
-			// List all containers and filter by prefix
-			listOpts := containers.ListOpts{}
-			for container, err := range actuator.osClient.ListContainers(ctx, listOpts) {
-				if err != nil {
-					yield(nil, err)
-					return
-				}
 
-				if filter.Prefix != nil && !hasPrefix(container.Name, *filter.Prefix) {
-					continue
-				}
+			if filter.Prefix != nil && !strings.HasPrefix(container.Name, *filter.Prefix) {
+				continue
+			}
 
-				header, err := actuator.osClient.GetContainer(ctx, container.Name, nil)
-				if err != nil {
-					yield(nil, err)
-					return
-				}
-				metadata, err := actuator.osClient.GetContainerMetadata(ctx, container.Name)
-				if err != nil {
-					yield(nil, err)
-					return
-				}
-				if !yield(&osContainerT{Name: container.Name, Metadata: metadata, GetHeader: *header}, nil) {
-					return
-				}
+			header, err := actuator.osClient.GetContainer(ctx, container.Name, nil)
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+			metadata, err := actuator.osClient.GetContainerMetadata(ctx, container.Name)
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+			if !yield(&osContainerT{Name: container.Name, Metadata: metadata, GetHeader: *header}, nil) {
+				return
 			}
 		}
 	}, nil
-}
-
-// hasPrefix checks if name starts with prefix.
-func hasPrefix(name, prefix string) bool {
-	if len(prefix) > len(name) {
-		return false
-	}
-	return name[:len(prefix)] == prefix
 }
 
 func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osContainerT, progress.ReconcileStatus) {
@@ -175,35 +144,10 @@ func (actuator swiftcontainerActuator) CreateResource(ctx context.Context, obj o
 
 	name := getResourceName(obj)
 
-	// Swift treats '/' as a path separator in container names, making the name
-	// invalid at the API level. Validate explicitly to provide a clear error
-	// message rather than a confusing HTTP error from gophercloud.
-	if strings.Contains(name, "/") {
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-				"container name must not contain forward slashes"))
-	}
-
-	// Swift limits container names to 256 UTF-8 bytes. The kubebuilder
-	// MaxLength:=256 marker counts Unicode code points, not bytes, so a name
-	// with multi-byte UTF-8 characters can pass API validation yet exceed the
-	// byte limit. Validate explicitly here to produce a clear error message.
-	if len(name) > 256 {
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-				"container name must not exceed 256 bytes"))
-	}
-
-	createOpts := containers.CreateOpts{}
-
-	if resource.ContainerRead != "" {
-		createOpts.ContainerRead = resource.ContainerRead
-	}
-	if resource.ContainerWrite != "" {
-		createOpts.ContainerWrite = resource.ContainerWrite
-	}
-	if resource.StoragePolicy != "" {
-		createOpts.StoragePolicy = resource.StoragePolicy
+	createOpts := containers.CreateOpts{
+		ContainerRead:  resource.ContainerRead,
+		ContainerWrite: resource.ContainerWrite,
+		StoragePolicy:  resource.StoragePolicy,
 	}
 
 	if len(resource.Metadata) > 0 {

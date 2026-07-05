@@ -12286,16 +12286,9 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_SwiftContainerFilter(r
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "SwiftContainerFilter defines an existing resource by its properties",
+				Description: "SwiftContainerFilter defines an existing resource query.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "name of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"prefix": {
 						SchemaProps: spec.SchemaProps{
 							Description: "prefix filters containers by name prefix. Only containers whose names begin with this prefix will be considered.",

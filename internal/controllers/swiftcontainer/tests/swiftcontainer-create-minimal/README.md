@@ -6,7 +6,7 @@ Create a minimal SwiftContainer, that sets only the required fields, and verify
 that the observed state corresponds to the spec.
 
 Also validate that the OpenStack resource uses the name of the ORC object when
-`spec.resource.name` is not specified (SC-001).
+`spec.resource.name` is not specified.
 
 ## Step 01
 

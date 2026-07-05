@@ -20,7 +20,7 @@ package v1alpha1
 // and 256 characters long and must not contain forward slashes.
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=256
-// +kubebuilder:validation:Pattern:=`^[^/]+$`
+// +kubebuilder:validation:XValidation:rule="!self.contains('/')",message="name must not contain forward slashes"
 // +kubebuilder:validation:XValidation:rule="self.size() <= 256",message="name must not exceed 256 UTF-8 bytes"
 type SwiftContainerName string
 
@@ -55,13 +55,9 @@ type SwiftContainerMetadataStatus struct {
 	Value string `json:"value,omitempty"`
 }
 
-// SwiftContainerFilter defines an existing resource by its properties
+// SwiftContainerFilter defines an existing resource query.
 // +kubebuilder:validation:MinProperties:=1
 type SwiftContainerFilter struct {
-	// name of the existing resource
-	// +optional
-	Name *SwiftContainerName `json:"name,omitempty"`
-
 	// prefix filters containers by name prefix. Only containers whose names
 	// begin with this prefix will be considered.
 	// +kubebuilder:validation:MinLength:=1

@@ -91,15 +91,6 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
-                      name:
-                        description: name of the existing resource
-                        maxLength: 256
-                        minLength: 1
-                        pattern: ^[^/]+$
-                        type: string
-                        x-kubernetes-validations:
-                        - message: name must not exceed 256 UTF-8 bytes
-                          rule: self.size() <= 256
                       prefix:
                         description: |-
                           prefix filters containers by name prefix. Only containers whose names
@@ -115,9 +106,10 @@ spec:
                       The ORC object will enter an error state if the resource does not exist.
                     maxLength: 256
                     minLength: 1
-                    pattern: ^[^/]+$
                     type: string
                     x-kubernetes-validations:
+                    - message: name must not contain forward slashes
+                      rule: '!self.contains(''/'')'
                     - message: name must not exceed 256 UTF-8 bytes
                       rule: self.size() <= 256
                 type: object
@@ -212,11 +204,12 @@ spec:
                       the account and must not contain forward slashes.
                     maxLength: 256
                     minLength: 1
-                    pattern: ^[^/]+$
                     type: string
                     x-kubernetes-validations:
                     - message: name is immutable
                       rule: self == oldSelf
+                    - message: name must not contain forward slashes
+                      rule: '!self.contains(''/'')'
                     - message: name must not exceed 256 UTF-8 bytes
                       rule: self.size() <= 256
                   storagePolicy:

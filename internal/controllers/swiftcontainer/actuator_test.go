@@ -198,27 +198,6 @@ func TestListOSResourcesForImport(t *testing.T) {
 		checks []checkFunc
 	}{
 		{
-			name:   "finds one by name",
-			filter: orcv1alpha1.SwiftContainerFilter{Name: ptr.To[orcv1alpha1.SwiftContainerName]("my-container")},
-			client: &mockSwiftContainerClient{
-				containerData: map[string]mockContainerData{
-					"my-container":    {header: containers.GetHeader{}, metadata: map[string]string{}},
-					"other-container": {header: containers.GetHeader{}, metadata: map[string]string{}},
-				},
-			},
-			checks: checks(noError, findsID("my-container"), findsN(1)),
-		},
-		{
-			name:   "finds none by name",
-			filter: orcv1alpha1.SwiftContainerFilter{Name: ptr.To[orcv1alpha1.SwiftContainerName]("missing-container")},
-			client: &mockSwiftContainerClient{
-				containerData: map[string]mockContainerData{
-					"my-container": {header: containers.GetHeader{}, metadata: map[string]string{}},
-				},
-			},
-			checks: checks(noError, findsN(0)),
-		},
-		{
 			name:   "finds multiple containers matching prefix filter",
 			filter: orcv1alpha1.SwiftContainerFilter{Prefix: ptr.To("test-")},
 			client: &mockSwiftContainerClient{
@@ -242,37 +221,6 @@ func TestListOSResourcesForImport(t *testing.T) {
 				listErr: errTest,
 			},
 			checks: checks(wantError(errTest)),
-		},
-		{
-			// When both Name and Prefix are set and the named container does not
-			// match the prefix, no results should be returned. Previously the
-			// prefix predicate was silently ignored in the name-lookup branch.
-			name: "finds none when name does not match prefix",
-			filter: orcv1alpha1.SwiftContainerFilter{
-				Name:   ptr.To[orcv1alpha1.SwiftContainerName]("prod-bucket"),
-				Prefix: ptr.To("test-"),
-			},
-			client: &mockSwiftContainerClient{
-				containerData: map[string]mockContainerData{
-					"prod-bucket": {header: containers.GetHeader{}, metadata: map[string]string{}},
-				},
-			},
-			checks: checks(noError, findsN(0)),
-		},
-		{
-			// When both Name and Prefix are set and the named container matches
-			// the prefix, the container should be found normally.
-			name: "finds one when name matches prefix",
-			filter: orcv1alpha1.SwiftContainerFilter{
-				Name:   ptr.To[orcv1alpha1.SwiftContainerName]("test-bucket"),
-				Prefix: ptr.To("test-"),
-			},
-			client: &mockSwiftContainerClient{
-				containerData: map[string]mockContainerData{
-					"test-bucket": {header: containers.GetHeader{}, metadata: map[string]string{}},
-				},
-			},
-			checks: checks(noError, findsN(1), findsID("test-bucket")),
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -491,45 +439,6 @@ func TestCreateResource(t *testing.T) {
 		}
 	})
 
-	t.Run("returns terminal error for invalid container name containing slash", func(t *testing.T) {
-		ctx := context.Background()
-
-		// The actuator explicitly validates the container name before calling
-		// the Swift API. A slash in the name is caught early and returned as a
-		// terminal error with a message mentioning "forward slashes".
-		// (Kubebuilder validation normally prevents this from reaching the
-		// controller, but in unit tests API validation is not enforced.)
-		client := &mockSwiftContainerClient{}
-		actuator := swiftcontainerActuator{client}
-		// Use a name that bypasses kubebuilder validation (in unit tests, API
-		// validation is not enforced); this simulates what would happen if a
-		// slash somehow reached the actuator.
-		orcObject := &orcv1alpha1.SwiftContainer{
-			ObjectMeta: metav1.ObjectMeta{Name: "invalid"},
-			Spec: orcv1alpha1.SwiftContainerSpec{
-				Resource: &orcv1alpha1.SwiftContainerResourceSpec{
-					Name: ptr.To[orcv1alpha1.SwiftContainerName]("invalid/name"),
-				},
-			},
-		}
-
-		result, reconcileStatus := actuator.CreateResource(ctx, orcObject)
-		if result != nil {
-			t.Errorf("expected nil result, got %v", result)
-		}
-		if reconcileStatus == nil {
-			t.Fatal("expected non-nil reconcile status for terminal error")
-		}
-		_, err := reconcileStatus.NeedsReschedule()
-		if err == nil {
-			t.Error("expected error from reconcile status")
-		}
-		var termErr *orcerrors.TerminalError
-		if !errors.As(err, &termErr) {
-			t.Errorf("expected TerminalError, got %T: %v", err, err)
-		}
-	})
-
 	t.Run("returns terminal error for container name exceeding 256 bytes", func(t *testing.T) {
 		ctx := context.Background()
 
@@ -594,42 +503,6 @@ func TestCreateResource(t *testing.T) {
 }
 
 func TestContainerNameValidation(t *testing.T) {
-	t.Run("rejects names containing forward slash", func(t *testing.T) {
-		name := orcv1alpha1.SwiftContainerName("containers/bucket")
-		if !strings.Contains(string(name), "/") {
-			t.Fatal("test setup error: name should contain a slash")
-		}
-		// The actuator validates the name before calling the Swift API.
-		// A slash in the name causes an early terminal error with a message
-		// mentioning "forward slashes". (Kubebuilder pattern validation would
-		// normally catch this before it reaches the controller, but in unit
-		// tests API validation is not enforced.)
-		ctx := context.Background()
-		client := &mockSwiftContainerClient{}
-		actuator := swiftcontainerActuator{client}
-		orcObject := &orcv1alpha1.SwiftContainer{
-			ObjectMeta: metav1.ObjectMeta{Name: "invalid"},
-			Spec: orcv1alpha1.SwiftContainerSpec{
-				Resource: &orcv1alpha1.SwiftContainerResourceSpec{
-					Name: ptr.To(name),
-				},
-			},
-		}
-		_, reconcileStatus := actuator.CreateResource(ctx, orcObject)
-		if reconcileStatus == nil {
-			t.Error("expected reconcile status error for name with slash")
-			return
-		}
-		_, err := reconcileStatus.NeedsReschedule()
-		var termErr *orcerrors.TerminalError
-		if !errors.As(err, &termErr) {
-			t.Errorf("expected TerminalError for invalid name, got %T: %v", err, err)
-		}
-		if !strings.Contains(termErr.Error(), "forward slashes") {
-			t.Errorf("expected error message to mention 'forward slashes', got: %v", termErr.Error())
-		}
-	})
-
 	t.Run("rejects names exceeding 256 UTF-8 bytes", func(t *testing.T) {
 		longName := orcv1alpha1.SwiftContainerName(strings.Repeat("x", 257))
 		if len(longName) <= 256 {

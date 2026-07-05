@@ -8,7 +8,7 @@ resourceRefs:
       ref: swiftcontainer1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SwiftContainer
-      name: swiftcontainer-import-external-not-this-one
+      name: swiftcontainer-import-trap
       ref: swiftcontainer2
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: SwiftContainer

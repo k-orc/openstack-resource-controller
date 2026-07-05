@@ -4811,7 +4811,7 @@ SwiftContainer is the Schema for an ORC resource.
 
 
 
-SwiftContainerFilter defines an existing resource by its properties
+SwiftContainerFilter defines an existing resource query.
 
 _Validation:_
 - MinProperties: 1
@@ -4821,7 +4821,6 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[SwiftContainerName](#swiftcontainername)_ | name of the existing resource |  | MaxLength: 256 <br />MinLength: 1 <br />Pattern: `^[^/]+$` <br />Optional: \{\} <br /> |
 | `prefix` _string_ | prefix filters containers by name prefix. Only containers whose names<br />begin with this prefix will be considered. |  | MaxLength: 256 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
@@ -4842,7 +4841,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[SwiftContainerName](#swiftcontainername)_ | name contains the name of an existing Swift container to import. Note<br />that when specifying an import by name, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | MaxLength: 256 <br />MinLength: 1 <br />Pattern: `^[^/]+$` <br />Optional: \{\} <br /> |
+| `name` _[SwiftContainerName](#swiftcontainername)_ | name contains the name of an existing Swift container to import. Note<br />that when specifying an import by name, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | MaxLength: 256 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `filter` _[SwiftContainerFilter](#swiftcontainerfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
 
 
@@ -4892,10 +4891,8 @@ and 256 characters long and must not contain forward slashes.
 _Validation:_
 - MaxLength: 256
 - MinLength: 1
-- Pattern: `^[^/]+$`
 
 _Appears in:_
-- [SwiftContainerFilter](#swiftcontainerfilter)
 - [SwiftContainerImport](#swiftcontainerimport)
 - [SwiftContainerResourceSpec](#swiftcontainerresourcespec)
 
@@ -4914,7 +4911,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[SwiftContainerName](#swiftcontainername)_ | name will be the name of the created Swift container. If not specified,<br />the name of the ORC object will be used. The name must be unique within<br />the account and must not contain forward slashes. |  | MaxLength: 256 <br />MinLength: 1 <br />Pattern: `^[^/]+$` <br />Optional: \{\} <br /> |
+| `name` _[SwiftContainerName](#swiftcontainername)_ | name will be the name of the created Swift container. If not specified,<br />the name of the ORC object will be used. The name must be unique within<br />the account and must not contain forward slashes. |  | MaxLength: 256 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `metadata` _[SwiftContainerMetadata](#swiftcontainermetadata) array_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
 | `containerRead` _string_ | containerRead sets the X-Container-Read ACL header which defines who<br />can read objects in the container. Common values include ".r:*" for<br />public read access or a comma-separated list of account/container<br />combinations. |  | MaxLength: 256 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `containerWrite` _string_ | containerWrite sets the X-Container-Write ACL header which defines who<br />can write objects to the container. Common values include a<br />comma-separated list of account/container combinations. |  | MaxLength: 256 <br />MinLength: 1 <br />Optional: \{\} <br /> |

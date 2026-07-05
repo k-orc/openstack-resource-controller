@@ -7,7 +7,7 @@ observed state corresponds to the spec.
 
 Validates that:
 - The OpenStack resource uses the name from `spec.resource.name` when it is
-  specified, rather than the ORC object name (SC-002).
+  specified, rather than the ORC object name.
 - Custom metadata key-value pairs are applied and reflected in
   `status.resource.metadata`.
 - Read ACL (`containerRead`) and write ACL (`containerWrite`) are configured
