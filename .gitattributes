@@ -1,0 +1,21 @@
+# Generated API types
+api/v1alpha1/zz_generated.*.go linguist-generated
+
+# Generated OpenAPI schema
+cmd/models-schema/zz_generated.openapi.go linguist-generated
+
+# Generated controller scaffolding
+internal/controllers/**/zz_generated.*.go linguist-generated
+
+# Generated mock clients
+internal/osclients/mock/*.go linguist-generated
+
+# Generated Kubernetes client libraries
+pkg/clients/**/*.go linguist-generated
+
+# Generated CRD manifests
+config/crd/bases/*.yaml linguist-generated
+
+# Generated documentation
+website/docs/development/godoc/*.md linguist-generated
+website/docs/crd-reference.md
