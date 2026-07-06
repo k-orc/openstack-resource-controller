@@ -21,11 +21,21 @@ openstack-resource-controller/
 │   │       ├── status.go      # Status writer implementation
 │   │       ├── zz_generated.*.go  # Generated code (DO NOT EDIT)
 │   │       └── tests/         # KUTTL E2E tests
+│   ├── logging/               # Log level constants
 │   ├── osclients/             # OpenStack API client wrappers
 │   ├── scope/                 # Cloud credentials & client factory
-│   └── util/                  # Utilities (errors, dependency, tags)
+│   └── util/
+│       ├── applyconfigs/      # SSA apply config helpers
+│       ├── credentials/       # Credential watch & dependency setup
+│       ├── dependency/        # Dependency framework
+│       ├── errors/            # Error classification (Terminal, IsRetryable)
+│       ├── finalizers/        # Finalizer helpers
+│       ├── result/            # Result helpers
+│       ├── strings/           # Finalizer/field-owner name generation
+│       └── tags/              # Tag reconciliation utilities
 ├── cmd/
 │   ├── manager/               # Main entry point
+│   ├── models-schema/         # OpenAPI schema generation
 │   ├── resource-generator/    # Code generation
 │   └── scaffold-controller/   # New controller scaffolding
 └── website/docs/development/  # Detailed documentation
@@ -44,7 +54,7 @@ All controllers use a generic reconciler that handles the reconciliation loop. C
 
 ### Key Interfaces
 
-Controllers implement these methods (see `internal/controllers/flavor/` for a simple example):
+Controllers implement these methods (see `internal/controllers/servergroup/` for a simple example):
 
 ```go
 // Required by all actuators
@@ -60,7 +70,7 @@ CreateResource(ctx, orcObject) (*osResource, ReconcileStatus)
 DeleteResource(ctx, orcObject, osResource) ReconcileStatus
 
 // Optional - for updates after creation
-GetResourceReconcilers(ctx, obj, osResource) ([]ResourceReconciler, error)
+GetResourceReconcilers(ctx, obj, osResource, controller) ([]ResourceReconciler, ReconcileStatus)
 ```
 
 ### Two Critical Conditions
@@ -79,11 +89,17 @@ Every ORC object has these conditions:
 
 Methods return `ReconcileStatus` instead of `error`:
 
+`ReconcileStatus` is a type alias for a pointer (`type ReconcileStatus = *reconcileStatus`). `nil` is a valid value meaning "success, no reschedule", and all methods are safe to call on a nil receiver.
+
 ```go
-nil                                    // Success, no reschedule
-progress.WrapError(err)                // Wrap error for handling
-reconcileStatus.WithRequeue(5*time.Second)  // Schedule reconcile after delay
-reconcileStatus.WithProgressMessage("waiting...") // Add progress message
+nil                                          // Success, no reschedule
+progress.WrapError(err)                      // Wrap error for handling
+reconcileStatus.WithRequeue(5*time.Second)   // Schedule reconcile after delay
+reconcileStatus.WithProgressMessage("...")   // Add progress message
+progress.NeedsRefresh()                      // Immediate re-reconcile to refresh status after mutation
+progress.WaitingOnOpenStack(progress.WaitingOnReady, 15*time.Second) // Poll for OpenStack state change
+progress.WaitingOnObject("Network", name, progress.WaitingOnCreation) // Wait for a k8s object
+reconcileStatus.WithReconcileStatus(other)   // Merge two ReconcileStatuses
 ```
 
 ### Error Classification
@@ -142,14 +158,49 @@ if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 projectID := ptr.Deref(project.Status.ID, "")
 ```
 
-## Common Patterns
+### Lightweight Dependency Lookup (FetchDependency)
 
-### Resource Name Helper
+For one-off lookups that don't need finalizers (e.g., resolving refs in `ListOSResourcesForAdoption` or import filters), use `dependency.FetchDependency` instead of a declared dependency:
 
 ```go
-func getResourceName(orcObject *orcv1alpha1.Flavor) string {
+import "github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
+
+project, rs := dependency.FetchDependency(
+    ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
+    func(dep *orcv1alpha1.Project) bool {
+        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+    },
+)
+reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+```
+
+### Credentials Dependency (generated)
+
+Every controller has a `credentialsDependency` auto-generated in `zz_generated.controller.go`. It is a `DeletionGuardDependency` on `corev1.Secret` that ensures the cloud credentials secret exists and carries the controller's finalizer. It is checked in `newActuator()` before creating an OpenStack client:
+
+```go
+_, reconcileStatus := credentialsDependency.GetDependencies(
+    ctx, controller.GetK8sClient(), orcObject,
+    func(*corev1.Secret) bool { return true },
+)
+if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+    return myActuator{}, reconcileStatus
+}
+```
+
+The credential watch is registered in `SetupWithManager` via `credentials.AddCredentialsWatch()`.
+
+## Common Patterns
+
+### Resource Name Helper (generated)
+
+`getResourceName` is auto-generated in `zz_generated.adapter.go` — do not write it manually. It returns `spec.resource.name` if set, otherwise falls back to the ORC object's Kubernetes name:
+
+```go
+// In zz_generated.adapter.go (DO NOT EDIT)
+func getResourceName(orcObject orcObjectPT) string {
     if orcObject.Spec.Resource.Name != nil {
-        return *orcObject.Spec.Resource.Name
+        return string(*orcObject.Spec.Resource.Name)
     }
     return orcObject.Name
 }
@@ -172,6 +223,59 @@ type (
 var _ createResourceActuator = flavorActuator{}
 var _ deleteResourceActuator = flavorActuator{}
 ```
+
+### Actuator Factory (newActuator)
+
+Every controller defines a `newActuator()` function that resolves credentials, creates the OpenStack client scope, and returns the actuator. This is called by the `helperFactory` methods `NewCreateActuator` and `NewDeleteActuator`:
+
+```go
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller generic.ResourceController) (flavorActuator, progress.ReconcileStatus) {
+    log := ctrl.LoggerFrom(ctx)
+
+    // Ensure credential secrets exist and have our finalizer
+    _, reconcileStatus := credentialsDependency.GetDependencies(
+        ctx, controller.GetK8sClient(), orcObject,
+        func(*corev1.Secret) bool { return true },
+    )
+    if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+        return flavorActuator{}, reconcileStatus
+    }
+
+    clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(
+        ctx, controller.GetK8sClient(), log, orcObject,
+    )
+    if err != nil {
+        return flavorActuator{}, progress.WrapError(err)
+    }
+    osClient, err := clientScope.NewComputeClient()  // or NewNetworkClient, etc.
+    if err != nil {
+        return flavorActuator{}, progress.WrapError(err)
+    }
+
+    return flavorActuator{osClient: osClient}, nil
+}
+```
+
+### Tag Reconciliation (Neutron resources)
+
+Neutron resources use a separate tags API instead of the resource's Update API. The `internal/util/tags` package provides a reusable reconciler:
+
+```go
+import "github.com/k-orc/openstack-resource-controller/v2/internal/util/tags"
+
+func (actuator myActuator) GetResourceReconcilers(...) ([]resourceReconciler, progress.ReconcileStatus) {
+    return []resourceReconciler{
+        tags.ReconcileTags[orcObjectPT, osResourceT](
+            orcObject.Spec.Resource.Tags,
+            osResource.Tags,
+            tags.NewNeutronTagReplacer(actuator.osClient, "security-groups", osResource.ID),
+        ),
+        actuator.updateRules,
+    }, nil
+}
+```
+
+`ReconcileTags` computes the diff between desired and observed tags and replaces them atomically. For resources whose tags are set via the standard Update API (e.g., block storage), use a `handleTagsUpdate()` helper in `updateResource` instead.
 
 ### Pointer Handling
 
@@ -202,9 +306,9 @@ type ServerResourceSpec struct {
     Tags []ServerTag `json:"tags,omitempty"`
 }
 
-// Some resources are fully immutable (rare - e.g., Flavor, ServerGroup)
-// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="FlavorResourceSpec is immutable"
-type FlavorResourceSpec struct {
+// Some resources are fully immutable (rare - e.g., ServerGroup)
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ServerGroupResourceSpec is immutable"
+type ServerGroupResourceSpec struct {
     // ...
 }
 ```
@@ -250,11 +354,53 @@ make test-e2e      # Run KUTTL E2E tests (requires E2E_OSCLOUDS)
 make fmt           # Format code
 ```
 
+## Reconciler Naming Conventions
+
+`GetResourceReconcilers` returns a list of reconciler functions. There are two types:
+
+1. **`updateResource`**: Handles general mutable field updates via the resource's Update API. Uses `handleXXXUpdate()` helpers to build an `UpdateOpts` struct, then makes a single API call. Returns a terminal error when `spec.resource` is nil. Examples: securitygroup, volumetype, trunk, router.
+
+2. **Single-concern reconcilers**: Handle a specific aspect of the resource using a separate API (not the resource's Update API). Named with a descriptive verb+noun (e.g., `reconcileExtraSpecs`, `reconcileSubports`, `reconcilePassword`, `updateRules`). Return `nil` (not a terminal error) when `spec.resource` is nil. May make multiple API calls within a single reconciler.
+
+```go
+// updateResource pattern - general mutable fields via Update API
+func (actuator myActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+    resource := obj.Spec.Resource
+    if resource == nil {
+        // Terminal error: updateResource is only registered for managed resources
+        return progress.WrapError(
+            orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+    }
+    // ... build UpdateOpts, make single Update API call
+}
+
+// Single-concern reconciler pattern - separate API
+func (actuator myActuator) reconcileExtraSpecs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+    resource := obj.Spec.Resource
+    if resource == nil {
+        return nil  // Not a terminal error
+    }
+    // ... compute diff, make API calls (creates, deletes, etc.)
+}
+```
+
+Both types are registered in `GetResourceReconcilers`:
+```go
+func (actuator myActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+    return []resourceReconciler{
+        actuator.updateResource,       // general field updates
+        actuator.reconcileExtraSpecs,  // single-concern reconciler
+    }, nil
+}
+```
+
 ## Reference Controllers
 
-- **Simple**: `internal/controllers/flavor/` - No dependencies, immutable
+- **Simple**: `internal/controllers/servergroup/` - No dependencies, fully immutable
+- **Single-concern reconciler**: `internal/controllers/flavor/` - No dependencies, immutable except extra specs (`reconcileExtraSpecs`)
 - **With dependencies**: `internal/controllers/securitygroup/` - Project dependency, rules reconciliation
-- **Complex**: `internal/controllers/server/` - Multiple dependencies, reconcilers
+- **Multiple reconcilers**: `internal/controllers/trunk/` - `updateResource` + `reconcileSubports` + tags
+- **Complex**: `internal/controllers/server/` - Multiple dependencies, many reconcilers
 
 ## Documentation
 

@@ -19,7 +19,7 @@ Use a dependency when your controller needs to:
 
 ## Key Principles
 
-See also "Dependency Timing" in @.agents/skills/new-controller/patterns.md
+See also "Dependency Timing" in [patterns.md](../new-controller/patterns.md)
 
 ### 1. Resolve Dependencies Late
 
@@ -156,6 +156,8 @@ func (c myReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.
 
 In `actuator.go`, resolve the dependency before using it:
 
+Use `orcv1alpha1.IsAvailable` as the readiness predicate. This is sufficient because `Status.ID` is always set before a resource becomes Available:
+
 ```go
 func (actuator myActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.MyResource) (*osResourceT, progress.ReconcileStatus) {
     resource := obj.Spec.Resource
@@ -164,9 +166,7 @@ func (actuator myActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.
     if resource.ProjectRef != nil {
         project, reconcileStatus := projectDependency.GetDependency(
             ctx, actuator.k8sClient, obj,
-            func(dep *orcv1alpha1.Project) bool {
-                return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-            },
+            orcv1alpha1.IsAvailable,
         )
         if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
             return nil, reconcileStatus
@@ -189,9 +189,7 @@ func (actuator myActuator) ListOSResourcesForImport(ctx context.Context, obj orc
 
     project, rs := dependency.FetchDependency(
         ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
-        func(dep *orcv1alpha1.Project) bool {
-            return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-        },
+        orcv1alpha1.IsAvailable,
     )
     reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
@@ -235,7 +233,7 @@ Create dependency tests in `internal/controllers/<kind>/tests/<kind>-dependency/
 - Test that resource waits for dependency
 - Test that dependency deletion is blocked (if using DeletionGuard)
 
-Follow @.agents/skills/testing/SKILL.md for running unit tests, linting, and E2E tests.
+Follow [testing](../testing/SKILL.md) for running unit tests, linting, and E2E tests.
 
 ## Checklist
 

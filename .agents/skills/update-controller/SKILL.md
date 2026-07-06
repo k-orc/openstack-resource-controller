@@ -31,7 +31,7 @@ Research the resource before implementing changes:
 
 ## Key Principles
 
-When updating controllers, follow the patterns in @.agents/skills/new-controller/patterns.md
+When updating controllers, follow the patterns in [patterns.md](../new-controller/patterns.md)
 
 ## Common Update Scenarios
 
@@ -81,27 +81,13 @@ When updating controllers, follow the patterns in @.agents/skills/new-controller
 
 2. Implement `GetResourceReconcilers()` if not already present
 
-3. Add update handling to the `updateResource()` reconciler (or create it if not present):
-   ```go
-   func (actuator myActuator) updateResource(...) progress.ReconcileStatus {
-       var updateOpts resources.UpdateOpts
-       // Add a handleXXXUpdate() call for each mutable field
-       handleMyFieldUpdate(&updateOpts, resource, osResource)
-       // Call API only if something changed
-       if updateOpts != (resources.UpdateOpts{}) {
-           _, err := actuator.osClient.UpdateResource(ctx, *obj.Status.ID, updateOpts)
-           // ...
-       }
-   }
+3. Add update handling to the `updateResource()` reconciler (or create it if not present). Follow the pattern in `internal/controllers/securitygroup/actuator.go` (or `trunk/actuator.go`):
+   - Build an `UpdateOpts` struct using `handleXXXUpdate()` helpers for each mutable field
+   - Use a `needsUpdate()` helper that serializes the opts to a map and checks `len() > 0`
+   - Call the Update API only if something changed, return `progress.NeedsRefresh()`
+   - Return terminal error if `spec.resource` is nil
 
-   func handleMyFieldUpdate(updateOpts *resources.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-       if resource.MyField != nil && *resource.MyField != osResource.MyField {
-           updateOpts.MyField = resource.MyField
-       }
-   }
-   ```
-
-   **Note**: Only create a separate reconciler method if the field requires a different API call (e.g., tags on networking resources use a separate tags API).
+   **Note**: Only use `updateResource` when the field is updated via the resource's standard Update API. If the field requires a different API (e.g., extra specs, subports, tags on networking resources), create a separate single-concern reconciler instead. See [Adding a Single-Concern Reconciler](#adding-a-single-concern-reconciler) below.
 
 4. Register in `GetResourceReconcilers()`:
    ```go
@@ -110,9 +96,45 @@ When updating controllers, follow the patterns in @.agents/skills/new-controller
    }, nil
    ```
 
+### Adding a Single-Concern Reconciler
+
+When a mutable field uses a separate OpenStack API (not the resource's Update API), create a dedicated reconciler with a descriptive verb+noun name instead of adding logic to `updateResource`.
+
+**Examples**: `reconcileExtraSpecs` (flavor, volumetype), `reconcileSubports` (trunk), `reconcilePassword` (user), `updateRules` (securitygroup).
+
+Key differences from `updateResource`:
+
+- **Naming**: Use a descriptive name (e.g., `reconcileExtraSpecs`), not `updateResource`.
+- **Nil guard**: Return `nil` when `spec.resource` is nil (not a terminal error). The terminal error pattern is reserved for `updateResource`.
+- **Multiple API calls**: A single-concern reconciler may make multiple API calls (e.g., create some extra specs, delete others). This is an established pattern (see `reconcileSubports`, `updateRules`).
+- **Idempotency**: Operations must be idempotent. If the reconciler fails partway through, the next reconciliation recomputes the diff from the current OpenStack state and retries only what's still needed.
+
+```go
+func (actuator myActuator) reconcileExtraSpecs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+    resource := obj.Spec.Resource
+    if resource == nil {
+        return nil  // Not a terminal error (unlike updateResource)
+    }
+
+    // Compute desired vs current diff
+    // Make API calls (creates, updates, deletes)
+    // Return progress.NeedsRefresh() if any changes were made
+}
+```
+
+Register alongside other reconcilers in `GetResourceReconcilers()`:
+```go
+return []resourceReconciler{
+    actuator.updateResource,       // general field updates via Update API
+    actuator.reconcileExtraSpecs,  // single-concern: separate API
+}, nil
+```
+
+**Do NOT duplicate work in `CreateResource`**. If a reconciler handles a concern (e.g., extra specs), do not also set that data in `CreateResource`. The `CreateResource` contract forbids actions that can fail after creating the primary resource. The reconciler will handle it on the first reconciliation after creation.
+
 ### Adding a Dependency
 
-See @.agents/skills/add-dependency/SKILL.md for detailed steps.
+See [add-dependency](../add-dependency/SKILL.md) for detailed steps.
 
 ### Improving DeleteResource
 
@@ -156,43 +178,11 @@ func (actuator myActuator) DeleteResource(ctx context.Context, _ orcObjectPT, re
    Tags []string `json:"tags,omitempty"`
    ```
 
-2. Sort tags before creation (deterministic state):
-   ```go
-   tags := make([]string, len(resource.Tags))
-   for i := range resource.Tags {
-       tags[i] = string(resource.Tags[i])
-   }
-   slices.Sort(tags)
-   createOpts.Tags = tags
-   ```
+2. Sort tags before creation and comparison (use `slices.Sort` — see `patterns.md` §3 Deterministic State).
 
-3. Add tag update handler with sorting:
-   ```go
-   func handleTagsUpdate(updateOpts *resources.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-       desiredTags := make([]string, len(resource.Tags))
-       for i := range resource.Tags {
-           desiredTags[i] = string(resource.Tags[i])
-       }
-       slices.Sort(desiredTags)
+3. Add a `handleTagsUpdate()` helper that sorts both desired and current tags, compares with `slices.Equal`, and sets `updateOpts.Tags` only if different. Copy before sorting to avoid mutating the original.
 
-       currentTags := make([]string, len(osResource.Tags))
-       copy(currentTags, osResource.Tags)  // Don't mutate original
-       slices.Sort(currentTags)
-
-       if !slices.Equal(desiredTags, currentTags) {
-           updateOpts.Tags = &desiredTags
-       }
-   }
-   ```
-
-4. Register in `GetResourceReconcilers()`:
-   ```go
-   return []resourceReconciler{
-       actuator.updateResource,  // includes handleTagsUpdate
-   }, nil
-   ```
-
-**Note**: Import `"slices"` for sorting/comparison functions.
+4. Register `updateResource` (which calls `handleTagsUpdate`) in `GetResourceReconcilers()`.
 
 ### Adding Status Constants
 
@@ -211,35 +201,15 @@ const (
 )
 ```
 
-See also `@.agents/skills/new-controller/patterns.md` for more details on this pattern.
+See also [patterns.md](../new-controller/patterns.md) for more details on this pattern.
 
 ### Improving Error Handling
 
-Ensure proper error classification:
-
-```go
-// Terminal on create: Invalid configuration - user must fix spec
-if err != nil {
-    if !orcerrors.IsRetryable(err) {
-        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-            "invalid configuration creating resource: "+err.Error(), err)
-    }
-    return nil, progress.WrapError(err)
-}
-
-// Terminal on update:
-if err != nil {
-    if !orcerrors.IsRetryable(err) {
-        err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-            "invalid configuration updating resource: "+err.Error(), err)
-    }
-    return progress.WrapError(err)
-}
-```
+See [patterns.md](../new-controller/patterns.md) §4 Error Classification. Wrap non-retryable errors with `orcerrors.Terminal`; leave transient errors as-is for automatic retry.
 
 ## Testing Changes
 
-Follow @.agents/skills/testing/SKILL.md for running unit tests, linting, and E2E tests.
+Follow [testing](../testing/SKILL.md) for running unit tests, linting, and E2E tests.
 
 ## Checklist
 

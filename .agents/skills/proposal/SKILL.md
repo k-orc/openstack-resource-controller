@@ -91,45 +91,12 @@ Before writing a proposal, ask the user about:
 
 ## Research Phase
 
-Before writing the proposal, research relevant areas based on the enhancement type:
+Before writing the proposal, research the relevant area:
 
-### For Controller Enhancements
-
-1. **OpenStack API**
-   - Read the OpenStack API documentation for the resource
-   - Identify required vs optional fields
-   - Understand resource lifecycle (creation, updates, deletion)
-   - Check for async operations (polling requirements)
-
-2. **Gophercloud Support**
-   - Check if gophercloud has client support for this resource
-   - Identify the module path and types
-   - Note any missing functionality that needs upstream work
-
-3. **Existing Patterns**
-   - Look at similar controllers in ORC for patterns to follow
-   - Identify if existing utilities can be reused
-   - Check if new generic functionality is needed
-
-4. **Dependencies**
-   - Map out all ORC resource dependencies
-   - Determine which are required vs optional
-   - Identify deletion guard requirements
-
-### For Infrastructure Enhancements (metrics, webhooks, etc.)
-
-1. **Current Implementation**
-   - Check existing code for related functionality (e.g., `cmd/manager/`, `internal/`)
-   - Identify current ports, endpoints, and configurations
-   - Verify technical details by reading the actual code
-
-2. **Framework Capabilities**
-   - Check controller-runtime documentation for built-in features
-   - Identify what's provided vs what needs custom implementation
-
-3. **Integration Points**
-   - How does this integrate with existing infrastructure?
-   - What configuration already exists that this should use?
+- **OpenStack API & gophercloud**: Read the API docs, check gophercloud support, note async operations
+- **Existing ORC patterns**: Look at similar controllers or infrastructure code for patterns to follow
+- **Dependencies**: Map ORC resource dependencies (required vs optional, deletion guards)
+- **Current implementation**: For infrastructure enhancements, read the actual code to verify technical details (ports, endpoints, framework capabilities)
 
 ## Filling Out the Template
 
@@ -194,33 +161,9 @@ Address each of these in the **Risks and Edge Cases** section:
 | **OpenStack compatibility** | Does this work across different OpenStack versions? (N/A for K8s-only) |
 | **Interaction with existing features** | Could this conflict with existing behavior? |
 
-### Verification Before Submission
+### Before Submitting
 
-Before finalizing the proposal:
-
-1. **Internal consistency**: Verify anything referenced in one section is defined elsewhere
-   - If you mention a metric/API/config in mitigations, ensure it's defined in Proposal
-   - If you reference a flag, show its usage
-
-2. **Technical accuracy**: Verify details against actual code
-   - Check ports, endpoints, paths in the codebase
-   - Verify framework capabilities match what you describe
-
-3. **Completeness**: Ensure examples are complete and correct
-   - Code examples should compile conceptually
-   - Config examples should be valid YAML/JSON
-
-## Tips for Writing Good Enhancements
-
-1. **Be concise but complete** - Include enough detail for reviewers to understand the proposal without unnecessary verbosity.
-
-2. **Focus on the "why"** - Motivation is often more important than implementation details.
-
-3. **Think about edge cases** - The Risks and Edge Cases section is where you demonstrate you've thought through the implications.
-
-4. **Consider alternatives** - Showing that you've evaluated other approaches strengthens your proposal.
-
-5. **Keep it updated** - As implementation progresses, update the Implementation History section.
+Verify internal consistency (anything referenced in one section is defined elsewhere), technical accuracy (check against actual code), and that examples are complete.
 
 ## Submission Process
 
