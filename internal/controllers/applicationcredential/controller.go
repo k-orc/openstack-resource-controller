@@ -19,6 +19,7 @@ package applicationcredential
 import (
 	"context"
 	"errors"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -94,15 +95,20 @@ var (
 )
 
 type applicationcredentialReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return applicationcredentialReconcilerConstructor{scopeFactory: scopeFactory}
+	return &applicationcredentialReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (applicationcredentialReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *applicationcredentialReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var userDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ApplicationCredentialList, *orcv1alpha1.User](
@@ -129,7 +135,7 @@ var userImportDependency = dependency.NewDependency[*orcv1alpha1.ApplicationCred
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c applicationcredentialReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *applicationcredentialReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -195,6 +201,6 @@ func (c applicationcredentialReconcilerConstructor) SetupWithManager(ctx context
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, applicationcredentialHelperFactory{}, applicationcredentialStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, applicationcredentialHelperFactory{}, applicationcredentialStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

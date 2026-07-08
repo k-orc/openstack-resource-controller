@@ -1,0 +1,18 @@
+---
+# Create a managed Network resource and wait for ORC to create it in OpenStack.
+# A short resyncPeriod ensures ORC checks the network state periodically, so
+# external deletion is detected without requiring a manual trigger.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-external-deletion
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # resyncPeriod of 10s ensures ORC detects the external deletion quickly
+  # without requiring a watch event or manual trigger.
+  resyncPeriod: 10s
+  resource:
+    description: Network from "external-deletion" test

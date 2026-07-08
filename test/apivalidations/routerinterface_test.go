@@ -18,10 +18,12 @@ package apivalidations
 
 import (
 	"context"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
@@ -96,19 +98,36 @@ var _ = Describe("ORC RouterInterface API validations", func() {
 		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("subnetRef is required when type is 'Subnet'")))
 	})
 
-	It("should be immutable", func(ctx context.Context) {
+	It("should keep identity fields immutable", func(ctx context.Context) {
 		ri := routerInterfaceStub(namespace)
 		patch := baseRouterInterfacePatch(ri)
 		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
 			WithType(orcv1alpha1.RouterInterfaceTypeSubnet).
 			WithRouterRef("router-a").
-			WithSubnetRef("subnet-a"))
+			WithSubnetRef("subnet-a").
+			WithResyncPeriod(metav1.Duration{Duration: 10 * time.Minute}))
 		Expect(applyObj(ctx, ri, patch)).To(Succeed())
 
+		patch = baseRouterInterfacePatch(ri)
 		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
 			WithType(orcv1alpha1.RouterInterfaceTypeSubnet).
 			WithRouterRef("router-b").
 			WithSubnetRef("subnet-a"))
-		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("RouterInterfaceResourceSpec is immutable")))
+		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("routerRef is immutable")))
+
+		patch = baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypeSubnet).
+			WithRouterRef("router-a").
+			WithSubnetRef("subnet-b"))
+		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("subnetRef is immutable")))
+
+		patch = baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypeSubnet).
+			WithRouterRef("router-a").
+			WithSubnetRef("subnet-a").
+			WithResyncPeriod(metav1.Duration{Duration: time.Hour}))
+		Expect(applyObj(ctx, ri, patch)).To(Succeed())
 	})
 })

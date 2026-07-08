@@ -19,6 +19,7 @@ package endpoint
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "endpoint"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=endpoints/status,verbs=get;update;patch
 
 type endpointReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return endpointReconcilerConstructor{scopeFactory: scopeFactory}
+	return &endpointReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (endpointReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *endpointReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var serviceDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.EndpointList, *orcv1alpha1.Service](
@@ -75,7 +81,7 @@ var serviceImportDependency = dependency.NewDependency[*orcv1alpha1.EndpointList
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c endpointReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *endpointReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -109,6 +115,6 @@ func (c endpointReconcilerConstructor) SetupWithManager(ctx context.Context, mgr
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, endpointHelperFactory{}, endpointStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, endpointHelperFactory{}, endpointStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

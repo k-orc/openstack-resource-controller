@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 	"errors"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -41,15 +42,20 @@ const controllerName = "user"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=users/status,verbs=get;update;patch
 
 type userReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return userReconcilerConstructor{scopeFactory: scopeFactory}
+	return &userReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (userReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *userReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.UserList, *orcv1alpha1.Domain](
@@ -99,7 +105,7 @@ var passwordDependency = dependency.NewDependency[*orcv1alpha1.UserList, *corev1
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c userReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *userReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -156,6 +162,6 @@ func (c userReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctr
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, userHelperFactory{}, userStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, userHelperFactory{}, userStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

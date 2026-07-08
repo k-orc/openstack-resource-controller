@@ -1,0 +1,17 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+# Record the current lastSyncTime, sleep for 15 seconds (longer than even a
+# fast resync period would trigger), then verify that lastSyncTime has NOT
+# changed. This confirms that resyncPeriod=0 prevents periodic re-reconciliation.
+commands:
+  - script: |
+      INITIAL=$(kubectl get network.openstack.k-orc.cloud network-resync-disabled \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.lastSyncTime}')
+      # Sleep longer than any reasonable minimum resync period to confirm no resync fires.
+      sleep 15
+      CURRENT=$(kubectl get network.openstack.k-orc.cloud network-resync-disabled \
+        -n ${NAMESPACE} \
+        -o jsonpath='{.status.lastSyncTime}')
+      # Fail if lastSyncTime changed (would indicate an unexpected resync).
+      [ "${INITIAL}" = "${CURRENT}" ]

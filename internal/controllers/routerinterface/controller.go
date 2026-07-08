@@ -45,21 +45,27 @@ const (
 )
 
 type routerInterfaceReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return routerInterfaceReconcilerConstructor{scopeFactory: scopeFactory}
+	return &routerInterfaceReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (routerInterfaceReconcilerConstructor) GetName() string {
 	return controllerName
 }
 
+func (c *routerInterfaceReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
+}
+
 // orcRouterInterfaceReconciler reconciles an ORC Subnet.
 type orcRouterInterfaceReconciler struct {
-	client       client.Client
-	scopeFactory scope.Factory
+	client              client.Client
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 const controllerName = "routerinterface"
@@ -89,7 +95,7 @@ var (
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := mgr.GetLogger().WithValues("controller", controllerName)
 
 	if err := errors.Join(
@@ -105,8 +111,9 @@ func (c routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Conte
 	// dependencies because it reconciles Routers, not RouterInterfaces.
 
 	reconciler := orcRouterInterfaceReconciler{
-		client:       k8sClient,
-		scopeFactory: c.scopeFactory,
+		client:              k8sClient,
+		scopeFactory:        c.scopeFactory,
+		defaultResyncPeriod: c.defaultResyncPeriod,
 	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&orcv1alpha1.Router{}, builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Router{}))).

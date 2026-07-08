@@ -1,0 +1,125 @@
+/*
+Copyright The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package resync
+
+import (
+	"testing"
+	"time"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+func TestDetermineResyncPeriod(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		specValue     *metav1.Duration
+		globalDefault time.Duration
+		want          time.Duration
+	}{
+		{
+			// spec nil, global disabled → disabled
+			name:          "spec nil, global 0, returns 0 (disabled)",
+			specValue:     nil,
+			globalDefault: 0,
+			want:          0,
+		},
+		{
+			// spec nil, global set → use global
+			name:          "spec nil, global 1h, returns 1h",
+			specValue:     nil,
+			globalDefault: time.Hour,
+			want:          time.Hour,
+		},
+		{
+			// spec overrides global
+			name:          "spec 30m, global 1h, returns 30m (spec overrides)",
+			specValue:     &metav1.Duration{Duration: 30 * time.Minute},
+			globalDefault: time.Hour,
+			want:          30 * time.Minute,
+		},
+		{
+			// explicit 0s in spec disables resync regardless of global
+			name:          "spec 0s (explicit), global 1h, returns 0 (explicitly disabled)",
+			specValue:     &metav1.Duration{Duration: 0},
+			globalDefault: time.Hour,
+			want:          0,
+		},
+		{
+			// spec enables resync even when global is disabled
+			name:          "spec 2h, global 0, returns 2h (spec enables despite global disabled)",
+			specValue:     &metav1.Duration{Duration: 2 * time.Hour},
+			globalDefault: 0,
+			want:          2 * time.Hour,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := DetermineResyncPeriod(tt.specValue, tt.globalDefault)
+			if got != tt.want {
+				t.Errorf("DetermineResyncPeriod() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRemainingUntilNextSync(t *testing.T) {
+	t.Parallel()
+
+	t.Run("disabled", func(t *testing.T) {
+		t.Parallel()
+
+		lastSync := metav1.NewTime(time.Now().Add(-time.Minute))
+		if got := RemainingUntilNextSync(&lastSync, 0); got != 0 {
+			t.Fatalf("RemainingUntilNextSync() = %v, want 0", got)
+		}
+	})
+
+	t.Run("nil last sync", func(t *testing.T) {
+		t.Parallel()
+
+		if got := RemainingUntilNextSync(nil, 10*time.Minute); got != 0 {
+			t.Fatalf("RemainingUntilNextSync() = %v, want 0", got)
+		}
+	})
+
+	t.Run("period elapsed", func(t *testing.T) {
+		t.Parallel()
+
+		lastSync := metav1.NewTime(time.Now().Add(-20 * time.Minute))
+		if got := RemainingUntilNextSync(&lastSync, 10*time.Minute); got != 0 {
+			t.Fatalf("RemainingUntilNextSync() = %v, want 0", got)
+		}
+	})
+
+	t.Run("period not elapsed", func(t *testing.T) {
+		t.Parallel()
+
+		lastSync := metav1.NewTime(time.Now().Add(-2 * time.Minute))
+		got := RemainingUntilNextSync(&lastSync, 10*time.Minute)
+		if got <= 0 {
+			t.Fatalf("RemainingUntilNextSync() = %v, want positive duration", got)
+		}
+		if got > 8*time.Minute || got < 7*time.Minute {
+			t.Fatalf("RemainingUntilNextSync() = %v, want approximately 8m", got)
+		}
+	})
+}

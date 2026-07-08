@@ -143,6 +143,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AddressScopeResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AddressScopeStatus
   map:
     fields:
@@ -157,6 +160,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.AddressScopeResourceStatus
@@ -359,6 +365,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialStatus
   map:
     fields:
@@ -373,6 +382,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ApplicationCredentialResourceStatus
@@ -467,6 +479,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.DomainResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.DomainStatus
   map:
     fields:
@@ -481,6 +496,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.DomainResourceStatus
@@ -582,6 +600,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.EndpointResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.EndpointStatus
   map:
     fields:
@@ -596,6 +617,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.EndpointResourceStatus
@@ -776,6 +800,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorStatus
   map:
     fields:
@@ -790,6 +817,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FlavorResourceStatus
@@ -962,6 +992,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPStatus
   map:
     fields:
@@ -976,6 +1009,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.FloatingIPResourceStatus
@@ -1061,6 +1097,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.GroupResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.GroupStatus
   map:
     fields:
@@ -1075,6 +1114,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.GroupResourceStatus
@@ -1332,6 +1374,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageStatus
   map:
     fields:
@@ -1349,6 +1394,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ImageResourceStatus
@@ -1434,6 +1482,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.KeyPairResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.KeyPairStatus
   map:
     fields:
@@ -1448,6 +1499,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.KeyPairResourceStatus
@@ -1650,6 +1704,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkStatus
   map:
     fields:
@@ -1664,6 +1721,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.NetworkResourceStatus
@@ -1930,6 +1990,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortStatus
   map:
     fields:
@@ -1944,6 +2007,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.PortResourceStatus
@@ -2080,6 +2146,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ProjectResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ProjectStatus
   map:
     fields:
@@ -2094,6 +2163,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ProjectResourceStatus
@@ -2230,6 +2302,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentStatus
   map:
     fields:
@@ -2241,6 +2316,9 @@ var schemaYAML = typed.YAMLObject(`types:
           elementRelationship: associative
           keys:
           - type
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleAssignmentResourceStatus
@@ -2305,6 +2383,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleStatus
   map:
     fields:
@@ -2319,6 +2400,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RoleResourceStatus
@@ -2412,6 +2496,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterInterfaceSpec
   map:
     fields:
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
     - name: routerRef
       type:
         scalar: string
@@ -2435,6 +2522,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceSpec
   map:
     fields:
@@ -2526,6 +2616,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterStatus
   map:
     fields:
@@ -2540,6 +2633,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.RouterResourceStatus
@@ -2739,6 +2835,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupStatus
   map:
     fields:
@@ -2753,6 +2852,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SecurityGroupResourceStatus
@@ -2916,6 +3018,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupStatus
   map:
     fields:
@@ -2930,6 +3035,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerGroupResourceStatus
@@ -3158,6 +3266,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerStatus
   map:
     fields:
@@ -3172,6 +3283,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServerResourceStatus
@@ -3278,6 +3392,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceStatus
   map:
     fields:
@@ -3292,6 +3409,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ServiceResourceStatus
@@ -3405,6 +3525,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareNetworkResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareNetworkStatus
   map:
     fields:
@@ -3419,6 +3542,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ShareNetworkResourceStatus
@@ -3665,6 +3791,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetStatus
   map:
     fields:
@@ -3679,6 +3808,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceStatus
@@ -3848,6 +3980,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkStatus
   map:
     fields:
@@ -3862,6 +3997,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.TrunkResourceStatus
@@ -3998,6 +4136,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserStatus
   map:
     fields:
@@ -4012,6 +4153,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.UserResourceStatus
@@ -4219,6 +4363,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeStatus
   map:
     fields:
@@ -4233,6 +4380,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeResourceStatus
@@ -4353,6 +4503,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeStatus
   map:
     fields:
@@ -4367,6 +4520,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.VolumeTypeResourceStatus
@@ -4395,6 +4551,8 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
+- name: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+  scalar: string
 - name: io.k8s.apimachinery.pkg.apis.meta.v1.FieldsV1
   map:
     elementType:

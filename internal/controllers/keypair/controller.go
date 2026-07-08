@@ -19,6 +19,7 @@ package keypair
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -37,19 +38,24 @@ const controllerName = "keypair"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=keypairs/status,verbs=get;update;patch
 
 type keypairReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return keypairReconcilerConstructor{scopeFactory: scopeFactory}
+	return &keypairReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (keypairReconcilerConstructor) GetName() string {
 	return controllerName
 }
 
+func (c *keypairReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
+}
+
 // SetupWithManager sets up the controller with the Manager.
-func (c keypairReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *keypairReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 
 	builder := ctrl.NewControllerManagedBy(mgr).
@@ -63,6 +69,6 @@ func (c keypairReconcilerConstructor) SetupWithManager(ctx context.Context, mgr 
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, keypairHelperFactory{}, keypairStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, keypairHelperFactory{}, keypairStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

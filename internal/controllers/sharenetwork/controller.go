@@ -19,6 +19,7 @@ package sharenetwork
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "sharenetwork"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=sharenetworks/status,verbs=get;update;patch
 
 type sharenetworkReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return sharenetworkReconcilerConstructor{scopeFactory: scopeFactory}
+	return &sharenetworkReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (sharenetworkReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *sharenetworkReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var networkDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ShareNetworkList, *orcv1alpha1.Network](
@@ -76,7 +82,7 @@ var subnetDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.ShareN
 )
 
 // SetupWithManager sets up the controller with the Manager.
-func (c sharenetworkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (c *sharenetworkReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()
 
@@ -109,6 +115,6 @@ func (c sharenetworkReconcilerConstructor) SetupWithManager(ctx context.Context,
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, sharenetworkHelperFactory{}, sharenetworkStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, sharenetworkHelperFactory{}, sharenetworkStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }

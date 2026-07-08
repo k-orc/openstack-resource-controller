@@ -20,6 +20,7 @@ package v1alpha1
 
 import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // KeyPairSpecApplyConfiguration represents a declarative configuration of the KeyPairSpec type for use
@@ -29,6 +30,7 @@ type KeyPairSpecApplyConfiguration struct {
 	Resource            *KeyPairResourceSpecApplyConfiguration       `json:"resource,omitempty"`
 	ManagementPolicy    *apiv1alpha1.ManagementPolicy                `json:"managementPolicy,omitempty"`
 	ManagedOptions      *ManagedOptionsApplyConfiguration            `json:"managedOptions,omitempty"`
+	ResyncPeriod        *v1.Duration                                 `json:"resyncPeriod,omitempty"`
 	CloudCredentialsRef *CloudCredentialsReferenceApplyConfiguration `json:"cloudCredentialsRef,omitempty"`
 }
 
@@ -67,6 +69,14 @@ func (b *KeyPairSpecApplyConfiguration) WithManagementPolicy(value apiv1alpha1.M
 // If called multiple times, the ManagedOptions field is set to the value of the last call.
 func (b *KeyPairSpecApplyConfiguration) WithManagedOptions(value *ManagedOptionsApplyConfiguration) *KeyPairSpecApplyConfiguration {
 	b.ManagedOptions = value
+	return b
+}
+
+// WithResyncPeriod sets the ResyncPeriod field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResyncPeriod field is set to the value of the last call.
+func (b *KeyPairSpecApplyConfiguration) WithResyncPeriod(value v1.Duration) *KeyPairSpecApplyConfiguration {
+	b.ResyncPeriod = &value
 	return b
 }
 
