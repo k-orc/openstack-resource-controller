@@ -19,14 +19,16 @@ limitations under the License.
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
 // RoleAssignmentStatusApplyConfiguration represents a declarative configuration of the RoleAssignmentStatus type for use
 // with apply.
 type RoleAssignmentStatusApplyConfiguration struct {
-	Conditions []v1.ConditionApplyConfiguration                `json:"conditions,omitempty"`
-	Resource   *RoleAssignmentResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	Conditions   []v1.ConditionApplyConfiguration                `json:"conditions,omitempty"`
+	Resource     *RoleAssignmentResourceStatusApplyConfiguration `json:"resource,omitempty"`
+	LastSyncTime *metav1.Time                                    `json:"lastSyncTime,omitempty"`
 }
 
 // RoleAssignmentStatusApplyConfiguration constructs a declarative configuration of the RoleAssignmentStatus type for use with
@@ -53,5 +55,13 @@ func (b *RoleAssignmentStatusApplyConfiguration) WithConditions(values ...*v1.Co
 // If called multiple times, the Resource field is set to the value of the last call.
 func (b *RoleAssignmentStatusApplyConfiguration) WithResource(value *RoleAssignmentResourceStatusApplyConfiguration) *RoleAssignmentStatusApplyConfiguration {
 	b.Resource = value
+	return b
+}
+
+// WithLastSyncTime sets the LastSyncTime field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the LastSyncTime field is set to the value of the last call.
+func (b *RoleAssignmentStatusApplyConfiguration) WithLastSyncTime(value metav1.Time) *RoleAssignmentStatusApplyConfiguration {
+	b.LastSyncTime = &value
 	return b
 }

@@ -50,6 +50,14 @@ spec:
           spec:
             description: spec specifies the desired state of the resource.
             properties:
+              resyncPeriod:
+                description: |-
+                  resyncPeriod defines how frequently the controller will re-reconcile
+                  this resource even when no changes have been detected. This overrides
+                  the global default resync period. The value must be a valid Go duration
+                  string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for
+                  this resource. Very low values may cause excessive OpenStack API load.
+                type: string
               routerRef:
                 description: routerRef references the router to which this interface
                   belongs.
@@ -77,8 +85,13 @@ spec:
             - message: subnetRef is required when type is 'Subnet' and not permitted
                 otherwise
               rule: 'self.type == ''Subnet'' ? has(self.subnetRef) : !has(self.subnetRef)'
-            - message: RouterInterfaceResourceSpec is immutable
-              rule: self == oldSelf
+            - message: type is immutable
+              rule: self.type == oldSelf.type
+            - message: routerRef is immutable
+              rule: self.routerRef == oldSelf.routerRef
+            - message: subnetRef is immutable
+              rule: has(self.subnetRef) == has(oldSelf.subnetRef) && (!has(self.subnetRef)
+                || self.subnetRef == oldSelf.subnetRef)
           status:
             description: status defines the observed state of the resource.
             properties:
@@ -160,6 +173,12 @@ spec:
                 description: id is the unique identifier of the port created for the
                   router interface
                 maxLength: 1024
+                type: string
+              lastSyncTime:
+                description: |-
+                  lastSyncTime is the timestamp of the last successful reconciliation
+                  of the resource.
+                format: date-time
                 type: string
             type: object
         required:
