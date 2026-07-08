@@ -40,12 +40,20 @@ type ORCStatusApplyConfig[statusApplyPT any] interface {
 	WithConditions(...*applyconfigv1.ConditionApplyConfiguration) statusApplyPT
 }
 
-// ORCStatusApplyConfigWithID extends ORCStatusApplyConfig with an ID field.
+// ORCStatusApplyConfigWithLastSyncTime extends ORCStatusApplyConfig with a
+// LastSyncTime field.
+type ORCStatusApplyConfigWithLastSyncTime[statusApplyPT any] interface {
+	ORCStatusApplyConfig[statusApplyPT]
+	WithLastSyncTime(metav1.Time) statusApplyPT
+}
+
+// ORCStatusApplyConfigWithID extends ORCStatusApplyConfigWithLastSyncTime with
+// an ID field.
 // This is required by resources that have an OpenStack-assigned ID stored in
 // status.id. Resources without an ID (e.g. relationship resources like
 // RoleAssignment) use only ORCStatusApplyConfig.
 type ORCStatusApplyConfigWithID[statusApplyPT any] interface {
-	ORCStatusApplyConfig[statusApplyPT]
+	ORCStatusApplyConfigWithLastSyncTime[statusApplyPT]
 	WithID(id string) statusApplyPT
 }
 
