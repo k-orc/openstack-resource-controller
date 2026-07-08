@@ -373,9 +373,11 @@ func (actuator portActuator) checkAttachedServer(ctx context.Context, obj orcObj
 	}
 
 	// Find server with matching ID
+	found := false
 	for i := range serverList.Items {
 		server := &serverList.Items[i]
 		if server.Status.ID != nil && *server.Status.ID == osResource.DeviceID {
+			found = true
 			// Check if server is in BUILD status
 			if server.Status.Resource != nil && server.Status.Resource.Status == "BUILD" {
 				log.V(logging.Verbose).Info("Port is attached to server in BUILD status, waiting",
@@ -387,6 +389,23 @@ func (actuator portActuator) checkAttachedServer(ctx context.Context, obj orcObj
 			// Server found and not in BUILD status, continue reconciliation
 			break
 		}
+	}
+
+	// When the port is attached to a device but still reports DOWN,
+	// the Neutron status has not yet transitioned to ACTIVE (e.g.
+	// OVN is still binding the port). serverToPortMapFunc also
+	// detects this and triggers a reconcile, but it races with the
+	// port controller's own status write: the controller may
+	// overwrite Progressing=True with Progressing=False before the
+	// port becomes ACTIVE. Poll here so we keep Progressing=True
+	// until the transition completes. Only do this when we found
+	// the ORC Server object the port is attached to, to avoid
+	// unnecessary polling when the device isn't a tracked server.
+	if found && osResource.Status == PortStatusDown {
+		log.V(logging.Verbose).Info("port needs reconciliation: attached to server but status is DOWN",
+			"port", obj.Name,
+			"status", osResource.Status)
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, serverBuildPollingPeriod)
 	}
 
 	return nil
