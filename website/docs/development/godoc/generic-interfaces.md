@@ -16,6 +16,7 @@ import "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/g
 - [type ORCApplyConfig](<#ORCApplyConfig>)
 - [type ORCStatusApplyConfig](<#ORCStatusApplyConfig>)
 - [type ORCStatusApplyConfigWithID](<#ORCStatusApplyConfigWithID>)
+- [type ORCStatusApplyConfigWithLastSyncTime](<#ORCStatusApplyConfigWithLastSyncTime>)
 - [type ReconcileResourceActuator](<#ReconcileResourceActuator>)
 - [type ResourceController](<#ResourceController>)
 - [type ResourceHelperFactory](<#ResourceHelperFactory>)
@@ -24,7 +25,7 @@ import "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/g
 
 
 <a name="APIObjectAdapter"></a>
-## type [APIObjectAdapter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/adapter.go#L25-L41>)
+## type [APIObjectAdapter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/adapter.go#L25-L43>)
 
 
 
@@ -40,6 +41,8 @@ type APIObjectAdapter[orcObjectPT any, resourceSpecT any, filterT any] interface
 
     GetManagementPolicy() orcv1alpha1.ManagementPolicy
     GetManagedOptions() *orcv1alpha1.ManagedOptions
+    GetResyncPeriod() *metav1.Duration
+    GetLastSyncTime() *metav1.Time
 
     GetStatusID() *string
     GetResourceSpec() *resourceSpecT
@@ -91,7 +94,7 @@ type BaseResourceActuator[
 ```
 
 <a name="Controller"></a>
-## type [Controller](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L29-L32>)
+## type [Controller](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L30-L34>)
 
 
 
@@ -99,6 +102,7 @@ type BaseResourceActuator[
 type Controller interface {
     SetupWithManager(context.Context, ctrl.Manager, controller.Options) error
     GetName() string
+    SetDefaultResyncPeriod(time.Duration)
 }
 ```
 
@@ -215,13 +219,25 @@ type ORCStatusApplyConfig[statusApplyPT any] interface {
 ```
 
 <a name="ORCStatusApplyConfigWithID"></a>
-## type [ORCStatusApplyConfigWithID](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L47-L50>)
+## type [ORCStatusApplyConfigWithID](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L55-L58>)
 
-ORCStatusApplyConfigWithID extends ORCStatusApplyConfig with an ID field. This is required by resources that have an OpenStack\-assigned ID stored in status.id. Resources without an ID \(e.g. relationship resources like RoleAssignment\) use only ORCStatusApplyConfig.
+ORCStatusApplyConfigWithID extends ORCStatusApplyConfigWithLastSyncTime with an ID field. This is required by resources that have an OpenStack\-assigned ID stored in status.id. Resources without an ID \(e.g. relationship resources like RoleAssignment\) use only ORCStatusApplyConfig.
 
 ```go
 type ORCStatusApplyConfigWithID[statusApplyPT any] interface {
     WithID(id string) statusApplyPT
+    // contains filtered or unexported methods
+}
+```
+
+<a name="ORCStatusApplyConfigWithLastSyncTime"></a>
+## type [ORCStatusApplyConfigWithLastSyncTime](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L45-L48>)
+
+ORCStatusApplyConfigWithLastSyncTime extends ORCStatusApplyConfig with a LastSyncTime field.
+
+```go
+type ORCStatusApplyConfigWithLastSyncTime[statusApplyPT any] interface {
+    WithLastSyncTime(metav1.Time) statusApplyPT
     // contains filtered or unexported methods
 }
 ```
@@ -257,7 +273,7 @@ type ReconcileResourceActuator[orcObjectPT, osResourceT any] interface {
 ```
 
 <a name="ResourceController"></a>
-## type [ResourceController](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L34-L39>)
+## type [ResourceController](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/controller.go#L36-L41>)
 
 
 
@@ -325,7 +341,7 @@ type ResourceReconciler[orcObjectPT, osResourceT any] func(ctx context.Context, 
 ```
 
 <a name="ResourceStatusWriter"></a>
-## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L53-L66>)
+## type [ResourceStatusWriter](<https://github.com/k-orc/openstack-resource-controller/blob/main/internal/controllers/generic/interfaces/status.go#L61-L74>)
 
 ResourceStatusWriter defines methods for writing an ORC object status
 
