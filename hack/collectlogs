@@ -27,7 +27,14 @@ done
 cp ./devstack/local.conf "$DEVSTACK_LOG_DIR"
 
 kubectl describe pods -n orc-system > "$LOG_DIR/orc-pod.txt"
-kubectl logs -n orc-system -l control-plane=controller-manager --tail=-1 > "$LOG_DIR/orc-pod.log"
+
+ORC_POD=$(kubectl get pods -n orc-system -l control-plane=controller-manager -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -n orc-system "$ORC_POD" --tail=-1 > "$LOG_DIR/orc-pod.log" 2>&1
+
+if [ ! -s "$LOG_DIR/orc-pod.log" ]; then
+    echo "WARNING: orc-pod.log is empty, trying --previous" >&2
+    kubectl logs -n orc-system "$ORC_POD" --previous > "$LOG_DIR/orc-pod-previous.log" 2>&1 || true
+fi
 
 kubectl get -n orc-system all -o yaml > "$LOG_DIR/orc-resources.yaml"
 
