@@ -1,0 +1,20 @@
+---
+# Attempt to import a network with a filter matching both external networks.
+# This will result in a terminal error (InvalidConfiguration) because the
+# filter is ambiguous. A resyncPeriod is set to verify that the terminal error
+# prevents the resync scheduler from enqueuing further reconciliations.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: network-resync-terminal-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  # resyncPeriod is configured so we can verify it is suppressed by the
+  # terminal error (the scheduler must not fire for a resource in this state).
+  resyncPeriod: 10s
+  import:
+    filter:
+      description: Network from "resync-terminal-error" test

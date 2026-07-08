@@ -1,0 +1,39 @@
+---
+# After the resync period elapses, all three networks should have been
+# independently re-reconciled. This assert waits for all three lastSyncTime
+# values to advance beyond their recorded initial values and verifies that not
+# all elapsed intervals are identical, confirming that jitter is observable in
+# the end-to-end flow without requiring every random sample to be unique.
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 240
+commands:
+  - script: |
+      set -eu
+
+      INIT1=$(cat /tmp/network-resync-jitter-1-initial-sync-time)
+      INIT2=$(cat /tmp/network-resync-jitter-2-initial-sync-time)
+      INIT3=$(cat /tmp/network-resync-jitter-3-initial-sync-time)
+
+      CUR1=$(kubectl get network.openstack.k-orc.cloud network-resync-jitter-1 \
+        -n ${NAMESPACE} -o jsonpath='{.status.lastSyncTime}')
+      CUR2=$(kubectl get network.openstack.k-orc.cloud network-resync-jitter-2 \
+        -n ${NAMESPACE} -o jsonpath='{.status.lastSyncTime}')
+      CUR3=$(kubectl get network.openstack.k-orc.cloud network-resync-jitter-3 \
+        -n ${NAMESPACE} -o jsonpath='{.status.lastSyncTime}')
+
+      to_epoch_ns() {
+        date -u -d "$1" +%s%N
+      }
+
+      DELTA1=$(( $(to_epoch_ns "${CUR1}") - $(to_epoch_ns "${INIT1}") ))
+      DELTA2=$(( $(to_epoch_ns "${CUR2}") - $(to_epoch_ns "${INIT2}") ))
+      DELTA3=$(( $(to_epoch_ns "${CUR3}") - $(to_epoch_ns "${INIT3}") ))
+
+      # All three must update, and at least one observed interval must differ.
+      [ "${CUR1}" != "${INIT1}" ] && \
+      [ "${CUR2}" != "${INIT2}" ] && \
+      [ "${CUR3}" != "${INIT3}" ] && \
+      { [ "${DELTA1}" -ne "${DELTA2}" ] || \
+        [ "${DELTA1}" -ne "${DELTA3}" ] || \
+        [ "${DELTA2}" -ne "${DELTA3}" ]; }
