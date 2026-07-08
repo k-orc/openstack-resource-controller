@@ -19,6 +19,7 @@ package roleassignment
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -39,15 +40,20 @@ const controllerName = "roleassignment"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=roleassignments/status,verbs=get;update;patch
 
 type roleassignmentReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return roleassignmentReconcilerConstructor{scopeFactory: scopeFactory}
+	return &roleassignmentReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (roleassignmentReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *roleassignmentReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var roleDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RoleAssignmentList, *orcv1alpha1.Role](
@@ -278,8 +284,9 @@ func (c roleassignmentReconcilerConstructor) SetupWithManager(ctx context.Contex
 
 	// Custom reconciler for role assignments (relationships, not resources with IDs)
 	reconciler := &roleassignmentReconciler{
-		client:       mgr.GetClient(),
-		scopeFactory: c.scopeFactory,
+		client:              mgr.GetClient(),
+		scopeFactory:        c.scopeFactory,
+		defaultResyncPeriod: c.defaultResyncPeriod,
 	}
 	return builder.Complete(reconciler)
 }

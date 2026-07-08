@@ -31,6 +31,8 @@ import (
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/resync"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
@@ -101,6 +103,32 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, nil
 	}
 
+	var reconcileStatus progress.ReconcileStatus
+	routerInterfacesToReconcile := make([]*orcv1alpha1.RouterInterface, 0, len(routerInterfaces))
+	for i := range routerInterfaces {
+		routerInterface := &routerInterfaces[i]
+
+		if !routerInterface.GetDeletionTimestamp().IsZero() {
+			routerInterfacesToReconcile = append(routerInterfacesToReconcile, routerInterface)
+			continue
+		}
+
+		effectiveResyncPeriod := resync.DetermineResyncPeriod(routerInterface.Spec.ResyncPeriod, r.defaultResyncPeriod)
+		if !reconciler.ShouldReconcile(routerInterface, routerInterface.Status.LastSyncTime, effectiveResyncPeriod) {
+			if remaining := resync.RemainingUntilNextSync(routerInterface.Status.LastSyncTime, effectiveResyncPeriod); remaining > 0 {
+				reconcileStatus = reconcileStatus.WithRequeue(remaining)
+			}
+			continue
+		}
+
+		routerInterfacesToReconcile = append(routerInterfacesToReconcile, routerInterface)
+	}
+
+	if len(routerInterfacesToReconcile) == 0 {
+		log.V(logging.Verbose).Info("Router interfaces are up to date: not reconciling")
+		return reconcileStatus.Return(log)
+	}
+
 	// If there are interfaces, the router should have our finalizer
 	if err := dependency.EnsureFinalizer(ctx, r.client, router, finalizer, fieldOwner); err != nil {
 		return ctrl.Result{}, fmt.Errorf("writing finalizer: %w", err)
@@ -134,9 +162,7 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		}
 	}
 
-	var reconcileStatus progress.ReconcileStatus
-	for i := range routerInterfaces {
-		routerInterface := &routerInterfaces[i]
+	for _, routerInterface := range routerInterfacesToReconcile {
 		log = log.WithValues("name", routerInterface.Name)
 
 		var ifReconcileStatus progress.ReconcileStatus

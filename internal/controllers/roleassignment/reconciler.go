@@ -24,14 +24,14 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/reconciler"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/resync"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/scope"
@@ -49,8 +49,9 @@ const (
 // Unlike other ORC resources, role assignments are relationships (not resources with IDs),
 // so this uses a custom reconciler instead of the generic framework.
 type roleassignmentReconciler struct {
-	client       client.Client
-	scopeFactory scope.Factory
+	client              client.Client
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 
 	statusWriter roleassignmentStatusWriter
 }
@@ -82,22 +83,11 @@ func (r *roleassignmentReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	return r.reconcileNormal(ctx, orcObject).Return(log)
 }
 
-// shouldReconcile determines if reconciliation should proceed based on the Progressing condition.
-// Returns true if:
-// - Progressing condition is not present
-// - Progressing condition is True
-// - Progressing condition is False but observedGeneration is stale
-func shouldReconcile(obj orcObjectPT) bool {
-	progressing := meta.FindStatusCondition(obj.GetConditions(), orcv1alpha1.ConditionProgressing)
-	if progressing == nil {
-		return true
-	}
-
-	if progressing.Status == metav1.ConditionTrue {
-		return true
-	}
-
-	return progressing.ObservedGeneration != obj.GetGeneration()
+func hasRoleAssignmentComponents(statusResource *orcv1alpha1.RoleAssignmentResourceStatus) bool {
+	return statusResource != nil &&
+		statusResource.RoleID != "" &&
+		(statusResource.UserID != "" || statusResource.GroupID != "") &&
+		(statusResource.ProjectID != "" || statusResource.DomainID != "")
 }
 
 // reconcileNormal handles the normal reconciliation flow:
@@ -107,10 +97,14 @@ func shouldReconcile(obj orcObjectPT) bool {
 // 4. Update status
 func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObject orcObjectPT) (reconcileStatus progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
+	effectiveResyncPeriod := resync.DetermineResyncPeriod(orcObject.Spec.ResyncPeriod, r.defaultResyncPeriod)
 
 	// Check if we should skip reconciliation
-	if !shouldReconcile(orcObject) {
+	if !reconciler.ShouldReconcile(orcObject, orcObject.Status.LastSyncTime, effectiveResyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
+		if remaining := resync.RemainingUntilNextSync(orcObject.Status.LastSyncTime, effectiveResyncPeriod); remaining > 0 {
+			return reconcileStatus.WithRequeue(remaining)
+		}
 		return reconcileStatus
 	}
 
@@ -145,10 +139,7 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 	if orcObject.Status.Resource != nil {
 		statusResource := orcObject.Status.Resource
 		// If we have all components in status, try to fetch the role assignment
-		if statusResource.RoleID != "" &&
-			(statusResource.UserID != "" || statusResource.GroupID != "") &&
-			(statusResource.ProjectID != "" || statusResource.DomainID != "") {
-
+		if hasRoleAssignmentComponents(statusResource) {
 			osResource, getRS := actuator.GetResourceByComponents(
 				ctx,
 				statusResource.RoleID,
@@ -163,81 +154,91 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 
 			if osResource != nil {
 				log.V(logging.Verbose).Info("Got existing role assignment")
-				return reconcileStatus
+			} else {
+				// Status was fully populated but the resource no longer exists in
+				// OpenStack. GetResourceByComponents uses a LIST query which returns
+				// (nil, nil) for empty results rather than a 404 error, so we detect
+				// deletion here.
+				if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
+					return progress.WrapError(
+						orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "role assignment has been deleted from OpenStack"))
+				}
+				log.V(logging.Info).Info("Role assignment was deleted externally; will recreate")
 			}
-
-			// Status was fully populated but the resource no longer
-			// exists in OpenStack. GetResourceByComponents uses a
-			// LIST query which returns (nil, nil) for empty results
-			// rather than a 404 error, so we detect deletion here.
-			return progress.WrapError(
-				orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "role assignment has been deleted from OpenStack"))
 		}
 	}
 
 	// Phase 5: Import by filter
-	if importSpec := orcObject.Spec.Import; importSpec != nil {
-		if filter := importSpec.Filter; filter != nil {
-			resourceIter, importRS := actuator.ListOSResourcesForImport(ctx, orcObject, *filter)
-			if needsReschedule, _ := importRS.NeedsReschedule(); needsReschedule {
-				return importRS.WithReconcileStatus(reconcileStatus)
-			}
+	if osResource == nil {
+		if importSpec := orcObject.Spec.Import; importSpec != nil {
+			if filter := importSpec.Filter; filter != nil {
+				resourceIter, importRS := actuator.ListOSResourcesForImport(ctx, orcObject, *filter)
+				if needsReschedule, _ := importRS.NeedsReschedule(); needsReschedule {
+					return importRS.WithReconcileStatus(reconcileStatus)
+				}
 
-			var err error
-			osResource, err = atMostOne(resourceIter,
-				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-					"found more than one matching OpenStack resource during import"))
-			if err != nil {
-				return progress.WrapError(err)
-			}
+				var err error
+				osResource, err = atMostOne(resourceIter,
+					orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+						"found more than one matching OpenStack resource during import"))
+				if err != nil {
+					return progress.WrapError(err)
+				}
 
-			if osResource == nil {
-				return progress.WaitingOnOpenStack(progress.WaitingOnCreation, externalUpdatePollingPeriod)
-			}
+				if osResource == nil {
+					return progress.WaitingOnOpenStack(progress.WaitingOnCreation, externalUpdatePollingPeriod)
+				}
 
-			log.V(logging.Info).Info("Imported role assignment")
-			return reconcileStatus
+				log.V(logging.Info).Info("Imported role assignment")
+			}
 		}
 	}
 
 	// Phase 6: Adoption - check for existing resource before creating
-	if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
-		// We never create an unmanaged resource
-		// API validation should have ensured that one of the above functions returned
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Not creating unmanaged resource"))
-	}
-
-	resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, orcObject)
-	if canAdopt {
-		var err error
-		osResource, err = atMostOne(resourceIter,
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
-				"found more than one matching OpenStack resource during adoption"))
-		if err != nil {
-			return progress.WrapError(err)
+	if osResource == nil {
+		if orcObject.Spec.ManagementPolicy == orcv1alpha1.ManagementPolicyUnmanaged {
+			// We never create an unmanaged resource
+			// API validation should have ensured that one of the above functions returned
+			return progress.WrapError(
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Not creating unmanaged resource"))
 		}
-		if osResource != nil {
-			log.V(logging.Info).Info("Adopted previously created resource")
-			return reconcileStatus
+
+		if resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, orcObject); canAdopt {
+			var err error
+			osResource, err = atMostOne(resourceIter,
+				orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+					"found more than one matching OpenStack resource during adoption"))
+			if err != nil {
+				return progress.WrapError(err)
+			}
+			if osResource != nil {
+				log.V(logging.Info).Info("Adopted previously created resource")
+			}
 		}
 	}
 
 	// Phase 7: Fetch dependencies and create role assignment
-	log.V(logging.Info).Info("Creating resource")
-	osResource, createRS := actuator.CreateResource(ctx, orcObject)
-	if needsReschedule, err := createRS.NeedsReschedule(); needsReschedule {
-		if err == nil {
-			log.V(logging.Verbose).Info("Waiting on dependencies or creation")
-		}
-		return createRS.WithReconcileStatus(reconcileStatus)
-	}
-
 	if osResource == nil {
-		return reconcileStatus.WithError(fmt.Errorf("osResource is not set, but no wait events or error"))
+		log.V(logging.Info).Info("Creating resource")
+		var createRS progress.ReconcileStatus
+		osResource, createRS = actuator.CreateResource(ctx, orcObject)
+		if needsReschedule, err := createRS.NeedsReschedule(); needsReschedule {
+			if err == nil {
+				log.V(logging.Verbose).Info("Waiting on dependencies or creation")
+			}
+			return createRS.WithReconcileStatus(reconcileStatus)
+		}
+
+		if osResource == nil {
+			return reconcileStatus.WithError(fmt.Errorf("osResource is not set, but no wait events or error"))
+		}
+
+		log.V(logging.Info).Info("Role assignment created")
 	}
 
-	log.V(logging.Info).Info("Role assignment created or adopted")
+	if resync.ShouldScheduleResync(effectiveResyncPeriod, reconcileStatus) {
+		reconcileStatus = reconcileStatus.WithRequeue(resync.CalculateJitteredDuration(effectiveResyncPeriod))
+	}
 	return reconcileStatus
 }
 
