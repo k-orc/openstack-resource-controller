@@ -6679,6 +6679,11 @@ func (in *SubnetPoolSpec) DeepCopyInto(out *SubnetPoolSpec) {
 		*out = new(ManagedOptions)
 		**out = **in
 	}
+	if in.ResyncPeriod != nil {
+		in, out := &in.ResyncPeriod, &out.ResyncPeriod
+		*out = new(v1.Duration)
+		**out = **in
+	}
 	out.CloudCredentialsRef = in.CloudCredentialsRef
 }
 
@@ -6711,6 +6716,10 @@ func (in *SubnetPoolStatus) DeepCopyInto(out *SubnetPoolStatus) {
 		in, out := &in.Resource, &out.Resource
 		*out = new(SubnetPoolResourceStatus)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.LastSyncTime != nil {
+		in, out := &in.LastSyncTime, &out.LastSyncTime
+		*out = (*in).DeepCopy()
 	}
 }
 

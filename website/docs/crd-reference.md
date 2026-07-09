@@ -4881,6 +4881,7 @@ _Appears in:_
 | `resource` _[SubnetPoolResourceSpec](#subnetpoolresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
 | `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
 | `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
 | `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
 
 
@@ -4900,6 +4901,7 @@ _Appears in:_
 | `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[SubnetPoolResourceStatus](#subnetpoolresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
 #### SubnetResourceSpec

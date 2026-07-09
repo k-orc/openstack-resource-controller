@@ -3841,6 +3841,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolStatus
   map:
     fields:
@@ -3855,6 +3858,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceStatus

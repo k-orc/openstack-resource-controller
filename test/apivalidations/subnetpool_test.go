@@ -41,7 +41,10 @@ func subnetpoolStub(namespace *corev1.Namespace) *orcv1alpha1.SubnetPool {
 }
 
 func testSubnetPoolResource() *applyconfigv1alpha1.SubnetPoolResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.SubnetPoolResourceSpec()
+	return applyconfigv1alpha1.SubnetPoolResourceSpec().
+		WithPrefixes(orcv1alpha1.CIDR("192.168.1.0/24")).
+		WithMinPrefixLength(8).
+		WithMaxPrefixLength(32)
 }
 
 func baseSubnetPoolPatch(obj client.Object) *applyconfigv1alpha1.SubnetPoolApplyConfiguration {

@@ -75,6 +75,7 @@ type SubnetPoolResourceSpec struct {
 	// By default, it is false, and only administrative users can
 	// change this value.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="shared is immutable"
 	Shared *bool `json:"shared,omitempty"`
 
 	// defaultPrefixLength is the size of the prefix to allocate when

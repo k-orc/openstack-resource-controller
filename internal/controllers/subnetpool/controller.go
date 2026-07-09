@@ -19,6 +19,7 @@ package subnetpool
 import (
 	"context"
 	"errors"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,15 +41,20 @@ const controllerName = "subnetpool"
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=subnetpools/status,verbs=get;update;patch
 
 type subnetpoolReconcilerConstructor struct {
-	scopeFactory scope.Factory
+	scopeFactory        scope.Factory
+	defaultResyncPeriod time.Duration
 }
 
 func New(scopeFactory scope.Factory) interfaces.Controller {
-	return subnetpoolReconcilerConstructor{scopeFactory: scopeFactory}
+	return &subnetpoolReconcilerConstructor{scopeFactory: scopeFactory}
 }
 
 func (subnetpoolReconcilerConstructor) GetName() string {
 	return controllerName
+}
+
+func (c *subnetpoolReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
+	c.defaultResyncPeriod = d
 }
 
 var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.SubnetPoolList, *orcv1alpha1.Project](
@@ -151,6 +157,6 @@ func (c subnetpoolReconcilerConstructor) SetupWithManager(ctx context.Context, m
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, subnetpoolHelperFactory{}, subnetpoolStatusWriter{})
+	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, subnetpoolHelperFactory{}, subnetpoolStatusWriter{}, c.defaultResyncPeriod)
 	return builder.Complete(&r)
 }
