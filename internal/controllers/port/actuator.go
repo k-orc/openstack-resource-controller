@@ -396,6 +396,21 @@ func (actuator portActuator) checkAttachedServer(ctx context.Context, obj orcObj
 		}
 	}
 
+	// When the port is attached to a device but still reports DOWN,
+	// the Neutron status has not yet transitioned to ACTIVE (e.g.
+	// OVN is still binding the port). serverToPortMapFunc also
+	// detects this and triggers a reconcile, but it races with the
+	// port controller's own status write: the controller may
+	// overwrite Progressing=True with Progressing=False before the
+	// port becomes ACTIVE. Poll here so we keep Progressing=True
+	// until the transition completes.
+	if osResource.Status == PortStatusDown {
+		log.V(logging.Verbose).Info("port needs reconciliation: attached to server but status is DOWN",
+			"port", obj.Name,
+			"status", osResource.Status)
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, serverBuildPollingPeriod)
+	}
+
 	return nil
 }
 
