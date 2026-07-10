@@ -137,6 +137,7 @@ func (actuator trunkActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		PortID:       ptr.Deref(port.Status.ID, ""),
 		ProjectID:    ptr.Deref(project.Status.ID, ""),
 		AdminStateUp: filter.AdminStateUp,
+		Status:       filter.Status,
 		Tags:         tags.Join(filter.Tags),
 		TagsAny:      tags.Join(filter.TagsAny),
 		NotTags:      tags.Join(filter.NotTags),
