@@ -173,6 +173,9 @@ var resources []templateFields = []templateFields{
 		Name: "ShareNetwork",
 	},
 	{
+		Name: "ShareType",
+	},
+	{
 		Name:         "KeyPair",
 		UsesNameAsID: true, // Keypairs uses name as ID, not UUID
 	},
