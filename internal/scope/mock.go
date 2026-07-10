@@ -50,6 +50,7 @@ type MockScopeFactory struct {
 	UserClient                  *mock.MockUserClient
 	VolumeClient                *mock.MockVolumeClient
 	VolumeTypeClient            *mock.MockVolumeTypeClient
+	ShareClient                 *mock.MockShareClient
 	ShareNetworkClient          *mock.MockShareNetworkClient
 
 	clientScopeCreateError error
@@ -70,6 +71,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	roleassignmentClient := mock.NewMockRoleAssignmentClient(mockCtrl)
 	serviceClient := mock.NewMockServiceClient(mockCtrl)
 	userClient := mock.NewMockUserClient(mockCtrl)
+	shareClient := mock.NewMockShareClient(mockCtrl)
 	sharenetworkClient := mock.NewMockShareNetworkClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
@@ -88,6 +90,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		RoleClient:                  roleClient,
 		RoleAssignmentClient:        roleassignmentClient,
 		ServiceClient:               serviceClient,
+		ShareClient:                 shareClient,
 		ShareNetworkClient:          sharenetworkClient,
 		UserClient:                  userClient,
 		VolumeClient:                volumeClient,
@@ -144,6 +147,10 @@ func (f *MockScopeFactory) NewDomainClient() (osclients.DomainClient, error) {
 
 func (f *MockScopeFactory) NewServiceClient() (osclients.ServiceClient, error) {
 	return f.ServiceClient, nil
+}
+
+func (f *MockScopeFactory) NewShareClient() (osclients.ShareClient, error) {
+	return f.ShareClient, nil
 }
 
 func (f *MockScopeFactory) NewShareNetworkClient() (osclients.ShareNetworkClient, error) {
