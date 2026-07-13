@@ -19,7 +19,6 @@ package subnetpool
 import (
 	"context"
 	"iter"
-	"slices"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/subnetpools"
 	corev1 "k8s.io/api/core/v1"
@@ -222,7 +221,6 @@ func (actuator subnetpoolActuator) updateResource(ctx context.Context, obj orcOb
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-	handlePrefixesUpdate(&updateOpts, resource, osResource)
 	handleMinPrefixLengthUpdate(&updateOpts, resource, osResource)
 	handleMaxPrefixLengthUpdate(&updateOpts, resource, osResource)
 	handleIsDefaultUpdate(&updateOpts, resource, osResource)
@@ -288,22 +286,6 @@ func handleMaxPrefixLengthUpdate(updateOpts *subnetpools.UpdateOpts, resource *r
 	maxPrefixLength := resource.MaxPrefixLength
 	if maxPrefixLength != int32(osResource.MaxPrefixLen) {
 		updateOpts.MaxPrefixLen = int(maxPrefixLength)
-	}
-}
-
-func handlePrefixesUpdate(updateOpts *subnetpools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	desiredPrefixes := make([]string, len(resource.Prefixes))
-	for i := range resource.Prefixes {
-		desiredPrefixes[i] = string(resource.Prefixes[i])
-	}
-	slices.Sort(desiredPrefixes)
-
-	currentPrefixes := make([]string, len(osResource.Prefixes))
-	copy(currentPrefixes, osResource.Prefixes)
-	slices.Sort(currentPrefixes)
-
-	if !slices.Equal(desiredPrefixes, currentPrefixes) {
-		updateOpts.Prefixes = desiredPrefixes
 	}
 }
 

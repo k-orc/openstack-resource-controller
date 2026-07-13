@@ -55,6 +55,7 @@ type SubnetPoolResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="prefixes is immutable"
 	Prefixes []CIDR `json:"prefixes,omitempty"`
 
 	// minPrefixLength is the smallest prefix that can be allocated

@@ -124,12 +124,15 @@ var _ = Describe("ORC SubnetPool API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("addressScopeRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable prefixes", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource())
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithPrefixes(orcv1alpha1.CIDR("10.0.0.0/8")))
+
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("prefixes is immutable")))
+	})
 })

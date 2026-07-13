@@ -333,6 +333,9 @@ spec:
                     minItems: 1
                     type: array
                     x-kubernetes-list-type: set
+                    x-kubernetes-validations:
+                    - message: prefixes is immutable
+                      rule: self == oldSelf
                   projectRef:
                     description: projectRef is a reference to the ORC Project which
                       this resource is associated with.

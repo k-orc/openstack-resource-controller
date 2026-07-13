@@ -174,67 +174,6 @@ func TestHandleMaxPrefixLengthUpdate(t *testing.T) {
 	}
 }
 
-func TestHandlePrefixesUpdate(t *testing.T) {
-	testCases := []struct {
-		name             string
-		newPrefixes      []orcv1alpha1.CIDR
-		existingPrefixes []string
-		expectChange     bool
-	}{
-		{
-			name:             "Identical prefixes",
-			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24", "10.0.0.0/16"},
-			existingPrefixes: []string{"192.168.0.0/24", "10.0.0.0/16"},
-			expectChange:     false,
-		},
-		{
-			name:             "Different prefixes",
-			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24"},
-			existingPrefixes: []string{"10.0.0.0/16"},
-			expectChange:     true,
-		},
-		{
-			name:             "Prefixes out of order",
-			newPrefixes:      []orcv1alpha1.CIDR{"10.0.0.0/16", "192.168.0.0/24"},
-			existingPrefixes: []string{"192.168.0.0/24", "10.0.0.0/16"},
-			expectChange:     false,
-		},
-		{
-			name:             "Extra prefix in existing",
-			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24"},
-			existingPrefixes: []string{"192.168.0.0/24", "10.0.0.0/16"},
-			expectChange:     true,
-		},
-		{
-			name:             "Extra prefix in new",
-			newPrefixes:      []orcv1alpha1.CIDR{"192.168.0.0/24", "10.0.0.0/16"},
-			existingPrefixes: []string{"192.168.0.0/24"},
-			expectChange:     true,
-		},
-		{
-			name:             "Empty prefixes",
-			newPrefixes:      []orcv1alpha1.CIDR{},
-			existingPrefixes: []string{},
-			expectChange:     false,
-		},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.SubnetPoolResourceSpec{Prefixes: tt.newPrefixes}
-			osResource := &osResourceT{Prefixes: tt.existingPrefixes}
-
-			updateOpts := subnetpools.UpdateOpts{}
-			handlePrefixesUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-	}
-}
-
 func TestHandleIsDefaultUpdate(t *testing.T) {
 	ptrToBool := ptr.To[bool]
 	testCases := []struct {
