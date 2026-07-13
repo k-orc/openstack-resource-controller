@@ -2218,6 +2218,8 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RegisteredLimitFilter](#registeredlimitfilter)
+- [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RoleAssignmentFilter](#roleassignmentfilter)
 - [RoleAssignmentResourceSpec](#roleassignmentresourcespec)
 - [RoleFilter](#rolefilter)
@@ -2650,6 +2652,8 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
+- [RegisteredLimitFilter](#registeredlimitfilter)
+- [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -3259,6 +3263,12 @@ _Appears in:_
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[RegionResourceStatus](#regionresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+
+
+
+
 
 
 #### Role

@@ -30,6 +30,7 @@ rules:
   - ports
   - projects
   - regions
+  - registeredlimits
   - roleassignments
   - roles
   - routerinterfaces
@@ -68,6 +69,7 @@ rules:
   - ports/status
   - projects/status
   - regions/status
+  - registeredlimits/status
   - roleassignments/status
   - roles/status
   - routerinterfaces/status

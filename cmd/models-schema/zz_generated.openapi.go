@@ -168,6 +168,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionResourceStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionSpec":                            schema_openstack_resource_controller_v2_api_v1alpha1_RegionSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionStatus":                          schema_openstack_resource_controller_v2_api_v1alpha1_RegionStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegisteredLimitFilter":                 schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegisteredLimitResourceSpec":           schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegisteredLimitResourceStatus":         schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Role":                                  schema_openstack_resource_controller_v2_api_v1alpha1_Role(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleAssignment":                        schema_openstack_resource_controller_v2_api_v1alpha1_RoleAssignment(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleAssignmentFilter":                  schema_openstack_resource_controller_v2_api_v1alpha1_RoleAssignmentFilter(ref),
@@ -7743,6 +7746,109 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegionStatus(ref commo
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RegisteredLimitFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serviceRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serviceRef is a reference to the ORC Service which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RegisteredLimitResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serviceRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serviceRef is a reference to the ORC Service which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"serviceRef"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RegisteredLimitResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serviceID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serviceID is the ID of the Service to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
