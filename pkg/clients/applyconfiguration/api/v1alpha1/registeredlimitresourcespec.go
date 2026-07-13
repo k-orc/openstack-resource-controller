@@ -25,23 +25,16 @@ import (
 // RegisteredLimitResourceSpecApplyConfiguration represents a declarative configuration of the RegisteredLimitResourceSpec type for use
 // with apply.
 type RegisteredLimitResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	ServiceRef  *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	Description  *string                        `json:"description,omitempty"`
+	ServiceRef   *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	ResourceName *string                        `json:"resourceName,omitempty"`
+	DefaultLimit *int32                         `json:"defaultLimit,omitempty"`
 }
 
 // RegisteredLimitResourceSpecApplyConfiguration constructs a declarative configuration of the RegisteredLimitResourceSpec type for use with
 // apply.
 func RegisteredLimitResourceSpec() *RegisteredLimitResourceSpecApplyConfiguration {
 	return &RegisteredLimitResourceSpecApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *RegisteredLimitResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *RegisteredLimitResourceSpecApplyConfiguration {
-	b.Name = &value
-	return b
 }
 
 // WithDescription sets the Description field in the declarative configuration to the given value
@@ -57,5 +50,21 @@ func (b *RegisteredLimitResourceSpecApplyConfiguration) WithDescription(value st
 // If called multiple times, the ServiceRef field is set to the value of the last call.
 func (b *RegisteredLimitResourceSpecApplyConfiguration) WithServiceRef(value apiv1alpha1.KubernetesNameRef) *RegisteredLimitResourceSpecApplyConfiguration {
 	b.ServiceRef = &value
+	return b
+}
+
+// WithResourceName sets the ResourceName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceName field is set to the value of the last call.
+func (b *RegisteredLimitResourceSpecApplyConfiguration) WithResourceName(value string) *RegisteredLimitResourceSpecApplyConfiguration {
+	b.ResourceName = &value
+	return b
+}
+
+// WithDefaultLimit sets the DefaultLimit field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultLimit field is set to the value of the last call.
+func (b *RegisteredLimitResourceSpecApplyConfiguration) WithDefaultLimit(value int32) *RegisteredLimitResourceSpecApplyConfiguration {
+	b.DefaultLimit = &value
 	return b
 }

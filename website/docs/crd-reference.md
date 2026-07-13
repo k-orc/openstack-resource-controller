@@ -2656,8 +2656,6 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
-- [RegisteredLimitFilter](#registeredlimitfilter)
-- [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -3302,9 +3300,9 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### RegisteredLimitImport
@@ -3340,9 +3338,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[\S]+$` <br />Required: \{\} <br /> |
+| `defaultLimit` _integer_ | defaultLimit is limit of the specified resource in the given context.<br />Using -1 will allow unlimited use of the resource. Using 0 will prevent usage of that resource entirely.<br />Note: Due to a bug in gophercloud, you can not currently set this to 0 when creating a RegisteredLimit.<br />https://github.com/gophercloud/gophercloud/issues/3866 |  | Maximum: 2.147483647e+09 <br />Minimum: -1 <br />Required: \{\} <br /> |
 
 
 #### RegisteredLimitResourceStatus
@@ -3358,9 +3357,11 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `serviceID` _string_ | serviceID is the ID of the Service to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `regionID` _string_ | regionID is the ID of the region that contains the service endpoint. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `serviceID` _string_ | serviceID is the UUID of the service to which the registered limit belongs. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `defaultLimit` _integer_ | defaultLimit is limit of the specified resource in the given context. |  | Optional: \{\} <br /> |
 
 
 #### RegisteredLimitSpec
