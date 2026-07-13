@@ -52,6 +52,33 @@ func TestNeedsUpdate(t *testing.T) {
 	}
 }
 
+func TestHandleDefaultLimitUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      int
+		existingValue int
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: 1, existingValue: 1, expectChange: false},
+		{name: "Different", newValue: 2, existingValue: 1, expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.RegisteredLimitResourceSpec{DefaultLimit: ptr.To(int32(tt.newValue))}
+			osResource := &osResourceT{DefaultLimit: tt.existingValue}
+
+			updateOpts := registeredlimits.UpdateOpts{}
+			handleDefaultLimitUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
 func TestHandleDescriptionUpdate(t *testing.T) {
 	ptrToDescription := ptr.To[string]
 	testCases := []struct {

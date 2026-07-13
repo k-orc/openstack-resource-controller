@@ -71,21 +71,35 @@ func (actuator registeredlimitActuator) ListOSResourcesForAdoption(ctx context.C
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Service",
+		func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
 
-	listOpts := registeredlimits.ListOpts{
-		// TODO(scaffolding): Add import filters
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, false
 	}
 
-	return actuator.osClient.ListRegisteredLimits(ctx, listOpts), true
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// Add client-side filters
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(f *registeredlimits.RegisteredLimit) bool {
+			return f.Description == *resourceSpec.Description
+		})
+	}
+
+	listOpts := registeredlimits.ListOpts{
+		ResourceName: resourceSpec.ResourceName,
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator registeredlimitActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
@@ -99,12 +113,26 @@ func (actuator registeredlimitActuator) ListOSResourcesForImport(ctx context.Con
 		return nil, reconcileStatus
 	}
 
-	listOpts := registeredlimits.ListOpts{
-		ServiceID: ptr.Deref(service.Status.ID, ""),
-		// TODO(scaffolding): Add import filters
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	// Add client-side filters
+	if filter.Description != nil {
+		filters = append(filters, func(f *registeredlimits.RegisteredLimit) bool {
+			return f.Description == *filter.Description
+		})
 	}
 
-	return actuator.osClient.ListRegisteredLimits(ctx, listOpts), reconcileStatus
+	listOpts := registeredlimits.ListOpts{
+		ResourceName: ptr.Deref(filter.ResourceName, ""),
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), nil
+}
+
+func (actuator registeredlimitActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts registeredlimits.ListOptsBuilder) iter.Seq2[*registeredlimits.RegisteredLimit, error] {
+	registeredLimits := actuator.osClient.ListRegisteredLimits(ctx, listOpts)
+	return osclients.Filter(registeredLimits, filters...)
 }
 
 func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -121,6 +149,7 @@ func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj 
 	service, serviceDepRS := serviceDependency.GetDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
+
 	reconcileStatus = reconcileStatus.WithReconcileStatus(serviceDepRS)
 	if service != nil {
 		serviceID = ptr.Deref(service.Status.ID, "")
@@ -129,9 +158,10 @@ func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj 
 		return nil, reconcileStatus
 	}
 	createOpts := registeredlimits.CreateOpts{
-		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:   serviceID,
-		// TODO(scaffolding): Add more fields
+		ServiceID:    serviceID,
+		ResourceName: resource.ResourceName,
+		DefaultLimit: int(*resource.DefaultLimit),
+		Description:  ptr.Deref(resource.Description, ""),
 	}
 	batchCreateOpts := registeredlimits.BatchCreateOpts{
 		createOpts,
@@ -164,8 +194,7 @@ func (actuator registeredlimitActuator) updateResource(ctx context.Context, obj 
 	updateOpts := registeredlimits.UpdateOpts{}
 
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleDefaultLimitUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -195,7 +224,7 @@ func needsUpdate(updateOpts registeredlimits.UpdateOpts) (bool, error) {
 		return false, err
 	}
 
-	updateMap, ok := updateOptsMap["registered_limits"].(map[string]any)
+	updateMap, ok := updateOptsMap["registered_limit"].(map[string]any)
 	if !ok {
 		updateMap = make(map[string]any)
 	}
@@ -207,6 +236,13 @@ func handleDescriptionUpdate(updateOpts *registeredlimits.UpdateOpts, resource *
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleDefaultLimitUpdate(updateOpts *registeredlimits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	defaultLimit := int(*resource.DefaultLimit)
+	if osResource.DefaultLimit != defaultLimit {
+		updateOpts.DefaultLimit = &defaultLimit
 	}
 }
 
