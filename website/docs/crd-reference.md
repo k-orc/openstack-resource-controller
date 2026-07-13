@@ -2650,8 +2650,6 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
-- [RegisteredLimitFilter](#registeredlimitfilter)
-- [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -3165,9 +3163,9 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### RegisteredLimitImport
@@ -3203,9 +3201,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `defaultLimit` _integer_ | defaultLimit is limit of the specified resource in the given context. |  | Maximum: 2.147483647e+09 <br />Minimum: -1 <br />Required: \{\} <br /> |
 
 
 #### RegisteredLimitResourceStatus
@@ -3221,9 +3220,11 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `serviceID` _string_ | serviceID is the ID of the Service to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `regionID` _string_ | regionID is the ID of the region that contains the service endpoint. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `serviceID` _string_ | serviceID is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `defaultLimit` _integer_ | defaultLimit is limit of the specified resource in the given context. |  | Optional: \{\} <br /> |
 
 
 #### RegisteredLimitSpec

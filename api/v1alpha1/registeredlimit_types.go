@@ -18,11 +18,6 @@ package v1alpha1
 
 // RegisteredLimitResourceSpec contains the desired state of the resource.
 type RegisteredLimitResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
@@ -34,22 +29,23 @@ type RegisteredLimitResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
 	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/registeredlimits
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// resourceName is name of the resource to be limited.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="resourceName is immutable"
+	ResourceName string `json:"resourceName,omitempty"`
+
+	// defaultLimit is limit of the specified resource in the given context.
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=2147483647
+	// +required
+	DefaultLimit *int32 `json:"defaultLimit,omitempty"`
 }
 
 // RegisteredLimitFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type RegisteredLimitFilter struct {
-	// name of the existing resource
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
 	// description of the existing resource
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
@@ -60,29 +56,37 @@ type RegisteredLimitFilter struct {
 	// +optional
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/registeredlimits
+	// resourceName is name of the resource to be limited.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	ResourceName *string `json:"resourceName,omitempty"`
 }
 
 // RegisteredLimitResourceStatus represents the observed state of the resource.
 type RegisteredLimitResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Name string `json:"name,omitempty"`
-
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// serviceID is the ID of the Service to which the resource is associated.
-	// +kubebuilder:validation:MaxLength=1024
+	// resourceName is name of the resource to be limited.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	ResourceName string `json:"resourceName,omitempty"`
+
+	// regionID is the ID of the region that contains the service endpoint.
+	// +kubebuilder:validation:MaxLength:=1024
+	// +optional
+	RegionID string `json:"regionID,omitempty"`
+
+	// serviceID is a reference to the ORC Service which this resource is associated with.
+	// +kubebuilder:validation:MaxLength:=1024
 	// +optional
 	ServiceID string `json:"serviceID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the RegisteredLimit structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/registeredlimits
+	// defaultLimit is limit of the specified resource in the given context.
+	// +optional
+	DefaultLimit int32 `json:"defaultLimit,omitempty"`
 }
