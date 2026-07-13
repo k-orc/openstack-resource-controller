@@ -14,9 +14,9 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: registeredlimit-import-external-not-this-one
     description: RegisteredLimit registeredlimit-import-external from "registeredlimit-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    resourceName: vcpus
+    defaultLimit: 5
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit

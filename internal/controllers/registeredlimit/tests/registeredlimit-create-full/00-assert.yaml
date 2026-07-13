@@ -5,9 +5,9 @@ metadata:
   name: registeredlimit-create-full
 status:
   resource:
-    name: registeredlimit-create-full-override
     description: RegisteredLimit from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    resourceName: vcpus
+    defaultLimit: 5
   conditions:
   - type: Available
     status: "True"
@@ -30,4 +30,4 @@ resourceRefs:
 assertAll:
     - celExpr: "registeredlimit.status.id != ''"
     - celExpr: "registeredlimit.status.resource.serviceID == service.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "!has(registeredlimit.status.resource.name)"
