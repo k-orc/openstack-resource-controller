@@ -42,7 +42,9 @@ func registeredlimitStub(namespace *corev1.Namespace) *orcv1alpha1.RegisteredLim
 
 func testRegisteredLimitResource() *applyconfigv1alpha1.RegisteredLimitResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.RegisteredLimitResourceSpec().
-		WithServiceRef("service")
+		WithServiceRef("service").
+		WithDefaultLimit(999).
+		WithResourceName("ports")
 }
 
 func baseRegisteredLimitPatch(obj client.Object) *applyconfigv1alpha1.RegisteredLimitApplyConfiguration {
@@ -117,12 +119,16 @@ var _ = Describe("ORC RegisteredLimit API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("serviceRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable resourceName", func(ctx context.Context) {
+		obj := registeredlimitStub(namespace)
+		patch := baseRegisteredLimitPatch(obj)
+		patch.Spec.WithResource(testRegisteredLimitResource().
+			WithResourceName("resource-a"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testRegisteredLimitResource().
+			WithResourceName("resource-b"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("resourceName is immutable")))
+	})
+
 })

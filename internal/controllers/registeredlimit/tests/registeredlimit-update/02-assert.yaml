@@ -15,8 +15,8 @@ metadata:
   name: registeredlimit-update
 status:
   resource:
-    name: registeredlimit-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    resourceName: vcpus
+    defaultLimit: 5
   conditions:
   - type: Available
     status: "True"

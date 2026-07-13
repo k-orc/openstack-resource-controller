@@ -5,6 +5,5 @@ metadata:
   name: registeredlimit-update
 spec:
   resource:
-    name: registeredlimit-update-updated
     description: registeredlimit-update-updated
-    # TODO(scaffolding): update all mutable fields
+    defaultLimit: 10

@@ -5,9 +5,9 @@ metadata:
   name: registeredlimit-update
 status:
   resource:
-    name: registeredlimit-update-updated
     description: registeredlimit-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    resourceName: vcpus
+    defaultLimit: 10
   conditions:
   - type: Available
     status: "True"
