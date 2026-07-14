@@ -181,6 +181,10 @@ func (s *providerScope) NewServiceClient() (clients.ServiceClient, error) {
 	return clients.NewServiceClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewSubnetPoolClient() (clients.SubnetPoolClient, error) {
+	return clients.NewSubnetPoolClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewEndpointClient() (clients.EndpointClient, error) {
 	return clients.NewEndpointClient(s.providerClient, s.providerClientOpts)
 }

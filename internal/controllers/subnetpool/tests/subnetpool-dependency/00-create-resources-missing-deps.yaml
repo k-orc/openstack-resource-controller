@@ -1,0 +1,47 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: subnetpool-dependency
+    prefixes:
+    - 192.168.15.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 32
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-dependency-no-addressscope
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    addressScopeRef: subnetpool-dependency
+    prefixes:
+    - 192.168.16.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 32
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: subnetpool-dependency
+  managementPolicy: managed
+  resource:
+    prefixes:
+    - 192.168.17.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 32

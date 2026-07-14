@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-update
+spec:
+  resource:
+    name: subnetpool-update-updated
+    description: subnetpool-update-updated
+    minPrefixLength: 7
+    maxPrefixLength: 30
+
+

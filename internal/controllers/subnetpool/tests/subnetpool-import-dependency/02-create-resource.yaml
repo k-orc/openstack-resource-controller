@@ -1,0 +1,42 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: subnetpool-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: subnetpool-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    ipVersion: 4
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    # Using admin credentials so we can pass a different project than
+    # the authenticated one.
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: subnetpool-import-dependency-external
+    addressScopeRef: subnetpool-import-dependency-external
+    prefixes:
+    - 192.168.13.0/24
+    minPrefixLength: 8
+    maxPrefixLength: 32

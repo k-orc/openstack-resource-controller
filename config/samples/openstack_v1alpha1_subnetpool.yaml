@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Sample SubnetPool
+    prefixes:
+    - 10.0.0.0/24
+    minPrefixLength: 8
+    minPrefixLength: 32
+    defaultPrefixLen: 24

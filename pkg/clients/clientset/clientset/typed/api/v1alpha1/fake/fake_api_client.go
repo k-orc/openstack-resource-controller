@@ -116,6 +116,10 @@ func (c *FakeOpenstackV1alpha1) Subnets(namespace string) v1alpha1.SubnetInterfa
 	return newFakeSubnets(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) SubnetPools(namespace string) v1alpha1.SubnetPoolInterface {
+	return newFakeSubnetPools(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Trunks(namespace string) v1alpha1.TrunkInterface {
 	return newFakeTrunks(c, namespace)
 }

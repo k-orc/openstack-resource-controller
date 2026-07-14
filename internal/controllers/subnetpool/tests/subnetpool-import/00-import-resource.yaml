@@ -1,0 +1,20 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: subnetpool-import-external
+      description: SubnetPool subnetpool-import-external from "subnetpool-import" test
+      minPrefixLength: 16
+      maxPrefixLength: 32
+      ipVersion: 4
+      shared: false
+      isDefault: false
+      revisionNumber: 0

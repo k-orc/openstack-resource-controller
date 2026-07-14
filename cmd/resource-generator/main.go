@@ -189,6 +189,9 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "ApplicationCredential",
 	},
+	{
+		Name: "SubnetPool",
+	},
 }
 
 // These resources won't be generated
