@@ -18,9 +18,12 @@ package v1alpha1
 
 // RegionResourceSpec contains the desired state of the resource.
 type RegionResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
+	// name is the name of the Region resource. This field will be passed as the region ID in the Keystone API.
+	// Since this field will be used as the ID of the region, we use the OpenStackName type instead of KeystoneName which
+	// matches the upstream validator.
+	// If not specified, the name of the ORC object will be used.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
 	Name *OpenStackName `json:"name,omitempty"`
 
 	// description is a human-readable description for the resource.
@@ -28,14 +31,6 @@ type RegionResourceSpec struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/regions
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
 }
 
 // RegionFilter defines an existing resource by its properties
@@ -50,15 +45,11 @@ type RegionFilter struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/regions
 }
 
 // RegionResourceStatus represents the observed state of the resource.
 type RegionResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
+	// name is the name of the Region resource. This field will be passed as the region ID in the Keystone API.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
@@ -67,8 +58,4 @@ type RegionResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Description string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Region structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/regions
 }

@@ -7589,7 +7589,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceSpec(ref
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name is the name of the Region resource. This field will be passed as the region ID in the Keystone API. Since this field will be used as the ID of the region, we use the OpenStackName type instead of KeystoneName which matches the upstream validator. If not specified, the name of the ORC object will be used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7616,7 +7616,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceStatus(r
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Description: "name is the name of the Region resource. This field will be passed as the region ID in the Keystone API.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
