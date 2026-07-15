@@ -50,7 +50,7 @@ func (regionStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Region,
 
 func (regionStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.RegionResourceStatus().
-		WithName(osResource.Name)
+		WithName(osResource.ID)
 
 	// TODO(scaffolding): add all of the fields supported in the RegionResourceStatus struct
 	// If a zero-value isn't expected in the response, place it behind a conditional
