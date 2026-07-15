@@ -160,6 +160,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectSpec":                           schema_openstack_resource_controller_v2_api_v1alpha1_ProjectSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProjectStatus":                         schema_openstack_resource_controller_v2_api_v1alpha1_ProjectStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.ProviderPropertiesStatus":              schema_openstack_resource_controller_v2_api_v1alpha1_ProviderPropertiesStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionFilter":                          schema_openstack_resource_controller_v2_api_v1alpha1_RegionFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionResourceSpec":                    schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RegionResourceStatus":                  schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.Role":                                  schema_openstack_resource_controller_v2_api_v1alpha1_Role(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleAssignment":                        schema_openstack_resource_controller_v2_api_v1alpha1_RoleAssignment(ref),
 		"github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1.RoleAssignmentFilter":                  schema_openstack_resource_controller_v2_api_v1alpha1_RoleAssignmentFilter(ref),
@@ -7407,6 +7410,87 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ProviderPropertiesStat
 							Description: "segmentationID is the ID of the isolated segment on the physical network. The network_type attribute defines the segmentation model. For example, if the network_type value is vlan, this ID is a vlan identifier. If the network_type value is gre, this ID is a gre key.",
 							Type:        []string{"integer"},
 							Format:      "int32",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_RegionFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RegionFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RegionResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RegionResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
