@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   regions.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   regions.UpdateOpts{Description: ptr.To("updated")},
 			expectChange: true,
 		},
 	}
@@ -49,41 +49,6 @@ func TestNeedsUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-	}
-}
-
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
-	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.OpenStackName
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.Region{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.RegionSpec{
-				Resource: &orcv1alpha1.RegionResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
-
-			updateOpts := regions.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
 	}
 }
 

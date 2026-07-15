@@ -56,6 +56,13 @@ func (regionActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
+func getResourceName(orcObject orcObjectPT) string {
+	if orcObject.Spec.Resource.Name != nil {
+		return string(*orcObject.Spec.Resource.Name)
+	}
+	return orcObject.Name
+}
+
 func (actuator regionActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	resource, err := actuator.osClient.GetRegion(ctx, id)
 	if err != nil {
@@ -75,8 +82,8 @@ func (actuator regionActuator) ListOSResourcesForAdoption(ctx context.Context, o
 	// Check osclients.ResourceFilter
 
 	listOpts := regions.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+		// Name:        getResourceName(orcObject),
+		// Description: ptr.Deref(resourceSpec.Description, ""),
 	}
 
 	return actuator.osClient.ListRegions(ctx, listOpts), true
@@ -88,8 +95,8 @@ func (actuator regionActuator) ListOSResourcesForImport(ctx context.Context, obj
 	// Check osclients.ResourceFilter
 
 	listOpts := regions.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
+		// Name:        string(ptr.Deref(filter.Name, "")),
+		// Description: string(ptr.Deref(filter.Description, "")),
 		// TODO(scaffolding): Add more import filters
 	}
 
@@ -105,7 +112,7 @@ func (actuator regionActuator) CreateResource(ctx context.Context, obj orcObject
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 	createOpts := regions.CreateOpts{
-		Name:        getResourceName(obj),
+		ID:          getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
 		// TODO(scaffolding): Add more fields
 	}
@@ -136,7 +143,6 @@ func (actuator regionActuator) updateResource(ctx context.Context, obj orcObject
 
 	updateOpts := regions.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
 
 	// TODO(scaffolding): add handler for all fields supporting mutability
@@ -175,13 +181,6 @@ func needsUpdate(updateOpts regions.UpdateOpts) (bool, error) {
 	}
 
 	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *regions.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
 }
 
 func handleDescriptionUpdate(updateOpts *regions.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
