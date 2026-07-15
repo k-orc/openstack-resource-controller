@@ -7589,7 +7589,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceSpec(ref
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name will be the ID of the Region.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7602,6 +7602,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceSpec(ref
 						},
 					},
 				},
+				Required: []string{"name"},
 			},
 		},
 	}
@@ -7616,7 +7617,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegionResourceStatus(r
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Description: "name is the ID for the resource.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
