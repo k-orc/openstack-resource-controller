@@ -52,9 +52,6 @@ func (regionStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 	resourceStatus := orcapplyconfigv1alpha1.RegionResourceStatus().
 		WithName(osResource.ID)
 
-	// TODO(scaffolding): add all of the fields supported in the RegionResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
 	}
