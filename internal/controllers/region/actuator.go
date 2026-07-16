@@ -56,13 +56,6 @@ func (regionActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
-func getResourceName(orcObject orcObjectPT) string {
-	if orcObject.Spec.Resource.Name != nil {
-		return string(*orcObject.Spec.Resource.Name)
-	}
-	return orcObject.Name
-}
-
 func (actuator regionActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
 	resource, err := actuator.osClient.GetRegion(ctx, id)
 	if err != nil {
@@ -77,30 +70,57 @@ func (actuator regionActuator) ListOSResourcesForAdoption(ctx context.Context, o
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	listOpts := regions.ListOpts{
-		// Name:        getResourceName(orcObject),
-		// Description: ptr.Deref(resourceSpec.Description, ""),
+	// Filter by the expected resource name to avoid adopting wrong regions.
+	// The OpenStack Region API does not support server-side filtering by name/id,
+	// so we must use client-side filtering.
+	filters := []osclients.ResourceFilter[osResourceT]{
+		func(r *regions.Region) bool {
+			return r.ID == string(orcObject.Spec.Resource.Name)
+		},
 	}
 
-	return actuator.osClient.ListRegions(ctx, listOpts), true
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(r *regions.Region) bool {
+			return r.Description == *resourceSpec.Description
+		})
+	}
+
+	// TODO:
+	// listOpts := regions.ListOpts{
+	// ParentRegionID: ptr.Deref(resourceSpec.ParentRegionID),
+	// }
+
+	return actuator.listOSResources(ctx, filters, regions.ListOpts{}), true
 }
 
 func (actuator regionActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	// The OpenStack Region API does not support server-side filtering by name/id,
+	// so we must use client-side filtering.
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := regions.ListOpts{
-		// Name:        string(ptr.Deref(filter.Name, "")),
-		// Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	if filter.Name != nil {
+		filters = append(filters, func(r *regions.Region) bool {
+			return r.ID == string(*filter.Name)
+		})
 	}
 
-	return actuator.osClient.ListRegions(ctx, listOpts), nil
+	if filter.Description != nil {
+		filters = append(filters, func(r *regions.Region) bool {
+			return r.Description == *filter.Description
+		})
+	}
+
+	// TODO:
+	// listOpts := regions.ListOpts{
+	// ParentRegionID: ptr.Deref(resourceSpec.ParentRegionID),
+	// }
+
+	return actuator.listOSResources(ctx, filters, regions.ListOpts{}), nil
+}
+
+func (actuator regionActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts regions.ListOptsBuilder) iter.Seq2[*osResourceT, error] {
+	regions := actuator.osClient.ListRegions(ctx, listOpts)
+	return osclients.Filter(regions, filters...)
 }
 
 func (actuator regionActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -112,9 +132,10 @@ func (actuator regionActuator) CreateResource(ctx context.Context, obj orcObject
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 	createOpts := regions.CreateOpts{
-		ID:          getResourceName(obj),
+		ID:          string(resource.Name),
 		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		// TODO:
+		// ParentRegionID: ptr.Deref(resource.ParentRegionID),
 	}
 
 	osResource, err := actuator.osClient.CreateRegion(ctx, createOpts)
@@ -144,8 +165,6 @@ func (actuator regionActuator) updateResource(ctx context.Context, obj orcObject
 	updateOpts := regions.UpdateOpts{}
 
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
