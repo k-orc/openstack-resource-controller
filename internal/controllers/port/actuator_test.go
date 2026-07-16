@@ -206,6 +206,28 @@ func TestHandleAllowedAddressPairsUpdate(t *testing.T) {
 			},
 			expectChange: true,
 		},
+		{
+			name: "Entry with empty MAC address",
+			newValue: []orcv1alpha1.AllowedAddressPair{
+				{IP: orcv1alpha1.IPvAny("192.168.100.1")},
+			},
+			existingValue: []ports.AddressPair{
+				{IPAddress: "192.168.100.1", MACAddress: "00:1A:2B:3C:4D:5E"},
+			},
+			expectChange: false,
+		},
+		{
+			name: "Entries with empty and filled MAC addresses",
+			newValue: []orcv1alpha1.AllowedAddressPair{
+				{IP: orcv1alpha1.IPvAny("192.168.100.1")},
+				{IP: orcv1alpha1.IPvAny("192.168.200.1"), MAC: ptr.To(orcv1alpha1.MAC("00:1A:2B:3C:4D:6E"))},
+			},
+			existingValue: []ports.AddressPair{
+				{IPAddress: "192.168.100.1", MACAddress: "00:1A:2B:3C:4D:5E"},
+				{IPAddress: "192.168.200.1", MACAddress: "00:1A:2B:3C:4D:6E"},
+			},
+			expectChange: false,
+		},
 	}
 
 	for _, tt := range testCases {

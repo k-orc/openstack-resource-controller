@@ -506,7 +506,7 @@ func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orc
 	for _, desired := range desiredPairs {
 		found := false
 		for _, actual := range osResource.AllowedAddressPairs {
-			if actual.IPAddress == desired.IPAddress && actual.MACAddress == desired.MACAddress {
+			if actual.IPAddress == desired.IPAddress && (desired.MACAddress == "" || actual.MACAddress == desired.MACAddress) {
 				found = true
 				break
 			}
@@ -521,7 +521,7 @@ func handleAllowedAddressPairsUpdate(updateOpts *ports.UpdateOpts, resource *orc
 	for _, actual := range osResource.AllowedAddressPairs {
 		found := false
 		for _, desired := range desiredPairs {
-			if actual.IPAddress == desired.IPAddress && actual.MACAddress == desired.MACAddress {
+			if actual.IPAddress == desired.IPAddress && (desired.MACAddress == "" || actual.MACAddress == desired.MACAddress) {
 				found = true
 				break
 			}
