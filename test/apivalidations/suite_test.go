@@ -27,7 +27,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
@@ -149,10 +148,6 @@ func createNamespace() *corev1.Namespace {
 	namespace := corev1.Namespace{}
 	namespace.GenerateName = "test-"
 	Expect(k8sClient.Create(ctx, &namespace)).To(Succeed(), "Namespace creation should succeed")
-	DeferCleanup(func() {
-		By("Deleting namespace")
-		Expect(k8sClient.Delete(ctx, &namespace, client.PropagationPolicy(metav1.DeletePropagationForeground))).To(Succeed(), "Namespace deletion should succeed")
-	})
 	By(fmt.Sprintf("Using namespace %s", namespace.Name))
 	return &namespace
 }

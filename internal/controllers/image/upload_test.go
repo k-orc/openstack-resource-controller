@@ -160,9 +160,6 @@ var _ = Describe("Upload tests", Ordered, func() {
 		namespace = &corev1.Namespace{}
 		namespace.SetGenerateName("test-")
 		Expect(k8sClient.Create(ctx, namespace)).To(Succeed(), "create namespace")
-		DeferCleanup(func() {
-			Expect(k8sClient.Delete(ctx, namespace)).To(Succeed(), "delete namespace")
-		})
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		actuator = &imageActuator{

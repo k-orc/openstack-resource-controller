@@ -86,9 +86,6 @@ var _ = Describe("EnvTest sanity check", func() {
 
 		// Create the namespace
 		Expect(k8sClient.Create(ctx, namespace)).To(Succeed(), "create namespace")
-		DeferCleanup(func() {
-			Expect(k8sClient.Delete(ctx, namespace)).To(Succeed(), "delete namespace")
-		})
 
 		// Check the result
 		namespaceResult := &corev1.Namespace{}
