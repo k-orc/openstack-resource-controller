@@ -149,6 +149,7 @@ delete the secret while the object exists.
 Concretely, after trying to manually delete the secret with `kubectl delete
 secret openstack-clouds --wait=false`, we check that the secret was flagged for
 deletion but not deleted due to the presence of finalizers. We use a CEL assertion for this:
+
 ```yaml
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -296,6 +297,7 @@ See the [`network-update`][network-update] test for an example.
 ### Kuttl tips
 
 It is possible to shell out and run `openstack` command:
+
 ```yaml
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
@@ -307,6 +309,7 @@ commands:
 ```
 
 Similarly, you can run `kubectl` commands with:
+
 ```yaml
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
@@ -319,17 +322,18 @@ commands:
 
 We use environment variables to configure how the tests run.
 
-| Variable      | Description | Default |
-| ----------- | ----------- |----------- |
-| `E2E_OSCLOUDS` | Path to clouds.yaml | `/etc/openstack/clouds.yaml` |
-| `E2E_CACERT`   | Path to a CA certificate (if needed) | |
-| `E2E_OPENSTACK_CLOUD_NAME` | Cloud name for regular credentials | `devstack` |
-| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Cloud name for admin credentials | `devstack-admin-demo` |
-| `E2E_EXTERNAL_NETWORK_NAME` | Name of the external network to use | `public` |
-| `E2E_KUTTL_DIR` | Run tests from specific directory | |
-| `E2E_KUTTL_TEST` | Run a specific kuttl test | |
-| `E2E_KUTTL_FLAVOR` | Flavor name to use for tests | `m1.tiny` |
-| `E2E_KUTTL_TIMEOUT` | Override default timeout for tests | |
+| Variable                         | Description                                     | Default                      |
+|----------------------------------|-------------------------------------------------|------------------------------|
+| `E2E_OSCLOUDS`                   | Path to clouds.yaml                             | `/etc/openstack/clouds.yaml` |
+| `E2E_CACERT`                     | Path to a CA certificate (if needed)            |                              |
+| `E2E_OPENSTACK_CLOUD_NAME`       | Cloud name for regular credentials              | `devstack`                   |
+| `E2E_OPENSTACK_ADMIN_CLOUD_NAME` | Cloud name for admin credentials                | `devstack-admin-demo`        |
+| `E2E_EXTERNAL_NETWORK_NAME`      | Name of the external network to use             | `public`                     |
+| `E2E_KUTTL_DIR`                  | Run tests from specific directory               |                              |
+| `E2E_KUTTL_TEST`                 | Run a specific kuttl test                       |                              |
+| `E2E_KUTTL_FLAVOR`               | Flavor name to use for tests                    | `m1.tiny`                    |
+| `E2E_KUTTL_TIMEOUT`              | Override default timeout for tests              |                              |
+| `E2E_KUTTL_DELETE_OPTION`        | Delete resources based on case results. See delete flag for more info in kuttl [docs](https://github.com/kudobuilder/kuttl/blob/main/docs/cli.md#flags) |  `success` |
 
 For example, to run the `import-dependency` test from the `subnet` controller:
 
