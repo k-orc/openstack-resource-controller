@@ -66,6 +66,8 @@ jobs:
       run: |
         make test-e2e
         make test-examples
+      env:
+        E2E_KUTTL_SKIP_DELETE: 1
 
     - name: Generate logs on failure
       run: ./hack/collectlogs
