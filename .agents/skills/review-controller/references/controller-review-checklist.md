@@ -1,6 +1,6 @@
 # ORC Controller Review Checklist
 
-This checklist is distilled from recurring `mandre` and `winiciusallan` review feedback on ORC controller and API PRs.
+This checklist is distilled from recurring review feedback on ORC controller and API PRs.
 
 ## API Shape
 
