@@ -17,7 +17,10 @@ limitations under the License.
 package apivalidations
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -38,7 +41,7 @@ func regionStub(namespace *corev1.Namespace) *orcv1alpha1.Region {
 }
 
 func testRegionResource() *applyconfigv1alpha1.RegionResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.RegionResourceSpec()
+	return applyconfigv1alpha1.RegionResourceSpec().WithName("TestRegion")
 }
 
 func baseRegionPatch(obj client.Object) *applyconfigv1alpha1.RegionApplyConfiguration {
@@ -94,12 +97,15 @@ var _ = Describe("ORC Region API validations", func() {
 		},
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable name", func(ctx context.Context) {
+		region := regionStub(namespace)
+		patch := baseRegionPatch(region)
+		patch.Spec.WithResource(applyconfigv1alpha1.RegionResourceSpec().
+			WithName("region-a"))
+		Expect(applyObj(ctx, region, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.RegionResourceSpec().
+			WithName("region-b"))
+		Expect(applyObj(ctx, region, patch)).To(MatchError(ContainSubstring("name is immutable")))
+	})
 })
