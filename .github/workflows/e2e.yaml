@@ -47,6 +47,10 @@ jobs:
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
 
+          [[post-config|/etc/neutron/neutron.conf]]
+          [quotas]
+          quota_router = 30
+
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # tag=v1.14.0
       with:
