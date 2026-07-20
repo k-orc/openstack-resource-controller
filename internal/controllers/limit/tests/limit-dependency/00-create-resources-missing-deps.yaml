@@ -1,0 +1,70 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: limit-dependency
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-service
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: limit-dependency-pending
+    # TODO(scaffolding): Add the necessary fields to create the resource
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-project
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: limit-dependency
+    projectRef: limit-dependency
+    # TODO(scaffolding): Add the necessary fields to create the resource---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-domain
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: limit-dependency
+    domainRef: limit-dependency
+    # TODO(scaffolding): Add the necessary fields to create the resource
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
+    cloudName: openstack
+    secretName: limit-dependency
+  managementPolicy: managed
+  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource:
+    serviceRef: limit-dependency

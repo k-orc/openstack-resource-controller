@@ -1,0 +1,60 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-secret
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Secret/limit-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Secret/limit-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-service
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Service/limit-dependency-pending to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Service/limit-dependency-pending to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-project
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Project/limit-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Project/limit-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-no-domain
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Domain/limit-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Domain/limit-dependency to be created
+      status: "True"
+      reason: Progressing

@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-minimal
+status:
+  resource:
+    name: limit-create-minimal
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Limit
+      name: limit-create-minimal
+      ref: limit
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: limit-create-minimal
+      ref: service
+assertAll:
+    - celExpr: "limit.status.id != ''"
+    - celExpr: "limit.status.resource.serviceID == service.status.id"
+    # TODO(scaffolding): Add more checks
