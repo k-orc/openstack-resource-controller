@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-update
+status:
+  resource:
+    name: limit-update-updated
+    description: limit-update-updated
+    # TODO(scaffolding): match all fields that were modified
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

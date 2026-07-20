@@ -1,0 +1,29 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Service
+      name: limit-dependency
+      ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: limit-dependency
+      ref: project
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Domain
+      name: limit-dependency
+      ref: domain
+    - apiVersion: v1
+      kind: Secret
+      name: limit-dependency
+      ref: secret
+assertAll:
+    - celExpr: "service.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/limit' in service.metadata.finalizers"
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/limit' in project.metadata.finalizers"
+    - celExpr: "domain.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/limit' in domain.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/limit' in secret.metadata.finalizers"
