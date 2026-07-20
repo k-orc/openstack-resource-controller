@@ -214,6 +214,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
 		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Limit"):
+		return &apiv1alpha1.LimitApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LimitFilter"):
+		return &apiv1alpha1.LimitFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LimitImport"):
+		return &apiv1alpha1.LimitImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LimitResourceSpec"):
+		return &apiv1alpha1.LimitResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LimitResourceStatus"):
+		return &apiv1alpha1.LimitResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LimitSpec"):
+		return &apiv1alpha1.LimitSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LimitStatus"):
+		return &apiv1alpha1.LimitStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ManagedOptions"):
 		return &apiv1alpha1.ManagedOptionsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Network"):
