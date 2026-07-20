@@ -71,19 +71,51 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var rs progress.ReconcileStatus
 
-	listOpts := limits.ListOpts{}
+	svc, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Service",
+		func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs.WithReconcileStatus(rs1)
+
+	project, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Project",
+		func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs.WithReconcileStatus(rs1)
+
+	domain, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Domain",
+		func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs.WithReconcileStatus(rs1)
+
+	if needsReschedule, err := rs.NeedsReschedule(); needsReschedule {
+		if err != nil {
+			ctrl.LoggerFrom(ctx).Info("fetch dependency before listing limit for adoption", "error", err)
+		}
+
+		return nil, false
+	}
+
+	listOpts := limits.ListOpts{
+		ServiceID:    ptr.Deref(svc.Status.ID, ""),
+		ProjectID:    ptr.Deref(project.Status.ID, ""),
+		DomainID:     ptr.Deref(domain.Status.ID, ""),
+		ResourceName: resourceSpec.ResourceName,
+	}
 
 	return actuator.osClient.ListLimits(ctx, listOpts), true
 }
 
 func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
@@ -107,15 +139,19 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+		if err != nil {
+			ctrl.LoggerFrom(ctx).Info("fetch dependency before listing limit for import", "error", err)
+		}
+
 		return nil, reconcileStatus
 	}
 
 	listOpts := limits.ListOpts{
-		ServiceID: ptr.Deref(service.Status.ID, ""),
-		ProjectID: ptr.Deref(project.Status.ID, ""),
-		DomainID:  ptr.Deref(domain.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+		ProjectID:    ptr.Deref(project.Status.ID, ""),
+		DomainID:     ptr.Deref(domain.Status.ID, ""),
+		ResourceName: filter.ResourceName,
 	}
 
 	return actuator.osClient.ListLimits(ctx, listOpts), reconcileStatus
@@ -161,15 +197,20 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 			domainID = ptr.Deref(domain.Status.ID, "")
 		}
 	}
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+		if err != nil {
+			ctrl.LoggerFrom(ctx).Info("fetch dependency before creating limit", "error", err)
+		}
+
 		return nil, reconcileStatus
 	}
 	createOpts := limits.CreateOpts{
-		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:   serviceID,
-		ProjectID:   projectID,
-		DomainID:    domainID,
-		// TODO(scaffolding): Add more fields
+		Description:   ptr.Deref(resource.Description, ""),
+		ServiceID:     serviceID,
+		ProjectID:     projectID,
+		DomainID:      domainID,
+		ResourceName:  resource.ResourceName,
+		ResourceLimit: int(resource.ResourceLimit),
 	}
 
 	osResource, err := actuator.osClient.CreateLimit(ctx, limits.BatchCreateOpts{createOpts})
@@ -199,8 +240,7 @@ func (actuator limitActuator) updateResource(ctx context.Context, obj orcObjectP
 	updateOpts := limits.UpdateOpts{}
 
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	handleResourceLimitUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -242,6 +282,13 @@ func handleDescriptionUpdate(updateOpts *limits.UpdateOpts, resource *resourceSp
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
+	}
+}
+
+func handleResourceLimitUpdate(updateOpts *limits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	rl := int(resource.ResourceLimit)
+	if osResource.ResourceLimit != rl {
+		updateOpts.ResourceLimit = &rl
 	}
 }
 

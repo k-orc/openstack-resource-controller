@@ -50,15 +50,26 @@ func (limitStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Limit, o
 
 func (limitStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.LimitResourceStatus().
-		WithServiceID(osResource.ServiceID).
-		WithProjectID(osResource.ProjectID).
-		WithDomainID(osResource.DomainID)
-
-	// TODO(scaffolding): add all of the fields supported in the LimitResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithResourceLimit(int32(osResource.ResourceLimit))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.ResourceName != "" {
+		resourceStatus.WithResourceName(osResource.ResourceName)
+	}
+
+	if osResource.ServiceID != "" {
+		resourceStatus.WithServiceID(osResource.ServiceID)
+	}
+
+	if osResource.ProjectID != "" {
+		resourceStatus.WithProjectID(osResource.ProjectID)
+	}
+
+	if osResource.DomainID != "" {
+		resourceStatus.WithDomainID(osResource.DomainID)
 	}
 
 	statusApply.WithResource(resourceStatus)
