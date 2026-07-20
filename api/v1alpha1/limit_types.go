@@ -18,11 +18,6 @@ package v1alpha1
 
 // LimitResourceSpec contains the desired state of the resource.
 type LimitResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
@@ -51,6 +46,17 @@ type LimitResourceSpec struct {
 	// Until you have implemented mutability for the field, you must add a CEL validation
 	// preventing the field being modified:
 	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+
+	// resoureName is the name of the resource this limit is associated with.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +required
+	ResourceName string `json:"resourceName"`
+
+	// resoureLimit is the override value of the limit.
+	// +kubebuilder:validation:Min:=-1
+	// +required
+	ResourceLimit int32 `json:"resourceLimit"`
 }
 
 // LimitFilter defines an existing resource by its properties
