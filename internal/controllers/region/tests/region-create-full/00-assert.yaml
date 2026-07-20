@@ -7,7 +7,6 @@ status:
   resource:
     name: region-create-full-override
     description: Region from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -25,4 +24,4 @@ resourceRefs:
       ref: region
 assertAll:
     - celExpr: "region.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "region.status.id == region.status.resource.name"

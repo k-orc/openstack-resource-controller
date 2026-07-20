@@ -5,11 +5,9 @@ metadata:
   name: region-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     name: region-create-full-override
     description: Region from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports

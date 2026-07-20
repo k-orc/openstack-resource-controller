@@ -30,4 +30,3 @@ status:
   resource:
     name: region-import-external
     description: Region region-import-external from "region-import" test
-    # TODO(scaffolding): Add all fields the resource supports

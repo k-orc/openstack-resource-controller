@@ -38,7 +38,7 @@ func regionStub(namespace *corev1.Namespace) *orcv1alpha1.Region {
 }
 
 func testRegionResource() *applyconfigv1alpha1.RegionResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.RegionResourceSpec()
+	return applyconfigv1alpha1.RegionResourceSpec().WithName("TestRegion")
 }
 
 func baseRegionPatch(obj client.Object) *applyconfigv1alpha1.RegionApplyConfiguration {
