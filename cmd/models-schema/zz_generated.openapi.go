@@ -5414,20 +5414,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitFilter(ref common
 				Description: "LimitFilter defines an existing resource by its properties",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "name of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"description": {
-						SchemaProps: spec.SchemaProps{
-							Description: "description of the existing resource",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"serviceRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "serviceRef is a reference to the ORC Service which this resource is associated with.",
@@ -5445,6 +5431,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitFilter(ref common
 					"domainRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "domainRef is a reference to the ORC Domain which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resoureName is the name of the resource this limit is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5541,13 +5534,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceSpec(ref 
 				Description: "LimitResourceSpec contains the desired state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
@@ -5576,8 +5562,24 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceSpec(ref 
 							Format:      "",
 						},
 					},
+					"resourceName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resoureName is the name of the resource this limit is associated with.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resoureLimit is the override value of the limit.",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 				},
-				Required: []string{"serviceRef"},
+				Required: []string{"serviceRef", "resourceName", "resourceLimit"},
 			},
 		},
 	}
@@ -5590,13 +5592,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceStatus(re
 				Description: "LimitResourceStatus represents the observed state of the resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description is a human-readable description for the resource.",
@@ -5621,6 +5616,21 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceStatus(re
 					"domainID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "domainID is the ID of the Domain to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceLimit": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resoureLimit is the override value of the limit.",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"resourceName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resoureName is the name of the resource this limit is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

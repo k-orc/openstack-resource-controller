@@ -25,25 +25,18 @@ import (
 // LimitResourceSpecApplyConfiguration represents a declarative configuration of the LimitResourceSpec type for use
 // with apply.
 type LimitResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	ServiceRef  *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
-	ProjectRef  *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
-	DomainRef   *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
+	Description   *string                        `json:"description,omitempty"`
+	ServiceRef    *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	ProjectRef    *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
+	DomainRef     *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
+	ResourceName  *string                        `json:"resourceName,omitempty"`
+	ResourceLimit *int32                         `json:"resourceLimit,omitempty"`
 }
 
 // LimitResourceSpecApplyConfiguration constructs a declarative configuration of the LimitResourceSpec type for use with
 // apply.
 func LimitResourceSpec() *LimitResourceSpecApplyConfiguration {
 	return &LimitResourceSpecApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *LimitResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *LimitResourceSpecApplyConfiguration {
-	b.Name = &value
-	return b
 }
 
 // WithDescription sets the Description field in the declarative configuration to the given value
@@ -75,5 +68,21 @@ func (b *LimitResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.K
 // If called multiple times, the DomainRef field is set to the value of the last call.
 func (b *LimitResourceSpecApplyConfiguration) WithDomainRef(value apiv1alpha1.KubernetesNameRef) *LimitResourceSpecApplyConfiguration {
 	b.DomainRef = &value
+	return b
+}
+
+// WithResourceName sets the ResourceName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceName field is set to the value of the last call.
+func (b *LimitResourceSpecApplyConfiguration) WithResourceName(value string) *LimitResourceSpecApplyConfiguration {
+	b.ResourceName = &value
+	return b
+}
+
+// WithResourceLimit sets the ResourceLimit field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceLimit field is set to the value of the last call.
+func (b *LimitResourceSpecApplyConfiguration) WithResourceLimit(value int32) *LimitResourceSpecApplyConfiguration {
+	b.ResourceLimit = &value
 	return b
 }

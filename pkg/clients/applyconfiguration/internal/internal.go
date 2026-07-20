@@ -1529,16 +1529,13 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitFilter
   map:
     fields:
-    - name: description
-      type:
-        scalar: string
     - name: domainRef
       type:
         scalar: string
-    - name: name
+    - name: projectRef
       type:
         scalar: string
-    - name: projectRef
+    - name: resourceName
       type:
         scalar: string
     - name: serviceRef
@@ -1562,12 +1559,17 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: domainRef
       type:
         scalar: string
-    - name: name
-      type:
-        scalar: string
     - name: projectRef
       type:
         scalar: string
+    - name: resourceLimit
+      type:
+        scalar: numeric
+      default: 0
+    - name: resourceName
+      type:
+        scalar: string
+      default: ""
     - name: serviceRef
       type:
         scalar: string
@@ -1580,10 +1582,14 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: domainID
       type:
         scalar: string
-    - name: name
+    - name: projectID
       type:
         scalar: string
-    - name: projectID
+    - name: resourceLimit
+      type:
+        scalar: numeric
+      default: 0
+    - name: resourceName
       type:
         scalar: string
     - name: serviceID

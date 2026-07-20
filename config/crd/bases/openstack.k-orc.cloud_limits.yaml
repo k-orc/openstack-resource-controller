@@ -91,28 +91,24 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
-                      description:
-                        description: description of the existing resource
-                        maxLength: 255
-                        minLength: 1
-                        type: string
                       domainRef:
                         description: domainRef is a reference to the ORC Domain which
                           this resource is associated with.
                         maxLength: 253
                         minLength: 1
                         type: string
-                      name:
-                        description: name of the existing resource
-                        maxLength: 255
-                        minLength: 1
-                        pattern: ^[^,]+$
-                        type: string
                       projectRef:
                         description: projectRef is a reference to the ORC Project
                           which this resource is associated with.
                         maxLength: 253
                         minLength: 1
+                        type: string
+                      resourceName:
+                        description: resoureName is the name of the resource this
+                          limit is associated with.
+                        maxLength: 255
+                        minLength: 1
+                        pattern: ^[\S]+$
                         type: string
                       serviceRef:
                         description: serviceRef is a reference to the ORC Service
@@ -183,14 +179,6 @@ spec:
                     x-kubernetes-validations:
                     - message: domainRef is immutable
                       rule: self == oldSelf
-                  name:
-                    description: |-
-                      name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
-                    maxLength: 255
-                    minLength: 1
-                    pattern: ^[^,]+$
-                    type: string
                   projectRef:
                     description: projectRef is a reference to the ORC Project which
                       this resource is associated with.
@@ -199,6 +187,21 @@ spec:
                     type: string
                     x-kubernetes-validations:
                     - message: projectRef is immutable
+                      rule: self == oldSelf
+                  resourceLimit:
+                    description: resoureLimit is the override value of the limit.
+                    format: int32
+                    minimum: -1
+                    type: integer
+                  resourceName:
+                    description: resoureName is the name of the resource this limit
+                      is associated with.
+                    maxLength: 255
+                    minLength: 1
+                    pattern: ^[\S]+$
+                    type: string
+                    x-kubernetes-validations:
+                    - message: resourceName is immutable
                       rule: self == oldSelf
                   serviceRef:
                     description: serviceRef is a reference to the ORC Service which
@@ -210,6 +213,8 @@ spec:
                     - message: serviceRef is immutable
                       rule: self == oldSelf
                 required:
+                - resourceLimit
+                - resourceName
                 - serviceRef
                 type: object
               resyncPeriod:
@@ -341,14 +346,18 @@ spec:
                       is associated.
                     maxLength: 1024
                     type: string
-                  name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
-                    maxLength: 1024
-                    type: string
                   projectID:
                     description: projectID is the ID of the Project to which the resource
                       is associated.
+                    maxLength: 1024
+                    type: string
+                  resourceLimit:
+                    description: resoureLimit is the override value of the limit.
+                    format: int32
+                    type: integer
+                  resourceName:
+                    description: resoureName is the name of the resource this limit
+                      is associated with.
                     maxLength: 1024
                     type: string
                   serviceID:

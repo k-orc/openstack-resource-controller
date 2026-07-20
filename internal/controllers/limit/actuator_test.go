@@ -36,8 +36,13 @@ func TestNeedsUpdate(t *testing.T) {
 			expectChange: false,
 		},
 		{
-			name:         "Updated opts",
-			updateOpts:   limits.UpdateOpts{Name: ptr.To("updated")},
+			name:         "Updated opts with description",
+			updateOpts:   limits.UpdateOpts{Description: ptr.To("updated")},
+			expectChange: true,
+		},
+		{
+			name:         "Updated opts with resourceLimit",
+			updateOpts:   limits.UpdateOpts{ResourceLimit: ptr.To(-1)},
 			expectChange: true,
 		},
 	}
@@ -49,41 +54,6 @@ func TestNeedsUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-	}
-}
-
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
-	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.OpenStackName
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.Limit{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.LimitSpec{
-				Resource: &orcv1alpha1.LimitResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
-
-			updateOpts := limits.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
 	}
 }
 

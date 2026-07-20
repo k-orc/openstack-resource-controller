@@ -75,10 +75,7 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 	// of gophercloud does not support, it's possible to perform client-side filtering.
 	// Check osclients.ResourceFilter
 
-	listOpts := limits.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-	}
+	listOpts := limits.ListOpts{}
 
 	return actuator.osClient.ListLimits(ctx, listOpts), true
 }
@@ -115,10 +112,8 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	}
 
 	listOpts := limits.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		ServiceID:  ptr.Deref(service.Status.ID, ""),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
+		ServiceID: ptr.Deref(service.Status.ID, ""),
+		ProjectID: ptr.Deref(project.Status.ID, ""),
 		DomainID:  ptr.Deref(domain.Status.ID, ""),
 		// TODO(scaffolding): Add more import filters
 	}
@@ -170,15 +165,14 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 		return nil, reconcileStatus
 	}
 	createOpts := limits.CreateOpts{
-		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:  serviceID,
-		ProjectID:  projectID,
-		DomainID:  domainID,
+		ServiceID:   serviceID,
+		ProjectID:   projectID,
+		DomainID:    domainID,
 		// TODO(scaffolding): Add more fields
 	}
 
-	osResource, err := actuator.osClient.CreateLimit(ctx, createOpts)
+	osResource, err := actuator.osClient.CreateLimit(ctx, limits.BatchCreateOpts{createOpts})
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -204,7 +198,6 @@ func (actuator limitActuator) updateResource(ctx context.Context, obj orcObjectP
 
 	updateOpts := limits.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
 
 	// TODO(scaffolding): add handler for all fields supporting mutability
@@ -243,13 +236,6 @@ func needsUpdate(updateOpts limits.UpdateOpts) (bool, error) {
 	}
 
 	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *limits.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
 }
 
 func handleDescriptionUpdate(updateOpts *limits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {

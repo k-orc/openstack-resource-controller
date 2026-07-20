@@ -21,25 +21,18 @@ package v1alpha1
 // LimitResourceStatusApplyConfiguration represents a declarative configuration of the LimitResourceStatus type for use
 // with apply.
 type LimitResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	ServiceID   *string `json:"serviceID,omitempty"`
-	ProjectID   *string `json:"projectID,omitempty"`
-	DomainID    *string `json:"domainID,omitempty"`
+	Description   *string `json:"description,omitempty"`
+	ServiceID     *string `json:"serviceID,omitempty"`
+	ProjectID     *string `json:"projectID,omitempty"`
+	DomainID      *string `json:"domainID,omitempty"`
+	ResourceLimit *int32  `json:"resourceLimit,omitempty"`
+	ResourceName  *string `json:"resourceName,omitempty"`
 }
 
 // LimitResourceStatusApplyConfiguration constructs a declarative configuration of the LimitResourceStatus type for use with
 // apply.
 func LimitResourceStatus() *LimitResourceStatusApplyConfiguration {
 	return &LimitResourceStatusApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *LimitResourceStatusApplyConfiguration) WithName(value string) *LimitResourceStatusApplyConfiguration {
-	b.Name = &value
-	return b
 }
 
 // WithDescription sets the Description field in the declarative configuration to the given value
@@ -71,5 +64,21 @@ func (b *LimitResourceStatusApplyConfiguration) WithProjectID(value string) *Lim
 // If called multiple times, the DomainID field is set to the value of the last call.
 func (b *LimitResourceStatusApplyConfiguration) WithDomainID(value string) *LimitResourceStatusApplyConfiguration {
 	b.DomainID = &value
+	return b
+}
+
+// WithResourceLimit sets the ResourceLimit field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceLimit field is set to the value of the last call.
+func (b *LimitResourceStatusApplyConfiguration) WithResourceLimit(value int32) *LimitResourceStatusApplyConfiguration {
+	b.ResourceLimit = &value
+	return b
+}
+
+// WithResourceName sets the ResourceName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceName field is set to the value of the last call.
+func (b *LimitResourceStatusApplyConfiguration) WithResourceName(value string) *LimitResourceStatusApplyConfiguration {
+	b.ResourceName = &value
 	return b
 }

@@ -190,7 +190,8 @@ var resources []templateFields = []templateFields{
 		Name: "ApplicationCredential",
 	},
 	{
-		Name: "Limit",
+		Name:       "Limit",
+		IsNotNamed: true,
 	},
 }
 

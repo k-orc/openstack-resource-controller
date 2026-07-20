@@ -25,33 +25,16 @@ import (
 // LimitFilterApplyConfiguration represents a declarative configuration of the LimitFilter type for use
 // with apply.
 type LimitFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	ServiceRef  *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
-	ProjectRef  *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
-	DomainRef   *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
+	ServiceRef   *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	ProjectRef   *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
+	DomainRef    *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
+	ResourceName *string                        `json:"resourceName,omitempty"`
 }
 
 // LimitFilterApplyConfiguration constructs a declarative configuration of the LimitFilter type for use with
 // apply.
 func LimitFilter() *LimitFilterApplyConfiguration {
 	return &LimitFilterApplyConfiguration{}
-}
-
-// WithName sets the Name field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Name field is set to the value of the last call.
-func (b *LimitFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *LimitFilterApplyConfiguration {
-	b.Name = &value
-	return b
-}
-
-// WithDescription sets the Description field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *LimitFilterApplyConfiguration) WithDescription(value string) *LimitFilterApplyConfiguration {
-	b.Description = &value
-	return b
 }
 
 // WithServiceRef sets the ServiceRef field in the declarative configuration to the given value
@@ -75,5 +58,13 @@ func (b *LimitFilterApplyConfiguration) WithProjectRef(value apiv1alpha1.Kuberne
 // If called multiple times, the DomainRef field is set to the value of the last call.
 func (b *LimitFilterApplyConfiguration) WithDomainRef(value apiv1alpha1.KubernetesNameRef) *LimitFilterApplyConfiguration {
 	b.DomainRef = &value
+	return b
+}
+
+// WithResourceName sets the ResourceName field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ResourceName field is set to the value of the last call.
+func (b *LimitFilterApplyConfiguration) WithResourceName(value string) *LimitFilterApplyConfiguration {
+	b.ResourceName = &value
 	return b
 }

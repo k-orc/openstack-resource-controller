@@ -29,7 +29,7 @@ import (
 
 type LimitClient interface {
 	ListLimits(ctx context.Context, listOpts limits.ListOptsBuilder) iter.Seq2[*limits.Limit, error]
-	CreateLimit(ctx context.Context, opts limits.CreateOptsBuilder) (*limits.Limit, error)
+	CreateLimit(ctx context.Context, opts limits.BatchCreateOptsBuilder) (*limits.Limit, error)
 	DeleteLimit(ctx context.Context, resourceID string) error
 	GetLimit(ctx context.Context, resourceID string) (*limits.Limit, error)
 	UpdateLimit(ctx context.Context, id string, opts limits.UpdateOptsBuilder) (*limits.Limit, error)
@@ -58,8 +58,17 @@ func (c limitClient) ListLimits(ctx context.Context, listOpts limits.ListOptsBui
 	}
 }
 
-func (c limitClient) CreateLimit(ctx context.Context, opts limits.CreateOptsBuilder) (*limits.Limit, error) {
-	return limits.Create(ctx, c.client, opts).Extract()
+func (c limitClient) CreateLimit(ctx context.Context, opts limits.BatchCreateOptsBuilder) (*limits.Limit, error) {
+	limits, err := limits.BatchCreate(ctx, c.client, opts).Extract()
+	if err != nil {
+		return nil, fmt.Errorf("create limit: %w", err)
+	}
+
+	if len(limits) != 1 {
+		return nil, fmt.Errorf("unexpected limit creation result %d", len(limits))
+	}
+
+	return &limits[0], nil
 }
 
 func (c limitClient) DeleteLimit(ctx context.Context, resourceID string) error {
@@ -87,7 +96,7 @@ func (e limitErrorClient) ListLimits(_ context.Context, _ limits.ListOptsBuilder
 	}
 }
 
-func (e limitErrorClient) CreateLimit(_ context.Context, _ limits.CreateOptsBuilder) (*limits.Limit, error) {
+func (e limitErrorClient) CreateLimit(_ context.Context, _ limits.BatchCreateOptsBuilder) (*limits.Limit, error) {
 	return nil, e.error
 }
 

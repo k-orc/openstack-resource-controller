@@ -52,8 +52,7 @@ func (limitStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 	resourceStatus := orcapplyconfigv1alpha1.LimitResourceStatus().
 		WithServiceID(osResource.ServiceID).
 		WithProjectID(osResource.ProjectID).
-		WithDomainID(osResource.DomainID).
-		WithName(osResource.Name)
+		WithDomainID(osResource.DomainID)
 
 	// TODO(scaffolding): add all of the fields supported in the LimitResourceStatus struct
 	// If a zero-value isn't expected in the response, place it behind a conditional

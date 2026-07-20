@@ -58,7 +58,7 @@ func (m *MockLimitClient) EXPECT() *MockLimitClientMockRecorder {
 }
 
 // CreateLimit mocks base method.
-func (m *MockLimitClient) CreateLimit(ctx context.Context, opts limits.CreateOptsBuilder) (*limits.Limit, error) {
+func (m *MockLimitClient) CreateLimit(ctx context.Context, opts limits.BatchCreateOptsBuilder) (*limits.Limit, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLimit", ctx, opts)
 	ret0, _ := ret[0].(*limits.Limit)

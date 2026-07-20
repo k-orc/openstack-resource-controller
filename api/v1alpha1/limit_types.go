@@ -39,22 +39,16 @@ type LimitResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/limits
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
-
 	// resoureName is the name of the resource this limit is associated with.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:Pattern=`^[\S]+$`
 	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="resourceName is immutable"
 	ResourceName string `json:"resourceName"`
 
 	// resoureLimit is the override value of the limit.
-	// +kubebuilder:validation:Min:=-1
+	// +kubebuilder:validation:Minimum=-1
 	// +required
 	ResourceLimit int32 `json:"resourceLimit"`
 }
@@ -62,16 +56,6 @@ type LimitResourceSpec struct {
 // LimitFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type LimitFilter struct {
-	// name of the existing resource
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description of the existing resource
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
@@ -84,18 +68,16 @@ type LimitFilter struct {
 	// +optional
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/limits
+	// resoureName is the name of the resource this limit is associated with.
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:Pattern=`^[\S]+$`
+	// +optional
+	ResourceName string `json:"resourceName,omitempty"`
 }
 
 // LimitResourceStatus represents the observed state of the resource.
 type LimitResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	Name string `json:"name,omitempty"`
-
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
@@ -116,7 +98,12 @@ type LimitResourceStatus struct {
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the Limit structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/identity/v3/limits
+	// resoureLimit is the override value of the limit.
+	// +optional
+	ResourceLimit int32 `json:"resourceLimit"`
+
+	// resoureName is the name of the resource this limit is associated with.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ResourceName string `json:"resourceName,omitempty"`
 }

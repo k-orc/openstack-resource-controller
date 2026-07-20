@@ -2280,11 +2280,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `resourceName` _string_ | resoureName is the name of the resource this limit is associated with. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[\S]+$` <br />Optional: \{\} <br /> |
 
 
 #### LimitImport
@@ -2320,11 +2319,12 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `resourceName` _string_ | resoureName is the name of the resource this limit is associated with. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[\S]+$` <br />Required: \{\} <br /> |
+| `resourceLimit` _integer_ | resoureLimit is the override value of the limit. |  | Minimum: -1 <br />Required: \{\} <br /> |
 
 
 #### LimitResourceStatus
@@ -2340,11 +2340,12 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `serviceID` _string_ | serviceID is the ID of the Service to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `domainID` _string_ | domainID is the ID of the Domain to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resourceLimit` _integer_ | resoureLimit is the override value of the limit. |  | Optional: \{\} <br /> |
+| `resourceName` _string_ | resoureName is the name of the resource this limit is associated with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### LimitSpec
@@ -2786,8 +2787,6 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
-- [LimitFilter](#limitfilter)
-- [LimitResourceSpec](#limitresourcespec)
 - [NetworkFilter](#networkfilter)
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
