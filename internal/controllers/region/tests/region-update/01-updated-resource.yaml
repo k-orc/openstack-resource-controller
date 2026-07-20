@@ -5,6 +5,4 @@ metadata:
   name: region-update
 spec:
   resource:
-    name: region-update-updated
     description: region-update-updated
-    # TODO(scaffolding): update all mutable fields

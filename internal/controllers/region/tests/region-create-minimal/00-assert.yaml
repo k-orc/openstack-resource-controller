@@ -6,7 +6,6 @@ metadata:
 status:
   resource:
     name: region-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +23,5 @@ resourceRefs:
       ref: region
 assertAll:
     - celExpr: "region.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "region.status.id == region.status.resource.name"
+    - celExpr: "!has(region.status.resource.description)"

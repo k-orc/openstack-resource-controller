@@ -5,9 +5,7 @@ metadata:
   name: region-update
 status:
   resource:
-    name: region-update-updated
     description: region-update-updated
-    # TODO(scaffolding): match all fields that were modified
   conditions:
   - type: Available
     status: "True"
