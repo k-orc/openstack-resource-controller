@@ -1,18 +1,15 @@
 ---
 # Verify Project still exists (deletion blocked by finalizer)
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: roleassignment-dep-project
-  # deletionTimestamp should be set, but resource should still exist
-status:
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: roleassignment-dep-project
+      ref: project
+assertAll:
+    - celExpr: "project.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/roleassignment' in project.metadata.finalizers"
 ---
 # Verify RoleAssignment still Available
 apiVersion: openstack.k-orc.cloud/v1alpha1
