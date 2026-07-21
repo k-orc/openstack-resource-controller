@@ -25,6 +25,14 @@ spec:
       jsonPath: .status.conditions[?(@.type=='Available')].status
       name: Available
       type: string
+    - description: The name of the resource this limit is associated with
+      jsonPath: .status.resource.resourceName
+      name: Resource
+      type: string
+    - description: The override value of this limit
+      jsonPath: .status.resource.resourceLimit
+      name: Limit
+      type: integer
     - description: Message describing current progress status
       jsonPath: .status.conditions[?(@.type=='Progressing')].message
       name: Message
@@ -171,8 +179,10 @@ spec:
                     minLength: 1
                     type: string
                   domainRef:
-                    description: domainRef is a reference to the ORC Domain which
-                      this resource is associated with.
+                    description: |-
+                      domainRef is a reference to the ORC Domain which this resource is associated with.
+                      Either Domain ID or Project ID must be provided.
+                      https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -180,8 +190,10 @@ spec:
                     - message: domainRef is immutable
                       rule: self == oldSelf
                   projectRef:
-                    description: projectRef is a reference to the ORC Project which
-                      this resource is associated with.
+                    description: |-
+                      projectRef is a reference to the ORC Project which this resource is associated with.
+                      Either Domain ID or Project ID must be provided.
+                      https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -217,6 +229,11 @@ spec:
                 - resourceName
                 - serviceRef
                 type: object
+                x-kubernetes-validations:
+                - message: either projectRef or domainRef must be specified
+                  rule: has(self.projectRef) || has(self.domainRef)
+                - message: projectRef and domainRef are mutually exclusive
+                  rule: '!(has(self.projectRef) && has(self.domainRef))'
               resyncPeriod:
                 description: |-
                   resyncPeriod defines how frequently the controller will re-reconcile

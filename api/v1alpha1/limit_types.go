@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 // LimitResourceSpec contains the desired state of the resource.
+// +kubebuilder:validation:XValidation:rule="has(self.projectRef) || has(self.domainRef)",message="either projectRef or domainRef must be specified"
+// +kubebuilder:validation:XValidation:rule="!(has(self.projectRef) && has(self.domainRef))",message="projectRef and domainRef are mutually exclusive"
 type LimitResourceSpec struct {
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
@@ -27,14 +29,18 @@ type LimitResourceSpec struct {
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
-	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
+	ServiceRef KubernetesNameRef `json:"serviceRef"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
+	// Either Domain ID or Project ID must be provided.
+	// https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
+	// Either Domain ID or Project ID must be provided.
+	// https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
@@ -100,7 +106,7 @@ type LimitResourceStatus struct {
 
 	// resoureLimit is the override value of the limit.
 	// +optional
-	ResourceLimit int32 `json:"resourceLimit"`
+	ResourceLimit int32 `json:"resourceLimit,omitempty"`
 
 	// resoureName is the name of the resource this limit is associated with.
 	// +kubebuilder:validation:MaxLength=1024

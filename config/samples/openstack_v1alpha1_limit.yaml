@@ -2,13 +2,16 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-sample
+  name: limit-managed
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Sample Limit
-    # TODO(scaffolding): Add all fields the resource supports
+    description: Nova limit servers for project demo
+    serviceRef: nova
+    projectRef: demo # Either projectRef or domainRef must be provided.
+    domainRef: default
+    resourceName: servers
+    resourceLimit: 10

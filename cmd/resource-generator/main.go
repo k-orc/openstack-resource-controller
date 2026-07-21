@@ -192,6 +192,20 @@ var resources []templateFields = []templateFields{
 	{
 		Name:       "Limit",
 		IsNotNamed: true,
+		AdditionalPrintColumns: []additionalPrintColumn{
+			{
+				Name:        "Resource",
+				Type:        "string",
+				JSONPath:    ".status.resource.resourceName",
+				Description: "The name of the resource this limit is associated with",
+			},
+			{
+				Name:        "Limit",
+				Type:        "integer",
+				JSONPath:    ".status.resource.resourceLimit",
+				Description: "The override value of this limit",
+			},
+		},
 	},
 }
 

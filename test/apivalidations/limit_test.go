@@ -18,6 +18,7 @@ package apivalidations
 
 import (
 	"context"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -42,7 +43,13 @@ func limitStub(namespace *corev1.Namespace) *orcv1alpha1.Limit {
 
 func testLimitResource() *applyconfigv1alpha1.LimitResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.LimitResourceSpec().
-		WithServiceRef("service")
+		WithServiceRef("nova").
+		WithResourceName("servers").
+		WithResourceLimit(10)
+}
+
+func testLimitResourceWithProject() *applyconfigv1alpha1.LimitResourceSpecApplyConfiguration {
+	return testLimitResource().WithProjectRef("demo")
 }
 
 func baseLimitPatch(obj client.Object) *applyconfigv1alpha1.LimitApplyConfiguration {
@@ -67,7 +74,7 @@ var _ = Describe("ORC Limit API validations", func() {
 			return baseLimitPatch(obj)
 		},
 		applyResource: func(p *applyconfigv1alpha1.LimitApplyConfiguration) {
-			p.Spec.WithResource(testLimitResource())
+			p.Spec.WithResource(testLimitResourceWithProject())
 		},
 		applyImport: func(p *applyconfigv1alpha1.LimitApplyConfiguration) {
 			p.Spec.WithImport(testLimitImport())
@@ -108,12 +115,11 @@ var _ = Describe("ORC Limit API validations", func() {
 	It("should have immutable serviceRef", func(ctx context.Context) {
 		obj := limitStub(namespace)
 		patch := baseLimitPatch(obj)
-		patch.Spec.WithResource(testLimitResource().
-			WithServiceRef("service-a"))
+		res := testLimitResourceWithProject()
+		patch.Spec.WithResource(res.WithServiceRef("service-a"))
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
 
-		patch.Spec.WithResource(testLimitResource().
-			WithServiceRef("service-b"))
+		patch.Spec.WithResource(res.WithServiceRef("service-b"))
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("serviceRef is immutable")))
 	})
 
@@ -141,12 +147,47 @@ var _ = Describe("ORC Limit API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable resourceName", func(ctx context.Context) {
+		obj := limitStub(namespace)
+		patch := baseLimitPatch(obj)
+		res := testLimitResourceWithProject()
+
+		patch.Spec.WithResource(res.WithResourceName("servers"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(res.WithResourceName("server_key_pairs"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("resourceName is immutable")))
+	})
+
+	It("should reject invalid resourceName", func(ctx context.Context) {
+		obj := limitStub(namespace)
+		patch := baseLimitPatch(obj)
+		res := testLimitResourceWithProject()
+
+		patch.Spec.WithResource(res.WithResourceName("invalid-name-\r\n"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring(`spec.resource.resourceName in body should match '^[\S]+$'`)))
+
+		patch = baseLimitPatch(obj)
+		patch.Spec.WithResource(res.WithResourceName(strings.Repeat("a", 256)))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring(`spec.resource.resourceName: Too long: may not be longer than 255`)))
+	})
+
+	It("should reject invalid resourceLimit", func(ctx context.Context) {
+		obj := limitStub(namespace)
+		patch := baseLimitPatch(obj)
+		patch.Spec.WithResource(testLimitResourceWithProject().WithResourceLimit(-2))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring(`spec.resource.resourceLimit in body should be greater than or equal to -1`)))
+	})
+
+	It("should include either projectRef or domainRef but not both", func(ctx context.Context) {
+		obj := limitStub(namespace)
+		patch := baseLimitPatch(obj)
+		res := testLimitResource()
+
+		patch.Spec.WithResource(res)
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring(`either projectRef or domainRef must be specified`)))
+
+		patch.Spec.WithResource(res.WithProjectRef("demo").WithDomainRef("default"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring(`projectRef and domainRef are mutually exclusive`)))
+	})
 })

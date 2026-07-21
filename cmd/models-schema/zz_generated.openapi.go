@@ -5544,20 +5544,21 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceSpec(ref 
 					"serviceRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "serviceRef is a reference to the ORC Service which this resource is associated with.",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectRef is a reference to the ORC Project which this resource is associated with.",
+							Description: "projectRef is a reference to the ORC Project which this resource is associated with. Either Domain ID or Project ID must be provided. https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"domainRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "domainRef is a reference to the ORC Domain which this resource is associated with.",
+							Description: "domainRef is a reference to the ORC Domain which this resource is associated with. Either Domain ID or Project ID must be provided. https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5623,7 +5624,6 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceStatus(re
 					"resourceLimit": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resoureLimit is the override value of the limit.",
-							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
