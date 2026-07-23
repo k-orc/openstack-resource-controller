@@ -79,6 +79,11 @@ spec:
       kind: Project
       name: projects.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Region is the Schema for an ORC resource.
+      displayName: Region
+      kind: Region
+      name: regions.openstack.k-orc.cloud
+      version: v1alpha1
     - description: RoleAssignment is the Schema for an ORC resource.
       displayName: Role Assignment
       kind: RoleAssignment

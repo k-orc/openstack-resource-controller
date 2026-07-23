@@ -1,0 +1,25 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: region-update
+      ref: region
+assertAll:
+    - celExpr: "!has(region.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: region-update
+status:
+  resource:
+    name: region-update
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

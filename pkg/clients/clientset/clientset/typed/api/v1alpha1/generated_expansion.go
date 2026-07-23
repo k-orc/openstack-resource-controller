@@ -42,6 +42,8 @@ type PortExpansion interface{}
 
 type ProjectExpansion interface{}
 
+type RegionExpansion interface{}
+
 type RoleExpansion interface{}
 
 type RoleAssignmentExpansion interface{}

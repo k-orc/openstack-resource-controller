@@ -197,6 +197,10 @@ func (s *providerScope) NewGroupClient() (clients.GroupClient, error) {
 	return clients.NewGroupClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewRegionClient() (clients.RegionClient, error) {
+	return clients.NewRegionClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewRoleClient() (clients.RoleClient, error) {
 	return clients.NewRoleClient(s.providerClient, s.providerClientOpts)
 }

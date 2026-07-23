@@ -1,0 +1,26 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: region-create-minimal
+status:
+  resource:
+    name: TestRegion
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: region-create-minimal
+      ref: region
+assertAll:
+    - celExpr: "region.status.id != ''"
+    - celExpr: "region.status.id == region.status.resource.name"
