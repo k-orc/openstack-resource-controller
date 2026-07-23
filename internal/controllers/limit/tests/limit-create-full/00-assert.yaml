@@ -1,43 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: setup-teardown
+status:
+  readyReplicas: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-create-full
+  name: limit-create-full-1
 status:
   resource:
-    name: limit-create-full-override
     description: Limit from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    resourceName: limit-create-full-1
+    resourceLimit: 50
   conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-full-2
+status:
+  resource:
+    description: Limit from "create full" test
+    resourceName: limit-create-full-2
+    resourceLimit: 10
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Limit
-      name: limit-create-full
-      ref: limit
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Service
-      name: limit-create-full
-      ref: service
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: limit-create-full
-      ref: project
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Domain
-      name: limit-create-full
-      ref: domain
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-create-full-1
+    ref: limit1
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-create-full-2
+    ref: limit2
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Service
+    name: service-limit-create-full
+    ref: service
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Project
+    name: project-limit-create-full
+    ref: project
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Domain
+    name: domain-limit-create-full
+    ref: domain
 assertAll:
-    - celExpr: "limit.status.id != ''"
-    - celExpr: "limit.status.resource.serviceID == service.status.id"
-    - celExpr: "limit.status.resource.projectID == project.status.id"
-    - celExpr: "limit.status.resource.domainID == domain.status.id"
-    # TODO(scaffolding): Add more checks
+  - celExpr: "limit1.status.id != ''"
+  - celExpr: "limit2.status.id != ''"
+  - celExpr: "limit1.status.resource.serviceID == service.status.id"
+  - celExpr: "limit2.status.resource.serviceID == service.status.id"
+  - celExpr: "limit1.status.resource.projectID == project.status.id"
+  - celExpr: "limit2.status.resource.domainID == domain.status.id"

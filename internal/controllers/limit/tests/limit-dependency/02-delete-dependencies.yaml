@@ -2,12 +2,10 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
+  # Sleep 1 sec to avoid race condition that the controller only reconciles on the deletion operation due to the async processing and cache
+  - script: kubectl patch domain domain-limit-dependency -p '{"spec":{"resource":{"enabled":false}}}' --type=merge -n $NAMESPACE && sleep 1
   # We expect the deletion to hang due to the finalizer, so use --wait=false
-  - command: kubectl delete service.openstack.k-orc.cloud limit-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete project.openstack.k-orc.cloud limit-dependency --wait=false
-    namespaced: true
-  - command: kubectl delete domain.openstack.k-orc.cloud limit-dependency --wait=false
+  - command: kubectl delete service.openstack.k-orc.cloud,project,domain -l test-case=limit-dependency --wait=false
     namespaced: true
   - command: kubectl delete secret limit-dependency --wait=false
     namespaced: true

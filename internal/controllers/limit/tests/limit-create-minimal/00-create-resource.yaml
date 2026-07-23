@@ -2,27 +2,76 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
 metadata:
-  name: limit-create-minimal
+  name: service-limit-create-minimal
+  labels:
+    test-case: limit-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource:
+    type: "service-type-limit-create-minimal"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-create-minimal
+  labels:
+    test-case: limit-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: domain-limit-create-minimal
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-create-minimal
+  labels:
+    test-case: limit-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
   resource: {}
 ---
+# Use projectRef
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-create-minimal
+  name: limit-create-minimal-1
+  labels:
+    test-case: limit-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
   resource:
-    serviceRef: limit-create-minimal
+    serviceRef: service-limit-create-minimal
+    projectRef: project-limit-create-minimal
+    resourceName: limit-create-minimal-1
+    resourceLimit: 50
+---
+# Use domainRef
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-minimal-2
+  labels:
+    test-case: limit-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: service-limit-create-minimal
+    domainRef: domain-limit-create-minimal
+    resourceName: limit-create-minimal-2
+    resourceLimit: 10

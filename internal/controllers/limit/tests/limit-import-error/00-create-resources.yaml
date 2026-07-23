@@ -2,42 +2,86 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
 metadata:
-  name: limit-import-error
+  name: service-limit-import-error
+  labels:
+    test-case: limit-import-error
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
+  resource:
+    type: "service-type-limit-import-error"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-import-error
+  labels:
+    test-case: limit-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Limit
+kind: Project
 metadata:
-  name: limit-import-error-external-1
+  name: project-limit-import-error-1
+  labels:
+    test-case: limit-import-error
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Limit from "import error" test
-    serviceRef: limit-import-error
-    # TODO(scaffolding): add any required field
+    domainRef: domain-limit-import-error
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-import-error-2
+  labels:
+    test-case: limit-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: domain-limit-import-error
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-import-error-external-2
+  name: limit-import-error-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Limit from "import error" test
-    serviceRef: limit-import-error
-    # TODO(scaffolding): add any required field
+    description: Limit from "import error" test for project-limit-import-error-1
+    serviceRef: service-limit-import-error
+    projectRef: project-limit-import-error-1
+    resourceName: limit-import-error
+    resourceLimit: 50
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-import-error-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Limit from "import error" test for project-limit-import-error-2
+    serviceRef: service-limit-import-error
+    projectRef: project-limit-import-error-2
+    resourceName: limit-import-error
+    resourceLimit: 60

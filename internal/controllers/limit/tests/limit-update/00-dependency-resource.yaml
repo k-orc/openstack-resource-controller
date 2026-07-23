@@ -2,57 +2,40 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
 metadata:
-  name: service-limit-import
+  name: service-limit-update
   labels:
-    test-case: limit-import
+    test-case: limit-update
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    type: "service-type-limit-import"
+    type: "service-type-limit-update"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: project-limit-import
+  name: project-limit-update
   labels:
-    test-case: limit-import
+    test-case: limit-update
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    domainRef: domain-limit-import
+    domainRef: domain-limit-update
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain
 metadata:
-  name: domain-limit-import
+  name: domain-limit-update
   labels:
-    test-case: limit-import
+    test-case: limit-update
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource: {}
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Limit
-metadata:
-  name: limit-import
-  labels:
-    test-case: limit-import
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack-admin
-    secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      serviceRef: service-limit-import
-      projectRef: project-limit-import
-      resourceName: limit-import

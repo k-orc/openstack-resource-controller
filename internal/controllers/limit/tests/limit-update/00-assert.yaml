@@ -2,12 +2,12 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Limit
-      name: limit-update
-      ref: limit
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-update
+    ref: limit
 assertAll:
-    - celExpr: "!has(limit.status.resource.description)"
+  - celExpr: "limit.status.id != ''"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
@@ -15,12 +15,13 @@ metadata:
   name: limit-update
 status:
   resource:
-    name: limit-update
-    # TODO(scaffolding): Add matches for more fields
+    description: some description
+    resourceName: limit-update
+    resourceLimit: 50
   conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

@@ -1,11 +1,7 @@
-# Create a Limit with all the options
+# Create Limits with all the options
 
 ## Step 00
 
-Create a Limit using all available fields, and verify that the observed state corresponds to the spec.
+Create Limits using all available fields, and verify that the observed state corresponds to the spec.
 
-Also validate that the OpenStack resource uses the name from the spec when it is specified.
-
-## Reference
-
-https://k-orc.cloud/development/writing-tests/#create-full
+Because `projectRef` and `domainRef` are mutual exclusive, two limits are created for test.

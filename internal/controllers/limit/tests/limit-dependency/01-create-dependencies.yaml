@@ -4,42 +4,46 @@ kind: TestStep
 commands:
   - command: kubectl create secret generic limit-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
     namespaced: true
+  - command: kubectl create configmap common --from-file=../utils
+    namespaced: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
 metadata:
-  name: limit-dependency-pending
+  name: service-limit-dependency
+  labels:
+    test-case: limit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    type: "service-type-limit-dependency"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: limit-dependency
+  name: project-limit-dependency
+  labels:
+    test-case: limit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    domainRef: domain-limit-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Domain
 metadata:
-  name: limit-dependency
+  name: domain-limit-dependency
+  labels:
+    test-case: limit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource: {}

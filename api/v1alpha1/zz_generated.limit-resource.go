@@ -143,6 +143,7 @@ func (i *Limit) GetConditions() []metav1.Condition {
 // +kubebuilder:printcolumn:name="Available",type="string",JSONPath=".status.conditions[?(@.type=='Available')].status",description="Availability status of resource"
 // +kubebuilder:printcolumn:name="Resource",type="string",JSONPath=".status.resource.resourceName",description="The name of the resource this limit is associated with"
 // +kubebuilder:printcolumn:name="Limit",type="integer",JSONPath=".status.resource.resourceLimit",description="The override value of this limit"
+// +kubebuilder:printcolumn:name="Policy",type="string",JSONPath=".spec.managementPolicy",description="Whether this limit is imported"
 // +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".status.conditions[?(@.type=='Progressing')].message",description="Message describing current progress status"
 
 // Limit is the Schema for an ORC resource.

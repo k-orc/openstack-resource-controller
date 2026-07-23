@@ -45,7 +45,7 @@ type LimitResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
-	// resoureName is the name of the resource this limit is associated with.
+	// resourceName is the name of the resource this limit is associated with.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +kubebuilder:validation:Pattern=`^[\S]+$`
@@ -53,7 +53,7 @@ type LimitResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="resourceName is immutable"
 	ResourceName string `json:"resourceName"`
 
-	// resoureLimit is the override value of the limit.
+	// resourceLimit is the override value of the limit.
 	// +kubebuilder:validation:Minimum=-1
 	// +required
 	ResourceLimit int32 `json:"resourceLimit"`
@@ -74,7 +74,7 @@ type LimitFilter struct {
 	// +optional
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
-	// resoureName is the name of the resource this limit is associated with.
+	// resourceName is the name of the resource this limit is associated with.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +kubebuilder:validation:Pattern=`^[\S]+$`
@@ -104,11 +104,11 @@ type LimitResourceStatus struct {
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
 
-	// resoureLimit is the override value of the limit.
+	// resourceLimit is the override value of the limit.
 	// +optional
 	ResourceLimit int32 `json:"resourceLimit,omitempty"`
 
-	// resoureName is the name of the resource this limit is associated with.
+	// resourceName is the name of the resource this limit is associated with.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ResourceName string `json:"resourceName,omitempty"`

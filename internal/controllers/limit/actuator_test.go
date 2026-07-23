@@ -114,3 +114,53 @@ func TestHandleResourceLimitUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateUpdate(t *testing.T) {
+	testCases := []struct {
+		name        string
+		resource    *orcv1alpha1.LimitResourceSpec
+		osResource  *osResourceT
+		expectError error
+	}{
+		{
+			name: "Update domainRef",
+			resource: &orcv1alpha1.LimitResourceSpec{
+				DomainRef: ptr.To(orcv1alpha1.KubernetesNameRef("domain-ref")),
+			},
+			osResource: &osResourceT{
+				ProjectID: "12312312312",
+			},
+			expectError: errInvalidDomainRefUpdate,
+		},
+		{
+			name: "Update projectRef",
+			resource: &orcv1alpha1.LimitResourceSpec{
+				ProjectRef: ptr.To(orcv1alpha1.KubernetesNameRef("project-ref")),
+			},
+			osResource: &osResourceT{
+				DomainID: "default",
+			},
+			expectError: errInvalidProjectRefUpdate,
+		},
+		{
+			name: "Normal update",
+			resource: &orcv1alpha1.LimitResourceSpec{
+				ProjectRef: ptr.To(orcv1alpha1.KubernetesNameRef("project-ref")),
+			},
+			osResource: &osResourceT{
+				ProjectID: "12312312312",
+			},
+			expectError: nil,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := validateUpdate(tt.resource, tt.osResource)
+
+			if got != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, got)
+			}
+		})
+	}
+}

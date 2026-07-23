@@ -14,9 +14,9 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: limit-import-external-not-this-one
     description: Limit limit-import-external from "limit-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    resourceName: limit-import-nonexistent-resource
+    resourceLimit: 55
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit

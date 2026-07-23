@@ -1,8 +1,21 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Service
+kind: Domain
 metadata:
-  name: service-limit-import-dependency
+  name: domain-limit-import-dependency
+  labels:
+    test-case: limit-import-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-import-dependency
   labels:
     test-case: limit-import-dependency
 spec:
@@ -11,36 +24,21 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    type: "service-type-limit-import-dependency"
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: project-limit-import-dependency-imported
-  labels:
-    test-case: limit-import-dependency
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack-admin
-    secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: project-limit-import-dependency
+    domainRef: domain-limit-import-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-import-dependency
+  name: limit-import-dependency-external
   labels:
     test-case: limit-import-dependency
 spec:
   cloudCredentialsRef:
     cloudName: openstack-admin
     secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      serviceRef: service-limit-import-dependency
-      projectRef: project-limit-import-dependency-imported
-      resourceName: limit-import-dependency
+  managementPolicy: managed
+  resource:
+    serviceRef: service-limit-import-dependency
+    projectRef: project-limit-import-dependency
+    resourceName: limit-import-dependency
+    resourceLimit: 50

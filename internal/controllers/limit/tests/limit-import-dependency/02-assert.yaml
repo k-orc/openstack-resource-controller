@@ -1,44 +1,6 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
-resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Limit
-      name: limit-import-dependency
-      ref: limit1
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Limit
-      name: limit-import-dependency-not-this-one
-      ref: limit2
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Service
-      name: limit-import-dependency
-      ref: service
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Project
-      name: limit-import-dependency
-      ref: project
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Domain
-      name: limit-import-dependency
-      ref: domain
-assertAll:
-    - celExpr: "limit1.status.id != limit2.status.id"
-    - celExpr: "limit1.status.resource.serviceID == service.status.id"
-    - celExpr: "limit1.status.resource.projectID == project.status.id"
-    - celExpr: "limit1.status.resource.domainID == domain.status.id"
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Limit
-metadata:
-  name: limit-import-dependency
-status:
-  conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
+commands:
+  - script: "! kubectl get project.openstack.k-orc.cloud project-limit-import-dependency-imported --namespace $NAMESPACE"
+    skipLogOutput: true

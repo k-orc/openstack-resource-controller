@@ -18,6 +18,7 @@ package limit
 
 import (
 	"context"
+	"errors"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/limits"
@@ -33,6 +34,11 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+)
+
+var (
+	errInvalidDomainRefUpdate  = errors.New("limit cannot be updated with domainRef when projectRef has been used")
+	errInvalidProjectRefUpdate = errors.New("limit cannot be updated with projectRef when domainRef has been used")
 )
 
 // OpenStack resource types
@@ -237,9 +243,18 @@ func (actuator limitActuator) updateResource(ctx context.Context, obj orcObjectP
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
+	if err := validateUpdate(resource, osResource); err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+
 	updateOpts := limits.UpdateOpts{}
 
+	// There seems to be a bug that keystone doesn't clear the description field when receiving a PATCH request with an empty description.
+	// This will cause the `Progressing` condition stuck with `Resource status will be refreshed`.
+	// Tested with `openstack limit set --description ""`
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	// The same issue exists with resourceLimit. Updating resourceLimit with 0 doesn't work.
 	handleResourceLimitUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
@@ -290,6 +305,18 @@ func handleResourceLimitUpdate(updateOpts *limits.UpdateOpts, resource *resource
 	if osResource.ResourceLimit != rl {
 		updateOpts.ResourceLimit = &rl
 	}
+}
+
+func validateUpdate(resource *resourceSpecT, osResource *osResourceT) error {
+	if resource.DomainRef != nil && osResource.ProjectID != "" {
+		return errInvalidDomainRefUpdate
+	}
+
+	if resource.ProjectRef != nil && osResource.DomainID != "" {
+		return errInvalidProjectRefUpdate
+	}
+
+	return nil
 }
 
 func (actuator limitActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {

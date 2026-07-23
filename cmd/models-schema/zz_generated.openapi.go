@@ -5437,7 +5437,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitFilter(ref common
 					},
 					"resourceName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "resoureName is the name of the resource this limit is associated with.",
+							Description: "resourceName is the name of the resource this limit is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -5565,7 +5565,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceSpec(ref 
 					},
 					"resourceName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "resoureName is the name of the resource this limit is associated with.",
+							Description: "resourceName is the name of the resource this limit is associated with.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -5573,7 +5573,7 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceSpec(ref 
 					},
 					"resourceLimit": {
 						SchemaProps: spec.SchemaProps{
-							Description: "resoureLimit is the override value of the limit.",
+							Description: "resourceLimit is the override value of the limit.",
 							Default:     0,
 							Type:        []string{"integer"},
 							Format:      "int32",
@@ -5623,14 +5623,14 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_LimitResourceStatus(re
 					},
 					"resourceLimit": {
 						SchemaProps: spec.SchemaProps{
-							Description: "resoureLimit is the override value of the limit.",
+							Description: "resourceLimit is the override value of the limit.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
 					},
 					"resourceName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "resoureName is the name of the resource this limit is associated with.",
+							Description: "resourceName is the name of the resource this limit is associated with.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

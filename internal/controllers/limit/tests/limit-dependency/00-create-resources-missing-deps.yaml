@@ -1,70 +1,54 @@
 ---
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Service
-metadata:
-  name: limit-dependency
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
+# No project and service available
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-dependency-no-service
+  name: limit-dependency-1
+  labels:
+    test-case: limit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    serviceRef: limit-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    serviceRef: service-limit-dependency
+    projectRef: project-limit-dependency
+    resourceName: limit-dependency-1
+    resourceLimit: 50
 ---
+# No domain and service available
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-dependency-no-project
+  name: limit-dependency-2
+  labels:
+    test-case: limit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    serviceRef: limit-dependency
-    projectRef: limit-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource---
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Limit
-metadata:
-  name: limit-dependency-no-domain
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    serviceRef: limit-dependency
-    domainRef: limit-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    serviceRef: service-limit-dependency
+    domainRef: domain-limit-dependency
+    resourceName: limit-dependency-2
+    resourceLimit: 10
 ---
+# No secret, service and domain available
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-dependency-no-secret
+  name: limit-dependency-3
+  labels:
+    test-case: limit-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: limit-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
-    serviceRef: limit-dependency
+    serviceRef: service-limit-dependency
+    domainRef: domain-limit-dependency
+    resourceName: limit-dependency-3
+    resourceLimit: 5

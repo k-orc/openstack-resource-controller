@@ -4,13 +4,11 @@ kind: Limit
 metadata:
   name: limit-update
 status:
-  resource:
-    description: some description
-    resourceLimit: 50
   conditions:
     - type: Available
       status: "True"
       reason: Success
     - type: Progressing
       status: "False"
-      reason: Success
+      reason: InvalidConfiguration
+      message: "invalid configuration updating resource: limit cannot be updated with domainRef when projectRef has been used"

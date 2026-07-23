@@ -2,16 +2,21 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 resourceRefs:
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Limit
-      name: limit-import-external
-      ref: limit1
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Limit
-      name: limit-import-external-not-this-one
-      ref: limit2
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-import
+    ref: limit0
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-import-external
+    ref: limit1
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-import-external-not-this-one
+    ref: limit2
 assertAll:
-    - celExpr: "limit1.status.id != limit2.status.id"
+  - celExpr: "limit0.status.id == limit1.status.id"
+  - celExpr: "limit1.status.id != limit2.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
@@ -28,6 +33,6 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: limit-import-external
     description: Limit limit-import-external from "limit-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    resourceName: limit-import
+    resourceLimit: 42

@@ -5,5 +5,5 @@ metadata:
   name: limit-update
 spec:
   resource:
-    description: description updated
-    resourceLimit: 49
+    projectRef:
+    domainRef: domain-limit-update

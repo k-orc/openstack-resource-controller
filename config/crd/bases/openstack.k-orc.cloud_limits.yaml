@@ -33,6 +33,10 @@ spec:
       jsonPath: .status.resource.resourceLimit
       name: Limit
       type: integer
+    - description: Whether this limit is imported
+      jsonPath: .spec.managementPolicy
+      name: Policy
+      type: string
     - description: Message describing current progress status
       jsonPath: .status.conditions[?(@.type=='Progressing')].message
       name: Message
@@ -112,7 +116,7 @@ spec:
                         minLength: 1
                         type: string
                       resourceName:
-                        description: resoureName is the name of the resource this
+                        description: resourceName is the name of the resource this
                           limit is associated with.
                         maxLength: 255
                         minLength: 1
@@ -201,12 +205,12 @@ spec:
                     - message: projectRef is immutable
                       rule: self == oldSelf
                   resourceLimit:
-                    description: resoureLimit is the override value of the limit.
+                    description: resourceLimit is the override value of the limit.
                     format: int32
                     minimum: -1
                     type: integer
                   resourceName:
-                    description: resoureName is the name of the resource this limit
+                    description: resourceName is the name of the resource this limit
                       is associated with.
                     maxLength: 255
                     minLength: 1
@@ -369,11 +373,11 @@ spec:
                     maxLength: 1024
                     type: string
                   resourceLimit:
-                    description: resoureLimit is the override value of the limit.
+                    description: resourceLimit is the override value of the limit.
                     format: int32
                     type: integer
                   resourceName:
-                    description: resoureName is the name of the resource this limit
+                    description: resourceName is the name of the resource this limit
                       is associated with.
                     maxLength: 1024
                     type: string

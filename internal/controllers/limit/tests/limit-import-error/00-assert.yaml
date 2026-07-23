@@ -1,8 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: setup-teardown
+status:
+  readyReplicas: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-import-error-external-1
+  name: limit-import-error-1
 status:
   conditions:
     - type: Available
@@ -17,7 +23,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-import-error-external-2
+  name: limit-import-error-2
 status:
   conditions:
     - type: Available

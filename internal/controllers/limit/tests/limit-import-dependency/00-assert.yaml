@@ -7,15 +7,11 @@ status:
   conditions:
     - type: Available
       message: |-
-        Waiting for Service/limit-import-dependency to be ready
-        Waiting for Project/limit-import-dependency to be ready
-        Waiting for Domain/limit-import-dependency to be ready
+        Waiting for Project/project-limit-import-dependency-imported to be ready
       status: "False"
       reason: Progressing
     - type: Progressing
       message: |-
-        Waiting for Service/limit-import-dependency to be ready
-        Waiting for Project/limit-import-dependency to be ready
-        Waiting for Domain/limit-import-dependency to be ready
+        Waiting for Project/project-limit-import-dependency-imported to be ready
       status: "True"
       reason: Progressing
