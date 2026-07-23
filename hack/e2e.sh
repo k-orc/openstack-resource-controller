@@ -29,10 +29,18 @@ if [ -n "$E2E_KUTTL_TIMEOUT" ]; then
     E2E_KUTTL_TIMEOUT_OPT="--timeout $E2E_KUTTL_TIMEOUT"
 fi
 
+# Skip deleting test resources on failure so collectlogs can capture them.
+# Set this variable to 1 to skip deletion.
+E2E_KUTTL_SKIP_DELETE=${E2E_KUTTL_SKIP_DELETE:-0}
+E2E_KUTTL_SKIP_DELETE_OPT=
+if [ "$E2E_KUTTL_SKIP_DELETE" == 1 ]; then
+    E2E_KUTTL_SKIP_DELETE_OPT="--skip-delete"
+fi
+
 # Export variables referenced in kuttl tests.
 export E2E_EXTERNAL_NETWORK_NAME
 export E2E_KUTTL_OSCLOUDS=${PREPARED_OSCLOUDS}
 export E2E_KUTTL_CACERT_OPT
 export E2E_KUTTL_FLAVOR
 
-kubectl kuttl test $E2E_KUTTL_DIR $E2E_KUTTL_TIMEOUT_OPT --test "$E2E_KUTTL_TEST"
+kubectl kuttl test $E2E_KUTTL_DIR $E2E_KUTTL_TIMEOUT_OPT $E2E_KUTTL_SKIP_DELETE_OPT --test "$E2E_KUTTL_TEST"
