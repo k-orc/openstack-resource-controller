@@ -283,8 +283,29 @@ func handleDescriptionUpdate(updateOpts *volumes.UpdateOpts, resource *resourceS
 
 func (actuator volumeActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.checkAttachmentStatus,
 		actuator.updateResource,
 	}, nil
+}
+
+func (volumeActuator) checkAttachmentStatus(ctx context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	// When the volume has attachments but Cinder still reports
+	// "available" rather than "in-use", the status transition has
+	// not completed yet. serverToVolumeMapFunc also detects this
+	// and triggers a reconcile, but it races with the volume
+	// controller's own status write: the controller may overwrite
+	// Progressing=True with Progressing=False before the volume
+	// becomes in-use. Poll here so we keep Progressing=True until
+	// the transition completes.
+	if len(osResource.Attachments) > 0 && osResource.Status != VolumeStatusInUse {
+		log.V(logging.Verbose).Info("volume needs reconciliation: attached to server but status is not in-use",
+			"status", osResource.Status)
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, volumeAvailablePollingPeriod)
+	}
+
+	return nil
 }
 
 type volumeHelperFactory struct{}
