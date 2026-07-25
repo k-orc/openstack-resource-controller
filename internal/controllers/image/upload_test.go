@@ -28,6 +28,7 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 	corev1 "k8s.io/api/core/v1"
+	utilrand "k8s.io/apimachinery/pkg/util/rand"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
@@ -158,7 +159,7 @@ var _ = Describe("Upload tests", Ordered, func() {
 
 		// Create the namespace
 		namespace = &corev1.Namespace{}
-		namespace.SetGenerateName("test-")
+		namespace.SetName("test-" + utilrand.String(10))
 		Expect(k8sClient.Create(ctx, namespace)).To(Succeed(), "create namespace")
 		DeferCleanup(func() {
 			Expect(k8sClient.Delete(ctx, namespace)).To(Succeed(), "delete namespace")

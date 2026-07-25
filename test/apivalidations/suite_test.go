@@ -24,6 +24,8 @@ import (
 	"testing"
 	"time"
 
+	utilrand "k8s.io/apimachinery/pkg/util/rand"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -147,7 +149,7 @@ var _ = BeforeSuite(func() {
 func createNamespace() *corev1.Namespace {
 	By("Creating namespace")
 	namespace := corev1.Namespace{}
-	namespace.GenerateName = "test-"
+	namespace.Name = "test-" + utilrand.String(10)
 	Expect(k8sClient.Create(ctx, &namespace)).To(Succeed(), "Namespace creation should succeed")
 	DeferCleanup(func() {
 		By("Deleting namespace")

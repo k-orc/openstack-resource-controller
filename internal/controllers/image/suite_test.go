@@ -25,6 +25,7 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
+	utilrand "k8s.io/apimachinery/pkg/util/rand"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -82,7 +83,7 @@ var _ = Describe("EnvTest sanity check", func() {
 	It("should be able to create a namespace", func() {
 		ctx := context.TODO()
 		namespace := &corev1.Namespace{}
-		namespace.SetGenerateName("test-")
+		namespace.SetName("test-" + utilrand.String(10))
 
 		// Create the namespace
 		Expect(k8sClient.Create(ctx, namespace)).To(Succeed(), "create namespace")
