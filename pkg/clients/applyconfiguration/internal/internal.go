@@ -3639,6 +3639,231 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPool
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolFilter
+  map:
+    fields:
+    - name: addressScopeRef
+      type:
+        scalar: string
+    - name: defaultPrefixLength
+      type:
+        scalar: numeric
+    - name: description
+      type:
+        scalar: string
+    - name: ipVersion
+      type:
+        scalar: numeric
+    - name: isDefault
+      type:
+        scalar: boolean
+    - name: maxPrefixLength
+      type:
+        scalar: numeric
+    - name: minPrefixLength
+      type:
+        scalar: numeric
+    - name: name
+      type:
+        scalar: string
+    - name: notTags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: notTagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: tagsAny
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceSpec
+  map:
+    fields:
+    - name: addressScopeRef
+      type:
+        scalar: string
+    - name: defaultPrefixLength
+      type:
+        scalar: numeric
+    - name: description
+      type:
+        scalar: string
+    - name: isDefault
+      type:
+        scalar: boolean
+    - name: maxPrefixLength
+      type:
+        scalar: numeric
+    - name: minPrefixLength
+      type:
+        scalar: numeric
+    - name: name
+      type:
+        scalar: string
+    - name: prefixes
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: projectRef
+      type:
+        scalar: string
+    - name: shared
+      type:
+        scalar: boolean
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceStatus
+  map:
+    fields:
+    - name: addressScopeID
+      type:
+        scalar: string
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: defaultPrefixLength
+      type:
+        scalar: numeric
+    - name: defaultQuota
+      type:
+        scalar: numeric
+    - name: description
+      type:
+        scalar: string
+    - name: ipVersion
+      type:
+        scalar: numeric
+    - name: isDefault
+      type:
+        scalar: boolean
+    - name: maxPrefixLength
+      type:
+        scalar: numeric
+    - name: minPrefixLength
+      type:
+        scalar: numeric
+    - name: name
+      type:
+        scalar: string
+    - name: prefixes
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: projectID
+      type:
+        scalar: string
+    - name: revisionNumber
+      type:
+        scalar: numeric
+    - name: shared
+      type:
+        scalar: boolean
+    - name: tags
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetPoolResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.SubnetResourceSpec
   map:
     fields:

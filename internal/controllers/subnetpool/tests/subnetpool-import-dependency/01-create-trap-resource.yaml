@@ -1,0 +1,41 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: subnetpool-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: subnetpool-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    ipVersion: 4
+---
+# This `subnetpool-import-dependency-not-this-one` should not be picked by the import filter
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: subnetpool-import-dependency-not-this-one
+    addressScopeRef: subnetpool-import-dependency-not-this-one
+    prefixes:
+    - 192.168.12.0/24
+    minPrefixLength: 8
+    maxPrefixLength: 32

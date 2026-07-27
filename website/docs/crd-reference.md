@@ -32,6 +32,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Service](#service)
 - [ShareNetwork](#sharenetwork)
 - [Subnet](#subnet)
+- [SubnetPool](#subnetpool)
 - [Trunk](#trunk)
 - [User](#user)
 - [Volume](#volume)
@@ -492,6 +493,7 @@ _Appears in:_
 - [SecurityGroupRule](#securitygrouprule)
 - [ServerSchedulerHints](#serverschedulerhints)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolResourceSpec](#subnetpoolresourcespec)
 - [SubnetResourceSpec](#subnetresourcespec)
 
 
@@ -527,6 +529,7 @@ _Appears in:_
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
+- [SubnetPoolSpec](#subnetpoolspec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
@@ -910,6 +913,7 @@ _Appears in:_
 - [RouterFilter](#routerfilter)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [TrunkFilter](#trunkfilter)
 
 | Field | Description | Default | Validation |
@@ -1519,6 +1523,7 @@ _Appears in:_
 - [AddressScopeFilter](#addressscopefilter)
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 
 
@@ -2232,6 +2237,8 @@ _Appears in:_
 - [ServerVolumeSpec](#servervolumespec)
 - [ShareNetworkResourceSpec](#sharenetworkresourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
+- [SubnetPoolResourceSpec](#subnetpoolresourcespec)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -2302,6 +2309,7 @@ _Appears in:_
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
+- [SubnetPoolSpec](#subnetpoolspec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
@@ -2343,6 +2351,7 @@ _Appears in:_
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
+- [SubnetPoolSpec](#subnetpoolspec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
@@ -2539,6 +2548,7 @@ _Appears in:_
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [SecurityGroupRule](#securitygrouprule)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -2558,6 +2568,7 @@ _Appears in:_
 - [NetworkResourceStatus](#networkresourcestatus)
 - [PortResourceStatus](#portresourcestatus)
 - [SecurityGroupResourceStatus](#securitygroupresourcestatus)
+- [SubnetPoolResourceStatus](#subnetpoolresourcestatus)
 - [SubnetResourceStatus](#subnetresourcestatus)
 - [TrunkResourceStatus](#trunkresourcestatus)
 
@@ -2592,6 +2603,7 @@ _Appears in:_
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SecurityGroupResourceSpec](#securitygroupresourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -2657,6 +2669,8 @@ _Appears in:_
 - [ShareNetworkFilter](#sharenetworkfilter)
 - [ShareNetworkResourceSpec](#sharenetworkresourcespec)
 - [SubnetFilter](#subnetfilter)
+- [SubnetPoolFilter](#subnetpoolfilter)
+- [SubnetPoolResourceSpec](#subnetpoolresourcespec)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
 - [TrunkResourceSpec](#trunkresourcespec)
@@ -4722,6 +4736,172 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
 | `filter` _[SubnetFilter](#subnetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### SubnetPool
+
+
+
+SubnetPool is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `SubnetPool` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[SubnetPoolSpec](#subnetpoolspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[SubnetPoolStatus](#subnetpoolstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### SubnetPoolFilter
+
+
+
+SubnetPoolFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [SubnetPoolImport](#subnetpoolimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `addressScopeRef` _[KubernetesNameRef](#kubernetesnameref)_ | addressScopeRef is a reference to the ORC AddressScope which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `minPrefixLength` _integer_ | minPrefixLength allows filtering the subnet pool list result by<br />the smallest prefix that can be allocated from a subnet pool. |  | Optional: \{\} <br /> |
+| `maxPrefixLength` _integer_ | maxPrefixLength allows filtering the subnet pool list result by<br />the maximum prefix size that can be allocated from the subnet<br />pool. |  | Optional: \{\} <br /> |
+| `ipVersion` _[IPVersion](#ipversion)_ | ipVersion is the IP protocol version. It can be either 4 or 6 |  | Enum: [4 6] <br />Optional: \{\} <br /> |
+| `shared` _boolean_ | shared allows filtering the list result based on whether the<br />resource is shared across all projects. This field is<br />admin-only. |  | Optional: \{\} <br /> |
+| `defaultPrefixLength` _integer_ | defaultPrefixLength allows filtering the subnet pool list<br />result by the size of the prefix to allocate when the cidr or<br />prefixlen attributes are omitted when you create the subnet. |  | Optional: \{\} <br /> |
+| `isDefault` _boolean_ | isDefault allows filtering the subnet pool list result based on<br />if it is a default pool or not. |  | Optional: \{\} <br /> |
+| `revisionNumber` _integer_ | revisionNumber allows filtering the list result by the revision<br />number of the resource. |  | Optional: \{\} <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### SubnetPoolImport
+
+
+
+SubnetPoolImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [SubnetPoolSpec](#subnetpoolspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[SubnetPoolFilter](#subnetpoolfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### SubnetPoolResourceSpec
+
+
+
+SubnetPoolResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [SubnetPoolSpec](#subnetpoolspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `addressScopeRef` _[KubernetesNameRef](#kubernetesnameref)_ | addressScopeRef is a reference to the ORC AddressScope which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `prefixes` _[CIDR](#cidr) array_ | prefixes is the list of subnet prefixes to assign to the subnet<br />pool. The API merges adjacent prefixes and treats them as a<br />single prefix. Each subnet prefix must be unique across all<br />subnet pools associated with address scope. |  | Format: cidr <br />MaxItems: 64 <br />MaxLength: 49 <br />MinItems: 1 <br />MinLength: 1 <br />Optional: \{\} <br />Required: \{\} <br /> |
+| `minPrefixLength` _integer_ | minPrefixLength is the smallest prefix that can be allocated<br />from a subnet pool. For IPv4 subnet pools, default is 8. For<br />IPv6 subnet pools, default is 64. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `maxPrefixLength` _integer_ | maxPrefixLength is the maximum prefix size that can be allocated<br />from the subnet pool. For IPv4 subnet pools, default is 32. For<br />IPv6 subnet pools, default is 128. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all projects.<br />By default, it is false, and only administrative users can<br />change this value. |  | Optional: \{\} <br /> |
+| `defaultPrefixLength` _integer_ | defaultPrefixLength is the size of the prefix to allocate when<br />the cidr or prefixlen attributes are omitted when you create<br />the subnet. Default is MinPrefixLength. |  | Optional: \{\} <br /> |
+| `isDefault` _boolean_ | isDefault defines whether the subnetpool is default pool or<br />not. |  | Optional: \{\} <br /> |
+
+
+#### SubnetPoolResourceStatus
+
+
+
+SubnetPoolResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [SubnetPoolStatus](#subnetpoolstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the Project to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `addressScopeID` _string_ | addressScopeID is the ID of the AddressScope to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `prefixes` _string array_ | prefixes is a list of prefixes to assign to the SubnetPool. |  | MaxItems: 1024 <br />items:MaxLength: 64 <br />Optional: \{\} <br /> |
+| `defaultQuota` _integer_ | defaultQuota is a per-project quota on the prefix space that<br />can be allocated from the SubnetPool for project subnets. |  | Optional: \{\} <br /> |
+| `minPrefixLength` _integer_ | minPrefixLength is the smallest prefix that can be allocated<br />from a subnet pool. |  | Optional: \{\} <br /> |
+| `maxPrefixLength` _integer_ | maxPrefixLength is the maximum prefix size that can be<br />allocated from the subnet pool. |  | Optional: \{\} <br /> |
+| `defaultPrefixLength` _integer_ | defaultPrefixLength is the size of the prefix to allocate when<br />the cidr or prefixlen attributes are omitted when you create<br />the subnet. |  | Optional: \{\} <br /> |
+| `isDefault` _boolean_ | isDefault indicates whether the SubnetPool is the default pool<br />when creating subnets. |  | Optional: \{\} <br /> |
+| `shared` _boolean_ | shared indicates whether the SubnetPool is shared across all projects. |  | Optional: \{\} <br /> |
+| `ipVersion` _integer_ | ipVersion is the IP protocol version. It can be either 4 or 6 |  | Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  | Optional: \{\} <br /> |
+
+
+#### SubnetPoolSpec
+
+
+
+SubnetPoolSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [SubnetPool](#subnetpool)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[SubnetPoolImport](#subnetpoolimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[SubnetPoolResourceSpec](#subnetpoolresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### SubnetPoolStatus
+
+
+
+SubnetPoolStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [SubnetPool](#subnetpool)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[SubnetPoolResourceStatus](#subnetpoolresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
 #### SubnetResourceSpec
