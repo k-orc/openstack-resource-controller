@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-router-not-ready
+status:
+  conditions:
+    - type: Available
+      message: Waiting for Router/routerinterface-router-not-ready to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for Router/routerinterface-router-not-ready to be ready
+      status: "True"
+      reason: Progressing
