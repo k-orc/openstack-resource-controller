@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-router-not-ready
+spec:
+  type: Subnet
+  routerRef: routerinterface-router-not-ready
+  subnetRef: routerinterface-router-not-ready
