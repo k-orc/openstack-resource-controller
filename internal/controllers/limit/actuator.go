@@ -111,6 +111,14 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(ort *osResourceT) bool {
+			return ort.Description == *resourceSpec.Description
+		})
+	}
+
 	listOpts := limits.ListOpts{
 		ServiceID:    ptr.Deref(svc.Status.ID, ""),
 		ProjectID:    ptr.Deref(project.Status.ID, ""),
@@ -118,7 +126,7 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		ResourceName: resourceSpec.ResourceName,
 	}
 
-	return actuator.osClient.ListLimits(ctx, listOpts), true
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
@@ -153,6 +161,14 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		return nil, reconcileStatus
 	}
 
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	if filter.Description != nil {
+		filters = append(filters, func(ort *osResourceT) bool {
+			return ort.Description == *filter.Description
+		})
+	}
+
 	listOpts := limits.ListOpts{
 		ServiceID:    ptr.Deref(service.Status.ID, ""),
 		ProjectID:    ptr.Deref(project.Status.ID, ""),
@@ -160,7 +176,12 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		ResourceName: filter.ResourceName,
 	}
 
-	return actuator.osClient.ListLimits(ctx, listOpts), reconcileStatus
+	return actuator.listOSResources(ctx, filters, listOpts), reconcileStatus
+}
+
+func (actuator limitActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts limits.ListOptsBuilder) iter.Seq2[*limits.Limit, error] {
+	registeredLimits := actuator.osClient.ListLimits(ctx, listOpts)
+	return osclients.Filter(registeredLimits, filters...)
 }
 
 func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {

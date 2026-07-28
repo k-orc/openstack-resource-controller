@@ -62,6 +62,12 @@ type LimitResourceSpec struct {
 // LimitFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type LimitFilter struct {
+	// description of the existing resource
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=255
+	// +optional
+	Description *string `json:"description,omitempty"`
+
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
