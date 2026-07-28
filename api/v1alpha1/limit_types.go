@@ -29,7 +29,7 @@ type LimitResourceSpec struct {
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
-	ServiceRef KubernetesNameRef `json:"serviceRef"`
+	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// Either Domain ID or Project ID must be provided.
@@ -51,7 +51,7 @@ type LimitResourceSpec struct {
 	// +kubebuilder:validation:Pattern=`^[\S]+$`
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="resourceName is immutable"
-	ResourceName string `json:"resourceName"`
+	ResourceName string `json:"resourceName,omitempty"`
 
 	// resourceLimit is the override value of the limit.
 	// +kubebuilder:validation:Minimum=-1

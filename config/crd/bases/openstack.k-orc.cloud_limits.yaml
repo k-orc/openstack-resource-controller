@@ -103,6 +103,11 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
+                      description:
+                        description: description of the existing resource
+                        maxLength: 255
+                        minLength: 1
+                        type: string
                       domainRef:
                         description: domainRef is a reference to the ORC Domain which
                           this resource is associated with.

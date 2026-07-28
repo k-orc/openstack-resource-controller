@@ -25,6 +25,7 @@ import (
 // LimitFilterApplyConfiguration represents a declarative configuration of the LimitFilter type for use
 // with apply.
 type LimitFilterApplyConfiguration struct {
+	Description  *string                        `json:"description,omitempty"`
 	ServiceRef   *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
 	ProjectRef   *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
 	DomainRef    *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
@@ -35,6 +36,14 @@ type LimitFilterApplyConfiguration struct {
 // apply.
 func LimitFilter() *LimitFilterApplyConfiguration {
 	return &LimitFilterApplyConfiguration{}
+}
+
+// WithDescription sets the Description field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Description field is set to the value of the last call.
+func (b *LimitFilterApplyConfiguration) WithDescription(value string) *LimitFilterApplyConfiguration {
+	b.Description = &value
+	return b
 }
 
 // WithServiceRef sets the ServiceRef field in the declarative configuration to the given value
