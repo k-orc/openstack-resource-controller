@@ -85,23 +85,23 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
-	rs.WithReconcileStatus(rs1)
+	rs = rs.WithReconcileStatus(rs1)
 
 	project, rs1 := dependency.FetchDependency(
-		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Project",
-		func(dep *orcv1alpha1.Service) bool {
+		ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
+		func(dep *orcv1alpha1.Project) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
-	rs.WithReconcileStatus(rs1)
+	rs = rs.WithReconcileStatus(rs1)
 
 	domain, rs1 := dependency.FetchDependency(
-		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Domain",
-		func(dep *orcv1alpha1.Service) bool {
+		ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
+		func(dep *orcv1alpha1.Domain) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
 	)
-	rs.WithReconcileStatus(rs1)
+	rs = rs.WithReconcileStatus(rs1)
 
 	if needsReschedule, err := rs.NeedsReschedule(); needsReschedule {
 		if err != nil {

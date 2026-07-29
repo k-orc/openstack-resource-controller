@@ -42,7 +42,7 @@ func main() {
 
 	podName := os.Getenv("POD_NAME")
 	if podName == "" {
-		namespace = "default"
+		podName = "default"
 	}
 
 	testCase := os.Getenv("TEST_CASE")
