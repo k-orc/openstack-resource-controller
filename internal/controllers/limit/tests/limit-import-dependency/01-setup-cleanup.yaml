@@ -1,10 +1,4 @@
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-commands:
-  - command: kubectl create configmap common --from-file=../utils
-    namespaced: true
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,24 +17,12 @@ spec:
     spec:
       containers:
         - name: setup-teardown
-          image: golang:alpine
+          image: ghcr.io/chenwng/orc-helper:latest
           command:
-            - sh
-            - -c
-            - |
-              mkdir /test-helper &&
-              cp /app/* /test-helper &&
-              cd /test-helper;
-              go mod init test-helper &&
-              go mod tidy &&
-              go build -o ./test-helper . &&
-              exec ./test-helper
+            - /orc-helper
           volumeMounts:
             - name: openstack-clouds
               mountPath: /etc/openstack
-              readOnly: true
-            - name: common
-              mountPath: /app
               readOnly: true
             - name: log-volume
               mountPath: /log
@@ -76,9 +58,6 @@ spec:
         - name: openstack-clouds
           secret:
             secretName: openstack-clouds
-        - name: common
-          configMap:
-            name: common
         - name: log-volume
           hostPath:
             path: /log

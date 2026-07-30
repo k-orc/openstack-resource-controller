@@ -6,6 +6,45 @@ status:
   readyReplicas: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-limit-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
   name: limit-dependency-1
@@ -49,3 +88,15 @@ status:
       message: OpenStack resource is up to date
       status: "False"
       reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+collectors:
+  - selector: app=setup-teardown
+commands:
+  - script: |-
+      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
+      export OS_CLOUD=openstack-admin
+      openstack registered limit list --resource-name limit-dependency-1 &&
+      openstack registered limit list --resource-name limit-dependency-2 &&
+      openstack registered limit list --resource-name limit-dependency-3

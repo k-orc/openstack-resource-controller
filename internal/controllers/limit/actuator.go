@@ -180,11 +180,13 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 }
 
 func (actuator limitActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts limits.ListOptsBuilder) iter.Seq2[*limits.Limit, error] {
-	registeredLimits := actuator.osClient.ListLimits(ctx, listOpts)
-	return osclients.Filter(registeredLimits, filters...)
+	ctrl.LoggerFrom(ctx).V(logging.Debug).Info("list option", "listOpts", listOpts)
+
+	return osclients.Filter(actuator.osClient.ListLimits(ctx, listOpts), filters...)
 }
 
 func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
+	logger := ctrl.LoggerFrom(ctx).WithValues("limitName", obj.Name)
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -226,7 +228,7 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 	}
 	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
 		if err != nil {
-			ctrl.LoggerFrom(ctx).Info("fetch dependency before creating limit", "error", err)
+			logger.Info("fetch dependency before creating limit", "error", err)
 		}
 
 		return nil, reconcileStatus
@@ -247,6 +249,8 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 		}
 		return nil, progress.WrapError(err)
 	}
+
+	logger.Info("limit created", "createOpts", createOpts)
 
 	return osResource, nil
 }

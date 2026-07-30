@@ -4,8 +4,6 @@ kind: TestStep
 commands:
   - command: kubectl create secret generic limit-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
     namespaced: true
-  - command: kubectl create configmap common --from-file=../utils
-    namespaced: true
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service

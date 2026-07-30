@@ -10,8 +10,12 @@ Create the missing dependencies and verify all the Limits are available.
 
 ## Step 02
 
-Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+Disable domain to facilitate the deletion.
 
 ## Step 03
+
+Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+
+## Step 04
 
 Delete the Limits and validate that all resources are gone.
