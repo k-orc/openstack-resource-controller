@@ -25,7 +25,10 @@ jobs:
       run: pip install -Ur website/requirements.txt
 
     - name: Build the site
-      run: mkdocs build --verbose --strict --config-file website/mkdocs.yml --site-dir rendered
+      run: zensical build --strict --config-file website/mkdocs.yml
+
+    - name: Post-build (redirects and analytics)
+      run: bash website/post-build.sh website/rendered
 
     - name: Publish to Cloudflare Pages
       uses: cloudflare/pages-action@f0a1cd58cd66095dee69bfa18fa5efd1dde93bca # tag=v1.5.0
