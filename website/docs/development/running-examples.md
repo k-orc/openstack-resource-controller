@@ -1,6 +1,10 @@
 # Running example resources
 
-This tutorial walks through creating ORC resources using the provided examples. This is useful for manually testing your changes during development.
+This page walks through creating ORC resources using the provided kustomize
+examples. This is useful for manually testing your changes during development.
+
+If you're new to ORC and want to learn the concepts step by step, see the
+[Tutorial](../getting-started.md) instead.
 
 ## Prerequisites
 

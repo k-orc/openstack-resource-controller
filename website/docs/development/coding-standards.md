@@ -39,32 +39,6 @@ var _ createResourceActuator = flavorActuator{}
 var _ deleteResourceActuator = flavorActuator{}
 ```
 
-## Naming conventions
-
-### Controller names
-
-Controller names must be:
-
-- Unique among all controllers
-- Contain only lowercase letters and hyphens
-
-```go
-const controllerName = "flavor"
-```
-
-### OpenStack resource names
-
-By default, use the ORC object name as the OpenStack resource name. Provide a helper function:
-
-```go
-func getResourceName(orcObject *orcv1alpha1.Flavor) string {
-    if orcObject.Spec.Resource.Name != nil {
-        return *orcObject.Spec.Resource.Name
-    }
-    return orcObject.Name
-}
-```
-
 ## Error handling
 
 For detailed information on error handling patterns, including transient vs terminal errors and `ReconcileStatus`, see [Controller Implementation](controller-implementation.md#transient-and-terminal-errors).

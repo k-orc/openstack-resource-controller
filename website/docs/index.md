@@ -17,7 +17,7 @@ ORC is based on [Gophercloud][gophercloud], the OpenStack Go SDK.
 [gophercloud]: https://github.com/gophercloud/gophercloud
 
 [Get Started](installation.md){ .md-button .md-button--primary }
-[User Guide](user-guide/index.md){ .md-button }
+[Core Concepts](concepts/core-concepts.md){ .md-button }
 
 ## How It Works
 
@@ -69,20 +69,11 @@ major release.
 
 ## How You Can Contribute
 
-We welcome contributions of all kinds! Whether you're fixing bugs, adding new features, or improving documentation, your help is greatly appreciated. To get started:
+We welcome contributions of all kinds! Whether you're fixing bugs, adding new
+controllers, reviewing code, or improving documentation, your help is greatly
+appreciated. See the [Contributing guide](development/contributing.md) to get
+started.
 
-* Fork the repository.
-* Create a new branch for your changes.
-* Setup a [local development environment](development/quickstart.md).
-* Read the [developers guide](development/overview.md).
-* Make your changes and test thoroughly.
-* Submit a pull request with a clear description of your changes.
-
-For significant new features or architectural changes, please review our
-[enhancement proposal process](https://github.com/k-orc/openstack-resource-controller/tree/main/enhancements)
-before starting work.
-
-If you're unsure where to start, check out the [open issues](https://github.com/k-orc/openstack-resource-controller/issues) and feel free to ask
-questions or propose ideas!
-
-Join us on kubernetes slack, on [#gophercloud](https://kubernetes.slack.com/archives/C05G4NJ6P6X). Visit [slack.k8s.io](https://slack.k8s.io) for an invitation.
+Join us on Kubernetes Slack in
+[#gophercloud](https://kubernetes.slack.com/archives/C05G4NJ6P6X). Visit
+[slack.k8s.io](https://slack.k8s.io) for an invitation.

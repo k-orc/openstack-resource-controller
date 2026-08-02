@@ -6,13 +6,21 @@ nav:
   - Home: index.md
   - Getting Started:
     - Installation: installation.md
-    - Quick Start: getting-started.md
-  - User Guide:
-    - Overview: user-guide/index.md
-    - Drift Detection: user-guide/drift-detection.md
-  - CRD Reference: crd-reference.md
-  - Troubleshooting: troubleshooting.md
+    - Tutorial: getting-started.md
+  - Concepts:
+    - Core Concepts: concepts/core-concepts.md
+    - Design Principles: concepts/design-principles.md
+    - Drift Detection & External Deletion: concepts/drift-detection.md
+  - How-to Guides:
+    - Set Up Cloud Credentials: howto/cloud-credentials.md
+    - Enable Drift Detection: howto/drift-detection.md
+    - Troubleshooting: troubleshooting.md
+  - Reference:
+    - Controller Configuration: reference/configuration.md
+    - Status Conditions: reference/conditions.md
+    - CRD Reference: crd-reference.md
   - Contributing:
+    - Contributing: development/contributing.md
     - Development Quickstart: development/quickstart.md
     - Running Examples: development/running-examples.md
     - Developing Controllers:
@@ -49,9 +57,12 @@ theme:
     - navigation.indexes
     - navigation.expand
     - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
     - content.code.copy
     - search.highlight
     - search.suggest
+    - toc.integrate
 plugins:
   - search:
   - minify:
@@ -64,11 +75,13 @@ plugins:
   - redirects:
       redirect_maps:
         'getting_started.md': 'getting-started.md'
-        'development/index.md': 'development/overview.md'
+        'development/index.md': 'development/contributing.md'
         'development/controller-design.md': 'development/controller-implementation.md'
-        'development/design-decisions.md': 'development/architecture.md'
+        'development/design-decisions.md': 'concepts/design-principles.md'
         'development/coding-convention.md': 'development/coding-standards.md'
         'development/api-contracts.md': 'development/api-design.md'
+        'user-guide/index.md': 'concepts/core-concepts.md'
+        'user-guide/drift-detection.md': 'concepts/drift-detection.md'
 markdown_extensions:
   - admonition
   - attr_list

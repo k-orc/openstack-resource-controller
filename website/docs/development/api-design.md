@@ -19,7 +19,7 @@ These structs, along with any supporting resource-specific code, should be defin
 ### Filter
 
 This is located at `spec.import.filter` in the base object. It is used when
-[importing a pre-existing OpenStack resource](../user-guide/index.md#import-vs-create) into ORC when the resource's ID is
+[importing a pre-existing OpenStack resource](../concepts/core-concepts.md#create-vs-import) into ORC when the resource's ID is
 not already known.
 
 * Filter must not contain an ID field. This is handled separately by `spec.import.id`.
@@ -28,7 +28,7 @@ not already known.
 
 ### ResourceSpec
 
-This is located at `spec.resource` in the base object. It is only defined for [managed objects](../user-guide/index.md#management-policies).
+This is located at `spec.resource` in the base object. It is only defined for [managed objects](../concepts/core-concepts.md#management-policies).
 
 * Where relevant, the `ResourceSpec` should include a `name` field to allow object name to be overridden.
 * All fields should use pre-defined validated types where possible, e.g. `OpenStackName`, `NeutronDescription`, `IPvAny`.
@@ -47,6 +47,47 @@ This is located at `status.resource` in the base object. It contains the observe
 
 Note that although we don't validate the content of status fields, we must still add maximum length validation for strings and lists. This both defensively constrains the size of the object in the etcd database, and limits the maximum size of the object computed by kube-apiserver for the purposes of CEL validation complexity. Strings should ideally be constrained to the length of the field on the source service's database, or failing that some value in the order of kilobytes large enough to be improbable to occur in practice. Lists should similarly be constrained to a value large enough to be improbable to occur in practice.
 
+
+## Immutability
+
+Most resources have a mix of immutable and mutable fields. Immutability is
+enforced per-field using CEL validation:
+
+```go
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
+ImageRef KubernetesNameRef `json:"imageRef,omitempty"`
+```
+
+For resources that are fully immutable (e.g. ServerGroup), apply the validation
+at the struct level:
+
+```go
+// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="ServerGroupResourceSpec is immutable"
+type ServerGroupResourceSpec struct {
+    // ...
+}
+```
+
+As a general rule, fields that OpenStack does not allow updating after creation
+should be marked immutable. For fields that OpenStack allows updating, it's
+fine to start with them marked as immutable and implement mutability in a later
+patch. This keeps the initial controller implementation simpler.
+
+## Common validated types
+
+Pre-defined types in `api/v1alpha1/` provide consistent validation across
+controllers. Always use these instead of bare strings where applicable.
+
+- `OpenStackName`: validated OpenStack resource name
+- `UUID`: validated OpenStack UUID
+- `KubernetesNameRef`: reference to another ORC object by Kubernetes name
+- `IPvAny`: validated IP address (v4 or v6)
+- `CIDR`: validated CIDR notation
+- `MAC`: validated MAC address
+
+We also define specialized types per OpenStack project, e.g.
+`NeutronDescription`, `NeutronTag`, `FilterByNeutronTags`, `KeystoneName`.
+Check `common_types.go` for the full list.
 
 ## Generating API artifacts
 
