@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registeredlimit-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Service/registeredlimit-import-dependency to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Service/registeredlimit-import-dependency to be ready
+      status: "True"
+      reason: Progressing

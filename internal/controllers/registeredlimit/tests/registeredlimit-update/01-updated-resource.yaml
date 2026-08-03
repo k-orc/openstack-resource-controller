@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registeredlimit-update
+spec:
+  resource:
+    description: registeredlimit-update-updated
+    defaultLimit: 10

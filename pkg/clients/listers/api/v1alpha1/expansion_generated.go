@@ -114,6 +114,14 @@ type ProjectListerExpansion interface{}
 // ProjectNamespaceLister.
 type ProjectNamespaceListerExpansion interface{}
 
+// RegisteredLimitListerExpansion allows custom methods to be added to
+// RegisteredLimitLister.
+type RegisteredLimitListerExpansion interface{}
+
+// RegisteredLimitNamespaceListerExpansion allows custom methods to be added to
+// RegisteredLimitNamespaceLister.
+type RegisteredLimitNamespaceListerExpansion interface{}
+
 // RoleListerExpansion allows custom methods to be added to
 // RoleLister.
 type RoleListerExpansion interface{}
