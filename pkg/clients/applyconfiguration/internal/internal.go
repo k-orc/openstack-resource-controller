@@ -529,6 +529,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: interface
       type:
         scalar: string
+    - name: regionRef
+      type:
+        scalar: string
     - name: serviceRef
       type:
         scalar: string
@@ -556,6 +559,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: interface
       type:
         scalar: string
+    - name: regionRef
+      type:
+        scalar: string
     - name: serviceRef
       type:
         scalar: string
@@ -573,6 +579,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: boolean
     - name: interface
+      type:
+        scalar: string
+    - name: region
       type:
         scalar: string
     - name: serviceID

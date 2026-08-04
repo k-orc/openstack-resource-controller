@@ -38,3 +38,18 @@ spec:
     serviceRef: endpoint-dependency
     interface: internal
     url: http://example.com
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Endpoint
+metadata:
+  name: endpoint-dependency-no-region
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: endpoint-dependency
+    interface: internal
+    url: http://example.com
+    regionRef: endpoint-dependency

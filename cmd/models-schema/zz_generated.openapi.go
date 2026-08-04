@@ -2094,6 +2094,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_EndpointFilter(ref com
 							Format:      "",
 						},
 					},
+					"regionRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionRef is a reference to the ORC Region which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"url": {
 						SchemaProps: spec.SchemaProps{
 							Description: "url is the URL of the existing endpoint.",
@@ -2229,6 +2236,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_EndpointResourceSpec(r
 							Format:      "",
 						},
 					},
+					"regionRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionRef is a reference to the ORC Region which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"interface", "url", "serviceRef"},
 			},
@@ -2274,6 +2288,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_EndpointResourceStatus
 					"serviceID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "serviceID is the ID of the Service to which the resource is associated.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"region": {
+						SchemaProps: spec.SchemaProps{
+							Description: "region is the name and ID of the Region to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

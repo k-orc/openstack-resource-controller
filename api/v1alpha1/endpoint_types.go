@@ -43,6 +43,11 @@ type EndpointResourceSpec struct {
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
 	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
+
+	// regionRef is a reference to the ORC Region which this resource is associated with.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="regionRef is immutable"
+	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // EndpointFilter defines an existing resource by its properties
@@ -56,6 +61,11 @@ type EndpointFilter struct {
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
+
+	// regionRef is a reference to the ORC Region which this resource is associated with.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="regionRef is immutable"
+	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 
 	// url is the URL of the existing endpoint.
 	// +kubebuilder:validation:MaxLength=1024
@@ -89,4 +99,9 @@ type EndpointResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ServiceID string `json:"serviceID,omitempty"`
+
+	// region is the name and ID of the Region to which the resource is associated.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Region string `json:"region,omitempty"`
 }

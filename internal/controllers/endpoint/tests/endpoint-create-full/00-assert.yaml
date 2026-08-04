@@ -28,7 +28,12 @@ resourceRefs:
       kind: Service
       name: endpoint-create-full
       ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: endpoint-create-full
+      ref: region
 assertAll:
     - celExpr: "endpoint.status.id != ''"
     - celExpr: "endpoint.status.resource.serviceID == service.status.id"
+    - celExpr: "endpoint.status.resource.region == region.status.id"
     - celExpr: "!has(endpoint.status.resource.name)"

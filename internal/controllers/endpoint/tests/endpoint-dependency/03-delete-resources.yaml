@@ -8,3 +8,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Endpoint
   name: endpoint-dependency-no-service
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Endpoint
+  name: endpoint-dependency-no-region

@@ -725,6 +725,7 @@ _Appears in:_
 | --- | --- | --- | --- |
 | `interface` _string_ | interface of the existing endpoint. |  | Enum: [admin internal public] <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `regionRef` _[KubernetesNameRef](#kubernetesnameref)_ | regionRef is a reference to the ORC Region which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `url` _string_ | url is the URL of the existing endpoint. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
@@ -766,6 +767,7 @@ _Appears in:_
 | `interface` _string_ | interface indicates the visibility of the endpoint. |  | Enum: [admin internal public] <br />Required: \{\} <br /> |
 | `url` _string_ | url is the endpoint URL. |  | MaxLength: 1024 <br />Required: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `regionRef` _[KubernetesNameRef](#kubernetesnameref)_ | regionRef is a reference to the ORC Region which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### EndpointResourceStatus
@@ -786,6 +788,7 @@ _Appears in:_
 | `interface` _string_ | interface indicates the visibility of the endpoint. |  | MaxLength: 128 <br />Optional: \{\} <br /> |
 | `url` _string_ | url is the endpoint URL. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `serviceID` _string_ | serviceID is the ID of the Service to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `region` _string_ | region is the name and ID of the Region to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### EndpointSpec

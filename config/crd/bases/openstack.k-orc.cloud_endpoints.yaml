@@ -98,6 +98,15 @@ spec:
                         - internal
                         - public
                         type: string
+                      regionRef:
+                        description: regionRef is a reference to the ORC Region which
+                          this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                        x-kubernetes-validations:
+                        - message: regionRef is immutable
+                          rule: self == oldSelf
                       serviceRef:
                         description: serviceRef is a reference to the ORC Service
                           which this resource is associated with.
@@ -176,6 +185,15 @@ spec:
                     - internal
                     - public
                     type: string
+                  regionRef:
+                    description: regionRef is a reference to the ORC Region which
+                      this resource is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: regionRef is immutable
+                      rule: self == oldSelf
                   serviceRef:
                     description: serviceRef is a reference to the ORC Service which
                       this resource is associated with.
@@ -326,6 +344,11 @@ spec:
                   interface:
                     description: interface indicates the visibility of the endpoint.
                     maxLength: 128
+                    type: string
+                  region:
+                    description: region is the name and ID of the Region to which
+                      the resource is associated.
+                    maxLength: 1024
                     type: string
                   serviceID:
                     description: serviceID is the ID of the Service to which the resource
