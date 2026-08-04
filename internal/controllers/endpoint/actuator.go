@@ -80,6 +80,12 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 		return nil, false
 	}
 
+	region, _ := dependency.FetchDependency[*orcv1alpha1.Region](
+		ctx, actuator.k8sClient, orcObject.Namespace,
+		resourceSpec.RegionRef, "Region",
+		orcv1alpha1.IsAvailable,
+	)
+
 	filters := []osclients.ResourceFilter[osResourceT]{
 		func(e *endpoints.Endpoint) bool {
 			return e.URL == resourceSpec.URL
@@ -89,6 +95,7 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 	listOpts := endpoints.ListOpts{
 		Availability: gophercloud.Availability(resourceSpec.Interface),
 		ServiceID:    ptr.Deref(service.Status.ID, ""),
+		RegionID:     ptr.Deref(region.Status.ID, ""),
 	}
 
 	return actuator.listOsResources(ctx, listOpts, filters), true
@@ -100,6 +107,13 @@ func (actuator endpointActuator) ListOSResourcesForImport(ctx context.Context, o
 	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ServiceRef, "Service",
+		orcv1alpha1.IsAvailable,
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+
+	region, rs := dependency.FetchDependency[*orcv1alpha1.Region](
+		ctx, actuator.k8sClient, obj.Namespace,
+		filter.RegionRef, "Region",
 		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
@@ -118,6 +132,7 @@ func (actuator endpointActuator) ListOSResourcesForImport(ctx context.Context, o
 	listOpts := endpoints.ListOpts{
 		ServiceID:    ptr.Deref(service.Status.ID, ""),
 		Availability: gophercloud.Availability(filter.Interface),
+		RegionID:     ptr.Deref(region.Status.ID, ""),
 	}
 
 	return actuator.listOsResources(ctx, listOpts, resourceFilters), nil
@@ -147,14 +162,28 @@ func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObje
 	if service != nil {
 		serviceID = ptr.Deref(service.Status.ID, "")
 	}
+
+	var regionID string
+	if resource.RegionRef != nil {
+		region, regionDepRS := regionDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(regionDepRS)
+		if region != nil {
+			regionID = ptr.Deref(region.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
 	createOpts := endpoints.CreateOpts{
 		Availability: gophercloud.Availability(resource.Interface),
 		Description:  ptr.Deref(resource.Description, ""),
 		Enabled:      resource.Enabled,
 		ServiceID:    serviceID,
+		Region:       regionID,
 		URL:          resource.URL,
 	}
 

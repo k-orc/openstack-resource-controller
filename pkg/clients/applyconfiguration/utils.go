@@ -268,6 +268,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProjectStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Region"):
+		return &apiv1alpha1.RegionApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegionFilter"):
+		return &apiv1alpha1.RegionFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegionImport"):
+		return &apiv1alpha1.RegionImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegionResourceSpec"):
+		return &apiv1alpha1.RegionResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegionResourceStatus"):
+		return &apiv1alpha1.RegionResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegionSpec"):
+		return &apiv1alpha1.RegionSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RegionStatus"):
+		return &apiv1alpha1.RegionStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Role"):
 		return &apiv1alpha1.RoleApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RoleAssignment"):

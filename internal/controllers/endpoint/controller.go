@@ -21,6 +21,7 @@ import (
 	"errors"
 	"time"
 
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -80,6 +81,29 @@ var serviceImportDependency = dependency.NewDependency[*orcv1alpha1.EndpointList
 	},
 )
 
+var regionDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.EndpointList, *orcv1alpha1.Region](
+	"spec.resource.regionRef",
+	func(endpoint *orcv1alpha1.Endpoint) []string {
+		resource := endpoint.Spec.Resource
+		if resource == nil || resource.RegionRef == nil {
+			return nil
+		}
+		return []string{string(ptr.Deref(resource.RegionRef, ""))}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
+var regionImportDependency = dependency.NewDependency[*orcv1alpha1.EndpointList, *orcv1alpha1.Region](
+	"spec.import.filter.regionRef",
+	func(endpoint *orcv1alpha1.Endpoint) []string {
+		resource := endpoint.Spec.Import
+		if resource == nil || resource.Filter == nil || resource.Filter.RegionRef == nil {
+			return nil
+		}
+		return []string{string(*resource.Filter.RegionRef)}
+	},
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c *endpointReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -95,6 +119,16 @@ func (c *endpointReconcilerConstructor) SetupWithManager(ctx context.Context, mg
 		return err
 	}
 
+	regionWatchEventHandler, err := regionDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
+	regionImportWatchEventHandler, err := regionImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.Service{}, serviceWatchEventHandler,
@@ -104,11 +138,19 @@ func (c *endpointReconcilerConstructor) SetupWithManager(ctx context.Context, mg
 		Watches(&orcv1alpha1.Service{}, serviceImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Service{})),
 		).
+		Watches(&orcv1alpha1.Region{}, regionWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Region{})),
+		).
+		Watches(&orcv1alpha1.Region{}, regionImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Region{})),
+		).
 		For(&orcv1alpha1.Endpoint{})
 
 	if err := errors.Join(
 		serviceDependency.AddToManager(ctx, mgr),
 		serviceImportDependency.AddToManager(ctx, mgr),
+		regionDependency.AddToManager(ctx, mgr),
+		regionImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

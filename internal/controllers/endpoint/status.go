@@ -59,5 +59,9 @@ func (endpointStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osR
 		resourceStatus.WithDescription(osResource.Description)
 	}
 
+	if osResource.Region != "" {
+		resourceStatus.WithRegion(osResource.Region)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

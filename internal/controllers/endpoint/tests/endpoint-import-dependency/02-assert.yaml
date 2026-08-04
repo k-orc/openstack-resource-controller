@@ -14,9 +14,14 @@ resourceRefs:
       kind: Service
       name: endpoint-import-dependency
       ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: endpoint-import-dependency
+      ref: region
 assertAll:
     - celExpr: "endpoint1.status.id != endpoint2.status.id"
     - celExpr: "endpoint1.status.resource.serviceID == service.status.id"
+    - celExpr: "endpoint1.status.resource.region == region.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
