@@ -1,0 +1,79 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-limit-create-full
+  labels:
+    test-case: limit-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    type: "service-type-limit-create-full"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-create-full
+  labels:
+    test-case: limit-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    domainRef: domain-limit-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-create-full
+  labels:
+    test-case: limit-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+# Use projectRef
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-full-1
+  labels:
+    test-case: limit-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Limit from "create full" test
+    serviceRef: service-limit-create-full
+    projectRef: project-limit-create-full
+    resourceName: limit-create-full-1
+    resourceLimit: 50
+---
+# Use domainRef
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-full-2
+  labels:
+    test-case: limit-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Limit from "create full" test
+    serviceRef: service-limit-create-full
+    domainRef: domain-limit-create-full
+    resourceName: limit-create-full-2
+    resourceLimit: 10

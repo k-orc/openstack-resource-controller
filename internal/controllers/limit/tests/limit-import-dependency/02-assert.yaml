@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  - script: "! kubectl get project.openstack.k-orc.cloud project-limit-import-dependency-imported --namespace $NAMESPACE"
+    skipLogOutput: true

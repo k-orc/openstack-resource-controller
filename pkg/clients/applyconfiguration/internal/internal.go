@@ -1505,6 +1505,139 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.KeyPairResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Limit
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitFilter
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: domainRef
+      type:
+        scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+    - name: resourceName
+      type:
+        scalar: string
+    - name: serviceRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitResourceSpec
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: domainRef
+      type:
+        scalar: string
+    - name: projectRef
+      type:
+        scalar: string
+    - name: resourceLimit
+      type:
+        scalar: numeric
+      default: 0
+    - name: resourceName
+      type:
+        scalar: string
+    - name: serviceRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitResourceStatus
+  map:
+    fields:
+    - name: description
+      type:
+        scalar: string
+    - name: domainID
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: resourceLimit
+      type:
+        scalar: numeric
+    - name: resourceName
+      type:
+        scalar: string
+    - name: serviceID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.LimitResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.ManagedOptions
   map:
     fields:

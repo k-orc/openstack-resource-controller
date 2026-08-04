@@ -36,6 +36,8 @@ type ImageExpansion interface{}
 
 type KeyPairExpansion interface{}
 
+type LimitExpansion interface{}
+
 type NetworkExpansion interface{}
 
 type PortExpansion interface{}

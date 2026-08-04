@@ -219,6 +219,10 @@ func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 	return tokens.Get(context.TODO(), client, s.providerClient.Token()).ExtractToken()
 }
 
+func (s *providerScope) NewLimitClient() (clients.LimitClient, error) {
+	return clients.NewLimitClient(s.providerClient, s.providerClientOpts)
+}
+
 func NewProviderClient(cloud clientconfig.Cloud, caCert []byte, logger logr.Logger) (*gophercloud.ProviderClient, *clientconfig.ClientOpts, error) {
 	clientOpts := new(clientconfig.ClientOpts)
 

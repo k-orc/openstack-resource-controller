@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-managed
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: Nova limit servers for project demo
+    serviceRef: nova
+    projectRef: demo # Either projectRef or domainRef must be provided.
+    domainRef: default
+    resourceName: servers
+    resourceLimit: 10
