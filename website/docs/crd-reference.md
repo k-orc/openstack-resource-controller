@@ -31,6 +31,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [ServerGroup](#servergroup)
 - [Service](#service)
 - [ShareNetwork](#sharenetwork)
+- [ShareType](#sharetype)
 - [Subnet](#subnet)
 - [Trunk](#trunk)
 - [User](#user)
@@ -527,6 +528,7 @@ _Appears in:_
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
+- [ShareTypeSpec](#sharetypespec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
@@ -2302,6 +2304,7 @@ _Appears in:_
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
+- [ShareTypeSpec](#sharetypespec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
@@ -2343,6 +2346,7 @@ _Appears in:_
 - [ServerSpec](#serverspec)
 - [ServiceSpec](#servicespec)
 - [ShareNetworkSpec](#sharenetworkspec)
+- [ShareTypeSpec](#sharetypespec)
 - [SubnetSpec](#subnetspec)
 - [TrunkSpec](#trunkspec)
 - [UserSpec](#userspec)
@@ -2656,6 +2660,8 @@ _Appears in:_
 - [ServiceResourceSpec](#serviceresourcespec)
 - [ShareNetworkFilter](#sharenetworkfilter)
 - [ShareNetworkResourceSpec](#sharenetworkresourcespec)
+- [ShareTypeFilter](#sharetypefilter)
+- [ShareTypeResourceSpec](#sharetyperesourcespec)
 - [SubnetFilter](#subnetfilter)
 - [SubnetResourceSpec](#subnetresourcespec)
 - [TrunkFilter](#trunkfilter)
@@ -4625,6 +4631,139 @@ _Appears in:_
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[ShareNetworkResourceStatus](#sharenetworkresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### ShareType
+
+
+
+ShareType is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `ShareType` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[ShareTypeSpec](#sharetypespec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[ShareTypeStatus](#sharetypestatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### ShareTypeFilter
+
+
+
+ShareTypeFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [ShareTypeImport](#sharetypeimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `isPublic` _boolean_ | isPublic selects public types, private types, or both |  | Optional: \{\} <br /> |
+
+
+#### ShareTypeImport
+
+
+
+ShareTypeImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [ShareTypeSpec](#sharetypespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[ShareTypeFilter](#sharetypefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### ShareTypeResourceSpec
+
+
+
+ShareTypeResourceSpec contains the desired state of the resource.
+All fields are immutable after creation.
+
+
+
+_Appears in:_
+- [ShareTypeSpec](#sharetypespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `isPublic` _boolean_ | isPublic indicates whether a share type is publicly accessible. | true | Optional: \{\} <br /> |
+| `driverHandlesShareServers` _boolean_ | driverHandlesShareServers defines the driver mode for share server, or storage, life cycle management.<br />This is a required extra specification for share types. | true | Optional: \{\} <br /> |
+| `snapshotSupport` _boolean_ | snapshotSupport filters back ends by whether they do or do not support share snapshots. |  | Optional: \{\} <br /> |
+
+
+#### ShareTypeResourceStatus
+
+
+
+ShareTypeResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [ShareTypeStatus](#sharetypestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `isPublic` _boolean_ | isPublic indicates whether a share type is publicly accessible. |  | Optional: \{\} <br /> |
+| `extraSpecs` _object (keys:string, values:string)_ | extraSpecs contains the extra specifications for the share type. |  | Optional: \{\} <br /> |
+
+
+#### ShareTypeSpec
+
+
+
+ShareTypeSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [ShareType](#sharetype)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[ShareTypeImport](#sharetypeimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[ShareTypeResourceSpec](#sharetyperesourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### ShareTypeStatus
+
+
+
+ShareTypeStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [ShareType](#sharetype)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[ShareTypeResourceStatus](#sharetyperesourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 
 
 #### Subnet
