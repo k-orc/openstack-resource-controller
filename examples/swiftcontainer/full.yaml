@@ -1,0 +1,24 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: my-bucket-full
+spec:
+  cloudCredentialsRef:
+    secretName: openstack-clouds
+    cloudName: openstack
+  managementPolicy: managed
+  resource:
+    # name sets the Swift container name. Defaults to the ORC object name if not specified.
+    name: my-custom-bucket
+    # metadata sets arbitrary key-value pairs as X-Container-Meta-* headers.
+    metadata:
+      - key: owner
+        value: myteam
+      - key: environment
+        value: production
+    # containerRead sets the X-Container-Read ACL. Use ".r:*" for public read access.
+    containerRead: .r:*,.rlistings
+    # containerWrite sets the X-Container-Write ACL.
+    containerWrite: myaccount:myuser
+    # storagePolicy sets the storage policy for this container. Immutable after creation.
+    storagePolicy: gold

@@ -38,7 +38,7 @@ jobs:
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,neutron-uplink-status-propagation"
+        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,neutron-uplink-status-propagation,s-proxy,s-account,s-container,s-object"
         conf_overrides: |
           enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
           enable_plugin manila https://github.com/openstack/manila ${{ matrix.openstack_version }}

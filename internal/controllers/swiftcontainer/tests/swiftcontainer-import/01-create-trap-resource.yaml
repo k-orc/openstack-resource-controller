@@ -1,0 +1,13 @@
+---
+# This `swiftcontainer-import-trap` resource ensures that the import filter does
+# not adopt unrelated Swift containers.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-import-trap
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}

@@ -1,0 +1,34 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: swiftcontainer-create-full
+status:
+  resource:
+    name: swiftcontainer-create-full-override
+    bytesUsed: 0
+    objectCount: 0
+    containerRead: ".r:*,.rlistings"
+    containerWrite: "openstack:*"
+    storagePolicy: Policy-0
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SwiftContainer
+      name: swiftcontainer-create-full
+      ref: swiftcontainer
+assertAll:
+    - celExpr: "swiftcontainer.status.id != ''"
+    - celExpr: "swiftcontainer.status.id == 'swiftcontainer-create-full-override'"
+    - celExpr: "has(swiftcontainer.status.resource.metadata)"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Environment' && m.value == 'test')"
+    - celExpr: "swiftcontainer.status.resource.metadata.exists(m, m.key == 'Owner' && m.value == 'orc-e2e')"
