@@ -90,7 +90,34 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 	// so that we can clear the finalizer
 	if router.Status.ID == nil || (!orcv1alpha1.IsAvailable(router) && router.GetDeletionTimestamp().IsZero()) {
 		log.V(logging.Verbose).Info("Not reconciling interfaces for not-Available router")
-		return ctrl.Result{}, nil
+
+		// The router exists but is not yet Available. Update status on associated
+		// RouterInterfaces so users can see they are blocked on the Router,
+		// matching the NotFound path above.
+		routerInterfaces, err := routerDependency.GetObjectsForDependency(ctx, r.client, router)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("fetching router interfaces: %w", err)
+		}
+
+		if len(routerInterfaces) == 0 {
+			return ctrl.Result{}, nil
+		}
+
+		var osResource *osclients.PortExt
+
+		var reconcileStatus progress.ReconcileStatus
+		for i := range routerInterfaces {
+			routerInterface := &routerInterfaces[i]
+			log = log.WithValues("name", routerInterface.Name)
+
+			var ifReconcileStatus progress.ReconcileStatus
+			ifReconcileStatus = progress.WaitingOnObject("Router", req.Name, progress.WaitingOnReady)
+			ifReconcileStatus = ifReconcileStatus.WithReconcileStatus(r.updateStatus(ctx, routerInterface, osResource, ifReconcileStatus))
+
+			reconcileStatus = reconcileStatus.WithReconcileStatus(ifReconcileStatus)
+		}
+
+		return reconcileStatus.Return(log)
 	}
 
 	routerInterfaces, err := routerDependency.GetObjectsForDependency(ctx, r.client, router)
