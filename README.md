@@ -28,22 +28,11 @@ ORC versioning follows [semver](https://semver.org/spec/v2.0.0.html): there will
 
 ## How You Can Contribute
 
-We welcome contributions of all kinds! Whether you’re fixing bugs, adding new features, or improving documentation, your help is greatly appreciated. To get started:
+We welcome contributions of all kinds! See [CONTRIBUTING.md](CONTRIBUTING.md)
+for details on how to get started, including setting up a development
+environment, submitting pull requests, and becoming a maintainer.
 
-* Fork the repository.
-* Create a new branch for your changes.
-* Setup a [local development environment](https://k-orc.cloud/development/quickstart/).
-* Read the [developers guide](https://k-orc.cloud/development/overview/).
-* Make your changes and test thoroughly.
-* Submit a pull request with a clear description of your changes.
-
-For significant new features or architectural changes, please review our
-[enhancement proposal process](enhancements/README.md) before starting work.
-
-If you're unsure where to start, check out the [open issues](https://github.com/k-orc/openstack-resource-controller/issues) and feel free to ask
-questions or propose ideas!
-
-Join us on kubernetes slack, on [#gophercloud](https://kubernetes.slack.com/archives/C05G4NJ6P6X). Visit [slack.k8s.io](https://slack.k8s.io) for an invitation.
+Join us on Kubernetes Slack in [#gophercloud](https://kubernetes.slack.com/archives/C05G4NJ6P6X). Visit [slack.k8s.io](https://slack.k8s.io) for an invitation.
 
 ## Getting Started
 
