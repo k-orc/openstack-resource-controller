@@ -32,6 +32,7 @@ type GroupResourceSpec struct {
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 }
 
@@ -44,6 +45,7 @@ type GroupFilter struct {
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 }
 

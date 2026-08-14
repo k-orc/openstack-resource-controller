@@ -29,15 +29,18 @@ type FloatingIPFilter struct {
 
 	// floatingNetworkRef is a reference to the ORC Network which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Network
 	FloatingNetworkRef *KubernetesNameRef `json:"floatingNetworkRef,omitempty"`
 
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Port
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// status is the status of the floatingip.
@@ -64,11 +67,13 @@ type FloatingIPResourceSpec struct {
 	// floatingNetworkRef references the network to which the floatingip is associated.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="floatingNetworkRef is immutable"
+	// +orc:kustomize:ref=Network
 	FloatingNetworkRef *KubernetesNameRef `json:"floatingNetworkRef,omitempty"`
 
 	// floatingSubnetRef references the subnet to which the floatingip is associated.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="floatingSubnetRef is immutable"
+	// +orc:kustomize:ref=Subnet
 	FloatingSubnetRef *KubernetesNameRef `json:"floatingSubnetRef,omitempty"`
 
 	// floatingIP is the IP that will be assigned to the floatingip. If not set, it will
@@ -80,6 +85,7 @@ type FloatingIPResourceSpec struct {
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="portRef is immutable"
+	// +orc:kustomize:ref=Port
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 
 	// fixedIP is the IP address of the port to which the floatingip is associated.
@@ -91,6 +97,7 @@ type FloatingIPResourceSpec struct {
 	// Typically, only used by admin.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 

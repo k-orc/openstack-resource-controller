@@ -26,26 +26,31 @@ package v1alpha1
 type RoleAssignmentResourceSpec struct {
 	// roleRef references the Role being assigned.
 	// +required
+	// +orc:kustomize:ref=Role
 	RoleRef KubernetesNameRef `json:"roleRef,omitempty"`
 
 	// userRef references the User receiving the role assignment.
 	// Exactly one of userRef or groupRef must be specified.
 	// +optional
+	// +orc:kustomize:ref=User
 	UserRef *KubernetesNameRef `json:"userRef,omitempty"`
 
 	// groupRef references the Group receiving the role assignment.
 	// Exactly one of userRef or groupRef must be specified.
 	// +optional
+	// +orc:kustomize:ref=Group
 	GroupRef *KubernetesNameRef `json:"groupRef,omitempty"`
 
 	// projectRef references the Project scope for the assignment.
 	// Exactly one of projectRef or domainRef must be specified.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// domainRef references the Domain scope for the assignment.
 	// Exactly one of projectRef or domainRef must be specified.
 	// +optional
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 }
 
@@ -54,22 +59,27 @@ type RoleAssignmentResourceSpec struct {
 type RoleAssignmentFilter struct {
 	// roleRef filters by the referenced Role.
 	// +optional
+	// +orc:kustomize:ref=Role
 	RoleRef *KubernetesNameRef `json:"roleRef,omitempty"`
 
 	// userRef filters by the referenced User.
 	// +optional
+	// +orc:kustomize:ref=User
 	UserRef *KubernetesNameRef `json:"userRef,omitempty"`
 
 	// groupRef filters by the referenced Group.
 	// +optional
+	// +orc:kustomize:ref=Group
 	GroupRef *KubernetesNameRef `json:"groupRef,omitempty"`
 
 	// projectRef filters by the referenced Project scope.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// domainRef filters by the referenced Domain scope.
 	// +optional
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 }
 
