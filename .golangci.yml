@@ -45,6 +45,7 @@ linters:
               - duplicatemarkers
               - integers
               - jsontags
+              - kustomizeref
               - maxlength
               # NOTE: we have a number of boolean fields. Should we convert them to
               # string?
