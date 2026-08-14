@@ -30,6 +30,7 @@ type RouterFilter struct {
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
@@ -39,6 +40,7 @@ type ExternalGateway struct {
 	// networkRef is a reference to the ORC Network which the external
 	// gateway is on.
 	// +required
+	// +orc:kustomize:ref=Network
 	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 }
 
@@ -95,6 +97,7 @@ type RouterResourceSpec struct {
 	// Typically, only used by admin.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 

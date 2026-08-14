@@ -31,6 +31,7 @@ type LimitResourceSpec struct {
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
+	// +orc:kustomize:ref=Service
 	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
@@ -38,6 +39,7 @@ type LimitResourceSpec struct {
 	// https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
@@ -45,6 +47,7 @@ type LimitResourceSpec struct {
 	// https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
 	// resourceName is the name of the resource this limit is associated with.
@@ -74,14 +77,17 @@ type LimitFilter struct {
 
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Service
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
 	// resourceName is the name of the resource this limit is associated with.

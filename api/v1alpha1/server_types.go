@@ -57,6 +57,7 @@ type ServerPortSpec struct {
 	// portRef is a reference to a Port object. Server creation will wait for
 	// this port to be created and available.
 	// +optional
+	// +orc:kustomize:ref=Port
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 }
 
@@ -66,6 +67,7 @@ type ServerBootVolumeSpec struct {
 	// volumeRef is a reference to a Volume object. The volume must be
 	// bootable (created from an image) and available before server creation.
 	// +required
+	// +orc:kustomize:ref=Volume
 	VolumeRef KubernetesNameRef `json:"volumeRef,omitempty"`
 
 	// tag is the device tag applied to the volume.
@@ -79,6 +81,7 @@ type ServerVolumeSpec struct {
 	// volumeRef is a reference to a Volume object. Server creation will wait for
 	// this volume to be created and available.
 	// +required
+	// +orc:kustomize:ref=Volume
 	VolumeRef KubernetesNameRef `json:"volumeRef,omitempty"`
 
 	// device is the name of the device, such as `/dev/vdb`.
@@ -148,11 +151,13 @@ type ServerResourceSpec struct {
 	// This field is required unless bootVolume is specified for boot-from-volume.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
+	// +orc:kustomize:ref=Image
 	ImageRef *KubernetesNameRef `json:"imageRef,omitempty"`
 
 	// flavorRef references the flavor to use for the server instance.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="flavorRef is immutable"
+	// +orc:kustomize:ref=Flavor
 	FlavorRef KubernetesNameRef `json:"flavorRef,omitempty"`
 
 	// bootVolume specifies a volume to boot from instead of an image.
@@ -191,6 +196,7 @@ type ServerResourceSpec struct {
 	// created with this keypair for SSH access.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="keypairRef is immutable"
+	// +orc:kustomize:ref=KeyPair
 	KeypairRef *KubernetesNameRef `json:"keypairRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the server.
@@ -238,6 +244,7 @@ type ServerSchedulerHints struct {
 	// serverGroupRef is a reference to a ServerGroup object. The server will be
 	// scheduled on a host in the specified server group.
 	// +optional
+	// +orc:kustomize:ref=ServerGroup
 	ServerGroupRef *KubernetesNameRef `json:"serverGroupRef,omitempty"`
 
 	// differentHostServerRefs is a list of references to Server objects.
@@ -245,6 +252,7 @@ type ServerSchedulerHints struct {
 	// +listType=set
 	// +kubebuilder:validation:MaxItems:=64
 	// +optional
+	// +orc:kustomize:ref=Server
 	DifferentHostServerRefs []KubernetesNameRef `json:"differentHostServerRefs,omitempty"`
 
 	// sameHostServerRefs is a list of references to Server objects.
@@ -252,6 +260,7 @@ type ServerSchedulerHints struct {
 	// +listType=set
 	// +kubebuilder:validation:MaxItems:=64
 	// +optional
+	// +orc:kustomize:ref=Server
 	SameHostServerRefs []KubernetesNameRef `json:"sameHostServerRefs,omitempty"`
 
 	// query is a conditional statement that results in compute nodes
@@ -289,6 +298,7 @@ type ServerSchedulerHints struct {
 type UserDataSpec struct {
 	// secretRef is a reference to a Secret containing the user data for this server.
 	// +optional
+	// +orc:kustomize:ref=Secret
 	SecretRef *KubernetesNameRef `json:"secretRef,omitempty"`
 }
 
