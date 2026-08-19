@@ -13,7 +13,7 @@ manager container:
 | `--scope-cache-max-size` | Maximum size of the credentials cache | 10 |
 | `--default-ca-certs` | Path to CA certificates file | - |
 | `--default-resync-period` | Global default resync period for drift detection (e.g. `10h`) | `0` (disabled) |
-| `--zap-log-level` | Log verbosity (0-5) | 0 |
+| `--zap-log-level` | Log verbosity (positive integer, `1`-`4`) | unset (Status only) |
 
 To customize the deployment, edit the controller manager deployment:
 
@@ -66,15 +66,27 @@ for how resync works.
 
 | Level | Description |
 |-------|-------------|
-| 0 | Status messages: startup, shutdown |
-| 1 | Info: resource creation/deletion, reconcile completion |
-| 2 | Verbose: fires every reconcile |
-| 3+ | Debug: detailed internal state |
+| *(unset)* | Status messages only (same as 1) |
+| 1 | Status: startup, shutdown |
+| 2 | Info: resource creation/deletion, reconcile completion |
+| 3 | Verbose: fires every reconcile |
+| 4+ | Debug: detailed internal state |
 
-Set log level via the `--zap-log-level` flag:
+Set log level via the `--zap-log-level` flag, using a positive integer. For
+example, to enable Verbose logging:
 
 ```bash
 kubectl patch deployment -n orc-system orc-controller-manager --type='json' -p='[
-  {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--zap-log-level=2"}
+  {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--zap-log-level=3"}
 ]'
 ```
+
+!!! warning "Don't use the `debug`/`info`/`error`/`panic` string values"
+
+    `--zap-log-level` also accepts the strings `debug`, `info`, `error`, or
+    `panic`, but these refer to the standard Zap severity scale, not to ORC's
+    log levels above, and mostly hide ORC's own logs. For example,
+    `--zap-log-level=debug` only shows level 1 (Status) messages, the same as
+    `--zap-log-level=1`, while `--zap-log-level=info` hides every ORC log
+    message, including Status. Always use an integer to control ORC's log
+    verbosity.
