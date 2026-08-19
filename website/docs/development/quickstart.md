@@ -41,10 +41,15 @@ For ORC development, the default services are currently enough.
 
 ### Configure credentials
 
-After DevStack installation, locate your `clouds.yaml` file (typically at `/etc/openstack/clouds.yaml` or in your DevStack directory). You'll need two cloud entries:
+After DevStack installation, locate your `clouds.yaml` file (typically at
+`/etc/openstack/clouds.yaml` or in your DevStack directory). You'll need two
+cloud entries:
 
 - `devstack`, for regular user credentials on the demo project
 - `devstack-admin-demo`, for admin credentials on the demo project
+
+See [Set Up Cloud Credentials](../howto/cloud-credentials.md) for how to
+create the Kubernetes secret from your `clouds.yaml`.
 
 ## Loading the CRDs
 
@@ -67,7 +72,10 @@ networks.openstack.k-orc.cloud        2024-11-11T12:00:00Z
 ...
 ```
 
-Whenever you make changes to the API, you'll need to re-generate the CRDs with `make generate` and install the updated CRDs in the cluster using above command.
+!!! tip "After changing API types"
+
+    Run `make generate` to regenerate CRDs and other generated code, then
+    re-apply them to the cluster with the command above.
 
 ## Running ORC locally
 
@@ -79,15 +87,21 @@ go run ./cmd/manager -zap-log-level 5
 
 The manager will start all controllers and begin watching for ORC resources. Use ++ctrl+c++ to stop the manager.
 
-Re-run the same command to recompile after you've made changes to the source code.
+!!! tip "After changing source code"
+
+    Re-run the same command to recompile and restart the controller.
 
 ## Running tests
 
 At this point, you're ready to run both the [unit tests](writing-tests.md#running-tests) and the [end-to-end tests](writing-tests.md#running-tests_1).
 
 ```bash
-# Run the unit tests
+# Run all unit tests
 make test
-# Run the end-to-end tests
+
+# Run all end-to-end tests
 make test-e2e
 ```
+
+See [Writing Tests](writing-tests.md) for details on running individual
+controller tests and writing new tests.

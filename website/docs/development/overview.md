@@ -2,12 +2,12 @@
 
 This documentation covers how to write a new ORC controller from scratch.
 
-## Overview
-
-ORC controllers follow a unified pattern built on the generic reconciler framework. Each controller:
+ORC controllers follow a unified pattern built on the generic reconciler
+framework. Each controller:
 
 - Defines a **Kubernetes API (CRD)** for the OpenStack resource
 - Implements an **actuator** that performs CRUD operations against OpenStack
+- Implements a **status writer** that maps OpenStack state to Kubernetes status
 - Uses the **generic reconciler** to handle common logic (status, conditions, dependencies)
 
 ```mermaid
@@ -40,15 +40,35 @@ flowchart TB
 
 ## Prerequisites
 
-See the [local development quickstart](quickstart.md) for setting up your environment.
+See the [Development Quickstart](quickstart.md) for setting up your environment.
+
+## Getting started
+
+Start by [scaffolding a new controller](scaffolding.md), which generates the
+boilerplate and `TODO(scaffolding)` markers that point you to the relevant
+pages:
+
+- **[API Design](api-design.md)**: Define the CRD types (spec, filter, status)
+- **[Controller Initialisation](controller-init.md)**: Wire up dependencies and `SetupWithManager`
+- **[Resource Interfaces](interfaces.md)**: Implement the actuator (CRUD operations)
+- **[Controller Implementation](controller-implementation.md)**: Conditions, errors, and reconciliation
+- **[Writing Tests](writing-tests.md)**: Add kuttl E2E tests and API validation tests
+
+## Reference controllers
+
+When implementing a new controller, use these existing controllers as examples:
+
+| Controller | Complexity | Notable features |
+|-----------|-----------|-----------------|
+| `internal/controllers/servergroup/` | Simple | No dependencies, fully immutable |
+| `internal/controllers/flavor/` | Simple | Immutable except extra specs (`reconcileExtraSpecs`) |
+| `internal/controllers/securitygroup/` | Medium | Project dependency, rules reconciliation |
+| `internal/controllers/trunk/` | Medium | `updateResource` + `reconcileSubports` + tags |
+| `internal/controllers/server/` | Complex | Multiple dependencies, many reconcilers |
 
 ## Reference documentation
 
-- [Controller implementation](controller-implementation.md) - Conditions, errors, and dependency management
-- [Architecture](architecture.md) - Architectural decisions and rationale
-- [Coding Standards](coding-standards.md) - Code style and patterns
-
-### Generated documentation
-
-- [Interface reference](godoc/generic-interfaces.md) - Documentation for controller interfaces
-- [ReconcileStatus reference](godoc/reconcile-status.md) - Documentation for ReconcileStatus
+- [Architecture](architecture.md): Adoption, implicit behavior overrides
+- [Coding Standards](coding-standards.md): Code style and patterns
+- [Interface reference](godoc/generic-interfaces.md): Generated documentation for controller interfaces
+- [ReconcileStatus reference](godoc/reconcile-status.md): Generated documentation for ReconcileStatus

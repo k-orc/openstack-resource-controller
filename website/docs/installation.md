@@ -60,44 +60,10 @@ make deploy IMG=quay.io/orc/openstack-resource-controller:branch-main
 
 ## Configuration Options
 
-### Controller Flags
-
-The controller supports several configuration flags:
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--namespace` | Namespace(s) to watch (repeatable) | All namespaces |
-| `--scope-cache-max-size` | Maximum size of the credentials cache | 10 |
-| `--default-ca-certs` | Path to CA certificates file | - |
-| `--zap-log-level` | Log verbosity (0-5) | 0 |
-
-To customize the deployment, edit the controller manager deployment:
-
-```bash
-kubectl edit deployment -n orc-system orc-controller-manager
-```
-
-### Watching Specific Namespaces
-
-By default, ORC watches all namespaces. To restrict it to specific namespaces, add `--namespace` flags to the controller args:
-
-```bash
-kubectl patch deployment -n orc-system orc-controller-manager --type='json' -p='[
-  {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--namespace=namespace1"},
-  {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--namespace=namespace2"}
-]'
-```
-
-The `--namespace` flag can be repeated to watch multiple namespaces.
-
-### Resource Limits
-
-The default memory limit is 256Mi. For large deployments, you may need to increase this:
-
-```bash
-kubectl set resources -n orc-system deployment/orc-controller-manager \
-    --limits=memory=512Mi
-```
+The controller supports flags for namespace scoping, CA certificates, resource
+limits, log verbosity, and more. See the
+[Controller Configuration](reference/configuration.md) reference for the full
+list.
 
 ## Upgrading
 
@@ -162,4 +128,4 @@ kubectl logs -n orc-system deployment/orc-controller-manager
 
 ## Next Steps
 
-Once ORC is installed, follow the [Quick Start](getting-started.md) guide to create your first resources.
+Once ORC is installed, follow the [Tutorial](getting-started.md) to deploy your first server.

@@ -289,11 +289,9 @@ The testing pattern consists of:
 1. Revert the changes
     1. Verify that the resource status is similar to the one we had in the first step
 
-As support for mutability is still being worked on, we don't have tests that
-implement this pattern yet. The closest we have is the
-[`securitygroup-update`][securitygroup-update] test.
+See the [`network-update`][network-update] test for an example.
 
-[securitygroup-update]: https://github.com/k-orc/openstack-resource-controller/tree/main/internal/controllers/securitygroup/tests/securitygroup-update
+[network-update]: https://github.com/k-orc/openstack-resource-controller/tree/main/internal/controllers/network/tests/network-update
 
 ### Kuttl tips
 

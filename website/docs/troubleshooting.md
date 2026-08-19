@@ -19,28 +19,16 @@ kubectl get network my-network -o yaml
 kubectl get network my-network -o jsonpath='{.status.conditions}' | jq
 ```
 
-### Status Conditions Explained
+### Status Conditions
 
-ORC resources have two primary conditions:
+Every ORC resource has two conditions: **Available** (is the resource ready?)
+and **Progressing** (is ORC still working on it?). A resource is healthy when
+`Available=True` and `Progressing=False`. The condition's `reason` and `message`
+fields explain what's happening.
 
-| Condition | Status | Meaning |
-|-----------|--------|---------|
-| `Available` | `True` | Resource is ready for use |
-| `Available` | `False` | Resource is not ready (check message for details) |
-| `Progressing` | `True` | ORC is still working on the resource |
-| `Progressing` | `False` | ORC has finished (either success or terminal error) |
+See [Status Conditions](reference/conditions.md) for the full reference,
+including all possible reasons and recommended actions.
 
-### Condition Reasons
-
-The `reason` field categorizes what's happening:
-
-| Reason | Description | Action |
-|--------|-------------|--------|
-| `Success` | Resource is reconciled successfully | None needed |
-| `Progressing` | Normal operation in progress | Wait for completion |
-| `TransientError` | Temporary error, will retry | Check if it persists |
-| `InvalidConfiguration` | Spec has invalid values | Fix the resource spec |
-| `UnrecoverableError` | Permanent error, won't retry | Fix the underlying issue |
 
 ## Common Issues
 
@@ -211,7 +199,7 @@ kubectl logs -n orc-system deployment/orc-controller-manager --previous
 
 - Invalid configuration flags
 - Cannot connect to Kubernetes API
-- Memory limits too low ([increase in deployment](installation.md#resource-limits))
+- Memory limits too low ([increase in deployment](reference/configuration.md#resource-limits))
 
 ## OpenStack-Specific Issues
 

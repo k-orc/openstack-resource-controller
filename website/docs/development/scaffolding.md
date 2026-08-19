@@ -53,6 +53,7 @@ The scaffolding tool generates the following files:
 ### Controller implementation
 
 - `internal/controllers/<kind>/actuator.go` - Actuator implementation stubs
+- `internal/controllers/<kind>/actuator_test.go` - Actuator unit tests
 - `internal/controllers/<kind>/controller.go` - Controller setup and registration
 - `internal/controllers/<kind>/status.go` - Status writer implementation
 
@@ -76,7 +77,9 @@ The scaffolding tool generates the following files:
 
 ## Post-scaffolding steps
 
-After the scaffolding tool completes, you need to perform several manual integration steps:
+After the scaffolding tool completes, you need to perform several manual
+integration steps. See [Controller Initialisation](controller-init.md) for
+background on how the generated controller code is structured.
 
 ### Register with the resource generator
 
