@@ -47,8 +47,7 @@ extra:
       link: https://github.com/k-orc/openstack-resource-controller
     - icon: fontawesome/brands/slack
       link: slack://channel?team=T09NY5SBT&id=C05G4NJ6P6X
-hooks:
-  - hooks.py
+site_dir: rendered
 theme:
   name: material
   custom_dir: overrides
@@ -63,25 +62,19 @@ theme:
     - search.highlight
     - search.suggest
     - toc.integrate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: lucide/sun
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: lucide/moon
+        name: Switch to light mode
 plugins:
   - search:
-  - minify:
-      minify_html: true
-      minify_js: true
-      minify_css: true
-      htmlmin_opts:
-        remove_comments: true
-      cache_safe: true
-  - redirects:
-      redirect_maps:
-        'getting_started.md': 'getting-started.md'
-        'development/index.md': 'development/contributing.md'
-        'development/controller-design.md': 'development/controller-implementation.md'
-        'development/design-decisions.md': 'concepts/design-principles.md'
-        'development/coding-convention.md': 'development/coding-standards.md'
-        'development/api-contracts.md': 'development/api-design.md'
-        'user-guide/index.md': 'concepts/core-concepts.md'
-        'user-guide/drift-detection.md': 'concepts/drift-detection.md'
 markdown_extensions:
   - admonition
   - attr_list
