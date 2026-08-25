@@ -74,6 +74,7 @@ kubectl delete -f $ORC_RELEASE
 | network                     |         |    ◐    |     ◐    |
 | port                        |         |    ◐    |     ◐    |
 | project                     |         |    ◐    |     ◐    |
+| region                      |         |         |     ◐    |
 | role                        |         |    ✔    |     ✔    |
 | router                      |         |    ◐    |     ◐    |
 | security group (incl. rule) |         |    ✔    |     ✔    |

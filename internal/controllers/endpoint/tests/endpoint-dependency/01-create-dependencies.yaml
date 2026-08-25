@@ -16,3 +16,14 @@ spec:
   managementPolicy: managed
   resource:
     type: endpoint-test
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: endpoint-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
