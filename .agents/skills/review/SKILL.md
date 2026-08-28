@@ -29,11 +29,10 @@ Review any `api/v1alpha1/*_types.go` file against these rules:
 
 ### Structure
 
+Verify types follow the structure described in AGENTS.md § "API Types Structure":
+
 - [ ] Three hand-written types exist: `<Resource>ResourceSpec`, `<Resource>Filter`, `<Resource>ResourceStatus`.
 - [ ] Top-level types (`<Resource>`, `<Resource>Spec`, `<Resource>Status`, `<Resource>List`) are code-generated in `zz_generated.*` files and NOT hand-edited.
-- [ ] `ResourceSpec` contains fields mapping to OpenStack create API parameters.
-- [ ] `Filter` contains a subset of identifying fields, all optional pointers.
-- [ ] `ResourceStatus` contains observed state from OpenStack.
 
 ### Validation Markers
 
@@ -82,9 +81,10 @@ Review any `api/v1alpha1/*_types.go` file against these rules:
 
 ### Dependencies
 
+Verify dependencies follow the patterns in AGENTS.md § "Dependencies":
+
 - [ ] Dependencies are declared as **package-level variables**, not inside functions.
-- [ ] `DeletionGuardDependency` is used when deleting the dependency would either fail or cause the dependent to fail.
-- [ ] Regular `Dependency` (no deletion guard) is used for import-only dependencies and cases where OpenStack allows the deletion.
+- [ ] `DeletionGuardDependency` vs `Dependency` chosen correctly (see AGENTS.md § "Types of Dependencies").
 - [ ] Each dependency has a descriptive name (e.g., `vipSubnetDependency` not `subnetDependency` when multiple subnet types exist).
 - [ ] Field path strings in dependency declarations match the actual API field paths.
 - [ ] Extraction functions correctly handle nil checks for optional references.
@@ -100,14 +100,12 @@ Review any `api/v1alpha1/*_types.go` file against these rules:
 
 ### Structure
 
+Verify the file follows the structure in AGENTS.md § "Type Aliases", "Interface Assertions":
+
 - [ ] Type aliases defined at the top of the file for `osResourceT`, actuator interfaces, and `helperFactory`.
 - [ ] Compile-time interface assertions present (`var _ createResourceActuator = myActuator{}`).
 - [ ] OS client interface defined locally with only the methods the actuator needs.
 - [ ] Actuator struct holds the OS client and optionally `k8sClient` (when dependencies are used).
-
-### Resource Name
-
-- [ ] `getResourceName` helper exists: returns `spec.resource.name` if set, otherwise falls back to the ORC object name.
 
 ### GetOSResourceByID
 
@@ -142,18 +140,19 @@ Review any `api/v1alpha1/*_types.go` file against these rules:
 
 ### ReconcileResourceActuator (if implemented)
 
-- [ ] `GetResourceReconcilers` returns reconciler functions for post-creation tasks (e.g., setting Neutron tags, handling mutable field updates).
-- [ ] Reconcilers that modify the OpenStack resource return a `progress.ProgressStatus` to force a status refresh.
+Verify reconciler naming and behavior follow AGENTS.md § "Reconciler Naming Conventions":
+
+- [ ] Reconcilers that modify the OpenStack resource return `progress.NeedsRefresh()` to force a status refresh.
 - [ ] Reconcilers are independent and don't rely on side effects of other reconcilers.
-- [ ] `updateResource` is used only for general mutable field updates via the resource's Update API (building `UpdateOpts`, single API call). Operations using a separate API have a descriptive name (e.g., `reconcileExtraSpecs`, `reconcileSubports`, `reconcilePassword`, `updateRules`).
-- [ ] Single-concern reconcilers return `nil` (not a terminal error) when `spec.resource` is nil. Only `updateResource` returns a terminal error for nil `spec.resource`.
+- [ ] `updateResource` vs single-concern naming conventions followed (see AGENTS.md).
 - [ ] `CreateResource` does not duplicate work that is handled by a reconciler. The `CreateResource` contract forbids actions that can fail after creating the primary resource.
 
 ### Error Handling
 
+Verify error classification follows AGENTS.md § "Error Classification":
+
 - [ ] All errors from OpenStack API calls are checked.
-- [ ] Non-retryable errors (400, invalid config) wrapped with `orcerrors.Terminal` and an appropriate `ConditionReason`.
-- [ ] Transient errors (5xx, network) left as default (automatic retry with backoff).
+- [ ] Error classification correct: non-retryable → `orcerrors.Terminal`, transient → default backoff.
 - [ ] `ReconcileStatus` return values are **never discarded** -- always assigned and propagated.
 - [ ] When wrapping errors, use `progress.WrapError(err)` (not bare `fmt.Errorf`).
 
@@ -162,8 +161,8 @@ Review any `api/v1alpha1/*_types.go` file against these rules:
 - [ ] Dependencies resolved **as late as possible**, close to the point of use.
 - [ ] Dependencies not required for deletion unless strictly necessary (e.g., don't require Network to delete a Subnet with `status.ID` already set).
 - [ ] Dependencies not required for import-by-ID.
-- [ ] `GetDependency` results checked: if `needsReschedule` is true, return early.
-- [ ] Readiness predicate uses `orcv1alpha1.IsAvailable` (the standard helper from `api/v1alpha1/conditions.go`). `Status.ID` is always set before a resource becomes Available, so checking `dep.Status.ID != nil` separately is unnecessary.
+- [ ] `GetDependency` results checked: if `needsReschedule` is true, return early (see AGENTS.md § "Using Dependencies").
+- [ ] Readiness predicate uses `orcv1alpha1.IsAvailable` only — `Status.ID` is always set before Available, so checking it separately is unnecessary.
 
 ## Step 5: Status Writer (`status.go`)
 
@@ -191,9 +190,8 @@ Review any `api/v1alpha1/*_types.go` file against these rules:
 
 ### Conditions
 
-- [ ] **Progressing=True** means status doesn't yet reflect spec AND controller expects more reconciles.
-- [ ] **Progressing=False** means the object will NOT be reconciled again until the spec changes. This covers both success (Available=True) and terminal errors.
-- [ ] **Available=True** means the resource is ready for use by consumers.
+Verify condition semantics match AGENTS.md § "Two Critical Conditions":
+
 - [ ] Condition reasons use defined constants from `orcv1alpha1` (e.g., `ConditionReasonInvalidConfiguration`, `ConditionReasonTransientError`).
 - [ ] Conditions are not set directly by the actuator -- the generic reconciler handles this based on `ReconcileStatus` and `ResourceStatusWriter` return values.
 
