@@ -1,7 +1,6 @@
 ---
 name: review
 description: Review ORC controller code for Kubernetes best practices and ORC conventions. Use after implementing or modifying a controller.
-disable-model-invocation: true
 ---
 
 # ORC Code Review Guide
