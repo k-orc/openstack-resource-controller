@@ -1,0 +1,65 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: subnetpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: AddressScope
+metadata:
+  name: subnetpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    ipVersion: 4
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: subnetpool-create-full-override
+    description: SubnetPool from "create full" test
+    addressScopeRef: subnetpool-create-full
+    prefixes:
+    - 192.168.11.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
+    defaultPrefixLength: 24
+    isDefault: false
+---
+# Creating a SubnetPool as admin to test `projectRef` and `shared`
+# fields.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-create-full-admin
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    projectRef: subnetpool-create-full
+    prefixes:
+    - 192.168.12.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
+    # Devstack automatically creates a default subnet pool that
+    # prevent us to create a new default pool.
+    isDefault: false
+    shared: true

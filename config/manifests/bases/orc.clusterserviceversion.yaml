@@ -124,6 +124,11 @@ spec:
       kind: ShareNetwork
       name: sharenetworks.openstack.k-orc.cloud
       version: v1alpha1
+    - description: SubnetPool is the Schema for an ORC resource.
+      displayName: Subnet Pool
+      kind: SubnetPool
+      name: subnetpools.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Subnet is the Schema for an ORC resource.
       displayName: Subnet
       kind: Subnet

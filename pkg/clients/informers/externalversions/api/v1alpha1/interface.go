@@ -68,6 +68,8 @@ type Interface interface {
 	ShareNetworks() ShareNetworkInformer
 	// Subnets returns a SubnetInformer.
 	Subnets() SubnetInformer
+	// SubnetPools returns a SubnetPoolInformer.
+	SubnetPools() SubnetPoolInformer
 	// Trunks returns a TrunkInformer.
 	Trunks() TrunkInformer
 	// Users returns a UserInformer.
@@ -197,6 +199,11 @@ func (v *version) ShareNetworks() ShareNetworkInformer {
 // Subnets returns a SubnetInformer.
 func (v *version) Subnets() SubnetInformer {
 	return &subnetInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// SubnetPools returns a SubnetPoolInformer.
+func (v *version) SubnetPools() SubnetPoolInformer {
+	return &subnetPoolInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Trunks returns a TrunkInformer.
