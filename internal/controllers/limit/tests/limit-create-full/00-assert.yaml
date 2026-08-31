@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: setup-teardown
+status:
+  readyReplicas: 1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-create-full
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-create-full
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-full-1
+status:
+  resource:
+    description: Limit from "create full" test
+    resourceName: limit-create-full-1
+    resourceLimit: 50
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-create-full-2
+status:
+  resource:
+    description: Limit from "create full" test
+    resourceName: limit-create-full-2
+    resourceLimit: 10
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+collectors:
+  - selector: app=setup-teardown
+commands:
+  - script: |-
+      cd $(dirname ${E2E_KUTTL_OSCLOUDS})
+      export OS_CLOUD=openstack-admin
+      openstack registered limit list --resource-name limit-create-full-1 &&
+      openstack registered limit list --resource-name limit-create-full-2
+resourceRefs:
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-create-full-1
+    ref: limit1
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-create-full-2
+    ref: limit2
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Service
+    name: service-limit-create-full
+    ref: service
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Project
+    name: project-limit-create-full
+    ref: project
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Domain
+    name: domain-limit-create-full
+    ref: domain
+assertAll:
+  - celExpr: "limit1.status.id != ''"
+  - celExpr: "limit2.status.id != ''"
+  - celExpr: "limit1.status.resource.serviceID == service.status.id"
+  - celExpr: "limit2.status.resource.serviceID == service.status.id"
+  - celExpr: "limit1.status.resource.projectID == project.status.id"
+  - celExpr: "limit2.status.resource.domainID == domain.status.id"

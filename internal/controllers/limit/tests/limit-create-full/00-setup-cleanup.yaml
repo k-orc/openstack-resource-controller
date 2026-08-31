@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: setup-teardown
+  labels:
+    app: setup-teardown
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: setup-teardown
+  template:
+    metadata:
+      labels:
+        app: setup-teardown
+    spec:
+      containers:
+        - name: setup-teardown
+          image: ghcr.io/chenwng/orc-helper:latest
+          command:
+            - /orc-helper
+          volumeMounts:
+            - name: openstack-clouds
+              mountPath: /etc/openstack
+              readOnly: true
+            - name: log-volume
+              mountPath: /log
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: READINESS_FILE
+              value: /helper/ready
+            - name: OS_CLOUD
+              value: openstack-admin
+            - name: TEST_CASE
+              value: limit-create-full
+            - name: REGISTER_LIMITS
+              value: service-limit-create-full/limit-create-full-1/100,service-limit-create-full/limit-create-full-2/100
+            - name: DOMAINS
+              value: domain-limit-create-full
+          readinessProbe:
+            exec:
+              command:
+                - test
+                - -f
+                - /helper/ready
+            initialDelaySeconds: 3
+            periodSeconds: 1
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: openstack-clouds
+          secret:
+            secretName: openstack-clouds
+        - name: log-volume
+          hostPath:
+            path: /log
+            type: DirectoryOrCreate

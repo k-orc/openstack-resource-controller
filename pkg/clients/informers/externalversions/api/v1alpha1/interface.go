@@ -42,6 +42,8 @@ type Interface interface {
 	Images() ImageInformer
 	// KeyPairs returns a KeyPairInformer.
 	KeyPairs() KeyPairInformer
+	// Limits returns a LimitInformer.
+	Limits() LimitInformer
 	// Networks returns a NetworkInformer.
 	Networks() NetworkInformer
 	// Ports returns a PortInformer.
@@ -132,6 +134,11 @@ func (v *version) Images() ImageInformer {
 // KeyPairs returns a KeyPairInformer.
 func (v *version) KeyPairs() KeyPairInformer {
 	return &keyPairInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Limits returns a LimitInformer.
+func (v *version) Limits() LimitInformer {
+	return &limitInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Networks returns a NetworkInformer.

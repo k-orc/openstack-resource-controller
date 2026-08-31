@@ -1,0 +1,54 @@
+---
+# No project and service available
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-1
+  labels:
+    test-case: limit-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: service-limit-dependency
+    projectRef: project-limit-dependency
+    resourceName: limit-dependency-1
+    resourceLimit: 50
+---
+# No domain and service available
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-2
+  labels:
+    test-case: limit-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: service-limit-dependency
+    domainRef: domain-limit-dependency
+    resourceName: limit-dependency-2
+    resourceLimit: 10
+---
+# No secret, service and domain available
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-3
+  labels:
+    test-case: limit-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: limit-dependency
+  managementPolicy: managed
+  resource:
+    serviceRef: service-limit-dependency
+    domainRef: domain-limit-dependency
+    resourceName: limit-dependency-3
+    resourceLimit: 5

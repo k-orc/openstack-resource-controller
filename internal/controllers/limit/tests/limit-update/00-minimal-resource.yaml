@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-update
+  labels:
+    test-case: limit-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: some description
+    serviceRef: service-limit-update
+    projectRef: project-limit-update
+    resourceName: limit-update
+    resourceLimit: 50

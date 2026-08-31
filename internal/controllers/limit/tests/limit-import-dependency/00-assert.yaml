@@ -1,0 +1,47 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-limit-import-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-import-dependency-imported
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for OpenStack resource to be created externally
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for OpenStack resource to be created externally
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-import-dependency
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Project/project-limit-import-dependency-imported to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Project/project-limit-import-dependency-imported to be ready
+      status: "True"
+      reason: Progressing
