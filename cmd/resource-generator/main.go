@@ -189,6 +189,14 @@ var resources []templateFields = []templateFields{
 	{
 		Name: "ApplicationCredential",
 	},
+	{
+		Name: "Region",
+		// Region has no "name" field, but the ID is used as the name
+		// We want to use "IsNotNamed", because we do not have a "name" field.
+		// But, we want "UsesNameAsID", because the ID is a unique name and not an UUID.
+		UsesNameAsID: true,
+		IsNotNamed:   true,
+	},
 }
 
 // These resources won't be generated

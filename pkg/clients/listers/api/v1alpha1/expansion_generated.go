@@ -114,6 +114,14 @@ type ProjectListerExpansion interface{}
 // ProjectNamespaceLister.
 type ProjectNamespaceListerExpansion interface{}
 
+// RegionListerExpansion allows custom methods to be added to
+// RegionLister.
+type RegionListerExpansion interface{}
+
+// RegionNamespaceListerExpansion allows custom methods to be added to
+// RegionNamespaceLister.
+type RegionNamespaceListerExpansion interface{}
+
 // RoleListerExpansion allows custom methods to be added to
 // RoleLister.
 type RoleListerExpansion interface{}
