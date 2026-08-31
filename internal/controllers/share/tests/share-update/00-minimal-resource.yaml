@@ -1,0 +1,29 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: share-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-update
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: share-update-original
+    description: Share from "share-update" test
+    shareProto: NFS
+    size: 4
+    shareType: default
+    shareNetworkRef: share-update
+    isPublic: false

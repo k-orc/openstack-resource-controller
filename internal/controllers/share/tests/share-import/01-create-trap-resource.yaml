@@ -1,0 +1,20 @@
+---
+# This `share-import-external-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
+# - ensure that importing a resource which name is a substring of it will not pick this one.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: share-import-external-not-this-one
+    description: Share share-import-external from "share-import" test
+    shareProto: NFS
+    size: 7
+    shareType: default
+    shareNetworkRef: share-import

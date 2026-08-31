@@ -6,7 +6,8 @@
       "Bash(go build:*)",
       "Bash(go fmt:*)",
       "Bash(go doc:*)",
-      "Bash(make test:*)"
+      "Bash(make test:*)",
+      "Bash(openstack *)"
     ],
     "deny": [],
     "ask": []

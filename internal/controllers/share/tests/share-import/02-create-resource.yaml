@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: share-import-external
+    description: Share share-import-external from "share-import" test
+    shareProto: NFS
+    size: 5
+    shareType: default
+    shareNetworkRef: share-import

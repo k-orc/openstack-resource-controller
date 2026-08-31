@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareNetwork
+metadata:
+  name: share-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: share-create-full-override
+    description: Share from "create full" test
+    shareProto: NFS
+    size: 10
+    shareType: default
+    shareNetworkRef: share-create-full
+    isPublic: false
+    metadata:
+      test: full
+      component: e2e
