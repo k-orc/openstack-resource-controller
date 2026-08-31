@@ -83,7 +83,15 @@ func (f adapterT) GetImportID() *string {
 	if f.Spec.Import == nil {
 		return nil
 	}
+{{- if .HasCustomImport }}
+	if f.Spec.Import.Name == nil {
+		return nil
+	}
+	name := string(*f.Spec.Import.Name)
+	return &name
+{{- else }}
 	return f.Spec.Import.ID
+{{- end }}
 {{- end }}
 }
 

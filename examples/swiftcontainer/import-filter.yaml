@@ -1,0 +1,15 @@
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SwiftContainer
+metadata:
+  name: my-filtered-bucket
+spec:
+  cloudCredentialsRef:
+    secretName: openstack-clouds
+    cloudName: openstack
+  managementPolicy: unmanaged
+  import:
+    # filter finds an existing container by matching properties.
+    # The filter must match exactly one container.
+    filter:
+      # prefix filters containers whose names begin with this string.
+      prefix: my-bucket-

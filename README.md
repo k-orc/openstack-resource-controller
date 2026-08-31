@@ -81,6 +81,7 @@ kubectl delete -f $ORC_RELEASE
 | server group                |         |    ✔    |     ✔    |
 | service                     |         |    ✔    |     ✔    |
 | share network               |         |         |     ◐    |
+| swift container             |         |         |     ◐    |
 | subnet                      |         |    ◐    |     ◐    |
 | trunk                       |         |    ✔    |     ✔    |
 | user                        |         |    ◐    |     ◐    |
