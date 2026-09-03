@@ -33,6 +33,7 @@ type {{ .Kind }}ResourceSpec struct {
 	// {{ . | camelCase }}Ref is a reference to the ORC {{ . }} which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="{{ . | camelCase }}Ref is immutable"
+	// +orc:kustomize:ref={{ . }}
 	{{ . }}Ref KubernetesNameRef `json:"{{ . | camelCase }}Ref,omitempty"`
 {{- end }}
 {{- range .OptionalCreateDependencies }}
@@ -40,6 +41,7 @@ type {{ .Kind }}ResourceSpec struct {
 	// {{ . | camelCase }}Ref is a reference to the ORC {{ . }} which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="{{ . | camelCase }}Ref is immutable"
+	// +orc:kustomize:ref={{ . }}
 	{{ . }}Ref *KubernetesNameRef `json:"{{ . | camelCase }}Ref,omitempty"`
 {{- end }}
 
@@ -68,6 +70,7 @@ type {{ .Kind }}Filter struct {
 
 	// {{ . | camelCase }}Ref is a reference to the ORC {{ . }} which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref={{ . }}
 	{{ . }}Ref *KubernetesNameRef `json:"{{ . | camelCase }}Ref,omitempty"`
 {{- end }}
 

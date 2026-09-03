@@ -114,6 +114,7 @@ type NetworkResourceSpec struct {
 	// Typically, only used by admin.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 }
 
@@ -136,6 +137,7 @@ type NetworkFilter struct {
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`

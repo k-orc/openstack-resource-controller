@@ -35,11 +35,13 @@ type ShareNetworkResourceSpec struct {
 	// networkRef is a reference to the ORC Network which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
+	// +orc:kustomize:ref=Network
 	NetworkRef *KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// subnetRef is a reference to the ORC Subnet which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="subnetRef is immutable"
+	// +orc:kustomize:ref=Subnet
 	SubnetRef *KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 

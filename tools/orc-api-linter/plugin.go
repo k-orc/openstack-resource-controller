@@ -29,6 +29,7 @@ import (
 	_ "sigs.k8s.io/kube-api-linter/pkg/registration"
 
 	// Import ORC-specific linters to register them with the registry.
+	_ "github.com/k-orc/openstack-resource-controller/v2/tools/orc-api-linter/pkg/analysis/kustomizeref"
 	_ "github.com/k-orc/openstack-resource-controller/v2/tools/orc-api-linter/pkg/analysis/noopenstackidref"
 )
 

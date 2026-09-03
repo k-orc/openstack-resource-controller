@@ -29,11 +29,13 @@ type PortFilter struct {
 
 	// networkRef is a reference to the ORC Network which this port is associated with.
 	// +optional
+	// +orc:kustomize:ref=Network
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// adminStateUp is the administrative state of the port,
@@ -66,6 +68,7 @@ type HostID struct {
 	// the Server's status.resource.hostID field.
 	// This is mutually exclusive with id.
 	// +optional
+	// +orc:kustomize:ref=Server
 	ServerRef KubernetesNameRef `json:"serverRef,omitempty"`
 }
 
@@ -106,6 +109,7 @@ type Address struct {
 	// subnetRef references the subnet from which to allocate the IP
 	// address.
 	// +required
+	// +orc:kustomize:ref=Subnet
 	SubnetRef KubernetesNameRef `json:"subnetRef,omitempty"`
 }
 
@@ -148,6 +152,7 @@ type PortResourceSpec struct {
 	// networkRef is a reference to the ORC Network which this port is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
+	// +orc:kustomize:ref=Network
 	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the port.
@@ -180,6 +185,7 @@ type PortResourceSpec struct {
 	// +kubebuilder:validation:MaxItems:=64
 	// +listType=set
 	// +optional
+	// +orc:kustomize:ref=SecurityGroup
 	SecurityGroupRefs []KubernetesNameRef `json:"securityGroupRefs,omitempty"`
 
 	// vnicType specifies the type of vNIC which this port should be
@@ -207,6 +213,7 @@ type PortResourceSpec struct {
 	// Typically, only used by admin.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// macAddress is the MAC address of the port.

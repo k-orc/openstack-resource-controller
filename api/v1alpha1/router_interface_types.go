@@ -85,11 +85,13 @@ type RouterInterfaceSpec struct {
 
 	// routerRef references the router to which this interface belongs.
 	// +required
+	// +orc:kustomize:ref=Router
 	RouterRef KubernetesNameRef `json:"routerRef,omitempty"`
 
 	// subnetRef references the subnet the router interface is created on.
 	// +unionMember
 	// +optional
+	// +orc:kustomize:ref=Subnet
 	SubnetRef *KubernetesNameRef `json:"subnetRef,omitempty"`
 
 	// resyncPeriod defines how frequently the controller will re-reconcile

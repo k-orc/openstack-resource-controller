@@ -26,6 +26,7 @@ type AddressScopeResourceSpec struct {
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// ipVersion is the IP protocol version.
@@ -51,6 +52,7 @@ type AddressScopeFilter struct {
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// ipVersion is the IP protocol version.

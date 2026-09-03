@@ -47,6 +47,7 @@ type ApplicationCredentialAccessRule struct {
 
 	// serviceRef identifier for the service that the application credential is permitted to access
 	// +optional
+	// +orc:kustomize:ref=Service
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
 }
 
@@ -67,6 +68,7 @@ type ApplicationCredentialResourceSpec struct {
 	// userRef is a reference to the ORC User which this resource is associated with.
 	// Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried.
 	// +required
+	// +orc:kustomize:ref=User
 	UserRef KubernetesNameRef `json:"userRef,omitempty"`
 
 	// unrestricted is a flag indicating whether the application credential may be used for creation or destruction of other application credentials or trusts
@@ -75,12 +77,14 @@ type ApplicationCredentialResourceSpec struct {
 
 	// secretRef is a reference to a Secret containing the application credential secret
 	// +required
+	// +orc:kustomize:ref=Secret
 	SecretRef KubernetesNameRef `json:"secretRef,omitempty"`
 
 	// roleRefs may only contain roles that the user has assigned on the project. If not provided, the roles assigned to the application credential will be the same as the roles in the current token.
 	// +kubebuilder:validation:MaxItems:=256
 	// +listType=atomic
 	// +optional
+	// +orc:kustomize:ref=Role
 	RoleRefs []KubernetesNameRef `json:"roleRefs,omitempty"`
 
 	// accessRules is a list of fine grained access control rules
@@ -100,6 +104,7 @@ type ApplicationCredentialFilter struct {
 	// userRef is a reference to the ORC User which this resource is associated with.
 	// Note: Due to the nature of the OpenStack API, managing application credentials for a user different than the one ORC is authenticated against can be computationally expensive. In the worst case, all application credentials of all users have to be queried.
 	// +required
+	// +orc:kustomize:ref=User
 	UserRef KubernetesNameRef `json:"userRef,omitempty"`
 
 	// name of the existing resource
