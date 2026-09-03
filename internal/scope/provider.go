@@ -201,6 +201,10 @@ func (s *providerScope) NewRegionClient() (clients.RegionClient, error) {
 	return clients.NewRegionClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewRegisteredLimitClient() (clients.RegisteredLimitClient, error) {
+	return clients.NewRegisteredLimitClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewRoleClient() (clients.RoleClient, error) {
 	return clients.NewRoleClient(s.providerClient, s.providerClientOpts)
 }

@@ -80,6 +80,10 @@ func (c *FakeOpenstackV1alpha1) Regions(namespace string) v1alpha1.RegionInterfa
 	return newFakeRegions(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) RegisteredLimits(namespace string) v1alpha1.RegisteredLimitInterface {
+	return newFakeRegisteredLimits(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Roles(namespace string) v1alpha1.RoleInterface {
 	return newFakeRoles(c, namespace)
 }
