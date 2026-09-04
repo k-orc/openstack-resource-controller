@@ -75,6 +75,23 @@ theme:
         name: Switch to light mode
 plugins:
   - search:
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+      cache_safe: true
+  - redirects:
+      redirect_maps:
+        'getting_started.md': 'getting-started.md'
+        'development/index.md': 'development/contributing.md'
+        'development/controller-design.md': 'development/controller-implementation.md'
+        'development/design-decisions.md': 'concepts/design-principles.md'
+        'development/coding-convention.md': 'development/coding-standards.md'
+        'development/api-contracts.md': 'development/api-design.md'
+        'user-guide/index.md': 'concepts/core-concepts.md'
+        'user-guide/drift-detection.md': 'concepts/drift-detection.md'
 markdown_extensions:
   - admonition
   - attr_list

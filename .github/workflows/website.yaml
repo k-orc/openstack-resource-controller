@@ -27,7 +27,7 @@ jobs:
     - name: Build the site
       run: zensical build --strict --config-file website/mkdocs.yml
 
-    - name: Post-build (redirects and analytics)
+    - name: Post-build (analytics)
       run: bash website/post-build.sh website/rendered
 
     - name: Publish to Cloudflare Pages
