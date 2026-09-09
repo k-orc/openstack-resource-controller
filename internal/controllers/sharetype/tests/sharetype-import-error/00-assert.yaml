@@ -1,0 +1,24 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: ShareType
+metadata:
+  name: sharetype-import-error
+status:
+  conditions:
+  - type: Available
+    status: "False"
+    reason: Progressing
+  - type: Progressing
+    status: "True"
+    reason: Progressing
+    message: Waiting for OpenStack resource to be created externally
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareType
+      name: sharetype-import-error
+      ref: sharetype
+assertAll:
+    - celExpr: "!has(sharetype.status.id)"
