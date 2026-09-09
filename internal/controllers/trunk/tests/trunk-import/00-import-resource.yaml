@@ -12,6 +12,7 @@ spec:
     filter:
       name: trunk-import-external
       description: Trunk trunk-import-external from "trunk-import" test
+      status: ACTIVE
       adminStateUp: true
       tags:
         - trunk-import-tag
