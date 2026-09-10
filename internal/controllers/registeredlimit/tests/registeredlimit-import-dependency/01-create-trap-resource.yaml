@@ -11,6 +11,17 @@ spec:
   resource:
     type: registeredlimit-import-dependency-not-this-one
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: registeredlimit-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 # This `registeredlimit-import-dependency-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
@@ -23,5 +34,6 @@ spec:
   managementPolicy: managed
   resource:
     serviceRef: registeredlimit-import-dependency-not-this-one
+    regionRef: registeredlimit-import-dependency-not-this-one
     resourceName: vcpus
     defaultLimit: 5

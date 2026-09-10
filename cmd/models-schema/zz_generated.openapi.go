@@ -7833,6 +7833,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitFilter(
 							Format:      "",
 						},
 					},
+					"regionRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionRef is a reference to the ORC Region which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -7951,6 +7958,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_RegisteredLimitResourc
 							Description: "defaultLimit is limit of the specified resource in the given context. Using -1 will allow unlimited use of the resource. Using 0 will prevent usage of that resource entirely. Note: Due to a bug in gophercloud, you can not currently set this to 0 when creating a RegisteredLimit. https://github.com/gophercloud/gophercloud/issues/3866",
 							Type:        []string{"integer"},
 							Format:      "int32",
+						},
+					},
+					"regionRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionRef is a reference to the ORC Region which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},

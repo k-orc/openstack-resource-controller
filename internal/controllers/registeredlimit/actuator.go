@@ -82,6 +82,19 @@ func (actuator registeredlimitActuator) ListOSResourcesForAdoption(ctx context.C
 		return nil, false
 	}
 
+	var regionID string
+	if resourceSpec.RegionRef != nil {
+		region, regionDepRS := regionDependency.GetDependency(
+			ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
+		)
+		if needsReschedule, _ := regionDepRS.NeedsReschedule(); needsReschedule {
+			return nil, false
+		}
+		if region != nil {
+			regionID = ptr.Deref(region.Status.ID, "")
+		}
+	}
+
 	var filters []osclients.ResourceFilter[osResourceT]
 
 	// Add client-side filters
@@ -94,6 +107,7 @@ func (actuator registeredlimitActuator) ListOSResourcesForAdoption(ctx context.C
 	listOpts := registeredlimits.ListOpts{
 		ResourceName: resourceSpec.ResourceName,
 		ServiceID:    ptr.Deref(service.Status.ID, ""),
+		RegionID:     regionID,
 	}
 
 	return actuator.listOSResources(ctx, filters, listOpts), true
@@ -105,6 +119,13 @@ func (actuator registeredlimitActuator) ListOSResourcesForImport(ctx context.Con
 	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
 		ctx, actuator.k8sClient, obj.Namespace,
 		filter.ServiceRef, "Service",
+		orcv1alpha1.IsAvailable,
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+
+	region, rs := dependency.FetchDependency[*orcv1alpha1.Region](
+		ctx, actuator.k8sClient, obj.Namespace,
+		filter.RegionRef, "Region",
 		orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
@@ -125,6 +146,7 @@ func (actuator registeredlimitActuator) ListOSResourcesForImport(ctx context.Con
 	listOpts := registeredlimits.ListOpts{
 		ResourceName: ptr.Deref(filter.ResourceName, ""),
 		ServiceID:    ptr.Deref(service.Status.ID, ""),
+		RegionID:     ptr.Deref(region.Status.ID, ""),
 	}
 
 	return actuator.listOSResources(ctx, filters, listOpts), nil
@@ -154,6 +176,18 @@ func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj 
 	if service != nil {
 		serviceID = ptr.Deref(service.Status.ID, "")
 	}
+
+	var regionID string
+	if resource.RegionRef != nil {
+		region, regionDepRS := regionDependency.GetDependency(
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(regionDepRS)
+		if region != nil {
+			regionID = ptr.Deref(region.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
@@ -173,6 +207,7 @@ func (actuator registeredlimitActuator) CreateResource(ctx context.Context, obj 
 		ResourceName: resource.ResourceName,
 		DefaultLimit: defaultLimit,
 		Description:  ptr.Deref(resource.Description, ""),
+		RegionID:     regionID,
 	}
 	batchCreateOpts := registeredlimits.BatchCreateOpts{
 		createOpts,

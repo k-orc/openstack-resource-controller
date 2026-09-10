@@ -14,9 +14,14 @@ resourceRefs:
       kind: Service
       name: registeredlimit-import-dependency
       ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: registeredlimit-import-dependency
+      ref: region
 assertAll:
     - celExpr: "registeredlimit1.status.id != registeredlimit2.status.id"
     - celExpr: "registeredlimit1.status.resource.serviceID == service.status.id"
+    - celExpr: "registeredlimit1.status.resource.regionID == region.status.id"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
