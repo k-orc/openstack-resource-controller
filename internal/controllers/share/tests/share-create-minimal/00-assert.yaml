@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-create-minimal
+status:
+  resource:
+    name: share-create-minimal
+    shareProto: NFS
+    size: 1
+    status: available
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Share
+      name: share-create-minimal
+      ref: share
+assertAll:
+    - celExpr: "share.status.id != ''"
+    - celExpr: "share.status.resource.shareProto == 'NFS'"
+    - celExpr: "share.status.resource.size == 1"
+    - celExpr: "share.status.resource.status == 'available'"

@@ -62,6 +62,8 @@ type ServerGroupExpansion interface{}
 
 type ServiceExpansion interface{}
 
+type ShareExpansion interface{}
+
 type ShareNetworkExpansion interface{}
 
 type SubnetExpansion interface{}

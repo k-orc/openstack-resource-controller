@@ -63,6 +63,7 @@ type Scope interface {
 	NewRoleClient() (osclients.RoleClient, error)
 	NewRoleAssignmentClient() (osclients.RoleAssignmentClient, error)
 	NewServiceClient() (osclients.ServiceClient, error)
+	NewShareClient() (osclients.ShareClient, error)
 	NewShareNetworkClient() (osclients.ShareNetworkClient, error)
 	NewUserClient() (osclients.UserClient, error)
 	NewVolumeClient() (osclients.VolumeClient, error)

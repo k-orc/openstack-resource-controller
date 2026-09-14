@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-update
+status:
+  resource:
+    name: share-update-updated
+    description: share-update-updated
+    shareProto: NFS
+    size: 4
+    isPublic: true
+  conditions:
+  - type: Progressing
+    status: "False"
+    reason: Success

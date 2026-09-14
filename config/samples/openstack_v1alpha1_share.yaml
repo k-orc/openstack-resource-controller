@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Share
+metadata:
+  name: share-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: my-nfs-share
+    description: Sample NFS share for development
+    shareProto: NFS
+    size: 10
+    metadata:
+      environment: dev
+      team: platform

@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: ShareNetwork
+      name: share-dependency
+      ref: shareNetwork
+    - apiVersion: v1
+      kind: Secret
+      name: share-dependency
+      ref: secret
+assertAll:
+    - celExpr: "shareNetwork.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/share' in shareNetwork.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/share' in secret.metadata.finalizers"
