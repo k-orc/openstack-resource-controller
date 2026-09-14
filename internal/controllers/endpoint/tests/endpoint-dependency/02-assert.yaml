@@ -6,6 +6,10 @@ resourceRefs:
       kind: Service
       name: endpoint-dependency
       ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: endpoint-dependency
+      ref: region
     - apiVersion: v1
       kind: Secret
       name: endpoint-dependency
@@ -13,5 +17,7 @@ resourceRefs:
 assertAll:
     - celExpr: "service.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/endpoint' in service.metadata.finalizers"
+    - celExpr: "region.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/endpoint' in region.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/endpoint' in secret.metadata.finalizers"

@@ -59,5 +59,13 @@ func (endpointStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osR
 		resourceStatus.WithDescription(osResource.Description)
 	}
 
+	if osResource.Region != "" {
+		// TODO:
+		// The field region is deprecated. In the future only osResource.RegionID will be used.
+		// Update this once gophercloud supports the new field
+		// https://github.com/gophercloud/gophercloud/issues/3943
+		resourceStatus.WithRegionID(osResource.Region)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

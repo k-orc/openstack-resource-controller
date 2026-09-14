@@ -11,6 +11,17 @@ spec:
   resource:
     type: endpoint-import-dependency-not-this-one
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: endpoint-import-dependency-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
 # This `endpoint-import-dependency-not-this-one` should not be picked by the import filter
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Endpoint
@@ -23,5 +34,6 @@ spec:
   managementPolicy: managed
   resource:
     serviceRef: endpoint-import-dependency-not-this-one
+    regionRef: endpoint-import-dependency-not-this-one
     interface: internal
     url: http://example.com

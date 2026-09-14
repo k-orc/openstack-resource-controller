@@ -27,6 +27,7 @@ import (
 type EndpointFilterApplyConfiguration struct {
 	Interface  *string                        `json:"interface,omitempty"`
 	ServiceRef *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
+	RegionRef  *apiv1alpha1.KubernetesNameRef `json:"regionRef,omitempty"`
 	URL        *string                        `json:"url,omitempty"`
 }
 
@@ -49,6 +50,14 @@ func (b *EndpointFilterApplyConfiguration) WithInterface(value string) *Endpoint
 // If called multiple times, the ServiceRef field is set to the value of the last call.
 func (b *EndpointFilterApplyConfiguration) WithServiceRef(value apiv1alpha1.KubernetesNameRef) *EndpointFilterApplyConfiguration {
 	b.ServiceRef = &value
+	return b
+}
+
+// WithRegionRef sets the RegionRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionRef field is set to the value of the last call.
+func (b *EndpointFilterApplyConfiguration) WithRegionRef(value apiv1alpha1.KubernetesNameRef) *EndpointFilterApplyConfiguration {
+	b.RegionRef = &value
 	return b
 }
 

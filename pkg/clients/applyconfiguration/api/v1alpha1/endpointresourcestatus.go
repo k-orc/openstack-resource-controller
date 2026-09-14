@@ -26,6 +26,7 @@ type EndpointResourceStatusApplyConfiguration struct {
 	Interface   *string `json:"interface,omitempty"`
 	URL         *string `json:"url,omitempty"`
 	ServiceID   *string `json:"serviceID,omitempty"`
+	RegionID    *string `json:"regionID,omitempty"`
 }
 
 // EndpointResourceStatusApplyConfiguration constructs a declarative configuration of the EndpointResourceStatus type for use with
@@ -71,5 +72,13 @@ func (b *EndpointResourceStatusApplyConfiguration) WithURL(value string) *Endpoi
 // If called multiple times, the ServiceID field is set to the value of the last call.
 func (b *EndpointResourceStatusApplyConfiguration) WithServiceID(value string) *EndpointResourceStatusApplyConfiguration {
 	b.ServiceID = &value
+	return b
+}
+
+// WithRegionID sets the RegionID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionID field is set to the value of the last call.
+func (b *EndpointResourceStatusApplyConfiguration) WithRegionID(value string) *EndpointResourceStatusApplyConfiguration {
+	b.RegionID = &value
 	return b
 }

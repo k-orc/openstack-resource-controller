@@ -23,10 +23,12 @@ status:
     - type: Available
       message: |-
         Waiting for Service/endpoint-import-dependency to be ready
+        Waiting for Region/endpoint-import-dependency to be ready
       status: "False"
       reason: Progressing
     - type: Progressing
       message: |-
         Waiting for Service/endpoint-import-dependency to be ready
+        Waiting for Region/endpoint-import-dependency to be ready
       status: "True"
       reason: Progressing

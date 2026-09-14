@@ -65,7 +65,7 @@ kubectl delete -f $ORC_RELEASE
 | addressscope                |         |    ✔    |     ✔    |
 | application credential      |         |    ◐    |     ◐    |
 | domain                      |         |    ✔    |     ✔    |
-| endpoint                    |         |    ◐    |     ◐    |
+| endpoint                    |         |    ◐    |     ✔    |
 | flavor                      |         |    ✔    |     ✔    |
 | floating ip                 |         |    ◐    |     ◐    |
 | group                       |         |    ✔    |     ✔    |

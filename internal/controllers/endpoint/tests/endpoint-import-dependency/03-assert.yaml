@@ -4,3 +4,5 @@ kind: TestAssert
 commands:
 - script: "! kubectl get service.openstack.k-orc.cloud endpoint-import-dependency --namespace $NAMESPACE"
   skipLogOutput: true
+- script: "! kubectl get region.openstack.k-orc.cloud endpoint-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
