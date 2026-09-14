@@ -1,0 +1,16 @@
+
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-import-external-non-uuid
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    id: flavor-non-uuid
+    ram: 21
+    vcpus: 31
+    disk: 41

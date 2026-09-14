@@ -119,8 +119,9 @@ spec:
                       id contains the unique identifier of an existing OpenStack resource. Note
                       that when specifying an import by ID, the resource MUST already exist.
                       The ORC object will enter an error state if the resource does not exist.
-                    format: uuid
-                    maxLength: 36
+                    maxLength: 255
+                    minLength: 1
+                    pattern: ^[a-zA-Z0-9._-]([a-zA-Z0-9. _-]*[a-zA-Z0-9._-])?$
                     type: string
                 type: object
               managedOptions:
