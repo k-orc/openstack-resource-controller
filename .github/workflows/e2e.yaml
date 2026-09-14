@@ -17,18 +17,12 @@ jobs:
           - name: "gazpacho"
             openstack_version: "stable/2026.1"
             ubuntu_version: "24.04"
-            # Pin glance before LP#2166488 breakage. Remove once the fix is backported.
-            glance_pin: "24eab18960afaaf246e38efcb9eded21c7e5da9b"
           - name: "flamingo"
             openstack_version: "stable/2025.2"
             ubuntu_version: "24.04"
-            # Pin glance before LP#2166488 breakage. Remove once the fix is backported.
-            glance_pin: "577b1a16bd8c2fd4df4ad66c902f4e6b44d71618"
           - name: "epoxy"
             openstack_version: "stable/2025.1"
             ubuntu_version: "24.04"
-            # Pin glance before LP#2166488 breakage. Remove once the fix is backported.
-            glance_pin: "0b97347daaf0055cb18d94d32361265d81d15803"
     env:
       image_tag: virtual-registry.k-orc.cloud/ci:commit-${GITHUB_SHA::7}
 
@@ -46,7 +40,6 @@ jobs:
         branch: ${{ matrix.openstack_version }}
         enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,neutron-uplink-status-propagation"
         conf_overrides: |
-          ${{ matrix.glance_pin && format('GLANCE_BRANCH={0}', matrix.glance_pin) || '' }}
           enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
           enable_plugin manila https://github.com/openstack/manila ${{ matrix.openstack_version }}
 
