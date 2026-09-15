@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl patch domain domain-limit-dependency -p '{"spec":{"resource":{"enabled":false}}}' --type=merge
+    namespaced: true

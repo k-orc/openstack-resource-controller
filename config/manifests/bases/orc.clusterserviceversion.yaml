@@ -64,6 +64,11 @@ spec:
       kind: KeyPair
       name: keypairs.openstack.k-orc.cloud
       version: v1alpha1
+    - description: Limit is the Schema for an ORC resource.
+      displayName: Limit
+      kind: Limit
+      name: limits.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Network is the Schema for an ORC resource.
       displayName: Network
       kind: Network

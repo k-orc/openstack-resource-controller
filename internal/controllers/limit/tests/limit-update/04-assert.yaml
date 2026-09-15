@@ -1,0 +1,9 @@
+# Wait until the disabling operation completes successfully to avoid race condition
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-update
+status:
+  resource:
+    enabled: false

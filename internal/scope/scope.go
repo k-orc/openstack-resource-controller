@@ -68,6 +68,7 @@ type Scope interface {
 	NewVolumeClient() (osclients.VolumeClient, error)
 	NewVolumeTypeClient() (osclients.VolumeTypeClient, error)
 	ExtractToken() (*tokens.Token, error)
+	NewLimitClient() (osclients.LimitClient, error)
 }
 
 // WithLogger extends Scope with a logger.

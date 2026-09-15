@@ -217,6 +217,30 @@ var resources []templateFields = []templateFields{
 		Name:       "RegisteredLimit",
 		IsNotNamed: true,
 	},
+	{
+		Name:       "Limit",
+		IsNotNamed: true,
+		AdditionalPrintColumns: []additionalPrintColumn{
+			{
+				Name:        "Resource",
+				Type:        "string",
+				JSONPath:    ".status.resource.resourceName",
+				Description: "The name of the resource this limit is associated with",
+			},
+			{
+				Name:        "Limit",
+				Type:        "integer",
+				JSONPath:    ".status.resource.resourceLimit",
+				Description: "The override value of this limit",
+			},
+			{
+				Name:        "Policy",
+				Type:        "string",
+				JSONPath:    ".spec.managementPolicy",
+				Description: "Whether this limit is imported",
+			},
+		},
+	},
 }
 
 // These resources won't be generated

@@ -1,0 +1,9 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-update
+spec:
+  resource:
+    projectRef:
+    domainRef: domain-limit-update
