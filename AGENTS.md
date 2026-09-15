@@ -146,10 +146,7 @@ var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.Secur
 
 ```go
 project, reconcileStatus := projectDependency.GetDependency(
-    ctx, actuator.k8sClient, orcObject,
-    func(dep *orcv1alpha1.Project) bool {
-        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-    },
+    ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 )
 if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
     return nil, reconcileStatus
@@ -167,12 +164,15 @@ import "github.com/k-orc/openstack-resource-controller/v2/internal/util/dependen
 
 project, rs := dependency.FetchDependency(
     ctx, actuator.k8sClient, obj.Namespace, filter.ProjectRef, "Project",
-    func(dep *orcv1alpha1.Project) bool {
-        return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
-    },
+    orcv1alpha1.IsAvailable,
 )
 reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 ```
+
+> **Important**: `ListOSResourcesForAdoption` must always use `FetchDependency` for
+> dependency lookups, never `GetDependency` from a `DeletionGuardDependency`. Adoption
+> is a read-only check for existing OpenStack resources and must not add finalizers to
+> dependency objects.
 
 ### Credentials Dependency (generated)
 
