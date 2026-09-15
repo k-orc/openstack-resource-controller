@@ -40,6 +40,7 @@ type VolumeResourceSpec struct {
 	// volumeTypeRef is a reference to the ORC VolumeType which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="volumeTypeRef is immutable"
+	// +orc:kustomize:ref=VolumeType
 	VolumeTypeRef *KubernetesNameRef `json:"volumeTypeRef,omitempty"`
 
 	// availabilityZone is the availability zone in which to create the volume.
@@ -62,6 +63,7 @@ type VolumeResourceSpec struct {
 	// image's min_disk requirement.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="imageRef is immutable"
+	// +orc:kustomize:ref=Image
 	ImageRef *KubernetesNameRef `json:"imageRef,omitempty"`
 }
 

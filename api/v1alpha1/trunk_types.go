@@ -21,6 +21,7 @@ package v1alpha1
 type TrunkSubportSpec struct {
 	// portRef is a reference to the ORC Port that will be attached as a subport.
 	// +required
+	// +orc:kustomize:ref=Port
 	PortRef KubernetesNameRef `json:"portRef,omitempty"`
 
 	// segmentationID is the segmentation ID for the subport (e.g. VLAN ID).
@@ -69,11 +70,13 @@ type TrunkResourceSpec struct {
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="portRef is immutable"
+	// +orc:kustomize:ref=Port
 	PortRef KubernetesNameRef `json:"portRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// adminStateUp is the administrative state of the trunk. If false (down),
@@ -107,10 +110,12 @@ type TrunkFilter struct {
 
 	// portRef is a reference to the ORC Port which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Port
 	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// Contrary to what the neutron doc say, we can't filter by status

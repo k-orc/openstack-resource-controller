@@ -52,11 +52,13 @@ type SubnetFilter struct {
 
 	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +optional
+	// +orc:kustomize:ref=Network
 	NetworkRef KubernetesNameRef `json:"networkRef"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
@@ -74,6 +76,7 @@ type SubnetResourceSpec struct {
 	// networkRef is a reference to the ORC Network which this subnet is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="networkRef is immutable"
+	// +orc:kustomize:ref=Network
 	NetworkRef KubernetesNameRef `json:"networkRef,omitempty"`
 
 	// tags is a list of tags which will be applied to the subnet.
@@ -135,12 +138,14 @@ type SubnetResourceSpec struct {
 	// routerRef specifies a router to attach the subnet to
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="routerRef is immutable"
+	// +orc:kustomize:ref=Router
 	RouterRef *KubernetesNameRef `json:"routerRef,omitempty"`
 
 	// projectRef is a reference to the ORC Project this resource is associated with.
 	// Typically, only used by admin.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
+	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// TODO: Support service types

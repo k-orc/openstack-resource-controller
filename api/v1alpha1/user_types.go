@@ -33,11 +33,13 @@ type UserResourceSpec struct {
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 
 	// defaultProjectRef is a reference to the Default Project which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="defaultProjectRef is immutable"
+	// +orc:kustomize:ref=Project
 	DefaultProjectRef *KubernetesNameRef `json:"defaultProjectRef,omitempty"`
 
 	// enabled defines whether a user is enabled or disabled
@@ -48,6 +50,7 @@ type UserResourceSpec struct {
 	// for this user. The Secret must contain a key named "password".
 	// If not specified, the user is created without a password.
 	// +optional
+	// +orc:kustomize:ref=Secret
 	PasswordRef *KubernetesNameRef `json:"passwordRef,omitempty"`
 }
 
@@ -60,6 +63,7 @@ type UserFilter struct {
 
 	// domainRef is a reference to the ORC Domain which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
 }
 

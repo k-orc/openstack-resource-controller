@@ -42,6 +42,7 @@ type EndpointResourceSpec struct {
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
+	// +orc:kustomize:ref=Service
 	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// regionRef is a reference to the ORC Region which this resource is associated with.
@@ -60,6 +61,7 @@ type EndpointFilter struct {
 
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Service
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// regionRef is a reference to the ORC Region which this resource is associated with.
