@@ -71,15 +71,31 @@ type templateFields struct {
 	// OpenStack-assigned ID. When true, the generator omits import.id,
 	// status.ID, and the ID print column from the generated API types.
 	NoResourceID bool
+
+	// ResourceIDValidations indicates the ID of this resource has special validation requirements instead of
+	// the default UUID format.
+	ResourceIDValidations []string
 }
 
 var resources []templateFields = []templateFields{
 	{
 		Name: "Domain",
+		ResourceIDValidations: []string{
+			"Pattern=`^[a-zA-Z0-9-]+$`",
+			"MinLength=1",
+			"MaxLength=64",
+		},
 	},
 	{
 		Name:             "Flavor",
 		ExistingOSClient: true,
+		ResourceIDValidations: []string{
+			// Remove negative lookahead/behind from nova regex `^(?! )[a-zA-Z0-9. _-]+(?<! )$`
+			// because api-server doesn't allow it.
+			"Pattern=`^[a-zA-Z0-9._-]([a-zA-Z0-9. _-]*[a-zA-Z0-9._-])?$`",
+			"MinLength=1",
+			"MaxLength=255",
+		},
 	},
 	{
 		Name: "FloatingIP",

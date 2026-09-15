@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-import-with-non-uuid
+spec:
+  cloudCredentialsRef:
+    # Import does not require admin creds
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    id: flavor-non-uuid

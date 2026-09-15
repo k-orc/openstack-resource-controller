@@ -40,8 +40,14 @@ type {{ .Name }}Import struct {
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
+{{- if .ResourceIDValidations }}
+{{- range .ResourceIDValidations }}
+	// +kubebuilder:validation:{{ . }}
+{{- end }}
+{{- else }}
 	// +kubebuilder:validation:Format:=uuid
 	// +kubebuilder:validation:MaxLength:=36
+{{- end }}
 	// +optional
 	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 {{- end }}

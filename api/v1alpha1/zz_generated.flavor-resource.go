@@ -29,8 +29,9 @@ type FlavorImport struct {
 	// id contains the unique identifier of an existing OpenStack resource. Note
 	// that when specifying an import by ID, the resource MUST already exist.
 	// The ORC object will enter an error state if the resource does not exist.
-	// +kubebuilder:validation:Format:=uuid
-	// +kubebuilder:validation:MaxLength:=36
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9._-]([a-zA-Z0-9. _-]*[a-zA-Z0-9._-])?$`
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
 	// +optional
 	ID *string `json:"id,omitempty"` //nolint:kubeapilinter
 

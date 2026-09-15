@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Import a domain, matching all of the available filter's fields, and verify it is waiting for the external resource to be created.
+Import a domain, matching all of the available filter's fields, and verify it is waiting for the external resource to be created. Also test importing the domain `Default` by its special ID `default`.
 
 ## Step 01
 
