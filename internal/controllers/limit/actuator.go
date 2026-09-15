@@ -18,6 +18,7 @@ package limit
 
 import (
 	"context"
+	"errors"
 	"iter"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/limits"
@@ -33,6 +34,11 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+)
+
+var (
+	errInvalidDomainRefUpdate  = errors.New("limit cannot be updated with domainRef when projectRef has been used")
+	errInvalidProjectRefUpdate = errors.New("limit cannot be updated with projectRef when domainRef has been used")
 )
 
 // OpenStack resource types
@@ -71,22 +77,59 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var rs progress.ReconcileStatus
 
-	listOpts := limits.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
+	svc, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Service",
+		func(dep *orcv1alpha1.Service) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs = rs.WithReconcileStatus(rs1)
+
+	project, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
+		func(dep *orcv1alpha1.Project) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs = rs.WithReconcileStatus(rs1)
+
+	domain, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
+		func(dep *orcv1alpha1.Domain) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs = rs.WithReconcileStatus(rs1)
+
+	if needsReschedule, err := rs.NeedsReschedule(); needsReschedule {
+		if err != nil {
+			ctrl.LoggerFrom(ctx).Info("fetch dependency before listing limit for adoption", "error", err)
+		}
+
+		return nil, false
 	}
 
-	return actuator.osClient.ListLimits(ctx, listOpts), true
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	if resourceSpec.Description != nil {
+		filters = append(filters, func(ort *osResourceT) bool {
+			return ort.Description == *resourceSpec.Description
+		})
+	}
+
+	listOpts := limits.ListOpts{
+		ServiceID:    ptr.Deref(svc.Status.ID, ""),
+		ProjectID:    ptr.Deref(project.Status.ID, ""),
+		DomainID:     ptr.Deref(domain.Status.ID, ""),
+		ResourceName: resourceSpec.ResourceName,
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), true
 }
 
 func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
@@ -110,23 +153,38 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+		if err != nil {
+			ctrl.LoggerFrom(ctx).Info("fetch dependency before listing limit for import", "error", err)
+		}
+
 		return nil, reconcileStatus
 	}
 
-	listOpts := limits.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		ServiceID:  ptr.Deref(service.Status.ID, ""),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
-		DomainID:  ptr.Deref(domain.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+	var filters []osclients.ResourceFilter[osResourceT]
+
+	if filter.Description != nil {
+		filters = append(filters, func(ort *osResourceT) bool {
+			return ort.Description == *filter.Description
+		})
 	}
 
-	return actuator.osClient.ListLimits(ctx, listOpts), reconcileStatus
+	listOpts := limits.ListOpts{
+		ServiceID:    ptr.Deref(service.Status.ID, ""),
+		ProjectID:    ptr.Deref(project.Status.ID, ""),
+		DomainID:     ptr.Deref(domain.Status.ID, ""),
+		ResourceName: filter.ResourceName,
+	}
+
+	return actuator.listOSResources(ctx, filters, listOpts), reconcileStatus
+}
+
+func (actuator limitActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts limits.ListOptsBuilder) iter.Seq2[*limits.Limit, error] {
+	return osclients.Filter(actuator.osClient.ListLimits(ctx, listOpts), filters...)
 }
 
 func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
+	logger := ctrl.LoggerFrom(ctx).WithValues("limitName", obj.Name)
 	resource := obj.Spec.Resource
 
 	if resource == nil {
@@ -166,19 +224,23 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 			domainID = ptr.Deref(domain.Status.ID, "")
 		}
 	}
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
+		if err != nil {
+			logger.Info("fetch dependency before creating limit", "error", err)
+		}
+
 		return nil, reconcileStatus
 	}
 	createOpts := limits.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		ServiceID:  serviceID,
-		ProjectID:  projectID,
-		DomainID:  domainID,
-		// TODO(scaffolding): Add more fields
+		Description:   ptr.Deref(resource.Description, ""),
+		ServiceID:     serviceID,
+		ProjectID:     projectID,
+		DomainID:      domainID,
+		ResourceName:  resource.ResourceName,
+		ResourceLimit: int(resource.ResourceLimit),
 	}
 
-	osResource, err := actuator.osClient.CreateLimit(ctx, createOpts)
+	osResource, err := actuator.osClient.CreateLimit(ctx, limits.BatchCreateOpts{createOpts})
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -202,12 +264,19 @@ func (actuator limitActuator) updateResource(ctx context.Context, obj orcObjectP
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
+	if err := validateUpdate(resource, osResource); err != nil {
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	}
+
 	updateOpts := limits.UpdateOpts{}
 
-	handleNameUpdate(&updateOpts, obj, osResource)
+	// There seems to be a bug that keystone doesn't clear the description field when receiving a PATCH request with an empty description.
+	// This will cause the `Progressing` condition stuck with `Resource status will be refreshed`.
+	// Tested with `openstack limit set --description ""`
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
+	// The same issue exists with resourceLimit. Updating resourceLimit with 0 doesn't work.
+	handleResourceLimitUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -245,18 +314,30 @@ func needsUpdate(updateOpts limits.UpdateOpts) (bool, error) {
 	return len(updateMap) > 0, nil
 }
 
-func handleNameUpdate(updateOpts *limits.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
 func handleDescriptionUpdate(updateOpts *limits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
 	description := ptr.Deref(resource.Description, "")
 	if osResource.Description != description {
 		updateOpts.Description = &description
 	}
+}
+
+func handleResourceLimitUpdate(updateOpts *limits.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	rl := int(resource.ResourceLimit)
+	if osResource.ResourceLimit != rl {
+		updateOpts.ResourceLimit = &rl
+	}
+}
+
+func validateUpdate(resource *resourceSpecT, osResource *osResourceT) error {
+	if resource.DomainRef != nil && osResource.ProjectID != "" {
+		return errInvalidDomainRefUpdate
+	}
+
+	if resource.ProjectRef != nil && osResource.DomainID != "" {
+		return errInvalidProjectRefUpdate
+	}
+
+	return nil
 }
 
 func (actuator limitActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {

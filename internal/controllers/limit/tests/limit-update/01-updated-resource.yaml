@@ -5,6 +5,5 @@ metadata:
   name: limit-update
 spec:
   resource:
-    name: limit-update-updated
-    description: limit-update-updated
-    # TODO(scaffolding): update all mutable fields
+    description: description updated
+    resourceLimit: 49

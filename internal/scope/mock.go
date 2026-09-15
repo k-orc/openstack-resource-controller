@@ -53,6 +53,7 @@ type MockScopeFactory struct {
 	VolumeClient                *mock.MockVolumeClient
 	VolumeTypeClient            *mock.MockVolumeTypeClient
 	ShareNetworkClient          *mock.MockShareNetworkClient
+	LimitClient                 *mock.MockLimitClient
 
 	clientScopeCreateError error
 }
@@ -77,6 +78,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	sharenetworkClient := mock.NewMockShareNetworkClient(mockCtrl)
 	volumeClient := mock.NewMockVolumeClient(mockCtrl)
 	volumetypeClient := mock.NewMockVolumeTypeClient(mockCtrl)
+	limitClient := mock.NewMockLimitClient(mockCtrl)
 
 	return &MockScopeFactory{
 		AddressScope:                addressScope,
@@ -98,6 +100,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		UserClient:                  userClient,
 		VolumeClient:                volumeClient,
 		VolumeTypeClient:            volumetypeClient,
+		LimitClient:                 limitClient,
 	}
 }
 
@@ -190,4 +193,8 @@ func (f *MockScopeFactory) NewApplicationCredentialClient() (osclients.Applicati
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {
 	return &tokens.Token{ExpiresAt: time.Now().Add(24 * time.Hour)}, nil
+}
+
+func (f *MockScopeFactory) NewLimitClient() (osclients.LimitClient, error) {
+	return f.LimitClient, nil
 }

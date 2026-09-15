@@ -90,6 +90,14 @@ type KeyPairListerExpansion interface{}
 // KeyPairNamespaceLister.
 type KeyPairNamespaceListerExpansion interface{}
 
+// LimitListerExpansion allows custom methods to be added to
+// LimitLister.
+type LimitListerExpansion interface{}
+
+// LimitNamespaceListerExpansion allows custom methods to be added to
+// LimitNamespaceLister.
+type LimitNamespaceListerExpansion interface{}
+
 // NetworkListerExpansion allows custom methods to be added to
 // NetworkLister.
 type NetworkListerExpansion interface{}

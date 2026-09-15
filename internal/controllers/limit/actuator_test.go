@@ -36,8 +36,13 @@ func TestNeedsUpdate(t *testing.T) {
 			expectChange: false,
 		},
 		{
-			name:         "Updated opts",
-			updateOpts:   limits.UpdateOpts{Name: ptr.To("updated")},
+			name:         "Updated opts with description",
+			updateOpts:   limits.UpdateOpts{Description: ptr.To("updated")},
+			expectChange: true,
+		},
+		{
+			name:         "Updated opts with resourceLimit",
+			updateOpts:   limits.UpdateOpts{ResourceLimit: ptr.To(-1)},
 			expectChange: true,
 		},
 	}
@@ -49,41 +54,6 @@ func TestNeedsUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-	}
-}
-
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
-	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.OpenStackName
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.Limit{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.LimitSpec{
-				Resource: &orcv1alpha1.LimitResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
-
-			updateOpts := limits.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
 	}
 }
 
@@ -115,5 +85,82 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 			}
 		})
 
+	}
+}
+
+func TestHandleResourceLimitUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      int32
+		existingValue int
+		expectChange  bool
+	}{
+		{name: "Identical", newValue: -1, existingValue: -1, expectChange: false},
+		{name: "Different", newValue: -1, existingValue: 10, expectChange: true},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.LimitResourceSpec{ResourceLimit: tt.newValue}
+			osResource := &osResourceT{ResourceLimit: tt.existingValue}
+
+			updateOpts := limits.UpdateOpts{}
+			handleResourceLimitUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestValidateUpdate(t *testing.T) {
+	testCases := []struct {
+		name        string
+		resource    *orcv1alpha1.LimitResourceSpec
+		osResource  *osResourceT
+		expectError error
+	}{
+		{
+			name: "Update domainRef",
+			resource: &orcv1alpha1.LimitResourceSpec{
+				DomainRef: ptr.To(orcv1alpha1.KubernetesNameRef("domain-ref")),
+			},
+			osResource: &osResourceT{
+				ProjectID: "12312312312",
+			},
+			expectError: errInvalidDomainRefUpdate,
+		},
+		{
+			name: "Update projectRef",
+			resource: &orcv1alpha1.LimitResourceSpec{
+				ProjectRef: ptr.To(orcv1alpha1.KubernetesNameRef("project-ref")),
+			},
+			osResource: &osResourceT{
+				DomainID: "default",
+			},
+			expectError: errInvalidProjectRefUpdate,
+		},
+		{
+			name: "Normal update",
+			resource: &orcv1alpha1.LimitResourceSpec{
+				ProjectRef: ptr.To(orcv1alpha1.KubernetesNameRef("project-ref")),
+			},
+			osResource: &osResourceT{
+				ProjectID: "12312312312",
+			},
+			expectError: nil,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := validateUpdate(tt.resource, tt.osResource)
+
+			if got != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, got)
+			}
+		})
 	}
 }

@@ -64,6 +64,11 @@ jobs:
 
     - name: Run e2e tests
       run: |
+        if [[ "${{ matrix.name }}" != "gazpacho" ]]; then
+            echo "Skip limit import tests due to Keystone API issue(list limit) in older versions"
+            rm -rf internal/controllers/limit/tests/limit-import*
+        fi
+
         make test-e2e
         make test-examples
 

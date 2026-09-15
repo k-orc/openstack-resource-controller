@@ -5,13 +5,12 @@ metadata:
   name: limit-update
 status:
   resource:
-    name: limit-update-updated
-    description: limit-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    description: description updated
+    resourceLimit: 49
   conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success

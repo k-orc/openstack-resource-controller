@@ -2,53 +2,62 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Service
 metadata:
-  name: limit-import-dependency
+  name: service-limit-import-dependency
+  labels:
+    test-case: limit-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: limit-import-dependency-external
+  managementPolicy: managed
+  resource:
+    type: "service-type-limit-import-dependency"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Project
 metadata:
-  name: limit-import-dependency
+  name: project-limit-import-dependency-imported
+  labels:
+    test-case: limit-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      name: limit-import-dependency-external
+      name: project-limit-import-dependency
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Domain
+kind: RegisteredLimit
 metadata:
-  name: limit-import-dependency
+  name: registered-limit-import-dependency
+  labels:
+    test-case: limit-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
-  managementPolicy: unmanaged
-  import:
-    filter:
-      name: limit-import-dependency-external
+  managementPolicy: managed
+  resource:
+    description: RegisteredLimit from "import-dependency" test
+    serviceRef: service-limit-import-dependency
+    resourceName: limit-import-dependency
+    defaultLimit: 100
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
   name: limit-import-dependency
+  labels:
+    test-case: limit-import-dependency
 spec:
   cloudCredentialsRef:
-    cloudName: openstack
+    cloudName: openstack-admin
     secretName: openstack-clouds
   managementPolicy: unmanaged
   import:
     filter:
-      serviceRef: limit-import-dependency
-      projectRef: limit-import-dependency
-      domainRef: limit-import-dependency
+      serviceRef: service-limit-import-dependency
+      projectRef: project-limit-import-dependency-imported
+      resourceName: limit-import-dependency

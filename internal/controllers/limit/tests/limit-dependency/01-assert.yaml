@@ -1,8 +1,98 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Service
+metadata:
+  name: service-limit-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Project
+metadata:
+  name: project-limit-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-dependency
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registered-limit-dependency-1
+status:
+  resource:
+    description: RegisteredLimit from "dependency" test
+    resourceName: limit-dependency-1
+    defaultLimit: 100
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registered-limit-dependency-2
+status:
+  resource:
+    description: RegisteredLimit from "dependency" test
+    resourceName: limit-dependency-2
+    defaultLimit: 100
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registered-limit-dependency-3
+status:
+  resource:
+    description: RegisteredLimit from "dependency" test
+    resourceName: limit-dependency-3
+    defaultLimit: 100
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-dependency-no-secret
+  name: limit-dependency-1
 status:
   conditions:
     - type: Available
@@ -17,7 +107,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-dependency-no-service
+  name: limit-dependency-2
 status:
   conditions:
     - type: Available
@@ -32,22 +122,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
-  name: limit-dependency-no-project
-status:
-  conditions:
-    - type: Available
-      message: OpenStack resource is available
-      status: "True"
-      reason: Success
-    - type: Progressing
-      message: OpenStack resource is up to date
-      status: "False"
-      reason: Success
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Limit
-metadata:
-  name: limit-dependency-no-domain
+  name: limit-dependency-3
 status:
   conditions:
     - type: Available

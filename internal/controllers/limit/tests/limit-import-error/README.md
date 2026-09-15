@@ -2,12 +2,12 @@
 
 ## Step 00
 
-Create two Limits with identical specs.
+Create two managed Limits with the same resource name.
 
 ## Step 01
 
-Ensure that an imported Limit with a filter matching the resources returns an error.
+Ensure that an imported Limit with a filter matching the resource returns an error.
 
-## Reference
+## Step 02
 
-https://k-orc.cloud/development/writing-tests/#import-error
+Disable domain to facilitate domain deletion.

@@ -1,6 +1,9 @@
+# Wait until the disabling operation completes successfully to avoid race condition
 ---
-apiVersion: kuttl.dev/v1beta1
-kind: TestAssert
-commands:
-- script: "! kubectl get limit.openstack.k-orc.cloud limit-import-dependency --namespace $NAMESPACE"
-  skipLogOutput: true
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Domain
+metadata:
+  name: domain-limit-import-dependency
+status:
+  resource:
+    enabled: false

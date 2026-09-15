@@ -1,0 +1,13 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+  # Dependencies that were prevented deletion before should now be gone
+  - script: "! kubectl get service.openstack.k-orc.cloud service-limit-dependency --namespace $NAMESPACE"
+    skipLogOutput: true
+  - script: "! kubectl get project.openstack.k-orc.cloud project-limit-dependency --namespace $NAMESPACE"
+    skipLogOutput: true
+  - script: "! kubectl get domain.openstack.k-orc.cloud domain-limit-dependency --namespace $NAMESPACE"
+    skipLogOutput: true
+  - script: "! kubectl get secret limit-dependency --namespace $NAMESPACE"
+    skipLogOutput: true

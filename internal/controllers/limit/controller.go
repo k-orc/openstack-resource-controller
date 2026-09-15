@@ -61,7 +61,7 @@ var serviceDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.Limit
 	"spec.resource.serviceRef",
 	func(limit *orcv1alpha1.Limit) []string {
 		resource := limit.Spec.Resource
-		if resource == nil {
+		if resource == nil || resource.ServiceRef == "" {
 			return nil
 		}
 		return []string{string(resource.ServiceRef)}

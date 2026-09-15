@@ -12,6 +12,10 @@ Update all mutable fields.
 
 Revert the resource to its original value and verify that the resulting object matches its state when first created.
 
-## Reference
+## Step 03
 
-https://k-orc.cloud/development/writing-tests/#update
+Replacing `projectRef` with `domainRef` should fail.
+
+## Step 04
+
+Disable domain to facilitate domain deletion.
