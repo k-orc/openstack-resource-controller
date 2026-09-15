@@ -8,3 +8,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: RegisteredLimit
   name: registeredlimit-dependency-no-service
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: RegisteredLimit
+  name: registeredlimit-dependency-no-region

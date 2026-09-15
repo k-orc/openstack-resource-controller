@@ -96,6 +96,12 @@ spec:
                         maxLength: 255
                         minLength: 1
                         type: string
+                      regionRef:
+                        description: regionRef is a reference to the ORC Region which
+                          this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       resourceName:
                         description: resourceName is name of the resource to be limited.
                         maxLength: 255
@@ -171,6 +177,15 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
+                  regionRef:
+                    description: regionRef is a reference to the ORC Region which
+                      this resource is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: regionRef is immutable
+                      rule: self == oldSelf
                   resourceName:
                     description: resourceName is name of the resource to be limited.
                     maxLength: 255

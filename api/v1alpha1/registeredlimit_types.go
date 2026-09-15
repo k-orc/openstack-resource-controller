@@ -45,6 +45,11 @@ type RegisteredLimitResourceSpec struct {
 	// +kubebuilder:validation:Maximum=2147483647
 	// +required
 	DefaultLimit *int32 `json:"defaultLimit,omitempty"`
+
+	// regionRef is a reference to the ORC Region which this resource is associated with.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="regionRef is immutable"
+	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // RegisteredLimitFilter defines an existing resource by its properties
@@ -65,6 +70,10 @@ type RegisteredLimitFilter struct {
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	ResourceName *string `json:"resourceName,omitempty"`
+
+	// regionRef is a reference to the ORC Region which this resource is associated with.
+	// +optional
+	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // RegisteredLimitResourceStatus represents the observed state of the resource.

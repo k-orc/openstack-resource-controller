@@ -27,7 +27,12 @@ resourceRefs:
       kind: Service
       name: registeredlimit-create-full
       ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: registeredlimit-create-full
+      ref: region
 assertAll:
     - celExpr: "registeredlimit.status.id != ''"
     - celExpr: "registeredlimit.status.resource.serviceID == service.status.id"
+    - celExpr: "registeredlimit.status.resource.regionID == region.status.id"
     - celExpr: "!has(registeredlimit.status.resource.name)"

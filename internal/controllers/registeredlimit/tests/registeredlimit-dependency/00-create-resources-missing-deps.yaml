@@ -12,6 +12,17 @@ spec:
     type: registeredlimit-test
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: registeredlimit-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
 metadata:
   name: registeredlimit-dependency-no-service
@@ -22,6 +33,7 @@ spec:
   managementPolicy: managed
   resource:
     serviceRef: registeredlimit-dependency-pending
+    regionRef: registeredlimit-dependency
     resourceName: vcpus
     defaultLimit: 5
 ---
@@ -36,5 +48,21 @@ spec:
   managementPolicy: managed
   resource:
     serviceRef: registeredlimit-dependency
+    regionRef: registeredlimit-dependency
     resourceName: memory
     defaultLimit: 10
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registeredlimit-dependency-no-region
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: registeredlimit-dependency
+    regionRef: registeredlimit-dependency-pending
+    resourceName: disk
+    defaultLimit: 2

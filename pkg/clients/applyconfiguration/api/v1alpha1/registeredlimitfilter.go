@@ -28,6 +28,7 @@ type RegisteredLimitFilterApplyConfiguration struct {
 	Description  *string                        `json:"description,omitempty"`
 	ServiceRef   *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
 	ResourceName *string                        `json:"resourceName,omitempty"`
+	RegionRef    *apiv1alpha1.KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // RegisteredLimitFilterApplyConfiguration constructs a declarative configuration of the RegisteredLimitFilter type for use with
@@ -57,5 +58,13 @@ func (b *RegisteredLimitFilterApplyConfiguration) WithServiceRef(value apiv1alph
 // If called multiple times, the ResourceName field is set to the value of the last call.
 func (b *RegisteredLimitFilterApplyConfiguration) WithResourceName(value string) *RegisteredLimitFilterApplyConfiguration {
 	b.ResourceName = &value
+	return b
+}
+
+// WithRegionRef sets the RegionRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionRef field is set to the value of the last call.
+func (b *RegisteredLimitFilterApplyConfiguration) WithRegionRef(value apiv1alpha1.KubernetesNameRef) *RegisteredLimitFilterApplyConfiguration {
+	b.RegionRef = &value
 	return b
 }

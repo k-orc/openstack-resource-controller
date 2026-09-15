@@ -29,6 +29,7 @@ type RegisteredLimitResourceSpecApplyConfiguration struct {
 	ServiceRef   *apiv1alpha1.KubernetesNameRef `json:"serviceRef,omitempty"`
 	ResourceName *string                        `json:"resourceName,omitempty"`
 	DefaultLimit *int32                         `json:"defaultLimit,omitempty"`
+	RegionRef    *apiv1alpha1.KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // RegisteredLimitResourceSpecApplyConfiguration constructs a declarative configuration of the RegisteredLimitResourceSpec type for use with
@@ -66,5 +67,13 @@ func (b *RegisteredLimitResourceSpecApplyConfiguration) WithResourceName(value s
 // If called multiple times, the DefaultLimit field is set to the value of the last call.
 func (b *RegisteredLimitResourceSpecApplyConfiguration) WithDefaultLimit(value int32) *RegisteredLimitResourceSpecApplyConfiguration {
 	b.DefaultLimit = &value
+	return b
+}
+
+// WithRegionRef sets the RegionRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionRef field is set to the value of the last call.
+func (b *RegisteredLimitResourceSpecApplyConfiguration) WithRegionRef(value apiv1alpha1.KubernetesNameRef) *RegisteredLimitResourceSpecApplyConfiguration {
+	b.RegionRef = &value
 	return b
 }
