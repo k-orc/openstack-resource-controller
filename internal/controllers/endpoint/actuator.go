@@ -72,25 +72,24 @@ func (actuator endpointActuator) ListOSResourcesForAdoption(ctx context.Context,
 		return nil, false
 	}
 
-	service, _ := serviceDependency.GetDependency(
-		ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
+	service, rs := dependency.FetchDependency[*orcv1alpha1.Service](
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ServiceRef, "Service",
+		orcv1alpha1.IsAvailable,
 	)
-
-	if service == nil {
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 		return nil, false
 	}
 
 	var regionID string
 	if resourceSpec.RegionRef != nil {
-		region, regionDepRS := regionDependency.GetDependency(
-			ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
+		region, rs := dependency.FetchDependency[*orcv1alpha1.Region](
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.RegionRef, "Region",
+			orcv1alpha1.IsAvailable,
 		)
-		if needsReschedule, _ := regionDepRS.NeedsReschedule(); needsReschedule {
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 			return nil, false
 		}
-		if region != nil {
-			regionID = ptr.Deref(region.Status.ID, "")
-		}
+		regionID = ptr.Deref(region.Status.ID, "")
 	}
 
 	filters := []osclients.ResourceFilter[osResourceT]{

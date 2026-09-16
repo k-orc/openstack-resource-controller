@@ -34,7 +34,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
-{{- if len .ImportDependencies }}
+{{- if or (len .ImportDependencies) (len .AllCreateDependencies) }}
 	"github.com/k-orc/openstack-resource-controller/v2/internal/util/dependency"
 {{- end }}
 	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
@@ -89,10 +89,45 @@ func (actuator {{ .PackageName }}Actuator) ListOSResourcesForAdoption(ctx contex
 	// TODO(scaffolding) If you need to filter resources on fields that the List() function
 	// of gophercloud does not support, it's possible to perform client-side filtering.
 	// Check osclients.ResourceFilter
+{{- if len .AllCreateDependencies }}
+
+	var rs progress.ReconcileStatus
+{{- range .RequiredCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	{{ $depNameCamelCase }}, rs1 := dependency.FetchDependency[*orcv1alpha1.{{ . }}](
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.{{ . }}Ref, "{{ . }}",
+		orcv1alpha1.IsAvailable,
+	)
+	rs = rs.WithReconcileStatus(rs1)
+{{- end }}
+{{- range .OptionalCreateDependencies }}
+{{ $depNameCamelCase := . | camelCase }}
+	var {{ $depNameCamelCase }}ID string
+	if resourceSpec.{{ . }}Ref != nil {
+		{{ $depNameCamelCase }}, rs1 := dependency.FetchDependency[*orcv1alpha1.{{ . }}](
+			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.{{ . }}Ref, "{{ . }}",
+			orcv1alpha1.IsAvailable,
+		)
+		rs = rs.WithReconcileStatus(rs1)
+		{{ $depNameCamelCase }}ID = ptr.Deref({{ $depNameCamelCase }}.Status.ID, "")
+	}
+{{- end }}
+
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, false
+	}
+{{- end }}
 
 	listOpts := {{ .GophercloudPackage }}.ListOpts{
 		Name:        getResourceName(orcObject),
 		Description: ptr.Deref(resourceSpec.Description, ""),
+{{- range .RequiredCreateDependencies }}
+		{{ . }}ID:  ptr.Deref({{ . | camelCase }}.Status.ID, ""),
+{{- end }}
+{{- range .OptionalCreateDependencies }}
+		{{ . }}ID:  {{ . | camelCase }}ID,
+{{- end }}
+		// TODO(scaffolding): Add more adoption filters
 	}
 
 	return actuator.osClient.List{{ .Kind }}s(ctx, listOpts), true
