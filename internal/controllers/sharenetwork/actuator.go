@@ -98,7 +98,7 @@ func (actuator sharenetworkActuator) CreateResource(ctx context.Context, obj orc
 
 	var networkID string
 	if resource.NetworkRef != nil {
-		network, networkDepRS := networkDependency.GetDependency(
+		network, networkDepRS := networkDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(networkDepRS)
@@ -109,7 +109,7 @@ func (actuator sharenetworkActuator) CreateResource(ctx context.Context, obj orc
 
 	var subnetID string
 	if resource.SubnetRef != nil {
-		subnet, subnetDepRS := subnetDependency.GetDependency(
+		subnet, subnetDepRS := subnetDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subnetDepRS)
@@ -220,7 +220,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.ShareNetwork, contr
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return sharenetworkActuator{}, reconcileStatus
 	}

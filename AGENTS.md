@@ -145,7 +145,7 @@ var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.Secur
 ### Using Dependencies (in actuator.go)
 
 ```go
-project, reconcileStatus := projectDependency.GetDependency(
+project, reconcileStatus := projectDependency.RequireDependency(
     ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 )
 if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
@@ -170,7 +170,7 @@ reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 ```
 
 > **Important**: `ListOSResourcesForAdoption` must always use `FetchDependency` for
-> dependency lookups, never `GetDependency` from a `DeletionGuardDependency`. Adoption
+> dependency lookups, never `RequireDependency` from a `DeletionGuardDependency`. Adoption
 > is a read-only check for existing OpenStack resources and must not add finalizers to
 > dependency objects.
 
@@ -179,7 +179,7 @@ reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 Every controller has a `credentialsDependency` auto-generated in `zz_generated.controller.go`. It is a `DeletionGuardDependency` on `corev1.Secret` that ensures the cloud credentials secret exists and carries the controller's finalizer. It is checked in `newActuator()` before creating an OpenStack client:
 
 ```go
-_, reconcileStatus := credentialsDependency.GetDependencies(
+_, reconcileStatus := credentialsDependency.RequireDependencies(
     ctx, controller.GetK8sClient(), orcObject,
     func(*corev1.Secret) bool { return true },
 )
@@ -233,7 +233,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Flavor, controller 
     log := ctrl.LoggerFrom(ctx)
 
     // Ensure credential secrets exist and have our finalizer
-    _, reconcileStatus := credentialsDependency.GetDependencies(
+    _, reconcileStatus := credentialsDependency.RequireDependencies(
         ctx, controller.GetK8sClient(), orcObject,
         func(*corev1.Secret) bool { return true },
     )

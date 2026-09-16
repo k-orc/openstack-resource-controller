@@ -202,13 +202,13 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 	}
 
 	// Fetch all dependencies and ensure they have our finalizer
-	network, networkDepRS := networkDependency.GetDependency(
+	network, networkDepRS := networkDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
-	subnetMap, subnetDepRS := subnetDependency.GetDependencies(
+	subnetMap, subnetDepRS := subnetDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
-	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
+	secGroupMap, secGroupDepRS := securityGroupDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus := progress.NewReconcileStatus().
@@ -218,7 +218,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
@@ -281,7 +281,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		subnet, ok := subnetMap[subnetName]
 		if !ok {
 			// Programming error
-			return nil, progress.WrapError(fmt.Errorf("subnet %s was not returned by GetDependencies", subnetName))
+			return nil, progress.WrapError(fmt.Errorf("subnet %s was not returned by RequireDependencies", subnetName))
 		}
 		fixedIPs[i].SubnetID = *subnet.Status.ID
 
@@ -303,7 +303,7 @@ func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha
 		secGroup, ok := secGroupMap[secGroupName]
 		if !ok {
 			// Programming error
-			return nil, progress.WrapError(fmt.Errorf("security group %s was not returned by GetDependencies", secGroupName))
+			return nil, progress.WrapError(fmt.Errorf("security group %s was not returned by RequireDependencies", secGroupName))
 		}
 		securityGroups[i] = *secGroup.Status.ID
 	}
@@ -427,7 +427,7 @@ func (actuator portActuator) updateResource(ctx context.Context, obj orcObjectPT
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	secGroupMap, secGroupDepRS := securityGroupDependency.GetDependencies(
+	secGroupMap, secGroupDepRS := securityGroupDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
@@ -660,7 +660,7 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 	}
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return portActuator{}, reconcileStatus
 	}

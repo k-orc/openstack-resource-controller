@@ -241,7 +241,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 	var reconcileStatus progress.ReconcileStatus
 
 	// Fetch role dependency (required)
-	role, roleDepRS := roleDependency.GetDependency(
+	role, roleDepRS := roleDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Role) bool {
 			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 		},
@@ -255,7 +255,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 	// Fetch actor dependency (user XOR group)
 	var userID, groupID string
 	if resource.UserRef != nil {
-		user, userDepRS := userDependency.GetDependency(
+		user, userDepRS := userDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.User) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
@@ -265,7 +265,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 			userID = ptr.Deref(user.Status.ID, "")
 		}
 	} else {
-		group, groupDepRS := groupDependency.GetDependency(
+		group, groupDepRS := groupDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Group) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
@@ -279,7 +279,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 	// Fetch scope dependency (project XOR domain)
 	var projectID, domainID string
 	if resource.ProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},
@@ -289,7 +289,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 			projectID = ptr.Deref(project.Status.ID, "")
 		}
 	} else {
-		domain, domainDepRS := domainDependency.GetDependency(
+		domain, domainDepRS := domainDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Domain) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
 			},

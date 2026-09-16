@@ -160,7 +160,7 @@ Verify error classification follows AGENTS.md § "Error Classification":
 - [ ] Dependencies resolved **as late as possible**, close to the point of use.
 - [ ] Dependencies not required for deletion unless strictly necessary (e.g., don't require Network to delete a Subnet with `status.ID` already set).
 - [ ] Dependencies not required for import-by-ID.
-- [ ] `GetDependency` results checked: if `needsReschedule` is true, return early (see AGENTS.md § "Using Dependencies").
+- [ ] `RequireDependency` results checked: if `needsReschedule` is true, return early (see AGENTS.md § "Using Dependencies").
 - [ ] Readiness predicate uses `orcv1alpha1.IsAvailable` only — `Status.ID` is always set before Available, so checking it separately is unnecessary.
 
 ## Step 5: Status Writer (`status.go`)

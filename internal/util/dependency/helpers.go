@@ -29,7 +29,7 @@ import (
 )
 
 // FetchDependency fetches a resource by name and checks if it's ready.
-// Unlike GetDependency on DeletionGuardDependency, this doesn't add finalizers
+// Unlike RequireDependency on DeletionGuardDependency, this doesn't add finalizers
 // and is suitable for one-off lookups like resolving refs in import filters.
 //
 // Always returns an object (empty struct if not found/ready/error) for safe field access.

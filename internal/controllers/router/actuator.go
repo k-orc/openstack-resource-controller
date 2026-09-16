@@ -138,7 +138,7 @@ func (actuator routerActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	if len(resource.ExternalGateways) > 0 {
 		var externalGW *orcv1alpha1.Network
 		// Fetch dependencies and ensure they have our finalizer
-		externalGW, reconcileStatus = externalGWDep.GetDependency(
+		externalGW, reconcileStatus = externalGWDep.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		if externalGW != nil {
@@ -148,7 +148,7 @@ func (actuator routerActuator) CreateResource(ctx context.Context, obj *orcv1alp
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
@@ -295,7 +295,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Router, controller 
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return routerActuator{}, reconcileStatus
 	}

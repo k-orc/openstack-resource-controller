@@ -181,7 +181,7 @@ func (actuator floatingipActuator) CreateResource(ctx context.Context, obj *orcv
 	var networkID string
 	if resource.FloatingNetworkRef != nil {
 		// Fetch dependencies and ensure they have our finalizer
-		network, networkDepRS := networkDep.GetDependency(
+		network, networkDepRS := networkDep.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(networkDepRS)
@@ -194,7 +194,7 @@ func (actuator floatingipActuator) CreateResource(ctx context.Context, obj *orcv
 	// If we have a subnet (i.e. we don't have FloatingNetworkRef), we need to fetch it to get its ID and the network ID (as it's required by gophercloud)
 	if resource.FloatingSubnetRef != nil {
 		// Fetch dependencies and ensure they have our finalizer
-		subnet, subnetDepRS := subnetDep.GetDependency(
+		subnet, subnetDepRS := subnetDep.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subnetDepRS)
@@ -207,7 +207,7 @@ func (actuator floatingipActuator) CreateResource(ctx context.Context, obj *orcv
 	var portID string
 	if resource.PortRef != nil {
 		// Fetch dependencies and ensure they have our finalizer
-		port, portDepRS := portDep.GetDependency(
+		port, portDepRS := portDep.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
@@ -218,7 +218,7 @@ func (actuator floatingipActuator) CreateResource(ctx context.Context, obj *orcv
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
@@ -342,7 +342,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.FloatingIP, control
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return floatingipActuator{}, reconcileStatus
 	}

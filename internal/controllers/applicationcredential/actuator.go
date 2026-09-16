@@ -142,15 +142,15 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 
 	var reconcileStatus progress.ReconcileStatus
 
-	user, userDepRS := userDependency.GetDependency(
+	user, userDepRS := userDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
-	rolesMap, roleDepRs := roleDependency.GetDependencies(
+	rolesMap, roleDepRs := roleDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
-	serviceMap, serviceDepRS := serviceDependency.GetDependencies(
+	serviceMap, serviceDepRS := serviceDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
@@ -186,7 +186,7 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 		role, ok := rolesMap[roleName]
 		if !ok {
 			// Programming error
-			return nil, progress.WrapError(fmt.Errorf("role %s was not returned by GetDependencies", roleName))
+			return nil, progress.WrapError(fmt.Errorf("role %s was not returned by RequireDependencies", roleName))
 		}
 		roleList[i].ID = *role.Status.ID
 	}
@@ -201,7 +201,7 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 			service, ok := serviceMap[serviceName]
 			if !ok {
 				// Programming error
-				return nil, progress.WrapError(fmt.Errorf("service %s was not returned by GetDependencies", serviceName))
+				return nil, progress.WrapError(fmt.Errorf("service %s was not returned by RequireDependencies", serviceName))
 			}
 			accessRule.Service = service.Status.Resource.Type
 		}
@@ -243,7 +243,7 @@ func (actuator applicationcredentialActuator) CreateResource(ctx context.Context
 func (actuator applicationcredentialActuator) DeleteResource(ctx context.Context, orcObject orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
 	var reconcileStatus progress.ReconcileStatus
 
-	user, userDepRS := userDependency.GetDependency(
+	user, userDepRS := userDependency.RequireDependency(
 		ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 	)
 
@@ -264,7 +264,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.ApplicationCredenti
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return applicationcredentialActuator{}, reconcileStatus
 	}
