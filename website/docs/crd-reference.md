@@ -3454,6 +3454,7 @@ _Appears in:_
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `regionRef` _[KubernetesNameRef](#kubernetesnameref)_ | regionRef is a reference to the ORC Region which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### RegisteredLimitImport
@@ -3493,6 +3494,7 @@ _Appears in:_
 | `serviceRef` _[KubernetesNameRef](#kubernetesnameref)_ | serviceRef is a reference to the ORC Service which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `resourceName` _string_ | resourceName is name of the resource to be limited. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[\S]+$` <br />Required: \{\} <br /> |
 | `defaultLimit` _integer_ | defaultLimit is limit of the specified resource in the given context.<br />Using -1 will allow unlimited use of the resource. Using 0 will prevent usage of that resource entirely.<br />Note: Due to a bug in gophercloud, you can not currently set this to 0 when creating a RegisteredLimit.<br />https://github.com/gophercloud/gophercloud/issues/3866 |  | Maximum: 2.147483647e+09 <br />Minimum: -1 <br />Required: \{\} <br /> |
+| `regionRef` _[KubernetesNameRef](#kubernetesnameref)_ | regionRef is a reference to the ORC Region which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### RegisteredLimitResourceStatus

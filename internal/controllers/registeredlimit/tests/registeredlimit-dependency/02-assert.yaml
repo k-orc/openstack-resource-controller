@@ -6,6 +6,10 @@ resourceRefs:
       kind: Service
       name: registeredlimit-dependency
       ref: service
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Region
+      name: registeredlimit-dependency
+      ref: region
     - apiVersion: v1
       kind: Secret
       name: registeredlimit-dependency
@@ -13,5 +17,7 @@ resourceRefs:
 assertAll:
     - celExpr: "service.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/registeredlimit' in service.metadata.finalizers"
+    - celExpr: "region.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/registeredlimit' in region.metadata.finalizers"
     - celExpr: "secret.metadata.deletionTimestamp != 0"
     - celExpr: "'openstack.k-orc.cloud/registeredlimit' in secret.metadata.finalizers"

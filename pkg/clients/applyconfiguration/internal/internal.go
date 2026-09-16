@@ -2449,6 +2449,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: description
       type:
         scalar: string
+    - name: regionRef
+      type:
+        scalar: string
     - name: resourceName
       type:
         scalar: string
@@ -2471,6 +2474,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: numeric
     - name: description
+      type:
+        scalar: string
+    - name: regionRef
       type:
         scalar: string
     - name: resourceName

@@ -12,6 +12,17 @@ spec:
     type: registeredlimit-import-dependency-external
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: registeredlimit-import-dependency-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
 metadata:
   name: registeredlimit-import-dependency-external
@@ -22,5 +33,6 @@ spec:
   managementPolicy: managed
   resource:
     serviceRef: registeredlimit-import-dependency-external
+    regionRef: registeredlimit-import-dependency-external
     resourceName: memory
     defaultLimit: 10
