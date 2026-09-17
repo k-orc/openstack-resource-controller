@@ -27,6 +27,7 @@ type RegisteredLimitResourceSpec struct {
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="serviceRef is immutable"
+	// +orc:kustomize:ref=Service
 	ServiceRef KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// resourceName is name of the resource to be limited.
@@ -49,6 +50,7 @@ type RegisteredLimitResourceSpec struct {
 	// regionRef is a reference to the ORC Region which this resource is associated with.
 	// +optional
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="regionRef is immutable"
+	// +orc:kustomize:ref=Region
 	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
@@ -63,6 +65,7 @@ type RegisteredLimitFilter struct {
 
 	// serviceRef is a reference to the ORC Service which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Service
 	ServiceRef *KubernetesNameRef `json:"serviceRef,omitempty"`
 
 	// resourceName is name of the resource to be limited.
@@ -73,6 +76,7 @@ type RegisteredLimitFilter struct {
 
 	// regionRef is a reference to the ORC Region which this resource is associated with.
 	// +optional
+	// +orc:kustomize:ref=Region
 	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 

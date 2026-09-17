@@ -58,7 +58,7 @@ modules:
 	go mod tidy
 
 .PHONY: generate
-generate: generate-resources generate-controller-gen generate-codegen generate-go generate-docs modules manifests
+generate: generate-resources generate-controller-gen generate-kustomizeconfig generate-codegen generate-go generate-docs modules manifests
 
 .PHONY: generate-resources
 generate-resources:
@@ -67,6 +67,10 @@ generate-resources:
 .PHONY: generate-controller-gen
 generate-controller-gen: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+
+.PHONY: generate-kustomizeconfig
+generate-kustomizeconfig: generate-resources generate-controller-gen ## Generate examples/components/kustomizeconfig/kustomizeconfig.yaml from +orc:kustomize:ref markers on the API types.
+	go run ./cmd/kustomizeconfig-generator
 
 .PHONY: generate-codegen
 generate-codegen: generate-controller-gen ## codegen requires DeepCopy etc

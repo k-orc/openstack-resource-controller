@@ -31,6 +31,7 @@ type CloudCredentialsReference struct {
 	// +required
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=253
+	// +orc:kustomize:ref=Secret
 	SecretName string `json:"secretName,omitempty"`
 
 	// cloudName specifies the name of the entry in the clouds.yaml file to use.
