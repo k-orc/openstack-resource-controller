@@ -17,8 +17,13 @@ limitations under the License.
 package errors
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
+	"net/url"
+	"syscall"
 	"testing"
 
 	"github.com/gophercloud/gophercloud/v2"
@@ -28,6 +33,14 @@ func newHTTPError(statusCode int, body string) error {
 	return gophercloud.ErrUnexpectedResponseCode{
 		Actual: statusCode,
 		Body:   []byte(body),
+	}
+}
+
+func newURLError(wrappedError error) error {
+	return &url.Error{
+		Op:  "Op",
+		URL: "URL",
+		Err: wrappedError,
 	}
 }
 
@@ -95,6 +108,34 @@ func TestIsRetryable(t *testing.T) {
 		{
 			name: "wrapped 409 with OverQuota is retryable",
 			err:  fmt.Errorf("wrapping: %w", newHTTPError(http.StatusConflict, `{"NeutronError": {"type": "OverQuota"}}`)),
+			want: true,
+		},
+		{
+			name: "generic url.Error is not retryable",
+			err:  newURLError(fmt.Errorf("non retryable error")),
+			want: false,
+		},
+		{
+			name: "wrapped context.DeadlineExceeded is retryable",
+			err:  newURLError(context.DeadlineExceeded),
+			want: true,
+		},
+		{
+			name: "wrapped ECONNRESET syscall error is retryable",
+			err: newURLError(&net.OpError{
+				Op:  "write",
+				Err: syscall.ECONNRESET,
+			}),
+			want: true,
+		},
+		{
+			name: "ECONNREFUSED syscall error is retryable",
+			err:  newURLError(syscall.ECONNREFUSED),
+			want: true,
+		},
+		{
+			name: "io error is retryable",
+			err:  newURLError(io.ErrUnexpectedEOF),
 			want: true,
 		},
 	}
