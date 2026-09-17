@@ -223,13 +223,18 @@ func (d *DeletionGuardDependency[objectTP, _, _, _, _, _]) addDeletionGuard(mgr 
 	return addDeletionGuard[objectTP](mgr, d.finalizer, d.fieldOwner, getDependencyRefsForClientObject, d.GetObjectsForDependency, d.overrideDependencyName)
 }
 
-// GetDependencies returns the dependencies of the given object, ensuring that all returned dependencies have the required finalizer. It returns:
+// RequireDependencies returns the dependencies of the given object, ensuring
+// that all returned dependencies have the required finalizer. It returns:
 // - a map of name -> object containing all objects which exist and are ready
 // - a list of progressStatus for all dependencies which are not yet ready
 // - an error
 //
-// Dependencies are filtered by the readyFilter argument. Dependencies which are not ready will be in progressStatus but not in the returned object map.
-func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (map[string]depTP, progress.ReconcileStatus) {
+// Dependencies are filtered by the readyFilter argument. Dependencies which
+// are not ready will be in progressStatus but not in the returned object map.
+//
+// Unlike FetchDependency, this method adds a deletion guard finalizer to each
+// ready dependency, preventing it from being deleted while this object exists.
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) RequireDependencies(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (map[string]depTP, progress.ReconcileStatus) {
 	depKind, err := getObjectKind(depTP(new(depT)), k8sClient.Scheme())
 	if err != nil {
 		return nil, progress.WrapError(err)
@@ -268,21 +273,25 @@ func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependencie
 	return depsMap, reconcileStatus
 }
 
-// GetDependency is a convenience wrapper around GetDependencies when the caller only expects a single result.
-func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) GetDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, progress.ReconcileStatus) {
-	depsMap, reconcileStatus := d.GetDependencies(ctx, k8sClient, obj, readyFilter)
+// RequireDependency is a convenience wrapper around RequireDependencies when
+// the caller only expects a single result.
+//
+// Unlike FetchDependency, this method adds a deletion guard finalizer to the
+// dependency, preventing it from being deleted while this object exists.
+func (d *DeletionGuardDependency[objectTP, _, depTP, _, _, depT]) RequireDependency(ctx context.Context, k8sClient client.Client, obj objectTP, readyFilter func(depTP) bool) (depTP, progress.ReconcileStatus) {
+	depsMap, reconcileStatus := d.RequireDependencies(ctx, k8sClient, obj, readyFilter)
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
 	if len(depsMap) > 1 {
 		// Programming error
-		return nil, progress.WrapError(fmt.Errorf("GetDependencies returned multiple dependencies, expected one"))
+		return nil, progress.WrapError(fmt.Errorf("RequireDependencies returned multiple dependencies, expected one"))
 	}
 	for _, dep := range depsMap {
 		return dep, nil
 	}
 	// Programming error
-	return nil, progress.WrapError(fmt.Errorf("GetDependencies returned empty depsMap, progressStatus, and error"))
+	return nil, progress.WrapError(fmt.Errorf("RequireDependencies returned empty depsMap, progressStatus, and error"))
 }
 
 func (d *DeletionGuardDependency[objectTP, objectListTP, depTP, objectT, objectListT, depT]) AddToManager(ctx context.Context, mgr ctrl.Manager) error {

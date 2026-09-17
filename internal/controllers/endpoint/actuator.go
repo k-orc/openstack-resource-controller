@@ -160,7 +160,7 @@ func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObje
 	var reconcileStatus progress.ReconcileStatus
 
 	var serviceID string
-	service, serviceDepRS := serviceDependency.GetDependency(
+	service, serviceDepRS := serviceDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
@@ -171,7 +171,7 @@ func (actuator endpointActuator) CreateResource(ctx context.Context, obj orcObje
 
 	var regionID string
 	if resource.RegionRef != nil {
-		region, regionDepRS := regionDependency.GetDependency(
+		region, regionDepRS := regionDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(regionDepRS)
@@ -295,7 +295,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Endpoint, controlle
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return endpointActuator{}, reconcileStatus
 	}

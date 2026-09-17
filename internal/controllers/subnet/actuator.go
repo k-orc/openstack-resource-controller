@@ -167,12 +167,12 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
 
-	network, reconcileStatus := networkDependency.GetDependency(
+	network, reconcileStatus := networkDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
 	if resource.RouterRef != nil {
-		_, routerDepRS := routerDependency.GetDependency(
+		_, routerDepRS := routerDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(routerDepRS)
@@ -180,7 +180,7 @@ func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObject
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
@@ -594,7 +594,7 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 	}
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return subnetActuator{}, reconcileStatus
 	}

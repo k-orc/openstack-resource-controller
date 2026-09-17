@@ -164,7 +164,7 @@ func (actuator myActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.
 
     var projectID string
     if resource.ProjectRef != nil {
-        project, reconcileStatus := projectDependency.GetDependency(
+        project, reconcileStatus := projectDependency.RequireDependency(
             ctx, actuator.k8sClient, obj,
             orcv1alpha1.IsAvailable,
         )

@@ -142,7 +142,7 @@ func (actuator projectActuator) CreateResource(ctx context.Context, obj orcObjec
 
 	var domainID string
 	if resource.DomainRef != nil {
-		domain, domainDepRS := domainDependency.GetDependency(
+		domain, domainDepRS := domainDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(domainDepRS)
@@ -289,7 +289,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Project, controller
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return projectActuator{}, reconcileStatus
 	}

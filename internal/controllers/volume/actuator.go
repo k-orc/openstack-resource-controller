@@ -155,7 +155,7 @@ func (actuator volumeActuator) CreateResource(ctx context.Context, obj orcObject
 
 	var volumetypeID string
 	if resource.VolumeTypeRef != nil {
-		volumetype, volumetypeDepRS := volumetypeDependency.GetDependency(
+		volumetype, volumetypeDepRS := volumetypeDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(volumetypeDepRS)
@@ -316,7 +316,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Volume, controller 
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return volumeActuator{}, reconcileStatus
 	}

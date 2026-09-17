@@ -132,7 +132,7 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 
 	var domainID string
 	if resource.DomainRef != nil {
-		domain, domainDepRS := domainDependency.GetDependency(
+		domain, domainDepRS := domainDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(domainDepRS)
@@ -143,7 +143,7 @@ func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT
 
 	var defaultProjectID string
 	if resource.DefaultProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
@@ -355,7 +355,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.User, controller in
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return userActuator{}, reconcileStatus
 	}

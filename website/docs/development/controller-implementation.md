@@ -114,12 +114,12 @@ project, rs := dependency.FetchDependency(
 reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 ```
 
-Unlike `GetDependency`, this does not add a finalizer to the referenced object,
+Unlike `RequireDependency`, this does not add a finalizer to the referenced object,
 so it should not be used when the dependency must be prevented from deletion.
 
 ### When to add finalizers
 
-Finalizers (via `GetDependency`/`GetDependencies`) should be added at the last
+Finalizers (via `RequireDependency`/`RequireDependencies`) should be added at the last
 possible moment, immediately before the OpenStack resource is about to be
 created or updated. If a user is provisioning many resources and a failure
 happens, we want them to be able to delete a failed resource without having to

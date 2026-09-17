@@ -142,7 +142,7 @@ func (actuator securityGroupActuator) CreateResource(ctx context.Context, obj *o
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, reconcileStatus := projectDependency.GetDependency(
+		project, reconcileStatus := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
@@ -297,7 +297,7 @@ func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, reconcileStatus := projectDependency.GetDependency(
+		project, reconcileStatus := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, orcObject, orcv1alpha1.IsAvailable,
 		)
 		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
@@ -399,7 +399,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.SecurityGroup, cont
 	k8sClient := controller.GetK8sClient()
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, k8sClient, orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, k8sClient, orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return securityGroupActuator{}, reconcileStatus
 	}

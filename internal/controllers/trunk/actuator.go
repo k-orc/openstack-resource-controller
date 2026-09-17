@@ -157,7 +157,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 	var reconcileStatus progress.ReconcileStatus
 
 	var portID string
-	port, portDepRS := portDependency.GetDependency(
+	port, portDepRS := portDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(portDepRS)
@@ -167,7 +167,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, projectDepRS := projectDependency.GetDependency(
+		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(projectDepRS)
@@ -179,7 +179,7 @@ func (actuator trunkActuator) CreateResource(ctx context.Context, obj orcObjectP
 	// Resolve subport port dependencies
 	var subports []trunks.Subport
 	if len(resource.Subports) > 0 {
-		subportPortMap, subportPortDepRS := subportPortDependency.GetDependencies(
+		subportPortMap, subportPortDepRS := subportPortDependency.RequireDependencies(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subportPortDepRS)
@@ -313,7 +313,7 @@ func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObje
 	// Build desired subports map: portID -> subport spec
 	desiredSubports := make(map[string]*orcv1alpha1.TrunkSubportSpec, len(osResource.Subports))
 	if len(resource.Subports) > 0 {
-		subportPortMap, subportPortDepRS := subportPortDependency.GetDependencies(
+		subportPortMap, subportPortDepRS := subportPortDependency.RequireDependencies(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(subportPortDepRS)
@@ -427,7 +427,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Trunk, controller i
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return trunkActuator{}, reconcileStatus
 	}

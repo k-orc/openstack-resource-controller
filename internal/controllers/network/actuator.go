@@ -136,7 +136,7 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 
 	var projectID string
 	if resource.ProjectRef != nil {
-		project, reconcileStatus := projectDependency.GetDependency(
+		project, reconcileStatus := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
@@ -348,7 +348,7 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.Network, controller
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return networkActuator{}, reconcileStatus
 	}

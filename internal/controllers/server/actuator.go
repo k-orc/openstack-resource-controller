@@ -259,7 +259,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	var imageID string
 	if !bootFromVolume {
 		// Traditional boot from image
-		dep, imageReconcileStatus := imageDependency.GetDependency(
+		dep, imageReconcileStatus := imageDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(imageReconcileStatus)
@@ -271,7 +271,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 	// Resolve boot volume for boot-from-volume
 	var blockDevices []servers.BlockDevice
 	if bootFromVolume {
-		bootVolume, bvReconcileStatus := bootVolumeDependency.GetDependency(
+		bootVolume, bvReconcileStatus := bootVolumeDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(bvReconcileStatus)
@@ -299,7 +299,7 @@ func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alp
 
 	portList := make([]servers.Network, len(resource.Ports))
 	{
-		portsMap, portsReconcileStatus := portDependency.GetDependencies(
+		portsMap, portsReconcileStatus := portDependency.RequireDependencies(
 			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 		)
 		reconcileStatus = reconcileStatus.WithReconcileStatus(portsReconcileStatus)
@@ -553,7 +553,7 @@ func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	portDepsMap, reconcileStatus := portDependency.GetDependencies(
+	portDepsMap, reconcileStatus := portDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
@@ -631,7 +631,7 @@ func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, o
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
 	}
 
-	volumeDepsMap, reconcileStatus := volumeDependency.GetDependencies(
+	volumeDepsMap, reconcileStatus := volumeDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
 	)
 
@@ -718,7 +718,7 @@ func newActuator(ctx context.Context, controller interfaces.ResourceController, 
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
-	_, reconcileStatus := credentialsDependency.GetDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
+	_, reconcileStatus := credentialsDependency.RequireDependencies(ctx, controller.GetK8sClient(), orcObject, func(*corev1.Secret) bool { return true })
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return serverActuator{}, reconcileStatus
 	}
