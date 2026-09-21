@@ -11,11 +11,14 @@ git push origin
 git push origin tag $VERSION
 ```
 
-Pushing the tag will trigger the tagged image build. Monitor the [release image
-workflow](https://github.com/k-orc/openstack-resource-controller/actions/workflows/release_image.yaml)
-and when it is done, check that you can successfully pull the image with:
+Pushing the tag will trigger the [release
+workflow](https://github.com/k-orc/openstack-resource-controller/actions/workflows/release.yaml)
+which builds the container image and publishes the Helm charts. When it is
+done, check that you can successfully pull the artifacts:
 ```bash
 podman pull quay.io/orc/openstack-resource-controller:$VERSION
+helm pull oci://quay.io/orc/helm/orc --version ${VERSION#v}
+helm pull oci://quay.io/orc/helm/orc-crds --version ${VERSION#v}
 ```
 
 Finally, create the release in github. We must attach the generated `install.yaml` to the release artifacts:
