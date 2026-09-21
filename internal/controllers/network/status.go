@@ -83,20 +83,40 @@ func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *oscl
 	if osResource.DNSDomain != "" {
 		networkResourceStatus.WithDNSDomain(osResource.DNSDomain)
 	}
+
 	if osResource.NetworkType != "" {
-		providerProperties := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
-			WithNetworkType(osResource.NetworkType).
-			WithPhysicalNetwork(osResource.PhysicalNetwork)
+		segmentStatus := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
+			WithNetworkType(osResource.NetworkType)
+
+		if osResource.PhysicalNetwork != "" {
+			segmentStatus.WithPhysicalNetwork(osResource.PhysicalNetwork)
+		}
 
 		if osResource.SegmentationID != "" {
 			segmentationID, err := strconv.ParseInt(osResource.SegmentationID, 10, 32)
 			if err != nil {
 				log.V(logging.Info).Error(err, "Invalid segmentation ID", "segmentationID", osResource.SegmentationID)
 			} else {
-				providerProperties.WithSegmentationID(int32(segmentationID))
+				segmentStatus.WithSegmentationID(int32(segmentationID))
 			}
 		}
-		networkResourceStatus.WithProvider(providerProperties)
+
+		// We always fill the "segments" array when we receive any number of segments
+		// For compatibility, we keep the "provider" field filled, if only a single inline segment is returned
+		networkResourceStatus.WithSegments(segmentStatus)
+		networkResourceStatus.WithProvider(segmentStatus)
+	}
+
+	for i := range osResource.Segments {
+		segmentStatus := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
+			WithNetworkType(osResource.Segments[i].NetworkType).
+			WithSegmentationID(int32(osResource.Segments[i].SegmentationID))
+
+		if osResource.Segments[i].PhysicalNetwork != "" {
+			segmentStatus.WithPhysicalNetwork(osResource.Segments[i].PhysicalNetwork)
+		}
+
+		networkResourceStatus.WithSegments(segmentStatus)
 	}
 
 	statusApply.WithResource(networkResourceStatus)

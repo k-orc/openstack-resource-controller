@@ -282,6 +282,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProjectStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderPropertiesStatus"):
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ProviderSegmentSpec"):
+		return &apiv1alpha1.ProviderSegmentSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Region"):
 		return &apiv1alpha1.RegionApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RegionFilter"):

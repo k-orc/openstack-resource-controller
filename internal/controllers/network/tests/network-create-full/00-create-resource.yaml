@@ -32,3 +32,7 @@ spec:
       - tag1
       - tag2
     projectRef: network-create-full
+    segments:
+      - networkType: vlan
+        physicalNetwork: public
+        segmentationID: 2

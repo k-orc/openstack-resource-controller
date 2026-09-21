@@ -290,6 +290,47 @@ spec:
                     x-kubernetes-validations:
                     - message: projectRef is immutable
                       rule: self == oldSelf
+                  segments:
+                    description: segments is a list of provider segment objects.
+                    items:
+                      properties:
+                        networkType:
+                          description: |-
+                            networkType is the type of physical network that this
+                            network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
+                          enum:
+                          - flat
+                          - vlan
+                          - vxlan
+                          - gre
+                          type: string
+                        physicalNetwork:
+                          description: |-
+                            physicalNetwork is the physical network where this network
+                            should be implemented. The Networking API v2.0 does not provide a
+                            way to list available physical networks. For example, the Open
+                            vSwitch plug-in configuration file defines a symbolic name that maps
+                            to specific bridges on each compute host.
+                          maxLength: 1024
+                          type: string
+                        segmentationID:
+                          description: |-
+                            segmentationID is the ID of the isolated segment on the
+                            physical network. The network_type attribute defines the
+                            segmentation model. For example, if the network_type value is vlan,
+                            this ID is a vlan identifier. If the network_type value is gre, this
+                            ID is a gre key.
+                          format: int32
+                          type: integer
+                      required:
+                      - networkType
+                      type: object
+                    maxItems: 256
+                    type: array
+                    x-kubernetes-list-type: atomic
+                    x-kubernetes-validations:
+                    - message: segments is immutable
+                      rule: self == oldSelf
                   shared:
                     description: |-
                       shared indicates whether this resource is shared across all
@@ -523,6 +564,39 @@ spec:
                     description: revisionNumber optionally set via extensions/standard-attr-revisions
                     format: int64
                     type: integer
+                  segments:
+                    description: segments is a list of provider segment objects.
+                    items:
+                      properties:
+                        networkType:
+                          description: |-
+                            networkType is the type of physical network that this
+                            network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
+                            Valid values depend on the networking back-end.
+                          maxLength: 1024
+                          type: string
+                        physicalNetwork:
+                          description: |-
+                            physicalNetwork is the physical network where this network
+                            should be implemented. The Networking API v2.0 does not provide a
+                            way to list available physical networks. For example, the Open
+                            vSwitch plug-in configuration file defines a symbolic name that maps
+                            to specific bridges on each compute host.
+                          maxLength: 1024
+                          type: string
+                        segmentationID:
+                          description: |-
+                            segmentationID is the ID of the isolated segment on the
+                            physical network. The network_type attribute defines the
+                            segmentation model. For example, if the network_type value is vlan,
+                            this ID is a vlan identifier. If the network_type value is gre, this
+                            ID is a gre key.
+                          format: int32
+                          type: integer
+                      type: object
+                    maxItems: 256
+                    type: array
+                    x-kubernetes-list-type: atomic
                   shared:
                     description: |-
                       shared specifies whether the network resource can be accessed by any

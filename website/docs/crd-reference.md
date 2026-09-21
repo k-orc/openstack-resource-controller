@@ -2603,6 +2603,7 @@ _Appears in:_
 | `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects. By default, only administrative users can change this<br />value. |  | Optional: \{\} <br /> |
 | `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the network. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `segments` _[ProviderSegmentSpec](#providersegmentspec) array_ | segments is a list of provider segment objects. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
 
 
 #### NetworkResourceStatus
@@ -2635,6 +2636,7 @@ _Appears in:_
 | `external` _boolean_ | external defines whether the network may be used for creation of<br />floating IPs. Only networks with this flag may be an external<br />gateway for routers. The network must have an external routing<br />facility that is not managed by the networking service. If the<br />network is updated from external to internal the unused floating IPs<br />of this network are automatically deleted when extension<br />floatingip-autodelete-internal is present. |  | Optional: \{\} <br /> |
 | `shared` _boolean_ | shared specifies whether the network resource can be accessed by any<br />tenant. |  | Optional: \{\} <br /> |
 | `subnets` _string array_ | subnets associated with this network. |  | MaxItems: 256 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `segments` _[ProviderPropertiesStatus](#providerpropertiesstatus) array_ | segments is a list of provider segment objects. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
 
 
 #### NetworkSpec
@@ -3269,6 +3271,26 @@ _Appears in:_
 | `vrrp` |  |
 
 
+#### ProviderNetworkType
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [flat vlan vxlan gre]
+
+_Appears in:_
+- [ProviderSegmentSpec](#providersegmentspec)
+
+| Field | Description |
+| --- | --- |
+| `flat` |  |
+| `vlan` |  |
+| `vxlan` |  |
+| `gre` |  |
+
+
 #### ProviderPropertiesStatus
 
 
@@ -3283,6 +3305,24 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `networkType` _string_ | networkType is the type of physical network that this<br />network should be mapped to. Supported values are flat, vlan, vxlan, and gre.<br />Valid values depend on the networking back-end. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `physicalNetwork` _string_ | physicalNetwork is the physical network where this network<br />should be implemented. The Networking API v2.0 does not provide a<br />way to list available physical networks. For example, the Open<br />vSwitch plug-in configuration file defines a symbolic name that maps<br />to specific bridges on each compute host. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `segmentationID` _integer_ | segmentationID is the ID of the isolated segment on the<br />physical network. The network_type attribute defines the<br />segmentation model. For example, if the network_type value is vlan,<br />this ID is a vlan identifier. If the network_type value is gre, this<br />ID is a gre key. |  | Optional: \{\} <br /> |
+
+
+#### ProviderSegmentSpec
+
+
+
+
+
+
+
+_Appears in:_
+- [NetworkResourceSpec](#networkresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `networkType` _[ProviderNetworkType](#providernetworktype)_ | networkType is the type of physical network that this<br />network should be mapped to. Supported values are flat, vlan, vxlan, and gre. |  | Enum: [flat vlan vxlan gre] <br />Required: \{\} <br /> |
 | `physicalNetwork` _string_ | physicalNetwork is the physical network where this network<br />should be implemented. The Networking API v2.0 does not provide a<br />way to list available physical networks. For example, the Open<br />vSwitch plug-in configuration file defines a symbolic name that maps<br />to specific bridges on each compute host. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `segmentationID` _integer_ | segmentationID is the ID of the isolated segment on the<br />physical network. The network_type attribute defines the<br />segmentation model. For example, if the network_type value is vlan,<br />this ID is a vlan identifier. If the network_type value is gre, this<br />ID is a gre key. |  | Optional: \{\} <br /> |
 
