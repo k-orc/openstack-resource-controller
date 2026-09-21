@@ -31,15 +31,15 @@ type NetworkResourceStatusApplyConfiguration struct {
 	Status                                  *string  `json:"status,omitempty"`
 	Tags                                    []string `json:"tags,omitempty"`
 	NeutronStatusMetadataApplyConfiguration `json:",inline"`
-	AdminStateUp                            *bool                                       `json:"adminStateUp,omitempty"`
-	AvailabilityZoneHints                   []string                                    `json:"availabilityZoneHints,omitempty"`
-	DNSDomain                               *string                                     `json:"dnsDomain,omitempty"`
-	MTU                                     *int32                                      `json:"mtu,omitempty"`
-	PortSecurityEnabled                     *bool                                       `json:"portSecurityEnabled,omitempty"`
-	Provider                                *ProviderPropertiesStatusApplyConfiguration `json:"provider,omitempty"`
-	External                                *bool                                       `json:"external,omitempty"`
-	Shared                                  *bool                                       `json:"shared,omitempty"`
-	Subnets                                 []string                                    `json:"subnets,omitempty"`
+	AdminStateUp                            *bool                                        `json:"adminStateUp,omitempty"`
+	AvailabilityZoneHints                   []string                                     `json:"availabilityZoneHints,omitempty"`
+	DNSDomain                               *string                                      `json:"dnsDomain,omitempty"`
+	MTU                                     *int32                                       `json:"mtu,omitempty"`
+	PortSecurityEnabled                     *bool                                        `json:"portSecurityEnabled,omitempty"`
+	External                                *bool                                        `json:"external,omitempty"`
+	Shared                                  *bool                                        `json:"shared,omitempty"`
+	Subnets                                 []string                                     `json:"subnets,omitempty"`
+	Segments                                []ProviderPropertiesStatusApplyConfiguration `json:"segments,omitempty"`
 }
 
 // NetworkResourceStatusApplyConfiguration constructs a declarative configuration of the NetworkResourceStatus type for use with
@@ -156,14 +156,6 @@ func (b *NetworkResourceStatusApplyConfiguration) WithPortSecurityEnabled(value 
 	return b
 }
 
-// WithProvider sets the Provider field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Provider field is set to the value of the last call.
-func (b *NetworkResourceStatusApplyConfiguration) WithProvider(value *ProviderPropertiesStatusApplyConfiguration) *NetworkResourceStatusApplyConfiguration {
-	b.Provider = value
-	return b
-}
-
 // WithExternal sets the External field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the External field is set to the value of the last call.
@@ -186,6 +178,19 @@ func (b *NetworkResourceStatusApplyConfiguration) WithShared(value bool) *Networ
 func (b *NetworkResourceStatusApplyConfiguration) WithSubnets(values ...string) *NetworkResourceStatusApplyConfiguration {
 	for i := range values {
 		b.Subnets = append(b.Subnets, values[i])
+	}
+	return b
+}
+
+// WithSegments adds the given value to the Segments field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Segments field.
+func (b *NetworkResourceStatusApplyConfiguration) WithSegments(values ...*ProviderPropertiesStatusApplyConfiguration) *NetworkResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithSegments")
+		}
+		b.Segments = append(b.Segments, *values[i])
 	}
 	return b
 }

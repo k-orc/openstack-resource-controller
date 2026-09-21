@@ -25,17 +25,18 @@ import (
 // NetworkResourceSpecApplyConfiguration represents a declarative configuration of the NetworkResourceSpec type for use
 // with apply.
 type NetworkResourceSpecApplyConfiguration struct {
-	Name                  *apiv1alpha1.OpenStackName         `json:"name,omitempty"`
-	Description           *apiv1alpha1.NeutronDescription    `json:"description,omitempty"`
-	Tags                  []apiv1alpha1.NeutronTag           `json:"tags,omitempty"`
-	AdminStateUp          *bool                              `json:"adminStateUp,omitempty"`
-	DNSDomain             *apiv1alpha1.DNSDomain             `json:"dnsDomain,omitempty"`
-	MTU                   *apiv1alpha1.MTU                   `json:"mtu,omitempty"`
-	PortSecurityEnabled   *bool                              `json:"portSecurityEnabled,omitempty"`
-	External              *bool                              `json:"external,omitempty"`
-	Shared                *bool                              `json:"shared,omitempty"`
-	AvailabilityZoneHints []apiv1alpha1.AvailabilityZoneHint `json:"availabilityZoneHints,omitempty"`
-	ProjectRef            *apiv1alpha1.KubernetesNameRef     `json:"projectRef,omitempty"`
+	Name                  *apiv1alpha1.OpenStackName              `json:"name,omitempty"`
+	Description           *apiv1alpha1.NeutronDescription         `json:"description,omitempty"`
+	Tags                  []apiv1alpha1.NeutronTag                `json:"tags,omitempty"`
+	AdminStateUp          *bool                                   `json:"adminStateUp,omitempty"`
+	DNSDomain             *apiv1alpha1.DNSDomain                  `json:"dnsDomain,omitempty"`
+	MTU                   *apiv1alpha1.MTU                        `json:"mtu,omitempty"`
+	PortSecurityEnabled   *bool                                   `json:"portSecurityEnabled,omitempty"`
+	External              *bool                                   `json:"external,omitempty"`
+	Shared                *bool                                   `json:"shared,omitempty"`
+	AvailabilityZoneHints []apiv1alpha1.AvailabilityZoneHint      `json:"availabilityZoneHints,omitempty"`
+	ProjectRef            *apiv1alpha1.KubernetesNameRef          `json:"projectRef,omitempty"`
+	Segments              []ProviderSegmentSpecApplyConfiguration `json:"segments,omitempty"`
 }
 
 // NetworkResourceSpecApplyConfiguration constructs a declarative configuration of the NetworkResourceSpec type for use with
@@ -133,5 +134,18 @@ func (b *NetworkResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values
 // If called multiple times, the ProjectRef field is set to the value of the last call.
 func (b *NetworkResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *NetworkResourceSpecApplyConfiguration {
 	b.ProjectRef = &value
+	return b
+}
+
+// WithSegments adds the given value to the Segments field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Segments field.
+func (b *NetworkResourceSpecApplyConfiguration) WithSegments(values ...*ProviderSegmentSpecApplyConfiguration) *NetworkResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithSegments")
+		}
+		b.Segments = append(b.Segments, *values[i])
+	}
 	return b
 }

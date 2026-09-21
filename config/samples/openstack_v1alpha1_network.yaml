@@ -19,3 +19,7 @@ spec:
       - tag1
       - tag2
     projectRef: network-sample
+    segments:
+      - networkType: vlan
+        physicalNetwork: public
+        segmentationID: 2

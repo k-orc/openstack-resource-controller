@@ -18,6 +18,10 @@ status:
     tags:
      - tag1
      - tag2
+    segments:
+      - networkType: vlan
+        physicalNetwork: public
+        segmentationID: 2
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
