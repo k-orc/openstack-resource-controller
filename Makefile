@@ -58,7 +58,7 @@ modules:
 	go mod tidy
 
 .PHONY: generate
-generate: generate-resources generate-controller-gen generate-kustomizeconfig generate-codegen generate-go generate-docs modules manifests
+generate: generate-resources generate-controller-gen generate-kustomizeconfig generate-codegen generate-go generate-docs modules manifests generate-helm
 
 .PHONY: generate-resources
 generate-resources:
@@ -87,6 +87,10 @@ generate-bundle: kustomize operator-sdk
 .PHONY: generate-docs
 generate-docs:
 	$(MAKE) -C website generated
+
+.PHONY: generate-helm
+generate-helm: manifests ## Sync Helm chart CRDs and RBAC from controller-gen output.
+	hack/gen-helm.sh
 
 .PHONY: verify-generated
 verify-generated: generate
@@ -141,6 +145,11 @@ test-examples:
 .PHONY: lint
 lint: golangci-kal ## Run golangci-kal linter
 	$(GOLANGCI_KAL) run
+
+.PHONY: lint-helm
+lint-helm: ## Lint Helm charts.
+	helm lint charts/orc-crds
+	helm lint charts/orc
 
 .PHONY: lint-fix
 lint-fix: golangci-kal ## Run golangci-kal linter and perform fixes
