@@ -1,0 +1,22 @@
+# Copyright The ORC Authors.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: orc
+type: application
+# version and appVersion are stamped by CI from the git tag at release time.
+# The values here are development placeholders.
+version: 0.0.0-dev
+appVersion: v0.0.0-dev
+kubeVersion: ">=1.29.0-0"
+description: OpenStack Resource Controller (ORC) - manage OpenStack resources declaratively from Kubernetes
+home: https://k-orc.cloud/
+keywords:
+  - openstack
+  - infrastructure
+sources:
+  - https://github.com/k-orc/openstack-resource-controller
+annotations:
+  artifacthub.io/license: Apache-2.0
+# NOTE: This chart requires the orc-crds chart to be installed first.
+# Install it separately: helm install orc-crds oci://quay.io/orc/helm/orc-crds

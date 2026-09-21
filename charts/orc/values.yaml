@@ -1,0 +1,86 @@
+# nameOverride overrides the chart name used in resource names.
+nameOverride: ""
+# fullnameOverride overrides the full resource name prefix.
+fullnameOverride: ""
+
+image:
+  repository: quay.io/orc/openstack-resource-controller
+  # tag defaults to the chart's appVersion
+  tag: ""
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+# Extra arguments passed to the manager binary.
+extraArgs: []
+
+serviceAccount:
+  # name overrides the generated service account name.
+  name: ""
+  annotations: {}
+  automount: true
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  privileged: false
+  runAsUser: 65532
+  runAsGroup: 65532
+
+metrics:
+  enabled: true
+  port: 8443
+
+  serviceMonitor:
+    enabled: false
+    # scheme must match the manager's metrics serving mode.
+    # The default is HTTPS (--metrics-secure=true).
+    scheme: https
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    tlsConfig:
+      insecureSkipVerify: true
+    # interval: 30s
+    # scrapeTimeout: 10s
+    # relabelings: []
+    # metricRelabelings: []
+    # honorLabels: false
+
+probes:
+  enabled: true
+  port: 8081
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: health
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+priorityClassName: system-cluster-critical
+terminationGracePeriodSeconds: 10
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
