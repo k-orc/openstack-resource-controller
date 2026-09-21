@@ -1,0 +1,7 @@
+{{- if not (.Capabilities.APIVersions.Has "openstack.k-orc.cloud/v1alpha1") }}
+⚠ WARNING: ORC CRDs not found in the cluster.
+  Install them before using ORC:
+
+    helm install orc-crds oci://quay.io/orc/helm/orc-crds
+
+{{- end }}
