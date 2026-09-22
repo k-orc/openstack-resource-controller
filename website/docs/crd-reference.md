@@ -23,6 +23,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Network](#network)
 - [Port](#port)
 - [Project](#project)
+- [QosPolicy](#qospolicy)
 - [Region](#region)
 - [RegisteredLimit](#registeredlimit)
 - [Role](#role)
@@ -523,6 +524,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [QosPolicySpec](#qospolicyspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -916,6 +918,7 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [NetworkFilter](#networkfilter)
 - [PortFilter](#portfilter)
+- [QosPolicyFilter](#qospolicyfilter)
 - [RouterFilter](#routerfilter)
 - [SecurityGroupFilter](#securitygroupfilter)
 - [SubnetFilter](#subnetfilter)
@@ -2227,6 +2230,8 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [QosPolicyFilter](#qospolicyfilter)
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
 - [RegisteredLimitFilter](#registeredlimitfilter)
 - [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RoleAssignmentFilter](#roleassignmentfilter)
@@ -2450,6 +2455,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [QosPolicySpec](#qospolicyspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2494,6 +2500,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [QosPolicySpec](#qospolicyspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2694,6 +2701,9 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
+- [QosBandwidthLimitRule](#qosbandwidthlimitrule)
+- [QosPolicyFilter](#qospolicyfilter)
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -2718,6 +2728,7 @@ _Appears in:_
 - [FloatingIPResourceStatus](#floatingipresourcestatus)
 - [NetworkResourceStatus](#networkresourcestatus)
 - [PortResourceStatus](#portresourcestatus)
+- [QosPolicyResourceStatus](#qospolicyresourcestatus)
 - [SecurityGroupResourceStatus](#securitygroupresourcestatus)
 - [SubnetResourceStatus](#subnetresourcestatus)
 - [TrunkResourceStatus](#trunkresourcestatus)
@@ -2748,6 +2759,8 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
+- [QosPolicyFilter](#qospolicyfilter)
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
 - [RouterFilter](#routerfilter)
 - [RouterResourceSpec](#routerresourcespec)
 - [SecurityGroupFilter](#securitygroupfilter)
@@ -2805,6 +2818,8 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
+- [QosPolicyFilter](#qospolicyfilter)
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
 - [RouterFilter](#routerfilter)
@@ -3285,6 +3300,345 @@ _Appears in:_
 | `networkType` _string_ | networkType is the type of physical network that this<br />network should be mapped to. Supported values are flat, vlan, vxlan, and gre.<br />Valid values depend on the networking back-end. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `physicalNetwork` _string_ | physicalNetwork is the physical network where this network<br />should be implemented. The Networking API v2.0 does not provide a<br />way to list available physical networks. For example, the Open<br />vSwitch plug-in configuration file defines a symbolic name that maps<br />to specific bridges on each compute host. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `segmentationID` _integer_ | segmentationID is the ID of the isolated segment on the<br />physical network. The network_type attribute defines the<br />segmentation model. For example, if the network_type value is vlan,<br />this ID is a vlan identifier. If the network_type value is gre, this<br />ID is a gre key. |  | Optional: \{\} <br /> |
+
+
+#### QosBandwidthLimitRule
+
+
+
+QosBandwidthLimitRule defines a QoS bandwidth limit rule
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `direction` _[RuleDirection](#ruledirection)_ | direction represents the direction in which the rule<br />is applied. Can be ingress or egress. |  | Enum: [ingress egress] <br />Optional: \{\} <br /> |
+| `maxkbps` _integer_ | maxkbps is the maximum KBPS (kilobits per second) value. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `maxburstkbps` _integer_ | maxburstkbps is the maximum burst size (in kilobits). |  | Minimum: 0 <br />Optional: \{\} <br /> |
+
+
+#### QosBandwidthLimitRuleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [QosPolicyResourceStatus](#qospolicyresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the bandwidth limit rule. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `direction` _string_ | direction represents the direction in which the rule is applied. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `maxkbps` _integer_ | maxkbps is the maximum KBPS (kilobits per second) value. |  | Optional: \{\} <br /> |
+| `maxburstkbps` _integer_ | maxburstkbps is the maximum burst size (in kilobits). |  | Optional: \{\} <br /> |
+
+
+#### QosDscpMarkingRule
+
+
+
+QosDscpMarkingRule defines a QoS DSCP Marking rule
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `dscpmark` _integer_ | dscpmark is the DSCP mark value to apply to packets.<br />Valid values are: 0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 46, 48, 56. |  | Optional: \{\} <br /> |
+
+
+#### QosDscpMarkingRuleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [QosPolicyResourceStatus](#qospolicyresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the DSCP marking rule. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `dscpmark` _integer_ | dscpmark is the DSCP mark value. |  | Optional: \{\} <br /> |
+
+
+#### QosMinimumBandwidthRule
+
+
+
+QosMinimumBandwidthRule defines a QoS Minimum Bandwidth rule
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `direction` _[RuleDirection](#ruledirection)_ | direction represents the direction in which the rule<br />is applied. Can be ingress or egress. |  | Enum: [ingress egress] <br />Optional: \{\} <br /> |
+| `minkbps` _integer_ | minkbps is the minimum KBPS (kilobits per second) value which should be available for the port. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+
+
+#### QosMinimumBandwidthRuleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [QosPolicyResourceStatus](#qospolicyresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the minimum bandwidth rule. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `direction` _string_ | direction represents the direction in which the rule is applied. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `minkbps` _integer_ | minkbps is the minimum KBPS (kilobits per second) value. |  | Optional: \{\} <br /> |
+
+
+#### QosMinimumPacketRateLimitRule
+
+
+
+QosMinimumPacketRateLimitRule defines a QoS Packet Rate Limit rule
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `direction` _[RuleDirection](#ruledirection)_ | direction represents the direction in which the rule<br />is applied. Can be ingress or egress. |  | Enum: [ingress egress] <br />Optional: \{\} <br /> |
+| `maxkpps` _integer_ | maxkpps is the maximum KPPS (kilo packets per second) value. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+| `maxburstkpps` _integer_ | maxburstkpps is the maximum burst size (in kilo packets per second). |  | Minimum: 0 <br />Optional: \{\} <br /> |
+
+
+#### QosMinimumPacketRateLimitRuleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [QosPolicyResourceStatus](#qospolicyresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the packet rate limit rule. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `direction` _string_ | direction represents the direction in which the rule is applied. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `maxkpps` _integer_ | maxkpps is the maximum KPPS (kilo packets per second) value. |  | Optional: \{\} <br /> |
+| `maxburstkpps` _integer_ | maxburstkpps is the maximum burst size (in kilo packets per second). |  | Optional: \{\} <br /> |
+
+
+#### QosMinimumPacketRateRule
+
+
+
+QosMinimumPacketRateRule defines a QoS Minimum Packet Rate rule
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicyResourceSpec](#qospolicyresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `direction` _[RuleDirection](#ruledirection)_ | direction represents the direction in which the rule<br />is applied. Can be ingress or egress. |  | Enum: [ingress egress] <br />Optional: \{\} <br /> |
+| `minkpps` _integer_ | minkpps is the minimum KPPS (kilo packets per second) value which should be available for the port. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+
+
+#### QosMinimumPacketRateRuleStatus
+
+
+
+
+
+
+
+_Appears in:_
+- [QosPolicyResourceStatus](#qospolicyresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the minimum packet rate rule. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `direction` _string_ | direction represents the direction in which the rule is applied. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `minkpps` _integer_ | minkpps is the minimum KPPS (kilo packets per second) value. |  | Optional: \{\} <br /> |
+
+
+#### QosPolicy
+
+
+
+QosPolicy is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `QosPolicy` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[QosPolicySpec](#qospolicyspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[QosPolicyStatus](#qospolicystatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### QosPolicyFilter
+
+
+
+QosPolicyFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicyImport](#qospolicyimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[NeutronTag](#neutrontag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[NeutronTag](#neutrontag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[NeutronTag](#neutrontag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### QosPolicyImport
+
+
+
+QosPolicyImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [QosPolicySpec](#qospolicyspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[QosPolicyFilter](#qospolicyfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### QosPolicyResourceSpec
+
+
+
+QosPolicyResourceSpec contains the desired state of a QoS Policy
+
+
+
+_Appears in:_
+- [QosPolicySpec](#qospolicyspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _[NeutronDescription](#neutrondescription)_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tags` _[NeutronTag](#neutrontag) array_ | tags is a list of tags which will be applied to the QoS policy. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects. By default, only administrative users can change this<br />value. |  | Optional: \{\} <br /> |
+| `bandwidthlimitrules` _[QosBandwidthLimitRule](#qosbandwidthlimitrule) array_ | bandwidthlimitrules is a list of bandwidth limit rules belonging to this QoS. |  | MaxItems: 256 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `dscpmarkingrules` _[QosDscpMarkingRule](#qosdscpmarkingrule) array_ | dscpmarkingrules is a list of DSCP marking rules belonging to this QoS. |  | MaxItems: 256 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `minimumbandwidthrules` _[QosMinimumBandwidthRule](#qosminimumbandwidthrule) array_ | minimumbandwidthrules is a list of minimum bandwidth rules belonging to this QoS. |  | MaxItems: 256 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `minimumpacketraterules` _[QosMinimumPacketRateRule](#qosminimumpacketraterule) array_ | minimumpacketraterules is a list of minimum packet rate rules belonging to this QoS. |  | MaxItems: 256 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `minimumpacketratelimitrules` _[QosMinimumPacketRateLimitRule](#qosminimumpacketratelimitrule) array_ | minimumpacketratelimitrules is a list of minimum packet rate limit rules belonging to this QoS. |  | MaxItems: 256 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### QosPolicyResourceStatus
+
+
+
+QosPolicyResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [QosPolicyStatus](#qospolicystatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the QoS Policy. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the project owner of the QoS Policy. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `shared` _boolean_ | shared indicates whether this resource is shared across all<br />projects. By default, only administrative users can change this<br />value. |  | Optional: \{\} <br /> |
+| `bandwidthlimitrules` _[QosBandwidthLimitRuleStatus](#qosbandwidthlimitrulestatus) array_ | bandwidthlimitrules is a list of bandwidth limit rules belonging to this QoS. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+| `dscpmarkingrules` _[QosDscpMarkingRuleStatus](#qosdscpmarkingrulestatus) array_ | dscpmarkingrules is a list of DSCP marking rules belonging to this QoS. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+| `minimumbandwidthrules` _[QosMinimumBandwidthRuleStatus](#qosminimumbandwidthrulestatus) array_ | minimumbandwidthrules is a list of minimum bandwidth rules belonging to this QoS. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+| `minimumpacketraterules` _[QosMinimumPacketRateRuleStatus](#qosminimumpacketraterulestatus) array_ | minimumpacketraterules is a list of minimum packet rate rules belonging to this QoS. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+| `minimumpacketratelimitrules` _[QosMinimumPacketRateLimitRuleStatus](#qosminimumpacketratelimitrulestatus) array_ | minimumpacketratelimitrules is a list of packet rate limit rules belonging to this QoS. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601 |  | Optional: \{\} <br /> |
+| `revisionNumber` _integer_ | revisionNumber optionally set via extensions/standard-attr-revisions |  | Optional: \{\} <br /> |
+
+
+#### QosPolicySpec
+
+
+
+QosPolicySpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [QosPolicy](#qospolicy)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[QosPolicyImport](#qospolicyimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[QosPolicyResourceSpec](#qospolicyresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### QosPolicyStatus
+
+
+
+QosPolicyStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [QosPolicy](#qospolicy)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[QosPolicyResourceStatus](#qospolicyresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
 #### Region
@@ -4065,6 +4419,10 @@ _Validation:_
 - Enum: [ingress egress]
 
 _Appears in:_
+- [QosBandwidthLimitRule](#qosbandwidthlimitrule)
+- [QosMinimumBandwidthRule](#qosminimumbandwidthrule)
+- [QosMinimumPacketRateLimitRule](#qosminimumpacketratelimitrule)
+- [QosMinimumPacketRateRule](#qosminimumpacketraterule)
 - [SecurityGroupRule](#securitygrouprule)
 
 

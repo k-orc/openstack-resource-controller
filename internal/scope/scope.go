@@ -58,6 +58,7 @@ type Scope interface {
 	NewImageClient() (osclients.ImageClient, error)
 	NewKeyPairClient() (osclients.KeyPairClient, error)
 	NewNetworkClient() (osclients.NetworkClient, error)
+	NewQosPolicyClient() (osclients.QosPolicyClient, error)
 	NewRegionClient() (osclients.RegionClient, error)
 	NewRegisteredLimitClient() (osclients.RegisteredLimitClient, error)
 	NewRoleClient() (osclients.RoleClient, error)

@@ -1,0 +1,36 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-create-full
+status:
+  resource:
+    name: qospolicy-create-full-override
+    description: QosPolicy from "create full" test
+    shared: true
+    tags:
+    - qospolicy-tag-1
+    - qospolicy-tag-2
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: QosPolicy
+      name: qospolicy-create-full
+      ref: qospolicy
+assertAll:
+    - celExpr: "qospolicy.status.id != ''"
+    - celExpr: "qospolicy.status.resource.projectID != ''"
+    - celExpr: "qospolicy.status.resource.shared == true"
+    - celExpr: "qospolicy.status.resource.tags.size() == 2"
+    - celExpr: "has(qospolicy.status.resource.createdAt)"
+    - celExpr: "has(qospolicy.status.resource.updatedAt)"
+    - celExpr: "has(qospolicy.status.resource.revisionNumber)"

@@ -30,6 +30,7 @@ rules:
   - networks
   - ports
   - projects
+  - qospolicys
   - regions
   - registeredlimits
   - roleassignments
@@ -70,6 +71,7 @@ rules:
   - networks/status
   - ports/status
   - projects/status
+  - qospolicys/status
   - regions/status
   - registeredlimits/status
   - roleassignments/status

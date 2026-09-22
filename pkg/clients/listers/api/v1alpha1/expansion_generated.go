@@ -122,6 +122,14 @@ type ProjectListerExpansion interface{}
 // ProjectNamespaceLister.
 type ProjectNamespaceListerExpansion interface{}
 
+// QosPolicyListerExpansion allows custom methods to be added to
+// QosPolicyLister.
+type QosPolicyListerExpansion interface{}
+
+// QosPolicyNamespaceListerExpansion allows custom methods to be added to
+// QosPolicyNamespaceLister.
+type QosPolicyNamespaceListerExpansion interface{}
+
 // RegionListerExpansion allows custom methods to be added to
 // RegionLister.
 type RegionListerExpansion interface{}

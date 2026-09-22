@@ -56,6 +56,9 @@ import (
 //go:generate mockgen -package mock -destination=limit.go -source=../limit.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock LimitClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt limit.go > _limit.go && mv _limit.go limit.go"
 
+//go:generate mockgen -package mock -destination=qospolicy.go -source=../qospolicy.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock QosPolicyClient
+//go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt qospolicy.go > _qospolicy.go && mv _qospolicy.go qospolicy.go"
+
 //go:generate mockgen -package mock -destination=region.go -source=../region.go github.com/k-orc/openstack-resource-controller/internal/osclients/mock RegionClient
 //go:generate /usr/bin/env bash -c "cat ../../../hack/boilerplate.go.txt region.go > _region.go && mv _region.go region.go"
 

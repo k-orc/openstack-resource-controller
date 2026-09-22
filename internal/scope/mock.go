@@ -44,6 +44,7 @@ type MockScopeFactory struct {
 	ImageClient                 *mock.MockImageClient
 	KeyPairClient               *mock.MockKeyPairClient
 	NetworkClient               *mock.MockNetworkClient
+	QosPolicyClient             *mock.MockQosPolicyClient
 	RegionClient                *mock.MockRegionClient
 	RegisteredLimitClient       *mock.MockRegisteredLimitClient
 	RoleClient                  *mock.MockRoleClient
@@ -69,6 +70,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
+	qospolicyClient := mock.NewMockQosPolicyClient(mockCtrl)
 	regionClient := mock.NewMockRegionClient(mockCtrl)
 	registeredLimitClient := mock.NewMockRegisteredLimitClient(mockCtrl)
 	roleClient := mock.NewMockRoleClient(mockCtrl)
@@ -91,6 +93,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		ImageClient:                 imageClient,
 		KeyPairClient:               keypairClient,
 		NetworkClient:               networkClient,
+		QosPolicyClient:             qospolicyClient,
 		RegionClient:                regionClient,
 		RegisteredLimitClient:       registeredLimitClient,
 		RoleClient:                  roleClient,
@@ -129,6 +132,10 @@ func (f *MockScopeFactory) NewImageClient() (osclients.ImageClient, error) {
 
 func (f *MockScopeFactory) NewNetworkClient() (osclients.NetworkClient, error) {
 	return f.NetworkClient, nil
+}
+
+func (f *MockScopeFactory) NewQosPolicyClient() (osclients.QosPolicyClient, error) {
+	return f.QosPolicyClient, nil
 }
 
 func (f *MockScopeFactory) NewIdentityClient() (osclients.IdentityClient, error) {

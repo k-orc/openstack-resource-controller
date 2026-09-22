@@ -108,6 +108,10 @@ nameReference:
     path: spec/import/filter/projectRef
   - kind: Port
     path: spec/resource/projectRef
+  - kind: QosPolicy
+    path: spec/import/filter/projectRef
+  - kind: QosPolicy
+    path: spec/resource/projectRef
   - kind: RoleAssignment
     path: spec/import/filter/projectRef
   - kind: RoleAssignment
@@ -183,6 +187,8 @@ nameReference:
   - kind: Port
     path: spec/cloudCredentialsRef/secretName
   - kind: Project
+    path: spec/cloudCredentialsRef/secretName
+  - kind: QosPolicy
     path: spec/cloudCredentialsRef/secretName
   - kind: Region
     path: spec/cloudCredentialsRef/secretName

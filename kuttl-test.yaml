@@ -15,6 +15,7 @@ testDirs:
 - ./internal/controllers/network/tests/
 - ./internal/controllers/port/tests/
 - ./internal/controllers/project/tests/
+- ./internal/controllers/qospolicy/tests/
 - ./internal/controllers/region/tests/
 - ./internal/controllers/registeredlimit/tests/
 - ./internal/controllers/role/tests/

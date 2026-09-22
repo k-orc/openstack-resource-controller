@@ -1,0 +1,27 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: QosPolicy
+      name: qospolicy-update
+      ref: qospolicy
+assertAll:
+    - celExpr: "!has(qospolicy.status.resource.description)"
+    - celExpr: "qospolicy.status.resource.shared == false"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-update
+status:
+  resource:
+    name: qospolicy-update
+    shared: false
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

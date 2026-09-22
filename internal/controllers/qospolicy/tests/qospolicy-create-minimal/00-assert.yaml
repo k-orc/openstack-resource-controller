@@ -1,0 +1,31 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: QosPolicy
+metadata:
+  name: qospolicy-create-minimal
+status:
+  resource:
+    name: qospolicy-create-minimal
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: QosPolicy
+      name: qospolicy-create-minimal
+      ref: qospolicy
+assertAll:
+    - celExpr: "qospolicy.status.id != ''"
+    - celExpr: "qospolicy.status.resource.projectID != ''"
+    - celExpr: "has(qospolicy.status.resource.createdAt)"
+    - celExpr: "has(qospolicy.status.resource.revisionNumber)"
+    # Optional fields not set on the minimal spec must not appear in status
+    - celExpr: "!has(qospolicy.status.resource.description)"
+    - celExpr: "!has(qospolicy.status.resource.tags)"

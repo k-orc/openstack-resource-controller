@@ -153,6 +153,10 @@ func (s *providerScope) NewNetworkClient() (clients.NetworkClient, error) {
 	return clients.NewNetworkClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewQosPolicyClient() (clients.QosPolicyClient, error) {
+	return clients.NewQosPolicyClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewImageClient() (clients.ImageClient, error) {
 	return clients.NewImageClient(s.providerClient, s.providerClientOpts)
 }

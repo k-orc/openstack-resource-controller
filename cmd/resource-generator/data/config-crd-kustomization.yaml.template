@@ -3,7 +3,7 @@
 # It should be run by config/default
 resources:
 {{- range . }}
-- bases/openstack.k-orc.cloud_{{ .NameLower }}s.yaml
+- bases/openstack.k-orc.cloud_{{ .NamePlural }}.yaml
 {{- end}}
 # +kubebuilder:scaffold:crdkustomizeresource
 
