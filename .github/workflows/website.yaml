@@ -31,7 +31,7 @@ jobs:
       run: bash website/post-build.sh website/rendered
 
     - name: Publish to Cloudflare Pages
-      uses: cloudflare/pages-action@f0a1cd58cd66095dee69bfa18fa5efd1dde93bca # tag=v1.5.0
+      uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # tag=v4.0.0
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} # zizmor: ignore[secrets-outside-env]
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # zizmor: ignore[secrets-outside-env]
