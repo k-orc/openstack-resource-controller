@@ -2460,6 +2460,11 @@ func (in *ImagePropertiesHardware) DeepCopyInto(out *ImagePropertiesHardware) {
 		*out = new(ImageHWBus)
 		**out = **in
 	}
+	if in.FirmwareType != nil {
+		in, out := &in.FirmwareType, &out.FirmwareType
+		*out = new(string)
+		**out = **in
+	}
 	if in.SCSIModel != nil {
 		in, out := &in.SCSIModel, &out.SCSIModel
 		*out = new(string)

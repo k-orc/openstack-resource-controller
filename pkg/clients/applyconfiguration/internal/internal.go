@@ -1289,6 +1289,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: diskBus
       type:
         scalar: string
+    - name: firmwareType
+      type:
+        scalar: string
     - name: qemuGuestAgent
       type:
         scalar: boolean

@@ -165,6 +165,12 @@ type ImagePropertiesHardware struct {
 	// +optional
 	DiskBus *ImageHWBus `json:"diskBus,omitempty" glance:"hw_disk_bus"`
 
+	// firmwareType specifies the type of firmware used to boot the guest.
+	// Images built for UEFI only will not boot without it.
+	// +kubebuilder:validation:Enum:=bios;uefi
+	// +optional
+	FirmwareType *string `json:"firmwareType,omitempty" glance:"hw_firmware_type"`
+
 	// TODO: hw_machine_type seems important to support early, but how to
 	// select a supported set?
 
