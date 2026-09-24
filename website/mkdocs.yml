@@ -51,6 +51,8 @@ site_dir: rendered
 theme:
   name: material
   custom_dir: overrides
+  logo: assets/images/logo.svg
+  favicon: assets/images/favicon.png
   features:
     - navigation.footer
     - navigation.indexes
