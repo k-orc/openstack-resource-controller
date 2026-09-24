@@ -44,6 +44,9 @@ updates:
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - dependency-name: "go"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  # Below dependencies need a newer go version:
+  - dependency-name: "golang.org/x/text"
+    update-types: ["version-update:semver-major", "version-update:semver-minor"]
 ## main branch config ends here
 ## release-2.0 branch config starts here
 # github-actions
@@ -86,5 +89,8 @@ updates:
   - dependency-name: "k8s.io/*"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - dependency-name: "go"
+    update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  # Below dependencies need a newer go version:
+  - dependency-name: "golang.org/x/text"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
 ## release-2.0 branch config ends here
