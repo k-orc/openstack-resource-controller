@@ -32,6 +32,7 @@ type ImagePropertiesHardwareApplyConfiguration struct {
 	CPUThreadPolicy *string                 `json:"cpuThreadPolicy,omitempty"`
 	CDROMBus        *apiv1alpha1.ImageHWBus `json:"cdromBus,omitempty"`
 	DiskBus         *apiv1alpha1.ImageHWBus `json:"diskBus,omitempty"`
+	FirmwareType    *string                 `json:"firmwareType,omitempty"`
 	SCSIModel       *string                 `json:"scsiModel,omitempty"`
 	VIFModel        *string                 `json:"vifModel,omitempty"`
 	RngModel        *string                 `json:"rngModel,omitempty"`
@@ -97,6 +98,14 @@ func (b *ImagePropertiesHardwareApplyConfiguration) WithCDROMBus(value apiv1alph
 // If called multiple times, the DiskBus field is set to the value of the last call.
 func (b *ImagePropertiesHardwareApplyConfiguration) WithDiskBus(value apiv1alpha1.ImageHWBus) *ImagePropertiesHardwareApplyConfiguration {
 	b.DiskBus = &value
+	return b
+}
+
+// WithFirmwareType sets the FirmwareType field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the FirmwareType field is set to the value of the last call.
+func (b *ImagePropertiesHardwareApplyConfiguration) WithFirmwareType(value string) *ImagePropertiesHardwareApplyConfiguration {
+	b.FirmwareType = &value
 	return b
 }
 

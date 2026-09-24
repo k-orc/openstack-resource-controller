@@ -4706,6 +4706,13 @@ func schema_openstack_resource_controller_v2_api_v1alpha1_ImagePropertiesHardwar
 							Format:      "",
 						},
 					},
+					"firmwareType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "firmwareType specifies the type of firmware used to boot the guest. Images built for UEFI only will not boot without it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"scsiModel": {
 						SchemaProps: spec.SchemaProps{
 							Description: "scsiModel enables the use of VirtIO SCSI (virtio-scsi) to provide block device access for compute instances; by default, instances use VirtIO Block (virtio-blk). VirtIO SCSI is a para-virtualized SCSI controller device that provides improved scalability and performance, and supports advanced SCSI hardware.\n\nThe only permitted value is virtio-scsi.",

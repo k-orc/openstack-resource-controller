@@ -33,6 +33,7 @@ spec:
         cpuThreadPolicy: prefer
         cdromBus: scsi
         diskBus: virtio
+        firmwareType: uefi
         scsiModel: virtio-scsi
         vifModel: e1000
         rngModel: virtio
