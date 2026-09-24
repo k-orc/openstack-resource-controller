@@ -35,6 +35,5 @@ jobs:
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} # zizmor: ignore[secrets-outside-env]
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # zizmor: ignore[secrets-outside-env]
-        projectName: k-orc
-        directory: website/rendered
+        command: pages deploy website/rendered --project-name=k-orc
         gitHubToken: ${{ secrets.GITHUB_TOKEN }}
