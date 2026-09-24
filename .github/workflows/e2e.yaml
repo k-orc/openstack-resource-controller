@@ -47,6 +47,10 @@ jobs:
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
 
+          [[post-config|/etc/neutron/neutron.conf]]
+          [quotas]
+          quota_router = 30
+
     - name: Deploy a Kind Cluster
       uses: helm/kind-action@06c1ae10762d3b9c1644e7fe69596ae519e015a2 # tag=v1.15.0
       with:
@@ -71,6 +75,8 @@ jobs:
 
         make test-e2e
         make test-examples
+      env:
+        E2E_KUTTL_SKIP_DELETE: 1
 
     - name: Generate logs on failure
       run: ./hack/collectlogs
