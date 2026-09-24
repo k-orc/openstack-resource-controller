@@ -1,3 +1,5 @@
+<img src="assets/images/orc-logo-256.png" alt="ORC Logo" width="200" align="right" style="float: right; margin: 0 0 1em 1.5em;">
+
 # openstack-resource-controller
 
 _Deploy your OpenStack resources in a declarative way, using Kubernetes._

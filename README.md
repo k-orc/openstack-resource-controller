@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="logos/orc-logo-color.svg" alt="ORC Logo" width="200">
+</div>
+
 # ORC: openstack-resource-controller
 
 ## Description
