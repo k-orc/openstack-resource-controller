@@ -42,8 +42,6 @@ updates:
   # Ignore k8s major and minor bumps and its transitives modules
   - dependency-name: "k8s.io/*"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
-  - dependency-name: "go"
-    update-types: ["version-update:semver-major", "version-update:semver-minor"]
   # Below dependencies need a newer go version:
   - dependency-name: "golang.org/x/text"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
@@ -87,8 +85,6 @@ updates:
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
   # Ignore k8s major and minor bumps and its transitives modules
   - dependency-name: "k8s.io/*"
-    update-types: ["version-update:semver-major", "version-update:semver-minor"]
-  - dependency-name: "go"
     update-types: ["version-update:semver-major", "version-update:semver-minor"]
   # Below dependencies need a newer go version:
   - dependency-name: "golang.org/x/text"
