@@ -167,6 +167,27 @@ var _ = Describe("ORC Network API validations", func() {
 		Expect(applyObj(ctx, network, patch)).NotTo(Succeed())
 	})
 
+	DescribeTable("should permit valid network type",
+		func(ctx context.Context, networktype orcv1alpha1.ProviderNetworkType) {
+			obj := networkStub(namespace)
+			patch := baseNetworkPatch(obj)
+			specPatch := applyconfigv1alpha1.ProviderSegmentSpec().WithPhysicalNetwork("public").WithNetworkType(networktype)
+			patch.Spec.WithResource(testNetworkResource().WithSegments(specPatch))
+			Expect(applyObj(ctx, obj, patch)).To(Succeed(), "create network")
+		},
+		Entry(string(orcv1alpha1.ProviderNetworkTypeFlat), orcv1alpha1.ProviderNetworkTypeFlat),
+		Entry(string(orcv1alpha1.ProviderNetworkTypeGre), orcv1alpha1.ProviderNetworkTypeGre),
+		Entry(string(orcv1alpha1.ProviderNetworkTypeVlan), orcv1alpha1.ProviderNetworkTypeVlan),
+		Entry(string(orcv1alpha1.ProviderNetworkTypeVxlan), orcv1alpha1.ProviderNetworkTypeVxlan),
+	)
+
+	It("should not permit invalid network type", func(ctx context.Context) {
+		obj := networkStub(namespace)
+		patch := baseNetworkPatch(obj)
+		patch.Spec.WithResource(testNetworkResource().WithSegments(applyconfigv1alpha1.ProviderSegmentSpec().WithPhysicalNetwork("public").WithNetworkType("foo")))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), "create network")
+	})
+
 	It("should permit valid import filter", func(ctx context.Context) {
 		network := networkStub(namespace)
 		patch := baseNetworkPatch(network)
