@@ -20,8 +20,8 @@ package image
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 )
 
 // Fundamental types

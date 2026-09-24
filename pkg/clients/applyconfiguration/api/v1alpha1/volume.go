@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	internal "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/internal"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	internal "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/internal"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
@@ -71,7 +71,7 @@ func ExtractVolumeStatus(volume *apiv1alpha1.Volume, fieldManager string) (*Volu
 
 func extractVolume(volume *apiv1alpha1.Volume, fieldManager string, subresource string) (*VolumeApplyConfiguration, error) {
 	b := &VolumeApplyConfiguration{}
-	err := managedfields.ExtractInto(volume, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v2.api.v1alpha1.Volume"), fieldManager, b, subresource)
+	err := managedfields.ExtractInto(volume, internal.Parser().Type("com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.Volume"), fieldManager, b, subresource)
 	if err != nil {
 		return nil, err
 	}

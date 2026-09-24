@@ -25,12 +25,12 @@ import (
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	generic "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/interfaces"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/logging"
-	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	generic "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
+	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 // OpenStack resource types

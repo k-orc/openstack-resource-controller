@@ -22,8 +22,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	applyconfigv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 )
 
 // ORCApplyConfig is an interface implemented by any apply configuration for an

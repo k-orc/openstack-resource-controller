@@ -22,10 +22,10 @@ import (
 	context "context"
 	time "time"
 
-	v2apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	clientset "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset"
-	internalinterfaces "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/informers/externalversions/internalinterfaces"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/listers/api/v1alpha1"
+	v3apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	clientset "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/clientset/clientset"
+	internalinterfaces "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/informers/externalversions/internalinterfaces"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -83,7 +83,7 @@ func NewFilteredNetworkInformer(client clientset.Interface, namespace string, re
 				return client.OpenstackV1alpha1().Networks(namespace).Watch(ctx, options)
 			},
 		},
-		&v2apiv1alpha1.Network{},
+		&v3apiv1alpha1.Network{},
 		resyncPeriod,
 		indexers,
 	)
@@ -94,7 +94,7 @@ func (f *networkInformer) defaultInformer(client clientset.Interface, resyncPeri
 }
 
 func (f *networkInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&v2apiv1alpha1.Network{}, f.defaultInformer)
+	return f.factory.InformerFor(&v3apiv1alpha1.Network{}, f.defaultInformer)
 }
 
 func (f *networkInformer) Lister() apiv1alpha1.NetworkLister {

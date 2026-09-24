@@ -160,7 +160,7 @@ Add to `cmd/manager/main.go`:
 
 ```go
 import (
-    yourresourcecontroller "github.com/k-orc/openstack-resource-controller/v2/internal/controllers/yourresource"
+    yourresourcecontroller "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/yourresource"
 )
 
 // In controllers slice:

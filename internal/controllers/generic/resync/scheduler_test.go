@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	"github.com/k-orc/openstack-resource-controller/v2/internal/controllers/generic/progress"
-	orcerrors "github.com/k-orc/openstack-resource-controller/v2/internal/util/errors"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
+	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
 // TestCalculateJitteredDuration_Range verifies that the returned duration is

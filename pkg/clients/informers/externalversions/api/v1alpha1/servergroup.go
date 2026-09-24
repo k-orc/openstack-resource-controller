@@ -22,10 +22,10 @@ import (
 	context "context"
 	time "time"
 
-	v2apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	clientset "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/clientset/clientset"
-	internalinterfaces "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/informers/externalversions/internalinterfaces"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/listers/api/v1alpha1"
+	v3apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	clientset "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/clientset/clientset"
+	internalinterfaces "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/informers/externalversions/internalinterfaces"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/listers/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -83,7 +83,7 @@ func NewFilteredServerGroupInformer(client clientset.Interface, namespace string
 				return client.OpenstackV1alpha1().ServerGroups(namespace).Watch(ctx, options)
 			},
 		},
-		&v2apiv1alpha1.ServerGroup{},
+		&v3apiv1alpha1.ServerGroup{},
 		resyncPeriod,
 		indexers,
 	)
@@ -94,7 +94,7 @@ func (f *serverGroupInformer) defaultInformer(client clientset.Interface, resync
 }
 
 func (f *serverGroupInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&v2apiv1alpha1.ServerGroup{}, f.defaultInformer)
+	return f.factory.InformerFor(&v3apiv1alpha1.ServerGroup{}, f.defaultInformer)
 }
 
 func (f *serverGroupInformer) Lister() apiv1alpha1.ServerGroupLister {

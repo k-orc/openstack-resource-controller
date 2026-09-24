@@ -7,8 +7,8 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portstrustedvif"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/ports"
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	osclients "github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"k8s.io/utils/ptr"
 )
 

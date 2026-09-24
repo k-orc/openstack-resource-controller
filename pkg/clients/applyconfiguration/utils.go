@@ -19,9 +19,9 @@ limitations under the License.
 package applyconfiguration
 
 import (
-	v1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
-	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
-	internal "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/internal"
+	v1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
+	internal "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/internal"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	managedfields "k8s.io/apimachinery/pkg/util/managedfields"
