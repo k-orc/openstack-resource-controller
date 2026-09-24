@@ -11,10 +11,15 @@ appVersion: v0.0.0-dev
 kubeVersion: ">=1.29.0-0"
 description: CRDs for the OpenStack Resource Controller (ORC)
 home: https://k-orc.cloud/
+icon: https://raw.githubusercontent.com/k-orc/openstack-resource-controller/main/logos/orc-logo-color.svg
 keywords:
   - openstack
   - infrastructure
   - crds
+maintainers:
+  - name: The ORC Authors
+    email: maintainers@k-orc.cloud
+    url: https://github.com/k-orc/openstack-resource-controller
 sources:
   - https://github.com/k-orc/openstack-resource-controller
 annotations:
