@@ -72,5 +72,9 @@ func (limitStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		resourceStatus.WithDomainID(osResource.DomainID)
 	}
 
+	if osResource.RegionID != "" {
+		resourceStatus.WithRegionID(osResource.RegionID)
+	}
+
 	statusApply.WithResource(resourceStatus)
 }

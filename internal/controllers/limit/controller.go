@@ -93,6 +93,18 @@ var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LimitL
 	finalizer, externalObjectFieldOwner,
 )
 
+var regionDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LimitList, *orcv1alpha1.Region](
+	"spec.resource.regionRef",
+	func(limit *orcv1alpha1.Limit) []string {
+		resource := limit.Spec.Resource
+		if resource == nil || resource.RegionRef == nil {
+			return nil
+		}
+		return []string{string(*resource.RegionRef)}
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
 var serviceImportDependency = dependency.NewDependency[*orcv1alpha1.LimitList, *orcv1alpha1.Service](
 	"spec.import.filter.serviceRef",
 	func(limit *orcv1alpha1.Limit) []string {
@@ -126,6 +138,17 @@ var domainImportDependency = dependency.NewDependency[*orcv1alpha1.LimitList, *o
 	},
 )
 
+var regionImportDependency = dependency.NewDependency[*orcv1alpha1.LimitList, *orcv1alpha1.Region](
+	"spec.import.filter.regionRef",
+	func(limit *orcv1alpha1.Limit) []string {
+		resource := limit.Spec.Import
+		if resource == nil || resource.Filter == nil || resource.Filter.RegionRef == nil {
+			return nil
+		}
+		return []string{string(*resource.Filter.RegionRef)}
+	},
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c *limitReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -146,6 +169,11 @@ func (c *limitReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	regionWatchEventHandler, err := regionDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	serviceImportWatchEventHandler, err := serviceImportDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -161,6 +189,11 @@ func (c *limitReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	regionImportWatchEventHandler, err := regionImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.Service{}, serviceWatchEventHandler,
@@ -171,6 +204,9 @@ func (c *limitReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		).
 		Watches(&orcv1alpha1.Domain{}, domainWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
+		).
+		Watches(&orcv1alpha1.Region{}, regionWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Region{})),
 		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Service{}, serviceImportWatchEventHandler,
@@ -184,15 +220,21 @@ func (c *limitReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.Domain{}, domainImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
 		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.Region{}, regionImportWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Region{})),
+		).
 		For(&orcv1alpha1.Limit{})
 
 	if err := errors.Join(
 		serviceDependency.AddToManager(ctx, mgr),
 		projectDependency.AddToManager(ctx, mgr),
 		domainDependency.AddToManager(ctx, mgr),
+		regionDependency.AddToManager(ctx, mgr),
 		serviceImportDependency.AddToManager(ctx, mgr),
 		projectImportDependency.AddToManager(ctx, mgr),
 		domainImportDependency.AddToManager(ctx, mgr),
+		regionImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {
