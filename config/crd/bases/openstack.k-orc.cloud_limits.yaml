@@ -120,6 +120,12 @@ spec:
                         maxLength: 253
                         minLength: 1
                         type: string
+                      regionRef:
+                        description: regionRef is a reference to the ORC Region which
+                          this resource is associated with.
+                        maxLength: 253
+                        minLength: 1
+                        type: string
                       resourceName:
                         description: resourceName is the name of the resource this
                           limit is associated with.
@@ -210,6 +216,15 @@ spec:
                     type: string
                     x-kubernetes-validations:
                     - message: projectRef is immutable
+                      rule: self == oldSelf
+                  regionRef:
+                    description: regionRef is a reference to the ORC Region which
+                      this resource is associated with.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: regionRef is immutable
                       rule: self == oldSelf
                   resourceLimit:
                     description: |-
@@ -379,6 +394,11 @@ spec:
                     type: string
                   projectID:
                     description: projectID is the ID of the Project to which the resource
+                      is associated.
+                    maxLength: 1024
+                    type: string
+                  regionID:
+                    description: regionID is the ID of the Region to which the resource
                       is associated.
                     maxLength: 1024
                     type: string

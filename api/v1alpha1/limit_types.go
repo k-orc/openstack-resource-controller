@@ -64,6 +64,12 @@ type LimitResourceSpec struct {
 	// +kubebuilder:validation:Minimum=-1
 	// +required
 	ResourceLimit int32 `json:"resourceLimit"`
+
+	// regionRef is a reference to the ORC Region which this resource is associated with.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="regionRef is immutable"
+	// +orc:kustomize:ref=Region
+	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // LimitFilter defines an existing resource by its properties
@@ -96,6 +102,11 @@ type LimitFilter struct {
 	// +kubebuilder:validation:Pattern=`^[\S]+$`
 	// +optional
 	ResourceName string `json:"resourceName,omitempty"`
+
+	// regionRef is a reference to the ORC Region which this resource is associated with.
+	// +optional
+	// +orc:kustomize:ref=Region
+	RegionRef *KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // LimitResourceStatus represents the observed state of the resource.
@@ -128,4 +139,9 @@ type LimitResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ResourceName string `json:"resourceName,omitempty"`
+
+	// regionID is the ID of the Region to which the resource is associated.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	RegionID string `json:"regionID,omitempty"`
 }

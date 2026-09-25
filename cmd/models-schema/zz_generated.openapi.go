@@ -5493,6 +5493,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LimitFilter(ref common
 							Format:      "",
 						},
 					},
+					"regionRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionRef is a reference to the ORC Region which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -5628,6 +5635,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LimitResourceSpec(ref 
 							Format:      "int32",
 						},
 					},
+					"regionRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionRef is a reference to the ORC Region which this resource is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"serviceRef", "resourceName", "resourceLimit"},
 			},
@@ -5680,6 +5694,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_LimitResourceStatus(re
 					"resourceName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resourceName is the name of the resource this limit is associated with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"regionID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "regionID is the ID of the Region to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

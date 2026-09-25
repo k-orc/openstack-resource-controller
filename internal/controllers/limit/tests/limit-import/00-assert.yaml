@@ -39,6 +39,19 @@ status:
       reason: Success
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: region-limit-import
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
 metadata:
   name: registered-limit-import

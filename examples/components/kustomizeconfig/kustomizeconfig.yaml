@@ -136,6 +136,10 @@ nameReference:
     path: spec/import/filter/regionRef
   - kind: Endpoint
     path: spec/resource/regionRef
+  - kind: Limit
+    path: spec/import/filter/regionRef
+  - kind: Limit
+    path: spec/resource/regionRef
   - kind: RegisteredLimit
     path: spec/import/filter/regionRef
   - kind: RegisteredLimit

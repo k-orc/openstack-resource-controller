@@ -2295,6 +2295,7 @@ _Appears in:_
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `resourceName` _string_ | resourceName is the name of the resource this limit is associated with. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[\S]+$` <br />Optional: \{\} <br /> |
+| `regionRef` _[KubernetesNameRef](#kubernetesnameref)_ | regionRef is a reference to the ORC Region which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### LimitImport
@@ -2336,6 +2337,7 @@ _Appears in:_
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with.<br />Either Domain ID or Project ID must be provided.<br />https://opendev.org/openstack/keystone/src/commit/30ef2ffa65a3486ef882f00538e20f2253c57d4c/keystone/limit/schema.py#L323-L340 |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `resourceName` _string_ | resourceName is the name of the resource this limit is associated with. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[\S]+$` <br />Required: \{\} <br /> |
 | `resourceLimit` _integer_ | resourceLimit is the override value of the limit.<br />Note, currently, there is an issue with keystone that it fails to set the resourceLimit field to zero<br />when ResourceLimit is updated to zero. |  | Minimum: -1 <br />Required: \{\} <br /> |
+| `regionRef` _[KubernetesNameRef](#kubernetesnameref)_ | regionRef is a reference to the ORC Region which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### LimitResourceStatus
@@ -2357,6 +2359,7 @@ _Appears in:_
 | `domainID` _string_ | domainID is the ID of the Domain to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resourceLimit` _integer_ | resourceLimit is the override value of the limit. |  | Optional: \{\} <br /> |
 | `resourceName` _string_ | resourceName is the name of the resource this limit is associated with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `regionID` _string_ | regionID is the ID of the Region to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### LimitSpec

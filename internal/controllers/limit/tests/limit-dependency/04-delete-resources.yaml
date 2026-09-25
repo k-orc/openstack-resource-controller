@@ -12,6 +12,9 @@ delete:
     kind: Limit
     name: limit-dependency-3
   - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Limit
+    name: limit-dependency-4
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
     kind: RegisteredLimit
     name: registered-limit-dependency-1
   - apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -20,3 +23,6 @@ delete:
   - apiVersion: openstack.k-orc.cloud/v1alpha1
     kind: RegisteredLimit
     name: registered-limit-dependency-3
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: RegisteredLimit
+    name: registered-limit-dependency-4

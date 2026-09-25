@@ -103,6 +103,14 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 	)
 	rs = rs.WithReconcileStatus(rs1)
 
+	region, rs1 := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.RegionRef, "Region",
+		func(dep *orcv1alpha1.Region) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
+	)
+	rs = rs.WithReconcileStatus(rs1)
+
 	if needsReschedule, err := rs.NeedsReschedule(); needsReschedule {
 		if err != nil {
 			ctrl.LoggerFrom(ctx).Info("fetch dependency before listing limit for adoption", "error", err)
@@ -123,6 +131,7 @@ func (actuator limitActuator) ListOSResourcesForAdoption(ctx context.Context, or
 		ServiceID:    ptr.Deref(svc.Status.ID, ""),
 		ProjectID:    ptr.Deref(project.Status.ID, ""),
 		DomainID:     ptr.Deref(domain.Status.ID, ""),
+		RegionID:     ptr.Deref(region.Status.ID, ""),
 		ResourceName: resourceSpec.ResourceName,
 	}
 
@@ -153,6 +162,13 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 	)
 	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
 
+	region, rs := dependency.FetchDependency[*orcv1alpha1.Region](
+		ctx, actuator.k8sClient, obj.Namespace,
+		filter.RegionRef, "Region",
+		orcv1alpha1.IsAvailable,
+	)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+
 	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
 		if err != nil {
 			ctrl.LoggerFrom(ctx).Info("fetch dependency before listing limit for import", "error", err)
@@ -173,6 +189,7 @@ func (actuator limitActuator) ListOSResourcesForImport(ctx context.Context, obj 
 		ServiceID:    ptr.Deref(service.Status.ID, ""),
 		ProjectID:    ptr.Deref(project.Status.ID, ""),
 		DomainID:     ptr.Deref(domain.Status.ID, ""),
+		RegionID:     ptr.Deref(region.Status.ID, ""),
 		ResourceName: filter.ResourceName,
 	}
 
@@ -224,6 +241,18 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 			domainID = ptr.Deref(domain.Status.ID, "")
 		}
 	}
+
+	var regionID string
+	if resource.RegionRef != nil {
+		region, regionDepRS := regionDependency.RequireDependency(
+			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(regionDepRS)
+		if region != nil {
+			regionID = ptr.Deref(region.Status.ID, "")
+		}
+	}
+
 	if needsReschedule, err := reconcileStatus.NeedsReschedule(); needsReschedule {
 		if err != nil {
 			logger.Info("fetch dependency before creating limit", "error", err)
@@ -231,11 +260,13 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 
 		return nil, reconcileStatus
 	}
+
 	createOpts := limits.CreateOpts{
 		Description:   ptr.Deref(resource.Description, ""),
 		ServiceID:     serviceID,
 		ProjectID:     projectID,
 		DomainID:      domainID,
+		RegionID:      regionID,
 		ResourceName:  resource.ResourceName,
 		ResourceLimit: int(resource.ResourceLimit),
 	}
