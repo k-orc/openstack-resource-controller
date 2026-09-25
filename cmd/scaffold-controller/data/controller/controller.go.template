@@ -41,8 +41,8 @@ import (
 
 const controllerName = "{{ .PackageName }}"
 
-// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName }}s,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName }}s/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName | plural }},verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources={{ .PackageName | plural }}/status,verbs=get;update;patch
 
 type {{ .PackageName }}ReconcilerConstructor struct {
 	scopeFactory        scope.Factory

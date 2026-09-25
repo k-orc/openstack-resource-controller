@@ -28,7 +28,7 @@ import (
 )
 
 type {{ .Kind }}Client interface {
-	List{{ .Kind }}s(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error]
+	List{{ .Kind | plural }}(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error]
 	Create{{ .Kind }}(ctx context.Context, opts {{ .GophercloudPackage }}.CreateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error)
 	Delete{{ .Kind }}(ctx context.Context, resourceID string) error
 	Get{{ .Kind }}(ctx context.Context, resourceID string) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error)
@@ -51,10 +51,10 @@ func New{{ .Kind }}Client(providerClient *gophercloud.ProviderClient, providerCl
 	return &{{ .PackageName }}Client{client}, nil
 }
 
-func (c {{ .PackageName }}Client) List{{ .Kind }}s(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
+func (c {{ .PackageName }}Client) List{{ .Kind | plural }}(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
 	pager := {{ .GophercloudPackage }}.List(c.client, listOpts)
 	return func(yield func(*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage({{ .GophercloudPackage }}.Extract{{ .GophercloudType }}s, yield))
+		_ = pager.EachPage(ctx, yieldPage({{ .GophercloudPackage }}.Extract{{ .GophercloudType | plural }}, yield))
 	}
 }
 
@@ -81,7 +81,7 @@ func New{{ .Kind }}ErrorClient(e error) {{ .Kind }}Client {
 	return {{ .PackageName }}ErrorClient{e}
 }
 
-func (e {{ .PackageName }}ErrorClient) List{{ .Kind }}s(_ context.Context, _ {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
+func (e {{ .PackageName }}ErrorClient) List{{ .Kind | plural }}(_ context.Context, _ {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
 	return func(yield func(*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) bool) {
 		yield(nil, e.error)
 	}
