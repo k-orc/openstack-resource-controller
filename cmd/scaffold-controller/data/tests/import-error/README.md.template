@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Create two {{ .Kind }}s with identical specs.
+Create two {{ .Kind | plural }} with identical specs.
 
 ## Step 01
 

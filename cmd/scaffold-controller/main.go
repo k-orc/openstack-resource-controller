@@ -239,6 +239,7 @@ func render(srcDir, distDir string, resource *templateFields) {
 		var funcMap = template.FuncMap{
 			"lower":     strings.ToLower,
 			"camelCase": toCamelCase,
+			"plural":    pluralize,
 		}
 		tpl := template.Must(template.New(tplName).Funcs(funcMap).Parse(string(templateContent)))
 
@@ -296,6 +297,38 @@ func camelToSnake(s string) string {
 	s = re2.ReplaceAllString(s, "${1}_${2}")
 
 	return strings.ToLower(s)
+}
+
+// pluralize returns the English plural of the given word.
+// It handles common suffixes: consonant+y → ies, sibilants → es,
+// and falls back to appending s.
+func pluralize(s string) string {
+	if s == "" {
+		return s
+	}
+
+	lower := strings.ToLower(s)
+
+	// Words ending in a consonant followed by "y": replace "y" with "ies"
+	if strings.HasSuffix(lower, "y") {
+		// Check the character before 'y' is a consonant (not a vowel)
+		if len(lower) >= 2 {
+			beforeY := lower[len(lower)-2]
+			if !strings.ContainsRune("aeiou", rune(beforeY)) {
+				return s[:len(s)-1] + "ies"
+			}
+		}
+	}
+
+	// Words ending in s, sh, ch, x, z: append "es"
+	for _, suffix := range []string{"s", "sh", "ch", "x", "z"} {
+		if strings.HasSuffix(lower, suffix) {
+			return s + "es"
+		}
+	}
+
+	// Default: append "s"
+	return s + "s"
 }
 
 // toCamelCase converts a string to camelCase.
