@@ -1,0 +1,76 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v**
+
+permissions:
+  contents: read
+
+env:
+  image_tag: quay.io/orc/openstack-resource-controller:${GITHUB_REF_NAME}
+  bundle_image_tag: quay.io/orc/openstack-resource-controller-bundle:${GITHUB_REF_NAME}
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag=v7.0.1
+      with:
+        # Required for git describe to generate correct output for populating
+        # build variables
+        fetch-depth: 0
+        fetch-tags: true
+        persist-credentials: false
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@594f3bf4285d9ea8dc53c9a0c9c4092420091003 # tag=v4.4.0
+    - name: Install build dependencies
+      run: sudo apt-get install -y libgpgme-dev
+
+    - run: |
+        docker login -u="${{ secrets.QUAY_USERNAME }}" -p="${{ secrets.QUAY_TOKEN }}" quay.io # zizmor: ignore[secrets-outside-env]
+        make docker-buildx IMG=${{ env.image_tag }}
+        make build-bundle-image BUNDLE_IMG=${{ env.bundle_image_tag }}
+        make docker-push IMG=${{ env.bundle_image_tag }}
+
+  helm:
+    needs: push
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag=v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Install Helm
+      uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # tag=v4.3.0
+
+    - name: Derive chart version from git tag
+      id: version
+      run: |
+        TAG="${GITHUB_REF_NAME}"
+        VERSION="${TAG#v}"
+        echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+        echo "appVersion=${TAG}" >> "$GITHUB_OUTPUT"
+
+    - name: Stamp Chart.yaml versions
+      env:
+        CHART_VERSION: ${{ steps.version.outputs.version }}
+        APP_VERSION: ${{ steps.version.outputs.appVersion }}
+      run: |
+        for chart in charts/orc-crds charts/orc; do
+          sed -i "s/^version: .*/version: ${CHART_VERSION}/" "${chart}/Chart.yaml"
+          sed -i "s/^appVersion: .*/appVersion: \"${APP_VERSION}\"/" "${chart}/Chart.yaml"
+        done
+
+    - name: Package and push charts
+      env:
+        CHART_VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        helm registry login quay.io -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_TOKEN }}" # zizmor: ignore[secrets-outside-env]
+        helm package charts/orc-crds
+        helm package charts/orc
+        helm push "orc-crds-${CHART_VERSION}.tgz" oci://quay.io/orc/helm
+        helm push "orc-${CHART_VERSION}.tgz" oci://quay.io/orc/helm

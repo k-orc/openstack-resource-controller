@@ -1,0 +1,21 @@
+# Copyright The ORC Authors.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: orc-crds
+type: application
+# version and appVersion are stamped by CI from the git tag at release time.
+# The values here are development placeholders.
+version: 0.0.0-dev
+appVersion: v0.0.0-dev
+kubeVersion: ">=1.29.0-0"
+description: CRDs for the OpenStack Resource Controller (ORC)
+home: https://k-orc.cloud/
+keywords:
+  - openstack
+  - infrastructure
+  - crds
+sources:
+  - https://github.com/k-orc/openstack-resource-controller
+annotations:
+  artifacthub.io/license: Apache-2.0
