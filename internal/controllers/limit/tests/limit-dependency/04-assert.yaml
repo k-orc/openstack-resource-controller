@@ -11,3 +11,5 @@ commands:
     skipLogOutput: true
   - script: "! kubectl get secret limit-dependency --namespace $NAMESPACE"
     skipLogOutput: true
+  - script: "! kubectl get region.openstack.k-orc.cloud region-limit-dependency --namespace $NAMESPACE"
+    skipLogOutput: true

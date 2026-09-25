@@ -50,6 +50,24 @@ spec:
     resourceName: limit-dependency-3
     defaultLimit: 100
 ---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registered-limit-dependency-4
+  labels:
+    test-case: limit-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: RegisteredLimit from "dependency" test
+    serviceRef: service-limit-dependency
+    regionRef: region-limit-dependency
+    resourceName: limit-dependency-4
+    defaultLimit: 100
+---
 # No project and service available
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
@@ -102,4 +120,23 @@ spec:
     serviceRef: service-limit-dependency
     domainRef: domain-limit-dependency
     resourceName: limit-dependency-3
+    resourceLimit: 5
+---
+# No region, service and domain available
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-4
+  labels:
+    test-case: limit-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    serviceRef: service-limit-dependency
+    domainRef: domain-limit-dependency
+    regionRef: region-limit-dependency
+    resourceName: limit-dependency-4
     resourceLimit: 5

@@ -27,6 +27,7 @@ type LimitResourceStatusApplyConfiguration struct {
 	DomainID      *string `json:"domainID,omitempty"`
 	ResourceLimit *int32  `json:"resourceLimit,omitempty"`
 	ResourceName  *string `json:"resourceName,omitempty"`
+	RegionID      *string `json:"regionID,omitempty"`
 }
 
 // LimitResourceStatusApplyConfiguration constructs a declarative configuration of the LimitResourceStatus type for use with
@@ -80,5 +81,13 @@ func (b *LimitResourceStatusApplyConfiguration) WithResourceLimit(value int32) *
 // If called multiple times, the ResourceName field is set to the value of the last call.
 func (b *LimitResourceStatusApplyConfiguration) WithResourceName(value string) *LimitResourceStatusApplyConfiguration {
 	b.ResourceName = &value
+	return b
+}
+
+// WithRegionID sets the RegionID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionID field is set to the value of the last call.
+func (b *LimitResourceStatusApplyConfiguration) WithRegionID(value string) *LimitResourceStatusApplyConfiguration {
+	b.RegionID = &value
 	return b
 }

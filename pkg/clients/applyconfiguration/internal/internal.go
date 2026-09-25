@@ -1550,6 +1550,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: regionRef
+      type:
+        scalar: string
     - name: resourceName
       type:
         scalar: string
@@ -1577,6 +1580,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: regionRef
+      type:
+        scalar: string
     - name: resourceLimit
       type:
         scalar: numeric
@@ -1597,6 +1603,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: projectID
+      type:
+        scalar: string
+    - name: regionID
       type:
         scalar: string
     - name: resourceLimit

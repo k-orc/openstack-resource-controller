@@ -30,6 +30,7 @@ type LimitFilterApplyConfiguration struct {
 	ProjectRef   *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
 	DomainRef    *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
 	ResourceName *string                        `json:"resourceName,omitempty"`
+	RegionRef    *apiv1alpha1.KubernetesNameRef `json:"regionRef,omitempty"`
 }
 
 // LimitFilterApplyConfiguration constructs a declarative configuration of the LimitFilter type for use with
@@ -75,5 +76,13 @@ func (b *LimitFilterApplyConfiguration) WithDomainRef(value apiv1alpha1.Kubernet
 // If called multiple times, the ResourceName field is set to the value of the last call.
 func (b *LimitFilterApplyConfiguration) WithResourceName(value string) *LimitFilterApplyConfiguration {
 	b.ResourceName = &value
+	return b
+}
+
+// WithRegionRef sets the RegionRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the RegionRef field is set to the value of the last call.
+func (b *LimitFilterApplyConfiguration) WithRegionRef(value apiv1alpha1.KubernetesNameRef) *LimitFilterApplyConfiguration {
+	b.RegionRef = &value
 	return b
 }

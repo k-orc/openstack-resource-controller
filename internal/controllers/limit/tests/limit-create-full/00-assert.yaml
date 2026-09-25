@@ -37,6 +37,19 @@ status:
       reason: Success
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: region-limit-create-full
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
 metadata:
   name: registered-limit-create-full-1
@@ -127,6 +140,10 @@ resourceRefs:
     kind: Domain
     name: domain-limit-create-full
     ref: domain
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Region
+    name: region-limit-create-full
+    ref: region
 assertAll:
   - celExpr: "limit1.status.id != ''"
   - celExpr: "limit2.status.id != ''"
@@ -134,3 +151,5 @@ assertAll:
   - celExpr: "limit2.status.resource.serviceID == service.status.id"
   - celExpr: "limit1.status.resource.projectID == project.status.id"
   - celExpr: "limit2.status.resource.domainID == domain.status.id"
+  - celExpr: "limit1.status.resource.regionID == region.status.id"
+  - celExpr: "limit2.status.resource.regionID == region.status.id"
