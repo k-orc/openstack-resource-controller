@@ -311,6 +311,88 @@ func TestShouldReconcile_ExistingBehaviorUnchanged_ResyncPeriodZero(t *testing.T
 	}
 }
 
+// simulateNotReconcilingRequeue simulates the ShouldReconcile=false path in
+// reconcileNormal. When the object is up to date but a periodic resync is
+// configured, this path schedules a requeue for the remaining time until the
+// next resync—with jitter applied to prevent synchronisation of resources
+// sharing the same period.
+func simulateNotReconcilingRequeue(lastSyncTime *metav1.Time, resyncPeriod time.Duration) progress.ReconcileStatus {
+	var reconcileStatus progress.ReconcileStatus
+	if remaining := resync.RemainingUntilNextSync(lastSyncTime, resyncPeriod); remaining > 0 {
+		reconcileStatus = reconcileStatus.WithRequeue(resync.CalculateJitteredDuration(remaining))
+	}
+	return reconcileStatus
+}
+
+// TestNotReconcilingRequeue_JitterApplied verifies that the
+// ShouldReconcile=false path applies jitter to the remaining-time requeue.
+// Without jitter, watch-triggered reconciliations (e.g. from status updates)
+// would replace a previously jittered requeue with an unjittered one, causing
+// all resources sharing the same resyncPeriod to synchronise.
+func TestNotReconcilingRequeue_JitterApplied(t *testing.T) {
+	t.Parallel()
+
+	const (
+		resyncPeriod = 10 * time.Minute
+		samples      = 200
+	)
+
+	// Simulate a status update right after a successful resync: lastSyncTime
+	// is very recent, so remaining ≈ resyncPeriod.
+	lastSync := nowPtr()
+
+	unique := make(map[time.Duration]struct{}, samples)
+	for i := range samples {
+		rs := simulateNotReconcilingRequeue(lastSync, resyncPeriod)
+		d := rs.GetRequeue()
+		if d == 0 {
+			t.Fatalf("sample %d: expected non-zero requeue", i)
+		}
+		unique[d] = struct{}{}
+	}
+
+	// With jitter, virtually all samples should be distinct.
+	minUnique := samples * 9 / 10
+	if len(unique) < minUnique {
+		t.Errorf("not-reconciling requeue appears unjittered: only %d unique values out of %d samples (want >= %d)",
+			len(unique), samples, minUnique)
+	}
+}
+
+// TestNotReconcilingRequeue_Range verifies that the not-reconciling requeue
+// is within the expected jitter range relative to the remaining time.
+func TestNotReconcilingRequeue_Range(t *testing.T) {
+	t.Parallel()
+
+	const resyncPeriod = 10 * time.Minute
+
+	// lastSyncTime 2 minutes ago → remaining ≈ 8 minutes.
+	lastSync := agoPtr(2 * time.Minute)
+
+	for i := range 100 {
+		rs := simulateNotReconcilingRequeue(lastSync, resyncPeriod)
+		d := rs.GetRequeue()
+
+		// The remaining time is approximately 8 minutes. Jitter adds
+		// [0%, 20%], so the requeue should be in [~8m, ~9.6m].
+		// We use generous bounds to account for time passing during the test.
+		if d < 7*time.Minute || d > 10*time.Minute {
+			t.Errorf("sample %d: requeue %v outside expected range [7m, 10m]", i, d)
+		}
+	}
+}
+
+// TestNotReconcilingRequeue_DisabledResync verifies that no requeue is
+// scheduled when resync is disabled.
+func TestNotReconcilingRequeue_DisabledResync(t *testing.T) {
+	t.Parallel()
+
+	rs := simulateNotReconcilingRequeue(nowPtr(), 0)
+	if d := rs.GetRequeue(); d != 0 {
+		t.Errorf("expected no requeue when resync disabled; got %v", d)
+	}
+}
+
 // scheduleResyncRequeue simulates the resync scheduling logic added to the end
 // of reconcileNormal:
 //

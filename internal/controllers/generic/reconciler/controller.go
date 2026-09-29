@@ -210,7 +210,12 @@ func (c *Controller[
 	if !ShouldReconcile(objAdapter.GetObject(), objAdapter.GetLastSyncTime(), effectiveResyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		if remaining := resync.RemainingUntilNextSync(objAdapter.GetLastSyncTime(), effectiveResyncPeriod); remaining > 0 {
-			return reconcileStatus.WithRequeue(remaining)
+			// Apply jitter so that watch-triggered reconciliations
+			// (e.g. from status updates) do not replace a previously
+			// jittered requeue with an unjittered one, which would
+			// cause all resources sharing the same resyncPeriod to
+			// synchronise.
+			return reconcileStatus.WithRequeue(resync.CalculateJitteredDuration(remaining))
 		}
 		return reconcileStatus
 	}
