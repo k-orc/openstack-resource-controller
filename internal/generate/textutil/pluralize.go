@@ -1,0 +1,51 @@
+/*
+Copyright The ORC Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package textutil
+
+import "strings"
+
+// Pluralize returns the English plural of the given word.
+// It handles common suffixes: consonant+y → ies, sibilants → es,
+// and falls back to appending s.
+func Pluralize(s string) string {
+	if s == "" {
+		return s
+	}
+
+	lower := strings.ToLower(s)
+
+	// Words ending in a consonant followed by "y": replace "y" with "ies"
+	if strings.HasSuffix(lower, "y") {
+		// Check the character before 'y' is a consonant (not a vowel)
+		if len(lower) >= 2 {
+			beforeY := lower[len(lower)-2]
+			if !strings.ContainsRune("aeiou", rune(beforeY)) {
+				return s[:len(s)-1] + "ies"
+			}
+		}
+	}
+
+	// Words ending in s, sh, ch, x, z: append "es"
+	for _, suffix := range []string{"s", "sh", "ch", "x", "z"} {
+		if strings.HasSuffix(lower, suffix) {
+			return s + "es"
+		}
+	}
+
+	// Default: append "s"
+	return s + "s"
+}

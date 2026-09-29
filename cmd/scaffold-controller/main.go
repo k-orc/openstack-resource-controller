@@ -16,6 +16,8 @@ import (
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/k-orc/openstack-resource-controller/v3/internal/generate/textutil"
 )
 
 //go:embed data
@@ -239,6 +241,7 @@ func render(srcDir, distDir string, resource *templateFields) {
 		var funcMap = template.FuncMap{
 			"lower":     strings.ToLower,
 			"camelCase": toCamelCase,
+			"plural":    textutil.Pluralize,
 		}
 		tpl := template.Must(template.New(tplName).Funcs(funcMap).Parse(string(templateContent)))
 
