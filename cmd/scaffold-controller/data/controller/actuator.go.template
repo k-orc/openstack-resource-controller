@@ -130,7 +130,7 @@ func (actuator {{ .PackageName }}Actuator) ListOSResourcesForAdoption(ctx contex
 		// TODO(scaffolding): Add more adoption filters
 	}
 
-	return actuator.osClient.List{{ .Kind }}s(ctx, listOpts), true
+	return actuator.osClient.List{{ .Kind | plural }}(ctx, listOpts), true
 }
 
 func (actuator {{ .PackageName }}Actuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
@@ -163,7 +163,7 @@ func (actuator {{ .PackageName }}Actuator) ListOSResourcesForImport(ctx context.
 		// TODO(scaffolding): Add more import filters
 	}
 
-	return actuator.osClient.List{{ .Kind }}s(ctx, listOpts), {{ if len .ImportDependencies }}reconcileStatus{{ else }}nil{{ end }}
+	return actuator.osClient.List{{ .Kind | plural }}(ctx, listOpts), {{ if len .ImportDependencies }}reconcileStatus{{ else }}nil{{ end }}
 }
 
 func (actuator {{ .PackageName }}Actuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {

@@ -10,12 +10,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/generate/textutil"
 )
 
 //go:embed data
@@ -109,7 +107,7 @@ func main() {
 	}
 
 	if fields.OpenStackJSONObject == "" {
-		jsonObjectName := camelToSnake(fields.Kind)
+		jsonObjectName := textutil.CamelToSnake(fields.Kind)
 		fields.OpenStackJSONObject = getUserInput(
 			"What is the name of the object in OpenStack json responses? "+
 				"If unset, we'll use "+jsonObjectName, interactive)
@@ -238,7 +236,8 @@ func render(srcDir, distDir string, resource *templateFields) {
 
 		var funcMap = template.FuncMap{
 			"lower":     strings.ToLower,
-			"camelCase": toCamelCase,
+			"camelCase": textutil.ToCamelCase,
+			"plural":    textutil.Pluralize,
 		}
 		tpl := template.Must(template.New(tplName).Funcs(funcMap).Parse(string(templateContent)))
 
@@ -278,45 +277,4 @@ func getUserInput(question string, interactive bool) string {
 	}
 
 	return response
-}
-
-// camelToSnake converts a camelCase string to snake_case.
-func camelToSnake(s string) string {
-	// Add an underscore before each uppercase letter that is not at the start of the string.
-	// Example: "camelCase" -> "camel_Case"
-	// Example: "HTTPRequest" -> "HTTP_Request"
-	re1 := regexp.MustCompile("([A-Z])([A-Z][a-z])")
-	s = re1.ReplaceAllString(s, "${1}_${2}")
-
-	// Add an underscore before each uppercase letter that is followed by a lowercase letter
-	// and is not at the start of the string.
-	// Example: "camel_Case" -> "camel_case" (after lowercasing)
-	// Example: "HTTP_Request" -> "http_request" (after lowercasing)
-	re2 := regexp.MustCompile("([a-z0-9])([A-Z])")
-	s = re2.ReplaceAllString(s, "${1}_${2}")
-
-	return strings.ToLower(s)
-}
-
-// toCamelCase converts a string to camelCase.
-// From https://stackoverflow.com/questions/70083837/how-to-convert-a-string-to-camelcase-in-go
-func toCamelCase(s string) string {
-	// Remove all characters that are not alphanumeric or spaces or underscores
-	s = regexp.MustCompile("[^a-zA-Z0-9_ ]+").ReplaceAllString(s, "")
-
-	// Replace all underscores with spaces
-	s = strings.ReplaceAll(s, "_", " ")
-
-	// Title case s
-	s = cases.Title(language.AmericanEnglish, cases.NoLower).String(s)
-
-	// Remove all spaces
-	s = strings.ReplaceAll(s, " ", "")
-
-	// Lowercase the first letter
-	if len(s) > 0 {
-		s = strings.ToLower(s[:1]) + s[1:]
-	}
-
-	return s
 }

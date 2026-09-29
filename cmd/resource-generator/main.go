@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 	"text/template"
+
+	"github.com/k-orc/openstack-resource-controller/v3/internal/generate/textutil"
 )
 
 const (
@@ -257,7 +259,9 @@ func main() {
 	controllerTemplate := template.Must(template.New("controller").Parse(controller_template))
 	projectTemplate := template.Must(template.New("project").Parse(project_template))
 	kuttlTestTemplate := template.Must(template.New("kuttl-test").Parse(kuttl_test_template))
-	crdKustomizationTemplate := template.Must(template.New("crd-kustomization").Parse(crd_kustomization_template))
+	funcMap := template.FuncMap{"plural": textutil.Pluralize}
+	crdKustomizationTemplate := template.Must(
+		template.New("crd-kustomization").Funcs(funcMap).Parse(crd_kustomization_template))
 	samplesKustomizationTemplate := template.Must(
 		template.New("samples-kustomization").Parse(samples_kustomization_template))
 	mockDocTemplate := template.Must(template.New("mock-doc").Parse(mock_doc_template))
