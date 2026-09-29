@@ -15,5 +15,6 @@ spec:
     description: Limit limit-import-external from "limit-import" test
     serviceRef: service-limit-import
     projectRef: project-limit-import
+    regionRef: region-limit-import
     resourceName: limit-import-nonexistent-resource
     resourceLimit: 55

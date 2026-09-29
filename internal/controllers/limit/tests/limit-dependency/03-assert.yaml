@@ -18,6 +18,10 @@ resourceRefs:
     kind: Secret
     name: limit-dependency
     ref: secret
+  - apiVersion: openstack.k-orc.cloud/v1alpha1
+    kind: Region
+    name: region-limit-dependency
+    ref: region
 assertAll:
   - celExpr: "service.metadata.deletionTimestamp != 0"
   - celExpr: "'openstack.k-orc.cloud/limit' in service.metadata.finalizers"
@@ -27,3 +31,5 @@ assertAll:
   - celExpr: "'openstack.k-orc.cloud/limit' in domain.metadata.finalizers"
   - celExpr: "secret.metadata.deletionTimestamp != 0"
   - celExpr: "'openstack.k-orc.cloud/limit' in secret.metadata.finalizers"
+  - celExpr: "region.metadata.deletionTimestamp != 0"
+  - celExpr: "'openstack.k-orc.cloud/limit' in region.metadata.finalizers"

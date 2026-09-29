@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Create Limits referencing non-existing resources. Each Limit is dependent on some other non-existing resource(project/domain/secret). Verify that the Limits are waiting for the needed resources to be created externally.
+Create Limits referencing non-existing resources. Each Limit is dependent on some other non-existing resource(project/domain/secret/region). Verify that the Limits are waiting for the needed resources to be created externally.
 
 ## Step 01
 

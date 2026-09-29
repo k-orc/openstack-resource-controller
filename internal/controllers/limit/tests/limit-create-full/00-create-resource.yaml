@@ -41,6 +41,19 @@ spec:
   resource: {}
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Region
+metadata:
+  name: region-limit-create-full
+  labels:
+    test-case: limit-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RegisteredLimit
 metadata:
   name: registered-limit-create-full-1
@@ -55,6 +68,7 @@ spec:
     description: RegisteredLimit from "create full" test
     serviceRef: service-limit-create-full
     resourceName: limit-create-full-1
+    regionRef: region-limit-create-full
     defaultLimit: 100
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
@@ -72,6 +86,7 @@ spec:
     description: RegisteredLimit from "create full" test
     serviceRef: service-limit-create-full
     resourceName: limit-create-full-2
+    regionRef: region-limit-create-full
     defaultLimit: 100
 ---
 # Use projectRef
@@ -90,6 +105,7 @@ spec:
     description: Limit from "create full" test
     serviceRef: service-limit-create-full
     projectRef: project-limit-create-full
+    regionRef: region-limit-create-full
     resourceName: limit-create-full-1
     resourceLimit: 50
 ---
@@ -109,5 +125,6 @@ spec:
     description: Limit from "create full" test
     serviceRef: service-limit-create-full
     domainRef: domain-limit-create-full
+    regionRef: region-limit-create-full
     resourceName: limit-create-full-2
     resourceLimit: 10

@@ -51,6 +51,25 @@ status:
       reason: Progressing
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RegisteredLimit
+metadata:
+  name: registered-limit-dependency-4
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Service/service-limit-dependency to be created
+        Waiting for Region/region-limit-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Service/service-limit-dependency to be created
+        Waiting for Region/region-limit-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Limit
 metadata:
   name: limit-dependency-1
@@ -102,5 +121,26 @@ status:
     - type: Progressing
       message: |-
         Waiting for Secret/limit-dependency to be created
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Limit
+metadata:
+  name: limit-dependency-4
+status:
+  conditions:
+    - type: Available
+      message: |-
+        Waiting for Service/service-limit-dependency to be created
+        Waiting for Domain/domain-limit-dependency to be created
+        Waiting for Region/region-limit-dependency to be created
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: |-
+        Waiting for Service/service-limit-dependency to be created
+        Waiting for Domain/domain-limit-dependency to be created
+        Waiting for Region/region-limit-dependency to be created
       status: "True"
       reason: Progressing

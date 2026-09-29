@@ -15,3 +15,4 @@ spec:
     # domainRef: default
     resourceName: servers
     resourceLimit: 10
+    regionRef: region-one

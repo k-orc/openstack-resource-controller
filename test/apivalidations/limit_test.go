@@ -147,6 +147,18 @@ var _ = Describe("ORC Limit API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("domainRef is immutable")))
 	})
 
+	It("should have immutable regionRef", func(ctx context.Context) {
+		obj := limitStub(namespace)
+		patch := baseLimitPatch(obj)
+		patch.Spec.WithResource(testLimitResourceWithProject().
+			WithRegionRef("region-a"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testLimitResourceWithProject().
+			WithRegionRef("region-b"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("regionRef is immutable")))
+	})
+
 	It("should have immutable resourceName", func(ctx context.Context) {
 		obj := limitStub(namespace)
 		patch := baseLimitPatch(obj)
