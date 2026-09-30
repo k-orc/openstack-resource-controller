@@ -70,9 +70,14 @@ func (portStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResou
 		WithVNICType(osResource.VNICType).
 		WithPortSecurityEnabled(osResource.PortSecurityEnabled).
 		WithRevisionNumber(int64(osResource.RevisionNumber)).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
-		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt)).
 		WithHostID(osResource.HostID)
+
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
