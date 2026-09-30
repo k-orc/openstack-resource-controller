@@ -347,8 +347,8 @@ orcRules:
 			ProjectID:      projectID,
 		}
 		if createRules[i].PortRange != nil {
-			ruleCreateOpts[i].PortRangeMin = int(resource.Rules[i].PortRange.Min)
-			ruleCreateOpts[i].PortRangeMax = int(resource.Rules[i].PortRange.Max)
+			ruleCreateOpts[i].PortRangeMin = int(createRules[i].PortRange.Min)
+			ruleCreateOpts[i].PortRangeMax = int(createRules[i].PortRange.Max)
 		}
 	}
 

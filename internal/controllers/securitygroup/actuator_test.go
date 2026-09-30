@@ -287,6 +287,56 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 			wantReschedule: true,
 		},
 		{
+			// Regression test: reproduces a nil-pointer panic where updateRules indexed the
+			// full resource.Rules slice with the loop variable from the filtered createRules
+			// slice when copying PortRange. When an earlier-declared rule without a PortRange
+			// (e.g. esp/icmp/vrrp) already matches live and is therefore excluded from
+			// createRules, the same index into resource.Rules can land on that no-port-range
+			// rule instead of the one actually being created, dereferencing a nil PortRange.
+			name: "rule without PortRange already matches, later rule with PortRange needs creating",
+			orcObject: orcObjectWithRules([]orcv1alpha1.SecurityGroupRule{
+				{
+					Description: ptr.To(orcv1alpha1.NeutronDescription("esp rule, no port range")),
+					Direction:   ptr.To(orcv1alpha1.RuleDirection("ingress")),
+					Protocol:    ptr.To(orcv1alpha1.ProtocolESP),
+					Ethertype:   orcv1alpha1.EthertypeIPv4,
+				},
+				{
+					Description: ptr.To(orcv1alpha1.NeutronDescription("ssh rule, needs creating")),
+					Direction:   ptr.To(orcv1alpha1.RuleDirection("ingress")),
+					Protocol:    ptr.To(orcv1alpha1.ProtocolTCP),
+					Ethertype:   orcv1alpha1.EthertypeIPv4,
+					PortRange: &orcv1alpha1.PortRangeSpec{
+						Min: 22,
+						Max: 22,
+					},
+				},
+			}),
+			osResource: osResourceWithRules([]rules.SecGroupRule{
+				{
+					ID:          ruleID,
+					Direction:   "ingress",
+					Description: "esp rule, no port range",
+					EtherType:   "IPv4",
+					SecGroupID:  groupID,
+					Protocol:    "esp",
+				},
+			}),
+			expect: func(recorder *mock.MockNetworkClientMockRecorder) {
+				createOpts := rules.CreateOpts{
+					SecGroupID:   groupID,
+					Direction:    "ingress",
+					Description:  "ssh rule, needs creating",
+					EtherType:    "IPv4",
+					PortRangeMin: 22,
+					PortRangeMax: 22,
+					Protocol:     "tcp",
+				}
+				recorder.CreateSecGroupRules(gomock.Any(), []rules.CreateOpts{createOpts}).Return(nil, nil)
+			},
+			wantReschedule: true,
+		},
+		{
 			name: "delete should still be called if create fails",
 			orcObject: orcObjectWithRules([]orcv1alpha1.SecurityGroupRule{
 				{
