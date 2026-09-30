@@ -66,11 +66,16 @@ func (floatingipStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *o
 		WithStatus(osResource.Status).
 		WithRouterID(osResource.RouterID).
 		WithTags(osResource.Tags...).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
-		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt)).
 		WithFixedIP(osResource.FixedIP).
 		WithFloatingIP(osResource.FloatingIP).
 		WithRevisionNumber(int64(osResource.RevisionNumber))
+
+	if !osResource.CreatedAt.IsZero() {
+		status.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+	if !osResource.UpdatedAt.IsZero() {
+		status.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		status.WithDescription(osResource.Description)
