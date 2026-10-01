@@ -42,3 +42,6 @@ __pycache__/
 
 /bundle/
 bundle.Dockerfile
+
+# Helm packaged charts
+*.tgz
