@@ -33,7 +33,7 @@ const (
 )
 
 // DNSZoneResourceSpec contains the desired state of the resource.
-// +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? (has(self.email) && self.email != '') : true",message="email is required for PRIMARY zones"
+// +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? has(self.email) : true",message="email is required for PRIMARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? (has(self.masters) && self.masters.size() > 0) : true",message="masters is required for SECONDARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? !has(self.masters) : true",message="masters must not be set for PRIMARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? !has(self.email) : true",message="email must not be set for SECONDARY zones"
@@ -49,6 +49,7 @@ type DNSZoneResourceSpec struct {
 	// not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the
 	// present-when-not-applicable cases - enforced here too via CEL rather than only server-side).
 	// +kubebuilder:validation:Format:=email
+	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
 	// +optional
 	Email *string `json:"email,omitempty"`
@@ -136,6 +137,7 @@ type DNSZoneResourceStatus struct {
 
 	// masters are the master server IPs this SECONDARY zone transfers its records from.
 	// +kubebuilder:validation:MaxItems:=32
+	// +kubebuilder:validation:items:MaxLength=1024
 	// +listType=set
 	// +optional
 	Masters []string `json:"masters,omitempty"`

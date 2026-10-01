@@ -378,6 +378,7 @@ spec:
                   records:
                     description: records are the record data for this recordset.
                     items:
+                      maxLength: 4096
                       type: string
                     maxItems: 64
                     type: array

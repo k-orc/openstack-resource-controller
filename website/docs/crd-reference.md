@@ -640,7 +640,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `name` _[OpenStackName](#openstackname)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. If not specified, the name of the ORC object is used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the<br />present-when-not-applicable cases - enforced here too via CEL rather than only server-side). |  | Format: email <br />MaxLength: 255 <br />Optional: \{\} <br /> |
+| `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the<br />present-when-not-applicable cases - enforced here too via CEL rather than only server-side). |  | Format: email <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
 | `type` _[DNSZoneType](#dnszonetype)_ | type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from<br />masters over AXFR). Immutable - Designate has no API to convert between the two in place. | PRIMARY | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
@@ -665,7 +665,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Optional: \{\} <br /> |
 | `type` _string_ | type is PRIMARY or SECONDARY. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `masters` _string array_ | masters are the master server IPs this SECONDARY zone transfers its records from. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `masters` _string array_ | masters are the master server IPs this SECONDARY zone transfers its records from. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `serial` _integer_ | serial is the zone's current SOA serial number. |  | Optional: \{\} <br /> |
 | `transferredAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | transferredAt is the last time this SECONDARY zone's records were refreshed from its<br />masters. Unset for PRIMARY zones. |  | Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the OpenStack project that owns this zone. Not to be confused with<br />a DNSZoneShare's targetProjectID, which grants a *different* project access without<br />changing ownership. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
@@ -3753,7 +3753,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `zoneID` _string_ | zoneID is the ID of the DNSZone this recordset belongs to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `type` _string_ | type is the RRTYPE of the recordset. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `records` _string array_ | records are the record data for this recordset. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
+| `records` _string array_ | records are the record data for this recordset. |  | MaxItems: 64 <br />items:MaxLength: 4096 <br />Optional: \{\} <br /> |
 | `ttl` _integer_ | ttl is the Time To Live for the recordset, in seconds. |  | Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the project that owns this recordset (inherited from its zone). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 

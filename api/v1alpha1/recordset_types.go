@@ -109,6 +109,7 @@ type RecordSetResourceStatus struct {
 
 	// records are the record data for this recordset.
 	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:items:MaxLength:=4096
 	// +listType=set
 	// +optional
 	Records []string `json:"records,omitempty"`

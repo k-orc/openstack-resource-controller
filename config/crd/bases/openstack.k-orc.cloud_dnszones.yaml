@@ -177,6 +177,7 @@ spec:
                       present-when-not-applicable cases - enforced here too via CEL rather than only server-side).
                     format: email
                     maxLength: 255
+                    minLength: 1
                     type: string
                   masters:
                     description: |-
@@ -227,8 +228,7 @@ spec:
                 type: object
                 x-kubernetes-validations:
                 - message: email is required for PRIMARY zones
-                  rule: 'self.type == ''PRIMARY'' ? (has(self.email) && self.email
-                    != '''') : true'
+                  rule: 'self.type == ''PRIMARY'' ? has(self.email) : true'
                 - message: masters is required for SECONDARY zones
                   rule: 'self.type == ''SECONDARY'' ? (has(self.masters) && self.masters.size()
                     > 0) : true'
@@ -368,6 +368,7 @@ spec:
                     description: masters are the master server IPs this SECONDARY
                       zone transfers its records from.
                     items:
+                      maxLength: 1024
                       type: string
                     maxItems: 32
                     type: array
