@@ -24,6 +24,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/mtu"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
@@ -189,6 +190,30 @@ func (actuator networkActuator) CreateResource(ctx context.Context, obj orcObjec
 		createOpts = &external.CreateOptsExt{
 			CreateOptsBuilder: createOpts,
 			External:          resource.External,
+		}
+	}
+
+	if resource.Segments != nil {
+		segmentList := make([]provider.Segment, len(resource.Segments))
+
+		for i := range resource.Segments {
+			segmentSpec := &resource.Segments[i]
+			segment := &segmentList[i]
+
+			segment.NetworkType = string(segmentSpec.NetworkType)
+
+			if segmentSpec.PhysicalNetwork != "" {
+				segment.PhysicalNetwork = segmentSpec.PhysicalNetwork
+			}
+
+			if segmentSpec.SegmentationID != nil {
+				segment.SegmentationID = int(*segmentSpec.SegmentationID)
+			}
+		}
+
+		createOpts = &provider.CreateOptsExt{
+			CreateOptsBuilder: createOpts,
+			Segments:          segmentList,
 		}
 	}
 

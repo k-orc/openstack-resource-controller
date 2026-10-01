@@ -16,32 +16,6 @@ limitations under the License.
 
 package v1alpha1
 
-type ProviderPropertiesStatus struct {
-	// networkType is the type of physical network that this
-	// network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
-	// Valid values depend on the networking back-end.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	NetworkType string `json:"networkType,omitempty"`
-
-	// physicalNetwork is the physical network where this network
-	// should be implemented. The Networking API v2.0 does not provide a
-	// way to list available physical networks. For example, the Open
-	// vSwitch plug-in configuration file defines a symbolic name that maps
-	// to specific bridges on each compute host.
-	// +kubebuilder:validation:MaxLength=1024
-	// +optional
-	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
-
-	// segmentationID is the ID of the isolated segment on the
-	// physical network. The network_type attribute defines the
-	// segmentation model. For example, if the network_type value is vlan,
-	// this ID is a vlan identifier. If the network_type value is gre, this
-	// ID is a gre key.
-	// +optional
-	SegmentationID *int32 `json:"segmentationID,omitempty"`
-}
-
 // TODO: Much better DNSDomain validation
 
 // +kubebuilder:validation:MinLength:=1
@@ -52,6 +26,43 @@ type DNSDomain string
 // +kubebuilder:validation:Minimum:=68
 // +kubebuilder:validation:Maximum:=9216
 type MTU int32
+
+// +kubebuilder:validation:Enum:=local;flat;vlan;vxlan;gre
+type ProviderNetworkType string
+
+const (
+	ProviderNetworkTypeLocal ProviderNetworkType = "local"
+	ProviderNetworkTypeFlat  ProviderNetworkType = "flat"
+	ProviderNetworkTypeVlan  ProviderNetworkType = "vlan"
+	ProviderNetworkTypeVxlan ProviderNetworkType = "vxlan"
+	ProviderNetworkTypeGre   ProviderNetworkType = "gre"
+)
+
+type ProviderSegmentSpec struct {
+	// networkType is the type of physical network that this
+	// network should be mapped to. Supported values are local, flat, vlan, vxlan, and gre.
+	// +required
+	NetworkType ProviderNetworkType `json:"networkType,omitempty"`
+
+	// physicalNetwork is the physical network where this network
+	// should be implemented. The Networking API v2.0 does not provide a
+	// way to list available physical networks. For example, the Open
+	// vSwitch plug-in configuration file defines a symbolic name that maps
+	// to specific bridges on each compute host.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=64
+	// +optional
+	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
+
+	// segmentationID is the ID of the isolated segment on the
+	// physical network. The network_type attribute defines the
+	// segmentation model. For example, if the network_type value is vlan,
+	// this ID is a vlan identifier. If the network_type value is gre, this
+	// ID is a gre key.
+	// +kubebuilder:validation:Minimum:=0
+	// +optional
+	SegmentationID *int32 `json:"segmentationID,omitempty"`
+}
 
 // NetworkResourceSpec contains the desired state of a network
 type NetworkResourceSpec struct {
@@ -116,6 +127,13 @@ type NetworkResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
+	// segments is a list of provider segment objects.
+	// +kubebuilder:validation:MaxItems:=256
+	// +listType=atomic
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="segments is immutable"
+	Segments []ProviderSegmentSpec `json:"segments,omitempty"`
 }
 
 // NetworkFilter defines an existing resource by its properties
@@ -141,6 +159,32 @@ type NetworkFilter struct {
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	FilterByNeutronTags `json:",inline"`
+}
+
+type ProviderPropertiesStatus struct {
+	// networkType is the type of physical network that this
+	// network should be mapped to. Supported values are flat, vlan, vxlan, and gre.
+	// Valid values depend on the networking back-end.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	NetworkType string `json:"networkType,omitempty"`
+
+	// physicalNetwork is the physical network where this network
+	// should be implemented. The Networking API v2.0 does not provide a
+	// way to list available physical networks. For example, the Open
+	// vSwitch plug-in configuration file defines a symbolic name that maps
+	// to specific bridges on each compute host.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	PhysicalNetwork string `json:"physicalNetwork,omitempty"`
+
+	// segmentationID is the ID of the isolated segment on the
+	// physical network. The network_type attribute defines the
+	// segmentation model. For example, if the network_type value is vlan,
+	// this ID is a vlan identifier. If the network_type value is gre, this
+	// ID is a gre key.
+	// +optional
+	SegmentationID *int32 `json:"segmentationID,omitempty"`
 }
 
 // NetworkResourceStatus represents the observed state of the resource.
@@ -206,10 +250,6 @@ type NetworkResourceStatus struct {
 	// +optional
 	PortSecurityEnabled *bool `json:"portSecurityEnabled,omitempty"`
 
-	// provider contains provider-network properties.
-	// +optional
-	Provider *ProviderPropertiesStatus `json:"provider,omitempty"`
-
 	// external defines whether the network may be used for creation of
 	// floating IPs. Only networks with this flag may be an external
 	// gateway for routers. The network must have an external routing
@@ -231,4 +271,10 @@ type NetworkResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	Subnets []string `json:"subnets,omitempty"`
+
+	// segments is a list of provider segment objects.
+	// +kubebuilder:validation:MaxItems=256
+	// +listType=atomic
+	// +optional
+	Segments []ProviderPropertiesStatus `json:"segments,omitempty"`
 }

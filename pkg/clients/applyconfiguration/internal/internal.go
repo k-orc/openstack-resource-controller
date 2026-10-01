@@ -1767,6 +1767,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: segments
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ProviderSegmentSpec
+          elementRelationship: atomic
     - name: shared
       type:
         scalar: boolean
@@ -1812,12 +1818,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectID
       type:
         scalar: string
-    - name: provider
-      type:
-        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ProviderPropertiesStatus
     - name: revisionNumber
       type:
         scalar: numeric
+    - name: segments
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ProviderPropertiesStatus
+          elementRelationship: atomic
     - name: shared
       type:
         scalar: boolean
@@ -2324,6 +2333,18 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ProjectResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ProviderPropertiesStatus
+  map:
+    fields:
+    - name: networkType
+      type:
+        scalar: string
+    - name: physicalNetwork
+      type:
+        scalar: string
+    - name: segmentationID
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ProviderSegmentSpec
   map:
     fields:
     - name: networkType

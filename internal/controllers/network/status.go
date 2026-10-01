@@ -17,6 +17,7 @@ limitations under the License.
 package network
 
 import (
+	"reflect"
 	"strconv"
 
 	"github.com/go-logr/logr"
@@ -88,20 +89,46 @@ func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *oscl
 	if osResource.DNSDomain != "" {
 		networkResourceStatus.WithDNSDomain(osResource.DNSDomain)
 	}
+
+	var inlineSegmentStatus *orcapplyconfigv1alpha1.ProviderPropertiesStatusApplyConfiguration
+
 	if osResource.NetworkType != "" {
-		providerProperties := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
-			WithNetworkType(osResource.NetworkType).
-			WithPhysicalNetwork(osResource.PhysicalNetwork)
+		inlineSegmentStatus = orcapplyconfigv1alpha1.ProviderPropertiesStatus().
+			WithNetworkType(osResource.NetworkType)
+
+		if osResource.PhysicalNetwork != "" {
+			inlineSegmentStatus.WithPhysicalNetwork(osResource.PhysicalNetwork)
+		}
 
 		if osResource.SegmentationID != "" {
 			segmentationID, err := strconv.ParseInt(osResource.SegmentationID, 10, 32)
 			if err != nil {
 				log.V(logging.Info).Error(err, "Invalid segmentation ID", "segmentationID", osResource.SegmentationID)
 			} else {
-				providerProperties.WithSegmentationID(int32(segmentationID))
+				inlineSegmentStatus.WithSegmentationID(int32(segmentationID))
 			}
 		}
-		networkResourceStatus.WithProvider(providerProperties)
+
+		networkResourceStatus.WithSegments(inlineSegmentStatus)
+	}
+
+	for i := range osResource.Segments {
+		segment := osResource.Segments[i]
+
+		segmentStatus := orcapplyconfigv1alpha1.ProviderPropertiesStatus().
+			WithNetworkType(segment.NetworkType)
+
+		if segment.PhysicalNetwork != "" {
+			segmentStatus.WithPhysicalNetwork(segment.PhysicalNetwork)
+		}
+
+		if segment.SegmentationID != 0 {
+			segmentStatus.WithSegmentationID(int32(segment.SegmentationID))
+		}
+
+		if !reflect.DeepEqual(segmentStatus, inlineSegmentStatus) {
+			networkResourceStatus.WithSegments(segmentStatus)
+		}
 	}
 
 	statusApply.WithResource(networkResourceStatus)

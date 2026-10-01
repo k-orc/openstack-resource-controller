@@ -168,6 +168,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProjectSpec":                           schema_openstack_resource_controller_v3_api_v1alpha1_ProjectSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProjectStatus":                         schema_openstack_resource_controller_v3_api_v1alpha1_ProjectStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderPropertiesStatus":              schema_openstack_resource_controller_v3_api_v1alpha1_ProviderPropertiesStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderSegmentSpec":                   schema_openstack_resource_controller_v3_api_v1alpha1_ProviderSegmentSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Region":                                schema_openstack_resource_controller_v3_api_v1alpha1_Region(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RegionFilter":                          schema_openstack_resource_controller_v3_api_v1alpha1_RegionFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RegionImport":                          schema_openstack_resource_controller_v3_api_v1alpha1_RegionImport(ref),
@@ -6203,9 +6204,30 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_NetworkResourceSpec(re
 							Format:      "",
 						},
 					},
+					"segments": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "segments is a list of provider segment objects.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderSegmentSpec"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderSegmentSpec"},
 	}
 }
 
@@ -6331,12 +6353,6 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_NetworkResourceStatus(
 							Format:      "",
 						},
 					},
-					"provider": {
-						SchemaProps: spec.SchemaProps{
-							Description: "provider contains provider-network properties.",
-							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderPropertiesStatus"),
-						},
-					},
 					"external": {
 						SchemaProps: spec.SchemaProps{
 							Description: "external defines whether the network may be used for creation of floating IPs. Only networks with this flag may be an external gateway for routers. The network must have an external routing facility that is not managed by the networking service. If the network is updated from external to internal the unused floating IPs of this network are automatically deleted when extension floatingip-autodelete-internal is present.",
@@ -6366,6 +6382,25 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_NetworkResourceStatus(
 										Default: "",
 										Type:    []string{"string"},
 										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"segments": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "segments is a list of provider segment objects.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderPropertiesStatus"),
 									},
 								},
 							},
@@ -7885,6 +7920,40 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ProviderPropertiesStat
 						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_ProviderSegmentSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"networkType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "networkType is the type of physical network that this network should be mapped to. Supported values are local, flat, vlan, vxlan, and gre.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"physicalNetwork": {
+						SchemaProps: spec.SchemaProps{
+							Description: "physicalNetwork is the physical network where this network should be implemented. The Networking API v2.0 does not provide a way to list available physical networks. For example, the Open vSwitch plug-in configuration file defines a symbolic name that maps to specific bridges on each compute host.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"segmentationID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "segmentationID is the ID of the isolated segment on the physical network. The network_type attribute defines the segmentation model. For example, if the network_type value is vlan, this ID is a vlan identifier. If the network_type value is gre, this ID is a gre key.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+				Required: []string{"networkType"},
 			},
 		},
 	}
