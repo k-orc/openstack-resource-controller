@@ -54,9 +54,14 @@ func (trunkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		WithProjectID(osResource.ProjectID).
 		WithName(osResource.Name).
 		WithAdminStateUp(osResource.AdminStateUp).
-		WithRevisionNumber(int64(osResource.RevisionNumber)).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
-		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+		WithRevisionNumber(int64(osResource.RevisionNumber))
+
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Status != "" {
 		resourceStatus.WithStatus(osResource.Status)

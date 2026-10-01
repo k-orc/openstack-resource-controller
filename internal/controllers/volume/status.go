@@ -72,8 +72,11 @@ func (volumeStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		WithStatus(osResource.Status).
 		WithUserID(osResource.UserID).
 		WithEncrypted(osResource.Encrypted).
-		WithMultiattach(osResource.Multiattach).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+		WithMultiattach(osResource.Multiattach)
+
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
 
 	if !osResource.UpdatedAt.IsZero() {
 		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
