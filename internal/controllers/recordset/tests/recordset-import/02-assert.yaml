@@ -28,5 +28,5 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: recordset-import-external.example.com.
+    name: external.recordset-import.example.com.
     description: RecordSet recordset-import-external from "recordset-import" test

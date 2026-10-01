@@ -22,7 +22,7 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: www.recordset-dependency-no-dnszone.example.com.
+    name: www.recordset-dependency-pending.example.com.
     zoneRef: recordset-dependency-pending
     type: A
     records:
@@ -38,7 +38,7 @@ spec:
     secretName: recordset-dependency
   managementPolicy: managed
   resource:
-    name: www.recordset-dependency-no-secret.example.com.
+    name: www.recordset-dependency.example.com.
     zoneRef: recordset-dependency
     type: A
     records:
