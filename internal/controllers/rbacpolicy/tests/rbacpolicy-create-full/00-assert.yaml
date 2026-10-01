@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-create-full
+status:
+  resource:
+    action: access_as_external
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000012"
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RBACPolicy
+      name: rbacpolicy-create-full
+      ref: rbacpolicy
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Network
+      name: rbacpolicy-create-full
+      ref: network
+assertAll:
+    - celExpr: "rbacpolicy.status.id != ''"
+    - celExpr: "rbacpolicy.status.resource.networkID == network.status.id"
+    - celExpr: "rbacpolicy.status.resource.projectID != ''"

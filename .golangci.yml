@@ -96,6 +96,16 @@ linters:
       - linters:
           - kubeapilinter
         path-except: ^api/*
+      # RBACPolicy.TargetProjectID is deliberately a raw OpenStack project ID, not a
+      # KubernetesNameRef to an ORC Project - Project creation isn't usable on every cloud
+      # (some providers gate Keystone project/domain provisioning behind their own control
+      # plane, so no corresponding ORC Project object may ever exist to reference). See the
+      # field's doc comment and the PR description for the full rationale; raised for
+      # maintainer discussion rather than worked around silently.
+      - linters:
+          - kubeapilinter
+        path: api/v1alpha1/rbacpolicy_types\.go
+        text: noopenstackidref
     paths:
       - third_party$
       - builtin$

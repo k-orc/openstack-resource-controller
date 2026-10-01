@@ -50,6 +50,8 @@ type Interface interface {
 	Ports() PortInformer
 	// Projects returns a ProjectInformer.
 	Projects() ProjectInformer
+	// RBACPolicies returns a RBACPolicyInformer.
+	RBACPolicies() RBACPolicyInformer
 	// Regions returns a RegionInformer.
 	Regions() RegionInformer
 	// RegisteredLimits returns a RegisteredLimitInformer.
@@ -158,6 +160,11 @@ func (v *version) Ports() PortInformer {
 // Projects returns a ProjectInformer.
 func (v *version) Projects() ProjectInformer {
 	return &projectInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// RBACPolicies returns a RBACPolicyInformer.
+func (v *version) RBACPolicies() RBACPolicyInformer {
+	return &rBACPolicyInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Regions returns a RegionInformer.

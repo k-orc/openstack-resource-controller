@@ -1,0 +1,39 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: rbacpolicy-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-dependency-no-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: rbacpolicy-dependency-pending
+    action: access_as_shared
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000013"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: rbacpolicy-dependency
+  managementPolicy: managed
+  resource:
+    networkRef: rbacpolicy-dependency
+    action: access_as_shared
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000014"

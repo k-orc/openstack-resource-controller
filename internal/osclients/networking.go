@@ -35,6 +35,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portsecurity"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/portstrustedvif"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/provider"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/rbacpolicies"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/trunks"
@@ -149,6 +150,12 @@ type NetworkClient interface {
 	RemoveSubports(ctx context.Context, id string, opts trunks.RemoveSubportsOpts) error
 
 	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
+
+	ListRBACPolicy(ctx context.Context, opts rbacpolicies.ListOptsBuilder) iter.Seq2[*rbacpolicies.RBACPolicy, error]
+	CreateRBACPolicy(ctx context.Context, opts rbacpolicies.CreateOptsBuilder) (*rbacpolicies.RBACPolicy, error)
+	DeleteRBACPolicy(ctx context.Context, id string) error
+	GetRBACPolicy(ctx context.Context, id string) (*rbacpolicies.RBACPolicy, error)
+	UpdateRBACPolicy(ctx context.Context, id string, opts rbacpolicies.UpdateOptsBuilder) (*rbacpolicies.RBACPolicy, error)
 }
 
 type networkClient struct {
@@ -275,6 +282,29 @@ func (c networkClient) GetRouter(ctx context.Context, id string) (*routers.Route
 
 func (c networkClient) UpdateRouter(ctx context.Context, id string, opts routers.UpdateOptsBuilder) (*routers.Router, error) {
 	return routers.Update(ctx, c.serviceClient, id, opts).Extract()
+}
+
+func (c networkClient) ListRBACPolicy(ctx context.Context, opts rbacpolicies.ListOptsBuilder) iter.Seq2[*rbacpolicies.RBACPolicy, error] {
+	pager := rbacpolicies.List(c.serviceClient, opts)
+	return func(yield func(*rbacpolicies.RBACPolicy, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(rbacpolicies.ExtractRBACPolicies, yield))
+	}
+}
+
+func (c networkClient) CreateRBACPolicy(ctx context.Context, opts rbacpolicies.CreateOptsBuilder) (*rbacpolicies.RBACPolicy, error) {
+	return rbacpolicies.Create(ctx, c.serviceClient, opts).Extract()
+}
+
+func (c networkClient) DeleteRBACPolicy(ctx context.Context, id string) error {
+	return rbacpolicies.Delete(ctx, c.serviceClient, id).ExtractErr()
+}
+
+func (c networkClient) GetRBACPolicy(ctx context.Context, id string) (*rbacpolicies.RBACPolicy, error) {
+	return rbacpolicies.Get(ctx, c.serviceClient, id).Extract()
+}
+
+func (c networkClient) UpdateRBACPolicy(ctx context.Context, id string, opts rbacpolicies.UpdateOptsBuilder) (*rbacpolicies.RBACPolicy, error) {
+	return rbacpolicies.Update(ctx, c.serviceClient, id, opts).Extract()
 }
 
 func (c networkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) iter.Seq2[*groups.SecGroup, error] {
