@@ -3,7 +3,10 @@ kind: ClusterServiceVersion
 metadata:
   annotations:
     alm-examples: '[]'
-    capabilities: Basic Install
+    capabilities: Seamless Upgrades
+    categories: Cloud Provider
+    containerImage: quay.io/orc/openstack-resource-controller
+    description: Declarative management of OpenStack resources from Kubernetes.
     features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/fips-compliant: "true"
     features.operators.openshift.io/proxy-aware: "false"
@@ -13,6 +16,8 @@ metadata:
     features.operators.openshift.io/token-auth-gcp: "false"
     operatorframework.io/suggested-namespace: openstack
     operators.operatorframework.io/operator-type: non-standalone
+    repository: https://github.com/k-orc/openstack-resource-controller
+    support: The ORC Authors
   name: orc.v0.0.1
   namespace: placeholder
 spec:
@@ -164,15 +169,56 @@ spec:
       kind: VolumeType
       name: volumetypes.openstack.k-orc.cloud
       version: v1alpha1
-  description: Openstack Resource Controller, or ORC, is a Kubernetes API for declarative
-    management of OpenStack resources. By fully controlling the order of OpenStack
-    operations, it allows consumers to easily create, manage, and reproduce complex
-    deployments. ORC aims to be easily consumed both directly by users, and by higher
-    level controllers.
-  displayName: ORC operator
+  description: |
+    ## What is ORC?
+
+    [OpenStack Resource Controller](https://k-orc.cloud) (ORC) is a Kubernetes
+    operator for declarative management of OpenStack resources. It allows you to
+    create, update, and delete OpenStack resources using Kubernetes custom
+    resources, with full dependency ordering handled automatically.
+
+    ORC is deployed and used in production environments and is notably a
+    dependency of Cluster API's
+    [OpenStack provider](https://github.com/kubernetes-sigs/cluster-api-provider-openstack).
+
+    ## Features
+
+    * **Declarative**: Define OpenStack resources as Kubernetes objects.
+      ORC reconciles them against your OpenStack cloud.
+    * **Dependency-aware**: Resources are created in the correct order
+      and protected from premature deletion. For example, a Server
+      waits for its Port, Network, and Image to become available
+      before being created, and a Network cannot be deleted while
+      resources still depend on it.
+    * **Import existing resources**: Use `managementPolicy: unmanaged` to
+      import existing OpenStack resources into Kubernetes without ORC
+      managing their lifecycle.
+    * **Drift detection**: ORC periodically resyncs with OpenStack,
+      detects out-of-band changes, and corrects drift on managed
+      resources. Externally deleted managed resources are automatically
+      recreated.
+    * **Multi-environment**: Each resource carries its own cloud
+      credentials reference, so you can manage resources across
+      multiple OpenStack clouds or projects from a single namespace.
+
+    ORC supports a growing collection of OpenStack resource types.
+    For the current list see the
+    [supported resource types](https://k-orc.cloud/crd-reference/#resource-types).
+
+    ## Prerequisites
+
+    * Kubernetes v1.29 or later.
+    * Access to an OpenStack cloud.
+    * A Kubernetes Secret containing a `clouds.yaml` file with your
+      OpenStack credentials. Each ORC resource references this secret
+      via `spec.cloudCredentialsRef`.
+
+    For a full getting-started guide, see the
+    [ORC documentation](https://k-orc.cloud/getting-started/).
+  displayName: OpenStack Resource Controller (ORC)
   icon:
-  - base64data: ""
-    mediatype: ""
+  - base64data: __ORC_LOGO_BASE64__
+    mediatype: image/svg+xml
   install:
     spec:
       deployments: null
@@ -189,11 +235,18 @@ spec:
   keywords:
   - OpenStack
   - Infrastructure
+  - Cloud
+  - Declarative
   links:
   - name: Homepage
     url: https://k-orc.cloud
-  - name: Source code
+  - name: Documentation
+    url: https://k-orc.cloud/getting-started/
+  - name: Source Code
     url: https://github.com/k-orc/openstack-resource-controller
+  maintainers:
+  - email: maintainers@k-orc.cloud
+    name: The ORC Authors
   maturity: alpha
   minKubeVersion: 1.29.0
   provider:
