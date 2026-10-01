@@ -45,7 +45,7 @@ func NewShareNetworkClient(providerClient *gophercloud.ProviderClient, providerC
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create sharenetwork service client: %v", err)
+		return nil, fmt.Errorf("failed to create sharenetwork service client: %w", err)
 	}
 
 	return &sharenetworkClient{client}, nil

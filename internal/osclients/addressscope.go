@@ -45,7 +45,7 @@ func NewAddressScopeClient(providerClient *gophercloud.ProviderClient, providerC
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create addressscope service client: %v", err)
+		return nil, fmt.Errorf("failed to create addressscope service client: %w", err)
 	}
 
 	return &addressscopeClient{client}, nil

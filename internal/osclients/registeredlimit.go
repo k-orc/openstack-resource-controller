@@ -45,7 +45,7 @@ func NewRegisteredLimitClient(providerClient *gophercloud.ProviderClient, provid
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create registeredlimit service client: %v", err)
+		return nil, fmt.Errorf("failed to create registeredlimit service client: %w", err)
 	}
 
 	return &registeredlimitClient{client}, nil

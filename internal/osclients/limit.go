@@ -45,7 +45,7 @@ func NewLimitClient(providerClient *gophercloud.ProviderClient, providerClientOp
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create limit service client: %v", err)
+		return nil, fmt.Errorf("failed to create limit service client: %w", err)
 	}
 
 	return &limitClient{client}, nil

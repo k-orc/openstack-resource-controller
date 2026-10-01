@@ -44,7 +44,7 @@ func NewIdentityClient(providerClient *gophercloud.ProviderClient, providerClien
 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create identity service client: %v", err)
+		return nil, fmt.Errorf("failed to create identity service client: %w", err)
 	}
 
 	return &identityClient{identity}, nil

@@ -45,7 +45,7 @@ func NewEndpointClient(providerClient *gophercloud.ProviderClient, providerClien
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create endpoint service client: %v", err)
+		return nil, fmt.Errorf("failed to create endpoint service client: %w", err)
 	}
 
 	return &endpointClient{client}, nil

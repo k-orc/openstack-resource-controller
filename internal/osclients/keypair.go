@@ -44,7 +44,7 @@ func NewKeyPairClient(providerClient *gophercloud.ProviderClient, providerClient
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create keypair service client: %v", err)
+		return nil, fmt.Errorf("failed to create keypair service client: %w", err)
 	}
 	client.Microversion = NovaMinimumMicroversion
 
