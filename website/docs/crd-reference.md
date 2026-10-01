@@ -704,7 +704,8 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `targetProjectID` _string_ | targetProjectID of the existing resource |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone to look for the share under - required because<br />every Designate zone-share operation, including list, is scoped to a specific zone (see<br />DNSZoneShareResourceSpec.zoneRef's doc comment for the same constraint on the managed path). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID of the existing resource. If not specified, matches any target project -<br />which is only unambiguous if the referenced zone has exactly one share. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneShareImport
@@ -2526,6 +2527,7 @@ _Appears in:_
 - [ApplicationCredentialAccessRule](#applicationcredentialaccessrule)
 - [ApplicationCredentialFilter](#applicationcredentialfilter)
 - [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
+- [DNSZoneShareFilter](#dnszonesharefilter)
 - [DNSZoneShareResourceSpec](#dnszoneshareresourcespec)
 - [EndpointFilter](#endpointfilter)
 - [EndpointResourceSpec](#endpointresourcespec)
@@ -2543,6 +2545,7 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RecordSetFilter](#recordsetfilter)
 - [RecordSetResourceSpec](#recordsetresourcespec)
 - [RegisteredLimitFilter](#registeredlimitfilter)
 - [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
@@ -3683,13 +3686,14 @@ RecordSet is the Schema for an ORC resource.
 RecordSetFilter defines an existing resource by its properties
 
 _Validation:_
-- MinProperties: 1
+- MinProperties: 2
 
 _Appears in:_
 - [RecordSetImport](#recordsetimport)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone to look for the recordset under - required<br />because every Designate recordset operation, including list, is scoped to a specific zone<br />(see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed<br />path). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `type` _[RecordSetType](#recordsettype)_ | type of the existing resource |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Optional: \{\} <br /> |
@@ -3712,7 +3716,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
-| `filter` _[RecordSetFilter](#recordsetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+| `filter` _[RecordSetFilter](#recordsetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 2 <br />Optional: \{\} <br /> |
 
 
 #### RecordSetResourceSpec

@@ -526,6 +526,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: targetProjectID
       type:
         scalar: string
+    - name: zoneRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareImport
   map:
     fields:
@@ -2630,6 +2633,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: type
+      type:
+        scalar: string
+    - name: zoneRef
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RecordSetImport

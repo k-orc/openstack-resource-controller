@@ -52,7 +52,15 @@ type DNSZoneShareResourceSpec struct {
 // DNSZoneShareFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type DNSZoneShareFilter struct {
-	// targetProjectID of the existing resource
+	// zoneRef is a reference to the ORC DNSZone to look for the share under - required because
+	// every Designate zone-share operation, including list, is scoped to a specific zone (see
+	// DNSZoneShareResourceSpec.zoneRef's doc comment for the same constraint on the managed path).
+	// +required
+	// +orc:kustomize:ref=DNSZone
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
+
+	// targetProjectID of the existing resource. If not specified, matches any target project -
+	// which is only unambiguous if the referenced zone has exactly one share.
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=64
 	// +optional

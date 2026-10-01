@@ -69,6 +69,20 @@ var zoneDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.DNSZoneS
 	finalizer, externalObjectFieldOwner,
 )
 
+// zoneImportDependency indexes spec.import.filter.zoneRef, used for the unmanaged/import path -
+// see newActuator for why this needs to be a separate dependency from zoneDependency above (no
+// deletion guard: an unmanaged object never owns the zone, so it must not block its deletion).
+var zoneImportDependency = dependency.NewDependency[*orcv1alpha1.DNSZoneShareList, *orcv1alpha1.DNSZone](
+	"spec.import.filter.zoneRef",
+	func(dnszoneshare *orcv1alpha1.DNSZoneShare) []string {
+		imp := dnszoneshare.Spec.Import
+		if imp == nil || imp.Filter == nil {
+			return nil
+		}
+		return []string{string(imp.Filter.ZoneRef)}
+	},
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c *dnszoneshareReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -79,15 +93,25 @@ func (c *dnszoneshareReconcilerConstructor) SetupWithManager(ctx context.Context
 		return err
 	}
 
+	zoneImportWatchEventHandler, err := zoneImportDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
 		Watches(&orcv1alpha1.DNSZone{}, zoneWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.DNSZone{})),
+		).
+		// A second watch is necessary because we need a different handler that omits deletion guards
+		Watches(&orcv1alpha1.DNSZone{}, zoneImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.DNSZone{})),
 		).
 		For(&orcv1alpha1.DNSZoneShare{})
 
 	if err := errors.Join(
 		zoneDependency.AddToManager(ctx, mgr),
+		zoneImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {

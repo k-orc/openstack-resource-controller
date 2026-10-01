@@ -30,6 +30,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
 )
 
@@ -76,24 +77,37 @@ func (actuator dnszoneshareActuator) GetOSResourceByID(ctx context.Context, id s
 }
 
 func (actuator dnszoneshareActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
-	if orcObject.Spec.Resource == nil || actuator.zoneID == "" {
+	resource := orcObject.Spec.Resource
+	if resource == nil || actuator.zoneID == "" {
 		return nil, false
 	}
 
-	return actuator.osClient.ListZoneShares(ctx, actuator.zoneID), true
+	// Matches the full declared spec, same reasoning as every other ListOSResourcesForAdoption in
+	// this codebase: adoption must not match a share for a different target project than the one
+	// we'd otherwise create - a zone can have shares to several target projects at once.
+	shares := actuator.osClient.ListZoneShares(ctx, actuator.zoneID)
+	return osclients.Filter(shares, func(share *osResourceT) bool {
+		return share.TargetProjectID == resource.TargetProjectID
+	}), true
 }
 
 // ListOSResourcesForImport can't filter server-side by targetProjectID (Designate's zone-share
 // list endpoint takes no query parameters at all - see gophercloud's ListSharesOpts, which only
-// carries the AllProjects header), so this lists everything under the zone and lets the generic
-// reconciler's own filter-matching narrow it down client-side.
+// carries the AllProjects header), so this lists everything under the zone and filters
+// client-side.
 func (actuator dnszoneshareActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	if actuator.zoneID == "" {
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "cannot import a DNSZoneShare without a resolved zoneRef"))
 	}
 
-	return actuator.osClient.ListZoneShares(ctx, actuator.zoneID), nil
+	shares := actuator.osClient.ListZoneShares(ctx, actuator.zoneID)
+	if filter.TargetProjectID == nil {
+		return shares, nil
+	}
+	return osclients.Filter(shares, func(share *osResourceT) bool {
+		return share.TargetProjectID == *filter.TargetProjectID
+	}), nil
 }
 
 func (actuator dnszoneshareActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -150,8 +164,27 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.DNSZoneShare, contr
 	}
 
 	// Resolve the owning zone once, here, rather than separately in every method below - see the
-	// zoneID field's own doc comment on the actuator struct for why.
-	zone, zoneRS := zoneDependency.RequireDependency(ctx, controller.GetK8sClient(), orcObject, orcv1alpha1.IsAvailable)
+	// zoneID field's own doc comment on the actuator struct for why. The zone reference lives in
+	// a different place depending on management policy: spec.resource.zoneRef when managed,
+	// spec.import.filter.zoneRef when unmanaged (an unmanaged object never has spec.resource -
+	// using zoneDependency, which only looks at spec.resource, unconditionally here was the actual
+	// bug behind every import/import-error/dependency KUTTL scenario timing out in CI).
+	var zone *orcv1alpha1.DNSZone
+	var zoneRS progress.ReconcileStatus
+	switch {
+	case orcObject.Spec.Resource != nil:
+		zone, zoneRS = zoneDependency.RequireDependency(ctx, controller.GetK8sClient(), orcObject, orcv1alpha1.IsAvailable)
+	case orcObject.Spec.Import != nil && orcObject.Spec.Import.Filter != nil:
+		zone, zoneRS = dependency.FetchDependency[*orcv1alpha1.DNSZone](ctx, controller.GetK8sClient(), orcObject.Namespace,
+			&orcObject.Spec.Import.Filter.ZoneRef, "DNSZone", orcv1alpha1.IsAvailable)
+	default:
+		// import-by-bare-id has no zone reference anywhere in the spec, and every Designate
+		// zone-share operation (including Get) is zone-scoped - there's no way to resolve which
+		// zone a bare share ID belongs to. Not supported; flagged in the PR description for
+		// maintainer awareness rather than left to hang silently.
+		zoneRS = progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+			"importing a DNSZoneShare by bare id is not supported - use import.filter with zoneRef instead"))
+	}
 	if needsReschedule, _ := zoneRS.NeedsReschedule(); needsReschedule {
 		return dnszoneshareActuator{}, zoneRS
 	}

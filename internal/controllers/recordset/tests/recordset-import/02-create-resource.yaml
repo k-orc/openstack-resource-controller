@@ -1,18 +1,5 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: DNSZone
-metadata:
-  name: recordset-import
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    name: recordset-import.example.com.
-    email: admin@example.com
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
 metadata:
   name: recordset-import-external

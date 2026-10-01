@@ -11,7 +11,11 @@
 nameReference:
 - fieldSpecs:
   - kind: DNSZoneShare
+    path: spec/import/filter/zoneRef
+  - kind: DNSZoneShare
     path: spec/resource/zoneRef
+  - kind: RecordSet
+    path: spec/import/filter/zoneRef
   - kind: RecordSet
     path: spec/resource/zoneRef
   kind: DNSZone

@@ -89,7 +89,7 @@ spec:
                       result. The controller will continue to retry if filter returns no
                       results. If filter returns multiple results the controller will set an
                       error state and will not continue to retry.
-                    minProperties: 1
+                    minProperties: 2
                     properties:
                       description:
                         description: description of the existing resource
@@ -120,6 +120,17 @@ spec:
                         - TXT
                         - CAA
                         type: string
+                      zoneRef:
+                        description: |-
+                          zoneRef is a reference to the ORC DNSZone to look for the recordset under - required
+                          because every Designate recordset operation, including list, is scoped to a specific zone
+                          (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed
+                          path).
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                    required:
+                    - zoneRef
                     type: object
                   id:
                     description: |-

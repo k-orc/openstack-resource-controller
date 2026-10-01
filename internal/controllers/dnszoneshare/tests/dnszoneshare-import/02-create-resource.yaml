@@ -1,18 +1,5 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: DNSZone
-metadata:
-  name: dnszoneshare-import
-spec:
-  cloudCredentialsRef:
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  resource:
-    name: dnszoneshare-import.example.com.
-    email: admin@example.com
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
 metadata:
   name: dnszoneshare-import-external

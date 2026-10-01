@@ -18,16 +18,29 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+)
+
 // DNSZoneShareFilterApplyConfiguration represents a declarative configuration of the DNSZoneShareFilter type for use
 // with apply.
 type DNSZoneShareFilterApplyConfiguration struct {
-	TargetProjectID *string `json:"targetProjectID,omitempty"`
+	ZoneRef         *apiv1alpha1.KubernetesNameRef `json:"zoneRef,omitempty"`
+	TargetProjectID *string                        `json:"targetProjectID,omitempty"`
 }
 
 // DNSZoneShareFilterApplyConfiguration constructs a declarative configuration of the DNSZoneShareFilter type for use with
 // apply.
 func DNSZoneShareFilter() *DNSZoneShareFilterApplyConfiguration {
 	return &DNSZoneShareFilterApplyConfiguration{}
+}
+
+// WithZoneRef sets the ZoneRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ZoneRef field is set to the value of the last call.
+func (b *DNSZoneShareFilterApplyConfiguration) WithZoneRef(value apiv1alpha1.KubernetesNameRef) *DNSZoneShareFilterApplyConfiguration {
+	b.ZoneRef = &value
+	return b
 }
 
 // WithTargetProjectID sets the TargetProjectID field in the declarative configuration to the given value

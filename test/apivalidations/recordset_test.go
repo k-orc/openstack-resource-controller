@@ -81,7 +81,7 @@ var _ = Describe("ORC RecordSet API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.RecordSetImport().WithFilter(applyconfigv1alpha1.RecordSetFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.RecordSetApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.RecordSetImport().WithFilter(applyconfigv1alpha1.RecordSetFilter().WithName("foo.")))
+			p.Spec.WithImport(applyconfigv1alpha1.RecordSetImport().WithFilter(applyconfigv1alpha1.RecordSetFilter().WithZoneRef("dnszone").WithName("foo.")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.RecordSetApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)

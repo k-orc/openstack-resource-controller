@@ -80,7 +80,7 @@ var _ = Describe("ORC DNSZoneShare API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneShareImport().WithFilter(applyconfigv1alpha1.DNSZoneShareFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.DNSZoneShareApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneShareImport().WithFilter(applyconfigv1alpha1.DNSZoneShareFilter().WithTargetProjectID("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneShareImport().WithFilter(applyconfigv1alpha1.DNSZoneShareFilter().WithZoneRef("dnszone").WithTargetProjectID("foo")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.DNSZoneShareApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)

@@ -2113,14 +2113,22 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareFilter(ref
 				Description: "DNSZoneShareFilter defines an existing resource by its properties",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"zoneRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneRef is a reference to the ORC DNSZone to look for the share under - required because every Designate zone-share operation, including list, is scoped to a specific zone (see DNSZoneShareResourceSpec.zoneRef's doc comment for the same constraint on the managed path).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"targetProjectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "targetProjectID of the existing resource",
+							Description: "targetProjectID of the existing resource. If not specified, matches any target project - which is only unambiguous if the referenced zone has exactly one share.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 				},
+				Required: []string{"zoneRef"},
 			},
 		},
 	}
@@ -8806,6 +8814,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref co
 				Description: "RecordSetFilter defines an existing resource by its properties",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"zoneRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneRef is a reference to the ORC DNSZone to look for the recordset under - required because every Designate recordset operation, including list, is scoped to a specific zone (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed path).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "name of the existing resource",
@@ -8828,6 +8843,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref co
 						},
 					},
 				},
+				Required: []string{"zoneRef"},
 			},
 		},
 	}

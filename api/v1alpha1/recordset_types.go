@@ -67,8 +67,16 @@ type RecordSetResourceSpec struct {
 }
 
 // RecordSetFilter defines an existing resource by its properties
-// +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:MinProperties:=2
 type RecordSetFilter struct {
+	// zoneRef is a reference to the ORC DNSZone to look for the recordset under - required
+	// because every Designate recordset operation, including list, is scoped to a specific zone
+	// (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed
+	// path).
+	// +required
+	// +orc:kustomize:ref=DNSZone
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
+
 	// name of the existing resource
 	// +kubebuilder:validation:XValidation:rule="self.endsWith('.')",message="name must end with a period"
 	// +optional
