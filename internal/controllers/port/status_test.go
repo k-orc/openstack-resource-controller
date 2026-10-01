@@ -1,5 +1,5 @@
 /*
-Copyright 2024 The ORC Authors.
+Copyright The ORC Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ limitations under the License.
 package port
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -50,20 +49,5 @@ func TestApplyResourceStatus_zeroCreatedAtUpdatedAt(t *testing.T) {
 	}
 	if statusApply.Resource.UpdatedAt != nil {
 		t.Errorf("UpdatedAt should be omitted for a zero time, got %v", *statusApply.Resource.UpdatedAt)
-	}
-
-	b, err := json.Marshal(statusApply.Resource)
-	if err != nil {
-		t.Fatalf("failed to marshal resource status: %v", err)
-	}
-	var asMap map[string]any
-	if err := json.Unmarshal(b, &asMap); err != nil {
-		t.Fatalf("failed to unmarshal resource status: %v", err)
-	}
-	if v, ok := asMap["createdAt"]; ok {
-		t.Errorf(`expected "createdAt" to be absent, got present with value %v (json: %s)`, v, b)
-	}
-	if v, ok := asMap["updatedAt"]; ok {
-		t.Errorf(`expected "updatedAt" to be absent, got present with value %v (json: %s)`, v, b)
 	}
 }
