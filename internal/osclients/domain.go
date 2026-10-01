@@ -45,7 +45,7 @@ func NewDomainClient(providerClient *gophercloud.ProviderClient, providerClientO
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create domain service client: %v", err)
+		return nil, fmt.Errorf("failed to create domain service client: %w", err)
 	}
 
 	return &domainClient{client}, nil

@@ -47,7 +47,7 @@ func NewSubnetPoolClient(providerClient *gophercloud.ProviderClient, providerCli
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create subnetpool service client: %v", err)
+		return nil, fmt.Errorf("failed to create subnetpool service client: %w", err)
 	}
 
 	return &subnetpoolClient{client}, nil

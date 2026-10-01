@@ -50,7 +50,7 @@ func NewImageClient(providerClient *gophercloud.ProviderClient, providerClientOp
 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create image service client: %v", err)
+		return nil, fmt.Errorf("failed to create image service client: %w", err)
 	}
 
 	return imageClient{images}, nil

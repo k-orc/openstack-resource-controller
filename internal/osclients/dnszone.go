@@ -45,7 +45,7 @@ func NewDNSZoneClient(providerClient *gophercloud.ProviderClient, providerClient
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create dnszone service client: %v", err)
+		return nil, fmt.Errorf("failed to create dnszone service client: %w", err)
 	}
 
 	return &dnszoneClient{client}, nil
