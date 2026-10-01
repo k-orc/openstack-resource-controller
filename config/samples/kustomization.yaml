@@ -3,6 +3,8 @@
 resources:
 - openstack_v1alpha1_addressscope.yaml
 - openstack_v1alpha1_applicationcredential.yaml
+- openstack_v1alpha1_dnszone.yaml
+- openstack_v1alpha1_dnszoneshare.yaml
 - openstack_v1alpha1_domain.yaml
 - openstack_v1alpha1_endpoint.yaml
 - openstack_v1alpha1_flavor.yaml
@@ -14,6 +16,7 @@ resources:
 - openstack_v1alpha1_network.yaml
 - openstack_v1alpha1_port.yaml
 - openstack_v1alpha1_project.yaml
+- openstack_v1alpha1_recordset.yaml
 - openstack_v1alpha1_region.yaml
 - openstack_v1alpha1_registeredlimit.yaml
 - openstack_v1alpha1_role.yaml

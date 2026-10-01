@@ -22,6 +22,10 @@ type AddressScopeExpansion interface{}
 
 type ApplicationCredentialExpansion interface{}
 
+type DNSZoneExpansion interface{}
+
+type DNSZoneShareExpansion interface{}
+
 type DomainExpansion interface{}
 
 type EndpointExpansion interface{}
@@ -43,6 +47,8 @@ type NetworkExpansion interface{}
 type PortExpansion interface{}
 
 type ProjectExpansion interface{}
+
+type RecordSetExpansion interface{}
 
 type RegionExpansion interface{}
 

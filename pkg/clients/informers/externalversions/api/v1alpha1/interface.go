@@ -28,6 +28,10 @@ type Interface interface {
 	AddressScopes() AddressScopeInformer
 	// ApplicationCredentials returns a ApplicationCredentialInformer.
 	ApplicationCredentials() ApplicationCredentialInformer
+	// DNSZones returns a DNSZoneInformer.
+	DNSZones() DNSZoneInformer
+	// DNSZoneShares returns a DNSZoneShareInformer.
+	DNSZoneShares() DNSZoneShareInformer
 	// Domains returns a DomainInformer.
 	Domains() DomainInformer
 	// Endpoints returns a EndpointInformer.
@@ -50,6 +54,8 @@ type Interface interface {
 	Ports() PortInformer
 	// Projects returns a ProjectInformer.
 	Projects() ProjectInformer
+	// RecordSets returns a RecordSetInformer.
+	RecordSets() RecordSetInformer
 	// Regions returns a RegionInformer.
 	Regions() RegionInformer
 	// RegisteredLimits returns a RegisteredLimitInformer.
@@ -105,6 +111,16 @@ func (v *version) ApplicationCredentials() ApplicationCredentialInformer {
 	return &applicationCredentialInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
+// DNSZones returns a DNSZoneInformer.
+func (v *version) DNSZones() DNSZoneInformer {
+	return &dNSZoneInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// DNSZoneShares returns a DNSZoneShareInformer.
+func (v *version) DNSZoneShares() DNSZoneShareInformer {
+	return &dNSZoneShareInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
 // Domains returns a DomainInformer.
 func (v *version) Domains() DomainInformer {
 	return &domainInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
@@ -158,6 +174,11 @@ func (v *version) Ports() PortInformer {
 // Projects returns a ProjectInformer.
 func (v *version) Projects() ProjectInformer {
 	return &projectInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// RecordSets returns a RecordSetInformer.
+func (v *version) RecordSets() RecordSetInformer {
+	return &recordSetInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Regions returns a RegionInformer.

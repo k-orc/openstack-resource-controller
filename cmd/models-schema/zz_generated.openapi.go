@@ -55,6 +55,22 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ApplicationCredentialSpec":             schema_openstack_resource_controller_v3_api_v1alpha1_ApplicationCredentialSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ApplicationCredentialStatus":           schema_openstack_resource_controller_v3_api_v1alpha1_ApplicationCredentialStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference":             schema_openstack_resource_controller_v3_api_v1alpha1_CloudCredentialsReference(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZone":                               schema_openstack_resource_controller_v3_api_v1alpha1_DNSZone(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneFilter":                         schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneImport":                         schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneList":                           schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneResourceSpec":                   schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneResourceStatus":                 schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShare":                          schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShare(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareFilter":                    schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareImport":                    schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareList":                      schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareResourceSpec":              schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareResourceStatus":            schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareSpec":                      schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareStatus":                    schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneSpec":                           schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneStatus":                         schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Domain":                                schema_openstack_resource_controller_v3_api_v1alpha1_Domain(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DomainFilter":                          schema_openstack_resource_controller_v3_api_v1alpha1_DomainFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DomainImport":                          schema_openstack_resource_controller_v3_api_v1alpha1_DomainImport(ref),
@@ -169,6 +185,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProjectStatus":                         schema_openstack_resource_controller_v3_api_v1alpha1_ProjectStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderPropertiesStatus":              schema_openstack_resource_controller_v3_api_v1alpha1_ProviderPropertiesStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ProviderSegmentSpec":                   schema_openstack_resource_controller_v3_api_v1alpha1_ProviderSegmentSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSet":                             schema_openstack_resource_controller_v3_api_v1alpha1_RecordSet(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetFilter":                       schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetImport":                       schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetList":                         schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetResourceSpec":                 schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetResourceStatus":               schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetSpec":                         schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetStatus":                       schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Region":                                schema_openstack_resource_controller_v3_api_v1alpha1_Region(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RegionFilter":                          schema_openstack_resource_controller_v3_api_v1alpha1_RegionFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RegionImport":                          schema_openstack_resource_controller_v3_api_v1alpha1_RegionImport(ref),
@@ -1699,6 +1723,771 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_CloudCredentialsRefere
 				Required: []string{"secretName", "cloudName"},
 			},
 		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZone(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZone is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneList contains a list of DNSZone.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of DNSZone.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZone"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZone", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the zone, e.g. \"example.com.\". Must end with a period, per Designate's own convention. If not specified, the name of the ORC object is used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email is the email address of the administrator for the zone. Required for PRIMARY zones, not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the present-when-not-applicable cases - enforced here too via CEL rather than only server-side).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the default Time To Live for the zone's recordsets, in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from masters over AXFR). Immutable - Designate has no API to convert between the two in place.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR. Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny (not a plain string) so malformed entries are rejected at admission rather than accepted and only failing later against the real Designate API - a real gap found while reviewing #825's draft implementation, which left this as an unvalidated []string.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the zone, e.g. \"example.com.\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email is the email contact of the zone.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the default Time To Live for the zone's recordsets, in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is PRIMARY or SECONDARY.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters are the master server IPs this SECONDARY zone transfers its records from.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"serial": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serial is the zone's current SOA serial number.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"transferredAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "transferredAt is the last time this SECONDARY zone's records were refreshed from its masters. Unset for PRIMARY zones.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the OpenStack project that owns this zone. Not to be confused with a DNSZoneShare's targetProjectID, which grants a *different* project access without changing ownership.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShare(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShare is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"targetProjectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "targetProjectID of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareList contains a list of DNSZoneShare.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of DNSZoneShare.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShare"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShare", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareResourceSpec contains the desired state of the resource.\n\nDesignate has two separate mechanisms for giving another project access to a zone: zone *transfer* (transfer_requests/transfer_accepts), which moves full ownership and needs both the owner's and the recipient's credentials in one flow; and zone *share*, modeled here, which grants another project co-management rights over a zone's recordsets while the original project keeps ownership - a single-credential operation, only the owner's. See RBACPolicy's own doc comment for the same shape applied to Neutron network sharing; this is the Designate equivalent. Confirmed live against a real OpenStack deployment (a create/list/ delete round-trip) that this API exists and works as gophercloud's bindings describe, not just assumed from reading the client library.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"zoneRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneRef is a reference to the ORC DNSZone this share grants access to. Immutable - Designate's zone-share API has no update path for which zone a share applies to, only create and delete.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"targetProjectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "targetProjectID is the OpenStack project ID to grant access to. A raw OpenStack ID, not a KubernetesNameRef to an ORC Project object - Project creation itself may not be usable on every cloud (some providers gate identity/project provisioning behind their own control plane, outside Keystone, so no corresponding ORC Project object may ever exist to reference). Immutable - Designate's zone-share API has no update operation at all; changing the target means deleting this share and creating a new one.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"zoneRef", "targetProjectID"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"zoneID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneID is the ID of the DNSZone this share applies to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"targetProjectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "targetProjectID is the OpenStack project ID this share grants access to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the project that owns the shared zone (and therefore this share) - not to be confused with targetProjectID, the project being granted access.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneShareStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneShareStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneShareResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DNSZoneStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.DNSZoneResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -7956,6 +8745,426 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ProviderSegmentSpec(re
 				Required: []string{"networkType"},
 			},
 		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSet(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSet is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetList contains a list of RecordSet.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of RecordSet.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSet"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSet", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetResourceSpec contains the desired state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the recordset, e.g. \"www.example.com.\". Must end with a period, per Designate's own convention. If not specified, the name of the ORC object is used.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"zoneRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneRef is a reference to the ORC DNSZone this recordset belongs to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no update path for a recordset's type, only its records/ttl/description.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"records": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "records are the record data for this recordset, in Designate's own format for the given type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not further validated here - record data syntax varies by type and Designate's own API is the source of truth for what's acceptable.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own default TTL applies.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+				Required: []string{"zoneRef", "type", "records"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is the name of the recordset, e.g. \"www.example.com.\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "description is a human-readable description for the resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"zoneID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneID is the ID of the DNSZone this recordset belongs to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the RRTYPE of the recordset.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"records": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "records are the record data for this recordset.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the Time To Live for the recordset, in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the project that owns this recordset (inherited from its zone).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetResourceSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RecordSetStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RecordSetResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
