@@ -73,9 +73,14 @@ func (networkStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *oscl
 		WithSubnets(osResource.Subnets...).
 		WithMTU(int32(osResource.MTU)).
 		WithPortSecurityEnabled(osResource.PortSecurityEnabled).
-		WithShared(osResource.Shared).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
-		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+		WithShared(osResource.Shared)
+
+	if !osResource.CreatedAt.IsZero() {
+		networkResourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+	if !osResource.UpdatedAt.IsZero() {
+		networkResourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		networkResourceStatus.WithDescription(osResource.Description)

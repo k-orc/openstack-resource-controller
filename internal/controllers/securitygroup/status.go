@@ -71,9 +71,14 @@ func (securityGroupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource
 		WithName(osResource.Name).
 		WithProjectID(osResource.ProjectID).
 		WithTags(osResource.Tags...).
-		WithStateful(osResource.Stateful).
-		WithCreatedAt(metav1.NewTime(osResource.CreatedAt)).
-		WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+		WithStateful(osResource.Stateful)
+
+	if !osResource.CreatedAt.IsZero() {
+		securitygroupResourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+	if !osResource.UpdatedAt.IsZero() {
+		securitygroupResourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		securitygroupResourceStatus.WithDescription(osResource.Description)
