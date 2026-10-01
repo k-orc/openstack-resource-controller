@@ -84,6 +84,11 @@ spec:
       kind: Project
       name: projects.openstack.k-orc.cloud
       version: v1alpha1
+    - description: RBACPolicy is the Schema for an ORC resource.
+      displayName: RBACPolicy
+      kind: RBACPolicy
+      name: rbacpolicies.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Region is the Schema for an ORC resource.
       displayName: Region
       kind: Region
