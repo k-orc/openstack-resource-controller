@@ -10,6 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: dnszoneshare-import-external
-      description: DNSZoneShare dnszoneshare-import-external from "dnszoneshare-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
+      targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000026"

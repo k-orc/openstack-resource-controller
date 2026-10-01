@@ -5,12 +5,12 @@ metadata:
   name: dnszoneshare-import
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: dnszoneshare-import.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
@@ -18,11 +18,9 @@ metadata:
   name: dnszoneshare-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: DNSZoneShare dnszoneshare-import-external from "dnszoneshare-import" test
-    dNSZoneRef: dnszoneshare-import
-    # TODO(scaffolding): Add fields necessary to match filter
+    zoneRef: dnszoneshare-import
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000026"

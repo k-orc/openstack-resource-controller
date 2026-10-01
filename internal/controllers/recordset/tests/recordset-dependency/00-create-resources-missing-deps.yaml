@@ -5,12 +5,12 @@ metadata:
   name: recordset-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: recordset-dependency.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -18,14 +18,15 @@ metadata:
   name: recordset-dependency-no-dnszone
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    dNSZoneRef: recordset-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
-
+    name: www.recordset-dependency-no-dnszone.example.com.
+    zoneRef: recordset-dependency-pending
+    type: A
+    records:
+      - 192.0.2.1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -33,10 +34,12 @@ metadata:
   name: recordset-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: recordset-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
-    dNSZoneRef: recordset-dependency
+    name: www.recordset-dependency-no-secret.example.com.
+    zoneRef: recordset-dependency
+    type: A
+    records:
+      - 192.0.2.1

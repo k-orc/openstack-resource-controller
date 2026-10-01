@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: DNSZoneShare from "import error" test
+      targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000025"

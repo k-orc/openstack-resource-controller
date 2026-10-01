@@ -1,31 +1,31 @@
 ---
+# This `dnszoneshare-import-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource with a different targetProjectID
+#   (i.e. it's not being adopted)
+# - ensure that importing a resource with the filter's targetProjectID will not pick this one,
+#   since it was created with a different targetProjectID.
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone
 metadata:
-  name: dnszoneshare-import-external-not-this-one
+  name: dnszoneshare-import-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
----
-# This `dnszoneshare-import-external-not-this-one` resource serves two purposes:
-# - ensure that we can successfully create another resource which name is a substring of it (i.e. it's not being adopted)
-# - ensure that importing a resource which name is a substring of it will not pick this one.
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: DNSZoneShare
-metadata:
-  name: dnszoneshare-import-external-not-this-one
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: DNSZoneShare dnszoneshare-import-external from "dnszoneshare-import" test
-    dNSZoneRef: dnszoneshare-import-external-not-this-one
-    # TODO(scaffolding): Add fields necessary to match filter
+    name: dnszoneshare-import-not-this-one.example.com.
+    email: admin@example.com
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    zoneRef: dnszoneshare-import-not-this-one
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000027"

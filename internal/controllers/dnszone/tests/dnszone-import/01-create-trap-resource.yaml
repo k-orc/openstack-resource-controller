@@ -8,10 +8,10 @@ metadata:
   name: dnszone-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: dnszone-import-external-not-this-one.example.com.
+    email: admin@example.com
     description: DNSZone dnszone-import-external from "dnszone-import" test
-    # TODO(scaffolding): Add fields necessary to match filter

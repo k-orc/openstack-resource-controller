@@ -5,8 +5,9 @@ metadata:
   name: dnszone-create-minimal
 status:
   resource:
-    name: dnszone-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    name: dnszone-create-minimal.example.com.
+    email: admin@example.com
+    type: PRIMARY
   conditions:
   - type: Available
     status: "True"
@@ -24,4 +25,4 @@ resourceRefs:
       ref: dnszone
 assertAll:
     - celExpr: "dnszone.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "dnszone.status.resource.projectID != ''"

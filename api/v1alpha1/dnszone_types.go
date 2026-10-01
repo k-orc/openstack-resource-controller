@@ -33,7 +33,7 @@ const (
 )
 
 // DNSZoneResourceSpec contains the desired state of the resource.
-// +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? (has(self.email) && self.email != ”) : true",message="email is required for PRIMARY zones"
+// +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? (has(self.email) && self.email != '') : true",message="email is required for PRIMARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? (has(self.masters) && self.masters.size() > 0) : true",message="masters is required for SECONDARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? !has(self.masters) : true",message="masters must not be set for PRIMARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? !has(self.email) : true",message="email must not be set for SECONDARY zones"

@@ -5,9 +5,13 @@ metadata:
   name: recordset-create-full
 status:
   resource:
-    name: recordset-create-full-override
+    name: www.recordset-create-full.example.com.
     description: RecordSet from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    type: A
+    records:
+      - 192.0.2.1
+      - 192.0.2.2
+    ttl: 300
   conditions:
   - type: Available
     status: "True"
@@ -26,8 +30,8 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: DNSZone
       name: recordset-create-full
-      ref: dNSZone
+      ref: dnszone
 assertAll:
     - celExpr: "recordset.status.id != ''"
-    - celExpr: "recordset.status.resource.dNSZoneID == dNSZone.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "recordset.status.resource.zoneID == dnszone.status.id"
+    - celExpr: "recordset.status.resource.projectID != ''"

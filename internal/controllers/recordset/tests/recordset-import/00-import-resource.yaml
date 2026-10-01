@@ -10,6 +10,5 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: recordset-import-external
+      name: recordset-import-external.example.com.
       description: RecordSet recordset-import-external from "recordset-import" test
-      # TODO(scaffolding): Add all fields supported by the filter

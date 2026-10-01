@@ -5,12 +5,12 @@ metadata:
   name: recordset-update
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: recordset-update.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -18,11 +18,12 @@ metadata:
   name: recordset-update
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created or updated
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
   resource:
-    dNSZoneRef: recordset-update
+    name: www.recordset-update.example.com.
+    zoneRef: recordset-update
+    type: A
+    records:
+      - 192.0.2.1

@@ -5,12 +5,12 @@ metadata:
   name: recordset-import-error
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: recordset-import-error.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -18,14 +18,16 @@ metadata:
   name: recordset-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: dup1.recordset-import-error.example.com.
     description: RecordSet from "import error" test
-    dNSZoneRef: recordset-import-error
-    # TODO(scaffolding): add any required field
+    zoneRef: recordset-import-error
+    type: A
+    records:
+      - 192.0.2.1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -33,11 +35,13 @@ metadata:
   name: recordset-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: dup2.recordset-import-error.example.com.
     description: RecordSet from "import error" test
-    dNSZoneRef: recordset-import-error
-    # TODO(scaffolding): add any required field
+    zoneRef: recordset-import-error
+    type: A
+    records:
+      - 192.0.2.2

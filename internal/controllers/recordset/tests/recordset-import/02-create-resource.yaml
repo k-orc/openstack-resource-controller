@@ -5,12 +5,12 @@ metadata:
   name: recordset-import
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: recordset-import.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -18,11 +18,13 @@ metadata:
   name: recordset-import-external
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: recordset-import-external.example.com.
     description: RecordSet recordset-import-external from "recordset-import" test
-    dNSZoneRef: recordset-import
-    # TODO(scaffolding): Add fields necessary to match filter
+    zoneRef: recordset-import
+    type: A
+    records:
+      - 192.0.2.1

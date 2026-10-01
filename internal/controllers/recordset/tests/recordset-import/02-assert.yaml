@@ -28,6 +28,5 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: recordset-import-external
+    name: recordset-import-external.example.com.
     description: RecordSet recordset-import-external from "recordset-import" test
-    # TODO(scaffolding): Add all fields the resource supports
