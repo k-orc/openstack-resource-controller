@@ -23,8 +23,8 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
 
-	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
-	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v2/internal/osclients"
+	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
 // Regression test for a status-write failure seen with a real, externally-owned network: when
