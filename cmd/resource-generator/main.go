@@ -144,6 +144,13 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
+		// RBACPolicy has no name/description in Neutron's API (gophercloud's RBACPolicy
+		// struct has neither) - same reasoning as FloatingIP above.
+		Name:             "RBACPolicy",
+		IsNotNamed:       true,
+		ExistingOSClient: true,
+	},
+	{
 		Name: "Role",
 	},
 	{

@@ -64,6 +64,8 @@ nameReference:
     path: spec/import/filter/networkRef
   - kind: Port
     path: spec/resource/networkRef
+  - kind: RBACPolicy
+    path: spec/resource/networkRef
   - kind: Router
     path: spec/resource/externalGateways[]/networkRef
   - kind: ShareNetwork
@@ -187,6 +189,8 @@ nameReference:
   - kind: Port
     path: spec/cloudCredentialsRef/secretName
   - kind: Project
+    path: spec/cloudCredentialsRef/secretName
+  - kind: RBACPolicy
     path: spec/cloudCredentialsRef/secretName
   - kind: Region
     path: spec/cloudCredentialsRef/secretName

@@ -2335,6 +2335,114 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: segmentationID
       type:
         scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicy
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicySpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyFilter
+  map:
+    fields:
+    - name: action
+      type:
+        scalar: string
+    - name: targetProjectID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyResourceSpec
+  map:
+    fields:
+    - name: action
+      type:
+        scalar: string
+    - name: networkRef
+      type:
+        scalar: string
+    - name: targetProjectID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyResourceStatus
+  map:
+    fields:
+    - name: action
+      type:
+        scalar: string
+    - name: networkID
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: targetProjectID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicySpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RBACPolicyResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.Region
   map:
     fields:

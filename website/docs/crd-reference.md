@@ -23,6 +23,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Network](#network)
 - [Port](#port)
 - [Project](#project)
+- [RBACPolicy](#rbacpolicy)
 - [Region](#region)
 - [RegisteredLimit](#registeredlimit)
 - [Role](#role)
@@ -523,6 +524,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RBACPolicySpec](#rbacpolicyspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2228,6 +2230,7 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RBACPolicyResourceSpec](#rbacpolicyresourcespec)
 - [RegisteredLimitFilter](#registeredlimitfilter)
 - [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RoleAssignmentFilter](#roleassignmentfilter)
@@ -2454,6 +2457,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RBACPolicySpec](#rbacpolicyspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2498,6 +2502,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RBACPolicySpec](#rbacpolicyspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -3289,6 +3294,166 @@ _Appears in:_
 | `networkType` _string_ | networkType is the type of physical network that this<br />network should be mapped to. Supported values are flat, vlan, vxlan, and gre.<br />Valid values depend on the networking back-end. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `physicalNetwork` _string_ | physicalNetwork is the physical network where this network<br />should be implemented. The Networking API v2.0 does not provide a<br />way to list available physical networks. For example, the Open<br />vSwitch plug-in configuration file defines a symbolic name that maps<br />to specific bridges on each compute host. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `segmentationID` _integer_ | segmentationID is the ID of the isolated segment on the<br />physical network. The network_type attribute defines the<br />segmentation model. For example, if the network_type value is vlan,<br />this ID is a vlan identifier. If the network_type value is gre, this<br />ID is a gre key. |  | Optional: \{\} <br /> |
+
+
+#### RBACPolicy
+
+
+
+RBACPolicy is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `RBACPolicy` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[RBACPolicySpec](#rbacpolicyspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[RBACPolicyStatus](#rbacpolicystatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### RBACPolicyAction
+
+_Underlying type:_ _string_
+
+RBACPolicyAction is the type of access being granted by an RBAC policy.
+
+_Validation:_
+- Enum: [access_as_shared access_as_external]
+
+_Appears in:_
+- [RBACPolicyFilter](#rbacpolicyfilter)
+- [RBACPolicyResourceSpec](#rbacpolicyresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `access_as_shared` | RBACPolicyActionAccessShared grants the target project permission to attach ports to<br />(use) the network, without granting any ability to manage the network itself.<br /> |
+| `access_as_external` | RBACPolicyActionAccessExternal grants the target project permission to use the network<br />as an external gateway.<br /> |
+
+
+#### RBACPolicyFilter
+
+
+
+RBACPolicyFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [RBACPolicyImport](#rbacpolicyimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `action` _[RBACPolicyAction](#rbacpolicyaction)_ | action of the existing resource |  | Enum: [access_as_shared access_as_external] <br />Optional: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID of the existing resource |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### RBACPolicyImport
+
+
+
+RBACPolicyImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [RBACPolicySpec](#rbacpolicyspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[RBACPolicyFilter](#rbacpolicyfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### RBACPolicyResourceSpec
+
+
+
+RBACPolicyResourceSpec contains the desired state of the resource.
+
+Neutron's RBAC policy API only supports sharing a Network in this initial implementation -
+object_type is implicitly "network" (via networkRef) for every RBACPolicy. Neutron's RBAC API
+also covers qos-policy and security-group as other possible object_types; adding those as
+alternatives to networkRef (a discriminated union, the same pattern used by
+RouterInterfaceSpec's type/subnetRef) is a natural follow-up once there's a concrete use case,
+deliberately left out of this first pass to keep it minimal and reviewable.
+
+
+
+_Appears in:_
+- [RBACPolicySpec](#rbacpolicyspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `networkRef` _[KubernetesNameRef](#kubernetesnameref)_ | networkRef is a reference to the ORC Network this policy grants access to. Immutable -<br />Neutron's own RBAC policy API has no update path for which object a policy applies to,<br />only for its targetProjectID (see gophercloud's UpdateOpts, which carries TargetTenant<br />only). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `action` _[RBACPolicyAction](#rbacpolicyaction)_ | action is the type of access being granted to targetProjectID. Immutable for the same<br />reason as networkRef - not present in Neutron's UpdateOpts. |  | Enum: [access_as_shared access_as_external] <br />Required: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID is the OpenStack project ID to grant access to. A raw OpenStack id, not<br />a KubernetesNameRef to an ORC Project object - Project creation itself may not be usable<br />on every cloud (some providers gate identity/project provisioning behind their own<br />control plane, outside Keystone, so no corresponding ORC Project object may ever exist<br />to reference). Mutable - matches Neutron's own UpdateOpts, which only allows changing<br />the target project of an existing policy, nothing else.<br />Deliberately fails the kube-api-linter noopenstackidref check (confirmed: this linter<br />doesn't support //nolint suppression, "unknown linters in //nolint directives") - raised<br />as an open question for maintainers rather than silently worked around, see the PR<br />description. |  | MaxLength: 64 <br />MinLength: 1 <br />Required: \{\} <br /> |
+
+
+#### RBACPolicyResourceStatus
+
+
+
+RBACPolicyResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [RBACPolicyStatus](#rbacpolicystatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `networkID` _string_ | networkID is the ID of the Network this policy applies to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `action` _string_ | action is the type of access granted to targetProjectID. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID is the OpenStack project ID this policy grants access to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the project that owns the shared network (and therefore this<br />policy) - not to be confused with targetProjectID, the project being granted access. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### RBACPolicySpec
+
+
+
+RBACPolicySpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [RBACPolicy](#rbacpolicy)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[RBACPolicyImport](#rbacpolicyimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[RBACPolicyResourceSpec](#rbacpolicyresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### RBACPolicyStatus
+
+
+
+RBACPolicyStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [RBACPolicy](#rbacpolicy)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[RBACPolicyResourceStatus](#rbacpolicyresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
 #### Region
