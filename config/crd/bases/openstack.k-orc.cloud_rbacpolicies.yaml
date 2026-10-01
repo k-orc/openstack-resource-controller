@@ -181,6 +181,11 @@ spec:
                       control plane, outside Keystone, so no corresponding ORC Project object may ever exist
                       to reference). Mutable - matches Neutron's own UpdateOpts, which only allows changing
                       the target project of an existing policy, nothing else.
+
+                      Deliberately fails the kube-api-linter noopenstackidref check (confirmed: this linter
+                      doesn't support //nolint suppression, "unknown linters in //nolint directives") - raised
+                      as an open question for maintainers rather than silently worked around, see the PR
+                      description.
                     maxLength: 64
                     minLength: 1
                     type: string

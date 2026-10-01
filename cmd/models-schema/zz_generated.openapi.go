@@ -8078,7 +8078,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RBACPolicyResourceSpec
 					},
 					"targetProjectID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "targetProjectID is the OpenStack project ID to grant access to. A raw OpenStack id, not a KubernetesNameRef to an ORC Project object - Project creation itself may not be usable on every cloud (some providers gate identity/project provisioning behind their own control plane, outside Keystone, so no corresponding ORC Project object may ever exist to reference). Mutable - matches Neutron's own UpdateOpts, which only allows changing the target project of an existing policy, nothing else.",
+							Description: "targetProjectID is the OpenStack project ID to grant access to. A raw OpenStack id, not a KubernetesNameRef to an ORC Project object - Project creation itself may not be usable on every cloud (some providers gate identity/project provisioning behind their own control plane, outside Keystone, so no corresponding ORC Project object may ever exist to reference). Mutable - matches Neutron's own UpdateOpts, which only allows changing the target project of an existing policy, nothing else.\n\nDeliberately fails the kube-api-linter noopenstackidref check (confirmed: this linter doesn't support //nolint suppression, \"unknown linters in //nolint directives\") - raised as an open question for maintainers rather than silently worked around, see the PR description.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
