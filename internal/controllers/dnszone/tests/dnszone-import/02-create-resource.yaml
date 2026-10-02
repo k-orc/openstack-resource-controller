@@ -1,0 +1,14 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: dnszone-import-external.example.com.
+    email: admin@example.com
+    description: DNSZone dnszone-import-external from "dnszone-import" test

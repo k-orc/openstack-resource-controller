@@ -37,6 +37,7 @@ type MockScopeFactory struct {
 	AddressScope                *mock.MockAddressScopeClient
 	ApplicationCredentialClient *mock.MockApplicationCredentialClient
 	ComputeClient               *mock.MockComputeClient
+	DNSClient                   *mock.MockDNSClient
 	DomainClient                *mock.MockDomainClient
 	EndpointClient              *mock.MockEndpointClient
 	GroupClient                 *mock.MockGroupClient
@@ -62,6 +63,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	addressScope := mock.NewMockAddressScopeClient(mockCtrl)
 	applicationcredentialClient := mock.NewMockApplicationCredentialClient(mockCtrl)
 	computeClient := mock.NewMockComputeClient(mockCtrl)
+	dnsClient := mock.NewMockDNSClient(mockCtrl)
 	domainClient := mock.NewMockDomainClient(mockCtrl)
 	endpointClient := mock.NewMockEndpointClient(mockCtrl)
 	groupClient := mock.NewMockGroupClient(mockCtrl)
@@ -84,6 +86,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		AddressScope:                addressScope,
 		ApplicationCredentialClient: applicationcredentialClient,
 		ComputeClient:               computeClient,
+		DNSClient:                   dnsClient,
 		DomainClient:                domainClient,
 		EndpointClient:              endpointClient,
 		GroupClient:                 groupClient,
@@ -125,6 +128,10 @@ func (f *MockScopeFactory) NewComputeClient() (osclients.ComputeClient, error) {
 
 func (f *MockScopeFactory) NewImageClient() (osclients.ImageClient, error) {
 	return f.ImageClient, nil
+}
+
+func (f *MockScopeFactory) NewDNSClient() (osclients.DNSClient, error) {
+	return f.DNSClient, nil
 }
 
 func (f *MockScopeFactory) NewNetworkClient() (osclients.NetworkClient, error) {
