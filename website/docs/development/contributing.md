@@ -49,6 +49,10 @@ For non-trivial changes, we recommend opening a GitHub issue first to discuss
 the approach. This avoids spending time on work that may need a different
 direction.
 
+For bug fixes, please ensure a GitHub issue exists before submitting a PR, even
+for small fixes. Having a tracking issue makes it easier to reference the bug
+in commit messages, changelogs, and future discussions.
+
 For significant new features or architectural changes, please submit an
 [enhancement proposal][enhancements] and get it approved before starting
 implementation.
