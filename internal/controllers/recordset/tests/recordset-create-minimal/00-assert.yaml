@@ -1,0 +1,34 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-create-minimal
+status:
+  resource:
+    name: www.recordset-create-minimal.example.com.
+    type: A
+    records:
+      - 192.0.2.1
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RecordSet
+      name: recordset-create-minimal
+      ref: recordset
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZone
+      name: recordset-create-minimal
+      ref: dnszone
+assertAll:
+    - celExpr: "recordset.status.id != ''"
+    - celExpr: "recordset.status.resource.zoneID == dnszone.status.id"
+    - celExpr: "recordset.status.resource.projectID != ''"

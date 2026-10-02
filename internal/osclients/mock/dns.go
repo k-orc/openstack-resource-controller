@@ -29,6 +29,7 @@ import (
 	iter "iter"
 	reflect "reflect"
 
+	recordsets "github.com/gophercloud/gophercloud/v2/openstack/dns/v2/recordsets"
 	zones "github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -57,6 +58,21 @@ func (m *MockDNSClient) EXPECT() *MockDNSClientMockRecorder {
 	return m.recorder
 }
 
+// CreateRecordSet mocks base method.
+func (m *MockDNSClient) CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRecordSet", ctx, zoneID, opts)
+	ret0, _ := ret[0].(*recordsets.RecordSet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateRecordSet indicates an expected call of CreateRecordSet.
+func (mr *MockDNSClientMockRecorder) CreateRecordSet(ctx, zoneID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRecordSet", reflect.TypeOf((*MockDNSClient)(nil).CreateRecordSet), ctx, zoneID, opts)
+}
+
 // CreateZone mocks base method.
 func (m *MockDNSClient) CreateZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error) {
 	m.ctrl.T.Helper()
@@ -72,6 +88,20 @@ func (mr *MockDNSClientMockRecorder) CreateZone(ctx, opts any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateZone", reflect.TypeOf((*MockDNSClient)(nil).CreateZone), ctx, opts)
 }
 
+// DeleteRecordSet mocks base method.
+func (m *MockDNSClient) DeleteRecordSet(ctx context.Context, zoneID, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRecordSet", ctx, zoneID, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRecordSet indicates an expected call of DeleteRecordSet.
+func (mr *MockDNSClientMockRecorder) DeleteRecordSet(ctx, zoneID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRecordSet", reflect.TypeOf((*MockDNSClient)(nil).DeleteRecordSet), ctx, zoneID, id)
+}
+
 // DeleteZone mocks base method.
 func (m *MockDNSClient) DeleteZone(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -84,6 +114,21 @@ func (m *MockDNSClient) DeleteZone(ctx context.Context, id string) error {
 func (mr *MockDNSClientMockRecorder) DeleteZone(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteZone", reflect.TypeOf((*MockDNSClient)(nil).DeleteZone), ctx, id)
+}
+
+// GetRecordSet mocks base method.
+func (m *MockDNSClient) GetRecordSet(ctx context.Context, zoneID, id string) (*recordsets.RecordSet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRecordSet", ctx, zoneID, id)
+	ret0, _ := ret[0].(*recordsets.RecordSet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRecordSet indicates an expected call of GetRecordSet.
+func (mr *MockDNSClientMockRecorder) GetRecordSet(ctx, zoneID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRecordSet", reflect.TypeOf((*MockDNSClient)(nil).GetRecordSet), ctx, zoneID, id)
 }
 
 // GetZone mocks base method.
@@ -101,6 +146,20 @@ func (mr *MockDNSClientMockRecorder) GetZone(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZone", reflect.TypeOf((*MockDNSClient)(nil).GetZone), ctx, id)
 }
 
+// ListRecordSets mocks base method.
+func (m *MockDNSClient) ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRecordSets", ctx, zoneID, listOpts)
+	ret0, _ := ret[0].(iter.Seq2[*recordsets.RecordSet, error])
+	return ret0
+}
+
+// ListRecordSets indicates an expected call of ListRecordSets.
+func (mr *MockDNSClientMockRecorder) ListRecordSets(ctx, zoneID, listOpts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRecordSets", reflect.TypeOf((*MockDNSClient)(nil).ListRecordSets), ctx, zoneID, listOpts)
+}
+
 // ListZones mocks base method.
 func (m *MockDNSClient) ListZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error] {
 	m.ctrl.T.Helper()
@@ -113,6 +172,21 @@ func (m *MockDNSClient) ListZones(ctx context.Context, listOpts zones.ListOptsBu
 func (mr *MockDNSClientMockRecorder) ListZones(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListZones", reflect.TypeOf((*MockDNSClient)(nil).ListZones), ctx, listOpts)
+}
+
+// UpdateRecordSet mocks base method.
+func (m *MockDNSClient) UpdateRecordSet(ctx context.Context, zoneID, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRecordSet", ctx, zoneID, id, opts)
+	ret0, _ := ret[0].(*recordsets.RecordSet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateRecordSet indicates an expected call of UpdateRecordSet.
+func (mr *MockDNSClientMockRecorder) UpdateRecordSet(ctx, zoneID, id, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRecordSet", reflect.TypeOf((*MockDNSClient)(nil).UpdateRecordSet), ctx, zoneID, id, opts)
 }
 
 // UpdateZone mocks base method.

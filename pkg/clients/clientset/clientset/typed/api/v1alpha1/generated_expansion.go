@@ -46,6 +46,8 @@ type PortExpansion interface{}
 
 type ProjectExpansion interface{}
 
+type RecordSetExpansion interface{}
+
 type RegionExpansion interface{}
 
 type RegisteredLimitExpansion interface{}

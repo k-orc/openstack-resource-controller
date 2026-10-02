@@ -23,20 +23,27 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
+	"github.com/gophercloud/gophercloud/v2/openstack/dns/v2/recordsets"
 	"github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
 // DNSClient covers Designate resources on a single shared ServiceClient, the same convention
 // used by NetworkClient for all Neutron resources - one OpenStack service, one client, rather
-// than a dedicated client per Kubernetes kind. Zone-only for now; DNSZoneShare and RecordSet add
-// their own methods to this interface in follow-up PRs.
+// than a dedicated client per Kubernetes kind. DNSZoneShare adds its own methods to this
+// interface in a follow-up PR.
 type DNSClient interface {
 	ListZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error]
 	CreateZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error)
 	DeleteZone(ctx context.Context, id string) error
 	GetZone(ctx context.Context, id string) (*zones.Zone, error)
 	UpdateZone(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.Zone, error)
+
+	ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error]
+	CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error)
+	DeleteRecordSet(ctx context.Context, zoneID, id string) error
+	GetRecordSet(ctx context.Context, zoneID, id string) (*recordsets.RecordSet, error)
+	UpdateRecordSet(ctx context.Context, zoneID, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error)
 }
 
 type dnsClient struct{ client *gophercloud.ServiceClient }
@@ -78,6 +85,29 @@ func (c dnsClient) UpdateZone(ctx context.Context, id string, opts zones.UpdateO
 	return zones.Update(ctx, c.client, id, opts).Extract()
 }
 
+func (c dnsClient) ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
+	pager := recordsets.ListByZone(c.client, zoneID, listOpts)
+	return func(yield func(*recordsets.RecordSet, error) bool) {
+		_ = pager.EachPage(ctx, yieldPage(recordsets.ExtractRecordSets, yield))
+	}
+}
+
+func (c dnsClient) CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
+	return recordsets.Create(ctx, c.client, zoneID, opts).Extract()
+}
+
+func (c dnsClient) DeleteRecordSet(ctx context.Context, zoneID, id string) error {
+	return recordsets.Delete(ctx, c.client, zoneID, id).ExtractErr()
+}
+
+func (c dnsClient) GetRecordSet(ctx context.Context, zoneID, id string) (*recordsets.RecordSet, error) {
+	return recordsets.Get(ctx, c.client, zoneID, id).Extract()
+}
+
+func (c dnsClient) UpdateRecordSet(ctx context.Context, zoneID, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
+	return recordsets.Update(ctx, c.client, zoneID, id, opts).Extract()
+}
+
 type dnsErrorClient struct{ error }
 
 // NewDNSErrorClient returns a DNSClient in which every method returns the given error.
@@ -100,5 +130,23 @@ func (e dnsErrorClient) GetZone(_ context.Context, _ string) (*zones.Zone, error
 }
 
 func (e dnsErrorClient) UpdateZone(_ context.Context, _ string, _ zones.UpdateOptsBuilder) (*zones.Zone, error) {
+	return nil, e.error
+}
+
+func (e dnsErrorClient) ListRecordSets(_ context.Context, _ string, _ recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
+	return func(yield func(*recordsets.RecordSet, error) bool) { yield(nil, e.error) }
+}
+
+func (e dnsErrorClient) CreateRecordSet(_ context.Context, _ string, _ recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
+	return nil, e.error
+}
+
+func (e dnsErrorClient) DeleteRecordSet(_ context.Context, _, _ string) error { return e.error }
+
+func (e dnsErrorClient) GetRecordSet(_ context.Context, _, _ string) (*recordsets.RecordSet, error) {
+	return nil, e.error
+}
+
+func (e dnsErrorClient) UpdateRecordSet(_ context.Context, _, _ string, _ recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
 	return nil, e.error
 }

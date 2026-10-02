@@ -89,6 +89,11 @@ spec:
       kind: Project
       name: projects.openstack.k-orc.cloud
       version: v1alpha1
+    - description: RecordSet is the Schema for an ORC resource.
+      displayName: Record Set
+      kind: RecordSet
+      name: recordsets.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Region is the Schema for an ORC resource.
       displayName: Region
       kind: Region

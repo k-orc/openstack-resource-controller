@@ -42,6 +42,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/project"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/recordset"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/region"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/registeredlimit"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/role"
@@ -151,6 +152,7 @@ func main() {
 		roleassignment.New(scopeFactory),
 		limit.New(scopeFactory),
 		dnszone.New(scopeFactory),
+		recordset.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

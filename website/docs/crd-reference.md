@@ -24,6 +24,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Network](#network)
 - [Port](#port)
 - [Project](#project)
+- [RecordSet](#recordset)
 - [Region](#region)
 - [RegisteredLimit](#registeredlimit)
 - [Role](#role)
@@ -525,6 +526,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RecordSetSpec](#recordsetspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2397,6 +2399,8 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RecordSetFilter](#recordsetfilter)
+- [RecordSetResourceSpec](#recordsetresourcespec)
 - [RegisteredLimitFilter](#registeredlimitfilter)
 - [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
 - [RoleAssignmentFilter](#roleassignmentfilter)
@@ -2624,6 +2628,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RecordSetSpec](#recordsetspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2669,6 +2674,7 @@ _Appears in:_
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
 - [ProjectSpec](#projectspec)
+- [RecordSetSpec](#recordsetspec)
 - [RegionSpec](#regionspec)
 - [RegisteredLimitSpec](#registeredlimitspec)
 - [RoleAssignmentSpec](#roleassignmentspec)
@@ -2983,6 +2989,8 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
+- [RecordSetFilter](#recordsetfilter)
+- [RecordSetResourceSpec](#recordsetresourcespec)
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
 - [RouterFilter](#routerfilter)
@@ -3502,6 +3510,163 @@ _Appears in:_
 | `networkType` _[ProviderNetworkType](#providernetworktype)_ | networkType is the type of physical network that this<br />network should be mapped to. Supported values are local, flat, vlan, vxlan, and gre. |  | Enum: [local flat vlan vxlan gre] <br />Required: \{\} <br /> |
 | `physicalNetwork` _string_ | physicalNetwork is the physical network where this network<br />should be implemented. The Networking API v2.0 does not provide a<br />way to list available physical networks. For example, the Open<br />vSwitch plug-in configuration file defines a symbolic name that maps<br />to specific bridges on each compute host. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `segmentationID` _integer_ | segmentationID is the ID of the isolated segment on the<br />physical network. The network_type attribute defines the<br />segmentation model. For example, if the network_type value is vlan,<br />this ID is a vlan identifier. If the network_type value is gre, this<br />ID is a gre key. |  | Minimum: 0 <br />Optional: \{\} <br /> |
+
+
+#### RecordSet
+
+
+
+RecordSet is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `RecordSet` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[RecordSetSpec](#recordsetspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[RecordSetStatus](#recordsetstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### RecordSetFilter
+
+
+
+RecordSetFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 2
+
+_Appears in:_
+- [RecordSetImport](#recordsetimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone to look for the recordset under - required<br />because every Designate recordset operation, including list, is scoped to a specific zone<br />(see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed<br />path). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `type` _[RecordSetType](#recordsettype)_ | type of the existing resource |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Optional: \{\} <br /> |
+
+
+#### RecordSetImport
+
+
+
+RecordSetImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [RecordSetSpec](#recordsetspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[RecordSetFilter](#recordsetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 2 <br />Optional: \{\} <br /> |
+
+
+#### RecordSetResourceSpec
+
+
+
+RecordSetResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [RecordSetSpec](#recordsetspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per<br />Designate's own convention. If not specified, the name of the ORC object is used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone this recordset belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `type` _[RecordSetType](#recordsettype)_ | type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no<br />update path for a recordset's type, only its records/ttl/description. |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Required: \{\} <br /> |
+| `records` _string array_ | records are the record data for this recordset, in Designate's own format for the given<br />type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not<br />further validated here - record data syntax varies by type and Designate's own API is the<br />source of truth for what's acceptable. |  | MaxItems: 64 <br />MinItems: 1 <br />items:MaxLength: 4096 <br />Required: \{\} <br /> |
+| `ttl` _integer_ | ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own<br />default TTL applies. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+
+
+#### RecordSetResourceStatus
+
+
+
+RecordSetResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [RecordSetStatus](#recordsetstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the recordset, e.g. "www.example.com.". |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `zoneID` _string_ | zoneID is the ID of the DNSZone this recordset belongs to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `type` _string_ | type is the RRTYPE of the recordset. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `records` _string array_ | records are the record data for this recordset. |  | MaxItems: 64 <br />items:MaxLength: 4096 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the Time To Live for the recordset, in seconds. |  | Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the project that owns this recordset (inherited from its zone). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### RecordSetSpec
+
+
+
+RecordSetSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [RecordSet](#recordset)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[RecordSetImport](#recordsetimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[RecordSetResourceSpec](#recordsetresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### RecordSetStatus
+
+
+
+RecordSetStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [RecordSet](#recordset)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[RecordSetResourceStatus](#recordsetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### RecordSetType
+
+_Underlying type:_ _string_
+
+RecordSetType is the RRTYPE of a DNS recordset.
+
+_Validation:_
+- Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA]
+
+_Appears in:_
+- [RecordSetFilter](#recordsetfilter)
+- [RecordSetResourceSpec](#recordsetresourcespec)
+
 
 
 #### Region

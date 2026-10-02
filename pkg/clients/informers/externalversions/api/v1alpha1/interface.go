@@ -52,6 +52,8 @@ type Interface interface {
 	Ports() PortInformer
 	// Projects returns a ProjectInformer.
 	Projects() ProjectInformer
+	// RecordSets returns a RecordSetInformer.
+	RecordSets() RecordSetInformer
 	// Regions returns a RegionInformer.
 	Regions() RegionInformer
 	// RegisteredLimits returns a RegisteredLimitInformer.
@@ -165,6 +167,11 @@ func (v *version) Ports() PortInformer {
 // Projects returns a ProjectInformer.
 func (v *version) Projects() ProjectInformer {
 	return &projectInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// RecordSets returns a RecordSetInformer.
+func (v *version) RecordSets() RecordSetInformer {
+	return &recordSetInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Regions returns a RegionInformer.

@@ -247,6 +247,10 @@ var resources []templateFields = []templateFields{
 		Name:             "DNSZone",
 		ExistingOSClient: true,
 	},
+	{
+		Name:             "RecordSet",
+		ExistingOSClient: true,
+	},
 }
 
 // These resources won't be generated

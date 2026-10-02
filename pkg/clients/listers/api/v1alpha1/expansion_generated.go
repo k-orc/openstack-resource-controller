@@ -130,6 +130,14 @@ type ProjectListerExpansion interface{}
 // ProjectNamespaceLister.
 type ProjectNamespaceListerExpansion interface{}
 
+// RecordSetListerExpansion allows custom methods to be added to
+// RecordSetLister.
+type RecordSetListerExpansion interface{}
+
+// RecordSetNamespaceListerExpansion allows custom methods to be added to
+// RecordSetNamespaceLister.
+type RecordSetNamespaceListerExpansion interface{}
+
 // RegionListerExpansion allows custom methods to be added to
 // RegionLister.
 type RegionListerExpansion interface{}
