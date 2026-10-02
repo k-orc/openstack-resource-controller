@@ -15,9 +15,8 @@ Two new pieces are proposed: a `members` field on the existing `Image` resource 
 grant step, and a new `ImageMember` resource for the consumer-side accept step. These are separate
 resources because Glance's accept operation must be performed with the *member* project's own
 credentials, which the owning `Image` object's `cloudCredentialsRef` cannot provide - no existing
-K-ORC resource currently needs two different projects' credentials to reach a single desired state.
-Raised as an open design question in the first draft of this proposal; confirmed on review to be
-an acceptable pattern (see "Two-credential design" under Risks and Edge Cases).
+K-ORC resource currently needs two different projects' credentials to reach a single desired state
+(see "Two-credential design" under Risks and Edge Cases).
 
 ## Motivation
 
@@ -51,11 +50,9 @@ express declaratively instead.
 
 - `community`-visibility images, which don't use the member list / accept flow at all - already
   fully expressible via the existing `visibility` field alone.
-- Managing the lifecycle of the projects being shared with. Not quite "assumes they already
-  exist", though - members are expressed as a `ProjectRef` (see Proposal below), so ORC's normal
-  dependency handling means `Image` simply waits for a referenced `Project` to exist before
-  granting it access, the same as any other ORC object-to-object reference; the project can be
-  created later, by this repo's own `Project` CRD or externally, in either order.
+- Managing the lifecycle of the projects being shared with - members are expressed as a
+  `ProjectRef` (see Proposal below), so the referenced `Project` can be created before or after,
+  by this repo's own `Project` CRD or externally.
 - Supporting OpenStack deployments whose Glance policy permits the image *owner* to accept on a
   member's behalf (some custom `policy.json` configurations allow this via an elevated role). The
   design below assumes Glance's more common default policy, where accept requires the member
@@ -67,11 +64,7 @@ express declaratively instead.
 ### Grant: a `members` field on `Image`
 
 ```go
-// ImageMemberGrant identifies a project an image is shared with. Named
-// "...Grant", not "ImageMember" (as a prior review suggested), to avoid
-// colliding with the ImageMember resource's own generated Go type in the
-// same api/v1alpha1 package - the substance (a ProjectRef, not a raw
-// project ID) is otherwise exactly that suggestion.
+// ImageMemberGrant identifies a project an image is shared with.
 type ImageMemberGrant struct {
     // projectRef is a reference to a Project ORC object representing
     // the project to share this image with. ORC objects only reference
@@ -85,13 +78,8 @@ type ImageMemberGrant struct {
 Added to `ImageResourceSpec`:
 
 ```go
-// members specifies the list of projects this image is shared with, in
-// addition to whatever its own visibility already grants. The image's
-// visibility must be set to "shared" for members to be effective - Glance's
-// member list has no effect for any other visibility value. This performs
-// only the OWNER side of the share (POST .../v2/images/{id}/members) - each
-// member project must separately accept the share (see the ImageMember
-// resource) before the image becomes usable there.
+// members specifies the list of projects this image is shared with.
+// The image visibility must be set to "shared" for members to be effective.
 // +kubebuilder:validation:MaxItems:=256
 // +listType=map
 // +listMapKey=projectRef
@@ -249,9 +237,3 @@ member-`DELETE` at all).
 ## Implementation History
 
 - 2026-09-30: Enhancement proposed
-- 2026-10-02: Revised per @mandre's review - `ProjectRef` instead of a raw project ID,
-  `Members` as a `listType=map` keyed on `projectRef`, a `status` field on `ImageMember` for the
-  consumer to declare accepted/rejected, member statuses surfaced on `Image.status`, and the
-  revoke-asymmetry risk resolved (delete resets status to `pending` via the member's own
-  credential rather than needing the owner's to fully remove the record - actual revocation stays
-  an owner-side-only act via `Image.spec.resource.members`)
