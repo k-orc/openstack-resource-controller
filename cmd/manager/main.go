@@ -29,6 +29,7 @@ import (
 
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/addressscope"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/applicationcredential"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/dnszone"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/endpoint"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/flavor"
@@ -149,6 +150,7 @@ func main() {
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
 		limit.New(scopeFactory),
+		dnszone.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

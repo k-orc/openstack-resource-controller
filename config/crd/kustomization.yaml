@@ -5,6 +5,7 @@
 resources:
 - bases/openstack.k-orc.cloud_addressscopes.yaml
 - bases/openstack.k-orc.cloud_applicationcredentials.yaml
+- bases/openstack.k-orc.cloud_dnszones.yaml
 - bases/openstack.k-orc.cloud_domains.yaml
 - bases/openstack.k-orc.cloud_endpoints.yaml
 - bases/openstack.k-orc.cloud_flavors.yaml

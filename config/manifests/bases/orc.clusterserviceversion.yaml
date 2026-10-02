@@ -29,6 +29,11 @@ spec:
       kind: ApplicationCredential
       name: applicationcredentials.openstack.k-orc.cloud
       version: v1alpha1
+    - description: DNSZone is the Schema for an ORC resource.
+      displayName: DNSZone
+      kind: DNSZone
+      name: dnszones.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Domain is the Schema for an ORC resource.
       displayName: Domain
       kind: Domain
