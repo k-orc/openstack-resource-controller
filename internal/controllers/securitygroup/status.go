@@ -46,21 +46,25 @@ func (securityGroupStatusWriter) ResourceAvailableStatus(orcObject orcObjectPT, 
 	}
 
 	resourceSpec := orcObject.Spec.Resource
-	if resourceSpec != nil && resourceSpec.Rules != nil {
-		// Make sure specified security group rules exist in resource
-
-		resourceStatus := orcObject.Status.Resource
-		if resourceStatus == nil || resourceStatus.Rules == nil {
-			return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, securityGroupAvailablePollingPeriod)
-		}
-
-		if len(resourceSpec.Rules) != len(resourceStatus.Rules) {
-			return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, securityGroupAvailablePollingPeriod)
-		}
-
-		if len(resourceSpec.Rules) != len(osResource.Rules) {
-			return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, securityGroupAvailablePollingPeriod)
-		}
+	if resourceSpec != nil && len(resourceSpec.Rules) != len(osResource.Rules) {
+		// The freshly-fetched OpenStack resource doesn't yet have as many rules as declared - a
+		// create/update reconciler presumably just fired off the necessary Neutron calls, but
+		// this reconcile's own read of the resource predates them taking effect. Wait and
+		// recheck, rather than report Available prematurely.
+		//
+		// Deliberately compares against osResource (this reconcile's own fresh read), not
+		// orcObject.Status.Resource.Rules (last reconcile's status write): a previous version of
+		// this check compared against the status instead, and nil-checked it to decide whether to
+		// wait - but an empty []SecurityGroupRule{} in spec.resource.rules is a non-nil slice in
+		// Go, and ApplyResourceStatus below never calls WithRules() at all when osResource.Rules
+		// is empty (its loop runs zero times), leaving status.resource.rules permanently nil. A
+		// SecurityGroup with a deliberately empty rule list (e.g. a placeholder profile with no
+		// openings added yet) could therefore never pass that nil check and would stay stuck
+		// "Waiting for OpenStack resource to be ready" forever, 15s poll after 15s poll, despite
+		// genuinely matching its spec. Comparing lengths against osResource directly has no such
+		// nil/empty ambiguity and fixes this for the zero-rules case without changing behavior for
+		// the non-zero case the original two checks were also covering.
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, securityGroupAvailablePollingPeriod)
 	}
 
 	return metav1.ConditionTrue, nil
