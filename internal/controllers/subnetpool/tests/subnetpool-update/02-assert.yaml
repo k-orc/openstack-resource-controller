@@ -1,0 +1,26 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: SubnetPool
+      name: subnetpool-update
+      ref: subnetpool
+assertAll:
+    - celExpr: "!has(subnetpool.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-update
+status:
+  resource:
+    name: subnetpool-update
+    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get subnetpool.openstack.k-orc.cloud subnetpool-import-dependency --namespace $NAMESPACE"
+  skipLogOutput: true
