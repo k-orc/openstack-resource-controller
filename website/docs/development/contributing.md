@@ -71,6 +71,53 @@ implementation.
 6. Address review feedback: at least one maintainer review is required before
    merging.
 
+## Contributing New Controllers
+
+New controllers tend to produce large PRs. The guidelines below keep them
+reviewable and make it easy to regenerate scaffolding if tooling or conventions
+change.
+
+### Commit structure
+
+New controller branches must use a multi-commit structure that separates
+generated code from hand-written code:
+
+1. **Scaffolding commit**: the raw output of
+   `go run ./cmd/scaffold-controller`. The commit message **must** contain the
+   exact command that was run (with all flags) so it can be reproduced. Do not
+   include any manual edits. See
+   [Scaffolding a New Controller](scaffolding.md) for details.
+2. **Generated code commit**: registration in
+   `cmd/resource-generator/main.go`, `make generate` output, scope wiring in
+   `internal/scope/`, controller registration in `cmd/manager/main.go`, and
+   `make generate-bundle`. This is all mechanical boilerplate, no hand-written
+   logic.
+3. **Implementation commit(s)**: API type definitions (`Filter`,
+   `ResourceSpec`, `ResourceStatus`), actuator implementation, status writer,
+   and tests. This is the `TODO(scaffolding)` work.
+
+Reviewers can skip the first two commits entirely and focus on the hand-written
+implementation.
+
+### Incremental PRs
+
+For complex controllers, consider splitting the work across multiple pull
+requests:
+
+- A first PR with scaffolding + generated code + basic immutable
+  create/delete/import.
+- Follow-up PRs adding mutability, reconcilers for complex sub-resources, tags,
+  additional dependencies, etc.
+
+Smaller PRs are easier to review and less likely to need large reworks.
+
+### Deferred mutability
+
+The initial controller implementation may treat all spec fields as immutable.
+Mutability for complex fields (`GetResourceReconcilers`, `updateResource`,
+single-concern reconcilers like `reconcileExtraSpecs`) can be added in
+follow-up PRs.
+
 ## License
 
 ORC is licensed under the Apache License 2.0. By contributing, you agree that
