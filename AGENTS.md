@@ -406,6 +406,42 @@ func (actuator myActuator) GetResourceReconcilers(ctx context.Context, orcObject
 - **Multiple reconcilers**: `internal/controllers/trunk/` - `updateResource` + `reconcileSubports` + tags
 - **Complex**: `internal/controllers/server/` - Multiple dependencies, many reconcilers
 
+## Contributing New Controllers
+
+### Commit Structure
+
+Always structure new controller branches as multi-commit, separating generated
+code from hand-written code:
+
+1. **Scaffolding commit**: Raw output of `go run ./cmd/scaffold-controller`.
+   The commit message **must** contain the exact command (with all flags). No
+   manual edits in this commit.
+2. **Generated code commit**: Registration in
+   `cmd/resource-generator/main.go`, `make generate` output, scope wiring in
+   `internal/scope/`, controller registration in `cmd/manager/main.go`, and
+   `make generate-bundle`. All mechanical boilerplate, no hand-written logic.
+3. **Implementation commit(s)**: API type definitions (`Filter`,
+   `ResourceSpec`, `ResourceStatus`), actuator, status writer, and tests. This
+   is the `TODO(scaffolding)` work.
+
+### Incremental PRs
+
+For complex controllers, consider splitting work across multiple PRs:
+
+- First PR: scaffolding + generated code + basic immutable
+  create/delete/import.
+- Follow-up PRs: mutability, sub-resource reconcilers, tags, additional
+  dependencies, etc.
+
+Smaller PRs are easier to review and less likely to need large reworks.
+
+### Deferred Mutability
+
+The initial controller implementation may treat all spec fields as immutable.
+Mutability for complex fields (`GetResourceReconcilers`, `updateResource`,
+single-concern reconcilers like `reconcileExtraSpecs`) can be added in
+follow-up PRs.
+
 ## Documentation
 
 Detailed documentation in `website/docs/development/`:

@@ -20,13 +20,10 @@ go run ./cmd/scaffold-controller -interactive=false \
     ...
 ```
 
-After the scaffolding tool returned successfully, generate the files and commit your changes:
+After the scaffolding tool returned successfully, commit the raw scaffolding
+output **before** doing anything else:
 
 ```bash
-# Run code generation
-make generate
-
-# Commit the scaffolding output with the command as the message
 git add .
 git commit -m "$(cat <<'EOF'
 Scaffolding for the VolumeBackup controller
@@ -40,7 +37,24 @@ EOF
 )"
 ```
 
-This step is important as it makes it a lot easier to review your changes. Reviewers can skip the scaffolding commit (it's generated code) and focus on your actual implementation changes. Also, having the commit message document exactly how the scaffolding was generated helps ensure reproducibility.
+The commit message **must** contain the exact command that was run (with all
+flags) so the scaffolding can be reproduced. Do not include any manual edits in
+this commit.
+
+Next, perform the [post-scaffolding integration steps](#post-scaffolding-steps)
+(resource generator registration, `make generate`, scope wiring, manager
+registration) and commit them separately:
+
+```bash
+git add .
+git commit -m "Generated code for the VolumeBackup controller"
+```
+
+This two-commit structure lets reviewers skip both generated commits and focus
+on your hand-written implementation. It also makes it easy to regenerate the
+scaffolding if tooling or conventions change. See
+[Contributing](contributing.md#contributing-new-controllers) for the full
+commit and PR guidelines.
 
 ## Generated files
 
