@@ -34,6 +34,11 @@ spec:
       kind: DNSZone
       name: dnszones.openstack.k-orc.cloud
       version: v1alpha1
+    - description: DNSZoneShare is the Schema for an ORC resource.
+      displayName: DNSZone Share
+      kind: DNSZoneShare
+      name: dnszoneshares.openstack.k-orc.cloud
+      version: v1alpha1
     - description: Domain is the Schema for an ORC resource.
       displayName: Domain
       kind: Domain

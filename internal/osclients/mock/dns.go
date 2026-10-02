@@ -72,6 +72,21 @@ func (mr *MockDNSClientMockRecorder) CreateZone(ctx, opts any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateZone", reflect.TypeOf((*MockDNSClient)(nil).CreateZone), ctx, opts)
 }
 
+// CreateZoneShare mocks base method.
+func (m *MockDNSClient) CreateZoneShare(ctx context.Context, zoneID string, opts zones.ShareOptsBuilder) (*zones.ZoneShare, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateZoneShare", ctx, zoneID, opts)
+	ret0, _ := ret[0].(*zones.ZoneShare)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateZoneShare indicates an expected call of CreateZoneShare.
+func (mr *MockDNSClientMockRecorder) CreateZoneShare(ctx, zoneID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateZoneShare", reflect.TypeOf((*MockDNSClient)(nil).CreateZoneShare), ctx, zoneID, opts)
+}
+
 // DeleteZone mocks base method.
 func (m *MockDNSClient) DeleteZone(ctx context.Context, id string) error {
 	m.ctrl.T.Helper()
@@ -84,6 +99,20 @@ func (m *MockDNSClient) DeleteZone(ctx context.Context, id string) error {
 func (mr *MockDNSClientMockRecorder) DeleteZone(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteZone", reflect.TypeOf((*MockDNSClient)(nil).DeleteZone), ctx, id)
+}
+
+// DeleteZoneShare mocks base method.
+func (m *MockDNSClient) DeleteZoneShare(ctx context.Context, zoneID, shareID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteZoneShare", ctx, zoneID, shareID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteZoneShare indicates an expected call of DeleteZoneShare.
+func (mr *MockDNSClientMockRecorder) DeleteZoneShare(ctx, zoneID, shareID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteZoneShare", reflect.TypeOf((*MockDNSClient)(nil).DeleteZoneShare), ctx, zoneID, shareID)
 }
 
 // GetZone mocks base method.
@@ -99,6 +128,35 @@ func (m *MockDNSClient) GetZone(ctx context.Context, id string) (*zones.Zone, er
 func (mr *MockDNSClientMockRecorder) GetZone(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZone", reflect.TypeOf((*MockDNSClient)(nil).GetZone), ctx, id)
+}
+
+// GetZoneShare mocks base method.
+func (m *MockDNSClient) GetZoneShare(ctx context.Context, zoneID, shareID string) (*zones.ZoneShare, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetZoneShare", ctx, zoneID, shareID)
+	ret0, _ := ret[0].(*zones.ZoneShare)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetZoneShare indicates an expected call of GetZoneShare.
+func (mr *MockDNSClientMockRecorder) GetZoneShare(ctx, zoneID, shareID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZoneShare", reflect.TypeOf((*MockDNSClient)(nil).GetZoneShare), ctx, zoneID, shareID)
+}
+
+// ListZoneShares mocks base method.
+func (m *MockDNSClient) ListZoneShares(ctx context.Context, zoneID string) iter.Seq2[*zones.ZoneShare, error] {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListZoneShares", ctx, zoneID)
+	ret0, _ := ret[0].(iter.Seq2[*zones.ZoneShare, error])
+	return ret0
+}
+
+// ListZoneShares indicates an expected call of ListZoneShares.
+func (mr *MockDNSClientMockRecorder) ListZoneShares(ctx, zoneID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListZoneShares", reflect.TypeOf((*MockDNSClient)(nil).ListZoneShares), ctx, zoneID)
 }
 
 // ListZones mocks base method.

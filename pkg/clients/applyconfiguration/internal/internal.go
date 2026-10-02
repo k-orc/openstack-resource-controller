@@ -499,6 +499,108 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: type
       type:
         scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShare
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareFilter
+  map:
+    fields:
+    - name: targetProjectID
+      type:
+        scalar: string
+    - name: zoneRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareResourceSpec
+  map:
+    fields:
+    - name: targetProjectID
+      type:
+        scalar: string
+    - name: zoneRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareResourceStatus
+  map:
+    fields:
+    - name: projectID
+      type:
+        scalar: string
+    - name: targetProjectID
+      type:
+        scalar: string
+    - name: zoneID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneShareResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.DNSZoneSpec
   map:
     fields:

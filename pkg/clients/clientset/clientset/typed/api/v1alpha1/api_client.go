@@ -31,6 +31,7 @@ type OpenstackV1alpha1Interface interface {
 	AddressScopesGetter
 	ApplicationCredentialsGetter
 	DNSZonesGetter
+	DNSZoneSharesGetter
 	DomainsGetter
 	EndpointsGetter
 	FlavorsGetter
@@ -75,6 +76,10 @@ func (c *OpenstackV1alpha1Client) ApplicationCredentials(namespace string) Appli
 
 func (c *OpenstackV1alpha1Client) DNSZones(namespace string) DNSZoneInterface {
 	return newDNSZones(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) DNSZoneShares(namespace string) DNSZoneShareInterface {
+	return newDNSZoneShares(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Domains(namespace string) DomainInterface {

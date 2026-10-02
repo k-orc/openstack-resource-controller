@@ -1,0 +1,13 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    zoneRef: dnszoneshare-import
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000026"
