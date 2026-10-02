@@ -2,6 +2,11 @@
 
 This page documents the coding standards and patterns used throughout ORC.
 
+## Copyright headers
+
+Every source file must carry the Apache 2.0 copyright header from
+`hack/boilerplate.go.txt`. Do **not** include a year in the copyright line.
+
 ## Package structure
 
 Each controller lives in its own package under `internal/controllers/<resource>/`:

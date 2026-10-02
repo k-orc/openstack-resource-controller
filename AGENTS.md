@@ -343,6 +343,10 @@ log.V(logging.Verbose).Info("...")  // Admin: fires every reconcile
 log.V(logging.Debug).Info("...")    // Development: detailed debugging
 ```
 
+## Copyright Headers
+
+Use `Copyright The ORC Authors.` with no year, matching `hack/boilerplate.go.txt`.
+
 ## Key Make Targets
 
 ```bash
