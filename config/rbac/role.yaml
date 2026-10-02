@@ -19,6 +19,7 @@ rules:
   resources:
   - addressscopes
   - applicationcredentials
+  - dnszones
   - domains
   - endpoints
   - flavors
@@ -30,6 +31,7 @@ rules:
   - networks
   - ports
   - projects
+  - recordsets
   - regions
   - registeredlimits
   - roleassignments
@@ -59,6 +61,7 @@ rules:
   resources:
   - addressscopes/status
   - applicationcredentials/status
+  - dnszones/status
   - domains/status
   - endpoints/status
   - flavors/status
@@ -70,6 +73,7 @@ rules:
   - networks/status
   - ports/status
   - projects/status
+  - recordsets/status
   - regions/status
   - registeredlimits/status
   - roleassignments/status

@@ -29,6 +29,7 @@ import (
 
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/addressscope"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/applicationcredential"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/dnszone"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/endpoint"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/flavor"
@@ -41,6 +42,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/project"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/recordset"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/region"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/registeredlimit"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/role"
@@ -149,6 +151,8 @@ func main() {
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
 		limit.New(scopeFactory),
+		dnszone.New(scopeFactory),
+		recordset.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()

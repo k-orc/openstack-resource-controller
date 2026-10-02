@@ -4,6 +4,7 @@ kind: TestSuite
 testDirs:
 - ./internal/controllers/addressscope/tests/
 - ./internal/controllers/applicationcredential/tests/
+- ./internal/controllers/dnszone/tests/
 - ./internal/controllers/domain/tests/
 - ./internal/controllers/endpoint/tests/
 - ./internal/controllers/flavor/tests/
@@ -15,6 +16,7 @@ testDirs:
 - ./internal/controllers/network/tests/
 - ./internal/controllers/port/tests/
 - ./internal/controllers/project/tests/
+- ./internal/controllers/recordset/tests/
 - ./internal/controllers/region/tests/
 - ./internal/controllers/registeredlimit/tests/
 - ./internal/controllers/role/tests/

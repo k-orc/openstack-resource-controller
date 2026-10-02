@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-import-external
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: external.recordset-import.example.com.
+    description: RecordSet recordset-import-external from "recordset-import" test
+    zoneRef: recordset-import
+    type: A
+    records:
+      - 192.0.2.1

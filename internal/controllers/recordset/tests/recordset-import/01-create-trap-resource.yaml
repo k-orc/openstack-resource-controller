@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: recordset-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: recordset-import-external-not-this-one.example.com.
+    email: admin@example.com
+---
+# This `recordset-import-external-not-this-one` resource has the same description as the
+# filter expects but a different name, so it's not adopted - the import filter requires both
+# name and description to match.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-import-external-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: recordset-import-external-not-this-one.example.com.
+    description: RecordSet recordset-import-external from "recordset-import" test
+    zoneRef: recordset-import-external-not-this-one
+    type: A
+    records:
+      - 192.0.2.9
