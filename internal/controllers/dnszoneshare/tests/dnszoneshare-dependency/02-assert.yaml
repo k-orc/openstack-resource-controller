@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZone
+      name: dnszoneshare-dependency
+      ref: dNSZone
+    - apiVersion: v1
+      kind: Secret
+      name: dnszoneshare-dependency
+      ref: secret
+assertAll:
+    - celExpr: "dNSZone.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/dnszoneshare' in dNSZone.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/dnszoneshare' in secret.metadata.finalizers"

@@ -157,6 +157,10 @@ func (s *providerScope) NewImageClient() (clients.ImageClient, error) {
 	return clients.NewImageClient(s.providerClient, s.providerClientOpts)
 }
 
+func (s *providerScope) NewDNSClient() (clients.DNSClient, error) {
+	return clients.NewDNSClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewIdentityClient() (clients.IdentityClient, error) {
 	return clients.NewIdentityClient(s.providerClient, s.providerClientOpts)
 }
