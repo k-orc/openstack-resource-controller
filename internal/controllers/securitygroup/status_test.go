@@ -20,7 +20,10 @@ import (
 	"testing"
 
 	"github.com/go-logr/logr"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/rules"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/api/v1alpha1"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v2/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
@@ -45,5 +48,80 @@ func TestApplyResourceStatus_zeroCreatedAtUpdatedAt(t *testing.T) {
 	}
 	if statusApply.Resource.UpdatedAt != nil {
 		t.Errorf("UpdatedAt should be omitted for a zero time, got %v", *statusApply.Resource.UpdatedAt)
+	}
+}
+
+// Regression test: a SecurityGroup with a deliberately empty rule list (e.g. a placeholder
+// profile with no openings added yet - a real, supported pattern, not a hypothetical) could never
+// reach Available. spec.resource.rules: [] is a non-nil, zero-length slice in Go, and
+// ApplyResourceStatus never calls WithRules() when osResource.Rules is empty (its loop runs zero
+// times), leaving status.resource.rules permanently nil - which the old check treated as "not
+// ready yet" forever, regardless of how many reconciles passed. See status.go's own comment on
+// ResourceAvailableStatus for the full explanation.
+func Test_securityGroupStatusWriter_ResourceAvailableStatus_emptyRules(t *testing.T) {
+	emptyRulesSpec := &orcv1alpha1.SecurityGroupResourceSpec{
+		Rules: []orcv1alpha1.SecurityGroupRule{},
+	}
+
+	testCases := []struct {
+		name          string
+		orcObject     orcObjectPT
+		osResource    *osResourceT
+		wantAvailable metav1.ConditionStatus
+		wantWaiting   bool
+	}{
+		{
+			name: "empty spec.resource.rules, empty osResource.Rules - should be immediately Available",
+			orcObject: &orcv1alpha1.SecurityGroup{
+				Spec: orcv1alpha1.SecurityGroupSpec{Resource: emptyRulesSpec},
+				// status.resource.rules has never been written - exactly the first-reconcile
+				// state that triggered the bug, since nothing has called ApplyResourceStatus yet.
+				Status: orcv1alpha1.SecurityGroupStatus{},
+			},
+			osResource:    &osResourceT{ID: "sg-empty", Rules: nil},
+			wantAvailable: metav1.ConditionTrue,
+			wantWaiting:   false,
+		},
+		{
+			name: "non-empty spec.resource.rules, osResource still missing rules - should still wait (unchanged behavior)",
+			orcObject: &orcv1alpha1.SecurityGroup{
+				Spec: orcv1alpha1.SecurityGroupSpec{
+					Resource: &orcv1alpha1.SecurityGroupResourceSpec{
+						Rules: []orcv1alpha1.SecurityGroupRule{{}},
+					},
+				},
+				Status: orcv1alpha1.SecurityGroupStatus{},
+			},
+			osResource:    &osResourceT{ID: "sg-pending", Rules: nil},
+			wantAvailable: metav1.ConditionFalse,
+			wantWaiting:   true,
+		},
+		{
+			name: "non-empty spec.resource.rules matching osResource.Rules - should be Available",
+			orcObject: &orcv1alpha1.SecurityGroup{
+				Spec: orcv1alpha1.SecurityGroupSpec{
+					Resource: &orcv1alpha1.SecurityGroupResourceSpec{
+						Rules: []orcv1alpha1.SecurityGroupRule{{}},
+					},
+				},
+				Status: orcv1alpha1.SecurityGroupStatus{},
+			},
+			osResource:    &osResourceT{ID: "sg-matched", Rules: []rules.SecGroupRule{{}}},
+			wantAvailable: metav1.ConditionTrue,
+			wantWaiting:   false,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAvailable, gotStatus := securityGroupStatusWriter{}.ResourceAvailableStatus(tt.orcObject, tt.osResource)
+			if gotAvailable != tt.wantAvailable {
+				t.Errorf("ResourceAvailableStatus() available = %v, want %v", gotAvailable, tt.wantAvailable)
+			}
+			needsReschedule, _ := gotStatus.NeedsReschedule()
+			if needsReschedule != tt.wantWaiting {
+				t.Errorf("ResourceAvailableStatus() needsReschedule = %v, want %v", needsReschedule, tt.wantWaiting)
+			}
+		})
 	}
 }
