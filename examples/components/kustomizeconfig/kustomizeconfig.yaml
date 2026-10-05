@@ -166,6 +166,8 @@ nameReference:
     path: spec/cloudCredentialsRef/secretName
   - kind: ApplicationCredential
     path: spec/resource/secretRef
+  - kind: DNSZone
+    path: spec/cloudCredentialsRef/secretName
   - kind: Domain
     path: spec/cloudCredentialsRef/secretName
   - kind: Endpoint
