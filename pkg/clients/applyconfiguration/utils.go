@@ -78,6 +78,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ApplicationCredentialStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("CloudCredentialsReference"):
 		return &apiv1alpha1.CloudCredentialsReferenceApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZone"):
+		return &apiv1alpha1.DNSZoneApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneFilter"):
+		return &apiv1alpha1.DNSZoneFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneImport"):
+		return &apiv1alpha1.DNSZoneImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneResourceSpec"):
+		return &apiv1alpha1.DNSZoneResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneResourceStatus"):
+		return &apiv1alpha1.DNSZoneResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneSpec"):
+		return &apiv1alpha1.DNSZoneSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("DNSZoneStatus"):
+		return &apiv1alpha1.DNSZoneStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Domain"):
 		return &apiv1alpha1.DomainApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("DomainFilter"):
