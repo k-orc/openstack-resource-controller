@@ -147,7 +147,9 @@ NewYourResourceClient() (osclients.YourResourceClient, error)
 Implement the constructor:
 ```go
 func (s *providerScope) NewYourResourceClient() (osclients.YourResourceClient, error) {
-    return osclients.NewYourResourceClient(s.provider)
+    client, err := clients.NewYourResourceClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 ```
 

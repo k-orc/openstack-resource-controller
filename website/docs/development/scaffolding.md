@@ -141,7 +141,9 @@ type Scope interface {
 - `provider.go`, implement the client constructor:
 ```go
 func (s *providerScope) NewYourResourceClient() (osclients.YourResourceClient, error) {
-    return osclients.NewYourResourceClient(s.provider)
+    client, err := clients.NewYourResourceClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 ```
 
