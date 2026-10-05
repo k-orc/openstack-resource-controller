@@ -74,6 +74,9 @@ implementation.
 5. CI must pass: GitHub Actions runs tests and linting on every PR.
 6. Address review feedback: at least one maintainer review is required before
    merging.
+7. Keep a clean history: during review, push fixups as separate commits so
+   reviewers can see what changed between rounds. Rebase them into the correct
+   commits before merging.
 
 ## Contributing New Controllers
 
