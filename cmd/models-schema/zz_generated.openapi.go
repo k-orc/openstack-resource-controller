@@ -13352,6 +13352,128 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SubnetPoolFilter(ref c
 							Format:      "",
 						},
 					},
+					"minPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minPrefixLength allows filtering the subnet pool list result by the smallest prefix that can be allocated from a subnet pool.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxPrefixLength allows filtering the subnet pool list result by the maximum prefix size that can be allocated from the subnet pool.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"ipVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ipVersion is the IP protocol version. It can be either 4 or 6",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"shared": {
+						SchemaProps: spec.SchemaProps{
+							Description: "shared allows filtering the list result based on whether the resource is shared across all projects. This field is admin-only.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"defaultPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultPrefixLength allows filtering the subnet pool list result by the size of the prefix to allocate when the cidr or prefixlen attributes are omitted when you create the subnet.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"isDefault": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isDefault allows filtering the subnet pool list result based on whether it is a default pool or not.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags to filter by. If specified, the resource must have all of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tagsAny is a list of tags to filter by. If specified, the resource must have at least one of the tags specified to be included in the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTags is a list of tags to filter by. If specified, resources which contain all of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"notTagsAny": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "notTagsAny is a list of tags to filter by. If specified, resources which contain any of the given tags will be excluded from the result.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -13472,7 +13594,83 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SubnetPoolResourceSpec
 							Format:      "",
 						},
 					},
+					"prefixes": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "prefixes is the list of subnet prefixes to assign to the subnet pool. The API merges adjacent prefixes and treats them as a single prefix. Each subnet prefix must be unique across all subnet pools associated with the address scope.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"minPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minPrefixLength is the smallest prefix that can be allocated from a subnet pool. For IPv4 subnet pools, default is 8. For IPv6 subnet pools, default is 64. Must be less than or equal to maxPrefixLength.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxPrefixLength is the maximum prefix size that can be allocated from the subnet pool. For IPv4 subnet pools, default is 32. For IPv6 subnet pools, default is 128. Must be greater than or equal to minPrefixLength.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"shared": {
+						SchemaProps: spec.SchemaProps{
+							Description: "shared indicates whether this resource is shared across all projects. By default, it is false, and only administrative users can change this value.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"defaultPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultPrefixLength is the size of the prefix to allocate when the CIDR or prefixlen attributes are omitted when you create the subnet. Default is minPrefixLength. Must be between minPrefixLength and maxPrefixLength, inclusive.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"isDefault": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isDefault defines whether the subnet pool is the default pool or not.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is a list of tags which will be applied to the subnet pool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
+				Required: []string{"prefixes", "minPrefixLength", "maxPrefixLength"},
 			},
 		},
 	}
@@ -13513,9 +13711,112 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_SubnetPoolResourceStat
 							Format:      "",
 						},
 					},
+					"prefixes": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "prefixes is a list of prefixes assigned to the SubnetPool.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"minPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "minPrefixLength is the smallest prefix that can be allocated from the subnet pool.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxPrefixLength is the maximum prefix size that can be allocated from the subnet pool.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"defaultPrefixLength": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultPrefixLength is the size of the prefix to allocate when the cidr or prefixlen attributes are omitted when you create the subnet.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"isDefault": {
+						SchemaProps: spec.SchemaProps{
+							Description: "isDefault indicates whether the SubnetPool is the default pool when creating subnets.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"shared": {
+						SchemaProps: spec.SchemaProps{
+							Description: "shared indicates whether the SubnetPool is shared across all projects.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"ipVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ipVersion is the IP protocol version. It can be either 4 or 6",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"tags": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tags is the list of tags on the resource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated. The date and time stamp format is ISO 8601",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"revisionNumber": {
+						SchemaProps: spec.SchemaProps{
+							Description: "revisionNumber optionally set via extensions/standard-attr-revisions",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

@@ -8,6 +8,7 @@ resourceRefs:
       ref: subnetpool
 assertAll:
     - celExpr: "!has(subnetpool.status.resource.description)"
+    - celExpr: "!has(subnetpool.status.resource.tags)"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: SubnetPool
@@ -16,7 +17,10 @@ metadata:
 status:
   resource:
     name: subnetpool-update
-    # TODO(scaffolding): validate that updated fields were all reverted to their original value
+    prefixes:
+      - 192.168.30.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
   conditions:
   - type: Available
     status: "True"

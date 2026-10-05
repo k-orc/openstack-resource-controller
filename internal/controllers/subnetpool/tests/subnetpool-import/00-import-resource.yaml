@@ -12,4 +12,3 @@ spec:
     filter:
       name: subnetpool-import-external
       description: SubnetPool subnetpool-import-external from "subnetpool-import" test
-      # TODO(scaffolding): Add all fields supported by the filter

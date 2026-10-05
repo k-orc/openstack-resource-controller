@@ -25,10 +25,17 @@ import (
 // SubnetPoolResourceSpecApplyConfiguration represents a declarative configuration of the SubnetPoolResourceSpec type for use
 // with apply.
 type SubnetPoolResourceSpecApplyConfiguration struct {
-	Name            *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description     *string                        `json:"description,omitempty"`
-	ProjectRef      *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
-	AddressScopeRef *apiv1alpha1.KubernetesNameRef `json:"addressScopeRef,omitempty"`
+	Name                *apiv1alpha1.OpenStackName      `json:"name,omitempty"`
+	Description         *apiv1alpha1.NeutronDescription `json:"description,omitempty"`
+	ProjectRef          *apiv1alpha1.KubernetesNameRef  `json:"projectRef,omitempty"`
+	AddressScopeRef     *apiv1alpha1.KubernetesNameRef  `json:"addressScopeRef,omitempty"`
+	Prefixes            []apiv1alpha1.CIDR              `json:"prefixes,omitempty"`
+	MinPrefixLength     *int32                          `json:"minPrefixLength,omitempty"`
+	MaxPrefixLength     *int32                          `json:"maxPrefixLength,omitempty"`
+	Shared              *bool                           `json:"shared,omitempty"`
+	DefaultPrefixLength *int32                          `json:"defaultPrefixLength,omitempty"`
+	IsDefault           *bool                           `json:"isDefault,omitempty"`
+	Tags                []apiv1alpha1.NeutronTag        `json:"tags,omitempty"`
 }
 
 // SubnetPoolResourceSpecApplyConfiguration constructs a declarative configuration of the SubnetPoolResourceSpec type for use with
@@ -48,7 +55,7 @@ func (b *SubnetPoolResourceSpecApplyConfiguration) WithName(value apiv1alpha1.Op
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SubnetPoolResourceSpecApplyConfiguration) WithDescription(value string) *SubnetPoolResourceSpecApplyConfiguration {
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithDescription(value apiv1alpha1.NeutronDescription) *SubnetPoolResourceSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -66,5 +73,65 @@ func (b *SubnetPoolResourceSpecApplyConfiguration) WithProjectRef(value apiv1alp
 // If called multiple times, the AddressScopeRef field is set to the value of the last call.
 func (b *SubnetPoolResourceSpecApplyConfiguration) WithAddressScopeRef(value apiv1alpha1.KubernetesNameRef) *SubnetPoolResourceSpecApplyConfiguration {
 	b.AddressScopeRef = &value
+	return b
+}
+
+// WithPrefixes adds the given value to the Prefixes field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Prefixes field.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithPrefixes(values ...apiv1alpha1.CIDR) *SubnetPoolResourceSpecApplyConfiguration {
+	for i := range values {
+		b.Prefixes = append(b.Prefixes, values[i])
+	}
+	return b
+}
+
+// WithMinPrefixLength sets the MinPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MinPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithMinPrefixLength(value int32) *SubnetPoolResourceSpecApplyConfiguration {
+	b.MinPrefixLength = &value
+	return b
+}
+
+// WithMaxPrefixLength sets the MaxPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the MaxPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithMaxPrefixLength(value int32) *SubnetPoolResourceSpecApplyConfiguration {
+	b.MaxPrefixLength = &value
+	return b
+}
+
+// WithShared sets the Shared field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Shared field is set to the value of the last call.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithShared(value bool) *SubnetPoolResourceSpecApplyConfiguration {
+	b.Shared = &value
+	return b
+}
+
+// WithDefaultPrefixLength sets the DefaultPrefixLength field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultPrefixLength field is set to the value of the last call.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithDefaultPrefixLength(value int32) *SubnetPoolResourceSpecApplyConfiguration {
+	b.DefaultPrefixLength = &value
+	return b
+}
+
+// WithIsDefault sets the IsDefault field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the IsDefault field is set to the value of the last call.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithIsDefault(value bool) *SubnetPoolResourceSpecApplyConfiguration {
+	b.IsDefault = &value
+	return b
+}
+
+// WithTags adds the given value to the Tags field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Tags field.
+func (b *SubnetPoolResourceSpecApplyConfiguration) WithTags(values ...apiv1alpha1.NeutronTag) *SubnetPoolResourceSpecApplyConfiguration {
+	for i := range values {
+		b.Tags = append(b.Tags, values[i])
+	}
 	return b
 }

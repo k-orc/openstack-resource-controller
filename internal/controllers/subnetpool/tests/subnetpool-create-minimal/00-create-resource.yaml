@@ -5,10 +5,11 @@ metadata:
   name: subnetpool-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
-  resource: {}
+  resource:
+    prefixes:
+      - 192.168.13.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28

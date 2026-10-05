@@ -33,16 +33,18 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	neutrontags "github.com/k-orc/openstack-resource-controller/v3/internal/util/tags"
 )
 
 // OpenStack resource types
 type (
 	osResourceT = subnetpools.SubnetPool
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type subnetpoolActuator struct {
@@ -50,8 +52,11 @@ type subnetpoolActuator struct {
 	k8sClient client.Client
 }
 
-var _ createResourceActuator = subnetpoolActuator{}
-var _ deleteResourceActuator = subnetpoolActuator{}
+var (
+	_ createResourceActuator    = subnetpoolActuator{}
+	_ deleteResourceActuator    = subnetpoolActuator{}
+	_ reconcileResourceActuator = subnetpoolActuator{}
+)
 
 func (subnetpoolActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
@@ -70,10 +75,6 @@ func (actuator subnetpoolActuator) ListOSResourcesForAdoption(ctx context.Contex
 	if resourceSpec == nil {
 		return nil, false
 	}
-
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 
 	var rs progress.ReconcileStatus
 
@@ -102,20 +103,22 @@ func (actuator subnetpoolActuator) ListOSResourcesForAdoption(ctx context.Contex
 	}
 
 	listOpts := subnetpools.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-		ProjectID:  projectID,
-		AddressScopeID:  addressScopeID,
-		// TODO(scaffolding): Add more adoption filters
+		Name:             getResourceName(orcObject),
+		Description:      string(ptr.Deref(resourceSpec.Description, "")),
+		ProjectID:        projectID,
+		AddressScopeID:   addressScopeID,
+		MinPrefixLen:     int(resourceSpec.MinPrefixLength),
+		MaxPrefixLen:     int(resourceSpec.MaxPrefixLength),
+		Shared:           resourceSpec.Shared,
+		DefaultPrefixLen: int(resourceSpec.DefaultPrefixLength),
+		IsDefault:        resourceSpec.IsDefault,
+		Tags:             neutrontags.Join(resourceSpec.Tags),
 	}
 
 	return actuator.osClient.ListSubnetPools(ctx, listOpts), true
 }
 
 func (actuator subnetpoolActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
 	var reconcileStatus progress.ReconcileStatus
 
 	project, rs := dependency.FetchDependency[*orcv1alpha1.Project](
@@ -137,11 +140,20 @@ func (actuator subnetpoolActuator) ListOSResourcesForImport(ctx context.Context,
 	}
 
 	listOpts := subnetpools.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		ProjectID:  ptr.Deref(project.Status.ID, ""),
-		AddressScopeID:  ptr.Deref(addressScope.Status.ID, ""),
-		// TODO(scaffolding): Add more import filters
+		Name:             string(ptr.Deref(filter.Name, "")),
+		Description:      string(ptr.Deref(filter.Description, "")),
+		ProjectID:        ptr.Deref(project.Status.ID, ""),
+		AddressScopeID:   ptr.Deref(addressScope.Status.ID, ""),
+		MinPrefixLen:     int(filter.MinPrefixLength),
+		MaxPrefixLen:     int(filter.MaxPrefixLength),
+		IPVersion:        int(ptr.Deref(filter.IPVersion, 0)),
+		Shared:           filter.Shared,
+		DefaultPrefixLen: int(filter.DefaultPrefixLength),
+		IsDefault:        filter.IsDefault,
+		Tags:             neutrontags.Join(filter.Tags),
+		TagsAny:          neutrontags.Join(filter.TagsAny),
+		NotTags:          neutrontags.Join(filter.NotTags),
+		NotTagsAny:       neutrontags.Join(filter.NotTagsAny),
 	}
 
 	return actuator.osClient.ListSubnetPools(ctx, listOpts), reconcileStatus
@@ -153,7 +165,8 @@ func (actuator subnetpoolActuator) CreateResource(ctx context.Context, obj orcOb
 	if resource == nil {
 		// Should have been caught by API validation
 		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"),
+		)
 	}
 	var reconcileStatus progress.ReconcileStatus
 
@@ -181,12 +194,29 @@ func (actuator subnetpoolActuator) CreateResource(ctx context.Context, obj orcOb
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
+	prefixes := make([]string, len(resource.Prefixes))
+	for i, prefix := range resource.Prefixes {
+		prefixes[i] = string(prefix)
+	}
+
 	createOpts := subnetpools.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		ProjectID:  projectID,
-		AddressScopeID:  addressScopeID,
-		// TODO(scaffolding): Add more fields
+		Name:             getResourceName(obj),
+		Description:      string(ptr.Deref(resource.Description, "")),
+		ProjectID:        projectID,
+		AddressScopeID:   addressScopeID,
+		Prefixes:         prefixes,
+		MinPrefixLen:     int(resource.MinPrefixLength),
+		MaxPrefixLen:     int(resource.MaxPrefixLength),
+		DefaultPrefixLen: int(resource.DefaultPrefixLength),
+	}
+
+	if resource.Shared != nil {
+		createOpts.Shared = *resource.Shared
+	}
+
+	if resource.IsDefault != nil {
+		createOpts.IsDefault = *resource.IsDefault
 	}
 
 	osResource, err := actuator.osClient.CreateSubnetPool(ctx, createOpts)
@@ -210,20 +240,20 @@ func (actuator subnetpoolActuator) updateResource(ctx context.Context, obj orcOb
 	if resource == nil {
 		// Should have been caught by API validation
 		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"),
+		)
 	}
 
-	updateOpts := subnetpools.UpdateOpts{}
+	updateOpts := subnetpools.UpdateOpts{RevisionNumber: &osResource.RevisionNumber}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
 
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
 		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err),
+		)
 	}
 	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
@@ -231,7 +261,6 @@ func (actuator subnetpoolActuator) updateResource(ctx context.Context, obj orcOb
 	}
 
 	_, err = actuator.osClient.UpdateSubnetPool(ctx, osResource.ID, updateOpts)
-
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
@@ -248,7 +277,7 @@ func needsUpdate(updateOpts subnetpools.UpdateOpts) (bool, error) {
 		return false, err
 	}
 
-	updateMap, ok := updateOptsMap["subnet_pool"].(map[string]any)
+	updateMap, ok := updateOptsMap["subnetpool"].(map[string]any)
 	if !ok {
 		updateMap = make(map[string]any)
 	}
@@ -259,12 +288,12 @@ func needsUpdate(updateOpts subnetpools.UpdateOpts) (bool, error) {
 func handleNameUpdate(updateOpts *subnetpools.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
 	name := getResourceName(obj)
 	if osResource.Name != name {
-		updateOpts.Name = &name
+		updateOpts.Name = name
 	}
 }
 
 func handleDescriptionUpdate(updateOpts *subnetpools.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
+	description := string(ptr.Deref(resource.Description, ""))
 	if osResource.Description != description {
 		updateOpts.Description = &description
 	}
@@ -273,6 +302,7 @@ func handleDescriptionUpdate(updateOpts *subnetpools.UpdateOpts, resource *resou
 func (actuator subnetpoolActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.updateResource,
+		neutrontags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, neutrontags.NewNeutronTagReplacer(actuator.osClient, "subnetpools", osResource.ID)),
 	}, nil
 }
 

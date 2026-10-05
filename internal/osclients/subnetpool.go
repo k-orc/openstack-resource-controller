@@ -23,6 +23,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
+	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/subnetpools"
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
@@ -33,6 +34,7 @@ type SubnetPoolClient interface {
 	DeleteSubnetPool(ctx context.Context, resourceID string) error
 	GetSubnetPool(ctx context.Context, resourceID string) (*subnetpools.SubnetPool, error)
 	UpdateSubnetPool(ctx context.Context, id string, opts subnetpools.UpdateOptsBuilder) (*subnetpools.SubnetPool, error)
+	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
 }
 
 type subnetpoolClient struct{ client *gophercloud.ServiceClient }
@@ -74,6 +76,10 @@ func (c subnetpoolClient) UpdateSubnetPool(ctx context.Context, id string, opts 
 	return subnetpools.Update(ctx, c.client, id, opts).Extract()
 }
 
+func (c subnetpoolClient) ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error) {
+	return attributestags.ReplaceAll(ctx, c.client, resourceType, resourceID, opts).Extract()
+}
+
 type subnetpoolErrorClient struct{ error }
 
 // NewSubnetPoolErrorClient returns a SubnetPoolClient in which every method returns the given error.
@@ -100,5 +106,9 @@ func (e subnetpoolErrorClient) GetSubnetPool(_ context.Context, _ string) (*subn
 }
 
 func (e subnetpoolErrorClient) UpdateSubnetPool(_ context.Context, _ string, _ subnetpools.UpdateOptsBuilder) (*subnetpools.SubnetPool, error) {
+	return nil, e.error
+}
+
+func (e subnetpoolErrorClient) ReplaceAllAttributesTags(_ context.Context, _ string, _ string, _ attributestags.ReplaceAllOptsBuilder) ([]string, error) {
 	return nil, e.error
 }

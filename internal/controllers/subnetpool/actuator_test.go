@@ -37,7 +37,7 @@ func TestNeedsUpdate(t *testing.T) {
 		},
 		{
 			name:         "Updated opts",
-			updateOpts:   subnetpools.UpdateOpts{Name: ptr.To("updated")},
+			updateOpts:   subnetpools.UpdateOpts{Name: "updated"},
 			expectChange: true,
 		},
 	}
@@ -83,15 +83,14 @@ func TestHandleNameUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-
 	}
 }
 
 func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
+	ptrToDescription := ptr.To[orcv1alpha1.NeutronDescription]
 	testCases := []struct {
 		name          string
-		newValue      *string
+		newValue      *orcv1alpha1.NeutronDescription
 		existingValue string
 		expectChange  bool
 	}{
@@ -114,6 +113,5 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
 			}
 		})
-
 	}
 }

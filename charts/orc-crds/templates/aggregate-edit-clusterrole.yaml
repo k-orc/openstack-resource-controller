@@ -39,6 +39,7 @@ rules:
   - services
   - sharenetworks
   - subnets
+  - subnetpools
   - trunks
   - users
   - volumes

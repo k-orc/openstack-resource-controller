@@ -41,7 +41,10 @@ func subnetpoolStub(namespace *corev1.Namespace) *orcv1alpha1.SubnetPool {
 }
 
 func testSubnetPoolResource() *applyconfigv1alpha1.SubnetPoolResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.SubnetPoolResourceSpec()
+	return applyconfigv1alpha1.SubnetPoolResourceSpec().
+		WithPrefixes("10.0.0.0/16").
+		WithMinPrefixLength(24).
+		WithMaxPrefixLength(28)
 }
 
 func baseSubnetPoolPatch(obj client.Object) *applyconfigv1alpha1.SubnetPoolApplyConfiguration {
@@ -121,12 +124,139 @@ var _ = Describe("ORC SubnetPool API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("addressScopeRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable prefixes", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource())
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().WithPrefixes("10.1.0.0/16"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("prefixes is immutable")))
+	})
+
+	It("should have immutable minPrefixLength", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource())
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().WithMinPrefixLength(25))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("minPrefixLength is immutable")))
+	})
+
+	It("should have immutable maxPrefixLength", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource())
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().WithMaxPrefixLength(29))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("maxPrefixLength is immutable")))
+	})
+
+	It("should have immutable shared", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().WithShared(true))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().WithShared(false))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("shared is immutable")))
+	})
+
+	It("should have immutable defaultPrefixLength", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().WithDefaultPrefixLength(24))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().WithDefaultPrefixLength(25))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("defaultPrefixLength is immutable")))
+	})
+
+	It("should have immutable isDefault", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().WithIsDefault(true))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testSubnetPoolResource().WithIsDefault(false))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("isDefault is immutable")))
+	})
+
+	It("should reject minPrefixLength greater than maxPrefixLength", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(29).
+			WithMaxPrefixLength(28))
+		Err := applyObj(ctx, obj, patch)
+		Expect(Err).To(MatchError(ContainSubstring("minPrefixLength must be less than or equal to maxPrefixLength")))
+	})
+
+	It("should permit minPrefixLength equal to maxPrefixLength", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(28).
+			WithMaxPrefixLength(28))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
+
+	DescribeTable("should reject maxPrefixLength greater than 128",
+		func(ctx context.Context, maxPrefixLength int32) {
+			obj := subnetpoolStub(namespace)
+			patch := baseSubnetPoolPatch(obj)
+			patch.Spec.WithResource(testSubnetPoolResource().
+				WithMinPrefixLength(24).
+				WithMaxPrefixLength(maxPrefixLength))
+			Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+		},
+		Entry("129", int32(129)),
+		Entry("255", int32(255)),
+	)
+
+	It("should permit maxPrefixLength equal to 128", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(1).
+			WithMaxPrefixLength(128))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
+
+	It("should reject defaultPrefixLength outside of [minPrefixLength, maxPrefixLength]", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(24).
+			WithMaxPrefixLength(28).
+			WithDefaultPrefixLength(29))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("defaultPrefixLength must be between minPrefixLength and maxPrefixLength")))
+
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(24).
+			WithMaxPrefixLength(28).
+			WithDefaultPrefixLength(23))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("defaultPrefixLength must be between minPrefixLength and maxPrefixLength")))
+	})
+
+	It("should permit defaultPrefixLength within [minPrefixLength, maxPrefixLength]", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(24).
+			WithMaxPrefixLength(28).
+			WithDefaultPrefixLength(26))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
+
+	It("should permit omitting defaultPrefixLength", func(ctx context.Context) {
+		obj := subnetpoolStub(namespace)
+		patch := baseSubnetPoolPatch(obj)
+		patch.Spec.WithResource(testSubnetPoolResource().
+			WithMinPrefixLength(24).
+			WithMaxPrefixLength(28))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
 })

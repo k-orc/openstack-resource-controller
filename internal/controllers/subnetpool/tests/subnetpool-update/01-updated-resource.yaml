@@ -7,4 +7,6 @@ spec:
   resource:
     name: subnetpool-update-updated
     description: subnetpool-update-updated
-    # TODO(scaffolding): update all mutable fields
+    tags:
+    - tag1
+    - tag2

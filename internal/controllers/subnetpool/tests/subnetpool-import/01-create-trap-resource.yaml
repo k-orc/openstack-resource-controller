@@ -8,10 +8,12 @@ metadata:
   name: subnetpool-import-external-not-this-one
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
     description: SubnetPool subnetpool-import-external from "subnetpool-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
+    prefixes:
+      - 192.168.20.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28

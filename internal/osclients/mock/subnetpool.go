@@ -29,6 +29,7 @@ import (
 	iter "iter"
 	reflect "reflect"
 
+	attributestags "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/attributestags"
 	subnetpools "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/subnetpools"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -113,6 +114,21 @@ func (m *MockSubnetPoolClient) ListSubnetPools(ctx context.Context, listOpts sub
 func (mr *MockSubnetPoolClientMockRecorder) ListSubnetPools(ctx, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSubnetPools", reflect.TypeOf((*MockSubnetPoolClient)(nil).ListSubnetPools), ctx, listOpts)
+}
+
+// ReplaceAllAttributesTags mocks base method.
+func (m *MockSubnetPoolClient) ReplaceAllAttributesTags(ctx context.Context, resourceType, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReplaceAllAttributesTags", ctx, resourceType, resourceID, opts)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReplaceAllAttributesTags indicates an expected call of ReplaceAllAttributesTags.
+func (mr *MockSubnetPoolClientMockRecorder) ReplaceAllAttributesTags(ctx, resourceType, resourceID, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplaceAllAttributesTags", reflect.TypeOf((*MockSubnetPoolClient)(nil).ReplaceAllAttributesTags), ctx, resourceType, resourceID, opts)
 }
 
 // UpdateSubnetPool mocks base method.

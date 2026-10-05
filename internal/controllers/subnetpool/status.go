@@ -28,8 +28,10 @@ import (
 
 type subnetpoolStatusWriter struct{}
 
-type objectApplyT = orcapplyconfigv1alpha1.SubnetPoolApplyConfiguration
-type statusApplyT = orcapplyconfigv1alpha1.SubnetPoolStatusApplyConfiguration
+type (
+	objectApplyT = orcapplyconfigv1alpha1.SubnetPoolApplyConfiguration
+	statusApplyT = orcapplyconfigv1alpha1.SubnetPoolStatusApplyConfiguration
+)
 
 var _ interfaces.ResourceStatusWriter[*orcv1alpha1.SubnetPool, *osResourceT, *objectApplyT, *statusApplyT] = subnetpoolStatusWriter{}
 
@@ -50,15 +52,32 @@ func (subnetpoolStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Sub
 
 func (subnetpoolStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.SubnetPoolResourceStatus().
+		WithName(osResource.Name).
+		WithPrefixes(osResource.Prefixes...).
+		WithMinPrefixLength(int32(osResource.MinPrefixLen)).
+		WithMaxPrefixLength(int32(osResource.MaxPrefixLen)).
+		WithDefaultPrefixLength(int32(osResource.DefaultPrefixLen)).
+		WithIsDefault(osResource.IsDefault).
+		WithShared(osResource.Shared).
+		WithIPVersion(int32(osResource.IPversion)).
+		WithRevisionNumber(int64(osResource.RevisionNumber)).
 		WithProjectID(osResource.ProjectID).
-		WithAddressScopeID(osResource.AddressScopeID).
-		WithName(osResource.Name)
+		WithTags(osResource.Tags...)
 
-	// TODO(scaffolding): add all of the fields supported in the SubnetPoolResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if !osResource.CreatedAt.IsZero() {
+		resourceStatus.WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
+	}
+
+	if !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(osResource.UpdatedAt))
+	}
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+
+	if osResource.AddressScopeID != "" {
+		resourceStatus.WithAddressScopeID(osResource.AddressScopeID)
 	}
 
 	statusApply.WithResource(resourceStatus)
