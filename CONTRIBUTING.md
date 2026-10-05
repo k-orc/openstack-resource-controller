@@ -63,6 +63,10 @@ For non-trivial changes, we recommend opening a GitHub issue first to discuss
 the approach. This avoids spending time on work that may need a different
 direction.
 
+For bug fixes, please ensure a GitHub issue exists before submitting a PR, even
+for small fixes. Having a tracking issue makes it easier to reference the bug
+in commit messages, changelogs, and future discussions.
+
 For significant new features or architectural changes, please submit an
 [enhancement proposal][enhancements] and get it approved before starting
 implementation.
@@ -84,8 +88,35 @@ implementation.
 5. **CI must pass**: GitHub Actions runs tests and linting on every PR.
 6. **Address review feedback**: At least one maintainer review is required
    before merging. Please be responsive to feedback.
+7. **Keep a clean history**: During review, push fixups as separate commits so
+   reviewers can see what changed between rounds. Rebase them into the correct
+   commits before merging.
 
 [coding-standards]: https://k-orc.cloud/development/coding-standards/
+
+## Contributing New Controllers
+
+New controllers tend to produce large PRs. To keep them reviewable and easy to
+update when tooling or conventions change, follow the [commit structure,
+incremental PR, and deferred mutability guidelines][new-controller-guidelines]
+in the developer documentation.
+
+[new-controller-guidelines]: https://k-orc.cloud/development/contributing/#contributing-new-controllers
+
+## AI-Assisted Contributions
+
+Using AI tools (LLMs, coding assistants, etc.) to help write code is fine.
+However:
+
+- **Authors are responsible for the code they submit.** Review, understand, and
+  test AI-generated code before committing it. The author of a commit is
+  accountable for its correctness, not the tool that helped produce it.
+- **Authorship**: The human contributor must be the commit author. You may
+  optionally add the AI tool as a `Co-authored-by` trailer, but there is no
+  requirement to use `Assisted-by`, `Generated-by`, or similar labels.
+- **Autonomous agents**: Fully autonomous AI agents (e.g. those that open PRs
+  without direct human involvement) must clearly identify themselves as such in
+  the PR description.
 
 ## Becoming a Maintainer
 

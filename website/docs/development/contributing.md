@@ -49,6 +49,10 @@ For non-trivial changes, we recommend opening a GitHub issue first to discuss
 the approach. This avoids spending time on work that may need a different
 direction.
 
+For bug fixes, please ensure a GitHub issue exists before submitting a PR, even
+for small fixes. Having a tracking issue makes it easier to reference the bug
+in commit messages, changelogs, and future discussions.
+
 For significant new features or architectural changes, please submit an
 [enhancement proposal][enhancements] and get it approved before starting
 implementation.
@@ -70,6 +74,71 @@ implementation.
 5. CI must pass: GitHub Actions runs tests and linting on every PR.
 6. Address review feedback: at least one maintainer review is required before
    merging.
+7. Keep a clean history: during review, push fixups as separate commits so
+   reviewers can see what changed between rounds. Rebase them into the correct
+   commits before merging.
+
+## Contributing New Controllers
+
+New controllers tend to produce large PRs. The guidelines below keep them
+reviewable and make it easy to regenerate scaffolding if tooling or conventions
+change.
+
+### Commit structure
+
+New controller branches must use a multi-commit structure that separates
+generated code from hand-written code:
+
+1. **Scaffolding commit**: the raw output of
+   `go run ./cmd/scaffold-controller`. The commit message **must** contain the
+   exact command that was run (with all flags) so it can be reproduced. Do not
+   include any manual edits. See
+   [Scaffolding a New Controller](scaffolding.md) for details.
+2. **Generated code commit**: registration in
+   `cmd/resource-generator/main.go`, `make generate` output, scope wiring in
+   `internal/scope/`, controller registration in `cmd/manager/main.go`, and
+   `make generate-bundle`. This is all mechanical boilerplate, no hand-written
+   logic.
+3. **Implementation commit(s)**: API type definitions (`Filter`,
+   `ResourceSpec`, `ResourceStatus`), actuator implementation, status writer,
+   and tests. This is the `TODO(scaffolding)` work.
+
+Reviewers can skip the first two commits entirely and focus on the hand-written
+implementation.
+
+### Incremental PRs
+
+For complex controllers, consider splitting the work across multiple pull
+requests:
+
+- A first PR with scaffolding + generated code + basic immutable
+  create/delete/import.
+- Follow-up PRs adding mutability, reconcilers for complex sub-resources, tags,
+  additional dependencies, etc.
+
+Smaller PRs are easier to review and less likely to need large reworks.
+
+### Deferred mutability
+
+The initial controller implementation may treat all spec fields as immutable.
+Mutability for complex fields (`GetResourceReconcilers`, `updateResource`,
+single-concern reconcilers like `reconcileExtraSpecs`) can be added in
+follow-up PRs.
+
+## AI-Assisted Contributions
+
+Using AI tools (LLMs, coding assistants, etc.) to help write code is fine.
+However:
+
+- **Authors are responsible for the code they submit.** Review, understand, and
+  test AI-generated code before committing it. The author of a commit is
+  accountable for its correctness, not the tool that helped produce it.
+- **Authorship**: The human contributor must be the commit author. You may
+  optionally add the AI tool as a `Co-authored-by` trailer, but there is no
+  requirement to use `Assisted-by`, `Generated-by`, or similar labels.
+- **Autonomous agents**: Fully autonomous AI agents (e.g. those that open PRs
+  without direct human involvement) must clearly identify themselves as such in
+  the PR description.
 
 ## License
 
