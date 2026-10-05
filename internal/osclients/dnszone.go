@@ -63,7 +63,8 @@ func (c dnszoneClient) CreateDNSZone(ctx context.Context, opts zones.CreateOptsB
 }
 
 func (c dnszoneClient) DeleteDNSZone(ctx context.Context, resourceID string) error {
-	return zones.Delete(ctx, c.client, resourceID).ExtractErr()
+	_, err := zones.Delete(ctx, c.client, resourceID).Extract()
+	return err
 }
 
 func (c dnszoneClient) GetDNSZone(ctx context.Context, resourceID string) (*zones.Zone, error) {

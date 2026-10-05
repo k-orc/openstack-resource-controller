@@ -5,9 +5,11 @@ metadata:
   name: dnszone-create-full
 status:
   resource:
-    name: dnszone-create-full-override
+    name: dnszone-create-full.example.com.
+    email: admin@example.com
     description: DNSZone from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    ttl: 300
+    type: PRIMARY
   conditions:
   - type: Available
     status: "True"
@@ -25,4 +27,4 @@ resourceRefs:
       ref: dnszone
 assertAll:
     - celExpr: "dnszone.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "dnszone.status.resource.projectID != ''"

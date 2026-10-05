@@ -5,6 +5,7 @@ metadata:
   name: dnszone-update
 spec:
   resource:
-    name: dnszone-update-updated
+    name: dnszone-update.example.com.
+    email: updated-admin@example.com
     description: dnszone-update-updated
-    # TODO(scaffolding): update all mutable fields
+    ttl: 300

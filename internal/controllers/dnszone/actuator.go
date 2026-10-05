@@ -70,28 +70,27 @@ func (actuator dnszoneActuator) ListOSResourcesForAdoption(ctx context.Context, 
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
+	// Matches the full declared spec, same reasoning as every other ListOSResourcesForAdoption
+	// in this codebase: adoption must not match a zone that only partially agrees with what we'd
+	// otherwise create.
 	listOpts := zones.ListOpts{
 		Name:        getResourceName(orcObject),
 		Description: ptr.Deref(resourceSpec.Description, ""),
-		// TODO(scaffolding): Add more adoption filters
+		Email:       ptr.Deref(resourceSpec.Email, ""),
+		Type:        string(resourceSpec.Type),
 	}
 
 	return actuator.osClient.ListDNSZones(ctx, listOpts), true
 }
 
 func (actuator dnszoneActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
 	listOpts := zones.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Description: ptr.Deref(filter.Description, ""),
+		Email:       ptr.Deref(filter.Email, ""),
+	}
+	if filter.Type != nil {
+		listOpts.Type = string(*filter.Type)
 	}
 
 	return actuator.osClient.ListDNSZones(ctx, listOpts), nil
@@ -105,10 +104,18 @@ func (actuator dnszoneActuator) CreateResource(ctx context.Context, obj orcObjec
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
+
 	createOpts := zones.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		// TODO(scaffolding): Add more fields
+		Email:       ptr.Deref(resource.Email, ""),
+		Type:        string(resource.Type),
+	}
+	if resource.TTL != nil {
+		createOpts.TTL = int(*resource.TTL)
+	}
+	for _, master := range resource.Masters {
+		createOpts.Masters = append(createOpts.Masters, string(master))
 	}
 
 	osResource, err := actuator.osClient.CreateDNSZone(ctx, createOpts)
@@ -126,6 +133,8 @@ func (actuator dnszoneActuator) DeleteResource(ctx context.Context, _ orcObjectP
 	return progress.WrapError(actuator.osClient.DeleteDNSZone(ctx, resource.ID))
 }
 
+// updateResource handles description/ttl/masters changes - name and type are immutable (see
+// dnszone_types.go), matching Designate's own UpdateOpts, which has no fields for either.
 func (actuator dnszoneActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
@@ -136,24 +145,42 @@ func (actuator dnszoneActuator) updateResource(ctx context.Context, obj orcObjec
 	}
 
 	updateOpts := zones.UpdateOpts{}
+	needsUpdate := false
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	description := ptr.Deref(resource.Description, "")
+	if osResource.Description != description {
+		updateOpts.Description = &description
+		needsUpdate = true
 	}
+
+	if resource.Email != nil && osResource.Email != *resource.Email {
+		// Email isn't in UpdateOpts for SECONDARY zones, but the CEL validation on
+		// DNSZoneResourceSpec already ensures email is only ever set for PRIMARY zones, where
+		// Designate does accept updating it.
+		updateOpts.Email = *resource.Email
+		needsUpdate = true
+	}
+
+	if resource.TTL != nil && osResource.TTL != int(*resource.TTL) {
+		updateOpts.TTL = int(*resource.TTL)
+		needsUpdate = true
+	}
+
+	desiredMasters := make([]string, 0, len(resource.Masters))
+	for _, master := range resource.Masters {
+		desiredMasters = append(desiredMasters, string(master))
+	}
+	if !stringSlicesEqualAsSets(osResource.Masters, desiredMasters) {
+		updateOpts.Masters = desiredMasters
+		needsUpdate = true
+	}
+
 	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	_, err = actuator.osClient.UpdateDNSZone(ctx, osResource.ID, updateOpts)
-
+	_, err := actuator.osClient.UpdateDNSZone(ctx, osResource.ID, updateOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
@@ -164,32 +191,23 @@ func (actuator dnszoneActuator) updateResource(ctx context.Context, obj orcObjec
 	return progress.NeedsRefresh()
 }
 
-func needsUpdate(updateOpts zones.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToZoneUpdateMap()
-	if err != nil {
-		return false, err
+func stringSlicesEqualAsSets(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
 	}
-
-	updateMap, ok := updateOptsMap["dns_zone"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
+	seen := make(map[string]int, len(a))
+	for _, v := range a {
+		seen[v]++
 	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *zones.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
+	for _, v := range b {
+		seen[v]--
 	}
-}
-
-func handleDescriptionUpdate(updateOpts *zones.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
+	for _, count := range seen {
+		if count != 0 {
+			return false
+		}
 	}
+	return true
 }
 
 func (actuator dnszoneActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {

@@ -17,7 +17,10 @@ limitations under the License.
 package apivalidations
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -38,7 +41,8 @@ func dnszoneStub(namespace *corev1.Namespace) *orcv1alpha1.DNSZone {
 }
 
 func testDNSZoneResource() *applyconfigv1alpha1.DNSZoneResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.DNSZoneResourceSpec()
+	return applyconfigv1alpha1.DNSZoneResourceSpec().
+		WithEmail("admin@example.com")
 }
 
 func baseDNSZonePatch(obj client.Object) *applyconfigv1alpha1.DNSZoneApplyConfiguration {
@@ -75,7 +79,7 @@ var _ = Describe("ORC DNSZone API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneImport().WithFilter(applyconfigv1alpha1.DNSZoneFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.DNSZoneApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneImport().WithFilter(applyconfigv1alpha1.DNSZoneFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneImport().WithFilter(applyconfigv1alpha1.DNSZoneFilter().WithName("foo.")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.DNSZoneApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -94,12 +98,81 @@ var _ = Describe("ORC DNSZone API validations", func() {
 		},
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should reject a PRIMARY zone without email", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypePrimary))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
+
+	It("should reject a SECONDARY zone without masters", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
+
+	It("should reject a SECONDARY zone with email set", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithEmail("admin@example.com").
+			WithMasters("192.0.2.1"))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
+
+	It("should reject a PRIMARY zone with masters set", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypePrimary).
+			WithEmail("admin@example.com").
+			WithMasters("192.0.2.1"))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
+
+	It("should accept a valid SECONDARY zone", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithMasters("192.0.2.1", "2001:db8::1"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
+
+	It("should have immutable name", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(testDNSZoneResource().
+			WithName("zone-a.example.com."))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testDNSZoneResource().
+			WithName("zone-b.example.com."))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("name is immutable")))
+	})
+
+	It("should have immutable type", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(testDNSZoneResource().
+			WithType(orcv1alpha1.DNSZoneTypePrimary))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithMasters("192.0.2.1"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("type is immutable")))
+	})
+
+	It("should reject a zone name without a trailing period", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(testDNSZoneResource().
+			WithName("example.com"))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
 })
