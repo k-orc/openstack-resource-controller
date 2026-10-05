@@ -138,6 +138,21 @@ single-concern reconcilers) can be added in follow-up PRs.
 
 [scaffolding]: https://k-orc.cloud/development/scaffolding/
 
+## AI-Assisted Contributions
+
+Using AI tools (LLMs, coding assistants, etc.) to help write code is fine.
+However:
+
+- **Authors are responsible for the code they submit.** Review, understand, and
+  test AI-generated code before committing it. The author of a commit is
+  accountable for its correctness, not the tool that helped produce it.
+- **Authorship**: The human contributor must be the commit author. You may
+  optionally add the AI tool as a `Co-authored-by` trailer, but there is no
+  requirement to use `Assisted-by`, `Generated-by`, or similar labels.
+- **Autonomous agents**: Fully autonomous AI agents (e.g. those that open PRs
+  without direct human involvement) must clearly identify themselves as such in
+  the PR description.
+
 ## Becoming a Maintainer
 
 Maintainership is informal and invite-based. There is no formal ladder, but the

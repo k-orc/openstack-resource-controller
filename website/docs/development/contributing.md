@@ -122,6 +122,21 @@ Mutability for complex fields (`GetResourceReconcilers`, `updateResource`,
 single-concern reconcilers like `reconcileExtraSpecs`) can be added in
 follow-up PRs.
 
+## AI-Assisted Contributions
+
+Using AI tools (LLMs, coding assistants, etc.) to help write code is fine.
+However:
+
+- **Authors are responsible for the code they submit.** Review, understand, and
+  test AI-generated code before committing it. The author of a commit is
+  accountable for its correctness, not the tool that helped produce it.
+- **Authorship**: The human contributor must be the commit author. You may
+  optionally add the AI tool as a `Co-authored-by` trailer, but there is no
+  requirement to use `Assisted-by`, `Generated-by`, or similar labels.
+- **Autonomous agents**: Fully autonomous AI agents (e.g. those that open PRs
+  without direct human involvement) must clearly identify themselves as such in
+  the PR description.
+
 ## License
 
 ORC is licensed under the Apache License 2.0. By contributing, you agree that
