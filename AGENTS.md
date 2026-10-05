@@ -408,39 +408,30 @@ func (actuator myActuator) GetResourceReconcilers(ctx context.Context, orcObject
 
 ## Contributing New Controllers
 
-### Commit Structure
+See `website/docs/development/contributing.md` for the full guidelines. Key
+rules for agents:
 
-Always structure new controller branches as multi-commit, separating generated
-code from hand-written code:
+Always structure new controller branches as three separate commits:
 
-1. **Scaffolding commit**: Raw output of `go run ./cmd/scaffold-controller`.
-   The commit message **must** contain the exact command (with all flags). No
-   manual edits in this commit.
-2. **Generated code commit**: Registration in
-   `cmd/resource-generator/main.go`, `make generate` output, scope wiring in
-   `internal/scope/`, controller registration in `cmd/manager/main.go`, and
-   `make generate-bundle`. All mechanical boilerplate, no hand-written logic.
-3. **Implementation commit(s)**: API type definitions (`Filter`,
-   `ResourceSpec`, `ResourceStatus`), actuator, status writer, and tests. This
-   is the `TODO(scaffolding)` work.
+1. **Scaffolding**: Raw output of `go run ./cmd/scaffold-controller`. No manual
+   edits. The commit message **must** contain the exact command with all flags:
+   ```
+   Scaffolding for the VolumeBackup controller
 
-### Incremental PRs
+   $ go run ./cmd/scaffold-controller -interactive=false \
+       -kind=VolumeBackup \
+       -gophercloud-client=NewBlockStorageV3 \
+       -gophercloud-module=github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/backups
+   ```
+2. **Generated code**: Registration in `cmd/resource-generator/main.go`,
+   `make generate`, scope wiring, manager registration, `make generate-bundle`.
+   No hand-written logic.
+3. **Implementation** (one or more commits): API types, actuator, status
+   writer, tests (the `TODO(scaffolding)` work).
 
-For complex controllers, consider splitting work across multiple PRs:
-
-- First PR: scaffolding + generated code + basic immutable
-  create/delete/import.
-- Follow-up PRs: mutability, sub-resource reconcilers, tags, additional
-  dependencies, etc.
-
-Smaller PRs are easier to review and less likely to need large reworks.
-
-### Deferred Mutability
-
-The initial controller implementation may treat all spec fields as immutable.
-Mutability for complex fields (`GetResourceReconcilers`, `updateResource`,
-single-concern reconcilers like `reconcileExtraSpecs`) can be added in
-follow-up PRs.
+For complex controllers, consider splitting work across multiple PRs (e.g.
+basic immutable create/delete/import first, mutability in follow-ups). The
+initial implementation may treat all spec fields as immutable.
 
 ## Documentation
 
