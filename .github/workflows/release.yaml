@@ -45,7 +45,7 @@ jobs:
         persist-credentials: false
 
     - name: Install Helm
-      uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # tag=v4.3.0
+      uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # tag=v5.0.1
 
     - name: Derive chart version from git tag
       id: version
