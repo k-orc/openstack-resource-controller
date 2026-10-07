@@ -1,0 +1,10 @@
+# nameOverride overrides the chart name used in resource names.
+nameOverride: ""
+# fullnameOverride overrides the full resource name prefix.
+fullnameOverride: ""
+
+rbac:
+  aggregate:
+    # enabled creates ClusterRoles that aggregate ORC resources into the
+    # builtin view, edit and admin ClusterRoles.
+    enabled: true
