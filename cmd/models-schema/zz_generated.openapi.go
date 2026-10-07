@@ -9266,6 +9266,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RoleAssignmentFilter(r
 							Format:      "",
 						},
 					},
+					"system": {
+						SchemaProps: spec.SchemaProps{
+							Description: "system filters by the referenced System scope.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
@@ -9374,14 +9381,21 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RoleAssignmentResource
 					},
 					"projectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "projectRef references the Project scope for the assignment. Exactly one of projectRef or domainRef must be specified.",
+							Description: "projectRef references the Project scope for the assignment. Exactly one of projectRef, domainRef, or system must be specified.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"domainRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "domainRef references the Domain scope for the assignment. Exactly one of projectRef or domainRef must be specified.",
+							Description: "domainRef references the Domain scope for the assignment. Exactly one of projectRef, domainRef, or system must be specified.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"system": {
+						SchemaProps: spec.SchemaProps{
+							Description: "system references the System scope for this assignment. Due to an upstream Keystone caching bug in versions prior to hibiscus, system scoped role assignments might only become available after a few minutes. Exactly one of projectRef, domainRef, or system must be specified.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -9397,7 +9411,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RoleAssignmentResource
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "RoleAssignmentResourceStatus represents the observed state of the role assignment. Note: Role assignments do not have a unique ID in OpenStack - they are identified by the combination of role, actor (user/group), and scope (project/domain).",
+				Description: "RoleAssignmentResourceStatus represents the observed state of the role assignment. Note: Role assignments do not have a unique ID in OpenStack - they are identified by the combination of role, actor (user/group), and scope (project/domain/system).",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"roleID": {
@@ -9431,6 +9445,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RoleAssignmentResource
 					"domainID": {
 						SchemaProps: spec.SchemaProps{
 							Description: "domainID is the OpenStack ID of the domain scope (if scopeType is Domain).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"system": {
+						SchemaProps: spec.SchemaProps{
+							Description: "system identifies the system scope which is currently only \"all\" (if scopeType is System).",
 							Type:        []string{"string"},
 							Format:      "",
 						},

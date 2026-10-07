@@ -2779,6 +2779,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: roleRef
       type:
         scalar: string
+    - name: system
+      type:
+        scalar: string
     - name: userRef
       type:
         scalar: string
@@ -2803,6 +2806,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: roleRef
       type:
         scalar: string
+    - name: system
+      type:
+        scalar: string
     - name: userRef
       type:
         scalar: string
@@ -2819,6 +2825,9 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
     - name: roleID
+      type:
+        scalar: string
+    - name: system
       type:
         scalar: string
     - name: userID
