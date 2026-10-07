@@ -23,3 +23,16 @@ popd || exit
 kustomize build "${TMP_OVERLAY}" | operator-sdk generate bundle --plugins=go.kubebuilder.io/v4 --use-image-digests
 
 rm -rf "${TMP_OVERLAY}"
+
+# Remove sample CRs from bundle/manifests/. They are already captured in the
+# CSV's alm-examples annotation and should not be installed as standalone
+# resources by OLM.
+find bundle/manifests -name '*sample*' -delete
+
+# Inject the operator logo into the generated CSV
+LOGO_FILE="logos/orc-logo-color.svg"
+CSV_FILE="bundle/manifests/orc.clusterserviceversion.yaml"
+if [ -f "${LOGO_FILE}" ] && [ -f "${CSV_FILE}" ]; then
+  LOGO_BASE64=$(base64 -w0 "${LOGO_FILE}")
+  sed -i "s|__ORC_LOGO_BASE64__|${LOGO_BASE64}|" "${CSV_FILE}"
+fi
