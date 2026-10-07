@@ -91,7 +91,7 @@ type UserResourceStatus struct {
 
 	// enabled defines whether a user is enabled or disabled
 	// +optional
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 
 	// passwordExpiresAt is the timestamp at which the user's password expires.
 	// +kubebuilder:validation:MaxLength:=1024

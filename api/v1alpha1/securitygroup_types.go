@@ -266,7 +266,7 @@ type SecurityGroupResourceStatus struct {
 
 	// stateful indicates if the security group is stateful or stateless.
 	// +optional
-	Stateful bool `json:"stateful,omitempty"`
+	Stateful *bool `json:"stateful,omitempty"`
 
 	// rules is a list of security group rules belonging to this SG.
 	// +kubebuilder:validation:MaxItems:=256

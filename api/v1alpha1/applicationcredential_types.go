@@ -170,7 +170,7 @@ type ApplicationCredentialResourceStatus struct {
 
 	// unrestricted is a flag indicating whether the application credential may be used for creation or destruction of other application credentials or trusts
 	// +optional
-	Unrestricted bool `json:"unrestricted,omitempty"`
+	Unrestricted *bool `json:"unrestricted,omitempty"`
 
 	// projectID of the project the application credential was created for and that authentication requests using this application credential will be scoped to.
 	// +kubebuilder:validation:MaxLength=1024
