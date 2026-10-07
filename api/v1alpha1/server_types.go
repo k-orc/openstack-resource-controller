@@ -381,7 +381,7 @@ type ServerResourceStatus struct {
 
 	// configDrive indicates whether the server was booted with a config drive.
 	// +optional
-	ConfigDrive bool `json:"configDrive,omitempty"`
+	ConfigDrive *bool `json:"configDrive,omitempty"`
 }
 
 // ServerMetadataStatus represents a key-value pair for server metadata in status.

@@ -378,7 +378,7 @@ type ImageResourceStatus struct {
 
 	// protected specifies that the image is protected from deletion.
 	// +optional
-	Protected bool `json:"protected,omitempty"`
+	Protected *bool `json:"protected,omitempty"`
 
 	// visibility of the image
 	// +kubebuilder:validation:MaxLength=1024
