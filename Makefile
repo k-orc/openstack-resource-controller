@@ -84,6 +84,10 @@ generate-go: mockgen
 generate-bundle: kustomize operator-sdk
 	./hack/bundle.sh
 
+.PHONY: validate-bundle
+validate-bundle: operator-sdk
+	$(OPERATOR_SDK) bundle validate ./bundle --select-optional suite=operatorframework -b none
+
 .PHONY: generate-docs
 generate-docs:
 	$(MAKE) -C website generated

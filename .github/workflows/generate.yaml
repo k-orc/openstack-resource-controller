@@ -15,6 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag=v7.0.1
         with:
+          fetch-depth: 0
+          fetch-tags: true
           persist-credentials: false
 
       - run: |
@@ -26,3 +28,5 @@ jobs:
       - run: |
           make generate-bundle
           git diff --exit-code
+
+      - run: make validate-bundle
