@@ -16,12 +16,19 @@ limitations under the License.
 
 package v1alpha1
 
+// +kubebuilder:validation:Enum:=all
+type KeystoneSystem string
+
+const (
+	KeystoneSystemAll KeystoneSystem = "all"
+)
+
 // RoleAssignmentResourceSpec defines the desired role assignment.
 // A role assignment grants a role to a user or group on a project or domain.
 // Role assignments are immutable once created and identified by the combination
 // of (role, actor, scope) rather than a separate ID.
 // +kubebuilder:validation:XValidation:rule="(has(self.userRef) && !has(self.groupRef)) || (!has(self.userRef) && has(self.groupRef))",message="exactly one of userRef or groupRef is required"
-// +kubebuilder:validation:XValidation:rule="(has(self.projectRef) && !has(self.domainRef)) || (!has(self.projectRef) && has(self.domainRef))",message="exactly one of projectRef or domainRef is required"
+// +kubebuilder:validation:XValidation:rule="(has(self.projectRef) && !has(self.domainRef) && !has(self.system)) || (!has(self.projectRef) && has(self.domainRef) && !has(self.system)) || (!has(self.projectRef) && !has(self.domainRef) && has(self.system))",message="exactly one of projectRef, domainRef, or system is required"
 // +kubebuilder:validation:XValidation:rule="self == oldSelf",message="RoleAssignmentResourceSpec is immutable"
 type RoleAssignmentResourceSpec struct {
 	// roleRef references the Role being assigned.
@@ -42,16 +49,21 @@ type RoleAssignmentResourceSpec struct {
 	GroupRef *KubernetesNameRef `json:"groupRef,omitempty"`
 
 	// projectRef references the Project scope for the assignment.
-	// Exactly one of projectRef or domainRef must be specified.
+	// Exactly one of projectRef, domainRef, or system must be specified.
 	// +optional
 	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
 
 	// domainRef references the Domain scope for the assignment.
-	// Exactly one of projectRef or domainRef must be specified.
+	// Exactly one of projectRef, domainRef, or system must be specified.
 	// +optional
 	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
+
+	// system references the System scope for this assignment.
+	// Exactly one of projectRef, domainRef, or system must be specified.
+	// +optional
+	System *KeystoneSystem `json:"system,omitempty"`
 }
 
 // RoleAssignmentFilter defines import filter criteria for existing role assignments.
@@ -81,11 +93,15 @@ type RoleAssignmentFilter struct {
 	// +optional
 	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
+
+	// system filters by the referenced System scope.
+	// +optional
+	System *KeystoneSystem `json:"system,omitempty"`
 }
 
 // RoleAssignmentResourceStatus represents the observed state of the role assignment.
 // Note: Role assignments do not have a unique ID in OpenStack - they are identified
-// by the combination of role, actor (user/group), and scope (project/domain).
+// by the combination of role, actor (user/group), and scope (project/domain/system).
 type RoleAssignmentResourceStatus struct {
 	// roleID is the OpenStack ID of the assigned role.
 	// +kubebuilder:validation:MaxLength=1024
@@ -111,4 +127,9 @@ type RoleAssignmentResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
+
+	// system identifies the system scope which is currently only "all" (if scopeType is System).
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	System string `json:"system,omitempty"`
 }
