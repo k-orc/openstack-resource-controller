@@ -17,6 +17,8 @@ limitations under the License.
 package recordset
 
 import (
+	"slices"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -60,7 +62,10 @@ func (recordsetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *os
 		resourceStatus.WithDescription(osResource.Description)
 	}
 	if len(osResource.Records) > 0 {
-		resourceStatus.WithRecords(osResource.Records...)
+		// Designate does not guarantee record order within a recordset; sort for a stable status.
+		records := slices.Clone(osResource.Records)
+		slices.Sort(records)
+		resourceStatus.WithRecords(records...)
 	}
 
 	statusApply.WithResource(resourceStatus)

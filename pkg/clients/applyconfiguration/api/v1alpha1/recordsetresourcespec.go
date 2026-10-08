@@ -25,7 +25,7 @@ import (
 // RecordSetResourceSpecApplyConfiguration represents a declarative configuration of the RecordSetResourceSpec type for use
 // with apply.
 type RecordSetResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
+	Name        *apiv1alpha1.DesignateFQDN     `json:"name,omitempty"`
 	Description *string                        `json:"description,omitempty"`
 	ZoneRef     *apiv1alpha1.KubernetesNameRef `json:"zoneRef,omitempty"`
 	Type        *apiv1alpha1.RecordSetType     `json:"type,omitempty"`
@@ -42,7 +42,7 @@ func RecordSetResourceSpec() *RecordSetResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *RecordSetResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *RecordSetResourceSpecApplyConfiguration {
+func (b *RecordSetResourceSpecApplyConfiguration) WithName(value apiv1alpha1.DesignateFQDN) *RecordSetResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }

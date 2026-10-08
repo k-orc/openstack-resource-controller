@@ -23,11 +23,10 @@ type RecordSetType string
 // RecordSetResourceSpec contains the desired state of the resource.
 type RecordSetResourceSpec struct {
 	// name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per
-	// Designate's own convention. If not specified, the name of the ORC object is used.
+	// Designate's own convention.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
-	// +kubebuilder:validation:XValidation:rule="self.endsWith('.')",message="recordset name must end with a period"
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	// +required
+	Name *DesignateFQDN `json:"name,omitempty"` //nolint:kubeapilinter // always populated; pointer kept so the shared getResourceName helper compiles
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
@@ -78,9 +77,8 @@ type RecordSetFilter struct {
 	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
 	// name of the existing resource
-	// +kubebuilder:validation:XValidation:rule="self.endsWith('.')",message="name must end with a period"
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *DesignateFQDN `json:"name,omitempty"`
 
 	// description of the existing resource
 	// +kubebuilder:validation:MinLength:=1

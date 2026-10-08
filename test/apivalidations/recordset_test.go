@@ -42,6 +42,7 @@ func recordsetStub(namespace *corev1.Namespace) *orcv1alpha1.RecordSet {
 
 func testRecordSetResource() *applyconfigv1alpha1.RecordSetResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.RecordSetResourceSpec().
+		WithName("www.example.com.").
 		WithZoneRef("dnszone").
 		WithType(orcv1alpha1.RecordSetType("A")).
 		WithRecords("192.0.2.1")
@@ -143,12 +144,14 @@ var _ = Describe("ORC RecordSet API validations", func() {
 		obj := recordsetStub(namespace)
 		patch := baseRecordSetPatch(obj)
 		patch.Spec.WithResource(applyconfigv1alpha1.RecordSetResourceSpec().
+			WithName("www.example.com.").
 			WithZoneRef("dnszone").
 			WithType(orcv1alpha1.RecordSetType("A")).
 			WithRecords("192.0.2.1"))
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.RecordSetResourceSpec().
+			WithName("www.example.com.").
 			WithZoneRef("dnszone").
 			WithType(orcv1alpha1.RecordSetType("A")).
 			WithRecords("192.0.2.2", "192.0.2.3").

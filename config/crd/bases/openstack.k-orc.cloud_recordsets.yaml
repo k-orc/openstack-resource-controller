@@ -100,10 +100,9 @@ spec:
                         description: name of the existing resource
                         maxLength: 255
                         minLength: 1
-                        pattern: ^[^,]+$
                         type: string
                         x-kubernetes-validations:
-                        - message: name must end with a period
+                        - message: must end with a period
                           rule: self.endsWith('.')
                       type:
                         description: type of the existing resource
@@ -188,15 +187,14 @@ spec:
                   name:
                     description: |-
                       name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per
-                      Designate's own convention. If not specified, the name of the ORC object is used.
+                      Designate's own convention.
                     maxLength: 255
                     minLength: 1
-                    pattern: ^[^,]+$
                     type: string
                     x-kubernetes-validations:
                     - message: name is immutable
                       rule: self == oldSelf
-                    - message: recordset name must end with a period
+                    - message: must end with a period
                       rule: self.endsWith('.')
                   records:
                     description: |-
@@ -249,6 +247,7 @@ spec:
                     - message: zoneRef is immutable
                       rule: self == oldSelf
                 required:
+                - name
                 - records
                 - type
                 - zoneRef

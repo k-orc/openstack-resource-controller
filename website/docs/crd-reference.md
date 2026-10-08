@@ -745,6 +745,8 @@ _Validation:_
 _Appears in:_
 - [DNSZoneFilter](#dnszonefilter)
 - [DNSZoneResourceSpec](#dnszoneresourcespec)
+- [RecordSetFilter](#recordsetfilter)
+- [RecordSetResourceSpec](#recordsetresourcespec)
 
 
 
@@ -3004,8 +3006,6 @@ _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
 - [PortFilter](#portfilter)
 - [PortResourceSpec](#portresourcespec)
-- [RecordSetFilter](#recordsetfilter)
-- [RecordSetResourceSpec](#recordsetresourcespec)
 - [RegionFilter](#regionfilter)
 - [RegionResourceSpec](#regionresourcespec)
 - [RouterFilter](#routerfilter)
@@ -3561,7 +3561,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone to look for the recordset under - required<br />because every Designate recordset operation, including list, is scoped to a specific zone<br />(see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed<br />path). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `type` _[RecordSetType](#recordsettype)_ | type of the existing resource |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Optional: \{\} <br /> |
 
@@ -3599,7 +3599,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per<br />Designate's own convention. If not specified, the name of the ORC object is used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per<br />Designate's own convention. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone this recordset belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `type` _[RecordSetType](#recordsettype)_ | type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no<br />update path for a recordset's type, only its records/ttl/description. |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Required: \{\} <br /> |

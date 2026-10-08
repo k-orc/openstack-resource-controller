@@ -8598,7 +8598,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the name of the recordset, e.g. \"www.example.com.\". Must end with a period, per Designate's own convention. If not specified, the name of the ORC object is used.",
+							Description: "name is the name of the recordset, e.g. \"www.example.com.\". Must end with a period, per Designate's own convention.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8652,7 +8652,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 						},
 					},
 				},
-				Required: []string{"zoneRef", "type", "records"},
+				Required: []string{"name", "zoneRef", "type", "records"},
 			},
 		},
 	}

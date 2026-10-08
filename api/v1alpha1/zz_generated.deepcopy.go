@@ -4510,7 +4510,7 @@ func (in *RecordSetFilter) DeepCopyInto(out *RecordSetFilter) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(OpenStackName)
+		*out = new(DesignateFQDN)
 		**out = **in
 	}
 	if in.Description != nil {
@@ -4597,7 +4597,7 @@ func (in *RecordSetResourceSpec) DeepCopyInto(out *RecordSetResourceSpec) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(OpenStackName)
+		*out = new(DesignateFQDN)
 		**out = **in
 	}
 	if in.Description != nil {
