@@ -10,6 +10,10 @@
 # See https://k-orc.cloud/development/api-design/.
 nameReference:
 - fieldSpecs:
+  - kind: RecordSet
+    path: spec/resource/dNSZoneRef
+  kind: DNSZone
+- fieldSpecs:
   - kind: Group
     path: spec/import/filter/domainRef
   - kind: Group
@@ -189,6 +193,8 @@ nameReference:
   - kind: Port
     path: spec/cloudCredentialsRef/secretName
   - kind: Project
+    path: spec/cloudCredentialsRef/secretName
+  - kind: RecordSet
     path: spec/cloudCredentialsRef/secretName
   - kind: Region
     path: spec/cloudCredentialsRef/secretName

@@ -84,6 +84,10 @@ func (c *FakeOpenstackV1alpha1) Projects(namespace string) v1alpha1.ProjectInter
 	return newFakeProjects(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) RecordSets(namespace string) v1alpha1.RecordSetInterface {
+	return newFakeRecordSets(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Regions(namespace string) v1alpha1.RegionInterface {
 	return newFakeRegions(c, namespace)
 }

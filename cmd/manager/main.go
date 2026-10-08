@@ -42,6 +42,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/port"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/project"
+	recordsetcontroller "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/recordset"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/region"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/registeredlimit"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/role"
@@ -128,6 +129,7 @@ func main() {
 		network.New(scopeFactory),
 		subnet.New(scopeFactory),
 		dnszonecontroller.New(scopeFactory),
+		recordsetcontroller.New(scopeFactory),
 		router.New(scopeFactory),
 		routerinterface.New(scopeFactory),
 		port.New(scopeFactory),

@@ -298,6 +298,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderSegmentSpec"):
 		return &apiv1alpha1.ProviderSegmentSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSet"):
+		return &apiv1alpha1.RecordSetApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetFilter"):
+		return &apiv1alpha1.RecordSetFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetImport"):
+		return &apiv1alpha1.RecordSetImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetResourceSpec"):
+		return &apiv1alpha1.RecordSetResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetResourceStatus"):
+		return &apiv1alpha1.RecordSetResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetSpec"):
+		return &apiv1alpha1.RecordSetSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetStatus"):
+		return &apiv1alpha1.RecordSetStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Region"):
 		return &apiv1alpha1.RegionApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RegionFilter"):
