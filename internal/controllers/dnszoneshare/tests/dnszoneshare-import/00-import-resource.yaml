@@ -1,0 +1,15 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: unmanaged
+  import:
+    filter:
+      name: dnszoneshare-import-external
+      description: DNSZoneShare dnszoneshare-import-external from "dnszoneshare-import" test
+      # TODO(scaffolding): Add all fields supported by the filter

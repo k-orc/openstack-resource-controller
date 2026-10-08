@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-create-full
+status:
+  resource:
+    name: dnszoneshare-create-full-override
+    description: DNSZoneShare from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZoneShare
+      name: dnszoneshare-create-full
+      ref: dnszoneshare
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZone
+      name: dnszoneshare-create-full
+      ref: dNSZone
+assertAll:
+    - celExpr: "dnszoneshare.status.id != ''"
+    - celExpr: "dnszoneshare.status.resource.dNSZoneID == dNSZone.status.id"
+    # TODO(scaffolding): Add more checks
