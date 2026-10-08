@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-update
+spec:
+  resource:
+    name: dnszoneshare-update-updated
+    description: dnszoneshare-update-updated
+    # TODO(scaffolding): update all mutable fields
