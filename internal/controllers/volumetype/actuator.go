@@ -38,10 +38,11 @@ import (
 type (
 	osResourceT = volumetypes.VolumeType
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type volumetypeActuator struct {
@@ -51,6 +52,7 @@ type volumetypeActuator struct {
 
 var _ createResourceActuator = volumetypeActuator{}
 var _ deleteResourceActuator = volumetypeActuator{}
+var _ reconcileResourceActuator = volumetypeActuator{}
 
 func (volumetypeActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

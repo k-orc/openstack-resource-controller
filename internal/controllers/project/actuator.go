@@ -28,7 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
-	generic "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
@@ -40,10 +40,11 @@ import (
 type (
 	osResourceT = projects.Project
 
-	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = generic.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type projectClient interface {
@@ -61,6 +62,7 @@ type projectActuator struct {
 
 var _ createResourceActuator = projectActuator{}
 var _ deleteResourceActuator = projectActuator{}
+var _ reconcileResourceActuator = projectActuator{}
 
 func (projectActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
@@ -185,7 +187,7 @@ func (actuator projectActuator) DeleteResource(ctx context.Context, _ orcObjectP
 	return progress.WrapError(actuator.osClient.DeleteProject(ctx, project.ID))
 }
 
-func (actuator projectActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller generic.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
+func (actuator projectActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.updateResource,
 	}, nil
@@ -285,7 +287,7 @@ type projectHelperFactory struct{}
 
 var _ helperFactory = projectHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.Project, controller generic.ResourceController) (projectActuator, progress.ReconcileStatus) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.Project, controller interfaces.ResourceController) (projectActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
@@ -313,10 +315,10 @@ func (projectHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return projectAdapter{obj}
 }
 
-func (projectHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+func (projectHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }
 
-func (projectHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+func (projectHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }

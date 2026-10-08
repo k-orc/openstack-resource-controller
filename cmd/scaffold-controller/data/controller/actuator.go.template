@@ -44,10 +44,11 @@ import (
 type (
 	osResourceT = {{ .GophercloudPackage }}.{{ .GophercloudType }}
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 
@@ -67,6 +68,7 @@ type {{ .PackageName }}Actuator struct {
 
 var _ createResourceActuator = {{ .PackageName }}Actuator{}
 var _ deleteResourceActuator = {{ .PackageName }}Actuator{}
+var _ reconcileResourceActuator = {{ .PackageName }}Actuator{}
 
 func ({{ .PackageName }}Actuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
