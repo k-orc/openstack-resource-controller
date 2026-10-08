@@ -24,3 +24,10 @@ type UUID string
 // +kubebuilder:validation:MaxLength:=255
 // +kubebuilder:validation:Pattern:="^[^,]+$"
 type OpenStackName string
+
+// DesignateFQDN is a fully-qualified domain name in Designate's own convention: it must end
+// with a trailing period, e.g. "example.com.".
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=255
+// +kubebuilder:validation:XValidation:rule="self.endsWith('.')",message="must end with a period"
+type DesignateFQDN string

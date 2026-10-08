@@ -25,7 +25,7 @@ import (
 // DNSZoneResourceSpecApplyConfiguration represents a declarative configuration of the DNSZoneResourceSpec type for use
 // with apply.
 type DNSZoneResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Name        *apiv1alpha1.DesignateFQDN `json:"name,omitempty"`
 	Email       *string                    `json:"email,omitempty"`
 	Description *string                    `json:"description,omitempty"`
 	TTL         *int32                     `json:"ttl,omitempty"`
@@ -42,7 +42,7 @@ func DNSZoneResourceSpec() *DNSZoneResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *DNSZoneResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *DNSZoneResourceSpecApplyConfiguration {
+func (b *DNSZoneResourceSpecApplyConfiguration) WithName(value apiv1alpha1.DesignateFQDN) *DNSZoneResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }

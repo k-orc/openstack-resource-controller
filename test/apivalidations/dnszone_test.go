@@ -42,6 +42,7 @@ func dnszoneStub(namespace *corev1.Namespace) *orcv1alpha1.DNSZone {
 
 func testDNSZoneResource() *applyconfigv1alpha1.DNSZoneResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.DNSZoneResourceSpec().
+		WithName("example.com.").
 		WithEmail("admin@example.com")
 }
 
@@ -134,10 +135,21 @@ var _ = Describe("ORC DNSZone API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
 	})
 
+	It("should reject a SECONDARY zone with ttl set", func(ctx context.Context) {
+		obj := dnszoneStub(namespace)
+		patch := baseDNSZonePatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithType(orcv1alpha1.DNSZoneTypeSecondary).
+			WithMasters("192.0.2.1").
+			WithTTL(300))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
+
 	It("should accept a valid SECONDARY zone", func(ctx context.Context) {
 		obj := dnszoneStub(namespace)
 		patch := baseDNSZonePatch(obj)
 		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithName("example.com.").
 			WithType(orcv1alpha1.DNSZoneTypeSecondary).
 			WithMasters("192.0.2.1", "2001:db8::1"))
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
@@ -163,6 +175,7 @@ var _ = Describe("ORC DNSZone API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
 
 		patch.Spec.WithResource(applyconfigv1alpha1.DNSZoneResourceSpec().
+			WithName("example.com.").
 			WithType(orcv1alpha1.DNSZoneTypeSecondary).
 			WithMasters("192.0.2.1"))
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("type is immutable")))

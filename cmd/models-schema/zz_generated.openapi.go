@@ -1890,14 +1890,14 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the name of the zone, e.g. \"example.com.\". Must end with a period, per Designate's own convention. If not specified, the name of the ORC object is used.",
+							Description: "name is the name of the zone, e.g. \"example.com.\". Must end with a period, per Designate's own convention. Kept as a pointer despite +required so the generated getResourceName helper, shared with resources where name genuinely falls back to the ORC object's own name, still compiles - that fallback branch is unreachable here since the API server always populates this field.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"email": {
 						SchemaProps: spec.SchemaProps{
-							Description: "email is the email address of the administrator for the zone. Required for PRIMARY zones, not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the present-when-not-applicable cases - enforced here too via CEL rather than only server-side).",
+							Description: "email is the email address of the administrator for the zone. Required for PRIMARY zones, not applicable to SECONDARY zones.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1918,7 +1918,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 					},
 					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from masters over AXFR). Immutable - Designate has no API to convert between the two in place.",
+							Description: "type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from masters over AXFR).",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1930,7 +1930,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR. Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny (not a plain string) so malformed entries are rejected at admission rather than accepted and only failing later against the real Designate API - a real gap found while reviewing #825's draft implementation, which left this as an unvalidated []string.",
+							Description: "masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR. Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny (not a plain string) so malformed entries are rejected at admission rather than accepted and only failing later against the real Designate API.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -1944,6 +1944,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 						},
 					},
 				},
+				Required: []string{"name"},
 			},
 		},
 	}

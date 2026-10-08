@@ -10,6 +10,8 @@ spec:
   managementPolicy: managed
   resource:
     name: dnszone-create-full.example.com.
-    email: admin@example.com
     description: DNSZone from "create full" test
-    ttl: 300
+    type: SECONDARY
+    masters:
+      - 192.0.2.1
+      - 192.0.2.2

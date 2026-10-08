@@ -10,5 +10,8 @@ spec:
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: example.com.
+    email: hostmaster@example.com
     description: Sample DNSZone
-    # TODO(scaffolding): Add all fields the resource supports
+    ttl: 3600
+    type: PRIMARY

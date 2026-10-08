@@ -753,7 +753,7 @@ func (in *DNSZoneFilter) DeepCopyInto(out *DNSZoneFilter) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(OpenStackName)
+		*out = new(DesignateFQDN)
 		**out = **in
 	}
 	if in.Email != nil {
@@ -845,7 +845,7 @@ func (in *DNSZoneResourceSpec) DeepCopyInto(out *DNSZoneResourceSpec) {
 	*out = *in
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
-		*out = new(OpenStackName)
+		*out = new(DesignateFQDN)
 		**out = **in
 	}
 	if in.Email != nil {

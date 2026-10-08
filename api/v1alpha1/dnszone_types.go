@@ -37,17 +37,19 @@ const (
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? (has(self.masters) && self.masters.size() > 0) : true",message="masters is required for SECONDARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'PRIMARY' ? !has(self.masters) : true",message="masters must not be set for PRIMARY zones"
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? !has(self.email) : true",message="email must not be set for SECONDARY zones"
+// +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? !has(self.ttl) : true",message="ttl must not be set for SECONDARY zones"
 type DNSZoneResourceSpec struct {
 	// name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's
-	// own convention. If not specified, the name of the ORC object is used.
+	// own convention. Kept as a pointer despite +required so the generated getResourceName
+	// helper, shared with resources where name genuinely falls back to the ORC object's own
+	// name, still compiles - that fallback branch is unreachable here since the API server
+	// always populates this field.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
-	// +kubebuilder:validation:XValidation:rule="self.endsWith('.')",message="zone name must end with a period"
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	// +required
+	Name *DesignateFQDN `json:"name,omitempty"`
 
 	// email is the email address of the administrator for the zone. Required for PRIMARY zones,
-	// not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the
-	// present-when-not-applicable cases - enforced here too via CEL rather than only server-side).
+	// not applicable to SECONDARY zones.
 	// +kubebuilder:validation:Format:=email
 	// +kubebuilder:validation:MinLength:=1
 	// +kubebuilder:validation:MaxLength:=255
@@ -67,7 +69,7 @@ type DNSZoneResourceSpec struct {
 	TTL *int32 `json:"ttl,omitempty"`
 
 	// type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from
-	// masters over AXFR). Immutable - Designate has no API to convert between the two in place.
+	// masters over AXFR).
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="type is immutable"
 	// +kubebuilder:default:="PRIMARY"
 	// +optional
@@ -76,8 +78,7 @@ type DNSZoneResourceSpec struct {
 	// masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR.
 	// Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny
 	// (not a plain string) so malformed entries are rejected at admission rather than accepted
-	// and only failing later against the real Designate API - a real gap found while reviewing
-	// #825's draft implementation, which left this as an unvalidated []string.
+	// and only failing later against the real Designate API.
 	// +kubebuilder:validation:MaxItems:=32
 	// +listType=set
 	// +optional
@@ -88,9 +89,8 @@ type DNSZoneResourceSpec struct {
 // +kubebuilder:validation:MinProperties:=1
 type DNSZoneFilter struct {
 	// name of the existing resource
-	// +kubebuilder:validation:XValidation:rule="self.endsWith('.')",message="name must end with a period"
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *DesignateFQDN `json:"name,omitempty"`
 
 	// email of the existing resource
 	// +kubebuilder:validation:Format:=email

@@ -596,7 +596,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `email` _string_ | email of the existing resource |  | Format: email <br />MaxLength: 255 <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `type` _[DNSZoneType](#dnszonetype)_ | type of the existing resource |  | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
@@ -635,12 +635,12 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. If not specified, the name of the ORC object is used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
-| `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones (Designate rejects both the missing-when-required and the<br />present-when-not-applicable cases - enforced here too via CEL rather than only server-side). |  | Format: email <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. Kept as a pointer despite +required so the generated getResourceName<br />helper, shared with resources where name genuinely falls back to the ORC object's own<br />name, still compiles - that fallback branch is unreachable here since the API server<br />always populates this field. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones. |  | Format: email <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
-| `type` _[DNSZoneType](#dnszonetype)_ | type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from<br />masters over AXFR). Immutable - Designate has no API to convert between the two in place. | PRIMARY | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
-| `masters` _[IPvAny](#ipvany) array_ | masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR.<br />Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny<br />(not a plain string) so malformed entries are rejected at admission rather than accepted<br />and only failing later against the real Designate API - a real gap found while reviewing<br />#825's draft implementation, which left this as an unvalidated []string. |  | MaxItems: 32 <br />MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from<br />masters over AXFR). | PRIMARY | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
+| `masters` _[IPvAny](#ipvany) array_ | masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR.<br />Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny<br />(not a plain string) so malformed entries are rejected at admission rather than accepted<br />and only failing later against the real Designate API. |  | MaxItems: 32 <br />MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneResourceStatus
@@ -727,6 +727,23 @@ _Appears in:_
 | --- | --- |
 | `PRIMARY` |  |
 | `SECONDARY` |  |
+
+
+#### DesignateFQDN
+
+_Underlying type:_ _string_
+
+DesignateFQDN is a fully-qualified domain name in Designate's own convention: it must end
+with a trailing period, e.g. "example.com.".
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [DNSZoneFilter](#dnszonefilter)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
+
 
 
 #### Domain
@@ -2971,8 +2988,6 @@ _Appears in:_
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [ApplicationCredentialFilter](#applicationcredentialfilter)
 - [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
-- [DNSZoneFilter](#dnszonefilter)
-- [DNSZoneResourceSpec](#dnszoneresourcespec)
 - [FlavorFilter](#flavorfilter)
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)
