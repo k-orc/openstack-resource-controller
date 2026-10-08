@@ -42,7 +42,9 @@ func recordsetStub(namespace *corev1.Namespace) *orcv1alpha1.RecordSet {
 
 func testRecordSetResource() *applyconfigv1alpha1.RecordSetResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.RecordSetResourceSpec().
-		WithDNSZoneRef("dnszone")
+		WithZoneRef("dnszone").
+		WithType(orcv1alpha1.RecordSetType("A")).
+		WithRecords("192.0.2.1")
 }
 
 func baseRecordSetPatch(obj client.Object) *applyconfigv1alpha1.RecordSetApplyConfiguration {
@@ -79,7 +81,7 @@ var _ = Describe("ORC RecordSet API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.RecordSetImport().WithFilter(applyconfigv1alpha1.RecordSetFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.RecordSetApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.RecordSetImport().WithFilter(applyconfigv1alpha1.RecordSetFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.RecordSetImport().WithFilter(applyconfigv1alpha1.RecordSetFilter().WithZoneRef("dnszone").WithName("foo.")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.RecordSetApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -105,24 +107,52 @@ var _ = Describe("ORC RecordSet API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
 	})
 
-	It("should have immutable dNSZoneRef", func(ctx context.Context) {
+	It("should have immutable zoneRef", func(ctx context.Context) {
 		obj := recordsetStub(namespace)
 		patch := baseRecordSetPatch(obj)
 		patch.Spec.WithResource(testRecordSetResource().
-			WithDNSZoneRef("dnszone-a"))
+			WithZoneRef("dnszone-a"))
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
 
 		patch.Spec.WithResource(testRecordSetResource().
-			WithDNSZoneRef("dnszone-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("dNSZoneRef is immutable")))
+			WithZoneRef("dnszone-b"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("zoneRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable type", func(ctx context.Context) {
+		obj := recordsetStub(namespace)
+		patch := baseRecordSetPatch(obj)
+		patch.Spec.WithResource(testRecordSetResource().
+			WithType(orcv1alpha1.RecordSetType("A")))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testRecordSetResource().
+			WithType(orcv1alpha1.RecordSetType("TXT")))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("type is immutable")))
+	})
+
+	It("should reject an invalid type value", func(ctx context.Context) {
+		obj := recordsetStub(namespace)
+		patch := baseRecordSetPatch(obj)
+		patch.Spec.WithResource(testRecordSetResource().
+			WithType(orcv1alpha1.RecordSetType("NOT_A_REAL_TYPE")))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+	})
+
+	It("should allow mutating records and ttl", func(ctx context.Context) {
+		obj := recordsetStub(namespace)
+		patch := baseRecordSetPatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.RecordSetResourceSpec().
+			WithZoneRef("dnszone").
+			WithType(orcv1alpha1.RecordSetType("A")).
+			WithRecords("192.0.2.1"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		patch.Spec.WithResource(applyconfigv1alpha1.RecordSetResourceSpec().
+			WithZoneRef("dnszone").
+			WithType(orcv1alpha1.RecordSetType("A")).
+			WithRecords("192.0.2.2", "192.0.2.3").
+			WithTTL(300))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+	})
 })

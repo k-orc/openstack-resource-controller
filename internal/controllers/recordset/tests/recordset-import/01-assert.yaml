@@ -14,9 +14,8 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: recordset-import-external-not-this-one
+    name: recordset-import-external-not-this-one.example.com.
     description: RecordSet recordset-import-external from "recordset-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet

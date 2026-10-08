@@ -1,5 +1,18 @@
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: recordset-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: recordset-import.example.com.
+    email: admin@example.com
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
 metadata:
   name: recordset-import
@@ -10,6 +23,6 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      name: recordset-import-external
+      zoneRef: recordset-import
+      name: external.recordset-import.example.com.
       description: RecordSet recordset-import-external from "recordset-import" test
-      # TODO(scaffolding): Add all fields supported by the filter

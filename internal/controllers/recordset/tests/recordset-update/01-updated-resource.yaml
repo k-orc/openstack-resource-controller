@@ -5,6 +5,8 @@ metadata:
   name: recordset-update
 spec:
   resource:
-    name: recordset-update-updated
     description: recordset-update-updated
-    # TODO(scaffolding): update all mutable fields
+    records:
+      - 192.0.2.2
+      - 192.0.2.3
+    ttl: 300

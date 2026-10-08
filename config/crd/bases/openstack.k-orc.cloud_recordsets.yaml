@@ -89,7 +89,7 @@ spec:
                       result. The controller will continue to retry if filter returns no
                       results. If filter returns multiple results the controller will set an
                       error state and will not continue to retry.
-                    minProperties: 1
+                    minProperties: 2
                     properties:
                       description:
                         description: description of the existing resource
@@ -102,6 +102,35 @@ spec:
                         minLength: 1
                         pattern: ^[^,]+$
                         type: string
+                        x-kubernetes-validations:
+                        - message: name must end with a period
+                          rule: self.endsWith('.')
+                      type:
+                        description: type of the existing resource
+                        enum:
+                        - A
+                        - AAAA
+                        - CNAME
+                        - MX
+                        - NS
+                        - PTR
+                        - SPF
+                        - SRV
+                        - SSHFP
+                        - TXT
+                        - CAA
+                        type: string
+                      zoneRef:
+                        description: |-
+                          zoneRef is a reference to the ORC DNSZone to look for the recordset under - required
+                          because every Designate recordset operation, including list, is scoped to a specific zone
+                          (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed
+                          path).
+                        maxLength: 253
+                        minLength: 1
+                        type: string
+                    required:
+                    - zoneRef
                     type: object
                   id:
                     description: |-
@@ -150,15 +179,6 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
-                  dNSZoneRef:
-                    description: dNSZoneRef is a reference to the ORC DNSZone which
-                      this resource is associated with.
-                    maxLength: 253
-                    minLength: 1
-                    type: string
-                    x-kubernetes-validations:
-                    - message: dNSZoneRef is immutable
-                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -167,14 +187,71 @@ spec:
                     type: string
                   name:
                     description: |-
-                      name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
+                      name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per
+                      Designate's own convention. If not specified, the name of the ORC object is used.
                     maxLength: 255
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
+                    x-kubernetes-validations:
+                    - message: name is immutable
+                      rule: self == oldSelf
+                    - message: recordset name must end with a period
+                      rule: self.endsWith('.')
+                  records:
+                    description: |-
+                      records are the record data for this recordset, in Designate's own format for the given
+                      type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not
+                      further validated here - record data syntax varies by type and Designate's own API is the
+                      source of truth for what's acceptable.
+                    items:
+                      maxLength: 4096
+                      type: string
+                    maxItems: 64
+                    minItems: 1
+                    type: array
+                    x-kubernetes-list-type: set
+                  ttl:
+                    description: |-
+                      ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own
+                      default TTL applies.
+                    format: int32
+                    maximum: 2147483647
+                    minimum: 1
+                    type: integer
+                  type:
+                    description: |-
+                      type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no
+                      update path for a recordset's type, only its records/ttl/description.
+                    enum:
+                    - A
+                    - AAAA
+                    - CNAME
+                    - MX
+                    - NS
+                    - PTR
+                    - SPF
+                    - SRV
+                    - SSHFP
+                    - TXT
+                    - CAA
+                    type: string
+                    x-kubernetes-validations:
+                    - message: type is immutable
+                      rule: self == oldSelf
+                  zoneRef:
+                    description: zoneRef is a reference to the ORC DNSZone this recordset
+                      belongs to.
+                    maxLength: 253
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: zoneRef is immutable
+                      rule: self == oldSelf
                 required:
-                - dNSZoneRef
+                - records
+                - type
+                - zoneRef
                 type: object
               resyncPeriod:
                 description: |-
@@ -295,19 +372,39 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
-                  dNSZoneID:
-                    description: dNSZoneID is the ID of the DNSZone to which the resource
-                      is associated.
-                    maxLength: 1024
-                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 1024
                     type: string
                   name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
+                    description: name is the name of the recordset, e.g. "www.example.com.".
+                    maxLength: 1024
+                    type: string
+                  projectID:
+                    description: projectID is the ID of the project that owns this
+                      recordset (inherited from its zone).
+                    maxLength: 1024
+                    type: string
+                  records:
+                    description: records are the record data for this recordset.
+                    items:
+                      maxLength: 4096
+                      type: string
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: set
+                  ttl:
+                    description: ttl is the Time To Live for the recordset, in seconds.
+                    format: int32
+                    type: integer
+                  type:
+                    description: type is the RRTYPE of the recordset.
+                    maxLength: 255
+                    type: string
+                  zoneID:
+                    description: zoneID is the ID of the DNSZone this recordset belongs
+                      to.
                     maxLength: 1024
                     type: string
                 type: object

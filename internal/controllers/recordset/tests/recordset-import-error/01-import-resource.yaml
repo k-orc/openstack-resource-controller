@@ -10,4 +10,5 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
+      zoneRef: recordset-import-error
       description: RecordSet from "import error" test

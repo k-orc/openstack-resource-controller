@@ -2416,6 +2416,7 @@ _Appears in:_
 - [PortResourceSpec](#portresourcespec)
 - [ProjectFilter](#projectfilter)
 - [ProjectResourceSpec](#projectresourcespec)
+- [RecordSetFilter](#recordsetfilter)
 - [RecordSetResourceSpec](#recordsetresourcespec)
 - [RegisteredLimitFilter](#registeredlimitfilter)
 - [RegisteredLimitResourceSpec](#registeredlimitresourcespec)
@@ -3552,15 +3553,17 @@ RecordSet is the Schema for an ORC resource.
 RecordSetFilter defines an existing resource by its properties
 
 _Validation:_
-- MinProperties: 1
+- MinProperties: 2
 
 _Appears in:_
 - [RecordSetImport](#recordsetimport)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone to look for the recordset under - required<br />because every Designate recordset operation, including list, is scoped to a specific zone<br />(see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed<br />path). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `type` _[RecordSetType](#recordsettype)_ | type of the existing resource |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Optional: \{\} <br /> |
 
 
 #### RecordSetImport
@@ -3580,7 +3583,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
-| `filter` _[RecordSetFilter](#recordsetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+| `filter` _[RecordSetFilter](#recordsetfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 2 <br />Optional: \{\} <br /> |
 
 
 #### RecordSetResourceSpec
@@ -3596,9 +3599,12 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `name` _[OpenStackName](#openstackname)_ | name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per<br />Designate's own convention. If not specified, the name of the ORC object is used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `dNSZoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | dNSZoneRef is a reference to the ORC DNSZone which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone this recordset belongs to. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `type` _[RecordSetType](#recordsettype)_ | type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no<br />update path for a recordset's type, only its records/ttl/description. |  | Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA] <br />Required: \{\} <br /> |
+| `records` _string array_ | records are the record data for this recordset, in Designate's own format for the given<br />type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not<br />further validated here - record data syntax varies by type and Designate's own API is the<br />source of truth for what's acceptable. |  | MaxItems: 64 <br />MinItems: 1 <br />items:MaxLength: 4096 <br />Required: \{\} <br /> |
+| `ttl` _integer_ | ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own<br />default TTL applies. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
 
 
 #### RecordSetResourceStatus
@@ -3614,9 +3620,13 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `name` _string_ | name is the name of the recordset, e.g. "www.example.com.". |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
-| `dNSZoneID` _string_ | dNSZoneID is the ID of the DNSZone to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `zoneID` _string_ | zoneID is the ID of the DNSZone this recordset belongs to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `type` _string_ | type is the RRTYPE of the recordset. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `records` _string array_ | records are the record data for this recordset. |  | MaxItems: 64 <br />items:MaxLength: 4096 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the Time To Live for the recordset, in seconds. |  | Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the project that owns this recordset (inherited from its zone). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### RecordSetSpec
@@ -3657,6 +3667,21 @@ _Appears in:_
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[RecordSetResourceStatus](#recordsetresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### RecordSetType
+
+_Underlying type:_ _string_
+
+RecordSetType is the RRTYPE of a DNS recordset.
+
+_Validation:_
+- Enum: [A AAAA CNAME MX NS PTR SPF SRV SSHFP TXT CAA]
+
+_Appears in:_
+- [RecordSetFilter](#recordsetfilter)
+- [RecordSetResourceSpec](#recordsetresourcespec)
+
 
 
 #### Region

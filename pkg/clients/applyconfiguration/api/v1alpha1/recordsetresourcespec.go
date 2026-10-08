@@ -27,7 +27,10 @@ import (
 type RecordSetResourceSpecApplyConfiguration struct {
 	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
 	Description *string                        `json:"description,omitempty"`
-	DNSZoneRef  *apiv1alpha1.KubernetesNameRef `json:"dNSZoneRef,omitempty"`
+	ZoneRef     *apiv1alpha1.KubernetesNameRef `json:"zoneRef,omitempty"`
+	Type        *apiv1alpha1.RecordSetType     `json:"type,omitempty"`
+	Records     []string                       `json:"records,omitempty"`
+	TTL         *int32                         `json:"ttl,omitempty"`
 }
 
 // RecordSetResourceSpecApplyConfiguration constructs a declarative configuration of the RecordSetResourceSpec type for use with
@@ -52,10 +55,36 @@ func (b *RecordSetResourceSpecApplyConfiguration) WithDescription(value string) 
 	return b
 }
 
-// WithDNSZoneRef sets the DNSZoneRef field in the declarative configuration to the given value
+// WithZoneRef sets the ZoneRef field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the DNSZoneRef field is set to the value of the last call.
-func (b *RecordSetResourceSpecApplyConfiguration) WithDNSZoneRef(value apiv1alpha1.KubernetesNameRef) *RecordSetResourceSpecApplyConfiguration {
-	b.DNSZoneRef = &value
+// If called multiple times, the ZoneRef field is set to the value of the last call.
+func (b *RecordSetResourceSpecApplyConfiguration) WithZoneRef(value apiv1alpha1.KubernetesNameRef) *RecordSetResourceSpecApplyConfiguration {
+	b.ZoneRef = &value
+	return b
+}
+
+// WithType sets the Type field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Type field is set to the value of the last call.
+func (b *RecordSetResourceSpecApplyConfiguration) WithType(value apiv1alpha1.RecordSetType) *RecordSetResourceSpecApplyConfiguration {
+	b.Type = &value
+	return b
+}
+
+// WithRecords adds the given value to the Records field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Records field.
+func (b *RecordSetResourceSpecApplyConfiguration) WithRecords(values ...string) *RecordSetResourceSpecApplyConfiguration {
+	for i := range values {
+		b.Records = append(b.Records, values[i])
+	}
+	return b
+}
+
+// WithTTL sets the TTL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TTL field is set to the value of the last call.
+func (b *RecordSetResourceSpecApplyConfiguration) WithTTL(value int32) *RecordSetResourceSpecApplyConfiguration {
+	b.TTL = &value
 	return b
 }

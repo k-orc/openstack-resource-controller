@@ -8475,6 +8475,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref co
 				Description: "RecordSetFilter defines an existing resource by its properties",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"zoneRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "zoneRef is a reference to the ORC DNSZone to look for the recordset under - required because every Designate recordset operation, including list, is scoped to a specific zone (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed path).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "name of the existing resource",
@@ -8489,7 +8496,15 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref co
 							Format:      "",
 						},
 					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
+				Required: []string{"zoneRef"},
 			},
 		},
 	}
@@ -8583,7 +8598,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name is the name of the recordset, e.g. \"www.example.com.\". Must end with a period, per Designate's own convention. If not specified, the name of the ORC object is used.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8595,15 +8610,49 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 							Format:      "",
 						},
 					},
-					"dNSZoneRef": {
+					"zoneRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "dNSZoneRef is a reference to the ORC DNSZone which this resource is associated with.",
+							Description: "zoneRef is a reference to the ORC DNSZone this recordset belongs to.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no update path for a recordset's type, only its records/ttl/description.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"records": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "records are the record data for this recordset, in Designate's own format for the given type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not further validated here - record data syntax varies by type and Designate's own API is the source of truth for what's acceptable.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own default TTL applies.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 				},
-				Required: []string{"dNSZoneRef"},
+				Required: []string{"zoneRef", "type", "records"},
 			},
 		},
 	}
@@ -8618,7 +8667,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceStatu
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Description: "name is the name of the recordset, e.g. \"www.example.com.\".",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8630,9 +8679,50 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceStatu
 							Format:      "",
 						},
 					},
-					"dNSZoneID": {
+					"zoneID": {
 						SchemaProps: spec.SchemaProps{
-							Description: "dNSZoneID is the ID of the DNSZone to which the resource is associated.",
+							Description: "zoneID is the ID of the DNSZone this recordset belongs to.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is the RRTYPE of the recordset.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"records": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "records are the record data for this recordset.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the Time To Live for the recordset, in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the project that owns this recordset (inherited from its zone).",
 							Type:        []string{"string"},
 							Format:      "",
 						},

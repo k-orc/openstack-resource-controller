@@ -50,14 +50,17 @@ func (recordsetStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Reco
 
 func (recordsetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.RecordSetResourceStatus().
-		WithDNSZoneID(osResource.DNSZoneID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the RecordSetResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithZoneID(osResource.ZoneID).
+		WithType(osResource.Type).
+		WithProjectID(osResource.ProjectID).
+		WithTTL(int32(osResource.TTL))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+	if len(osResource.Records) > 0 {
+		resourceStatus.WithRecords(osResource.Records...)
 	}
 
 	statusApply.WithResource(resourceStatus)

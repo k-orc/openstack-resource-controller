@@ -11,7 +11,9 @@
 nameReference:
 - fieldSpecs:
   - kind: RecordSet
-    path: spec/resource/dNSZoneRef
+    path: spec/import/filter/zoneRef
+  - kind: RecordSet
+    path: spec/resource/zoneRef
   kind: DNSZone
 - fieldSpecs:
   - kind: Group

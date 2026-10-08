@@ -11,9 +11,9 @@ metadata:
   name: recordset-dependency-pending
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: recordset-dependency-pending.example.com.
+    email: admin@example.com
