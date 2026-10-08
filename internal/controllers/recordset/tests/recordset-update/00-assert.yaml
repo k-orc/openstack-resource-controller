@@ -1,0 +1,26 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RecordSet
+      name: recordset-update
+      ref: recordset
+assertAll:
+    - celExpr: "!has(recordset.status.resource.description)"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-update
+status:
+  resource:
+    name: recordset-update
+    # TODO(scaffolding): Add matches for more fields
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

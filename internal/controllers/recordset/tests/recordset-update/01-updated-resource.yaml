@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-update
+spec:
+  resource:
+    name: recordset-update-updated
+    description: recordset-update-updated
+    # TODO(scaffolding): update all mutable fields
