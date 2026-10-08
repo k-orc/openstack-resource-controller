@@ -38,6 +38,12 @@ var crd_kustomization_template string
 //go:embed data/config-samples-kustomization.yaml.template
 var samples_kustomization_template string
 
+//go:embed data/config-rbac-aggregate-view.yaml.template
+var rbac_aggregate_view_template string
+
+//go:embed data/config-rbac-aggregate-edit.yaml.template
+var rbac_aggregate_edit_template string
+
 //go:embed data/internal-osclients-mock-doc.go.template
 var mock_doc_template string
 
@@ -265,6 +271,10 @@ func main() {
 	samplesKustomizationTemplate := template.Must(
 		template.New("samples-kustomization").Parse(samples_kustomization_template))
 	mockDocTemplate := template.Must(template.New("mock-doc").Parse(mock_doc_template))
+	rbacAggregateViewTemplate := template.Must(
+		template.New("rbac-aggregate-view").Funcs(funcMap).Parse(rbac_aggregate_view_template))
+	rbacAggregateEditTemplate := template.Must(
+		template.New("rbac-aggregate-edit").Funcs(funcMap).Parse(rbac_aggregate_edit_template))
 
 	addDefaults(resources)
 	addDefaults(specialResources)
@@ -318,6 +328,16 @@ func main() {
 
 	samplesKustomizationPath := filepath.Join("config", "samples", "kustomization.yaml")
 	if err := writeTemplate(samplesKustomizationPath, samplesKustomizationTemplate, allResources); err != nil {
+		panic(err)
+	}
+
+	rbacAggregateViewPath := filepath.Join("config", "rbac", "aggregate_view_role.yaml")
+	if err := writeTemplate(rbacAggregateViewPath, rbacAggregateViewTemplate, allResources); err != nil {
+		panic(err)
+	}
+
+	rbacAggregateEditPath := filepath.Join("config", "rbac", "aggregate_edit_role.yaml")
+	if err := writeTemplate(rbacAggregateEditPath, rbacAggregateEditTemplate, allResources); err != nil {
 		panic(err)
 	}
 

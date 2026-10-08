@@ -1,0 +1,33 @@
+# Aggregates all ORC resources into the builtin view, edit and admin ClusterRoles.
+# View users can read everything; edit and admin get the same read access here
+# since they do not inherit view's rules, and write access through
+# aggregate_edit_role.yaml.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-view-role
+  labels:
+    app.kubernetes.io/name: orc
+    app.kubernetes.io/managed-by: kustomize
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+{{- range . }}
+  - {{ .NameLower | plural }}
+{{- end }}
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - openstack.k-orc.cloud
+  resources:
+{{- range . }}
+  - {{ .NameLower | plural }}/status
+{{- end }}
+  verbs:
+  - get

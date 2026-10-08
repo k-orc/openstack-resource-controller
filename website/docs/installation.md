@@ -22,6 +22,7 @@ This installs:
 - The `orc-system` namespace
 - The ORC controller deployment
 - Required RBAC roles and bindings
+- ClusterRoles that aggregate ORC resources into the builtin `view`, `edit` and `admin` roles
 
 Verify the installation:
 
