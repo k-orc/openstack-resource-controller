@@ -90,7 +90,7 @@ func (actuator recordsetActuator) ListOSResourcesForAdoption(ctx context.Context
 	listOpts := recordsets.ListOpts{
 		Name:        getResourceName(orcObject),
 		Description: ptr.Deref(resourceSpec.Description, ""),
-		DNSZoneID:  ptr.Deref(dNSZone.Status.ID, ""),
+		DNSZoneID:   ptr.Deref(dNSZone.Status.ID, ""),
 		// TODO(scaffolding): Add more adoption filters
 	}
 
@@ -135,7 +135,7 @@ func (actuator recordsetActuator) CreateResource(ctx context.Context, obj orcObj
 	createOpts := recordsets.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		DNSZoneID:  dNSZoneID,
+		DNSZoneID:   dNSZoneID,
 		// TODO(scaffolding): Add more fields
 	}
 
