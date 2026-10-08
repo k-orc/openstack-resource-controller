@@ -40,10 +40,11 @@ import (
 type (
 	osResourceT = endpoints.Endpoint
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type endpointActuator struct {
@@ -53,6 +54,7 @@ type endpointActuator struct {
 
 var _ createResourceActuator = endpointActuator{}
 var _ deleteResourceActuator = endpointActuator{}
+var _ reconcileResourceActuator = endpointActuator{}
 
 func (endpointActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

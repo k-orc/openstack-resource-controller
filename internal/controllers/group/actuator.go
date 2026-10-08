@@ -39,10 +39,11 @@ import (
 type (
 	osResourceT = groups.Group
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type groupActuator struct {
@@ -52,6 +53,7 @@ type groupActuator struct {
 
 var _ createResourceActuator = groupActuator{}
 var _ deleteResourceActuator = groupActuator{}
+var _ reconcileResourceActuator = groupActuator{}
 
 func (groupActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

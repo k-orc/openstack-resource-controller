@@ -39,10 +39,11 @@ import (
 type (
 	osResourceT = registeredlimits.RegisteredLimit
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type registeredlimitActuator struct {
@@ -52,6 +53,7 @@ type registeredlimitActuator struct {
 
 var _ createResourceActuator = registeredlimitActuator{}
 var _ deleteResourceActuator = registeredlimitActuator{}
+var _ reconcileResourceActuator = registeredlimitActuator{}
 
 func (registeredlimitActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

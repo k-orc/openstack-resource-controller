@@ -39,10 +39,11 @@ import (
 type (
 	osResourceT = roles.Role
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type roleActuator struct {
@@ -52,6 +53,7 @@ type roleActuator struct {
 
 var _ createResourceActuator = roleActuator{}
 var _ deleteResourceActuator = roleActuator{}
+var _ reconcileResourceActuator = roleActuator{}
 
 func (roleActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

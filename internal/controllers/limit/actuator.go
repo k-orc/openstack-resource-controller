@@ -45,10 +45,11 @@ var (
 type (
 	osResourceT = limits.Limit
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type limitActuator struct {
@@ -58,6 +59,7 @@ type limitActuator struct {
 
 var _ createResourceActuator = limitActuator{}
 var _ deleteResourceActuator = limitActuator{}
+var _ reconcileResourceActuator = limitActuator{}
 
 func (limitActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

@@ -40,10 +40,11 @@ import (
 type (
 	osResourceT = projects.Project
 
-	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = generic.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = generic.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = generic.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type projectClient interface {
@@ -61,6 +62,7 @@ type projectActuator struct {
 
 var _ createResourceActuator = projectActuator{}
 var _ deleteResourceActuator = projectActuator{}
+var _ reconcileResourceActuator = projectActuator{}
 
 func (projectActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID

@@ -39,10 +39,11 @@ import (
 type (
 	osResourceT = addressscopes.AddressScope
 
-	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
-	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	reconcileResourceActuator = interfaces.ReconcileResourceActuator[orcObjectPT, osResourceT]
+	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
+	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type addressscopeActuator struct {
@@ -52,6 +53,7 @@ type addressscopeActuator struct {
 
 var _ createResourceActuator = addressscopeActuator{}
 var _ deleteResourceActuator = addressscopeActuator{}
+var _ reconcileResourceActuator = addressscopeActuator{}
 
 func (addressscopeActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
