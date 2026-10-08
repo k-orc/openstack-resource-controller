@@ -36,8 +36,9 @@ Verify types follow the structure described in AGENTS.md § "API Types Structure
 ### Validation Markers
 
 - [ ] String fields use `+kubebuilder:validation:MinLength` / `MaxLength` constraints.
-- [ ] Numeric fields use `+kubebuilder:validation:Minimum` / `Maximum` where appropriate.
+- [ ] Numeric fields use `+kubebuilder:validation:Minimum` / `Maximum` where appropriate. Verify both bounds when the OpenStack API defines a known range (e.g., IP prefix lengths max 128, VLAN IDs max 4094, port numbers max 65535).
 - [ ] Enum types use `+kubebuilder:validation:Enum` listing all valid values.
+- [ ] When fields have a natural ordering relationship (min/max, lower/upper, start/end), `XValidation` rules enforce the constraint (e.g., `rule="self.minPrefixLength <= self.maxPrefixLength"`). This includes intermediate fields that must fall within a range (e.g., `min <= default <= max`).
 - [ ] Filter structs have `+kubebuilder:validation:MinProperties:=1` (at least one criterion required).
 - [ ] Slice fields have `+listType` annotations (`set` for unique items like tags, `atomic` for ordered/opaque lists, `map` with `+listMapKey` for keyed lists like conditions).
 
@@ -123,7 +124,7 @@ Verify the file follows the structure in AGENTS.md § "Type Aliases", "Interface
 
 ### CreateResource
 
-- [ ] Translates ORC spec into OpenStack `CreateOpts` completely.
+- [ ] Translates ORC spec into OpenStack `CreateOpts` completely. Cross-reference fields against the gophercloud `CreateOpts` and result struct to verify no fields were omitted. Intentional omissions should be noted in the PR description.
 - [ ] **MUST NOT** perform any action after the Create API call (idempotency requirement).
 - [ ] Any actions before Create are idempotent (Create may be called many times).
 - [ ] Non-retryable errors are wrapped with `orcerrors.Terminal`.
@@ -145,6 +146,7 @@ Verify reconciler naming and behavior follow AGENTS.md § "Reconciler Naming Con
 - [ ] Reconcilers are independent and don't rely on side effects of other reconcilers.
 - [ ] `updateResource` vs single-concern naming conventions followed (see AGENTS.md).
 - [ ] `CreateResource` does not duplicate work that is handled by a reconciler. The `CreateResource` contract forbids actions that can fail after creating the primary resource.
+- [ ] For Neutron resources, `updateResource` initializes `UpdateOpts` with `RevisionNumber: &osResource.RevisionNumber` for optimistic concurrency control.
 
 ### Error Handling
 
@@ -182,6 +184,7 @@ Verify error classification follows AGENTS.md § "Error Classification":
 
 - [ ] Maps **all** OpenStack resource fields to ORC status fields.
 - [ ] Zero/empty values handled correctly: only include swap, ephemeral, description, etc., when non-zero/non-empty.
+- [ ] Status field guards follow the convention in AGENTS.md § "Status Field Guards in ApplyResourceStatus": always-populated fields are unconditional, guards only for truly optional fields.
 - [ ] Does NOT attempt to preserve previous status when the OpenStack resource can't be fetched (status.resource is cleared intentionally).
 - [ ] Pointer fields in status use `ptr.To()` for conversion.
 
@@ -220,7 +223,23 @@ See AGENTS.md for conventions (import ordering, logging levels, pointer handling
 - [ ] `make generate` has been run after any API type changes.
 - [ ] Constants from gophercloud are preferred over locally defined string constants (e.g., `ports.StatusActive` instead of `"ACTIVE"`).
 
-## Step 8: Test Coverage
+## Step 8: New Controller Completeness
+
+When the PR introduces an entirely new controller, verify:
+
+- [ ] README.md "Supported OpenStack resources" table is updated with the new resource.
+- [ ] Sample manifest (`config/samples/`) demonstrates all available resource fields, not just the required ones.
+
+### Commit Structure
+
+Verify the PR follows the contribution guidelines (see AGENTS.md § "Contributing New Controllers"):
+
+- [ ] At least 3 commits: (1) scaffolding, (2) generated code, (3) implementation.
+- [ ] Scaffolding commit is the raw output of `go run ./cmd/scaffold-controller` with no manual edits, and the commit message includes the exact command with all flags.
+- [ ] Generated code commit contains registration, `make generate`, scope wiring, manager registration, and `make generate-bundle` — no hand-written logic.
+- [ ] No fixup, squash, or merge commits in the branch — clean linear history.
+
+## Step 9: Test Coverage
 
 ### E2E Test Directories
 
@@ -255,7 +274,7 @@ For each controller, verify the following test directories exist under `internal
 - [ ] API validation tests exist at `test/apivalidations/<resource>_test.go` for non-trivial validation rules.
 - [ ] Unit tests cover any complex helper logic.
 
-## Step 9: Produce Review Report
+## Step 10: Produce Review Report
 
 After running through all applicable checklists, produce a structured report:
 
@@ -299,6 +318,7 @@ Notable good practices observed in the code (keep brief, 2-3 items max).
 - Missing finalizer or finalizer added too early
 - Security issue (RBAC too broad, secrets leaked in logs)
 - Data loss risk (cascade delete without explicit user intent)
+- New controller PR doesn't follow the 3-commit structure (scaffolding / generated / implementation)
 
 **Warning** -- any of:
 - Missing validation markers on API types
@@ -308,6 +328,9 @@ Notable good practices observed in the code (keep brief, 2-3 items max).
 - Missing E2E test for a standard scenario
 - Wrong logging level
 - Missing interface assertion
+- Missing cross-field CEL validation for ordered field pairs (min/max)
+- Missing RevisionNumber in Neutron `updateOpts`
+- Unnecessary guards in `ApplyResourceStatus` for always-populated fields
 
 **Suggestion** -- any of:
 - Import ordering
@@ -315,3 +338,5 @@ Notable good practices observed in the code (keep brief, 2-3 items max).
 - Additional test coverage beyond the standard set
 - Code could be simplified
 - Comment could be clearer
+- Sample manifest doesn't demonstrate all available fields
+- README not updated for new controller

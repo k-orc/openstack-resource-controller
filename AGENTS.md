@@ -286,6 +286,10 @@ ptr.Deref(optionalPtr, defaultValue)  // Dereference with default
 ptr.To(value)                          // Create pointer
 ```
 
+### Status Field Guards in ApplyResourceStatus
+
+In `ApplyResourceStatus`, fields always populated by OpenStack (e.g., `ProjectID`, `Tags`, `IPVersion`) should be set unconditionally in the builder chain. Guards (`if != ""` / `if len != 0`) are only appropriate for fields that are truly optional in the OpenStack response where the zero value differs semantically from "not set" (e.g., `Description`, `AddressScopeID`).
+
 ## API Types Structure
 
 ### ResourceSpec (creation parameters)
