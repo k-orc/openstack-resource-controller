@@ -8,7 +8,7 @@ resourceRefs:
       ref: dnszoneshare1
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: DNSZoneShare
-      name: dnszoneshare-import-external-not-this-one
+      name: dnszoneshare-import-not-this-one
       ref: dnszoneshare2
 assertAll:
     - celExpr: "dnszoneshare1.status.id != dnszoneshare2.status.id"
@@ -28,6 +28,4 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: dnszoneshare-import-external
-    description: DNSZoneShare dnszoneshare-import-external from "dnszoneshare-import" test
-    # TODO(scaffolding): Add all fields the resource supports
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000026"

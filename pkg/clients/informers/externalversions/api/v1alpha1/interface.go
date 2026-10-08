@@ -30,6 +30,8 @@ type Interface interface {
 	ApplicationCredentials() ApplicationCredentialInformer
 	// DNSZones returns a DNSZoneInformer.
 	DNSZones() DNSZoneInformer
+	// DNSZoneShares returns a DNSZoneShareInformer.
+	DNSZoneShares() DNSZoneShareInformer
 	// Domains returns a DomainInformer.
 	Domains() DomainInformer
 	// Endpoints returns a EndpointInformer.
@@ -110,6 +112,11 @@ func (v *version) ApplicationCredentials() ApplicationCredentialInformer {
 // DNSZones returns a DNSZoneInformer.
 func (v *version) DNSZones() DNSZoneInformer {
 	return &dNSZoneInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// DNSZoneShares returns a DNSZoneShareInformer.
+func (v *version) DNSZoneShares() DNSZoneShareInformer {
+	return &dNSZoneShareInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Domains returns a DomainInformer.

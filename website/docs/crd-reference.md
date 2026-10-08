@@ -13,6 +13,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [AddressScope](#addressscope)
 - [ApplicationCredential](#applicationcredential)
 - [DNSZone](#dnszone)
+- [DNSZoneShare](#dnszoneshare)
 - [Domain](#domain)
 - [Endpoint](#endpoint)
 - [Flavor](#flavor)
@@ -513,6 +514,7 @@ CloudCredentialsReference is a reference to a secret containing OpenStack creden
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
 - [ApplicationCredentialSpec](#applicationcredentialspec)
+- [DNSZoneShareSpec](#dnszonesharespec)
 - [DNSZoneSpec](#dnszonespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
@@ -665,6 +667,148 @@ _Appears in:_
 | `serial` _integer_ | serial is the zone's current SOA serial number. |  | Optional: \{\} <br /> |
 | `transferredAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | transferredAt is the last time this SECONDARY zone's records were refreshed from its<br />masters. Unset for PRIMARY zones. |  | Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the OpenStack project that owns this zone. Not to be confused with<br />a DNSZoneShare's targetProjectID, which grants a *different* project access without<br />changing ownership. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneShare
+
+
+
+DNSZoneShare is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `DNSZoneShare` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[DNSZoneShareSpec](#dnszonesharespec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[DNSZoneShareStatus](#dnszonesharestatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### DNSZoneShareFilter
+
+
+
+DNSZoneShareFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [DNSZoneShareImport](#dnszoneshareimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone to look for the share under - required because<br />every Designate zone-share operation, including list, is scoped to a specific zone (see<br />DNSZoneShareResourceSpec.zoneRef's doc comment for the same constraint on the managed path). |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID of the existing resource. If not specified, matches any target project -<br />which is only unambiguous if the referenced zone has exactly one share. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneShareImport
+
+
+
+DNSZoneShareImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [DNSZoneShareSpec](#dnszonesharespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[DNSZoneShareFilter](#dnszonesharefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneShareResourceSpec
+
+
+
+DNSZoneShareResourceSpec contains the desired state of the resource.
+
+Designate has two separate mechanisms for giving another project access to a zone: zone
+*transfer* (transfer_requests/transfer_accepts), which moves full ownership and needs both the
+owner's and the recipient's credentials in one flow; and zone *share*, modeled here, which
+grants another project co-management rights over a zone's recordsets while the original
+project keeps ownership - a single-credential operation, only the owner's. See
+RBACPolicy's own doc comment for the same shape applied to Neutron network sharing; this is
+the Designate equivalent. Confirmed live against a real OpenStack deployment (a create/list/
+delete round-trip) that this API exists and works as gophercloud's bindings describe, not just
+assumed from reading the client library.
+
+
+
+_Appears in:_
+- [DNSZoneShareSpec](#dnszonesharespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `zoneRef` _[KubernetesNameRef](#kubernetesnameref)_ | zoneRef is a reference to the ORC DNSZone this share grants access to. Immutable -<br />Designate's zone-share API has no update path for which zone a share applies to, only<br />create and delete. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID is the OpenStack project ID to grant access to. A raw OpenStack ID, not a<br />KubernetesNameRef to an ORC Project object - Project creation itself may not be usable on<br />every cloud (some providers gate identity/project provisioning behind their own control<br />plane, outside Keystone, so no corresponding ORC Project object may ever exist to<br />reference). Immutable - Designate's zone-share API has no update operation at all; changing<br />the target means deleting this share and creating a new one. |  | MaxLength: 64 <br />MinLength: 1 <br />Required: \{\} <br /> |
+
+
+#### DNSZoneShareResourceStatus
+
+
+
+DNSZoneShareResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [DNSZoneShareStatus](#dnszonesharestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `zoneID` _string_ | zoneID is the ID of the DNSZone this share applies to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `targetProjectID` _string_ | targetProjectID is the OpenStack project ID this share grants access to. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the project that owns the shared zone (and therefore this share) -<br />not to be confused with targetProjectID, the project being granted access. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneShareSpec
+
+
+
+DNSZoneShareSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [DNSZoneShare](#dnszoneshare)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[DNSZoneShareImport](#dnszoneshareimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[DNSZoneShareResourceSpec](#dnszoneshareresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### DNSZoneShareStatus
+
+
+
+DNSZoneShareStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [DNSZoneShare](#dnszoneshare)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[DNSZoneShareResourceStatus](#dnszoneshareresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
 #### DNSZoneSpec
@@ -2398,6 +2542,8 @@ _Appears in:_
 - [ApplicationCredentialAccessRule](#applicationcredentialaccessrule)
 - [ApplicationCredentialFilter](#applicationcredentialfilter)
 - [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
+- [DNSZoneShareFilter](#dnszonesharefilter)
+- [DNSZoneShareResourceSpec](#dnszoneshareresourcespec)
 - [EndpointFilter](#endpointfilter)
 - [EndpointResourceSpec](#endpointresourcespec)
 - [ExternalGateway](#externalgateway)
@@ -2629,6 +2775,7 @@ _Appears in:_
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
 - [ApplicationCredentialSpec](#applicationcredentialspec)
+- [DNSZoneShareSpec](#dnszonesharespec)
 - [DNSZoneSpec](#dnszonespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
@@ -2674,6 +2821,7 @@ _Validation:_
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
 - [ApplicationCredentialSpec](#applicationcredentialspec)
+- [DNSZoneShareSpec](#dnszonesharespec)
 - [DNSZoneSpec](#dnszonespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)

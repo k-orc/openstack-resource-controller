@@ -5,12 +5,12 @@ metadata:
   name: dnszoneshare-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: dnszoneshare-create-full.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
@@ -18,12 +18,9 @@ metadata:
   name: dnszoneshare-create-full
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: dnszoneshare-create-full-override
-    description: DNSZoneShare from "create full" test
-    dNSZoneRef: dnszoneshare-create-full
-    # TODO(scaffolding): Add all fields the resource supports
+    zoneRef: dnszoneshare-create-full
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000022"

@@ -39,6 +39,7 @@ type MockScopeFactory struct {
 	ComputeClient               *mock.MockComputeClient
 	DomainClient                *mock.MockDomainClient
 	DNSZoneClient               *mock.MockDNSZoneClient
+	DNSZoneShareClient          *mock.MockDNSZoneShareClient
 	EndpointClient              *mock.MockEndpointClient
 	GroupClient                 *mock.MockGroupClient
 	IdentityClient              *mock.MockIdentityClient
@@ -67,6 +68,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	endpointClient := mock.NewMockEndpointClient(mockCtrl)
 	groupClient := mock.NewMockGroupClient(mockCtrl)
 	dnsZoneClient := mock.NewMockDNSZoneClient(mockCtrl)
+	dnsZoneShareClient := mock.NewMockDNSZoneShareClient(mockCtrl)
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
@@ -90,6 +92,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		EndpointClient:              endpointClient,
 		GroupClient:                 groupClient,
 		DNSZoneClient:               dnsZoneClient,
+		DNSZoneShareClient:          dnsZoneShareClient,
 		IdentityClient:              identityClient,
 		ImageClient:                 imageClient,
 		KeyPairClient:               keypairClient,
@@ -168,6 +171,10 @@ func (f *MockScopeFactory) NewKeyPairClient() (osclients.KeyPairClient, error) {
 
 func (f *MockScopeFactory) NewDNSZoneClient() (osclients.DNSZoneClient, error) {
 	return f.DNSZoneClient, nil
+}
+
+func (f *MockScopeFactory) NewDNSZoneShareClient() (osclients.DNSZoneShareClient, error) {
+	return f.DNSZoneShareClient, nil
 }
 
 func (f *MockScopeFactory) NewGroupClient() (osclients.GroupClient, error) {

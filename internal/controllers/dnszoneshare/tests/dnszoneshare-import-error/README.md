@@ -2,11 +2,13 @@
 
 ## Step 00
 
-Create two DNSZoneShares with identical specs.
+Create two DNSZoneShares sharing the same targetProjectID (DNSZoneShareFilter only matches on
+that field, not the zone), each on a different zone since Designate rejects an exact duplicate
+share on the same zone.
 
 ## Step 01
 
-Ensure that an imported DNSZoneShare with a filter matching the resources returns an error.
+Ensure that an imported DNSZoneShare with a filter matching both resources returns an error.
 
 ## Reference
 

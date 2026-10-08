@@ -225,6 +225,13 @@ var resources []templateFields = []templateFields{
 		Name: "DNSZone",
 	},
 	{
+		// DNSZoneShare has no name/description in Designate's API (gophercloud's ZoneShare
+		// struct has neither) - same reasoning as RBACPolicy.
+		Name:             "DNSZoneShare",
+		IsNotNamed:       true,
+		ExistingOSClient: true,
+	},
+	{
 		Name:       "RegisteredLimit",
 		IsNotNamed: true,
 	},
