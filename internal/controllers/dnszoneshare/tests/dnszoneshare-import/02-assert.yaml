@@ -1,0 +1,33 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZoneShare
+      name: dnszoneshare-import-external
+      ref: dnszoneshare1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: DNSZoneShare
+      name: dnszoneshare-import-external-not-this-one
+      ref: dnszoneshare2
+assertAll:
+    - celExpr: "dnszoneshare1.status.id != dnszoneshare2.status.id"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-import
+status:
+  conditions:
+    - type: Available
+      message: OpenStack resource is available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      message: OpenStack resource is up to date
+      status: "False"
+      reason: Success
+  resource:
+    name: dnszoneshare-import-external
+    description: DNSZoneShare dnszoneshare-import-external from "dnszoneshare-import" test
+    # TODO(scaffolding): Add all fields the resource supports
