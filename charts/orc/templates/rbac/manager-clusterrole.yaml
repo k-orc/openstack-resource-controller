@@ -35,6 +35,7 @@ rules:
   - networks
   - ports
   - projects
+  - recordsets
   - regions
   - registeredlimits
   - roleassignments
@@ -77,6 +78,7 @@ rules:
   - networks/status
   - ports/status
   - projects/status
+  - recordsets/status
   - regions/status
   - registeredlimits/status
   - roleassignments/status
