@@ -26,7 +26,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
-	generic "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
@@ -36,9 +36,9 @@ import (
 type (
 	osResourceT = servergroups.ServerGroup
 
-	createResourceActuator = generic.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
-	deleteResourceActuator = generic.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
-	helperFactory          = generic.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
+	createResourceActuator = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
+	deleteResourceActuator = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
+	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
 type servergroupClient interface {
@@ -141,7 +141,7 @@ type servergroupHelperFactory struct{}
 
 var _ helperFactory = servergroupHelperFactory{}
 
-func newActuator(ctx context.Context, orcObject *orcv1alpha1.ServerGroup, controller generic.ResourceController) (servergroupActuator, progress.ReconcileStatus) {
+func newActuator(ctx context.Context, orcObject *orcv1alpha1.ServerGroup, controller interfaces.ResourceController) (servergroupActuator, progress.ReconcileStatus) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Ensure credential secrets exist and have our finalizer
@@ -168,10 +168,10 @@ func (servergroupHelperFactory) NewAPIObjectAdapter(obj orcObjectPT) adapterI {
 	return servergroupAdapter{obj}
 }
 
-func (servergroupHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
+func (servergroupHelperFactory) NewCreateActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (createResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }
 
-func (servergroupHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller generic.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
+func (servergroupHelperFactory) NewDeleteActuator(ctx context.Context, orcObject orcObjectPT, controller interfaces.ResourceController) (deleteResourceActuator, progress.ReconcileStatus) {
 	return newActuator(ctx, orcObject, controller)
 }
