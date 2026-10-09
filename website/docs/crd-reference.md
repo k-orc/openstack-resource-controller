@@ -12,6 +12,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 ### Resource Types
 - [AddressScope](#addressscope)
 - [ApplicationCredential](#applicationcredential)
+- [DNSZone](#dnszone)
 - [Domain](#domain)
 - [Endpoint](#endpoint)
 - [Flavor](#flavor)
@@ -512,6 +513,7 @@ CloudCredentialsReference is a reference to a secret containing OpenStack creden
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
 - [ApplicationCredentialSpec](#applicationcredentialspec)
+- [DNSZoneSpec](#dnszonespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -558,6 +560,189 @@ _Validation:_
 
 _Appears in:_
 - [NetworkResourceSpec](#networkresourcespec)
+
+
+
+#### DNSZone
+
+
+
+DNSZone is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `DNSZone` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[DNSZoneSpec](#dnszonespec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[DNSZoneStatus](#dnszonestatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### DNSZoneFilter
+
+
+
+DNSZoneFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [DNSZoneImport](#dnszoneimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `email` _string_ | email of the existing resource |  | Format: email <br />MaxLength: 255 <br />Optional: \{\} <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type of the existing resource |  | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneImport
+
+
+
+DNSZoneImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [DNSZoneSpec](#dnszonespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[DNSZoneFilter](#dnszonefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneResourceSpec
+
+
+
+DNSZoneResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [DNSZoneSpec](#dnszonespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones. |  | Format: email <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from<br />masters over AXFR). | PRIMARY | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
+| `masters` _[IPvAny](#ipvany) array_ | masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR.<br />Required when type is SECONDARY, must not be set when type is PRIMARY. Typed as IPvAny<br />(not a plain string) so malformed entries are rejected at admission rather than accepted<br />and only failing later against the real Designate API. |  | MaxItems: 32 <br />MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneResourceStatus
+
+
+
+DNSZoneResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [DNSZoneStatus](#dnszonestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is the name of the zone, e.g. "example.com.". |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `email` _string_ | email is the email contact of the zone. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Optional: \{\} <br /> |
+| `type` _string_ | type is PRIMARY or SECONDARY. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `masters` _string array_ | masters are the master server IPs this SECONDARY zone transfers its records from. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `serial` _integer_ | serial is the zone's current SOA serial number. |  | Optional: \{\} <br /> |
+| `transferredAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | transferredAt is the last time this SECONDARY zone's records were refreshed from its<br />masters. Unset for PRIMARY zones. |  | Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the OpenStack project that owns this zone. Not to be confused with<br />a DNSZoneShare's targetProjectID, which grants a *different* project access without<br />changing ownership. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+
+
+#### DNSZoneSpec
+
+
+
+DNSZoneSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [DNSZone](#dnszone)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[DNSZoneImport](#dnszoneimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[DNSZoneResourceSpec](#dnszoneresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### DNSZoneStatus
+
+
+
+DNSZoneStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [DNSZone](#dnszone)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[DNSZoneResourceStatus](#dnszoneresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### DNSZoneType
+
+_Underlying type:_ _string_
+
+DNSZoneType is the type of a DNS zone - whether this ORC object owns the zone's data
+(PRIMARY) or replicates it from external master servers over AXFR (SECONDARY). This is
+Designate's own DNS-protocol zone transfer concept, unrelated to project ownership - see
+DNSZoneShare for sharing access to a zone with another OpenStack project.
+
+_Validation:_
+- Enum: [PRIMARY SECONDARY]
+
+_Appears in:_
+- [DNSZoneFilter](#dnszonefilter)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `PRIMARY` |  |
+| `SECONDARY` |  |
+
+
+#### DesignateFQDN
+
+_Underlying type:_ _string_
+
+DesignateFQDN is a fully-qualified domain name in Designate's own convention: it must end
+with a trailing period, e.g. "example.com.".
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [DNSZoneFilter](#dnszonefilter)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
 
 
 
@@ -1593,6 +1778,7 @@ _Appears in:_
 - [Address](#address)
 - [AllocationPool](#allocationpool)
 - [AllowedAddressPair](#allowedaddresspair)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
@@ -2443,6 +2629,7 @@ _Appears in:_
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
 - [ApplicationCredentialSpec](#applicationcredentialspec)
+- [DNSZoneSpec](#dnszonespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
@@ -2487,6 +2674,7 @@ _Validation:_
 _Appears in:_
 - [AddressScopeSpec](#addressscopespec)
 - [ApplicationCredentialSpec](#applicationcredentialspec)
+- [DNSZoneSpec](#dnszonespec)
 - [DomainSpec](#domainspec)
 - [EndpointSpec](#endpointspec)
 - [FlavorSpec](#flavorspec)
