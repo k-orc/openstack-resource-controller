@@ -36,6 +36,10 @@ func (c *FakeOpenstackV1alpha1) ApplicationCredentials(namespace string) v1alpha
 	return newFakeApplicationCredentials(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) DNSZones(namespace string) v1alpha1.DNSZoneInterface {
+	return newFakeDNSZones(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) Domains(namespace string) v1alpha1.DomainInterface {
 	return newFakeDomains(c, namespace)
 }
@@ -78,6 +82,10 @@ func (c *FakeOpenstackV1alpha1) Ports(namespace string) v1alpha1.PortInterface {
 
 func (c *FakeOpenstackV1alpha1) Projects(namespace string) v1alpha1.ProjectInterface {
 	return newFakeProjects(c, namespace)
+}
+
+func (c *FakeOpenstackV1alpha1) RecordSets(namespace string) v1alpha1.RecordSetInterface {
+	return newFakeRecordSets(c, namespace)
 }
 
 func (c *FakeOpenstackV1alpha1) Regions(namespace string) v1alpha1.RegionInterface {

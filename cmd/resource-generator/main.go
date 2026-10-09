@@ -222,6 +222,12 @@ var resources []templateFields = []templateFields{
 		IsNotNamed:   true,
 	},
 	{
+		Name: "DNSZone",
+	},
+	{
+		Name: "RecordSet",
+	},
+	{
 		Name:       "RegisteredLimit",
 		IsNotNamed: true,
 	},
