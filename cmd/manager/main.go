@@ -29,6 +29,8 @@ import (
 
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/addressscope"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/applicationcredential"
+	dnszonecontroller "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/dnszone"
+	dnszonesharecontroller "github.com/k-orc/openstack-resource-controller/v3/internal/controllers/dnszoneshare"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/domain"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/endpoint"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/flavor"
@@ -126,6 +128,8 @@ func main() {
 		image.New(scopeFactory),
 		network.New(scopeFactory),
 		subnet.New(scopeFactory),
+		dnszonecontroller.New(scopeFactory),
+		dnszonesharecontroller.New(scopeFactory),
 		router.New(scopeFactory),
 		routerinterface.New(scopeFactory),
 		port.New(scopeFactory),

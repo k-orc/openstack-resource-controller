@@ -19,6 +19,8 @@ rules:
   resources:
   - addressscopes
   - applicationcredentials
+  - dnszones
+  - dnszoneshares
   - domains
   - endpoints
   - flavors
@@ -55,6 +57,8 @@ rules:
   resources:
   - addressscopes/status
   - applicationcredentials/status
+  - dnszones/status
+  - dnszoneshares/status
   - domains/status
   - endpoints/status
   - flavors/status

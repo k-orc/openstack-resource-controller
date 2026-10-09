@@ -16,6 +16,8 @@ rules:
   resources:
   - addressscopes
   - applicationcredentials
+  - dnszones
+  - dnszoneshares
   - domains
   - endpoints
   - flavors
