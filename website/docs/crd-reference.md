@@ -635,7 +635,7 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[DesignateFQDN](#designatefqdn)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. Kept as a pointer despite +required so the generated getResourceName<br />helper, shared with resources where name genuinely falls back to the ORC object's own<br />name, still compiles - that fallback branch is unreachable here since the API server<br />always populates this field. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones. |  | Format: email <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |

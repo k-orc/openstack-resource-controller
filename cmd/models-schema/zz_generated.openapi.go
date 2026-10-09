@@ -1890,7 +1890,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the name of the zone, e.g. \"example.com.\". Must end with a period, per Designate's own convention. Kept as a pointer despite +required so the generated getResourceName helper, shared with resources where name genuinely falls back to the ORC object's own name, still compiles - that fallback branch is unreachable here since the API server always populates this field.",
+							Description: "name is the name of the zone, e.g. \"example.com.\". Must end with a period, per Designate's own convention.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

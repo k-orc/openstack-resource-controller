@@ -193,10 +193,7 @@ spec:
                   name:
                     description: |-
                       name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's
-                      own convention. Kept as a pointer despite +required so the generated getResourceName
-                      helper, shared with resources where name genuinely falls back to the ORC object's own
-                      name, still compiles - that fallback branch is unreachable here since the API server
-                      always populates this field.
+                      own convention.
                     maxLength: 255
                     minLength: 1
                     type: string

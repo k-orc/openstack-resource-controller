@@ -96,12 +96,6 @@ linters:
       - linters:
           - kubeapilinter
         path-except: ^api/*
-      # DNSZone.spec.resource.name stays a pointer despite +required - see the field's doc
-      # comment for why (the shared getResourceName scaffolding helper needs it to compile).
-      - linters:
-          - kubeapilinter
-        path: api/v1alpha1/dnszone_types\.go
-        text: requiredfields
     paths:
       - third_party$
       - builtin$

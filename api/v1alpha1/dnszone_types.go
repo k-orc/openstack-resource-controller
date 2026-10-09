@@ -40,13 +40,10 @@ const (
 // +kubebuilder:validation:XValidation:rule="self.type == 'SECONDARY' ? !has(self.ttl) : true",message="ttl must not be set for SECONDARY zones"
 type DNSZoneResourceSpec struct {
 	// name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's
-	// own convention. Kept as a pointer despite +required so the generated getResourceName
-	// helper, shared with resources where name genuinely falls back to the ORC object's own
-	// name, still compiles - that fallback branch is unreachable here since the API server
-	// always populates this field.
+	// own convention.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
 	// +required
-	Name *DesignateFQDN `json:"name,omitempty"`
+	Name *DesignateFQDN `json:"name,omitempty"` //nolint:kubeapilinter // always populated; pointer kept so the shared getResourceName helper compiles
 
 	// email is the email address of the administrator for the zone. Required for PRIMARY zones,
 	// not applicable to SECONDARY zones.

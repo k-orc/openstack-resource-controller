@@ -2,14 +2,14 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone
 metadata:
-  name: dnszone-create-full
+  name: dnszone-create-full-secondary
 spec:
   cloudCredentialsRef:
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: dnszone-create-full.example.com.
+    name: dnszone-create-full-secondary.example.com.
     description: DNSZone from "create full" test
     type: SECONDARY
     masters:
