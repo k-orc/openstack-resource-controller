@@ -2183,6 +2183,24 @@ _Appears in:_
 
 
 
+#### KeystoneSystem
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- Enum: [all]
+
+_Appears in:_
+- [RoleAssignmentFilter](#roleassignmentfilter)
+- [RoleAssignmentResourceSpec](#roleassignmentresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `all` |  |
+
+
 #### KeystoneTag
 
 _Underlying type:_ _string_
@@ -3674,6 +3692,7 @@ _Appears in:_
 | `groupRef` _[KubernetesNameRef](#kubernetesnameref)_ | groupRef filters by the referenced Group. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef filters by the referenced Project scope. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef filters by the referenced Domain scope. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `system` _[KeystoneSystem](#keystonesystem)_ | system filters by the referenced System scope. |  | Enum: [all] <br />Optional: \{\} <br /> |
 
 
 #### RoleAssignmentImport
@@ -3713,8 +3732,9 @@ _Appears in:_
 | `roleRef` _[KubernetesNameRef](#kubernetesnameref)_ | roleRef references the Role being assigned. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `userRef` _[KubernetesNameRef](#kubernetesnameref)_ | userRef references the User receiving the role assignment.<br />Exactly one of userRef or groupRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `groupRef` _[KubernetesNameRef](#kubernetesnameref)_ | groupRef references the Group receiving the role assignment.<br />Exactly one of userRef or groupRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef references the Project scope for the assignment.<br />Exactly one of projectRef or domainRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
-| `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef references the Domain scope for the assignment.<br />Exactly one of projectRef or domainRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef references the Project scope for the assignment.<br />Exactly one of projectRef, domainRef, or system must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef references the Domain scope for the assignment.<br />Exactly one of projectRef, domainRef, or system must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `system` _[KeystoneSystem](#keystonesystem)_ | system references the System scope for this assignment.<br />Exactly one of projectRef, domainRef, or system must be specified. |  | Enum: [all] <br />Optional: \{\} <br /> |
 
 
 #### RoleAssignmentResourceStatus
@@ -3723,7 +3743,7 @@ _Appears in:_
 
 RoleAssignmentResourceStatus represents the observed state of the role assignment.
 Note: Role assignments do not have a unique ID in OpenStack - they are identified
-by the combination of role, actor (user/group), and scope (project/domain).
+by the combination of role, actor (user/group), and scope (project/domain/system).
 
 
 
@@ -3737,6 +3757,7 @@ _Appears in:_
 | `groupID` _string_ | groupID is the OpenStack ID of the group (if actorType is Group). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the OpenStack ID of the project scope (if scopeType is Project). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `domainID` _string_ | domainID is the OpenStack ID of the domain scope (if scopeType is Domain). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `system` _string_ | system identifies the system scope which is currently only "all" (if scopeType is System). |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### RoleAssignmentSpec

@@ -3,7 +3,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
 metadata:
-  name: roleassignment-up-test-role
+  name: roleassignment-us-test-role
 status:
   conditions:
   - type: Available
@@ -17,21 +17,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: User
 metadata:
-  name: roleassignment-up-test-user
-status:
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
----
-# Assert Project is available
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: roleassignment-up-test-project
+  name: roleassignment-us-test-user
 status:
   conditions:
   - type: Available
@@ -45,7 +31,7 @@ status:
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RoleAssignment
 metadata:
-  name: roleassignment-create-user-project
+  name: roleassignment-create-user-system
 status:
   conditions:
   - type: Available
@@ -61,7 +47,7 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: RoleAssignment
-      name: roleassignment-create-user-project
+      name: roleassignment-create-user-system
       ref: roleassignment
 assertAll:
     # Verify status.id is NOT set (role assignments use component-based identification)
@@ -69,8 +55,8 @@ assertAll:
     # Verify all component IDs are populated in status.resource
     - celExpr: "roleassignment.status.resource.roleID != ''"
     - celExpr: "roleassignment.status.resource.userID != ''"
-    - celExpr: "roleassignment.status.resource.projectID != ''"
-    # Verify system, group and domain are not set (since we used user and project)
+    - celExpr: "roleassignment.status.resource.system == 'all'"
+    # Verify project, group and domain are not set (since we used user and system)
     - celExpr: "!has(roleassignment.status.resource.groupID) || roleassignment.status.resource.groupID == ''"
     - celExpr: "!has(roleassignment.status.resource.domainID) || roleassignment.status.resource.domainID == ''"
-    - celExpr: "!has(roleassignment.status.resource.system) || roleassignment.status.resource.system == ''"
+    - celExpr: "!has(roleassignment.status.resource.projectID) || roleassignment.status.resource.projectID == ''"

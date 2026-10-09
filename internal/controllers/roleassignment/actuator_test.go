@@ -218,6 +218,12 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 		Scope: roles.Scope{Domain: roles.Domain{ID: "domain-id-2"}},
 	}
 
+	userSystemAssignment := roles.RoleAssignment{
+		Role:  roles.AssignedRole{ID: "role-id-1"},
+		User:  roles.User{ID: "user-id-1"},
+		Scope: roles.Scope{System: &roles.System{All: true}},
+	}
+
 	for _, tc := range [...]struct {
 		name       string
 		orcObject  *orcv1alpha1.RoleAssignment
@@ -274,6 +280,26 @@ func TestListOSResourcesForAdoption(t *testing.T) {
 				availableDomain("domain-id-2"),
 			},
 			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{groupDomainAssignment}},
+			wantAdopt: true,
+			checks:    checks(noError, findsN(1)),
+		},
+		{
+			name: "user+system scope, match found",
+			orcObject: &orcv1alpha1.RoleAssignment{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-ra", Namespace: testNamespace},
+				Spec: orcv1alpha1.RoleAssignmentSpec{
+					Resource: &orcv1alpha1.RoleAssignmentResourceSpec{
+						RoleRef: "test-role",
+						UserRef: ptr.To[orcv1alpha1.KubernetesNameRef]("test-user"),
+						System:  ptr.To[orcv1alpha1.KeystoneSystem](orcv1alpha1.KeystoneSystemAll),
+					},
+				},
+			},
+			k8sObjects: []client.Object{
+				availableRole("role-id-1"),
+				availableUser("user-id-1"),
+			},
+			osClient:  mockRoleAssignmentClient{assignments: []roles.RoleAssignment{userSystemAssignment}},
 			wantAdopt: true,
 			checks:    checks(noError, findsN(1)),
 		},

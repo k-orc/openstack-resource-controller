@@ -52,7 +52,8 @@ func (roleassignmentStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1
 			orcObject.Status.Resource.UserID != "" ||
 			orcObject.Status.Resource.GroupID != "" ||
 			orcObject.Status.Resource.ProjectID != "" ||
-			orcObject.Status.Resource.DomainID != "") {
+			orcObject.Status.Resource.DomainID != "" ||
+			orcObject.Status.Resource.System != "") {
 		return metav1.ConditionUnknown, nil
 	}
 
@@ -77,6 +78,9 @@ func (roleassignmentStatusWriter) ApplyResourceStatus(_ logr.Logger, osResource 
 	}
 	if osResource.Scope.Domain.ID != "" {
 		resourceStatus.WithDomainID(osResource.Scope.Domain.ID)
+	}
+	if osResource.Scope.System != nil && osResource.Scope.System.All {
+		resourceStatus.WithSystem(string(orcv1alpha1.KeystoneSystemAll))
 	}
 
 	statusApply.WithResource(resourceStatus)

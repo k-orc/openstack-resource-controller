@@ -3,7 +3,7 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Role
 metadata:
-  name: roleassignment-up-test-role
+  name: roleassignment-gs-test-role
 status:
   conditions:
   - type: Available
@@ -13,11 +13,11 @@ status:
     status: "False"
     reason: Success
 ---
-# Assert User is available
+# Assert Group is available
 apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: User
+kind: Group
 metadata:
-  name: roleassignment-up-test-user
+  name: roleassignment-gs-test-group
 status:
   conditions:
   - type: Available
@@ -26,26 +26,11 @@ status:
   - type: Progressing
     status: "False"
     reason: Success
----
-# Assert Project is available
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Project
-metadata:
-  name: roleassignment-up-test-project
-status:
-  conditions:
-  - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
-    status: "False"
-    reason: Success
----
 # Assert RoleAssignment is available
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RoleAssignment
 metadata:
-  name: roleassignment-create-user-project
+  name: roleassignment-create-group-system
 status:
   conditions:
   - type: Available
@@ -61,16 +46,16 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: RoleAssignment
-      name: roleassignment-create-user-project
+      name: roleassignment-create-group-system
       ref: roleassignment
 assertAll:
     # Verify status.id is NOT set (role assignments use component-based identification)
     - celExpr: "!has(roleassignment.status.id) || roleassignment.status.id == ''"
     # Verify all component IDs are populated in status.resource
     - celExpr: "roleassignment.status.resource.roleID != ''"
-    - celExpr: "roleassignment.status.resource.userID != ''"
-    - celExpr: "roleassignment.status.resource.projectID != ''"
-    # Verify system, group and domain are not set (since we used user and project)
-    - celExpr: "!has(roleassignment.status.resource.groupID) || roleassignment.status.resource.groupID == ''"
+    - celExpr: "roleassignment.status.resource.groupID != ''"
+    - celExpr: "roleassignment.status.resource.system == 'all'"
+    # Verify project, user and domain are not set (since we used group and system)
+    - celExpr: "!has(roleassignment.status.resource.userID) || roleassignment.status.resource.userID == ''"
     - celExpr: "!has(roleassignment.status.resource.domainID) || roleassignment.status.resource.domainID == ''"
-    - celExpr: "!has(roleassignment.status.resource.system) || roleassignment.status.resource.system == ''"
+    - celExpr: "!has(roleassignment.status.resource.projectID) || roleassignment.status.resource.projectID == ''"

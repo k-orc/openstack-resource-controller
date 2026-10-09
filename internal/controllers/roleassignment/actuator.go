@@ -42,7 +42,7 @@ type roleassignmentActuator struct {
 // buildListOpts constructs a ListAssignmentsOpts from component IDs.
 // Only non-empty fields are set, so this works for both exact queries
 // (all fields populated) and partial filter queries.
-func buildListOpts(roleID, userID, groupID, projectID, domainID string) roles.ListAssignmentsOpts {
+func buildListOpts(roleID, userID, groupID, projectID, domainID, system string) roles.ListAssignmentsOpts {
 	// Note: Don't set Effective parameter - it can cause issues with group assignments
 	listOpts := roles.ListAssignmentsOpts{}
 
@@ -61,13 +61,16 @@ func buildListOpts(roleID, userID, groupID, projectID, domainID string) roles.Li
 	if domainID != "" {
 		listOpts.ScopeDomainID = domainID
 	}
+	if system != "" {
+		listOpts.ScopeSystem = system
+	}
 
 	return listOpts
 }
 
 // GetResourceByComponents queries for the role assignment by its tuple (role, actor, scope).
 // OpenStack doesn't assign IDs to role assignments - they're identified by this tuple.
-// Exactly one of userID/groupID must be set, and exactly one of projectID/domainID must be set.
+// Exactly one of userID/groupID must be set, and exactly one of projectID/domainID/system must be set.
 func (actuator roleassignmentActuator) GetResourceByComponents(
 	ctx context.Context,
 	roleID string,
@@ -75,8 +78,9 @@ func (actuator roleassignmentActuator) GetResourceByComponents(
 	groupID string,
 	projectID string,
 	domainID string,
+	system string,
 ) (*osResourceT, progress.ReconcileStatus) {
-	listOpts := buildListOpts(roleID, userID, groupID, projectID, domainID)
+	listOpts := buildListOpts(roleID, userID, groupID, projectID, domainID, system)
 
 	// Query with exact filters - should return exactly one result
 	osResource, err := atMostOne(actuator.osClient.ListRoleAssignments(ctx, listOpts),
@@ -95,7 +99,7 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 	}
 
 	// Fetch all dependencies to build the exact filter
-	var roleID, userID, groupID, projectID, domainID string
+	var roleID, userID, groupID, projectID, domainID, system string
 
 	// Role dependency (required)
 	role, rs := dependency.FetchDependency(
@@ -134,7 +138,7 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 		groupID = ptr.Deref(group.Status.ID, "")
 	}
 
-	// Scope dependency (project XOR domain)
+	// Scope dependency (project XOR domain XOR system)
 	if resourceSpec.ProjectRef != nil {
 		project, rs := dependency.FetchDependency(
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.ProjectRef, "Project",
@@ -146,7 +150,7 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 			return nil, false // Not ready
 		}
 		projectID = ptr.Deref(project.Status.ID, "")
-	} else {
+	} else if resourceSpec.DomainRef != nil {
 		domain, rs := dependency.FetchDependency(
 			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.DomainRef, "Domain",
 			func(dep *orcv1alpha1.Domain) bool {
@@ -157,16 +161,18 @@ func (actuator roleassignmentActuator) ListOSResourcesForAdoption(ctx context.Co
 			return nil, false // Not ready
 		}
 		domainID = ptr.Deref(domain.Status.ID, "")
+	} else if resourceSpec.System != nil {
+		system = string(ptr.Deref(resourceSpec.System, ""))
 	}
 
-	return actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID)), true
+	return actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID, system)), true
 }
 
 func (actuator roleassignmentActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
 	var reconcileStatus progress.ReconcileStatus
 
 	// Build ListAssignmentsOpts from filter references
-	var roleID, userID, groupID, projectID, domainID string
+	var roleID, userID, groupID, projectID, domainID, system string
 
 	if filter.RoleRef != nil {
 		role, rs := dependency.FetchDependency(
@@ -223,11 +229,15 @@ func (actuator roleassignmentActuator) ListOSResourcesForImport(ctx context.Cont
 		}
 	}
 
+	if filter.System != nil {
+		system = string(*filter.System)
+	}
+
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
 
-	return actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID)), nil
+	return actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID, system)), nil
 }
 
 func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -278,6 +288,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 
 	// Fetch scope dependency (project XOR domain)
 	var projectID, domainID string
+	var system orcv1alpha1.KeystoneSystem
 	if resource.ProjectRef != nil {
 		project, projectDepRS := projectDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Project) bool {
@@ -288,7 +299,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 		if project != nil {
 			projectID = ptr.Deref(project.Status.ID, "")
 		}
-	} else {
+	} else if resource.DomainRef != nil {
 		domain, domainDepRS := domainDependency.RequireDependency(
 			ctx, actuator.k8sClient, obj, func(dep *orcv1alpha1.Domain) bool {
 				return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
@@ -298,6 +309,8 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 		if domain != nil {
 			domainID = ptr.Deref(domain.Status.ID, "")
 		}
+	} else if resource.System != nil {
+		system = ptr.Deref(resource.System, "")
 	}
 
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
@@ -310,6 +323,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 		GroupID:   groupID,
 		ProjectID: projectID,
 		DomainID:  domainID,
+		System:    system == orcv1alpha1.KeystoneSystemAll,
 	}
 
 	// Assign the role (idempotent - returns 204 even if already exists)
@@ -322,7 +336,7 @@ func (actuator roleassignmentActuator) CreateResource(ctx context.Context, obj o
 	}
 
 	// Verify the assignment was created by listing with exact filters
-	osResource, verifyErr := atMostOne(actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID)),
+	osResource, verifyErr := atMostOne(actuator.osClient.ListRoleAssignments(ctx, buildListOpts(roleID, userID, groupID, projectID, domainID, string(system))),
 		orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError,
 			"found more than one matching role assignment after creation"))
 	if verifyErr != nil {
@@ -344,6 +358,7 @@ func (actuator roleassignmentActuator) DeleteResource(ctx context.Context, _ orc
 		GroupID:   osResource.Group.ID,
 		ProjectID: osResource.Scope.Project.ID,
 		DomainID:  osResource.Scope.Domain.ID,
+		System:    osResource.Scope.System != nil && osResource.Scope.System.All,
 	}
 
 	return progress.WrapError(actuator.osClient.UnassignRole(ctx, osResource.Role.ID, unassignOpts))

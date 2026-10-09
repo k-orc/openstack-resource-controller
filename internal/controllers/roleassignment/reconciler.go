@@ -87,7 +87,7 @@ func hasRoleAssignmentComponents(statusResource *orcv1alpha1.RoleAssignmentResou
 	return statusResource != nil &&
 		statusResource.RoleID != "" &&
 		(statusResource.UserID != "" || statusResource.GroupID != "") &&
-		(statusResource.ProjectID != "" || statusResource.DomainID != "")
+		(statusResource.ProjectID != "" || statusResource.DomainID != "" || statusResource.System != "")
 }
 
 // reconcileNormal handles the normal reconciliation flow:
@@ -147,6 +147,7 @@ func (r *roleassignmentReconciler) reconcileNormal(ctx context.Context, orcObjec
 				statusResource.GroupID,
 				statusResource.ProjectID,
 				statusResource.DomainID,
+				statusResource.System,
 			)
 			if needsReschedule, _ := getRS.NeedsReschedule(); needsReschedule {
 				return getRS.WithReconcileStatus(reconcileStatus)
@@ -345,7 +346,7 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 		statusResource := orcObject.Status.Resource
 		if statusResource.RoleID != "" &&
 			(statusResource.UserID != "" || statusResource.GroupID != "") &&
-			(statusResource.ProjectID != "" || statusResource.DomainID != "") {
+			(statusResource.ProjectID != "" || statusResource.DomainID != "" || statusResource.System != "") {
 
 			var getRS progress.ReconcileStatus
 			osResource, getRS = actuator.GetResourceByComponents(
@@ -355,6 +356,7 @@ func (r *roleassignmentReconciler) reconcileDelete(ctx context.Context, orcObjec
 				statusResource.GroupID,
 				statusResource.ProjectID,
 				statusResource.DomainID,
+				statusResource.System,
 			)
 			if needsReschedule, err := getRS.NeedsReschedule(); needsReschedule {
 				// NotFound is our success condition for delete
