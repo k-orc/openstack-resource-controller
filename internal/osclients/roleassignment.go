@@ -43,7 +43,7 @@ func NewRoleAssignmentClient(providerClient *gophercloud.ProviderClient, provide
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create role assignment service client: %v", err)
+		return nil, fmt.Errorf("failed to create role assignment service client: %w", err)
 	}
 
 	return &roleassignmentClient{client}, nil

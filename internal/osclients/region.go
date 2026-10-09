@@ -45,7 +45,7 @@ func NewRegionClient(providerClient *gophercloud.ProviderClient, providerClientO
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create region service client: %v", err)
+		return nil, fmt.Errorf("failed to create region service client: %w", err)
 	}
 
 	return &regionClient{client}, nil

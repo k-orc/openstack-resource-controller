@@ -20,8 +20,10 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -95,6 +97,12 @@ func getScopeCacheKey(cloud clientconfig.Cloud) (string, error) {
 type providerScope struct {
 	providerClient     *gophercloud.ProviderClient
 	providerClientOpts *clientconfig.ClientOpts
+
+	// Keep track of the cache entry, so we have the possibility
+	// to remove it before it expires automatically.
+	providerClientCache      *cache.LRUExpireCache
+	providerClientCacheKey   string
+	providerClientCacheMutex sync.Mutex
 }
 
 func NewProviderScope(cloud clientconfig.Cloud, caCert []byte, logger logr.Logger) (Scope, error) {
@@ -133,60 +141,123 @@ func NewCachedProviderScope(cache *cache.LRUExpireCache, cloud clientconfig.Clou
 	// compute the token expiration time
 	expiry := time.Until(token.ExpiresAt) / 2
 
+	ps := scope.(*providerScope)
+
+	// Prevent concurrent modification from different reconcile steps
+	ps.providerClientCacheMutex.Lock()
+	defer ps.providerClientCacheMutex.Unlock()
+
+	ps.providerClientCacheKey = key
+	ps.providerClientCache = cache
 	cache.Add(key, scope, expiry)
+
 	return scope, nil
 }
 
+func (s *providerScope) checkNewClientError(err error) {
+	if err == nil {
+		return
+	}
+
+	var notFound gophercloud.ErrEndpointNotFound
+	if !errors.As(err, &notFound) {
+		return
+	}
+
+	// Prevent concurrent modification from different reconcile steps
+	s.providerClientCacheMutex.Lock()
+	defer s.providerClientCacheMutex.Unlock()
+
+	if s.providerClientCache == nil {
+		return
+	}
+
+	cached, found := s.providerClientCache.Get(s.providerClientCacheKey)
+
+	if !found || cached != s {
+		return
+	}
+
+	s.providerClientCache.Remove(s.providerClientCacheKey)
+	s.providerClientCache = nil
+}
+
 func (s *providerScope) NewAddressScopeClient() (clients.AddressScopeClient, error) {
-	return clients.NewAddressScopeClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewAddressScopeClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewApplicationCredentialClient() (clients.ApplicationCredentialClient, error) {
-	return clients.NewApplicationCredentialClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewApplicationCredentialClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewComputeClient() (clients.ComputeClient, error) {
-	return clients.NewComputeClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewComputeClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewNetworkClient() (clients.NetworkClient, error) {
-	return clients.NewNetworkClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewNetworkClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewImageClient() (clients.ImageClient, error) {
-	return clients.NewImageClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewImageClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewIdentityClient() (clients.IdentityClient, error) {
-	return clients.NewIdentityClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewIdentityClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewUserClient() (clients.UserClient, error) {
-	return clients.NewUserClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewUserClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewVolumeClient() (clients.VolumeClient, error) {
-	return clients.NewVolumeClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewVolumeClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewVolumeTypeClient() (clients.VolumeTypeClient, error) {
-	return clients.NewVolumeTypeClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewVolumeTypeClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewDomainClient() (clients.DomainClient, error) {
-	return clients.NewDomainClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewDomainClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewServiceClient() (clients.ServiceClient, error) {
-	return clients.NewServiceClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewServiceClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewEndpointClient() (clients.EndpointClient, error) {
-	return clients.NewEndpointClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewEndpointClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewShareNetworkClient() (clients.ShareNetworkClient, error) {
-	return clients.NewShareNetworkClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewShareNetworkClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewSubnetPoolClient() (clients.SubnetPoolClient, error) {
@@ -194,27 +265,39 @@ func (s *providerScope) NewSubnetPoolClient() (clients.SubnetPoolClient, error) 
 }
 
 func (s *providerScope) NewKeyPairClient() (clients.KeyPairClient, error) {
-	return clients.NewKeyPairClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewKeyPairClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewGroupClient() (clients.GroupClient, error) {
-	return clients.NewGroupClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewGroupClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewRegionClient() (clients.RegionClient, error) {
-	return clients.NewRegionClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewRegionClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewRegisteredLimitClient() (clients.RegisteredLimitClient, error) {
-	return clients.NewRegisteredLimitClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewRegisteredLimitClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewRoleClient() (clients.RoleClient, error) {
-	return clients.NewRoleClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewRoleClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) NewRoleAssignmentClient() (clients.RoleAssignmentClient, error) {
-	return clients.NewRoleAssignmentClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewRoleAssignmentClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func (s *providerScope) ExtractToken() (*tokens.Token, error) {
@@ -232,7 +315,9 @@ func (s *providerScope) ExtractToken() (*tokens.Token, error) {
 }
 
 func (s *providerScope) NewLimitClient() (clients.LimitClient, error) {
-	return clients.NewLimitClient(s.providerClient, s.providerClientOpts)
+	client, err := clients.NewLimitClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
 }
 
 func NewProviderClient(cloud clientconfig.Cloud, caCert []byte, logger logr.Logger) (*gophercloud.ProviderClient, *clientconfig.ClientOpts, error) {

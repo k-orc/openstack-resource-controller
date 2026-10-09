@@ -86,7 +86,7 @@ func NewComputeClient(providerClient *gophercloud.ProviderClient, providerClient
 		Availability: clientconfig.GetEndpointType(providerClientOpts.EndpointType),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create compute service client: %v", err)
+		return nil, fmt.Errorf("failed to create compute service client: %w", err)
 	}
 	compute.Microversion = NovaMinimumMicroversion
 

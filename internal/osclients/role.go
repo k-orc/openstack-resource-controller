@@ -45,7 +45,7 @@ func NewRoleClient(providerClient *gophercloud.ProviderClient, providerClientOpt
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create role service client: %v", err)
+		return nil, fmt.Errorf("failed to create role service client: %w", err)
 	}
 
 	return &roleClient{client}, nil

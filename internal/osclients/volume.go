@@ -45,7 +45,7 @@ func NewVolumeClient(providerClient *gophercloud.ProviderClient, providerClientO
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create volume service client: %v", err)
+		return nil, fmt.Errorf("failed to create volume service client: %w", err)
 	}
 
 	return &volumeClient{client}, nil
