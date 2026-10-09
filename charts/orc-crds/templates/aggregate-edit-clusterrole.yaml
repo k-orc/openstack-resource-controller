@@ -28,6 +28,7 @@ rules:
   - networks
   - ports
   - projects
+  - recordsets
   - regions
   - registeredlimits
   - roles
