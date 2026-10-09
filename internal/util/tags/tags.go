@@ -77,11 +77,20 @@ func ReconcileTags[orcObjectPT, osResourceT any, T StringTag](
 
 type TagReplacer func(ctx context.Context, tags []string) error
 
+// NeutronTagsClient is satisfied by any OpenStack client capable of
+// replacing all tags on a Neutron resource. It is deliberately narrower
+// than osclients.NetworkClient so that resource-specific clients (e.g.
+// osclients.SubnetPoolClient) can be used directly as a TagReplacer source
+// without needing to implement the full NetworkClient interface.
+type NeutronTagsClient interface {
+	ReplaceAllAttributesTags(ctx context.Context, resourceType string, resourceID string, opts attributestags.ReplaceAllOptsBuilder) ([]string, error)
+}
+
 // NewNeutronTagReplacer returns a TagReplacer function for Neutron resources.
-func NewNeutronTagReplacer(networkClient osclients.NetworkClient, resourceType, resourceID string) TagReplacer {
+func NewNeutronTagReplacer(client NeutronTagsClient, resourceType, resourceID string) TagReplacer {
 	return func(ctx context.Context, tagsToSet []string) error {
 		opts := attributestags.ReplaceAllOpts{Tags: tagsToSet}
-		_, err := networkClient.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
+		_, err := client.ReplaceAllAttributesTags(ctx, resourceType, resourceID, &opts)
 		return err
 	}
 }

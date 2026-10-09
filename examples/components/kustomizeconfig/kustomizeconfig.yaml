@@ -10,6 +10,12 @@
 # See https://k-orc.cloud/development/api-design/.
 nameReference:
 - fieldSpecs:
+  - kind: SubnetPool
+    path: spec/import/filter/addressScopeRef
+  - kind: SubnetPool
+    path: spec/resource/addressScopeRef
+  kind: AddressScope
+- fieldSpecs:
   - kind: Group
     path: spec/import/filter/domainRef
   - kind: Group
@@ -124,6 +130,10 @@ nameReference:
     path: spec/import/filter/projectRef
   - kind: Subnet
     path: spec/resource/projectRef
+  - kind: SubnetPool
+    path: spec/import/filter/projectRef
+  - kind: SubnetPool
+    path: spec/resource/projectRef
   - kind: Trunk
     path: spec/import/filter/projectRef
   - kind: Trunk
@@ -211,6 +221,8 @@ nameReference:
   - kind: ShareNetwork
     path: spec/cloudCredentialsRef/secretName
   - kind: Subnet
+    path: spec/cloudCredentialsRef/secretName
+  - kind: SubnetPool
     path: spec/cloudCredentialsRef/secretName
   - kind: Trunk
     path: spec/cloudCredentialsRef/secretName

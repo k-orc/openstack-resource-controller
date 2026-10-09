@@ -178,6 +178,9 @@ var resources []templateFields = []templateFields{
 		ExistingOSClient: true,
 	},
 	{
+		Name: "SubnetPool",
+	},
+	{
 		Name:             "Trunk",
 		ExistingOSClient: true,
 	},

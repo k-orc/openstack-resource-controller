@@ -1,0 +1,12 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-update
+spec:
+  resource:
+    name: subnetpool-update-updated
+    description: subnetpool-update-updated
+    tags:
+    - tag1
+    - tag2

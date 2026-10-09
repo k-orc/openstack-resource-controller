@@ -1,0 +1,25 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: my-subnet-pool
+    description: Sample SubnetPool demonstrating all available fields
+    projectRef: sample-project
+    addressScopeRef: sample-address-scope
+    prefixes:
+      - 192.168.0.0/16
+    minPrefixLength: 24
+    maxPrefixLength: 28
+    defaultPrefixLength: 26
+    shared: false
+    isDefault: false
+    tags:
+      - environment:production
+      - team:networking

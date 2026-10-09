@@ -1,0 +1,32 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: SubnetPool from "import error" test
+    prefixes:
+      - 192.168.24.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: SubnetPool
+metadata:
+  name: subnetpool-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    description: SubnetPool from "import error" test
+    prefixes:
+      - 192.168.25.0/24
+    minPrefixLength: 16
+    maxPrefixLength: 28
