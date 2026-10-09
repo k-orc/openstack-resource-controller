@@ -1,0 +1,20 @@
+# kuttl's default apply for a numbered step only does a PATCH-style merge, which cannot
+# remove a field - see internal/controllers/router/tests/router-update/02-reverted-resource.yaml's
+# own comment for the same gotcha. Deleting the whole Router doesn't work either: confirmed live
+# (PR CI) that K-ORC's own cross-reference finalizer blocks the Neutron-level router delete from
+# even starting until the RouterInterface referencing it is gone first - but the interface can't
+# be removed while the route still exists (RouterInterfaceInUseByRoute). Clearing the route via a
+# full `kubectl replace` breaks that circular wait instead: once there's no route left, the
+# interface removal that follows in the implicit end-of-test cleanup has nothing blocking it.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-routes
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: router-routes
+    description: Router from "routes" test
