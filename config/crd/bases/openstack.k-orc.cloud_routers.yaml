@@ -286,6 +286,38 @@ spec:
                     x-kubernetes-validations:
                     - message: projectRef is immutable
                       rule: self == oldSelf
+                  routes:
+                    description: |-
+                      routes is a list of static routes hosted by this router, each pointing
+                      a destination CIDR at a next-hop IP reachable from one of the router's
+                      own interfaces. Neutron only accepts this on update, never at creation
+                      time, so expect it to apply on the reconcile after the router first
+                      becomes Available, not immediately.
+                    items:
+                      description: RouterRoute is a static route hosted by a router.
+                      properties:
+                        destination:
+                          description: destination is the destination CIDR of this
+                            route.
+                          format: cidr
+                          maxLength: 49
+                          minLength: 1
+                          type: string
+                        nextHop:
+                          description: |-
+                            nextHop is the IP address of the next hop for this route - typically the
+                            other end of a point-to-point link network the router has an interface
+                            on.
+                          maxLength: 45
+                          minLength: 1
+                          type: string
+                      required:
+                      - destination
+                      - nextHop
+                      type: object
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
                   tags:
                     description: tags is a list of tags which will be applied to the
                       router.
@@ -462,6 +494,34 @@ spec:
                     description: projectID is the project owner of the resource.
                     maxLength: 1024
                     type: string
+                  routes:
+                    description: routes reports the static routes currently hosted
+                      by this router.
+                    items:
+                      description: RouterRoute is a static route hosted by a router.
+                      properties:
+                        destination:
+                          description: destination is the destination CIDR of this
+                            route.
+                          format: cidr
+                          maxLength: 49
+                          minLength: 1
+                          type: string
+                        nextHop:
+                          description: |-
+                            nextHop is the IP address of the next hop for this route - typically the
+                            other end of a point-to-point link network the router has an interface
+                            on.
+                          maxLength: 45
+                          minLength: 1
+                          type: string
+                      required:
+                      - destination
+                      - nextHop
+                      type: object
+                    maxItems: 64
+                    type: array
+                    x-kubernetes-list-type: atomic
                   status:
                     description: status indicates the current status of the resource.
                     maxLength: 1024

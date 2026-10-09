@@ -29,6 +29,7 @@ type RouterResourceStatusApplyConfiguration struct {
 	AdminStateUp          *bool                                     `json:"adminStateUp,omitempty"`
 	ExternalGateways      []ExternalGatewayStatusApplyConfiguration `json:"externalGateways,omitempty"`
 	AvailabilityZoneHints []string                                  `json:"availabilityZoneHints,omitempty"`
+	Routes                []RouterRouteApplyConfiguration           `json:"routes,omitempty"`
 }
 
 // RouterResourceStatusApplyConfiguration constructs a declarative configuration of the RouterResourceStatus type for use with
@@ -106,6 +107,19 @@ func (b *RouterResourceStatusApplyConfiguration) WithExternalGateways(values ...
 func (b *RouterResourceStatusApplyConfiguration) WithAvailabilityZoneHints(values ...string) *RouterResourceStatusApplyConfiguration {
 	for i := range values {
 		b.AvailabilityZoneHints = append(b.AvailabilityZoneHints, values[i])
+	}
+	return b
+}
+
+// WithRoutes adds the given value to the Routes field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Routes field.
+func (b *RouterResourceStatusApplyConfiguration) WithRoutes(values ...*RouterRouteApplyConfiguration) *RouterResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithRoutes")
+		}
+		b.Routes = append(b.Routes, *values[i])
 	}
 	return b
 }

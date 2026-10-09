@@ -492,6 +492,7 @@ _Validation:_
 
 _Appears in:_
 - [HostRoute](#hostroute)
+- [RouterRoute](#routerroute)
 - [SecurityGroupRule](#securitygrouprule)
 - [ServerSchedulerHints](#serverschedulerhints)
 - [SubnetFilter](#subnetfilter)
@@ -1596,6 +1597,7 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
+- [RouterRoute](#routerroute)
 - [SubnetFilter](#subnetfilter)
 - [SubnetGateway](#subnetgateway)
 - [SubnetResourceSpec](#subnetresourcespec)
@@ -4034,6 +4036,7 @@ _Appears in:_
 | `distributed` _boolean_ | distributed indicates whether the router is distributed or not. It<br />is available when dvr extension is enabled. |  | Optional: \{\} <br /> |
 | `availabilityZoneHints` _[AvailabilityZoneHint](#availabilityzonehint) array_ | availabilityZoneHints is the availability zone candidate for the router. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project this resource is associated with.<br />Typically, only used by admin. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `routes` _[RouterRoute](#routerroute) array_ | routes is a list of static routes hosted by this router, each pointing<br />a destination CIDR at a next-hop IP reachable from one of the router's<br />own interfaces. Neutron only accepts this on update, never at creation<br />time, so expect it to apply on the reconcile after the router first<br />becomes Available, not immediately. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
 
 
 #### RouterResourceStatus
@@ -4057,6 +4060,25 @@ _Appears in:_
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the router,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
 | `externalGateways` _[ExternalGatewayStatus](#externalgatewaystatus) array_ | externalGateways is a list of external gateways for the router. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
 | `availabilityZoneHints` _string array_ | availabilityZoneHints is the availability zone candidate for the<br />router. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `routes` _[RouterRoute](#routerroute) array_ | routes reports the static routes currently hosted by this router. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
+
+
+#### RouterRoute
+
+
+
+RouterRoute is a static route hosted by a router.
+
+
+
+_Appears in:_
+- [RouterResourceSpec](#routerresourcespec)
+- [RouterResourceStatus](#routerresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `destination` _[CIDR](#cidr)_ | destination is the destination CIDR of this route. |  | Format: cidr <br />MaxLength: 49 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `nextHop` _[IPvAny](#ipvany)_ | nextHop is the IP address of the next hop for this route - typically the<br />other end of a point-to-point link network the router has an interface<br />on. |  | MaxLength: 45 <br />MinLength: 1 <br />Required: \{\} <br /> |
 
 
 #### RouterSpec
