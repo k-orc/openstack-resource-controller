@@ -140,4 +140,24 @@ var _ = Describe("ORC Router API validations", func() {
 			WithTags("foo", "bar", "foo"))
 		Expect(applyObj(ctx, router, patch)).NotTo(Succeed())
 	})
+
+	It("should accept a valid route", func(ctx context.Context) {
+		router := routerStub(namespace)
+		patch := baseRouterPatch(router)
+		patch.Spec.WithResource(applyconfigv1alpha1.RouterResourceSpec().
+			WithRoutes(applyconfigv1alpha1.RouterRoute().
+				WithDestination("203.0.113.0/24").
+				WithNextHop("192.0.2.10")))
+		Expect(applyObj(ctx, router, patch)).To(Succeed())
+	})
+
+	It("should reject a route with an invalid destination CIDR", func(ctx context.Context) {
+		router := routerStub(namespace)
+		patch := baseRouterPatch(router)
+		patch.Spec.WithResource(applyconfigv1alpha1.RouterResourceSpec().
+			WithRoutes(applyconfigv1alpha1.RouterRoute().
+				WithDestination("not-a-cidr").
+				WithNextHop("192.0.2.10")))
+		Expect(applyObj(ctx, router, patch)).NotTo(Succeed())
+	})
 })

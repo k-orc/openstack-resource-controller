@@ -356,6 +356,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.RouterResourceSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RouterResourceStatus"):
 		return &apiv1alpha1.RouterResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RouterRoute"):
+		return &apiv1alpha1.RouterRouteApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RouterSpec"):
 		return &apiv1alpha1.RouterSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RouterStatus"):

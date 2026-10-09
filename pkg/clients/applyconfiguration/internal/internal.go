@@ -2952,6 +2952,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectRef
       type:
         scalar: string
+    - name: routes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RouterRoute
+          elementRelationship: atomic
     - name: tags
       type:
         list:
@@ -2985,6 +2991,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: projectID
       type:
         scalar: string
+    - name: routes
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RouterRoute
+          elementRelationship: atomic
     - name: status
       type:
         scalar: string
@@ -2994,6 +3006,15 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RouterRoute
+  map:
+    fields:
+    - name: destination
+      type:
+        scalar: string
+    - name: nextHop
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RouterSpec
   map:
     fields:

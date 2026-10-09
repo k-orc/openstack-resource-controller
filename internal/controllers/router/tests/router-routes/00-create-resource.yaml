@@ -1,0 +1,59 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: router-routes-network
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: router-routes-network
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: router-routes-subnet
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: router-routes-subnet
+    networkRef: router-routes-network
+    cidr: 192.0.2.0/24
+    ipVersion: 4
+    gateway:
+      type: IP
+      ip: 192.0.2.1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Router
+metadata:
+  name: router-routes
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: router-routes
+    description: Router from "routes" test
+    # A router can only host a route whose next hop is reachable via one of its own
+    # interfaces - RouterInterface (below) attaches it to router-routes-subnet first, so
+    # 192.0.2.10 is reachable. Routes can't be set at creation time (Neutron rejects it), so
+    # this only takes effect on the reconcile after the router and interface both exist.
+    routes:
+      - destination: 203.0.113.0/24
+        nextHop: 192.0.2.10
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: router-routes-interface
+spec:
+  type: Subnet
+  routerRef: router-routes
+  subnetRef: router-routes-subnet

@@ -205,6 +205,7 @@ func (actuator routerActuator) updateResource(ctx context.Context, obj orcObject
 	handleNameUpdate(updateOpts, obj, osResource)
 	handleDescriptionUpdate(updateOpts, resource, osResource)
 	handleAdminStateUpUpdate(updateOpts, resource, osResource)
+	handleRoutesUpdate(updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -264,6 +265,36 @@ func handleAdminStateUpUpdate(updateOpts *routers.UpdateOpts, resource *resource
 	if osResource.AdminStateUp != AdminStateUp {
 		updateOpts.AdminStateUp = &AdminStateUp
 	}
+}
+
+func handleRoutesUpdate(updateOpts *routers.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	desired := make([]routers.Route, len(resource.Routes))
+	for i, route := range resource.Routes {
+		desired[i] = routers.Route{
+			DestinationCIDR: string(route.Destination),
+			NextHop:         string(route.NextHop),
+		}
+	}
+	if !routesEqual(desired, osResource.Routes) {
+		updateOpts.Routes = &desired
+	}
+}
+
+// routesEqual compares two route lists as sets - Neutron has no defined order for them.
+func routesEqual(a, b []routers.Route) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	seen := make(map[routers.Route]struct{}, len(a))
+	for _, route := range a {
+		seen[route] = struct{}{}
+	}
+	for _, route := range b {
+		if _, ok := seen[route]; !ok {
+			return false
+		}
+	}
+	return true
 }
 
 var _ reconcileResourceActuator = routerActuator{}

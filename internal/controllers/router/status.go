@@ -20,6 +20,7 @@ import (
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
@@ -69,6 +70,11 @@ func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 	if osResource.GatewayInfo.NetworkID != "" {
 		status.WithExternalGateways(orcapplyconfigv1alpha1.ExternalGatewayStatus().
 			WithNetworkID(osResource.GatewayInfo.NetworkID))
+	}
+	for _, route := range osResource.Routes {
+		status.WithRoutes(orcapplyconfigv1alpha1.RouterRoute().
+			WithDestination(orcv1alpha1.CIDR(route.DestinationCIDR)).
+			WithNextHop(orcv1alpha1.IPvAny(route.NextHop)))
 	}
 
 	statusApply.WithResource(status)

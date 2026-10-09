@@ -211,6 +211,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterList":                            schema_openstack_resource_controller_v3_api_v1alpha1_RouterList(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterResourceSpec":                    schema_openstack_resource_controller_v3_api_v1alpha1_RouterResourceSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterResourceStatus":                  schema_openstack_resource_controller_v3_api_v1alpha1_RouterResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterRoute":                           schema_openstack_resource_controller_v3_api_v1alpha1_RouterRoute(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterSpec":                            schema_openstack_resource_controller_v3_api_v1alpha1_RouterSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterStatus":                          schema_openstack_resource_controller_v3_api_v1alpha1_RouterStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.SecurityGroup":                         schema_openstack_resource_controller_v3_api_v1alpha1_SecurityGroup(ref),
@@ -9911,11 +9912,30 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RouterResourceSpec(ref
 							Format:      "",
 						},
 					},
+					"routes": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "routes is a list of static routes hosted by this router, each pointing a destination CIDR at a next-hop IP reachable from one of the router's own interfaces. Neutron only accepts this on update, never at creation time, so expect it to apply on the reconcile after the router first becomes Available, not immediately.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterRoute"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ExternalGateway"},
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ExternalGateway", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterRoute"},
 	}
 }
 
@@ -10019,11 +10039,58 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RouterResourceStatus(r
 							},
 						},
 					},
+					"routes": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "routes reports the static routes currently hosted by this router.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterRoute"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ExternalGatewayStatus"},
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ExternalGatewayStatus", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.RouterRoute"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_RouterRoute(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RouterRoute is a static route hosted by a router.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"destination": {
+						SchemaProps: spec.SchemaProps{
+							Description: "destination is the destination CIDR of this route.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"nextHop": {
+						SchemaProps: spec.SchemaProps{
+							Description: "nextHop is the IP address of the next hop for this route - typically the other end of a point-to-point link network the router has an interface on.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"destination", "nextHop"},
+			},
+		},
 	}
 }
 

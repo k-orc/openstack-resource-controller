@@ -33,6 +33,7 @@ type RouterResourceSpecApplyConfiguration struct {
 	Distributed           *bool                               `json:"distributed,omitempty"`
 	AvailabilityZoneHints []apiv1alpha1.AvailabilityZoneHint  `json:"availabilityZoneHints,omitempty"`
 	ProjectRef            *apiv1alpha1.KubernetesNameRef      `json:"projectRef,omitempty"`
+	Routes                []RouterRouteApplyConfiguration     `json:"routes,omitempty"`
 }
 
 // RouterResourceSpecApplyConfiguration constructs a declarative configuration of the RouterResourceSpec type for use with
@@ -111,5 +112,18 @@ func (b *RouterResourceSpecApplyConfiguration) WithAvailabilityZoneHints(values 
 // If called multiple times, the ProjectRef field is set to the value of the last call.
 func (b *RouterResourceSpecApplyConfiguration) WithProjectRef(value apiv1alpha1.KubernetesNameRef) *RouterResourceSpecApplyConfiguration {
 	b.ProjectRef = &value
+	return b
+}
+
+// WithRoutes adds the given value to the Routes field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Routes field.
+func (b *RouterResourceSpecApplyConfiguration) WithRoutes(values ...*RouterRouteApplyConfiguration) *RouterResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithRoutes")
+		}
+		b.Routes = append(b.Routes, *values[i])
+	}
 	return b
 }
