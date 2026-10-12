@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/layer3/routers"
@@ -468,14 +469,14 @@ func (r *orcRouterInterfaceReconciler) reconcileNormalPort(ctx context.Context, 
 		return nil, progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnReady)
 	}
 
-	if err := dependency.EnsureFinalizer(ctx, r.client, port, finalizer, fieldOwner); err != nil {
-		return nil, progress.WrapError(fmt.Errorf("adding finalizer to port: %w", err))
-	}
-
 	if port.Status.ID == nil {
 		return nil, progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnReady)
 	}
 	portID := *port.Status.ID
+
+	if err := dependency.EnsureFinalizer(ctx, r.client, port, finalizer, fieldOwner); err != nil {
+		return nil, progress.WrapError(fmt.Errorf("adding finalizer to port: %w", err))
+	}
 	log = log.WithValues("portID", portID)
 
 	if existing := findPortByID(routerInterfacePorts, portID); existing != nil {
@@ -493,8 +494,13 @@ func (r *orcRouterInterfaceReconciler) reconcileDeletePort(ctx context.Context, 
 		Namespace: routerInterface.Namespace,
 		Name:      string(ptr.Deref(routerInterface.Spec.PortRef, "")),
 	}
+	// A port is only attached once it has an ID and our finalizer, and the finalizer keeps it
+	// until this interface is gone - so a port that is missing, or has neither, was never attached.
 	if err := r.client.Get(ctx, portKey, port); err != nil {
 		if apierrors.IsNotFound(err) {
+			if routerInterface.Status.ID == nil {
+				return nil, nil, nil
+			}
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Port has been deleted unexpectedly")
 		} else {
 			err = fmt.Errorf("fetching port %s: %w", portKey, err)
@@ -502,8 +508,11 @@ func (r *orcRouterInterfaceReconciler) reconcileDeletePort(ctx context.Context, 
 		return nil, nil, progress.WrapError(err)
 	}
 	if port.Status.ID == nil {
-		// The port was never created, so it can't have been attached.
-		return nil, nil, nil
+		if !slices.Contains(port.GetFinalizers(), finalizer) {
+			return nil, nil, nil
+		}
+		return nil, nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Port ID is not set"))
 	}
 	portID := *port.Status.ID
 	log = log.WithValues("portID", portID)
