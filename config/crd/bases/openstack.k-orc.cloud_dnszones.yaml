@@ -96,11 +96,24 @@ spec:
                         maxLength: 255
                         minLength: 1
                         type: string
+                      email:
+                        description: email of the existing resource
+                        format: email
+                        maxLength: 255
+                        type: string
                       name:
                         description: name of the existing resource
                         maxLength: 255
                         minLength: 1
-                        pattern: ^[^,]+$
+                        type: string
+                        x-kubernetes-validations:
+                        - message: must end with a period
+                          rule: self.endsWith('.')
+                      type:
+                        description: type of the existing resource
+                        enum:
+                        - PRIMARY
+                        - SECONDARY
                         type: string
                     type: object
                   id:
@@ -156,15 +169,71 @@ spec:
                     maxLength: 255
                     minLength: 1
                     type: string
-                  name:
+                  email:
                     description: |-
-                      name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
+                      email is the email address of the administrator for the zone. Required for PRIMARY zones,
+                      not applicable to SECONDARY zones.
+                    format: email
                     maxLength: 255
                     minLength: 1
-                    pattern: ^[^,]+$
                     type: string
+                  masters:
+                    description: |-
+                      masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR.
+                      Required when type is SECONDARY, must not be set when type is PRIMARY.
+                    items:
+                      maxLength: 45
+                      minLength: 1
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: set
+                  name:
+                    description: |-
+                      name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's
+                      own convention.
+                    maxLength: 255
+                    minLength: 1
+                    type: string
+                    x-kubernetes-validations:
+                    - message: name is immutable
+                      rule: self == oldSelf
+                    - message: must end with a period
+                      rule: self.endsWith('.')
+                  ttl:
+                    description: ttl is the default Time To Live for the zone's recordsets,
+                      in seconds.
+                    format: int32
+                    maximum: 2147483647
+                    minimum: 1
+                    type: integer
+                  type:
+                    default: PRIMARY
+                    description: |-
+                      type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from
+                      masters over AXFR).
+                    enum:
+                    - PRIMARY
+                    - SECONDARY
+                    type: string
+                    x-kubernetes-validations:
+                    - message: type is immutable
+                      rule: self == oldSelf
+                required:
+                - name
                 type: object
+                x-kubernetes-validations:
+                - message: email is required for PRIMARY zones
+                  rule: 'self.type == ''PRIMARY'' ? has(self.email) : true'
+                - message: masters is required for SECONDARY zones
+                  rule: 'self.type == ''SECONDARY'' ? (has(self.masters) && self.masters.size()
+                    > 0) : true'
+                - message: masters must not be set for PRIMARY zones
+                  rule: 'self.type == ''PRIMARY'' ? !has(self.masters) : true'
+                - message: email must not be set for SECONDARY zones
+                  rule: 'self.type == ''SECONDARY'' ? !has(self.email) : true'
+                - message: ttl must not be set for SECONDARY zones
+                  rule: 'self.type == ''SECONDARY'' ? !has(self.ttl) : true'
               resyncPeriod:
                 description: |-
                   resyncPeriod defines how frequently the controller will re-reconcile
@@ -289,10 +358,48 @@ spec:
                       resource.
                     maxLength: 1024
                     type: string
-                  name:
-                    description: name is a Human-readable name for the resource. Might
-                      not be unique.
+                  email:
+                    description: email is the email contact of the zone.
                     maxLength: 1024
+                    type: string
+                  masters:
+                    description: masters are the master server IPs this SECONDARY
+                      zone transfers its records from.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: set
+                  name:
+                    description: name is the name of the zone, e.g. "example.com.".
+                    maxLength: 1024
+                    type: string
+                  projectID:
+                    description: |-
+                      projectID is the ID of the OpenStack project that owns this zone. Not to be confused with
+                      a DNSZoneShare's targetProjectID, which grants a *different* project access without
+                      changing ownership.
+                    maxLength: 1024
+                    type: string
+                  serial:
+                    description: serial is the zone's current SOA serial number.
+                    format: int64
+                    type: integer
+                  transferredAt:
+                    description: |-
+                      transferredAt is the last time this SECONDARY zone's records were refreshed from its
+                      masters. Unset for PRIMARY zones.
+                    format: date-time
+                    type: string
+                  ttl:
+                    description: ttl is the default Time To Live for the zone's recordsets,
+                      in seconds.
+                    format: int32
+                    type: integer
+                  type:
+                    description: type is PRIMARY or SECONDARY.
+                    maxLength: 255
                     type: string
                 type: object
             type: object

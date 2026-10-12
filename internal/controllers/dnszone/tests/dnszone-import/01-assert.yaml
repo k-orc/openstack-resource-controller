@@ -14,9 +14,8 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: dnszone-import-external-not-this-one
+    name: dnszone-import-external-not-this-one.example.com.
     description: DNSZone dnszone-import-external from "dnszone-import" test
-    # TODO(scaffolding): Add fields necessary to match filter
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone

@@ -17,103 +17,136 @@ limitations under the License.
 package dnszone
 
 import (
+	"context"
+	"errors"
 	"testing"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones"
-	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"go.uber.org/mock/gomock"
 	"k8s.io/utils/ptr"
+
+	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients/mock"
 )
 
-func TestNeedsUpdate(t *testing.T) {
-	testCases := []struct {
-		name         string
-		updateOpts   zones.UpdateOpts
-		expectChange bool
+func Test_dnszoneActuator_updateResource(t *testing.T) {
+	const zoneID = "939da9ca-27c2-4fa6-881f-17f9038f8107"
+
+	updateError := errors.New("test update error")
+
+	orcObjectWith := func(description *string, ttl *int32, masters []orcv1alpha1.IPvAny) orcObjectPT {
+		return &orcv1alpha1.DNSZone{
+			Spec: orcv1alpha1.DNSZoneSpec{
+				Resource: &orcv1alpha1.DNSZoneResourceSpec{
+					Type:        orcv1alpha1.DNSZoneTypePrimary,
+					Email:       ptr.To("admin@example.com"),
+					Description: description,
+					TTL:         ttl,
+					Masters:     masters,
+				},
+			},
+		}
+	}
+
+	osResourceWith := func(description string, ttl int, masters []string) *osResourceT {
+		return &zones.Zone{
+			ID:          zoneID,
+			Email:       "admin@example.com",
+			Description: description,
+			TTL:         ttl,
+			Masters:     masters,
+		}
+	}
+
+	tests := []struct {
+		name           string
+		orcObject      orcObjectPT
+		osResource     *osResourceT
+		expect         func(*mock.MockDNSZoneClientMockRecorder)
+		wantReschedule bool
+		wantErr        error
 	}{
 		{
-			name:         "Empty base opts",
-			updateOpts:   zones.UpdateOpts{},
-			expectChange: false,
+			name:       "no changes, no update call",
+			orcObject:  orcObjectWith(ptr.To("desc"), ptr.To(int32(300)), nil),
+			osResource: osResourceWith("desc", 300, nil),
 		},
 		{
-			name:         "Updated opts",
-			updateOpts:   zones.UpdateOpts{Name: ptr.To("updated")},
-			expectChange: true,
+			name:       "description changed, calls UpdateZone",
+			orcObject:  orcObjectWith(ptr.To("new-desc"), nil, nil),
+			osResource: osResourceWith("old-desc", 0, nil),
+			expect: func(recorder *mock.MockDNSZoneClientMockRecorder) {
+				desc := "new-desc"
+				recorder.UpdateDNSZone(gomock.Any(), zoneID, zones.UpdateOpts{Description: &desc}).
+					Return(nil, nil)
+			},
+			wantReschedule: true,
+		},
+		{
+			name:       "ttl changed, calls UpdateZone",
+			orcObject:  orcObjectWith(nil, ptr.To(int32(600)), nil),
+			osResource: osResourceWith("", 300, nil),
+			expect: func(recorder *mock.MockDNSZoneClientMockRecorder) {
+				recorder.UpdateDNSZone(gomock.Any(), zoneID, zones.UpdateOpts{TTL: 600}).
+					Return(nil, nil)
+			},
+			wantReschedule: true,
+		},
+		{
+			name:       "masters changed (as a set, order-independent), calls UpdateZone",
+			orcObject:  orcObjectWith(nil, nil, []orcv1alpha1.IPvAny{"192.0.2.2", "192.0.2.1"}),
+			osResource: osResourceWith("", 0, []string{"192.0.2.1", "192.0.2.3"}),
+			expect: func(recorder *mock.MockDNSZoneClientMockRecorder) {
+				recorder.UpdateDNSZone(gomock.Any(), zoneID, zones.UpdateOpts{Masters: []string{"192.0.2.2", "192.0.2.1"}}).
+					Return(nil, nil)
+			},
+			wantReschedule: true,
+		},
+		{
+			name:       "masters unchanged despite different order, no update call",
+			orcObject:  orcObjectWith(nil, nil, []orcv1alpha1.IPvAny{"192.0.2.2", "192.0.2.1"}),
+			osResource: osResourceWith("", 0, []string{"192.0.2.1", "192.0.2.2"}),
+		},
+		{
+			name:       "update error is propagated",
+			orcObject:  orcObjectWith(ptr.To("new-desc"), nil, nil),
+			osResource: osResourceWith("old-desc", 0, nil),
+			expect: func(recorder *mock.MockDNSZoneClientMockRecorder) {
+				desc := "new-desc"
+				recorder.UpdateDNSZone(gomock.Any(), zoneID, zones.UpdateOpts{Description: &desc}).
+					Return(nil, updateError)
+			},
+			// A plain error (not classified non-retryable by orcerrors.IsRetryable) defaults to
+			// retryable, so the generic reconciler still reschedules.
+			wantReschedule: true,
+			wantErr:        updateError,
 		},
 	}
 
-	for _, tt := range testCases {
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := needsUpdate(tt.updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			mockctrl := gomock.NewController(t)
+			dnsClient := mock.NewMockDNSZoneClient(mockctrl)
+
+			actuator := dnszoneActuator{osClient: dnsClient}
+
+			recorder := dnsClient.EXPECT()
+			if tt.expect != nil {
+				tt.expect(recorder)
+			}
+
+			reconcileStatus := actuator.updateResource(context.TODO(), tt.orcObject, tt.osResource)
+			needsReschedule, err := reconcileStatus.NeedsReschedule()
+
+			if tt.wantErr == nil && err != nil {
+				t.Errorf("updateResource() error = %v, want no error", err)
+			}
+			if tt.wantErr != nil && !errors.Is(err, tt.wantErr) {
+				t.Errorf("updateResource() error = %v, want %v", err, tt.wantErr)
+			}
+			if needsReschedule != tt.wantReschedule {
+				t.Errorf("updateResource() needsReschedule = %v, want %v", needsReschedule, tt.wantReschedule)
 			}
 		})
-	}
-}
-
-func TestHandleNameUpdate(t *testing.T) {
-	ptrToName := ptr.To[orcv1alpha1.OpenStackName]
-	testCases := []struct {
-		name          string
-		newValue      *orcv1alpha1.OpenStackName
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToName("name"), existingValue: "name", expectChange: false},
-		{name: "Different", newValue: ptrToName("new-name"), existingValue: "name", expectChange: true},
-		{name: "No value provided, existing is identical to object name", newValue: nil, existingValue: "object-name", expectChange: false},
-		{name: "No value provided, existing is different from object name", newValue: nil, existingValue: "different-from-object-name", expectChange: true},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.DNSZone{}
-			resource.Name = "object-name"
-			resource.Spec = orcv1alpha1.DNSZoneSpec{
-				Resource: &orcv1alpha1.DNSZoneResourceSpec{Name: tt.newValue},
-			}
-			osResource := &osResourceT{Name: tt.existingValue}
-
-			updateOpts := zones.UpdateOpts{}
-			handleNameUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
-	}
-}
-
-func TestHandleDescriptionUpdate(t *testing.T) {
-	ptrToDescription := ptr.To[string]
-	testCases := []struct {
-		name          string
-		newValue      *string
-		existingValue string
-		expectChange  bool
-	}{
-		{name: "Identical", newValue: ptrToDescription("desc"), existingValue: "desc", expectChange: false},
-		{name: "Different", newValue: ptrToDescription("new-desc"), existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is set", newValue: nil, existingValue: "desc", expectChange: true},
-		{name: "No value provided, existing is empty", newValue: nil, existingValue: "", expectChange: false},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			resource := &orcv1alpha1.DNSZoneResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
-
-			updateOpts := zones.UpdateOpts{}
-			handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-			got, _ := needsUpdate(updateOpts)
-			if got != tt.expectChange {
-				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
-			}
-		})
-
 	}
 }

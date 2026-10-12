@@ -599,8 +599,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `email` _string_ | email of the existing resource |  | Format: email <br />MaxLength: 255 <br />Optional: \{\} <br /> |
 | `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type of the existing resource |  | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneImport
@@ -636,8 +638,12 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `name` _[DesignateFQDN](#designatefqdn)_ | name is the name of the zone, e.g. "example.com.". Must end with a period, per Designate's<br />own convention. |  | MaxLength: 255 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `email` _string_ | email is the email address of the administrator for the zone. Required for PRIMARY zones,<br />not applicable to SECONDARY zones. |  | Format: email <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Maximum: 2.147483647e+09 <br />Minimum: 1 <br />Optional: \{\} <br /> |
+| `type` _[DNSZoneType](#dnszonetype)_ | type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from<br />masters over AXFR). | PRIMARY | Enum: [PRIMARY SECONDARY] <br />Optional: \{\} <br /> |
+| `masters` _[IPvAny](#ipvany) array_ | masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR.<br />Required when type is SECONDARY, must not be set when type is PRIMARY. |  | MaxItems: 32 <br />MaxLength: 45 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneResourceStatus
@@ -653,8 +659,15 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `name` _string_ | name is the name of the zone, e.g. "example.com.". |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `email` _string_ | email is the email contact of the zone. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `ttl` _integer_ | ttl is the default Time To Live for the zone's recordsets, in seconds. |  | Optional: \{\} <br /> |
+| `type` _string_ | type is PRIMARY or SECONDARY. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `masters` _string array_ | masters are the master server IPs this SECONDARY zone transfers its records from. |  | MaxItems: 32 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `serial` _integer_ | serial is the zone's current SOA serial number. |  | Optional: \{\} <br /> |
+| `transferredAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | transferredAt is the last time this SECONDARY zone's records were refreshed from its<br />masters. Unset for PRIMARY zones. |  | Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the OpenStack project that owns this zone. Not to be confused with<br />a DNSZoneShare's targetProjectID, which grants a *different* project access without<br />changing ownership. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneSpec
@@ -695,6 +708,45 @@ _Appears in:_
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[DNSZoneResourceStatus](#dnszoneresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### DNSZoneType
+
+_Underlying type:_ _string_
+
+DNSZoneType is the type of a DNS zone - whether this ORC object owns the zone's data
+(PRIMARY) or replicates it from external master servers over AXFR (SECONDARY). This is
+Designate's own DNS-protocol zone transfer concept, unrelated to project ownership - see
+DNSZoneShare for sharing access to a zone with another OpenStack project.
+
+_Validation:_
+- Enum: [PRIMARY SECONDARY]
+
+_Appears in:_
+- [DNSZoneFilter](#dnszonefilter)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `PRIMARY` |  |
+| `SECONDARY` |  |
+
+
+#### DesignateFQDN
+
+_Underlying type:_ _string_
+
+DesignateFQDN is a fully-qualified domain name in Designate's own convention: it must end
+with a trailing period, e.g. "example.com.".
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [DNSZoneFilter](#dnszonefilter)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
+
 
 
 #### Domain
@@ -1731,6 +1783,7 @@ _Appears in:_
 - [Address](#address)
 - [AllocationPool](#allocationpool)
 - [AllowedAddressPair](#allowedaddresspair)
+- [DNSZoneResourceSpec](#dnszoneresourcespec)
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
@@ -2949,8 +3002,6 @@ _Appears in:_
 - [AddressScopeResourceSpec](#addressscoperesourcespec)
 - [ApplicationCredentialFilter](#applicationcredentialfilter)
 - [ApplicationCredentialResourceSpec](#applicationcredentialresourcespec)
-- [DNSZoneFilter](#dnszonefilter)
-- [DNSZoneResourceSpec](#dnszoneresourcespec)
 - [FlavorFilter](#flavorfilter)
 - [FlavorResourceSpec](#flavorresourcespec)
 - [ImageFilter](#imagefilter)

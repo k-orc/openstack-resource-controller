@@ -28,6 +28,5 @@ status:
       status: "False"
       reason: Success
   resource:
-    name: dnszone-import-external
+    name: dnszone-import-external.example.com.
     description: DNSZone dnszone-import-external from "dnszone-import" test
-    # TODO(scaffolding): Add all fields the resource supports

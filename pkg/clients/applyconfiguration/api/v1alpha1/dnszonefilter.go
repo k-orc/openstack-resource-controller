@@ -25,8 +25,10 @@ import (
 // DNSZoneFilterApplyConfiguration represents a declarative configuration of the DNSZoneFilter type for use
 // with apply.
 type DNSZoneFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
+	Name        *apiv1alpha1.DesignateFQDN `json:"name,omitempty"`
+	Email       *string                    `json:"email,omitempty"`
 	Description *string                    `json:"description,omitempty"`
+	Type        *apiv1alpha1.DNSZoneType   `json:"type,omitempty"`
 }
 
 // DNSZoneFilterApplyConfiguration constructs a declarative configuration of the DNSZoneFilter type for use with
@@ -38,8 +40,16 @@ func DNSZoneFilter() *DNSZoneFilterApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *DNSZoneFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *DNSZoneFilterApplyConfiguration {
+func (b *DNSZoneFilterApplyConfiguration) WithName(value apiv1alpha1.DesignateFQDN) *DNSZoneFilterApplyConfiguration {
 	b.Name = &value
+	return b
+}
+
+// WithEmail sets the Email field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Email field is set to the value of the last call.
+func (b *DNSZoneFilterApplyConfiguration) WithEmail(value string) *DNSZoneFilterApplyConfiguration {
+	b.Email = &value
 	return b
 }
 
@@ -48,5 +58,13 @@ func (b *DNSZoneFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackNa
 // If called multiple times, the Description field is set to the value of the last call.
 func (b *DNSZoneFilterApplyConfiguration) WithDescription(value string) *DNSZoneFilterApplyConfiguration {
 	b.Description = &value
+	return b
+}
+
+// WithType sets the Type field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Type field is set to the value of the last call.
+func (b *DNSZoneFilterApplyConfiguration) WithType(value apiv1alpha1.DNSZoneType) *DNSZoneFilterApplyConfiguration {
+	b.Type = &value
 	return b
 }

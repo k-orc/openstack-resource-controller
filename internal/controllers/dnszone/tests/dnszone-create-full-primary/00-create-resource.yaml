@@ -1,0 +1,16 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-create-full-primary
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: dnszone-create-full-primary.example.com.
+    email: admin@example.com
+    description: DNSZone from "create full" test
+    ttl: 300
+    type: PRIMARY

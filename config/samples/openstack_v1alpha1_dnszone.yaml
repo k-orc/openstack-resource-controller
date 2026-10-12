@@ -5,10 +5,12 @@ metadata:
   name: dnszone-sample
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
+    name: example.com.
+    email: hostmaster@example.com
     description: Sample DNSZone
-    # TODO(scaffolding): Add all fields the resource supports
+    ttl: 3600
+    type: PRIMARY

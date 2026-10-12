@@ -2,12 +2,14 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone
 metadata:
-  name: dnszone-create-full
+  name: dnszone-create-full-primary
 status:
   resource:
-    name: dnszone-create-full-override
+    name: dnszone-create-full-primary.example.com.
+    email: admin@example.com
     description: DNSZone from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    ttl: 300
+    type: PRIMARY
   conditions:
   - type: Available
     status: "True"
@@ -21,8 +23,8 @@ kind: TestAssert
 resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: DNSZone
-      name: dnszone-create-full
+      name: dnszone-create-full-primary
       ref: dnszone
 assertAll:
     - celExpr: "dnszone.status.id != ''"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "dnszone.status.resource.projectID != ''"

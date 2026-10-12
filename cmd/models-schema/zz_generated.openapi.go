@@ -1783,9 +1783,23 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneFilter(ref comm
 							Format:      "",
 						},
 					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
 							Description: "description of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type of the existing resource",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1884,7 +1898,14 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used.",
+							Description: "name is the name of the zone, e.g. \"example.com.\". Must end with a period, per Designate's own convention.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email is the email address of the administrator for the zone. Required for PRIMARY zones, not applicable to SECONDARY zones.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1896,7 +1917,42 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceSpec(re
 							Format:      "",
 						},
 					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the default Time To Live for the zone's recordsets, in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is PRIMARY (this zone's data is authoritative here) or SECONDARY (replicated from masters over AXFR).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters are the master server IPs to transfer a SECONDARY zone's records from over AXFR. Required when type is SECONDARY, must not be set when type is PRIMARY.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
+				Required: []string{"name"},
 			},
 		},
 	}
@@ -1911,7 +1967,14 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceStatus(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Description: "name is the name of the zone, e.g. \"example.com.\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"email": {
+						SchemaProps: spec.SchemaProps{
+							Description: "email is the email contact of the zone.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1923,9 +1986,65 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceStatus(
 							Format:      "",
 						},
 					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl is the default Time To Live for the zone's recordsets, in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "type is PRIMARY or SECONDARY.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"masters": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "masters are the master server IPs this SECONDARY zone transfers its records from.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"serial": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serial is the zone's current SOA serial number.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"transferredAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "transferredAt is the last time this SECONDARY zone's records were refreshed from its masters. Unset for PRIMARY zones.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the OpenStack project that owns this zone. Not to be confused with a DNSZoneShare's targetProjectID, which grants a *different* project access without changing ownership.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

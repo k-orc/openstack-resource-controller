@@ -50,13 +50,30 @@ func (dnszoneStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.DNSZon
 
 func (dnszoneStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.DNSZoneResourceStatus().
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithType(osResource.Type).
+		WithProjectID(osResource.ProjectID).
+		WithSerial(int64(osResource.Serial))
 
-	// TODO(scaffolding): add all of the fields supported in the DNSZoneResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
+	if osResource.Email != "" {
+		resourceStatus.WithEmail(osResource.Email)
+	}
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+	if osResource.TTL != 0 {
+		resourceStatus.WithTTL(int32(osResource.TTL))
+	}
+	if len(osResource.Masters) > 0 {
+		resourceStatus.WithMasters(osResource.Masters...)
+	}
+	// TransferredAt only has meaning for a SECONDARY zone that has actually synced from its
+	// masters at least once - a PRIMARY zone (or a SECONDARY that hasn't transferred yet) reports
+	// a zero time here, which must not be rendered as a literal JSON null (the exact bug already
+	// found and fixed upstream for six other controllers' CreatedAt/UpdatedAt fields - see PR
+	// #947 - applied proactively here rather than reintroducing the same class of bug).
+	if !osResource.TransferredAt.IsZero() {
+		resourceStatus.WithTransferredAt(metav1.NewTime(osResource.TransferredAt))
 	}
 
 	statusApply.WithResource(resourceStatus)

@@ -2,14 +2,16 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone
 metadata:
-  name: dnszone-create-full
+  name: dnszone-create-full-secondary
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    name: dnszone-create-full-override
+    name: dnszone-create-full-secondary.example.com.
     description: DNSZone from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    type: SECONDARY
+    masters:
+      - 192.0.2.1
+      - 192.0.2.2
