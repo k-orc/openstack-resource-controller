@@ -16,12 +16,17 @@ limitations under the License.
 
 package v1alpha1
 
+// RecordSetType is the RRTYPE of a DNS recordset.
+// +kubebuilder:validation:Enum:=A;AAAA;CNAME;MX;NS;PTR;SPF;SRV;SSHFP;TXT;CAA
+type RecordSetType string
+
 // RecordSetResourceSpec contains the desired state of the resource.
 type RecordSetResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	// name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per
+	// Designate's own convention.
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
+	// +required
+	Name *DesignateFQDN `json:"name,omitempty"` //nolint:kubeapilinter // always populated; pointer kept so the shared getResourceName helper compiles
 
 	// description is a human-readable description for the resource.
 	// +kubebuilder:validation:MinLength:=1
@@ -29,27 +34,51 @@ type RecordSetResourceSpec struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// dNSZoneRef is a reference to the ORC DNSZone which this resource is associated with.
+	// zoneRef is a reference to the ORC DNSZone this recordset belongs to.
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dNSZoneRef is immutable"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="zoneRef is immutable"
 	// +orc:kustomize:ref=DNSZone
-	DNSZoneRef KubernetesNameRef `json:"dNSZoneRef,omitempty"`
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/recordsets
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no
+	// update path for a recordset's type, only its records/ttl/description.
+	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="type is immutable"
+	Type RecordSetType `json:"type,omitempty"`
+
+	// records are the record data for this recordset, in Designate's own format for the given
+	// type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not
+	// further validated here - record data syntax varies by type and Designate's own API is the
+	// source of truth for what's acceptable.
+	// +required
+	// +kubebuilder:validation:MinItems:=1
+	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:items:MaxLength:=4096
+	// +listType=set
+	Records []string `json:"records,omitempty"`
+
+	// ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own
+	// default TTL applies.
+	// +kubebuilder:validation:Minimum:=1
+	// +kubebuilder:validation:Maximum:=2147483647
+	// +optional
+	TTL *int32 `json:"ttl,omitempty"`
 }
 
 // RecordSetFilter defines an existing resource by its properties
-// +kubebuilder:validation:MinProperties:=1
+// +kubebuilder:validation:MinProperties:=2
 type RecordSetFilter struct {
+	// zoneRef is a reference to the ORC DNSZone to look for the recordset under - required
+	// because every Designate recordset operation, including list, is scoped to a specific zone
+	// (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed
+	// path).
+	// +required
+	// +orc:kustomize:ref=DNSZone
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
+
 	// name of the existing resource
 	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	Name *DesignateFQDN `json:"name,omitempty"`
 
 	// description of the existing resource
 	// +kubebuilder:validation:MinLength:=1
@@ -57,14 +86,14 @@ type RecordSetFilter struct {
 	// +optional
 	Description *string `json:"description,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/recordsets
+	// type of the existing resource
+	// +optional
+	Type *RecordSetType `json:"type,omitempty"`
 }
 
 // RecordSetResourceStatus represents the observed state of the resource.
 type RecordSetResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
+	// name is the name of the recordset, e.g. "www.example.com.".
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	Name string `json:"name,omitempty"`
@@ -74,12 +103,29 @@ type RecordSetResourceStatus struct {
 	// +optional
 	Description string `json:"description,omitempty"`
 
-	// dNSZoneID is the ID of the DNSZone to which the resource is associated.
+	// zoneID is the ID of the DNSZone this recordset belongs to.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DNSZoneID string `json:"dNSZoneID,omitempty"`
+	ZoneID string `json:"zoneID,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the RecordSet structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/recordsets
+	// type is the RRTYPE of the recordset.
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	Type string `json:"type,omitempty"`
+
+	// records are the record data for this recordset.
+	// +kubebuilder:validation:MaxItems:=64
+	// +kubebuilder:validation:items:MaxLength:=4096
+	// +listType=set
+	// +optional
+	Records []string `json:"records,omitempty"`
+
+	// ttl is the Time To Live for the recordset, in seconds.
+	// +optional
+	TTL *int32 `json:"ttl,omitempty"`
+
+	// projectID is the ID of the project that owns this recordset (inherited from its zone).
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ProjectID string `json:"projectID,omitempty"`
 }

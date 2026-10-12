@@ -17,6 +17,8 @@ limitations under the License.
 package recordset
 
 import (
+	"slices"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -50,14 +52,20 @@ func (recordsetStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Reco
 
 func (recordsetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.RecordSetResourceStatus().
-		WithDNSZoneID(osResource.DNSZoneID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the RecordSetResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithZoneID(osResource.ZoneID).
+		WithType(osResource.Type).
+		WithProjectID(osResource.ProjectID).
+		WithTTL(int32(osResource.TTL))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+	if len(osResource.Records) > 0 {
+		// Designate does not guarantee record order within a recordset; sort for a stable status.
+		records := slices.Clone(osResource.Records)
+		slices.Sort(records)
+		resourceStatus.WithRecords(records...)
 	}
 
 	statusApply.WithResource(resourceStatus)

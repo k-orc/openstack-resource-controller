@@ -5,8 +5,10 @@ metadata:
   name: recordset-create-minimal
 status:
   resource:
-    name: recordset-create-minimal
-    # TODO(scaffolding): Add all fields the resource supports
+    name: www.recordset-create-minimal.example.com.
+    type: A
+    records:
+      - 192.0.2.1
   conditions:
   - type: Available
     status: "True"
@@ -25,8 +27,8 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: DNSZone
       name: recordset-create-minimal
-      ref: dNSZone
+      ref: dnszone
 assertAll:
     - celExpr: "recordset.status.id != ''"
-    - celExpr: "recordset.status.resource.dNSZoneID == dNSZone.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "recordset.status.resource.zoneID == dnszone.status.id"
+    - celExpr: "recordset.status.resource.projectID != ''"

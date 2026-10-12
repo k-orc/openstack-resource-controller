@@ -2530,6 +2530,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: type
+      type:
+        scalar: string
+    - name: zoneRef
+      type:
+        scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RecordSetImport
   map:
     fields:
@@ -2542,25 +2548,52 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RecordSetResourceSpec
   map:
     fields:
-    - name: dNSZoneRef
-      type:
-        scalar: string
     - name: description
       type:
         scalar: string
     - name: name
+      type:
+        scalar: string
+    - name: records
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: ttl
+      type:
+        scalar: numeric
+    - name: type
+      type:
+        scalar: string
+    - name: zoneRef
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RecordSetResourceStatus
   map:
     fields:
-    - name: dNSZoneID
-      type:
-        scalar: string
     - name: description
       type:
         scalar: string
     - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: records
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: associative
+    - name: ttl
+      type:
+        scalar: numeric
+    - name: type
+      type:
+        scalar: string
+    - name: zoneID
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RecordSetSpec

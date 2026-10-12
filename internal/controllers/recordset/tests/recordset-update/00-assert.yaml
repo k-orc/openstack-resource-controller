@@ -8,6 +8,7 @@ resourceRefs:
       ref: recordset
 assertAll:
     - celExpr: "!has(recordset.status.resource.description)"
+    - celExpr: "recordset.status.resource.records == ['192.0.2.1']"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -15,8 +16,8 @@ metadata:
   name: recordset-update
 status:
   resource:
-    name: recordset-update
-    # TODO(scaffolding): Add matches for more fields
+    name: www.recordset-update.example.com.
+    type: A
   conditions:
   - type: Available
     status: "True"

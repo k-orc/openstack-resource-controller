@@ -28,11 +28,11 @@ import (
 )
 
 type RecordSetClient interface {
-	ListRecordSets(ctx context.Context, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error]
-	CreateRecordSet(ctx context.Context, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error)
-	DeleteRecordSet(ctx context.Context, resourceID string) error
-	GetRecordSet(ctx context.Context, resourceID string) (*recordsets.RecordSet, error)
-	UpdateRecordSet(ctx context.Context, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error)
+	ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error]
+	CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error)
+	DeleteRecordSet(ctx context.Context, zoneID, resourceID string) error
+	GetRecordSet(ctx context.Context, zoneID, resourceID string) (*recordsets.RecordSet, error)
+	UpdateRecordSet(ctx context.Context, zoneID, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error)
 }
 
 type recordsetClient struct{ client *gophercloud.ServiceClient }
@@ -51,27 +51,27 @@ func NewRecordSetClient(providerClient *gophercloud.ProviderClient, providerClie
 	return &recordsetClient{client}, nil
 }
 
-func (c recordsetClient) ListRecordSets(ctx context.Context, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
-	pager := recordsets.List(c.client, listOpts)
+func (c recordsetClient) ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
+	pager := recordsets.ListByZone(c.client, zoneID, listOpts)
 	return func(yield func(*recordsets.RecordSet, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(recordsets.ExtractRecordSets, yield))
 	}
 }
 
-func (c recordsetClient) CreateRecordSet(ctx context.Context, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
-	return recordsets.Create(ctx, c.client, opts).Extract()
+func (c recordsetClient) CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
+	return recordsets.Create(ctx, c.client, zoneID, opts).Extract()
 }
 
-func (c recordsetClient) DeleteRecordSet(ctx context.Context, resourceID string) error {
-	return recordsets.Delete(ctx, c.client, resourceID).ExtractErr()
+func (c recordsetClient) DeleteRecordSet(ctx context.Context, zoneID, resourceID string) error {
+	return recordsets.Delete(ctx, c.client, zoneID, resourceID).ExtractErr()
 }
 
-func (c recordsetClient) GetRecordSet(ctx context.Context, resourceID string) (*recordsets.RecordSet, error) {
-	return recordsets.Get(ctx, c.client, resourceID).Extract()
+func (c recordsetClient) GetRecordSet(ctx context.Context, zoneID, resourceID string) (*recordsets.RecordSet, error) {
+	return recordsets.Get(ctx, c.client, zoneID, resourceID).Extract()
 }
 
-func (c recordsetClient) UpdateRecordSet(ctx context.Context, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
-	return recordsets.Update(ctx, c.client, id, opts).Extract()
+func (c recordsetClient) UpdateRecordSet(ctx context.Context, zoneID, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
+	return recordsets.Update(ctx, c.client, zoneID, id, opts).Extract()
 }
 
 type recordsetErrorClient struct{ error }
@@ -81,24 +81,24 @@ func NewRecordSetErrorClient(e error) RecordSetClient {
 	return recordsetErrorClient{e}
 }
 
-func (e recordsetErrorClient) ListRecordSets(_ context.Context, _ recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
+func (e recordsetErrorClient) ListRecordSets(_ context.Context, _ string, _ recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
 	return func(yield func(*recordsets.RecordSet, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e recordsetErrorClient) CreateRecordSet(_ context.Context, _ recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
+func (e recordsetErrorClient) CreateRecordSet(_ context.Context, _ string, _ recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
 	return nil, e.error
 }
 
-func (e recordsetErrorClient) DeleteRecordSet(_ context.Context, _ string) error {
+func (e recordsetErrorClient) DeleteRecordSet(_ context.Context, _, _ string) error {
 	return e.error
 }
 
-func (e recordsetErrorClient) GetRecordSet(_ context.Context, _ string) (*recordsets.RecordSet, error) {
+func (e recordsetErrorClient) GetRecordSet(_ context.Context, _, _ string) (*recordsets.RecordSet, error) {
 	return nil, e.error
 }
 
-func (e recordsetErrorClient) UpdateRecordSet(_ context.Context, _ string, _ recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
+func (e recordsetErrorClient) UpdateRecordSet(_ context.Context, _, _ string, _ recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
 	return nil, e.error
 }

@@ -58,74 +58,74 @@ func (m *MockRecordSetClient) EXPECT() *MockRecordSetClientMockRecorder {
 }
 
 // CreateRecordSet mocks base method.
-func (m *MockRecordSetClient) CreateRecordSet(ctx context.Context, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
+func (m *MockRecordSetClient) CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateRecordSet", ctx, opts)
+	ret := m.ctrl.Call(m, "CreateRecordSet", ctx, zoneID, opts)
 	ret0, _ := ret[0].(*recordsets.RecordSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateRecordSet indicates an expected call of CreateRecordSet.
-func (mr *MockRecordSetClientMockRecorder) CreateRecordSet(ctx, opts any) *gomock.Call {
+func (mr *MockRecordSetClientMockRecorder) CreateRecordSet(ctx, zoneID, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).CreateRecordSet), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).CreateRecordSet), ctx, zoneID, opts)
 }
 
 // DeleteRecordSet mocks base method.
-func (m *MockRecordSetClient) DeleteRecordSet(ctx context.Context, resourceID string) error {
+func (m *MockRecordSetClient) DeleteRecordSet(ctx context.Context, zoneID, resourceID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteRecordSet", ctx, resourceID)
+	ret := m.ctrl.Call(m, "DeleteRecordSet", ctx, zoneID, resourceID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteRecordSet indicates an expected call of DeleteRecordSet.
-func (mr *MockRecordSetClientMockRecorder) DeleteRecordSet(ctx, resourceID any) *gomock.Call {
+func (mr *MockRecordSetClientMockRecorder) DeleteRecordSet(ctx, zoneID, resourceID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).DeleteRecordSet), ctx, resourceID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).DeleteRecordSet), ctx, zoneID, resourceID)
 }
 
 // GetRecordSet mocks base method.
-func (m *MockRecordSetClient) GetRecordSet(ctx context.Context, resourceID string) (*recordsets.RecordSet, error) {
+func (m *MockRecordSetClient) GetRecordSet(ctx context.Context, zoneID, resourceID string) (*recordsets.RecordSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRecordSet", ctx, resourceID)
+	ret := m.ctrl.Call(m, "GetRecordSet", ctx, zoneID, resourceID)
 	ret0, _ := ret[0].(*recordsets.RecordSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRecordSet indicates an expected call of GetRecordSet.
-func (mr *MockRecordSetClientMockRecorder) GetRecordSet(ctx, resourceID any) *gomock.Call {
+func (mr *MockRecordSetClientMockRecorder) GetRecordSet(ctx, zoneID, resourceID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).GetRecordSet), ctx, resourceID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).GetRecordSet), ctx, zoneID, resourceID)
 }
 
 // ListRecordSets mocks base method.
-func (m *MockRecordSetClient) ListRecordSets(ctx context.Context, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
+func (m *MockRecordSetClient) ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRecordSets", ctx, listOpts)
+	ret := m.ctrl.Call(m, "ListRecordSets", ctx, zoneID, listOpts)
 	ret0, _ := ret[0].(iter.Seq2[*recordsets.RecordSet, error])
 	return ret0
 }
 
 // ListRecordSets indicates an expected call of ListRecordSets.
-func (mr *MockRecordSetClientMockRecorder) ListRecordSets(ctx, listOpts any) *gomock.Call {
+func (mr *MockRecordSetClientMockRecorder) ListRecordSets(ctx, zoneID, listOpts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRecordSets", reflect.TypeOf((*MockRecordSetClient)(nil).ListRecordSets), ctx, listOpts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRecordSets", reflect.TypeOf((*MockRecordSetClient)(nil).ListRecordSets), ctx, zoneID, listOpts)
 }
 
 // UpdateRecordSet mocks base method.
-func (m *MockRecordSetClient) UpdateRecordSet(ctx context.Context, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
+func (m *MockRecordSetClient) UpdateRecordSet(ctx context.Context, zoneID, id string, opts recordsets.UpdateOptsBuilder) (*recordsets.RecordSet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRecordSet", ctx, id, opts)
+	ret := m.ctrl.Call(m, "UpdateRecordSet", ctx, zoneID, id, opts)
 	ret0, _ := ret[0].(*recordsets.RecordSet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateRecordSet indicates an expected call of UpdateRecordSet.
-func (mr *MockRecordSetClientMockRecorder) UpdateRecordSet(ctx, id, opts any) *gomock.Call {
+func (mr *MockRecordSetClientMockRecorder) UpdateRecordSet(ctx, zoneID, id, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).UpdateRecordSet), ctx, id, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRecordSet", reflect.TypeOf((*MockRecordSetClient)(nil).UpdateRecordSet), ctx, zoneID, id, opts)
 }

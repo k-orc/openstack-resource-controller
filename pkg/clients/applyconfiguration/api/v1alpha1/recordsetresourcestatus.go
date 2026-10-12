@@ -21,9 +21,13 @@ package v1alpha1
 // RecordSetResourceStatusApplyConfiguration represents a declarative configuration of the RecordSetResourceStatus type for use
 // with apply.
 type RecordSetResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	DNSZoneID   *string `json:"dNSZoneID,omitempty"`
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	ZoneID      *string  `json:"zoneID,omitempty"`
+	Type        *string  `json:"type,omitempty"`
+	Records     []string `json:"records,omitempty"`
+	TTL         *int32   `json:"ttl,omitempty"`
+	ProjectID   *string  `json:"projectID,omitempty"`
 }
 
 // RecordSetResourceStatusApplyConfiguration constructs a declarative configuration of the RecordSetResourceStatus type for use with
@@ -48,10 +52,44 @@ func (b *RecordSetResourceStatusApplyConfiguration) WithDescription(value string
 	return b
 }
 
-// WithDNSZoneID sets the DNSZoneID field in the declarative configuration to the given value
+// WithZoneID sets the ZoneID field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the DNSZoneID field is set to the value of the last call.
-func (b *RecordSetResourceStatusApplyConfiguration) WithDNSZoneID(value string) *RecordSetResourceStatusApplyConfiguration {
-	b.DNSZoneID = &value
+// If called multiple times, the ZoneID field is set to the value of the last call.
+func (b *RecordSetResourceStatusApplyConfiguration) WithZoneID(value string) *RecordSetResourceStatusApplyConfiguration {
+	b.ZoneID = &value
+	return b
+}
+
+// WithType sets the Type field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Type field is set to the value of the last call.
+func (b *RecordSetResourceStatusApplyConfiguration) WithType(value string) *RecordSetResourceStatusApplyConfiguration {
+	b.Type = &value
+	return b
+}
+
+// WithRecords adds the given value to the Records field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Records field.
+func (b *RecordSetResourceStatusApplyConfiguration) WithRecords(values ...string) *RecordSetResourceStatusApplyConfiguration {
+	for i := range values {
+		b.Records = append(b.Records, values[i])
+	}
+	return b
+}
+
+// WithTTL sets the TTL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TTL field is set to the value of the last call.
+func (b *RecordSetResourceStatusApplyConfiguration) WithTTL(value int32) *RecordSetResourceStatusApplyConfiguration {
+	b.TTL = &value
+	return b
+}
+
+// WithProjectID sets the ProjectID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectID field is set to the value of the last call.
+func (b *RecordSetResourceStatusApplyConfiguration) WithProjectID(value string) *RecordSetResourceStatusApplyConfiguration {
+	b.ProjectID = &value
 	return b
 }

@@ -1,13 +1,24 @@
 ---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RecordSet
+      name: recordset-update
+      ref: recordset
+assertAll:
+    - celExpr: "recordset.status.resource.records.all(r, r in ['192.0.2.2', '192.0.2.3']) && size(recordset.status.resource.records) == 2"
+---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
 metadata:
   name: recordset-update
 status:
   resource:
-    name: recordset-update-updated
+    name: www.recordset-update.example.com.
     description: recordset-update-updated
-    # TODO(scaffolding): match all fields that were modified
+    type: A
+    ttl: 300
   conditions:
   - type: Available
     status: "True"
