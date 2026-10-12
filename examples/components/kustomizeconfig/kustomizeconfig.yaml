@@ -84,6 +84,8 @@ nameReference:
     path: spec/import/filter/portRef
   - kind: FloatingIP
     path: spec/resource/portRef
+  - kind: RouterInterface
+    path: spec/portRef
   - kind: Server
     path: spec/resource/ports[]/portRef
   - kind: Trunk

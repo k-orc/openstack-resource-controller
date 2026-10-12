@@ -64,19 +64,22 @@ func (l *RouterInterfaceList) GetItems() []RouterInterface {
 	return l.Items
 }
 
-// +kubebuilder:validation:Enum:=Subnet
+// +kubebuilder:validation:Enum:=Subnet;Port
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=8
 type RouterInterfaceType string
 
 const (
 	RouterInterfaceTypeSubnet RouterInterfaceType = "Subnet"
+	RouterInterfaceTypePort   RouterInterfaceType = "Port"
 )
 
 // +kubebuilder:validation:XValidation:rule="self.type == 'Subnet' ? has(self.subnetRef) : !has(self.subnetRef)",message="subnetRef is required when type is 'Subnet' and not permitted otherwise"
 // +kubebuilder:validation:XValidation:rule="self.type == oldSelf.type",message="type is immutable"
 // +kubebuilder:validation:XValidation:rule="self.routerRef == oldSelf.routerRef",message="routerRef is immutable"
 // +kubebuilder:validation:XValidation:rule="has(self.subnetRef) == has(oldSelf.subnetRef) && (!has(self.subnetRef) || self.subnetRef == oldSelf.subnetRef)",message="subnetRef is immutable"
+// +kubebuilder:validation:XValidation:rule="self.type == 'Port' ? has(self.portRef) : !has(self.portRef)",message="portRef is required when type is 'Port' and not permitted otherwise"
+// +kubebuilder:validation:XValidation:rule="has(self.portRef) == has(oldSelf.portRef) && (!has(self.portRef) || self.portRef == oldSelf.portRef)",message="portRef is immutable"
 type RouterInterfaceSpec struct {
 	// type specifies the type of the router interface.
 	// +required
@@ -93,6 +96,12 @@ type RouterInterfaceSpec struct {
 	// +optional
 	// +orc:kustomize:ref=Subnet
 	SubnetRef *KubernetesNameRef `json:"subnetRef,omitempty"`
+
+	// portRef references the port the router interface is created on.
+	// +unionMember
+	// +optional
+	// +orc:kustomize:ref=Port
+	PortRef *KubernetesNameRef `json:"portRef,omitempty"`
 
 	// resyncPeriod defines how frequently the controller will re-reconcile
 	// this resource even when no changes have been detected. This overrides

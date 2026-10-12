@@ -245,6 +245,8 @@ func (r *orcRouterInterfaceReconciler) reconcileNormal(ctx context.Context, log 
 	switch routerInterface.Spec.Type {
 	case orcv1alpha1.RouterInterfaceTypeSubnet:
 		osResource, reconcileStatus = r.reconcileNormalSubnet(ctx, log, router, routerInterface, routerInterfacePorts, networkClient)
+	case orcv1alpha1.RouterInterfaceTypePort:
+		osResource, reconcileStatus = r.reconcileNormalPort(ctx, log, router, routerInterface, routerInterfacePorts, networkClient)
 
 	default:
 		return progress.WrapError(
@@ -370,6 +372,8 @@ func (r *orcRouterInterfaceReconciler) reconcileDelete(ctx context.Context, log 
 	switch routerInterface.Spec.Type {
 	case orcv1alpha1.RouterInterfaceTypeSubnet:
 		osResource, deleteOpts, reconcileStatus = r.reconcileDeleteSubnet(ctx, log, routerInterface, routerInterfacePorts)
+	case orcv1alpha1.RouterInterfaceTypePort:
+		osResource, deleteOpts, reconcileStatus = r.reconcileDeletePort(ctx, log, routerInterface, routerInterfacePorts)
 	default:
 		reconcileStatus = reconcileStatus.WithError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, fmt.Sprintf("Invalid type %s", routerInterface.Spec.Type)))
@@ -434,4 +438,82 @@ func (r *orcRouterInterfaceReconciler) reconcileDeleteSubnet(ctx context.Context
 
 	log.V(logging.Debug).Info("Will delete router interface", "portID", routerInterfacePort.ID)
 	return routerInterfacePort, &routers.RemoveInterfaceOpts{SubnetID: subnetID}, nil
+}
+
+func findPortByID(routerInterfacePorts []osclients.PortExt, portID string) *osclients.PortExt {
+	for i := range routerInterfacePorts {
+		if routerInterfacePorts[i].ID == portID {
+			return &routerInterfacePorts[i]
+		}
+	}
+	return nil
+}
+
+func (r *orcRouterInterfaceReconciler) reconcileNormalPort(ctx context.Context, log logr.Logger, router *orcv1alpha1.Router, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt, networkClient osclients.NetworkClient) (*osclients.PortExt, progress.ReconcileStatus) {
+	port := &orcv1alpha1.Port{}
+	portKey := client.ObjectKey{
+		Namespace: routerInterface.Namespace,
+		Name:      string(ptr.Deref(routerInterface.Spec.PortRef, "")),
+	}
+	if err := r.client.Get(ctx, portKey, port); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnCreation)
+		}
+		return nil, progress.WrapError(fmt.Errorf("fetching port %s: %w", portKey, err))
+	}
+	log = log.WithValues("port", port.Name)
+
+	if !port.GetDeletionTimestamp().IsZero() {
+		log.V(logging.Verbose).Info("Not reconciling interface for deleted port")
+		return nil, progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnReady)
+	}
+
+	if err := dependency.EnsureFinalizer(ctx, r.client, port, finalizer, fieldOwner); err != nil {
+		return nil, progress.WrapError(fmt.Errorf("adding finalizer to port: %w", err))
+	}
+
+	if port.Status.ID == nil {
+		return nil, progress.WaitingOnObject("Port", portKey.Name, progress.WaitingOnReady)
+	}
+	portID := *port.Status.ID
+	log = log.WithValues("portID", portID)
+
+	if existing := findPortByID(routerInterfacePorts, portID); existing != nil {
+		log.V(logging.Debug).Info("found existing port")
+		return existing, nil
+	}
+
+	createOpts := &routers.AddInterfaceOpts{PortID: portID}
+	return nil, r.createRouterInterface(ctx, log, router, routerInterface, createOpts, networkClient)
+}
+
+func (r *orcRouterInterfaceReconciler) reconcileDeletePort(ctx context.Context, log logr.Logger, routerInterface *orcv1alpha1.RouterInterface, routerInterfacePorts []osclients.PortExt) (*osclients.PortExt, routers.RemoveInterfaceOptsBuilder, progress.ReconcileStatus) {
+	port := &orcv1alpha1.Port{}
+	portKey := client.ObjectKey{
+		Namespace: routerInterface.Namespace,
+		Name:      string(ptr.Deref(routerInterface.Spec.PortRef, "")),
+	}
+	if err := r.client.Get(ctx, portKey, port); err != nil {
+		if apierrors.IsNotFound(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Port has been deleted unexpectedly")
+		} else {
+			err = fmt.Errorf("fetching port %s: %w", portKey, err)
+		}
+		return nil, nil, progress.WrapError(err)
+	}
+	if port.Status.ID == nil {
+		// The port was never created, so it can't have been attached.
+		return nil, nil, nil
+	}
+	portID := *port.Status.ID
+	log = log.WithValues("portID", portID)
+
+	routerInterfacePort := findPortByID(routerInterfacePorts, portID)
+	if routerInterfacePort == nil {
+		log.V(logging.Debug).Info("No port found deleting router interface. Assuming already deleted.")
+		return nil, nil, nil
+	}
+
+	log.V(logging.Debug).Info("Will delete router interface")
+	return routerInterfacePort, &routers.RemoveInterfaceOpts{PortID: portID}, nil
 }

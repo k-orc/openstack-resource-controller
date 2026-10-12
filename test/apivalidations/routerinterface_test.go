@@ -130,4 +130,62 @@ var _ = Describe("ORC RouterInterface API validations", func() {
 			WithResyncPeriod(metav1.Duration{Duration: time.Hour}))
 		Expect(applyObj(ctx, ri, patch)).To(Succeed())
 	})
+
+	It("should allow a port router interface", func(ctx context.Context) {
+		ri := routerInterfaceStub(namespace)
+		patch := baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypePort).
+			WithRouterRef("my-router").
+			WithPortRef("my-port"))
+		Expect(applyObj(ctx, ri, patch)).To(Succeed())
+	})
+
+	It("should require portRef when type is Port", func(ctx context.Context) {
+		ri := routerInterfaceStub(namespace)
+		patch := baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypePort).
+			WithRouterRef("my-router"))
+		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("portRef is required when type is 'Port'")))
+	})
+
+	It("should reject subnetRef when type is Port", func(ctx context.Context) {
+		ri := routerInterfaceStub(namespace)
+		patch := baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypePort).
+			WithRouterRef("my-router").
+			WithPortRef("my-port").
+			WithSubnetRef("my-subnet"))
+		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("subnetRef is required when type is 'Subnet' and not permitted otherwise")))
+	})
+
+	It("should reject portRef when type is Subnet", func(ctx context.Context) {
+		ri := routerInterfaceStub(namespace)
+		patch := baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypeSubnet).
+			WithRouterRef("my-router").
+			WithSubnetRef("my-subnet").
+			WithPortRef("my-port"))
+		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("portRef is required when type is 'Port' and not permitted otherwise")))
+	})
+
+	It("should keep portRef immutable", func(ctx context.Context) {
+		ri := routerInterfaceStub(namespace)
+		patch := baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypePort).
+			WithRouterRef("my-router").
+			WithPortRef("port-a"))
+		Expect(applyObj(ctx, ri, patch)).To(Succeed())
+
+		patch = baseRouterInterfacePatch(ri)
+		patch.WithSpec(applyconfigv1alpha1.RouterInterfaceSpec().
+			WithType(orcv1alpha1.RouterInterfaceTypePort).
+			WithRouterRef("my-router").
+			WithPortRef("port-b"))
+		Expect(applyObj(ctx, ri, patch)).To(MatchError(ContainSubstring("portRef is immutable")))
+	})
 })

@@ -92,6 +92,17 @@ var (
 		},
 		finalizer, fieldOwner,
 	)
+
+	portDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RouterInterfaceList, *orcv1alpha1.Port](
+		"spec.portRef",
+		func(routerIf *orcv1alpha1.RouterInterface) []string {
+			if routerIf.Spec.PortRef == nil {
+				return nil
+			}
+			return []string{string(*routerIf.Spec.PortRef)}
+		},
+		finalizer, fieldOwner,
+	)
 )
 
 // SetupWithManager sets up the controller with the Manager.
@@ -101,6 +112,7 @@ func (c *routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Cont
 	if err := errors.Join(
 		routerDependency.AddToManager(ctx, mgr),
 		subnetDependency.AddToManager(ctx, mgr),
+		portDependency.AddToManager(ctx, mgr),
 	); err != nil {
 		return err
 	}
@@ -159,6 +171,32 @@ func (c *routerInterfaceReconcilerConstructor) SetupWithManager(ctx context.Cont
 				return requests
 			}),
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Subnet{})),
+		).
+		Watches(&orcv1alpha1.Port{},
+			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
+				log := ctrl.LoggerFrom(ctx).WithValues("watch", "Port", "name", obj.GetName(), "namespace", obj.GetNamespace())
+
+				port, ok := obj.(*orcv1alpha1.Port)
+				if !ok {
+					log.V(logging.Debug).Info("Watch got unexpected object type", "type", fmt.Sprintf("%T", obj))
+					return nil
+				}
+
+				routerIfs, err := portDependency.GetObjectsForDependency(ctx, k8sClient, port)
+				if err != nil {
+					log.Error(err, "fetching routers for port")
+					return nil
+				}
+
+				var requests []reconcile.Request
+				for i := range routerIfs {
+					requests = append(requests, reconcile.Request{
+						NamespacedName: types.NamespacedName{Name: string(routerIfs[i].Spec.RouterRef), Namespace: port.Namespace},
+					})
+				}
+				return requests
+			}),
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Port{})),
 		).
 		WithOptions(options).
 		Complete(&reconciler)

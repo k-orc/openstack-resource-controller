@@ -9702,6 +9702,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RouterInterfaceSpec(re
 							Format:      "",
 						},
 					},
+					"portRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "portRef references the port the router interface is created on.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"resyncPeriod": {
 						SchemaProps: spec.SchemaProps{
 							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",

@@ -2893,6 +2893,9 @@ var schemaYAML = typed.YAMLObject(`types:
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.RouterInterfaceSpec
   map:
     fields:
+    - name: portRef
+      type:
+        scalar: string
     - name: resyncPeriod
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
