@@ -2,9 +2,10 @@
 
 ## Step 00
 
-Create a DNSZoneShare using all available fields, and verify that the observed state corresponds to the spec.
+DNSZoneShare has no optional fields - zoneRef and targetProjectID are both required, so there's
+nothing extra to add on top of `create-minimal`.
 
-Also validate that the OpenStack resource uses the name from the spec when it is specified.
+Verify that the observed state corresponds to the spec.
 
 ## Reference
 

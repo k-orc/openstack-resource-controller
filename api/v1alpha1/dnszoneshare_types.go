@@ -17,69 +17,71 @@ limitations under the License.
 package v1alpha1
 
 // DNSZoneShareResourceSpec contains the desired state of the resource.
+//
+// Designate has two separate mechanisms for giving another project access to a zone: zone
+// *transfer* (transfer_requests/transfer_accepts), which moves full ownership and needs both the
+// owner's and the recipient's credentials in one flow; and zone *share*, modeled here, which
+// grants another project co-management rights over a zone's recordsets while the original
+// project keeps ownership - a single-credential operation, only the owner's. See
+// RBACPolicy's own doc comment for the same shape applied to Neutron network sharing; this is
+// the Designate equivalent. Confirmed live against a real OpenStack deployment (a create/list/
+// delete round-trip) that this API exists and works as gophercloud's bindings describe, not just
+// assumed from reading the client library.
 type DNSZoneShareResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// dNSZoneRef is a reference to the ORC DNSZone which this resource is associated with.
+	// zoneRef is a reference to the ORC DNSZone this share grants access to. Immutable -
+	// Designate's zone-share API has no update path for which zone a share applies to, only
+	// create and delete.
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dNSZoneRef is immutable"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="zoneRef is immutable"
 	// +orc:kustomize:ref=DNSZone
-	DNSZoneRef KubernetesNameRef `json:"dNSZoneRef,omitempty"`
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// targetProjectID is the OpenStack project ID to grant access to. A raw OpenStack ID, not a
+	// KubernetesNameRef to an ORC Project object - Project creation itself may not be usable on
+	// every cloud (some providers gate identity/project provisioning behind their own control
+	// plane, outside Keystone, so no corresponding ORC Project object may ever exist to
+	// reference). Immutable - Designate's zone-share API has no update operation at all; changing
+	// the target means deleting this share and creating a new one.
+	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="targetProjectID is immutable"
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=64
+	TargetProjectID string `json:"targetProjectID,omitempty"`
 }
 
 // DNSZoneShareFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type DNSZoneShareFilter struct {
-	// name of the existing resource
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	// zoneRef is a reference to the ORC DNSZone to look for the share under - required because
+	// every Designate zone-share operation, including list, is scoped to a specific zone (see
+	// DNSZoneShareResourceSpec.zoneRef's doc comment for the same constraint on the managed path).
+	// +required
+	// +orc:kustomize:ref=DNSZone
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
-	// description of the existing resource
+	// targetProjectID of the existing resource. If not specified, matches any target project -
+	// which is only unambiguous if the referenced zone has exactly one share.
 	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:MaxLength:=64
 	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones
+	TargetProjectID *string `json:"targetProjectID,omitempty"`
 }
 
 // DNSZoneShareResourceStatus represents the observed state of the resource.
 type DNSZoneShareResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
+	// zoneID is the ID of the DNSZone this share applies to.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	ZoneID string `json:"zoneID,omitempty"`
 
-	// description is a human-readable description for the resource.
+	// targetProjectID is the OpenStack project ID this share grants access to.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	TargetProjectID string `json:"targetProjectID,omitempty"`
 
-	// dNSZoneID is the ID of the DNSZone to which the resource is associated.
+	// projectID is the ID of the project that owns the shared zone (and therefore this share) -
+	// not to be confused with targetProjectID, the project being granted access.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DNSZoneID string `json:"dNSZoneID,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ZoneShare structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones
+	ProjectID string `json:"projectID,omitempty"`
 }

@@ -16,6 +16,12 @@ nameReference:
     path: spec/resource/addressScopeRef
   kind: AddressScope
 - fieldSpecs:
+  - kind: DNSZoneShare
+    path: spec/import/filter/zoneRef
+  - kind: DNSZoneShare
+    path: spec/resource/zoneRef
+  kind: DNSZone
+- fieldSpecs:
   - kind: Group
     path: spec/import/filter/domainRef
   - kind: Group
@@ -177,6 +183,8 @@ nameReference:
   - kind: ApplicationCredential
     path: spec/resource/secretRef
   - kind: DNSZone
+    path: spec/cloudCredentialsRef/secretName
+  - kind: DNSZoneShare
     path: spec/cloudCredentialsRef/secretName
   - kind: Domain
     path: spec/cloudCredentialsRef/secretName

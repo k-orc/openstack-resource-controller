@@ -27,12 +27,13 @@ import (
 	"github.com/gophercloud/utils/v2/openstack/clientconfig"
 )
 
+// DNSZoneShareClient covers Designate zone-share operations. Unlike DNSZone/RecordSet, the
+// zone-share API has no update operation at all - only list, create (share) and delete (unshare).
 type DNSZoneShareClient interface {
-	ListDNSZoneShares(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.ZoneShare, error]
-	CreateDNSZoneShare(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.ZoneShare, error)
-	DeleteDNSZoneShare(ctx context.Context, resourceID string) error
-	GetDNSZoneShare(ctx context.Context, resourceID string) (*zones.ZoneShare, error)
-	UpdateDNSZoneShare(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.ZoneShare, error)
+	ListZoneShares(ctx context.Context, zoneID string) iter.Seq2[*zones.ZoneShare, error]
+	CreateZoneShare(ctx context.Context, zoneID string, opts zones.ShareOptsBuilder) (*zones.ZoneShare, error)
+	DeleteZoneShare(ctx context.Context, zoneID, shareID string) error
+	GetZoneShare(ctx context.Context, zoneID, shareID string) (*zones.ZoneShare, error)
 }
 
 type dnszoneshareClient struct{ client *gophercloud.ServiceClient }
@@ -51,27 +52,23 @@ func NewDNSZoneShareClient(providerClient *gophercloud.ProviderClient, providerC
 	return &dnszoneshareClient{client}, nil
 }
 
-func (c dnszoneshareClient) ListDNSZoneShares(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.ZoneShare, error] {
-	pager := zones.List(c.client, listOpts)
+func (c dnszoneshareClient) ListZoneShares(ctx context.Context, zoneID string) iter.Seq2[*zones.ZoneShare, error] {
+	pager := zones.ListShares(c.client, zoneID, nil)
 	return func(yield func(*zones.ZoneShare, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(zones.ExtractZoneShares, yield))
 	}
 }
 
-func (c dnszoneshareClient) CreateDNSZoneShare(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.ZoneShare, error) {
-	return zones.Create(ctx, c.client, opts).Extract()
+func (c dnszoneshareClient) CreateZoneShare(ctx context.Context, zoneID string, opts zones.ShareOptsBuilder) (*zones.ZoneShare, error) {
+	return zones.Share(ctx, c.client, zoneID, opts).Extract()
 }
 
-func (c dnszoneshareClient) DeleteDNSZoneShare(ctx context.Context, resourceID string) error {
-	return zones.Delete(ctx, c.client, resourceID).ExtractErr()
+func (c dnszoneshareClient) DeleteZoneShare(ctx context.Context, zoneID, shareID string) error {
+	return zones.Unshare(ctx, c.client, zoneID, shareID).ExtractErr()
 }
 
-func (c dnszoneshareClient) GetDNSZoneShare(ctx context.Context, resourceID string) (*zones.ZoneShare, error) {
-	return zones.Get(ctx, c.client, resourceID).Extract()
-}
-
-func (c dnszoneshareClient) UpdateDNSZoneShare(ctx context.Context, id string, opts zones.UpdateOptsBuilder) (*zones.ZoneShare, error) {
-	return zones.Update(ctx, c.client, id, opts).Extract()
+func (c dnszoneshareClient) GetZoneShare(ctx context.Context, zoneID, shareID string) (*zones.ZoneShare, error) {
+	return zones.GetShare(ctx, c.client, zoneID, shareID).Extract()
 }
 
 type dnszoneshareErrorClient struct{ error }
@@ -81,24 +78,20 @@ func NewDNSZoneShareErrorClient(e error) DNSZoneShareClient {
 	return dnszoneshareErrorClient{e}
 }
 
-func (e dnszoneshareErrorClient) ListDNSZoneShares(_ context.Context, _ zones.ListOptsBuilder) iter.Seq2[*zones.ZoneShare, error] {
+func (e dnszoneshareErrorClient) ListZoneShares(_ context.Context, _ string) iter.Seq2[*zones.ZoneShare, error] {
 	return func(yield func(*zones.ZoneShare, error) bool) {
 		yield(nil, e.error)
 	}
 }
 
-func (e dnszoneshareErrorClient) CreateDNSZoneShare(_ context.Context, _ zones.CreateOptsBuilder) (*zones.ZoneShare, error) {
+func (e dnszoneshareErrorClient) CreateZoneShare(_ context.Context, _ string, _ zones.ShareOptsBuilder) (*zones.ZoneShare, error) {
 	return nil, e.error
 }
 
-func (e dnszoneshareErrorClient) DeleteDNSZoneShare(_ context.Context, _ string) error {
+func (e dnszoneshareErrorClient) DeleteZoneShare(_ context.Context, _, _ string) error {
 	return e.error
 }
 
-func (e dnszoneshareErrorClient) GetDNSZoneShare(_ context.Context, _ string) (*zones.ZoneShare, error) {
-	return nil, e.error
-}
-
-func (e dnszoneshareErrorClient) UpdateDNSZoneShare(_ context.Context, _ string, _ zones.UpdateOptsBuilder) (*zones.ZoneShare, error) {
+func (e dnszoneshareErrorClient) GetZoneShare(_ context.Context, _, _ string) (*zones.ZoneShare, error) {
 	return nil, e.error
 }

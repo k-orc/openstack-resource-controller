@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: DNSZoneShare from "import error" test
+      zoneRef: dnszoneshare-import-error
