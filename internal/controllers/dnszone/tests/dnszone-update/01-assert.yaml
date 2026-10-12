@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszone-update
+status:
+  resource:
+    name: dnszone-update.example.com.
+    email: updated-admin@example.com
+    description: dnszone-update-updated
+    ttl: 300
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
