@@ -20,7 +20,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
+	"net/url"
+	"syscall"
 
 	"github.com/gophercloud/gophercloud/v2"
 )
@@ -64,6 +68,12 @@ func (e noMatchesError) Is(err error) bool {
 // returned as 409 but are retryable because quota can free up without spec
 // changes.
 func IsRetryable(err error) bool {
+	if IsTransportError(err) {
+		// We assume transport errors (such as "connection refused") are retryable,
+		// because they may vanish without spec changes.
+		return true
+	}
+
 	if IsConflict(err) {
 		// Neutron returns 409 for quota-exceeded errors, but these are
 		// retryable because quota can free up without spec changes.
@@ -122,4 +132,38 @@ func IsConflict(err error) bool {
 // IsNotImplementedError returns true if err is an HTTP 501 Not Implemented response.
 func IsNotImplementedError(err error) bool {
 	return gophercloud.ResponseCodeIs(err, http.StatusNotImplemented)
+}
+
+// IsTransportError returns true if err is a retryable transport error
+func IsTransportError(err error) bool {
+	// As per documentation, Golang net/http methods which are used by gophercloud
+	// will always wrap transport errors in url.Error
+	var errURL *url.Error
+	if !errors.As(err, &errURL) {
+		return false
+	}
+
+	if errURL.Timeout() || errURL.Temporary() {
+		// Every network error Golang considers temporary, we also accept as temporary
+		return true
+	}
+
+	if errors.Is(err, syscall.ECONNREFUSED) ||
+		errors.Is(err, syscall.ECONNRESET) ||
+		errors.Is(err, syscall.ECONNABORTED) ||
+		errors.Is(err, syscall.EHOSTUNREACH) ||
+		errors.Is(err, syscall.ENETUNREACH) ||
+		errors.Is(err, syscall.EPIPE) {
+		// These syscalls are not considered temporary by Golang, but we want to retry on these
+		return true
+	}
+
+	if errors.Is(err, io.EOF) ||
+		errors.Is(err, io.ErrUnexpectedEOF) ||
+		errors.Is(err, net.ErrClosed) {
+		// Socket closed unexpectedly
+		return true
+	}
+
+	return false
 }
