@@ -40,6 +40,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	clients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/version"
 )
@@ -103,6 +104,7 @@ type providerScope struct {
 	providerClientCache      *cache.LRUExpireCache
 	providerClientCacheKey   string
 	providerClientCacheMutex sync.Mutex
+	logger                   logr.Logger
 }
 
 func NewProviderScope(cloud clientconfig.Cloud, caCert []byte, logger logr.Logger) (Scope, error) {
@@ -114,6 +116,7 @@ func NewProviderScope(cloud clientconfig.Cloud, caCert []byte, logger logr.Logge
 	return &providerScope{
 		providerClient:     providerClient,
 		providerClientOpts: clientOpts,
+		logger:             logger,
 	}, nil
 }
 
@@ -174,6 +177,7 @@ func (s *providerScope) checkNewClientError(err error) {
 		return
 	}
 
+	s.logger.V(logging.Info).Info("Evicting cached provider scope: endpoint not found in catalog")
 	s.providerClientCache.Remove(s.providerClientCacheKey)
 	s.providerClientCache = nil
 }
