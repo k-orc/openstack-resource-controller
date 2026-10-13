@@ -14,6 +14,7 @@ nav:
   - How-to Guides:
     - Set Up Cloud Credentials: howto/cloud-credentials.md
     - Enable Drift Detection: howto/drift-detection.md
+    - Upgrading: howto/upgrading.md
     - Troubleshooting: troubleshooting.md
   - Reference:
     - Controller Configuration: reference/configuration.md

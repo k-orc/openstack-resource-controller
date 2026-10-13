@@ -1,5 +1,109 @@
 # Changelog
 
+## v3.0-pre1 - October 14, 2026
+
+This is the first pre-release of ORC v3. This release is safe to use in
+production, but additional backward-incompatible changes may land before
+v3.0.0. The Go module path has changed from `v2` to `v3`, and the release
+contains several backward-incompatible API changes. See the
+[upgrade guide](howto/upgrading.md#from-v2-to-v3) for migration instructions.
+
+### New controllers
+
+- **DNSZone**: Manage Designate DNS zones
+- **Limit**: Manage Keystone unified limits
+- **Region**: Manage Keystone regions
+- **RegisteredLimit**: Manage Keystone registered limits
+- **RoleAssignment**: Manage Keystone role assignments (relationship resource, no OpenStack ID)
+- **ShareNetwork**: Manage Manila share networks
+- **SubnetPool**: Manage Neutron subnet pools
+
+### New features
+
+- **Drift detection and resync**: Every resource now has an optional `spec.resyncPeriod` field
+  and a `status.lastSyncTime` timestamp. A new `--default-resync-period` manager flag sets the
+  global default. When enabled, ORC periodically re-reads the OpenStack resource and updates
+  status accordingly. External deletion of managed resources is detected and the resource is
+  re-created automatically. Drift detection is not yet enabled by default; see
+  [Enable Drift Detection](howto/drift-detection.md) for setup instructions and
+  [Drift Detection Explained](concepts/drift-detection.md) for how it works.
+- **Helm charts**: New `orc` and `orc-crds` Helm charts for installation.
+- **OLM bundle**: Enriched metadata for OperatorHub.io.
+- **RBAC aggregation**: ORC CRDs now contribute rules to the standard Kubernetes `view`, `edit`,
+  and `admin` [aggregated ClusterRoles](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles).
+- **Server**: Boot-from-volume support via `spec.resource.bootVolume`. New
+  `spec.resource.schedulerHints` with support for server groups, affinity/anti-affinity hints,
+  cell targeting, and arbitrary additional properties.
+- **Flavor**: Mutable extra specs via `spec.resource.extraSpecs`.
+- **Router**: Static routes support via `spec.resource.routes`.
+- **RouterInterface**: Support attaching by port (new `portRef` field and `Port` type).
+- **Network**: Provider segments in spec (`spec.resource.segments`) and status.
+- **Port**: New fields: `trustedVIF`, `valueSpecs`, `propagateUplinkStatus`.
+- **Endpoint**: `regionRef` in spec, filter, and status.
+- **Image**: `firmwareType` hardware property.
+
+### Breaking changes
+
+For detailed migration instructions, see the [upgrade guide](howto/upgrading.md#from-v2-to-v3).
+
+- **Go module path**: Changed from
+  `github.com/k-orc/openstack-resource-controller/v2` to
+  `github.com/k-orc/openstack-resource-controller/v3`. All Go imports must be updated.
+
+- **Server: `imageRef` changed from required to optional**: The type changed from
+  `KubernetesNameRef` (value) to `*KubernetesNameRef` (pointer). A new CEL rule requires
+  exactly one of `imageRef` or `bootVolume` to be set. Existing manifests that already
+  specify `imageRef` are not affected, but Go code referencing this field must handle the
+  pointer.
+
+- **Server: `serverGroupRef` moved to `schedulerHints`**: The field
+  `spec.resource.serverGroupRef` has been removed. Use
+  `spec.resource.schedulerHints.serverGroupRef` instead.
+
+- **Network: `status.resource.provider` replaced by `status.resource.segments`**: The
+  single `provider` object in status has been replaced by a `segments` list that can
+  represent multi-segment provider networks. Any code or tooling reading
+  `status.resource.provider` must switch to `status.resource.segments`.
+
+- **Port: `securityGroupRefs` changed from `[]OpenStackName` to `[]KubernetesNameRef`**:
+  Values were previously raw OpenStack security group names. They are now references to ORC
+  SecurityGroup objects. Existing Port manifests must be updated to reference ORC
+  SecurityGroup object names. (Fixes [#438](https://github.com/k-orc/openstack-resource-controller/issues/438))
+
+- **Status `bool` fields changed to `*bool`**: Five status fields changed from bare `bool`
+  to `*bool` so that `false` is distinguishable from unset in JSON. The affected fields are:
+    - `ApplicationCredentialResourceStatus.Unrestricted`
+    - `ImageResourceStatus.Protected`
+    - `SecurityGroupResourceStatus.Stateful`
+    - `ServerResourceStatus.ConfigDrive`
+    - `UserResourceStatus.Enabled`
+
+    This affects Go code that reads these fields directly (must dereference the pointer).
+    Existing YAML manifests are not affected since these are status-only.
+
+### Bug fixes
+
+- Flavor/Domain: Relaxed import ID validation from UUID-only to a broader pattern, allowing
+  non-UUID identifiers used by some OpenStack deployments (Fixes [#869](https://github.com/k-orc/openstack-resource-controller/issues/869))
+- SecurityGroup: Fixed deliberately-empty rules list never reaching Available (Fixes [#960](https://github.com/k-orc/openstack-resource-controller/issues/960))
+- SecurityGroup: Fixed incorrect index used for PortRange when creating rules
+- Status: Fixed `CreatedAt`/`UpdatedAt` set to literal JSON null on a zero timestamp
+- RouterInterface: Fixed status conditions when Router is not Available (Fixes [#838](https://github.com/k-orc/openstack-resource-controller/issues/838))
+- Port: Fixed endless update loop when MAC is empty in AllowedAddressPairs (Fixes [#852](https://github.com/k-orc/openstack-resource-controller/issues/852))
+- Port/Volume: Poll for status transition after server attachment (port ACTIVE, volume in-use) (Fixes [#842](https://github.com/k-orc/openstack-resource-controller/issues/842))
+- Invalidate cached provider scope when an OpenStack endpoint is missing from the catalog (Fixes [#941](https://github.com/k-orc/openstack-resource-controller/issues/941))
+- Network transport errors are now retryable (Fixes [#879](https://github.com/k-orc/openstack-resource-controller/issues/879))
+
+### Infrastructure improvements
+
+- Go bumped to 1.25.13
+- gophercloud bumped to v2.15.0
+- kuttl bumped to v0.27.0
+- Website migrated from mkdocs to zensical, with ORC logo and branding
+- Various dependency bumps (controller-runtime, cel-go, grpc, otel, etc.)
+
+---
+
 ## v2.6 - June 10, 2026
 
 ### New features
