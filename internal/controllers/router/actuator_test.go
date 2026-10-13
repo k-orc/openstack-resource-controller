@@ -135,3 +135,70 @@ func TestHandleAdminStateUpUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleRoutesUpdate(t *testing.T) {
+	testCases := []struct {
+		name          string
+		newValue      []orcv1alpha1.RouterRoute
+		existingValue []routers.Route
+		expectChange  bool
+	}{
+		{
+			name:          "Identical, same order",
+			newValue:      []orcv1alpha1.RouterRoute{{Destination: "203.0.113.0/24", NextHop: "192.0.2.10"}},
+			existingValue: []routers.Route{{DestinationCIDR: "203.0.113.0/24", NextHop: "192.0.2.10"}},
+			expectChange:  false,
+		},
+		{
+			name: "Identical, different order",
+			newValue: []orcv1alpha1.RouterRoute{
+				{Destination: "203.0.113.0/24", NextHop: "192.0.2.10"},
+				{Destination: "198.51.100.0/24", NextHop: "192.0.2.20"},
+			},
+			existingValue: []routers.Route{
+				{DestinationCIDR: "198.51.100.0/24", NextHop: "192.0.2.20"},
+				{DestinationCIDR: "203.0.113.0/24", NextHop: "192.0.2.10"},
+			},
+			expectChange: false,
+		},
+		{
+			name:          "Different next hop",
+			newValue:      []orcv1alpha1.RouterRoute{{Destination: "203.0.113.0/24", NextHop: "192.0.2.10"}},
+			existingValue: []routers.Route{{DestinationCIDR: "203.0.113.0/24", NextHop: "192.0.2.99"}},
+			expectChange:  true,
+		},
+		{
+			name:          "Route added",
+			newValue:      []orcv1alpha1.RouterRoute{{Destination: "203.0.113.0/24", NextHop: "192.0.2.10"}},
+			existingValue: nil,
+			expectChange:  true,
+		},
+		{
+			name:          "Route removed",
+			newValue:      nil,
+			existingValue: []routers.Route{{DestinationCIDR: "203.0.113.0/24", NextHop: "192.0.2.10"}},
+			expectChange:  true,
+		},
+		{
+			name:          "No value provided, existing is empty",
+			newValue:      nil,
+			existingValue: nil,
+			expectChange:  false,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			resource := &orcv1alpha1.RouterResourceSpec{Routes: tt.newValue}
+			osResource := &routers.Router{Routes: tt.existingValue}
+
+			updateOpts := routers.UpdateOpts{}
+			handleRoutesUpdate(&updateOpts, resource, osResource)
+
+			got, _ := needsUpdate(updateOpts)
+			if got != tt.expectChange {
+				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}

@@ -70,6 +70,11 @@ func (routerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRes
 		status.WithExternalGateways(orcapplyconfigv1alpha1.ExternalGatewayStatus().
 			WithNetworkID(osResource.GatewayInfo.NetworkID))
 	}
+	for _, route := range osResource.Routes {
+		status.WithRoutes(orcapplyconfigv1alpha1.RouterRouteStatus().
+			WithDestination(route.DestinationCIDR).
+			WithNextHop(route.NextHop))
+	}
 
 	statusApply.WithResource(status)
 }

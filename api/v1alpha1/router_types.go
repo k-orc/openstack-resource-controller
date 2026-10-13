@@ -51,6 +51,29 @@ type ExternalGatewayStatus struct {
 	NetworkID string `json:"networkID,omitempty"`
 }
 
+// RouterRoute is a static route hosted by a router.
+type RouterRoute struct {
+	// destination is the destination CIDR of this route.
+	// +required
+	Destination CIDR `json:"destination,omitempty"`
+
+	// nextHop is the IP address of the next hop for this route.
+	// +required
+	NextHop IPvAny `json:"nextHop,omitempty"`
+}
+
+type RouterRouteStatus struct {
+	// destination is the destination CIDR of this route.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Destination string `json:"destination,omitempty"`
+
+	// nextHop is the IP address of the next hop for this route.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	NextHop string `json:"nextHop,omitempty"`
+}
+
 type RouterResourceSpec struct {
 	// name is a human-readable name of the router. If not set, the
 	// object's name will be used.
@@ -99,6 +122,13 @@ type RouterResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="projectRef is immutable"
 	// +orc:kustomize:ref=Project
 	ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
+	// routes is a list of static routes hosted by this router.
+	// +kubebuilder:validation:MaxItems:=64
+	// +listType=map
+	// +listMapKey=destination
+	// +optional
+	Routes []RouterRoute `json:"routes,omitempty"`
 }
 
 type RouterResourceStatus struct {
@@ -147,4 +177,10 @@ type RouterResourceStatus struct {
 	// +listType=atomic
 	// +optional
 	AvailabilityZoneHints []string `json:"availabilityZoneHints,omitempty"`
+
+	// routes reports the static routes currently hosted by this router.
+	// +kubebuilder:validation:MaxItems:=64
+	// +listType=atomic
+	// +optional
+	Routes []RouterRouteStatus `json:"routes,omitempty"`
 }
