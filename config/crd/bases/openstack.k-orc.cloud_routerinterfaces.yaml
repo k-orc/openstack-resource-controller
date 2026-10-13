@@ -50,6 +50,12 @@ spec:
           spec:
             description: spec specifies the desired state of the resource.
             properties:
+              portRef:
+                description: portRef references the port the router interface is created
+                  on.
+                maxLength: 253
+                minLength: 1
+                type: string
               resyncPeriod:
                 description: |-
                   resyncPeriod defines how frequently the controller will re-reconcile
@@ -74,6 +80,7 @@ spec:
                 description: type specifies the type of the router interface.
                 enum:
                 - Subnet
+                - Port
                 maxLength: 8
                 minLength: 1
                 type: string
@@ -92,6 +99,11 @@ spec:
             - message: subnetRef is immutable
               rule: has(self.subnetRef) == has(oldSelf.subnetRef) && (!has(self.subnetRef)
                 || self.subnetRef == oldSelf.subnetRef)
+            - message: portRef is required when type is 'Port' and not permitted otherwise
+              rule: 'self.type == ''Port'' ? has(self.portRef) : !has(self.portRef)'
+            - message: portRef is immutable
+              rule: has(self.portRef) == has(oldSelf.portRef) && (!has(self.portRef)
+                || self.portRef == oldSelf.portRef)
           status:
             description: status defines the observed state of the resource.
             properties:

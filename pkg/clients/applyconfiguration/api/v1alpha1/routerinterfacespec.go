@@ -29,6 +29,7 @@ type RouterInterfaceSpecApplyConfiguration struct {
 	Type         *apiv1alpha1.RouterInterfaceType `json:"type,omitempty"`
 	RouterRef    *apiv1alpha1.KubernetesNameRef   `json:"routerRef,omitempty"`
 	SubnetRef    *apiv1alpha1.KubernetesNameRef   `json:"subnetRef,omitempty"`
+	PortRef      *apiv1alpha1.KubernetesNameRef   `json:"portRef,omitempty"`
 	ResyncPeriod *v1.Duration                     `json:"resyncPeriod,omitempty"`
 }
 
@@ -59,6 +60,14 @@ func (b *RouterInterfaceSpecApplyConfiguration) WithRouterRef(value apiv1alpha1.
 // If called multiple times, the SubnetRef field is set to the value of the last call.
 func (b *RouterInterfaceSpecApplyConfiguration) WithSubnetRef(value apiv1alpha1.KubernetesNameRef) *RouterInterfaceSpecApplyConfiguration {
 	b.SubnetRef = &value
+	return b
+}
+
+// WithPortRef sets the PortRef field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the PortRef field is set to the value of the last call.
+func (b *RouterInterfaceSpecApplyConfiguration) WithPortRef(value apiv1alpha1.KubernetesNameRef) *RouterInterfaceSpecApplyConfiguration {
+	b.PortRef = &value
 	return b
 }
 

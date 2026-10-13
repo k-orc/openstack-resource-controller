@@ -1,0 +1,40 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-port-a
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RouterInterface
+metadata:
+  name: routerinterface-port-b
+status:
+  conditions:
+    - type: Available
+      status: "True"
+      reason: Success
+    - type: Progressing
+      status: "False"
+      reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RouterInterface
+      name: routerinterface-port-b
+      ref: routerinterface
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Port
+      name: routerinterface-port
+      ref: port
+assertAll:
+    - celExpr: "routerinterface.status.id == port.status.id"

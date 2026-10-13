@@ -5552,6 +5552,11 @@ func (in *RouterInterfaceSpec) DeepCopyInto(out *RouterInterfaceSpec) {
 		*out = new(KubernetesNameRef)
 		**out = **in
 	}
+	if in.PortRef != nil {
+		in, out := &in.PortRef, &out.PortRef
+		*out = new(KubernetesNameRef)
+		**out = **in
+	}
 	if in.ResyncPeriod != nil {
 		in, out := &in.ResyncPeriod, &out.ResyncPeriod
 		*out = new(v1.Duration)

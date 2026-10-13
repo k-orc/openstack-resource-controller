@@ -4176,9 +4176,10 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
-| `type` _[RouterInterfaceType](#routerinterfacetype)_ | type specifies the type of the router interface. |  | Enum: [Subnet] <br />MaxLength: 8 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `type` _[RouterInterfaceType](#routerinterfacetype)_ | type specifies the type of the router interface. |  | Enum: [Subnet Port] <br />MaxLength: 8 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `routerRef` _[KubernetesNameRef](#kubernetesnameref)_ | routerRef references the router to which this interface belongs. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
 | `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef references the subnet the router interface is created on. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `portRef` _[KubernetesNameRef](#kubernetesnameref)_ | portRef references the port the router interface is created on. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
 
 
@@ -4207,7 +4208,7 @@ _Underlying type:_ _string_
 
 
 _Validation:_
-- Enum: [Subnet]
+- Enum: [Subnet Port]
 - MaxLength: 8
 - MinLength: 1
 
@@ -4217,6 +4218,7 @@ _Appears in:_
 | Field | Description |
 | --- | --- |
 | `Subnet` |  |
+| `Port` |  |
 
 
 #### RouterResourceSpec
