@@ -4525,6 +4525,26 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_GroupResourceSpec(ref 
 							Format:      "",
 						},
 					},
+					"userRefs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "userRefs contains ORC Users that belong to this group.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -4557,6 +4577,26 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_GroupResourceStatus(re
 							Description: "domainID is the ID of the Domain to which the resource is associated.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"userIDs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "userIDs lists the IDs of the Users in this group.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},

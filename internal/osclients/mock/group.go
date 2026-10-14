@@ -30,6 +30,8 @@ import (
 	reflect "reflect"
 
 	groups "github.com/gophercloud/gophercloud/v2/openstack/identity/v3/groups"
+	users "github.com/gophercloud/gophercloud/v2/openstack/identity/v3/users"
+	osclients "github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -57,11 +59,25 @@ func (m *MockGroupClient) EXPECT() *MockGroupClientMockRecorder {
 	return m.recorder
 }
 
+// AddUser mocks base method.
+func (m *MockGroupClient) AddUser(ctx context.Context, groupID, userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddUser", ctx, groupID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddUser indicates an expected call of AddUser.
+func (mr *MockGroupClientMockRecorder) AddUser(ctx, groupID, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUser", reflect.TypeOf((*MockGroupClient)(nil).AddUser), ctx, groupID, userID)
+}
+
 // CreateGroup mocks base method.
-func (m *MockGroupClient) CreateGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.Group, error) {
+func (m *MockGroupClient) CreateGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*osclients.GroupExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateGroup", ctx, opts)
-	ret0, _ := ret[0].(*groups.Group)
+	ret0, _ := ret[0].(*osclients.GroupExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -87,10 +103,10 @@ func (mr *MockGroupClientMockRecorder) DeleteGroup(ctx, resourceID any) *gomock.
 }
 
 // GetGroup mocks base method.
-func (m *MockGroupClient) GetGroup(ctx context.Context, resourceID string) (*groups.Group, error) {
+func (m *MockGroupClient) GetGroup(ctx context.Context, resourceID string) (*osclients.GroupExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetGroup", ctx, resourceID)
-	ret0, _ := ret[0].(*groups.Group)
+	ret0, _ := ret[0].(*osclients.GroupExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -102,10 +118,10 @@ func (mr *MockGroupClientMockRecorder) GetGroup(ctx, resourceID any) *gomock.Cal
 }
 
 // ListGroups mocks base method.
-func (m *MockGroupClient) ListGroups(ctx context.Context, listOpts groups.ListOptsBuilder) iter.Seq2[*groups.Group, error] {
+func (m *MockGroupClient) ListGroups(ctx context.Context, listOpts groups.ListOptsBuilder) iter.Seq2[*osclients.GroupExt, error] {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListGroups", ctx, listOpts)
-	ret0, _ := ret[0].(iter.Seq2[*groups.Group, error])
+	ret0, _ := ret[0].(iter.Seq2[*osclients.GroupExt, error])
 	return ret0
 }
 
@@ -115,11 +131,40 @@ func (mr *MockGroupClientMockRecorder) ListGroups(ctx, listOpts any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListGroups", reflect.TypeOf((*MockGroupClient)(nil).ListGroups), ctx, listOpts)
 }
 
+// ListUsers mocks base method.
+func (m *MockGroupClient) ListUsers(ctx context.Context, groupID string) ([]users.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListUsers", ctx, groupID)
+	ret0, _ := ret[0].([]users.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUsers indicates an expected call of ListUsers.
+func (mr *MockGroupClientMockRecorder) ListUsers(ctx, groupID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockGroupClient)(nil).ListUsers), ctx, groupID)
+}
+
+// RemoveUser mocks base method.
+func (m *MockGroupClient) RemoveUser(ctx context.Context, groupID, userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveUser", ctx, groupID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveUser indicates an expected call of RemoveUser.
+func (mr *MockGroupClientMockRecorder) RemoveUser(ctx, groupID, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUser", reflect.TypeOf((*MockGroupClient)(nil).RemoveUser), ctx, groupID, userID)
+}
+
 // UpdateGroup mocks base method.
-func (m *MockGroupClient) UpdateGroup(ctx context.Context, id string, opts groups.UpdateOptsBuilder) (*groups.Group, error) {
+func (m *MockGroupClient) UpdateGroup(ctx context.Context, id string, opts groups.UpdateOptsBuilder) (*osclients.GroupExt, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateGroup", ctx, id, opts)
-	ret0, _ := ret[0].(*groups.Group)
+	ret0, _ := ret[0].(*osclients.GroupExt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

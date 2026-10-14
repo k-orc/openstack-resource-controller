@@ -21,3 +21,16 @@ spec:
     secretName: group-dependency
   managementPolicy: managed
   resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Group
+metadata:
+  name: group-dependency-no-user
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack-admin
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    userRefs:
+    - group-dependency

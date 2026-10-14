@@ -19,9 +19,11 @@ package group
 import (
 	"context"
 	"iter"
+	"slices"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/groups"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -37,7 +39,7 @@ import (
 
 // OpenStack resource types
 type (
-	osResourceT = groups.Group
+	osResourceT = osclients.GroupExt
 
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
@@ -228,9 +230,80 @@ func handleDescriptionUpdate(updateOpts *groups.UpdateOpts, resource *resourceSp
 	}
 }
 
+func (actuator groupActuator) reconcileUserRefs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	orcUsers, usersDepRS := userDependency.RequireDependencies(
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+	)
+
+	reconcileStatus := progress.NewReconcileStatus().WithReconcileStatus(usersDepRS)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
+	}
+
+	// This may remove users that were added to the group out-of-band.
+	toAdd, toDelete := handleUserRefsUpdate(orcUsers, osResource.UserIDs)
+
+	log.V(logging.Debug).Info("user ref changes", "toAdd", toAdd, "toDelete", toDelete)
+	for existingUserID := range toDelete {
+		if err := actuator.osClient.RemoveUser(ctx, osResource.ID, existingUserID); err != nil {
+			if !orcerrors.IsRetryable(err) {
+				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "error removing user from group: "+err.Error(), err)
+			}
+			return progress.WrapError(err)
+		}
+		log.V(logging.Debug).Info("user removed from group", "userID", existingUserID)
+	}
+
+	for expectedUserID := range toAdd {
+		if err := actuator.osClient.AddUser(ctx, osResource.ID, expectedUserID); err != nil {
+			if !orcerrors.IsRetryable(err) {
+				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "error adding user to group: "+err.Error(), err)
+			}
+			return progress.WrapError(err)
+		}
+		log.V(logging.Debug).Info("user added to group", "userID", expectedUserID)
+	}
+
+	if len(toAdd) > 0 || len(toDelete) > 0 {
+		osUsers, err := actuator.osClient.ListUsers(ctx, osResource.ID)
+		if err != nil {
+			if !orcerrors.IsRetryable(err) {
+				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "error listing users in group: "+err.Error(), err)
+			}
+			return progress.WrapError(err)
+		}
+
+		userIDs := make([]string, 0, len(osUsers))
+		for _, u := range osUsers {
+			userIDs = append(userIDs, u.ID)
+		}
+		slices.Sort(userIDs)
+		osResource.UserIDs = userIDs
+	}
+
+	return nil
+}
+
+func handleUserRefsUpdate(orcUsers map[string]*orcv1alpha1.User, osUsers []string) (sets.Set[string], sets.Set[string]) {
+	expectedUsersMap := sets.New[string]()
+	for _, u := range orcUsers {
+		expectedUsersMap.Insert(ptr.Deref(u.Status.ID, ""))
+	}
+
+	existingUsersMap := sets.New[string]()
+	for _, u := range osUsers {
+		existingUsersMap.Insert(u)
+	}
+
+	return expectedUsersMap.Difference(existingUsersMap), existingUsersMap.Difference(expectedUsersMap)
+}
+
 func (actuator groupActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.updateResource,
+		actuator.reconcileUserRefs,
 	}, nil
 }
 

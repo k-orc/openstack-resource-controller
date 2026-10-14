@@ -51,6 +51,7 @@ func (groupStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Group, o
 func (groupStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.GroupResourceStatus().
 		WithDomainID(osResource.DomainID).
+		WithUserIDs(osResource.UserIDs...).
 		WithName(osResource.Name)
 
 	if osResource.Description != "" {
