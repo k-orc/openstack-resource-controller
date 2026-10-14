@@ -1,0 +1,17 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-update
+status:
+  resource:
+    name: lease-update-updated
+    description: lease-update-updated
+    # TODO(scaffolding): match all fields that were modified
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

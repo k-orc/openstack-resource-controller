@@ -1,0 +1,33 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-create-full
+status:
+  resource:
+    name: lease-create-full-override
+    description: Lease from "create full" test
+    # TODO(scaffolding): Add all fields the resource supports
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Lease
+      name: lease-create-full
+      ref: lease
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: lease-create-full
+      ref: flavor
+assertAll:
+    - celExpr: "lease.status.id != ''"
+    - celExpr: "lease.status.resource.flavorID == flavor.status.id"
+    # TODO(scaffolding): Add more checks

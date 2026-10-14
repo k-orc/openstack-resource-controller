@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      name: lease-dependency
+      ref: flavor
+    - apiVersion: v1
+      kind: Secret
+      name: lease-dependency
+      ref: secret
+assertAll:
+    - celExpr: "flavor.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lease' in flavor.metadata.finalizers"
+    - celExpr: "secret.metadata.deletionTimestamp != 0"
+    - celExpr: "'openstack.k-orc.cloud/lease' in secret.metadata.finalizers"
