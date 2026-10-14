@@ -45,7 +45,7 @@ func NewServiceClient(providerClient *gophercloud.ProviderClient, providerClient
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create service service client: %v", err)
+		return nil, fmt.Errorf("failed to create service service client: %w", err)
 	}
 
 	return &serviceClient{client}, nil

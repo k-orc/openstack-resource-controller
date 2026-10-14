@@ -45,7 +45,7 @@ func NewGroupClient(providerClient *gophercloud.ProviderClient, providerClientOp
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create group service client: %v", err)
+		return nil, fmt.Errorf("failed to create group service client: %w", err)
 	}
 
 	return &groupClient{client}, nil

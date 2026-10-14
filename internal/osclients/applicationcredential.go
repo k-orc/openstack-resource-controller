@@ -48,7 +48,7 @@ func NewApplicationCredentialClient(providerClient *gophercloud.ProviderClient, 
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create applicationcredential service client: %v", err)
+		return nil, fmt.Errorf("failed to create applicationcredential service client: %w", err)
 	}
 
 	return &applicationcredentialClient{client}, nil
