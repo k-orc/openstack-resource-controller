@@ -328,6 +328,12 @@ func (s *providerScope) NewLimitClient() (clients.LimitClient, error) {
 	return client, err
 }
 
+func (s *providerScope) NewLeaseClient() (clients.LeaseClient, error) {
+	client, err := clients.NewLeaseClient(s.providerClient, s.providerClientOpts)
+	s.checkNewClientError(err)
+	return client, err
+}
+
 func NewProviderClient(cloud clientconfig.Cloud, caCert []byte, logger logr.Logger) (*gophercloud.ProviderClient, *clientconfig.ClientOpts, error) {
 	clientOpts := new(clientconfig.ClientOpts)
 

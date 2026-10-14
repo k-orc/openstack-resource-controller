@@ -44,6 +44,8 @@ type Interface interface {
 	Images() ImageInformer
 	// KeyPairs returns a KeyPairInformer.
 	KeyPairs() KeyPairInformer
+	// Leases returns a LeaseInformer.
+	Leases() LeaseInformer
 	// Limits returns a LimitInformer.
 	Limits() LimitInformer
 	// Networks returns a NetworkInformer.
@@ -147,6 +149,11 @@ func (v *version) Images() ImageInformer {
 // KeyPairs returns a KeyPairInformer.
 func (v *version) KeyPairs() KeyPairInformer {
 	return &keyPairInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Leases returns a LeaseInformer.
+func (v *version) Leases() LeaseInformer {
+	return &leaseInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Limits returns a LimitInformer.

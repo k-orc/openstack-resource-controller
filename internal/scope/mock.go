@@ -44,6 +44,7 @@ type MockScopeFactory struct {
 	IdentityClient              *mock.MockIdentityClient
 	ImageClient                 *mock.MockImageClient
 	KeyPairClient               *mock.MockKeyPairClient
+	LeaseClient                 *mock.MockLeaseClient
 	NetworkClient               *mock.MockNetworkClient
 	RegionClient                *mock.MockRegionClient
 	RegisteredLimitClient       *mock.MockRegisteredLimitClient
@@ -71,6 +72,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	identityClient := mock.NewMockIdentityClient(mockCtrl)
 	imageClient := mock.NewMockImageClient(mockCtrl)
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
+	leaseClient := mock.NewMockLeaseClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	regionClient := mock.NewMockRegionClient(mockCtrl)
 	registeredLimitClient := mock.NewMockRegisteredLimitClient(mockCtrl)
@@ -95,6 +97,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		IdentityClient:              identityClient,
 		ImageClient:                 imageClient,
 		KeyPairClient:               keypairClient,
+		LeaseClient:                 leaseClient,
 		NetworkClient:               networkClient,
 		RegionClient:                regionClient,
 		RegisteredLimitClient:       registeredLimitClient,
@@ -211,4 +214,8 @@ func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {
 
 func (f *MockScopeFactory) NewLimitClient() (osclients.LimitClient, error) {
 	return f.LimitClient, nil
+}
+
+func (f *MockScopeFactory) NewLeaseClient() (osclients.LeaseClient, error) {
+	return f.LeaseClient, nil
 }
