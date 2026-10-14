@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-update
+spec:
+  resource:
+    name: lease-update-updated
+    description: lease-update-updated
+    # TODO(scaffolding): update all mutable fields
