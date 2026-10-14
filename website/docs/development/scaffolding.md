@@ -43,7 +43,7 @@ this commit.
 
 Next, perform the [post-scaffolding integration steps](#post-scaffolding-steps)
 (resource generator registration, `make generate`, scope wiring, manager
-registration) and commit them separately:
+registration, and `make generate-bundle`) and commit them separately:
 
 ```bash
 git add .
@@ -205,14 +205,6 @@ Key areas requiring implementation:
 !!! note
 
     There is a high chance that the API for the resource you're working on differs from the stub the scaffolding tool created. For example, some resources don't have name, id, or description. If that's the case, adapt the generated code to match your resource.
-
-### Generate the OLM bundle
-
-After implementation is complete:
-
-```bash
-make generate-bundle
-```
 
 ### Update documentation
 
