@@ -34,6 +34,13 @@ type GroupResourceSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="domainRef is immutable"
 	// +orc:kustomize:ref=Domain
 	DomainRef *KubernetesNameRef `json:"domainRef,omitempty"`
+
+	// userRefs contains ORC Users that belong to this group.
+	// +kubebuilder:validation:MaxItems:=4096
+	// +listType=set
+	// +optional
+	// +orc:kustomize:ref=User
+	UserRefs []KubernetesNameRef `json:"userRefs,omitempty"`
 }
 
 // GroupFilter defines an existing resource by its properties
@@ -65,4 +72,14 @@ type GroupResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	DomainID string `json:"domainID,omitempty"`
+
+	// userIDs lists the IDs of the Users in this group.
+	// Note: if this group imports an existing group, users added to that imported group
+	// afterwards are not reflected in userIDs unless resync is enabled. See the
+	// `--default-resync-period` option or `spec.resyncPeriod`.
+	// +kubebuilder:validation:MaxItems=4096
+	// +kubebuilder:validation:items:MaxLength=1024
+	// +optional
+	// +listType=set
+	UserIDs []string `json:"userIDs,omitempty"`
 }
