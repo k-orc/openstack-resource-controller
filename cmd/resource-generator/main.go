@@ -231,6 +231,9 @@ var resources []templateFields = []templateFields{
 		Name: "RecordSet",
 	},
 	{
+		Name: "Lease",
+	},
+	{
 		Name:       "RegisteredLimit",
 		IsNotNamed: true,
 	},
