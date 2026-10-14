@@ -38,6 +38,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/group"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/image"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/keypair"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/lease"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/limit"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/network"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/port"
@@ -153,6 +154,7 @@ func main() {
 		role.New(scopeFactory),
 		roleassignment.New(scopeFactory),
 		limit.New(scopeFactory),
+		lease.New(scopeFactory),
 	}
 
 	restConfig := ctrl.GetConfigOrDie()
