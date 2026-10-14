@@ -22,8 +22,7 @@ type RecordSetType string
 
 // RecordSetResourceSpec contains the desired state of the resource.
 type RecordSetResourceSpec struct {
-	// name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per
-	// Designate's own convention.
+	// name is the name of the recordset, e.g. "www.example.com.". Must end with a period.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="name is immutable"
 	// +required
 	Name *DesignateFQDN `json:"name,omitempty"` //nolint:kubeapilinter // always populated; pointer kept so the shared getResourceName helper compiles
@@ -40,25 +39,22 @@ type RecordSetResourceSpec struct {
 	// +orc:kustomize:ref=DNSZone
 	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
-	// type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no
-	// update path for a recordset's type, only its records/ttl/description.
+	// type is the RRTYPE of the recordset, e.g. A, CNAME, TXT.
 	// +required
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="type is immutable"
 	Type RecordSetType `json:"type,omitempty"`
 
-	// records are the record data for this recordset, in Designate's own format for the given
-	// type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not
-	// further validated here - record data syntax varies by type and Designate's own API is the
-	// source of truth for what's acceptable.
+	// records are the record data for this recordset, in Designate's format for the given type
+	// (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, text for TXT).
 	// +required
 	// +kubebuilder:validation:MinItems:=1
 	// +kubebuilder:validation:MaxItems:=64
-	// +kubebuilder:validation:items:MaxLength:=4096
+	// +kubebuilder:validation:items:MaxLength:=1024
 	// +listType=set
 	Records []string `json:"records,omitempty"`
 
-	// ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own
-	// default TTL applies.
+	// ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's default
+	// TTL applies.
 	// +kubebuilder:validation:Minimum:=1
 	// +kubebuilder:validation:Maximum:=2147483647
 	// +optional
@@ -66,15 +62,13 @@ type RecordSetResourceSpec struct {
 }
 
 // RecordSetFilter defines an existing resource by its properties
-// +kubebuilder:validation:MinProperties:=2
+// +kubebuilder:validation:MinProperties:=1
 type RecordSetFilter struct {
-	// zoneRef is a reference to the ORC DNSZone to look for the recordset under - required
-	// because every Designate recordset operation, including list, is scoped to a specific zone
-	// (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed
-	// path).
-	// +required
+	// zoneRef is a reference to the ORC DNSZone to look for the recordset in. If not specified,
+	// all zones in the project are searched.
+	// +optional
 	// +orc:kustomize:ref=DNSZone
-	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
+	ZoneRef *KubernetesNameRef `json:"zoneRef,omitempty"`
 
 	// name of the existing resource
 	// +optional
@@ -89,6 +83,12 @@ type RecordSetFilter struct {
 	// type of the existing resource
 	// +optional
 	Type *RecordSetType `json:"type,omitempty"`
+
+	// ttl of the existing resource
+	// +kubebuilder:validation:Minimum:=1
+	// +kubebuilder:validation:Maximum:=2147483647
+	// +optional
+	TTL *int32 `json:"ttl,omitempty"`
 }
 
 // RecordSetResourceStatus represents the observed state of the resource.
@@ -115,7 +115,7 @@ type RecordSetResourceStatus struct {
 
 	// records are the record data for this recordset.
 	// +kubebuilder:validation:MaxItems:=64
-	// +kubebuilder:validation:items:MaxLength:=4096
+	// +kubebuilder:validation:items:MaxLength:=1024
 	// +listType=set
 	// +optional
 	Records []string `json:"records,omitempty"`

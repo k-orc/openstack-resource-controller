@@ -51,8 +51,12 @@ func NewRecordSetClient(providerClient *gophercloud.ProviderClient, providerClie
 	return &recordsetClient{client}, nil
 }
 
+// ListRecordSets lists the recordsets of one zone, or of every zone in the project if zoneID is empty.
 func (c recordsetClient) ListRecordSets(ctx context.Context, zoneID string, listOpts recordsets.ListOptsBuilder) iter.Seq2[*recordsets.RecordSet, error] {
-	pager := recordsets.ListByZone(c.client, zoneID, listOpts)
+	pager := recordsets.ListAll(c.client, listOpts)
+	if zoneID != "" {
+		pager = recordsets.ListByZone(c.client, zoneID, listOpts)
+	}
 	return func(yield func(*recordsets.RecordSet, error) bool) {
 		_ = pager.EachPage(ctx, yieldPage(recordsets.ExtractRecordSets, yield))
 	}

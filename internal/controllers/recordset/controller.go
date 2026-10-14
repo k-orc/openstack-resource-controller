@@ -69,17 +69,16 @@ var zoneDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.RecordSe
 	finalizer, externalObjectFieldOwner,
 )
 
-// zoneImportDependency indexes spec.import.filter.zoneRef, used for the unmanaged/import path -
-// see newActuator for why this needs to be a separate dependency from zoneDependency above (no
-// deletion guard: an unmanaged object never owns the zone, so it must not block its deletion).
+// zoneImportDependency indexes spec.import.filter.zoneRef. No deletion guard: an imported
+// recordset doesn't own its zone.
 var zoneImportDependency = dependency.NewDependency[*orcv1alpha1.RecordSetList, *orcv1alpha1.DNSZone](
 	"spec.import.filter.zoneRef",
 	func(recordset *orcv1alpha1.RecordSet) []string {
 		imp := recordset.Spec.Import
-		if imp == nil || imp.Filter == nil {
+		if imp == nil || imp.Filter == nil || imp.Filter.ZoneRef == nil {
 			return nil
 		}
-		return []string{string(imp.Filter.ZoneRef)}
+		return []string{string(*imp.Filter.ZoneRef)}
 	},
 )
 

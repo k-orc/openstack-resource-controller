@@ -2530,6 +2530,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: name
       type:
         scalar: string
+    - name: ttl
+      type:
+        scalar: numeric
     - name: type
       type:
         scalar: string

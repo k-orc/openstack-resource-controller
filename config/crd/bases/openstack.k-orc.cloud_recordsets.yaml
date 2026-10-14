@@ -89,7 +89,7 @@ spec:
                       result. The controller will continue to retry if filter returns no
                       results. If filter returns multiple results the controller will set an
                       error state and will not continue to retry.
-                    minProperties: 2
+                    minProperties: 1
                     properties:
                       description:
                         description: description of the existing resource
@@ -104,6 +104,12 @@ spec:
                         x-kubernetes-validations:
                         - message: must end with a period
                           rule: self.endsWith('.')
+                      ttl:
+                        description: ttl of the existing resource
+                        format: int32
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
                       type:
                         description: type of the existing resource
                         enum:
@@ -121,15 +127,11 @@ spec:
                         type: string
                       zoneRef:
                         description: |-
-                          zoneRef is a reference to the ORC DNSZone to look for the recordset under - required
-                          because every Designate recordset operation, including list, is scoped to a specific zone
-                          (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed
-                          path).
+                          zoneRef is a reference to the ORC DNSZone to look for the recordset in. If not specified,
+                          all zones in the project are searched.
                         maxLength: 253
                         minLength: 1
                         type: string
-                    required:
-                    - zoneRef
                     type: object
                   id:
                     description: |-
@@ -185,9 +187,8 @@ spec:
                     minLength: 1
                     type: string
                   name:
-                    description: |-
-                      name is the name of the recordset, e.g. "www.example.com.". Must end with a period, per
-                      Designate's own convention.
+                    description: name is the name of the recordset, e.g. "www.example.com.".
+                      Must end with a period.
                     maxLength: 255
                     minLength: 1
                     type: string
@@ -198,12 +199,10 @@ spec:
                       rule: self.endsWith('.')
                   records:
                     description: |-
-                      records are the record data for this recordset, in Designate's own format for the given
-                      type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not
-                      further validated here - record data syntax varies by type and Designate's own API is the
-                      source of truth for what's acceptable.
+                      records are the record data for this recordset, in Designate's format for the given type
+                      (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, text for TXT).
                     items:
-                      maxLength: 4096
+                      maxLength: 1024
                       type: string
                     maxItems: 64
                     minItems: 1
@@ -211,16 +210,15 @@ spec:
                     x-kubernetes-list-type: set
                   ttl:
                     description: |-
-                      ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own
-                      default TTL applies.
+                      ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's default
+                      TTL applies.
                     format: int32
                     maximum: 2147483647
                     minimum: 1
                     type: integer
                   type:
-                    description: |-
-                      type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no
-                      update path for a recordset's type, only its records/ttl/description.
+                    description: type is the RRTYPE of the recordset, e.g. A, CNAME,
+                      TXT.
                     enum:
                     - A
                     - AAAA
@@ -388,7 +386,7 @@ spec:
                   records:
                     description: records are the record data for this recordset.
                     items:
-                      maxLength: 4096
+                      maxLength: 1024
                       type: string
                     maxItems: 64
                     type: array

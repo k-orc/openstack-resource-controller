@@ -29,6 +29,7 @@ type RecordSetFilterApplyConfiguration struct {
 	Name        *apiv1alpha1.DesignateFQDN     `json:"name,omitempty"`
 	Description *string                        `json:"description,omitempty"`
 	Type        *apiv1alpha1.RecordSetType     `json:"type,omitempty"`
+	TTL         *int32                         `json:"ttl,omitempty"`
 }
 
 // RecordSetFilterApplyConfiguration constructs a declarative configuration of the RecordSetFilter type for use with
@@ -66,5 +67,13 @@ func (b *RecordSetFilterApplyConfiguration) WithDescription(value string) *Recor
 // If called multiple times, the Type field is set to the value of the last call.
 func (b *RecordSetFilterApplyConfiguration) WithType(value apiv1alpha1.RecordSetType) *RecordSetFilterApplyConfiguration {
 	b.Type = &value
+	return b
+}
+
+// WithTTL sets the TTL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TTL field is set to the value of the last call.
+func (b *RecordSetFilterApplyConfiguration) WithTTL(value int32) *RecordSetFilterApplyConfiguration {
+	b.TTL = &value
 	return b
 }

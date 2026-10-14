@@ -8485,7 +8485,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref co
 				Properties: map[string]spec.Schema{
 					"zoneRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "zoneRef is a reference to the ORC DNSZone to look for the recordset under - required because every Designate recordset operation, including list, is scoped to a specific zone (see RecordSetResourceSpec.zoneRef's doc comment for the same constraint on the managed path).",
+							Description: "zoneRef is a reference to the ORC DNSZone to look for the recordset in. If not specified, all zones in the project are searched.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8511,8 +8511,14 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetFilter(ref co
 							Format:      "",
 						},
 					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ttl of the existing resource",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 				},
-				Required: []string{"zoneRef"},
 			},
 		},
 	}
@@ -8606,7 +8612,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 				Properties: map[string]spec.Schema{
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "name is the name of the recordset, e.g. \"www.example.com.\". Must end with a period, per Designate's own convention.",
+							Description: "name is the name of the recordset, e.g. \"www.example.com.\". Must end with a period.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8627,7 +8633,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 					},
 					"type": {
 						SchemaProps: spec.SchemaProps{
-							Description: "type is the RRTYPE of the recordset, e.g. A, CNAME, TXT. Immutable - Designate has no update path for a recordset's type, only its records/ttl/description.",
+							Description: "type is the RRTYPE of the recordset, e.g. A, CNAME, TXT.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -8639,7 +8645,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "records are the record data for this recordset, in Designate's own format for the given type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, free text for TXT). Not further validated here - record data syntax varies by type and Designate's own API is the source of truth for what's acceptable.",
+							Description: "records are the record data for this recordset, in Designate's format for the given type (e.g. an IP address for A/AAAA, a hostname for CNAME/MX/NS, text for TXT).",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -8654,7 +8660,7 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_RecordSetResourceSpec(
 					},
 					"ttl": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's own default TTL applies.",
+							Description: "ttl is the Time To Live for the recordset, in seconds. If not specified, the zone's default TTL applies.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
