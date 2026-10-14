@@ -38,6 +38,8 @@ type ImageExpansion interface{}
 
 type KeyPairExpansion interface{}
 
+type LeaseExpansion interface{}
+
 type LimitExpansion interface{}
 
 type NetworkExpansion interface{}

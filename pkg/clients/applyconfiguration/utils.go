@@ -228,6 +228,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.KeyPairSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("KeyPairStatus"):
 		return &apiv1alpha1.KeyPairStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("Lease"):
+		return &apiv1alpha1.LeaseApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LeaseFilter"):
+		return &apiv1alpha1.LeaseFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LeaseImport"):
+		return &apiv1alpha1.LeaseImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LeaseResourceSpec"):
+		return &apiv1alpha1.LeaseResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LeaseResourceStatus"):
+		return &apiv1alpha1.LeaseResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LeaseSpec"):
+		return &apiv1alpha1.LeaseSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("LeaseStatus"):
+		return &apiv1alpha1.LeaseStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("Limit"):
 		return &apiv1alpha1.LimitApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("LimitFilter"):

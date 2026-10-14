@@ -48,6 +48,8 @@ nameReference:
     path: spec/resource/domainRef
   kind: Domain
 - fieldSpecs:
+  - kind: Lease
+    path: spec/resource/flavorRef
   - kind: Server
     path: spec/resource/flavorRef
   kind: Flavor
@@ -199,6 +201,8 @@ nameReference:
   - kind: Image
     path: spec/cloudCredentialsRef/secretName
   - kind: KeyPair
+    path: spec/cloudCredentialsRef/secretName
+  - kind: Lease
     path: spec/cloudCredentialsRef/secretName
   - kind: Limit
     path: spec/cloudCredentialsRef/secretName
