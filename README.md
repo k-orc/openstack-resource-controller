@@ -64,7 +64,7 @@ kubectl delete -f $ORC_RELEASE
 
 ## Supported OpenStack resources
 
-| **controller**              | **1.x (EOL)** | **2.x** | **main** |
+| **controller**              | **1.x (EOL)** | **2.x** | **3.x (main)** |
 |:---------------------------:|:-------:|:-------:|:--------:|
 | addressscope                |         |    ✔    |     ✔    |
 | application credential      |         |    ◐    |     ◐    |

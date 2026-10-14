@@ -84,7 +84,7 @@ The upgrade process:
 
 !!! note
 
-    Always check the [Changelog](changelog.md) for breaking changes before upgrading major versions.
+    Always check the [Changelog](changelog.md) for breaking changes before upgrading major versions. For major version upgrades, see the [Upgrading](howto/upgrading.md) guide.
 
 ## Uninstalling
 
