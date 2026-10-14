@@ -294,6 +294,8 @@ nameReference:
     path: spec/import/filter/userRef
   - kind: ApplicationCredential
     path: spec/resource/userRef
+  - kind: Group
+    path: spec/resource/userRefs[]
   - kind: RoleAssignment
     path: spec/import/filter/userRef
   - kind: RoleAssignment
