@@ -2,26 +2,37 @@
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Lease
 metadata:
-  name: lease-dependency-no-flavor
+  name: lease-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
-    secretName: openstack-clouds
+    secretName: lease-dependency
   managementPolicy: managed
   resource:
-    flavorRef: lease-dependency
-    # TODO(scaffolding): Add the necessary fields to create the resource
+    # Each lease test uses its own window so that they do not compete for the
+    # capacity of the single DevStack host.
+    startDate: "2093-01-01T10:00:00Z"
+    endDate: "2093-01-01T11:00:00Z"
+    reservations:
+      - instance:
+          amount: 1
+          vcpus: 1
+          memoryMB: 128
+          diskGB: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Lease
 metadata:
-  name: lease-dependency-no-secret
+  name: lease-dependency-no-flavor
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
-    secretName: lease-dependency
+    secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    startDate: "2098-01-01T10:00:00Z"
+    endDate: "2098-01-01T11:00:00Z"
+    reservations:
+      - flavorInstance:
+          amount: 1
+          flavorRef: lease-dependency

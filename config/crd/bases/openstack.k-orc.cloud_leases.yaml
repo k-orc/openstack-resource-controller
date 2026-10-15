@@ -91,16 +91,10 @@ spec:
                       error state and will not continue to retry.
                     minProperties: 1
                     properties:
-                      description:
-                        description: description of the existing resource
-                        maxLength: 255
-                        minLength: 1
-                        type: string
                       name:
                         description: name of the existing resource
-                        maxLength: 255
+                        maxLength: 80
                         minLength: 1
-                        pattern: ^[^,]+$
                         type: string
                     type: object
                   id:
@@ -150,30 +144,157 @@ spec:
 
                   resource must be specified if the management policy is `managed`.
                 properties:
-                  description:
-                    description: description is a human-readable description for the
-                      resource.
-                    maxLength: 255
-                    minLength: 1
+                  endDate:
+                    description: |-
+                      endDate is the time at which the lease ends. Blazar truncates it to the
+                      minute.
+                    format: date-time
                     type: string
-                  flavorRef:
-                    description: flavorRef is a reference to the ORC Flavor which
-                      this resource is associated with.
-                    maxLength: 253
-                    minLength: 1
-                    type: string
-                    x-kubernetes-validations:
-                    - message: flavorRef is immutable
-                      rule: self == oldSelf
                   name:
                     description: |-
                       name will be the name of the created resource. If not specified, the
-                      name of the ORC object will be used.
-                    maxLength: 255
+                      name of the ORC object will be used, which must then be at most 80
+                      characters long.
+                    maxLength: 80
                     minLength: 1
-                    pattern: ^[^,]+$
                     type: string
+                  reservations:
+                    description: reservations are the resources reserved for the duration
+                      of the lease.
+                    items:
+                      description: |-
+                        LeaseReservation is a single reservation within a lease. Exactly one of
+                        host, instance or flavorInstance must be specified.
+                      properties:
+                        flavorInstance:
+                          description: flavorInstance reserves capacity for instances
+                            of an existing flavor.
+                          properties:
+                            amount:
+                              description: amount is the number of instances to reserve
+                                capacity for.
+                              format: int32
+                              minimum: 1
+                              type: integer
+                            flavorRef:
+                              description: |-
+                                flavorRef is a reference to the ORC Flavor to reserve instances of.
+                                Blazar derives the size and the resource properties of the
+                                reservation from the flavor when the lease is created.
+                              maxLength: 253
+                              minLength: 1
+                              type: string
+                          required:
+                          - amount
+                          - flavorRef
+                          type: object
+                        host:
+                          description: host reserves whole compute hosts.
+                          properties:
+                            hypervisorProperties:
+                              description: |-
+                                hypervisorProperties filters the candidate hosts on the properties Nova
+                                reports, e.g. `[">=", "$vcpus", "4"]`.
+                              maxLength: 1024
+                              minLength: 1
+                              type: string
+                            max:
+                              description: max is the largest number of hosts to reserve.
+                              format: int32
+                              minimum: 1
+                              type: integer
+                            min:
+                              description: min is the smallest number of hosts the
+                                lease can be satisfied with.
+                              format: int32
+                              minimum: 1
+                              type: integer
+                            resourceProperties:
+                              description: |-
+                                resourceProperties filters the candidate hosts on their extra
+                                capabilities, e.g. `["==", "$gpu", "a100"]`.
+                              maxLength: 1024
+                              minLength: 1
+                              type: string
+                          required:
+                          - max
+                          - min
+                          type: object
+                          x-kubernetes-validations:
+                          - message: max must be greater than or equal to min
+                            rule: self.max >= self.min
+                        instance:
+                          description: instance reserves capacity for instances of
+                            a given size.
+                          properties:
+                            affinity:
+                              description: |-
+                                affinity places the instances on the same host if true, or on distinct
+                                hosts if false. If not specified, placement is left to Nova.
+                              type: boolean
+                            amount:
+                              description: amount is the number of instances to reserve
+                                capacity for.
+                              format: int32
+                              minimum: 1
+                              type: integer
+                            diskGB:
+                              description: diskGB is the amount of disk per instance,
+                                in gigabytes.
+                              format: int32
+                              minimum: 0
+                              type: integer
+                            memoryMB:
+                              description: memoryMB is the amount of memory per instance,
+                                in megabytes.
+                              format: int32
+                              minimum: 1
+                              type: integer
+                            resourceProperties:
+                              description: |-
+                                resourceProperties filters the candidate hosts on their extra
+                                capabilities, e.g. `["==", "$gpu", "a100"]`.
+                              maxLength: 1024
+                              minLength: 1
+                              type: string
+                            vcpus:
+                              description: vcpus is the number of virtual CPUs per
+                                instance.
+                              format: int32
+                              minimum: 1
+                              type: integer
+                          required:
+                          - amount
+                          - diskGB
+                          - memoryMB
+                          - vcpus
+                          type: object
+                      type: object
+                      x-kubernetes-validations:
+                      - message: exactly one of host, instance or flavorInstance must
+                          be set
+                        rule: '[has(self.host), has(self.instance), has(self.flavorInstance)].filter(x,
+                          x).size() == 1'
+                    maxItems: 32
+                    minItems: 1
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  startDate:
+                    description: |-
+                      startDate is the time at which the lease starts. If not specified, the
+                      lease starts as soon as it is created. Blazar truncates it to the
+                      minute.
+                    format: date-time
+                    type: string
+                required:
+                - endDate
+                - reservations
                 type: object
+                x-kubernetes-validations:
+                - message: LeaseResourceSpec is immutable
+                  rule: self == oldSelf
+                - message: endDate must be later than startDate
+                  rule: '!has(self.startDate) || timestamp(self.endDate) > timestamp(self.startDate)'
               resyncPeriod:
                 description: |-
                   resyncPeriod defines how frequently the controller will re-reconcile
@@ -293,20 +414,145 @@ spec:
                 description: resource contains the observed state of the OpenStack
                   resource.
                 properties:
-                  description:
-                    description: description is a human-readable description for the
-                      resource.
-                    maxLength: 1024
+                  createdAt:
+                    description: createdAt shows the date and time when the resource
+                      was created.
+                    format: date-time
                     type: string
-                  flavorID:
-                    description: flavorID is the ID of the Flavor to which the resource
-                      is associated.
-                    maxLength: 1024
+                  degraded:
+                    description: degraded is true if some of the reserved resources
+                      are unavailable.
+                    type: boolean
+                  endDate:
+                    description: endDate is the time at which the lease ends.
+                    format: date-time
                     type: string
                   name:
                     description: name is a Human-readable name for the resource. Might
                       not be unique.
                     maxLength: 1024
+                    type: string
+                  projectID:
+                    description: projectID is the ID of the project that owns the
+                      lease.
+                    maxLength: 255
+                    type: string
+                  reservations:
+                    description: reservations are the reservations within the lease.
+                    items:
+                      description: |-
+                        LeaseReservationStatus represents the observed state of a reservation
+                        within a lease.
+                      properties:
+                        affinity:
+                          description: |-
+                            affinity is the placement policy of the instances of an instance
+                            reservation: on the same host if true, on distinct hosts if false.
+                          type: boolean
+                        amount:
+                          description: amount is the number of instances of an instance
+                            reservation.
+                          format: int32
+                          type: integer
+                        diskGB:
+                          description: |-
+                            diskGB is the amount of disk per instance of an instance reservation,
+                            in gigabytes.
+                          format: int32
+                          type: integer
+                        flavorID:
+                          description: |-
+                            flavorID is the ID of the flavor Blazar created for an instance
+                            reservation. Instances must be created with this flavor to consume the
+                            reservation.
+                          maxLength: 36
+                          type: string
+                        hypervisorProperties:
+                          description: |-
+                            hypervisorProperties filters the candidate hosts of a host reservation
+                            on the properties Nova reports.
+                          maxLength: 4096
+                          type: string
+                        id:
+                          description: |-
+                            id is the ID of the reservation. For host reservations it is passed to
+                            Nova as the `reservation` scheduler hint.
+                          maxLength: 36
+                          type: string
+                        max:
+                          description: max is the largest number of hosts of a host
+                            reservation.
+                          format: int32
+                          type: integer
+                        memoryMB:
+                          description: |-
+                            memoryMB is the amount of memory per instance of an instance
+                            reservation, in megabytes.
+                          format: int32
+                          type: integer
+                        min:
+                          description: min is the smallest number of hosts of a host
+                            reservation.
+                          format: int32
+                          type: integer
+                        missingResources:
+                          description: |-
+                            missingResources is true if some of the reserved resources are no
+                            longer available.
+                          type: boolean
+                        resourceProperties:
+                          description: |-
+                            resourceProperties filters the candidate hosts on their extra
+                            capabilities.
+                          maxLength: 4096
+                          type: string
+                        resourceType:
+                          description: |-
+                            resourceType is the type of resource reserved: `physical:host`,
+                            `virtual:instance` or `flavor:instance`.
+                          maxLength: 66
+                          type: string
+                        resourcesChanged:
+                          description: |-
+                            resourcesChanged is true if some of the reserved resources were
+                            replaced.
+                          type: boolean
+                        serverGroupID:
+                          description: |-
+                            serverGroupID is the ID of the server group Blazar created for an
+                            instance reservation.
+                          maxLength: 36
+                          type: string
+                        status:
+                          description: status is the status of the reservation.
+                          maxLength: 13
+                          type: string
+                        vcpus:
+                          description: |-
+                            vcpus is the number of virtual CPUs per instance of an instance
+                            reservation.
+                          format: int32
+                          type: integer
+                      type: object
+                    maxItems: 32
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  startDate:
+                    description: startDate is the time at which the lease starts.
+                    format: date-time
+                    type: string
+                  status:
+                    description: status is the status of the lease.
+                    maxLength: 255
+                    type: string
+                  updatedAt:
+                    description: updatedAt shows the date and time when the resource
+                      was updated.
+                    format: date-time
+                    type: string
+                  userID:
+                    description: userID is the ID of the user that created the lease.
+                    maxLength: 255
                     type: string
                 type: object
             type: object
