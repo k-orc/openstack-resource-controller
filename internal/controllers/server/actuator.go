@@ -432,11 +432,6 @@ func (actuator serverActuator) GetResourceReconcilers(ctx context.Context, orcOb
 
 func (actuator serverActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
 
 	updateOpts := &servers.UpdateOpts{}
 
@@ -514,10 +509,6 @@ func (actuator serverActuator) reconcileTags(ctx context.Context, obj orcObjectP
 func (actuator serverActuator) reconcileMetadata(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
 
 	// Metadata cannot be set on a server that is still building
 	if osResource.Status == "" || osResource.Status == ServerStatusBuild {
@@ -547,11 +538,6 @@ func (actuator serverActuator) reconcileMetadata(ctx context.Context, obj orcObj
 func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
 
 	portDepsMap, reconcileStatus := portDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
@@ -625,11 +611,6 @@ func (actuator serverActuator) reconcilePortAttachments(ctx context.Context, obj
 func (actuator serverActuator) reconcileVolumeAttachments(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
 
 	volumeDepsMap, reconcileStatus := volumeDependency.RequireDependencies(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,

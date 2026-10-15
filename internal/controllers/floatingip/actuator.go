@@ -259,11 +259,6 @@ func (actuator floatingipActuator) DeleteResource(ctx context.Context, _ orcObje
 func (actuator floatingipActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
 	updateOpts := &floatingips.UpdateOpts{}
 
 	handleDescriptionUpdate(updateOpts, resource, osResource)

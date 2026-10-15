@@ -196,11 +196,6 @@ func (actuator projectActuator) GetResourceReconcilers(ctx context.Context, orcO
 func (actuator projectActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
 	var updateOpts projects.UpdateOpts
 
 	handleNameUpdate(&updateOpts, obj, osResource)

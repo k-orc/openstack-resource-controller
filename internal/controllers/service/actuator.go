@@ -128,12 +128,6 @@ func (actuator serviceActuator) DeleteResource(ctx context.Context, _ orcObjectP
 func (actuator serviceActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
 	updateOpts := services.UpdateOpts{Extra: make(map[string]any)}
 
 	handleNameUpdate(&updateOpts, obj, osResource)

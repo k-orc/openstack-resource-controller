@@ -187,11 +187,6 @@ func (actuator securityGroupActuator) GetResourceReconcilers(ctx context.Context
 func (actuator securityGroupActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
 	updateOpts := groups.UpdateOpts{RevisionNumber: &osResource.RevisionNumber}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
