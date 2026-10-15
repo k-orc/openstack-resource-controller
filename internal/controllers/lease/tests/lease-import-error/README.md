@@ -2,7 +2,7 @@
 
 ## Step 00
 
-Create two Leases with identical specs.
+Create two Leases with the same name. Blazar does not require lease names to be unique.
 
 ## Step 01
 

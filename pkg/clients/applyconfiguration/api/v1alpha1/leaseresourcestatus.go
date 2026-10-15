@@ -18,12 +18,25 @@ limitations under the License.
 
 package v1alpha1
 
+import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
 // LeaseResourceStatusApplyConfiguration represents a declarative configuration of the LeaseResourceStatus type for use
 // with apply.
 type LeaseResourceStatusApplyConfiguration struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	FlavorID    *string `json:"flavorID,omitempty"`
+	Name         *string                                    `json:"name,omitempty"`
+	Status       *string                                    `json:"status,omitempty"`
+	Degraded     *bool                                      `json:"degraded,omitempty"`
+	StartDate    *v1.Time                                   `json:"startDate,omitempty"`
+	EndDate      *v1.Time                                   `json:"endDate,omitempty"`
+	ProjectID    *string                                    `json:"projectID,omitempty"`
+	UserID       *string                                    `json:"userID,omitempty"`
+	TrustID      *string                                    `json:"trustID,omitempty"`
+	CreatedAt    *v1.Time                                   `json:"createdAt,omitempty"`
+	UpdatedAt    *v1.Time                                   `json:"updatedAt,omitempty"`
+	Reservations []LeaseReservationStatusApplyConfiguration `json:"reservations,omitempty"`
+	Events       []LeaseEventStatusApplyConfiguration       `json:"events,omitempty"`
 }
 
 // LeaseResourceStatusApplyConfiguration constructs a declarative configuration of the LeaseResourceStatus type for use with
@@ -40,18 +53,100 @@ func (b *LeaseResourceStatusApplyConfiguration) WithName(value string) *LeaseRes
 	return b
 }
 
-// WithDescription sets the Description field in the declarative configuration to the given value
+// WithStatus sets the Status field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *LeaseResourceStatusApplyConfiguration) WithDescription(value string) *LeaseResourceStatusApplyConfiguration {
-	b.Description = &value
+// If called multiple times, the Status field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithStatus(value string) *LeaseResourceStatusApplyConfiguration {
+	b.Status = &value
 	return b
 }
 
-// WithFlavorID sets the FlavorID field in the declarative configuration to the given value
+// WithDegraded sets the Degraded field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the FlavorID field is set to the value of the last call.
-func (b *LeaseResourceStatusApplyConfiguration) WithFlavorID(value string) *LeaseResourceStatusApplyConfiguration {
-	b.FlavorID = &value
+// If called multiple times, the Degraded field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithDegraded(value bool) *LeaseResourceStatusApplyConfiguration {
+	b.Degraded = &value
+	return b
+}
+
+// WithStartDate sets the StartDate field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the StartDate field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithStartDate(value v1.Time) *LeaseResourceStatusApplyConfiguration {
+	b.StartDate = &value
+	return b
+}
+
+// WithEndDate sets the EndDate field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the EndDate field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithEndDate(value v1.Time) *LeaseResourceStatusApplyConfiguration {
+	b.EndDate = &value
+	return b
+}
+
+// WithProjectID sets the ProjectID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ProjectID field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithProjectID(value string) *LeaseResourceStatusApplyConfiguration {
+	b.ProjectID = &value
+	return b
+}
+
+// WithUserID sets the UserID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UserID field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithUserID(value string) *LeaseResourceStatusApplyConfiguration {
+	b.UserID = &value
+	return b
+}
+
+// WithTrustID sets the TrustID field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TrustID field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithTrustID(value string) *LeaseResourceStatusApplyConfiguration {
+	b.TrustID = &value
+	return b
+}
+
+// WithCreatedAt sets the CreatedAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the CreatedAt field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithCreatedAt(value v1.Time) *LeaseResourceStatusApplyConfiguration {
+	b.CreatedAt = &value
+	return b
+}
+
+// WithUpdatedAt sets the UpdatedAt field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the UpdatedAt field is set to the value of the last call.
+func (b *LeaseResourceStatusApplyConfiguration) WithUpdatedAt(value v1.Time) *LeaseResourceStatusApplyConfiguration {
+	b.UpdatedAt = &value
+	return b
+}
+
+// WithReservations adds the given value to the Reservations field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Reservations field.
+func (b *LeaseResourceStatusApplyConfiguration) WithReservations(values ...*LeaseReservationStatusApplyConfiguration) *LeaseResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithReservations")
+		}
+		b.Reservations = append(b.Reservations, *values[i])
+	}
+	return b
+}
+
+// WithEvents adds the given value to the Events field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Events field.
+func (b *LeaseResourceStatusApplyConfiguration) WithEvents(values ...*LeaseEventStatusApplyConfiguration) *LeaseResourceStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithEvents")
+		}
+		b.Events = append(b.Events, *values[i])
+	}
 	return b
 }

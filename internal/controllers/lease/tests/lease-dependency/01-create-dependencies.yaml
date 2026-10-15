@@ -4,16 +4,20 @@ kind: TestStep
 commands:
   - command: kubectl create secret generic lease-dependency --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
     namespaced: true
----
-apiVersion: openstack.k-orc.cloud/v1alpha1
-kind: Flavor
-metadata:
-  name: lease-dependency
-spec:
-  cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
-    cloudName: openstack
-    secretName: openstack-clouds
-  managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  # Import the flavor DevStack provides, as the server tests do. It is
+  # unmanaged, so deleting the ORC object later leaves the flavor in place.
+  - script: |
+      cat <<EOT | kubectl apply -n $NAMESPACE -f -
+      apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Flavor
+      metadata:
+        name: lease-dependency
+      spec:
+        cloudCredentialsRef:
+          cloudName: openstack-admin
+          secretName: openstack-clouds
+        managementPolicy: unmanaged
+        import:
+          filter:
+            name: ${E2E_KUTTL_FLAVOR}
+      EOT

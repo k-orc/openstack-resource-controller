@@ -1682,13 +1682,49 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseStatus
       default: {}
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseEventStatus
+  map:
+    fields:
+    - name: eventType
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: time
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFilter
   map:
     fields:
-    - name: description
+    - name: name
       type:
         scalar: string
-    - name: name
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFlavorInstanceReservation
+  map:
+    fields:
+    - name: amount
+      type:
+        scalar: numeric
+    - name: flavorRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseHostReservation
+  map:
+    fields:
+    - name: hypervisorProperties
+      type:
+        scalar: string
+    - name: max
+      type:
+        scalar: numeric
+    - name: min
+      type:
+        scalar: numeric
+    - name: resourceProperties
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseImport
@@ -1700,28 +1736,160 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: id
       type:
         scalar: string
-- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceSpec
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseInstanceReservation
   map:
     fields:
-    - name: description
+    - name: affinity
+      type:
+        scalar: boolean
+    - name: amount
+      type:
+        scalar: numeric
+    - name: diskGB
+      type:
+        scalar: numeric
+    - name: memoryMB
+      type:
+        scalar: numeric
+    - name: resourceProperties
       type:
         scalar: string
-    - name: flavorRef
+    - name: vcpus
       type:
-        scalar: string
-    - name: name
-      type:
-        scalar: string
-- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceStatus
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservation
   map:
     fields:
-    - name: description
+    - name: flavorInstance
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFlavorInstanceReservation
+    - name: host
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseHostReservation
+    - name: instance
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseInstanceReservation
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservationStatus
+  map:
+    fields:
+    - name: affinity
+      type:
+        scalar: boolean
+    - name: aggregateID
+      type:
+        scalar: numeric
+    - name: amount
+      type:
+        scalar: numeric
+    - name: beforeEnd
       type:
         scalar: string
+    - name: diskGB
+      type:
+        scalar: numeric
     - name: flavorID
       type:
         scalar: string
+    - name: hypervisorProperties
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: max
+      type:
+        scalar: numeric
+    - name: memoryMB
+      type:
+        scalar: numeric
+    - name: min
+      type:
+        scalar: numeric
+    - name: missingResources
+      type:
+        scalar: boolean
+    - name: resourceID
+      type:
+        scalar: string
+    - name: resourceProperties
+      type:
+        scalar: string
+    - name: resourceType
+      type:
+        scalar: string
+    - name: resourcesChanged
+      type:
+        scalar: boolean
+    - name: serverGroupID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: vcpus
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceSpec
+  map:
+    fields:
+    - name: endDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
     - name: name
+      type:
+        scalar: string
+    - name: reservations
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservation
+          elementRelationship: atomic
+    - name: startDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceStatus
+  map:
+    fields:
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: degraded
+      type:
+        scalar: boolean
+    - name: endDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: events
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseEventStatus
+          elementRelationship: atomic
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: reservations
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservationStatus
+          elementRelationship: atomic
+    - name: startDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: status
+      type:
+        scalar: string
+    - name: trustID
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: userID
       type:
         scalar: string
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseSpec

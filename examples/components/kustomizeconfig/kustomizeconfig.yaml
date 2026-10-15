@@ -43,7 +43,7 @@ nameReference:
   kind: Domain
 - fieldSpecs:
   - kind: Lease
-    path: spec/resource/flavorRef
+    path: spec/resource/reservations[]/flavorInstance/flavorRef
   - kind: Server
     path: spec/resource/flavorRef
   kind: Flavor

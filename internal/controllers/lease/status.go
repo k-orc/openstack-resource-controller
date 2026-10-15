@@ -17,6 +17,8 @@ limitations under the License.
 package lease
 
 import (
+	"time"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -25,11 +27,15 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
 )
-// TODO(scaffolding): these are just examples. Change them to the controller's need.
-// Ideally, these constants are defined in gophercloud.
-const LeaseStatusAvailable = "available"
-const LeaseStatusInUse     = "in-use"
-const LeaseStatusDeleting  = "deleting"
+
+// Lease statuses reported by Blazar
+const (
+	LeaseStatusPending    = "PENDING"
+	LeaseStatusActive     = "ACTIVE"
+	LeaseStatusTerminated = "TERMINATED"
+	LeaseStatusError      = "ERROR"
+	LeaseStatusDeleting   = "DELETING"
+)
 
 type leaseStatusWriter struct{}
 
@@ -50,26 +56,102 @@ func (leaseStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Lease, o
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	// TODO(scaffolding): add conditions for returning available, for instance:
 
-	if osResource.Status == LeaseStatusAvailable || osResource.Status == LeaseStatusInUse {
+	switch osResource.Status {
+	case LeaseStatusActive:
 		return metav1.ConditionTrue, nil
+	case LeaseStatusTerminated, LeaseStatusError:
+		// checkStatus reports these as terminal
+		return metav1.ConditionFalse, nil
+	case LeaseStatusPending:
+		// A lease may start days after it was created. Wake up when it is
+		// due rather than polling the whole time.
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, pendingPollingPeriod(time.Until(osResource.StartDate)))
+	default:
+		return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, leaseAvailablePollingPeriod)
 	}
+}
 
-	// Otherwise we should continue to poll
-	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, leaseAvailablePollingPeriod)
+func pendingPollingPeriod(untilStart time.Duration) time.Duration {
+	return min(max(untilStart, leaseAvailablePollingPeriod), leasePendingMaxPollingPeriod)
 }
 
 func (leaseStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.LeaseResourceStatus().
-		WithFlavorID(osResource.FlavorID).
-		WithName(osResource.Name)
+		WithName(osResource.Name).
+		WithStatus(osResource.Status).
+		WithDegraded(osResource.Degraded).
+		WithProjectID(osResource.ProjectID).
+		WithUserID(osResource.UserID).
+		WithTrustID(osResource.TrustID).
+		WithStartDate(metav1.NewTime(osResource.StartDate)).
+		WithEndDate(metav1.NewTime(osResource.EndDate)).
+		WithCreatedAt(metav1.NewTime(osResource.CreatedAt))
 
-	// TODO(scaffolding): add all of the fields supported in the LeaseResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+	if osResource.UpdatedAt != nil && !osResource.UpdatedAt.IsZero() {
+		resourceStatus.WithUpdatedAt(metav1.NewTime(*osResource.UpdatedAt))
+	}
 
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
+	for i := range osResource.Reservations {
+		reservation := &osResource.Reservations[i]
+		reservationStatus := orcapplyconfigv1alpha1.LeaseReservationStatus().
+			WithID(reservation.ID).
+			WithResourceType(reservation.ResourceType).
+			WithStatus(reservation.Status).
+			WithResourceID(reservation.ResourceID).
+			WithMissingResources(reservation.MissingResources).
+			WithResourcesChanged(reservation.ResourcesChanged)
+
+		// Blazar only returns the fields of the reservation's resource type
+		if reservation.FlavorID != nil {
+			reservationStatus.WithFlavorID(*reservation.FlavorID)
+		}
+		if reservation.ServerGroupID != nil {
+			reservationStatus.WithServerGroupID(*reservation.ServerGroupID)
+		}
+		if reservation.HypervisorProperties != nil {
+			reservationStatus.WithHypervisorProperties(*reservation.HypervisorProperties)
+		}
+		if reservation.ResourceProperties != nil {
+			reservationStatus.WithResourceProperties(*reservation.ResourceProperties)
+		}
+		if reservation.BeforeEnd != nil {
+			reservationStatus.WithBeforeEnd(*reservation.BeforeEnd)
+		}
+		if reservation.AggregateID != nil {
+			reservationStatus.WithAggregateID(int32(*reservation.AggregateID))
+		}
+		if reservation.Affinity != nil {
+			reservationStatus.WithAffinity(*reservation.Affinity)
+		}
+		if reservation.Min != nil {
+			reservationStatus.WithMin(int32(*reservation.Min))
+		}
+		if reservation.Max != nil {
+			reservationStatus.WithMax(int32(*reservation.Max))
+		}
+		if reservation.Amount != nil {
+			reservationStatus.WithAmount(int32(*reservation.Amount))
+		}
+		if reservation.VCPUs != nil {
+			reservationStatus.WithVcpus(int32(*reservation.VCPUs))
+		}
+		if reservation.MemoryMB != nil {
+			reservationStatus.WithMemoryMB(int32(*reservation.MemoryMB))
+		}
+		if reservation.DiskGB != nil {
+			reservationStatus.WithDiskGB(int32(*reservation.DiskGB))
+		}
+		resourceStatus.WithReservations(reservationStatus)
+	}
+
+	for i := range osResource.Events {
+		event := &osResource.Events[i]
+		resourceStatus.WithEvents(orcapplyconfigv1alpha1.LeaseEventStatus().
+			WithID(event.ID).
+			WithEventType(event.EventType).
+			WithStatus(event.Status).
+			WithTime(metav1.NewTime(event.Time)))
 	}
 
 	statusApply.WithResource(resourceStatus)
