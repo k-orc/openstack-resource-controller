@@ -2,15 +2,15 @@
 
 ## Step 00
 
-Create Leases referencing non-existing resources. Each Lease is dependent on other non-existing resource. Verify that the Leases are waiting for the needed resources to be created externally.
+Create a Lease referencing a non-existing credentials secret, and a Lease reserving instances of a non-existing Flavor. Verify that they are waiting for the needed resource to be created externally.
 
 ## Step 01
 
-Create the missing dependencies and verify all the Leases are available.
+Create the missing dependencies: the secret, and the Flavor imported from the DevStack flavor. Verify that the Leases are created.
 
 ## Step 02
 
-Delete all the dependencies and check that ORC prevents deletion since there is still a resource that depends on them.
+Delete all the dependencies. Check that ORC prevents the deletion of the secret since a Lease still depends on it. The Flavor has no deletion guard: Blazar copies its size when the lease is created, so it can be deleted.
 
 ## Step 03
 

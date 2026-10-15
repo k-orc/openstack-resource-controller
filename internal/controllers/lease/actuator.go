@@ -18,7 +18,9 @@ package lease
 
 import (
 	"context"
+	"fmt"
 	"iter"
+	"slices"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/reservation/v1/leases"
@@ -30,7 +32,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
@@ -46,10 +47,18 @@ type (
 	resourceReconciler        = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory             = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
 // The frequency to poll when waiting for the resource to become available
 const leaseAvailablePollingPeriod = 15 * time.Second
+
+// The longest time to wait before checking on a lease which has not started yet
+const leasePendingMaxPollingPeriod = 10 * time.Minute
+
 // The frequency to poll when waiting for the resource to be deleted
 const leaseDeletingPollingPeriod = 15 * time.Second
+
+// Blazar stores lease names in a column of this length
+const leaseNameMaxLength = 80
 
 type leaseActuator struct {
 	osClient  osclients.LeaseClient
@@ -72,54 +81,47 @@ func (actuator leaseActuator) GetOSResourceByID(ctx context.Context, id string) 
 	return resource, nil
 }
 
+// Blazar ignores the query parameters of the list request, so all filtering
+// is done client side.
+func (actuator leaseActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT]) iter.Seq2[*osResourceT, error] {
+	return osclients.Filter(actuator.osClient.ListLeases(ctx, leases.ListOpts{}), filters...)
+}
+
 func (actuator leaseActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
 	resourceSpec := orcObject.Spec.Resource
 	if resourceSpec == nil {
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	name := getResourceName(orcObject)
+	endDate := toBlazarDate(resourceSpec.EndDate.Time)
+	reservationTypes := specReservationTypes(resourceSpec)
 
-	var rs progress.ReconcileStatus
-
-	var flavorID string
-	if resourceSpec.FlavorRef != nil {
-		flavor, rs1 := dependency.FetchDependency[*orcv1alpha1.Flavor](
-			ctx, actuator.k8sClient, orcObject.Namespace, resourceSpec.FlavorRef, "Flavor",
-			orcv1alpha1.IsAvailable,
-		)
-		rs = rs.WithReconcileStatus(rs1)
-		flavorID = ptr.Deref(flavor.Status.ID, "")
+	// Blazar allows duplicate lease names, so also match the dates and the
+	// types of the reservations to avoid adopting an unrelated lease.
+	filters := []osclients.ResourceFilter[osResourceT]{
+		func(l *leases.Lease) bool {
+			if l.Name != name || !l.EndDate.Equal(endDate) {
+				return false
+			}
+			if resourceSpec.StartDate != nil && !l.StartDate.Equal(toBlazarDate(resourceSpec.StartDate.Time)) {
+				return false
+			}
+			return slices.Equal(osReservationTypes(l), reservationTypes)
+		},
 	}
 
-	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
-		return nil, false
-	}
-
-	listOpts := leases.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-		FlavorID:  flavorID,
-		// TODO(scaffolding): Add more adoption filters
-	}
-
-	return actuator.osClient.ListLeases(ctx, listOpts), true
+	return actuator.listOSResources(ctx, filters), true
 }
 
 func (actuator leaseActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	var filters []osclients.ResourceFilter[osResourceT]
 
-	listOpts := leases.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	if filter.Name != nil {
+		filters = append(filters, func(l *leases.Lease) bool { return l.Name == string(*filter.Name) })
 	}
 
-	return actuator.osClient.ListLeases(ctx, listOpts), nil
+	return actuator.listOSResources(ctx, filters), nil
 }
 
 func (actuator leaseActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -130,26 +132,49 @@ func (actuator leaseActuator) CreateResource(ctx context.Context, obj orcObjectP
 		return nil, progress.WrapError(
 			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
 	}
-	var reconcileStatus progress.ReconcileStatus
 
-	var flavorID string
-	if resource.FlavorRef != nil {
-		flavor, flavorDepRS := flavorDependency.RequireDependency(
-			ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
-		)
-		reconcileStatus = reconcileStatus.WithReconcileStatus(flavorDepRS)
-		if flavor != nil {
-			flavorID = ptr.Deref(flavor.Status.ID, "")
+	// spec.resource.name is validated by the API, but the object name it
+	// falls back to may be longer than Blazar allows.
+	name := getResourceName(obj)
+	if len(name) > leaseNameMaxLength {
+		return nil, progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				fmt.Sprintf("lease name %q is longer than %d characters: set spec.resource.name", name, leaseNameMaxLength)))
+	}
+
+	// Resolve the flavors of all flavor reservations before creating anything
+	var reconcileStatus progress.ReconcileStatus
+	flavorIDs := make(map[orcv1alpha1.KubernetesNameRef]string)
+	for i := range resource.Reservations {
+		flavorInstance := resource.Reservations[i].FlavorInstance
+		if flavorInstance == nil {
+			continue
 		}
+		flavor, flavorReconcileStatus := dependency.FetchDependency[*orcv1alpha1.Flavor](
+			ctx, actuator.k8sClient, obj.Namespace,
+			&flavorInstance.FlavorRef, "Flavor",
+			orcv1alpha1.IsAvailable,
+		)
+		reconcileStatus = reconcileStatus.WithReconcileStatus(flavorReconcileStatus)
+		flavorIDs[flavorInstance.FlavorRef] = ptr.Deref(flavor.Status.ID, "")
 	}
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
+
+	reservations := make([]leases.ReservationOptsBuilder, len(resource.Reservations))
+	for i := range resource.Reservations {
+		reservations[i] = reservationOpts(&resource.Reservations[i], flavorIDs)
+	}
+
 	createOpts := leases.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		FlavorID:  flavorID,
-		// TODO(scaffolding): Add more fields
+		Name:         name,
+		EndDate:      resource.EndDate.Time,
+		Reservations: reservations,
+	}
+	// A zero start date starts the lease immediately
+	if resource.StartDate != nil {
+		createOpts.StartDate = resource.StartDate.Time
 	}
 
 	osResource, err := actuator.osClient.CreateLease(ctx, createOpts)
@@ -163,6 +188,70 @@ func (actuator leaseActuator) CreateResource(ctx context.Context, obj orcObjectP
 	return osResource, nil
 }
 
+func reservationOpts(reservation *orcv1alpha1.LeaseReservation, flavorIDs map[orcv1alpha1.KubernetesNameRef]string) leases.ReservationOptsBuilder {
+	if flavorInstance := reservation.FlavorInstance; flavorInstance != nil {
+		return leases.FlavorInstanceReservationOpts{
+			Amount:   int(flavorInstance.Amount),
+			FlavorID: flavorIDs[flavorInstance.FlavorRef],
+		}
+	}
+
+	if host := reservation.Host; host != nil {
+		return leases.HostReservationOpts{
+			Min:                  int(host.Min),
+			Max:                  int(host.Max),
+			HypervisorProperties: ptr.Deref(host.HypervisorProperties, ""),
+			ResourceProperties:   ptr.Deref(host.ResourceProperties, ""),
+		}
+	}
+
+	// API validation guarantees that exactly one reservation type is set
+	instance := reservation.Instance
+	return leases.InstanceReservationOpts{
+		Amount:             int(instance.Amount),
+		VCPUs:              int(instance.Vcpus),
+		MemoryMB:           int(instance.MemoryMB),
+		DiskGB:             int(ptr.Deref(instance.DiskGB, 0)),
+		Affinity:           instance.Affinity,
+		ResourceProperties: ptr.Deref(instance.ResourceProperties, ""),
+	}
+}
+
+// specReservationTypes returns the sorted Blazar resource types of the
+// reservations in the spec.
+func specReservationTypes(resourceSpec *resourceSpecT) []string {
+	types := make([]string, len(resourceSpec.Reservations))
+	for i := range resourceSpec.Reservations {
+		switch reservation := &resourceSpec.Reservations[i]; {
+		case reservation.Host != nil:
+			types[i] = leases.ResourceTypeHost
+		case reservation.FlavorInstance != nil:
+			types[i] = leases.ResourceTypeFlavorInstance
+		default:
+			types[i] = leases.ResourceTypeInstance
+		}
+	}
+	slices.Sort(types)
+	return types
+}
+
+// osReservationTypes returns the sorted resource types of the reservations of
+// a lease.
+func osReservationTypes(l *leases.Lease) []string {
+	types := make([]string, len(l.Reservations))
+	for i := range l.Reservations {
+		types[i] = l.Reservations[i].ResourceType
+	}
+	slices.Sort(types)
+	return types
+}
+
+// toBlazarDate returns the date as Blazar stores it: in UTC, truncated to the
+// minute.
+func toBlazarDate(t time.Time) time.Time {
+	return t.UTC().Truncate(time.Minute)
+}
+
 func (actuator leaseActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
 	if resource.Status == LeaseStatusDeleting {
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, leaseDeletingPollingPeriod)
@@ -170,76 +259,25 @@ func (actuator leaseActuator) DeleteResource(ctx context.Context, _ orcObjectPT,
 	return progress.WrapError(actuator.osClient.DeleteLease(ctx, resource.ID))
 }
 
-func (actuator leaseActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
-	updateOpts := leases.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
-	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
-	}
-
-	_, err = actuator.osClient.UpdateLease(ctx, osResource.ID, updateOpts)
-
-	if err != nil {
-		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-		}
-		return progress.WrapError(err)
-	}
-
-	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts leases.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToLeaseUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["lease"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *leases.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *leases.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
-}
-
 func (actuator leaseActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
-		actuator.updateResource,
+		actuator.checkStatus,
 	}, nil
+}
+
+// checkStatus stops reconciling a lease once it can no longer become
+// available. Waiting for a lease to start is handled by the status writer.
+func (leaseActuator) checkStatus(_ context.Context, _ orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	switch osResource.Status {
+	case LeaseStatusError:
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Lease is in ERROR state"))
+	case LeaseStatusTerminated:
+		return progress.WrapError(
+			orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "Lease has ended"))
+	default:
+		return nil
+	}
 }
 
 type leaseHelperFactory struct{}

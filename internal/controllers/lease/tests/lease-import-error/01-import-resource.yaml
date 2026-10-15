@@ -10,4 +10,4 @@ spec:
   managementPolicy: unmanaged
   import:
     filter:
-      description: Lease from "import error" test
+      name: lease-import-error-external

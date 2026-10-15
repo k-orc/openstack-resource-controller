@@ -76,6 +76,7 @@ kubectl delete -f $ORC_RELEASE
 | group                       |         |    ✔    |     ✔    |
 | image                       |    ✔    |    ✔    |     ✔    |
 | keypair                     |         |    ◐    |     ◐    |
+| lease                       |         |         |     ◐    |
 | limit                       |         |         |     ✔    |
 | network                     |         |    ◐    |     ◐    |
 | port                        |         |    ◐    |     ◐    |
