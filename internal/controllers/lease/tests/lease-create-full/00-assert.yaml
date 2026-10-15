@@ -6,15 +6,28 @@ metadata:
 status:
   resource:
     name: lease-create-full-override
-    description: Lease from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    status: PENDING
+    degraded: false
+    startDate: "2095-01-01T10:00:00Z"
+    endDate: "2095-01-01T11:00:00Z"
+    reservations:
+      - resourceType: virtual:instance
+        amount: 1
+        vcpus: 1
+        memoryMB: 128
+        diskGB: 1
+        affinity: false
+        resourceProperties: '["==", "$orc", "e2e"]'
+  # The lease has not started, so it is not available yet
   conditions:
   - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
+    message: Waiting for OpenStack resource to be ready
     status: "False"
-    reason: Success
+    reason: Progressing
+  - type: Progressing
+    message: Waiting for OpenStack resource to be ready
+    status: "True"
+    reason: Progressing
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
@@ -23,11 +36,12 @@ resourceRefs:
       kind: Lease
       name: lease-create-full
       ref: lease
-    - apiVersion: openstack.k-orc.cloud/v1alpha1
-      kind: Flavor
-      name: lease-create-full
-      ref: flavor
 assertAll:
     - celExpr: "lease.status.id != ''"
-    - celExpr: "lease.status.resource.flavorID == flavor.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "lease.status.resource.projectID != ''"
+    - celExpr: "lease.status.resource.userID != ''"
+    - celExpr: "has(lease.status.resource.createdAt)"
+    - celExpr: "lease.status.resource.reservations[0].flavorID == lease.status.resource.reservations[0].id"
+    # affinity: false makes Blazar create an anti-affinity server group
+    - celExpr: "lease.status.resource.reservations[0].serverGroupID != ''"
+    - celExpr: "!has(lease.status.resource.reservations[0].min)"

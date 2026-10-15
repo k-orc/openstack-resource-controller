@@ -1,9 +1,13 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
+# The flavor is only needed to create the lease, so it can be deleted:
+# Blazar copies its size when the lease is created.
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Flavor
+  name: lease-dependency
 commands:
   # We expect the deletion to hang due to the finalizer, so use --wait=false
-  - command: kubectl delete flavor.openstack.k-orc.cloud lease-dependency --wait=false
-    namespaced: true
   - command: kubectl delete secret lease-dependency --wait=false
     namespaced: true

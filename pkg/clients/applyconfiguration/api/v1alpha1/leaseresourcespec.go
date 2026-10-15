@@ -20,14 +20,16 @@ package v1alpha1
 
 import (
 	apiv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // LeaseResourceSpecApplyConfiguration represents a declarative configuration of the LeaseResourceSpec type for use
 // with apply.
 type LeaseResourceSpecApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName     `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	FlavorRef   *apiv1alpha1.KubernetesNameRef `json:"flavorRef,omitempty"`
+	Name         *apiv1alpha1.BlazarName              `json:"name,omitempty"`
+	StartDate    *v1.Time                             `json:"startDate,omitempty"`
+	EndDate      *v1.Time                             `json:"endDate,omitempty"`
+	Reservations []LeaseReservationApplyConfiguration `json:"reservations,omitempty"`
 }
 
 // LeaseResourceSpecApplyConfiguration constructs a declarative configuration of the LeaseResourceSpec type for use with
@@ -39,23 +41,36 @@ func LeaseResourceSpec() *LeaseResourceSpecApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *LeaseResourceSpecApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *LeaseResourceSpecApplyConfiguration {
+func (b *LeaseResourceSpecApplyConfiguration) WithName(value apiv1alpha1.BlazarName) *LeaseResourceSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
 
-// WithDescription sets the Description field in the declarative configuration to the given value
+// WithStartDate sets the StartDate field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *LeaseResourceSpecApplyConfiguration) WithDescription(value string) *LeaseResourceSpecApplyConfiguration {
-	b.Description = &value
+// If called multiple times, the StartDate field is set to the value of the last call.
+func (b *LeaseResourceSpecApplyConfiguration) WithStartDate(value v1.Time) *LeaseResourceSpecApplyConfiguration {
+	b.StartDate = &value
 	return b
 }
 
-// WithFlavorRef sets the FlavorRef field in the declarative configuration to the given value
+// WithEndDate sets the EndDate field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the FlavorRef field is set to the value of the last call.
-func (b *LeaseResourceSpecApplyConfiguration) WithFlavorRef(value apiv1alpha1.KubernetesNameRef) *LeaseResourceSpecApplyConfiguration {
-	b.FlavorRef = &value
+// If called multiple times, the EndDate field is set to the value of the last call.
+func (b *LeaseResourceSpecApplyConfiguration) WithEndDate(value v1.Time) *LeaseResourceSpecApplyConfiguration {
+	b.EndDate = &value
+	return b
+}
+
+// WithReservations adds the given value to the Reservations field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the Reservations field.
+func (b *LeaseResourceSpecApplyConfiguration) WithReservations(values ...*LeaseReservationApplyConfiguration) *LeaseResourceSpecApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithReservations")
+		}
+		b.Reservations = append(b.Reservations, *values[i])
+	}
 	return b
 }

@@ -37,6 +37,27 @@ import (
 
 const controllerName = "lease"
 
+// No deletion guard for flavor, because Blazar copies the flavor when the
+// reservation is created, so it can be safely deleted while referenced by a
+// lease
+var flavorDependency = dependency.NewDependency[*orcv1alpha1.LeaseList, *orcv1alpha1.Flavor](
+	"spec.resource.reservations.flavorInstance.flavorRef",
+	func(lease *orcv1alpha1.Lease) []string {
+		resource := lease.Spec.Resource
+		if resource == nil {
+			return nil
+		}
+
+		var refs []string
+		for i := range resource.Reservations {
+			if flavorInstance := resource.Reservations[i].FlavorInstance; flavorInstance != nil {
+				refs = append(refs, string(flavorInstance.FlavorRef))
+			}
+		}
+		return refs
+	},
+)
+
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=leases,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=openstack.k-orc.cloud,resources=leases/status,verbs=get;update;patch
 
@@ -57,18 +78,6 @@ func (c *leaseReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
 	c.defaultResyncPeriod = d
 }
 
-var flavorDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.LeaseList, *orcv1alpha1.Flavor](
-	"spec.resource.flavorRef",
-	func(lease *orcv1alpha1.Lease) []string {
-		resource := lease.Spec.Resource
-		if resource == nil || resource.FlavorRef == nil {
-			return nil
-		}
-		return []string{string(*resource.FlavorRef)}
-	},
-	finalizer, externalObjectFieldOwner,
-)
-
 // SetupWithManager sets up the controller with the Manager.
 func (c *leaseReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
@@ -79,21 +88,21 @@ func (c *leaseReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
-	builder := ctrl.NewControllerManagedBy(mgr).
+	controllerBuilder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
+		For(&orcv1alpha1.Lease{}).
 		Watches(&orcv1alpha1.Flavor{}, flavorWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Flavor{})),
-		).
-		For(&orcv1alpha1.Lease{})
+		)
 
 	if err := errors.Join(
 		flavorDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
-		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
+		credentials.AddCredentialsWatch(log, k8sClient, controllerBuilder, credentialsDependency),
 	); err != nil {
 		return err
 	}
 
-	r := reconciler.NewController(controllerName, mgr.GetClient(), c.scopeFactory, leaseHelperFactory{}, leaseStatusWriter{}, c.defaultResyncPeriod)
-	return builder.Complete(&r)
+	r := reconciler.NewController(controllerName, k8sClient, c.scopeFactory, leaseHelperFactory{}, leaseStatusWriter{}, c.defaultResyncPeriod)
+	return controllerBuilder.Complete(&r)
 }

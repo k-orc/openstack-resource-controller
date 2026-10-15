@@ -5,13 +5,20 @@ metadata:
   name: lease-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Lease from "import error" test
-    # TODO(scaffolding): add any required field
+    # Blazar allows duplicate lease names, which is what makes the import ambiguous
+    name: lease-import-error-external
+    startDate: "2096-01-01T10:00:00Z"
+    endDate: "2096-01-01T11:00:00Z"
+    reservations:
+      - instance:
+          amount: 1
+          vcpus: 1
+          memoryMB: 128
+          diskGB: 1
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Lease
@@ -19,10 +26,19 @@ metadata:
   name: lease-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: Lease from "import error" test
-    # TODO(scaffolding): add any required field
+    # Blazar allows duplicate lease names, which is what makes the import ambiguous
+    name: lease-import-error-external
+    startDate: "2096-01-01T10:00:00Z"
+    # A different end date keeps ORC from adopting the first lease, which has
+    # the same name
+    endDate: "2096-01-01T11:30:00Z"
+    reservations:
+      - instance:
+          amount: 1
+          vcpus: 1
+          memoryMB: 128
+          diskGB: 1

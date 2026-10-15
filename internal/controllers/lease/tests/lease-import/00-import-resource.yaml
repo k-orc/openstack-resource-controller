@@ -11,5 +11,3 @@ spec:
   import:
     filter:
       name: lease-import-external
-      description: Lease lease-import-external from "lease-import" test
-      # TODO(scaffolding): Add all fields supported by the filter
