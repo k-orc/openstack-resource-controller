@@ -25,8 +25,7 @@ import (
 // LeaseFilterApplyConfiguration represents a declarative configuration of the LeaseFilter type for use
 // with apply.
 type LeaseFilterApplyConfiguration struct {
-	Name        *apiv1alpha1.OpenStackName `json:"name,omitempty"`
-	Description *string                    `json:"description,omitempty"`
+	Name *apiv1alpha1.BlazarName `json:"name,omitempty"`
 }
 
 // LeaseFilterApplyConfiguration constructs a declarative configuration of the LeaseFilter type for use with
@@ -38,15 +37,7 @@ func LeaseFilter() *LeaseFilterApplyConfiguration {
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *LeaseFilterApplyConfiguration) WithName(value apiv1alpha1.OpenStackName) *LeaseFilterApplyConfiguration {
+func (b *LeaseFilterApplyConfiguration) WithName(value apiv1alpha1.BlazarName) *LeaseFilterApplyConfiguration {
 	b.Name = &value
-	return b
-}
-
-// WithDescription sets the Description field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the Description field is set to the value of the last call.
-func (b *LeaseFilterApplyConfiguration) WithDescription(value string) *LeaseFilterApplyConfiguration {
-	b.Description = &value
 	return b
 }

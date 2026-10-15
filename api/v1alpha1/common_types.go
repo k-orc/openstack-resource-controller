@@ -101,3 +101,9 @@ type KubernetesNameRef string
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=64
 type KeystoneName string
+
+// BlazarName is the name of a Blazar resource. 80 is the length of the name
+// column of Blazar's leases table.
+// +kubebuilder:validation:MinLength:=1
+// +kubebuilder:validation:MaxLength:=80
+type BlazarName string

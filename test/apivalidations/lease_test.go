@@ -18,10 +18,13 @@ package apivalidations
 
 import (
 	"context"
+	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
@@ -40,8 +43,32 @@ func leaseStub(namespace *corev1.Namespace) *orcv1alpha1.Lease {
 	return obj
 }
 
+var (
+	leaseStartDate = metav1.NewTime(time.Date(2030, 1, 1, 10, 0, 0, 0, time.UTC))
+	leaseEndDate   = metav1.NewTime(time.Date(2030, 1, 1, 11, 0, 0, 0, time.UTC))
+)
+
+func testLeaseHostReservation() *applyconfigv1alpha1.LeaseReservationApplyConfiguration {
+	return applyconfigv1alpha1.LeaseReservation().
+		WithHost(applyconfigv1alpha1.LeaseHostReservation().WithMin(1).WithMax(1))
+}
+
+func testLeaseInstanceReservation() *applyconfigv1alpha1.LeaseReservationApplyConfiguration {
+	return applyconfigv1alpha1.LeaseReservation().
+		WithInstance(applyconfigv1alpha1.LeaseInstanceReservation().
+			WithAmount(1).WithVcpus(1).WithMemoryMB(512).WithDiskGB(0))
+}
+
+func testLeaseFlavorInstanceReservation() *applyconfigv1alpha1.LeaseReservationApplyConfiguration {
+	return applyconfigv1alpha1.LeaseReservation().
+		WithFlavorInstance(applyconfigv1alpha1.LeaseFlavorInstanceReservation().
+			WithAmount(1).WithFlavorRef("flavor"))
+}
+
 func testLeaseResource() *applyconfigv1alpha1.LeaseResourceSpecApplyConfiguration {
-	return applyconfigv1alpha1.LeaseResourceSpec()
+	return applyconfigv1alpha1.LeaseResourceSpec().
+		WithEndDate(leaseEndDate).
+		WithReservations(testLeaseHostReservation())
 }
 
 func baseLeasePatch(obj client.Object) *applyconfigv1alpha1.LeaseApplyConfiguration {
@@ -97,24 +124,120 @@ var _ = Describe("ORC Lease API validations", func() {
 		},
 	})
 
-	It("should have immutable flavorRef", func(ctx context.Context) {
-		obj := leaseStub(namespace)
-		patch := baseLeasePatch(obj)
-		patch.Spec.WithResource(testLeaseResource().
-			WithFlavorRef("flavor-a"))
-		Expect(applyObj(ctx, obj, patch)).To(Succeed())
-
-		patch.Spec.WithResource(testLeaseResource().
-			WithFlavorRef("flavor-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("flavorRef is immutable")))
+	It("should permit valid host, instance and flavor instance reservations", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+			WithStartDate(leaseStartDate).
+			WithEndDate(leaseEndDate).
+			WithReservations(testLeaseHostReservation(), testLeaseInstanceReservation(), testLeaseFlavorInstanceReservation()))
+		Expect(applyObj(ctx, lease, patch)).To(Succeed())
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should reject a lease without required field endDate", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+			WithReservations(testLeaseHostReservation()))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("spec.resource.endDate")))
+	})
+
+	It("should reject a lease without reservations", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+			WithEndDate(leaseEndDate))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("spec.resource.reservations")))
+	})
+
+	It("should reject an endDate before the startDate", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(testLeaseResource().
+			WithStartDate(leaseEndDate).
+			WithEndDate(leaseStartDate))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("endDate must be later than startDate")))
+	})
+
+	It("should reject a lease name longer than 80 characters", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(testLeaseResource().
+			WithName(orcv1alpha1.BlazarName(strings.Repeat("a", 81))))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("spec.resource.name")))
+	})
+
+	DescribeTable("should require exactly one reservation type",
+		func(ctx context.Context, reservation *applyconfigv1alpha1.LeaseReservationApplyConfiguration) {
+			lease := leaseStub(namespace)
+			patch := baseLeasePatch(lease)
+			patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+				WithEndDate(leaseEndDate).
+				WithReservations(reservation))
+			Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("exactly one of host, instance or flavorInstance must be set")))
+		},
+		Entry("none", applyconfigv1alpha1.LeaseReservation()),
+		Entry("host and instance", applyconfigv1alpha1.LeaseReservation().
+			WithHost(applyconfigv1alpha1.LeaseHostReservation().WithMin(1).WithMax(1)).
+			WithInstance(applyconfigv1alpha1.LeaseInstanceReservation().
+				WithAmount(1).WithVcpus(1).WithMemoryMB(512).WithDiskGB(0))),
+		Entry("instance and flavor instance", applyconfigv1alpha1.LeaseReservation().
+			WithInstance(applyconfigv1alpha1.LeaseInstanceReservation().
+				WithAmount(1).WithVcpus(1).WithMemoryMB(512).WithDiskGB(0)).
+			WithFlavorInstance(applyconfigv1alpha1.LeaseFlavorInstanceReservation().
+				WithAmount(1).WithFlavorRef("flavor"))),
+	)
+
+	It("should reject a host reservation with max lower than min", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+			WithEndDate(leaseEndDate).
+			WithReservations(applyconfigv1alpha1.LeaseReservation().
+				WithHost(applyconfigv1alpha1.LeaseHostReservation().WithMin(2).WithMax(1))))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("max must be greater than or equal to min")))
+	})
+
+	DescribeTable("should reject values below the minimum",
+		func(ctx context.Context, reservation *applyconfigv1alpha1.LeaseReservationApplyConfiguration, field string) {
+			lease := leaseStub(namespace)
+			patch := baseLeasePatch(lease)
+			patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+				WithEndDate(leaseEndDate).
+				WithReservations(reservation))
+			Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring(field)))
+		},
+		Entry("host min", applyconfigv1alpha1.LeaseReservation().
+			WithHost(applyconfigv1alpha1.LeaseHostReservation().WithMin(0).WithMax(1)), "min"),
+		Entry("instance amount", applyconfigv1alpha1.LeaseReservation().
+			WithInstance(applyconfigv1alpha1.LeaseInstanceReservation().
+				WithAmount(0).WithVcpus(1).WithMemoryMB(512).WithDiskGB(0)), "amount"),
+		Entry("instance diskGB", applyconfigv1alpha1.LeaseReservation().
+			WithInstance(applyconfigv1alpha1.LeaseInstanceReservation().
+				WithAmount(1).WithVcpus(1).WithMemoryMB(512).WithDiskGB(-1)), "diskGB"),
+		Entry("flavor instance amount", applyconfigv1alpha1.LeaseReservation().
+			WithFlavorInstance(applyconfigv1alpha1.LeaseFlavorInstanceReservation().
+				WithAmount(0).WithFlavorRef("flavor")), "amount"),
+	)
+
+	It("should reject a flavor instance reservation without flavorRef", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(applyconfigv1alpha1.LeaseResourceSpec().
+			WithEndDate(leaseEndDate).
+			WithReservations(applyconfigv1alpha1.LeaseReservation().
+				WithFlavorInstance(applyconfigv1alpha1.LeaseFlavorInstanceReservation().WithAmount(1))))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("flavorRef")))
+	})
+
+	It("should be immutable", func(ctx context.Context) {
+		lease := leaseStub(namespace)
+		patch := baseLeasePatch(lease)
+		patch.Spec.WithResource(testLeaseResource())
+		Expect(applyObj(ctx, lease, patch)).To(Succeed())
+
+		patch.Spec.WithResource(testLeaseResource().
+			WithEndDate(metav1.NewTime(leaseEndDate.Add(time.Hour))))
+		Expect(applyObj(ctx, lease, patch)).To(MatchError(ContainSubstring("LeaseResourceSpec is immutable")))
+	})
 })
