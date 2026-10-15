@@ -138,6 +138,19 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairResourceStatus":                 schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairResourceStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairSpec":                           schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairSpec(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairStatus":                         schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Lease":                                 schema_openstack_resource_controller_v3_api_v1alpha1_Lease(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseFilter":                           schema_openstack_resource_controller_v3_api_v1alpha1_LeaseFilter(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseFlavorInstanceReservation":        schema_openstack_resource_controller_v3_api_v1alpha1_LeaseFlavorInstanceReservation(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseHostReservation":                  schema_openstack_resource_controller_v3_api_v1alpha1_LeaseHostReservation(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseImport":                           schema_openstack_resource_controller_v3_api_v1alpha1_LeaseImport(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseInstanceReservation":              schema_openstack_resource_controller_v3_api_v1alpha1_LeaseInstanceReservation(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseList":                             schema_openstack_resource_controller_v3_api_v1alpha1_LeaseList(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseReservation":                      schema_openstack_resource_controller_v3_api_v1alpha1_LeaseReservation(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseReservationStatus":                schema_openstack_resource_controller_v3_api_v1alpha1_LeaseReservationStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseResourceSpec":                     schema_openstack_resource_controller_v3_api_v1alpha1_LeaseResourceSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseResourceStatus":                   schema_openstack_resource_controller_v3_api_v1alpha1_LeaseResourceStatus(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseSpec":                             schema_openstack_resource_controller_v3_api_v1alpha1_LeaseSpec(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseStatus":                           schema_openstack_resource_controller_v3_api_v1alpha1_LeaseStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Limit":                                 schema_openstack_resource_controller_v3_api_v1alpha1_Limit(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitFilter":                           schema_openstack_resource_controller_v3_api_v1alpha1_LimitFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LimitImport":                           schema_openstack_resource_controller_v3_api_v1alpha1_LimitImport(ref),
@@ -5858,6 +5871,699 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_KeyPairStatus(ref comm
 		},
 		Dependencies: []string{
 			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.KeyPairResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_Lease(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "Lease is the Schema for an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the object metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "spec specifies the desired state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status defines the observed state of the resource.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseFilter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseFilter defines an existing resource by its properties",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the existing resource",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseFlavorInstanceReservation(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseFlavorInstanceReservation reserves capacity for instances of an existing flavor for the duration of the lease.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"amount": {
+						SchemaProps: spec.SchemaProps{
+							Description: "amount is the number of instances to reserve capacity for.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"flavorRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "flavorRef is a reference to the ORC Flavor to reserve instances of. Blazar derives the size and the resource properties of the reservation from the flavor when the lease is created.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"amount", "flavorRef"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseHostReservation(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseHostReservation reserves whole compute hosts for the duration of the lease.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"min": {
+						SchemaProps: spec.SchemaProps{
+							Description: "min is the smallest number of hosts the lease can be satisfied with.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"max": {
+						SchemaProps: spec.SchemaProps{
+							Description: "max is the largest number of hosts to reserve.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"hypervisorProperties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hypervisorProperties filters the candidate hosts on the properties Nova reports, e.g. `[\">=\", \"$vcpus\", \"4\"]`.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceProperties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceProperties filters the candidate hosts on their extra capabilities, e.g. `[\"==\", \"$gpu\", \"a100\"]`.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"min", "max"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseImport specifies an existing resource which will be imported instead of creating a new one",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id contains the unique identifier of an existing OpenStack resource. Note that when specifying an import by ID, the resource MUST already exist. The ORC object will enter an error state if the resource does not exist.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"filter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "filter contains a resource query which is expected to return a single result. The controller will continue to retry if filter returns no results. If filter returns multiple results the controller will set an error state and will not continue to retry.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseFilter"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseFilter"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseInstanceReservation(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseInstanceReservation reserves capacity for instances of a given size for the duration of the lease.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"amount": {
+						SchemaProps: spec.SchemaProps{
+							Description: "amount is the number of instances to reserve capacity for.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"vcpus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vcpus is the number of virtual CPUs per instance.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"memoryMB": {
+						SchemaProps: spec.SchemaProps{
+							Description: "memoryMB is the amount of memory per instance, in megabytes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"diskGB": {
+						SchemaProps: spec.SchemaProps{
+							Description: "diskGB is the amount of disk per instance, in gigabytes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"affinity": {
+						SchemaProps: spec.SchemaProps{
+							Description: "affinity places the instances on the same host if true, or on distinct hosts if false. If not specified, placement is left to Nova.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"resourceProperties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceProperties filters the candidate hosts on their extra capabilities, e.g. `[\"==\", \"$gpu\", \"a100\"]`.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"amount", "vcpus", "memoryMB", "diskGB"},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseList contains a list of Lease.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "metadata contains the list metadata",
+							Default:     map[string]interface{}{},
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "items contains a list of Lease.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Lease"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Lease", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseReservation(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseReservation is a single reservation within a lease. Exactly one of host, instance or flavorInstance must be specified.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"host": {
+						SchemaProps: spec.SchemaProps{
+							Description: "host reserves whole compute hosts.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseHostReservation"),
+						},
+					},
+					"instance": {
+						SchemaProps: spec.SchemaProps{
+							Description: "instance reserves capacity for instances of a given size.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseInstanceReservation"),
+						},
+					},
+					"flavorInstance": {
+						SchemaProps: spec.SchemaProps{
+							Description: "flavorInstance reserves capacity for instances of an existing flavor.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseFlavorInstanceReservation"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseFlavorInstanceReservation", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseHostReservation", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseInstanceReservation"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseReservationStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseReservationStatus represents the observed state of a reservation within a lease.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the ID of the reservation. For host reservations it is passed to Nova as the `reservation` scheduler hint.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceType is the type of resource reserved: `physical:host`, `virtual:instance` or `flavor:instance`.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status is the status of the reservation.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"flavorID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "flavorID is the ID of the flavor Blazar created for an instance reservation. Instances must be created with this flavor to consume the reservation.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serverGroupID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "serverGroupID is the ID of the server group Blazar created for an instance reservation.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"missingResources": {
+						SchemaProps: spec.SchemaProps{
+							Description: "missingResources is true if some of the reserved resources are no longer available.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"resourcesChanged": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourcesChanged is true if some of the reserved resources were replaced.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"min": {
+						SchemaProps: spec.SchemaProps{
+							Description: "min is the smallest number of hosts of a host reservation.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"max": {
+						SchemaProps: spec.SchemaProps{
+							Description: "max is the largest number of hosts of a host reservation.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"hypervisorProperties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hypervisorProperties filters the candidate hosts of a host reservation on the properties Nova reports.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resourceProperties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceProperties filters the candidate hosts on their extra capabilities.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"amount": {
+						SchemaProps: spec.SchemaProps{
+							Description: "amount is the number of instances of an instance reservation.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"vcpus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "vcpus is the number of virtual CPUs per instance of an instance reservation.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"memoryMB": {
+						SchemaProps: spec.SchemaProps{
+							Description: "memoryMB is the amount of memory per instance of an instance reservation, in megabytes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"diskGB": {
+						SchemaProps: spec.SchemaProps{
+							Description: "diskGB is the amount of disk per instance of an instance reservation, in gigabytes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"affinity": {
+						SchemaProps: spec.SchemaProps{
+							Description: "affinity is the placement policy of the instances of an instance reservation: on the same host if true, on distinct hosts if false.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseResourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseResourceSpec contains the desired state of the resource.\n\nA lease is only Available while Blazar reports it as ACTIVE. A lease which starts in the future is created immediately but stays Progressing until its start date. A lease which has ended (TERMINATED) or failed (ERROR) can no longer become Available, and is reported as a terminal error.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name will be the name of the created resource. If not specified, the name of the ORC object will be used, which must then be at most 80 characters long.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"startDate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "startDate is the time at which the lease starts. If not specified, the lease starts as soon as it is created. Blazar truncates it to the minute.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"endDate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "endDate is the time at which the lease ends. Blazar truncates it to the minute.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"reservations": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "reservations are the resources reserved for the duration of the lease.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseReservation"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"endDate", "reservations"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseReservation", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseResourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseResourceStatus represents the observed state of the resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name is a Human-readable name for the resource. Might not be unique.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status is the status of the lease.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"degraded": {
+						SchemaProps: spec.SchemaProps{
+							Description: "degraded is true if some of the reserved resources are unavailable.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"startDate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "startDate is the time at which the lease starts.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"endDate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "endDate is the time at which the lease ends.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"projectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "projectID is the ID of the project that owns the lease.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"userID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "userID is the ID of the user that created the lease.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"createdAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "createdAt shows the date and time when the resource was created.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"updatedAt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updatedAt shows the date and time when the resource was updated.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"reservations": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "reservations are the reservations within the lease.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseReservationStatus"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseReservationStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseSpec defines the desired state of an ORC object.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"import": {
+						SchemaProps: spec.SchemaProps{
+							Description: "import refers to an existing OpenStack resource which will be imported instead of creating a new one.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseImport"),
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource specifies the desired state of the resource.\n\nresource may not be specified if the management policy is `unmanaged`.\n\nresource must be specified if the management policy is `managed`.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseResourceSpec"),
+						},
+					},
+					"managementPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managementPolicy defines how ORC will treat the object. Valid values are `managed`: ORC will create, update, and delete the resource; `unmanaged`: ORC will import an existing resource, and will not apply updates to it or delete it.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"managedOptions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "managedOptions specifies options which may be applied to managed objects.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions"),
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resyncPeriod defines how frequently the controller will re-reconcile this resource even when no changes have been detected. This overrides the global default resync period. The value must be a valid Go duration string, e.g. \"10m\", \"1h\". Set to \"0s\" to disable periodic resync for this resource. Very low values may cause excessive OpenStack API load.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"cloudCredentialsRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cloudCredentialsRef points to a secret containing OpenStack credentials",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference"),
+						},
+					},
+				},
+				Required: []string{"cloudCredentialsRef"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.CloudCredentialsReference", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseImport", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseResourceSpec", "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ManagedOptions", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+	}
+}
+
+func schema_openstack_resource_controller_v3_api_v1alpha1_LeaseStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "LeaseStatus defines the observed state of an ORC resource.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"type",
+								},
+								"x-kubernetes-list-type":       "map",
+								"x-kubernetes-patch-merge-key": "type",
+								"x-kubernetes-patch-strategy":  "merge",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "conditions represents the observed status of the object. Known .status.conditions.type are: \"Available\", \"Progressing\"\n\nAvailable represents the availability of the OpenStack resource. If it is true then the resource is ready for use.\n\nProgressing indicates whether the controller is still attempting to reconcile the current state of the OpenStack resource to the desired state. Progressing will be False either because the desired state has been achieved, or because some terminal error prevents it from ever being achieved and the controller is no longer attempting to reconcile. If Progressing is True, an observer waiting on the resource should continue to wait.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.Condition"),
+									},
+								},
+							},
+						},
+					},
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Description: "id is the unique identifier of the OpenStack resource.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "resource contains the observed state of the OpenStack resource.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseResourceStatus"),
+						},
+					},
+					"lastSyncTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "lastSyncTime is the timestamp of the last successful reconciliation that fetched state from OpenStack. It is updated each time the controller successfully reads the resource state from the OpenStack API.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.LeaseResourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.Condition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 

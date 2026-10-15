@@ -27,6 +27,7 @@ rules:
   - groups
   - images
   - keypairs
+  - leases
   - limits
   - networks
   - ports
@@ -65,6 +66,7 @@ rules:
   - groups/status
   - images/status
   - keypairs/status
+  - leases/status
   - limits/status
   - networks/status
   - ports/status
