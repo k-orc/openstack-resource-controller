@@ -1661,6 +1661,246 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resource
       type:
         namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.KeyPairResourceStatus
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.Lease
+  map:
+    fields:
+    - name: apiVersion
+      type:
+        scalar: string
+    - name: kind
+      type:
+        scalar: string
+    - name: metadata
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
+      default: {}
+    - name: spec
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseSpec
+      default: {}
+    - name: status
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseStatus
+      default: {}
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFilter
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFlavorInstanceReservation
+  map:
+    fields:
+    - name: amount
+      type:
+        scalar: numeric
+    - name: flavorRef
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseHostReservation
+  map:
+    fields:
+    - name: hypervisorProperties
+      type:
+        scalar: string
+    - name: max
+      type:
+        scalar: numeric
+    - name: min
+      type:
+        scalar: numeric
+    - name: resourceProperties
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseImport
+  map:
+    fields:
+    - name: filter
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFilter
+    - name: id
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseInstanceReservation
+  map:
+    fields:
+    - name: affinity
+      type:
+        scalar: boolean
+    - name: amount
+      type:
+        scalar: numeric
+    - name: diskGB
+      type:
+        scalar: numeric
+    - name: memoryMB
+      type:
+        scalar: numeric
+    - name: resourceProperties
+      type:
+        scalar: string
+    - name: vcpus
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservation
+  map:
+    fields:
+    - name: flavorInstance
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseFlavorInstanceReservation
+    - name: host
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseHostReservation
+    - name: instance
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseInstanceReservation
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservationStatus
+  map:
+    fields:
+    - name: affinity
+      type:
+        scalar: boolean
+    - name: amount
+      type:
+        scalar: numeric
+    - name: diskGB
+      type:
+        scalar: numeric
+    - name: flavorID
+      type:
+        scalar: string
+    - name: hypervisorProperties
+      type:
+        scalar: string
+    - name: id
+      type:
+        scalar: string
+    - name: max
+      type:
+        scalar: numeric
+    - name: memoryMB
+      type:
+        scalar: numeric
+    - name: min
+      type:
+        scalar: numeric
+    - name: missingResources
+      type:
+        scalar: boolean
+    - name: resourceProperties
+      type:
+        scalar: string
+    - name: resourceType
+      type:
+        scalar: string
+    - name: resourcesChanged
+      type:
+        scalar: boolean
+    - name: serverGroupID
+      type:
+        scalar: string
+    - name: status
+      type:
+        scalar: string
+    - name: vcpus
+      type:
+        scalar: numeric
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceSpec
+  map:
+    fields:
+    - name: endDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: name
+      type:
+        scalar: string
+    - name: reservations
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservation
+          elementRelationship: atomic
+    - name: startDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceStatus
+  map:
+    fields:
+    - name: createdAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: degraded
+      type:
+        scalar: boolean
+    - name: endDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: name
+      type:
+        scalar: string
+    - name: projectID
+      type:
+        scalar: string
+    - name: reservations
+      type:
+        list:
+          elementType:
+            namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseReservationStatus
+          elementRelationship: atomic
+    - name: startDate
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: status
+      type:
+        scalar: string
+    - name: updatedAt
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: userID
+      type:
+        scalar: string
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseSpec
+  map:
+    fields:
+    - name: cloudCredentialsRef
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.CloudCredentialsReference
+      default: {}
+    - name: import
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseImport
+    - name: managedOptions
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ManagedOptions
+    - name: managementPolicy
+      type:
+        scalar: string
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceSpec
+    - name: resyncPeriod
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Duration
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseStatus
+  map:
+    fields:
+    - name: conditions
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Condition
+          elementRelationship: associative
+          keys:
+          - type
+    - name: id
+      type:
+        scalar: string
+    - name: lastSyncTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
+    - name: resource
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.LeaseResourceStatus
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.Limit
   map:
     fields:
