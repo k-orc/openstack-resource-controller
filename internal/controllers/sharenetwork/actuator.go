@@ -148,12 +148,6 @@ func (actuator sharenetworkActuator) DeleteResource(ctx context.Context, _ orcOb
 func (actuator sharenetworkActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
 	updateOpts := sharenetworks.UpdateOpts{}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
