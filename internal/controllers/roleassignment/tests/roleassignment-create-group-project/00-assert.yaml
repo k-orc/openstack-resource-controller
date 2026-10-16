@@ -70,6 +70,7 @@ assertAll:
     - celExpr: "roleassignment.status.resource.roleID != ''"
     - celExpr: "roleassignment.status.resource.groupID != ''"
     - celExpr: "roleassignment.status.resource.projectID != ''"
-    # Verify user and domain are not set (since we used group and project)
+    # Verify system, user and domain are not set (since we used group and project)
     - celExpr: "!has(roleassignment.status.resource.userID) || roleassignment.status.resource.userID == ''"
     - celExpr: "!has(roleassignment.status.resource.domainID) || roleassignment.status.resource.domainID == ''"
+    - celExpr: "!has(roleassignment.status.resource.system) || roleassignment.status.resource.system == ''"

@@ -107,6 +107,11 @@ spec:
                         maxLength: 253
                         minLength: 1
                         type: string
+                      system:
+                        description: system filters by the referenced System scope.
+                        enum:
+                        - all
+                        type: string
                       userRef:
                         description: userRef filters by the referenced User.
                         maxLength: 253
@@ -155,7 +160,7 @@ spec:
                   domainRef:
                     description: |-
                       domainRef references the Domain scope for the assignment.
-                      Exactly one of projectRef or domainRef must be specified.
+                      Exactly one of projectRef, domainRef, or system must be specified.
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -169,7 +174,7 @@ spec:
                   projectRef:
                     description: |-
                       projectRef references the Project scope for the assignment.
-                      Exactly one of projectRef or domainRef must be specified.
+                      Exactly one of projectRef, domainRef, or system must be specified.
                     maxLength: 253
                     minLength: 1
                     type: string
@@ -177,6 +182,13 @@ spec:
                     description: roleRef references the Role being assigned.
                     maxLength: 253
                     minLength: 1
+                    type: string
+                  system:
+                    description: |-
+                      system references the System scope for this assignment.
+                      Exactly one of projectRef, domainRef, or system must be specified.
+                    enum:
+                    - all
                     type: string
                   userRef:
                     description: |-
@@ -192,9 +204,10 @@ spec:
                 - message: exactly one of userRef or groupRef is required
                   rule: (has(self.userRef) && !has(self.groupRef)) || (!has(self.userRef)
                     && has(self.groupRef))
-                - message: exactly one of projectRef or domainRef is required
-                  rule: (has(self.projectRef) && !has(self.domainRef)) || (!has(self.projectRef)
-                    && has(self.domainRef))
+                - message: exactly one of projectRef, domainRef, or system is required
+                  rule: (has(self.projectRef) && !has(self.domainRef) && !has(self.system))
+                    || (!has(self.projectRef) && has(self.domainRef) && !has(self.system))
+                    || (!has(self.projectRef) && !has(self.domainRef) && has(self.system))
                 - message: RoleAssignmentResourceSpec is immutable
                   rule: self == oldSelf
               resyncPeriod:
@@ -329,6 +342,11 @@ spec:
                     type: string
                   roleID:
                     description: roleID is the OpenStack ID of the assigned role.
+                    maxLength: 1024
+                    type: string
+                  system:
+                    description: system identifies the system scope which is currently
+                      only "all" (if scopeType is System).
                     maxLength: 1024
                     type: string
                   userID:

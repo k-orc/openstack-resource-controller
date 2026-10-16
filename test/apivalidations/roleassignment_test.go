@@ -124,6 +124,56 @@ var _ = Describe("ORC RoleAssignment API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("RoleAssignmentResourceSpec is immutable")))
 	})
 
+	DescribeTable("should permit valid KeystoneSystem",
+		func(ctx context.Context, system orcv1alpha1.KeystoneSystem) {
+			obj := roleassignmentStub(namespace)
+			patch := baseRoleAssignmentPatch(obj)
+			patch.Spec.WithResource(applyconfigv1alpha1.RoleAssignmentResourceSpec().WithRoleRef("role").WithUserRef("user").WithSystem(system))
+			Expect(applyObj(ctx, obj, patch)).To(Succeed(), "create roleassignment")
+		},
+		Entry(string(orcv1alpha1.KeystoneSystemAll), orcv1alpha1.KeystoneSystemAll),
+	)
+
+	It("should not permit invalid KeystoneSystem", func(ctx context.Context) {
+		obj := roleassignmentStub(namespace)
+		patch := baseRoleAssignmentPatch(obj)
+		patch.Spec.WithResource(applyconfigv1alpha1.RoleAssignmentResourceSpec().WithRoleRef("role").WithUserRef("user").WithSystem("invalid"))
+		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed(), "create roleassignment")
+	})
+
+	DescribeTable("should ensure scope parameters are mutually exclusive",
+		func(ctx context.Context, projectID string, domainID string, system string, expect bool) {
+			obj := roleassignmentStub(namespace)
+			patch := baseRoleAssignmentPatch(obj)
+			patch.Spec.WithResource(applyconfigv1alpha1.RoleAssignmentResourceSpec())
+			patch.Spec.Resource.WithRoleRef("role").WithUserRef("user")
+
+			if projectID != "" {
+				patch.Spec.Resource.WithProjectRef(orcv1alpha1.KubernetesNameRef(projectID))
+			}
+			if domainID != "" {
+				patch.Spec.Resource.WithDomainRef(orcv1alpha1.KubernetesNameRef(domainID))
+			}
+			if system != "" {
+				patch.Spec.Resource.WithSystem(orcv1alpha1.KeystoneSystem(system))
+			}
+
+			if expect {
+				Expect(applyObj(ctx, obj, patch)).To(Succeed())
+			} else {
+				Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
+			}
+		},
+		Entry("None", "", "", "", false),
+		Entry("Project", "project", "", "", true),
+		Entry("Domain", "", "domain", "", true),
+		Entry("System", "", "", "all", true),
+		Entry("Project+Domain", "project", "domain", "", false),
+		Entry("Project+System", "project", "", "all", false),
+		Entry("Domain+System", "", "domain", "all", false),
+		Entry("Project+Domain+System", "project", "domain", "all", false),
+	)
+
 	// TODO(scaffolding): Add more resource-specific validation tests.
 	// Some common things to test:
 	// - Immutability of fields with `self == oldSelf` validation
