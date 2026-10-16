@@ -24,3 +24,11 @@ sources:
   - https://github.com/k-orc/openstack-resource-controller
 annotations:
   artifacthub.io/license: Apache-2.0
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://k-orc.cloud/
+    - name: support
+      url: https://github.com/k-orc/openstack-resource-controller/issues
+  artifacthub.io/recommendations: |
+    - url: https://artifacthub.io/packages/helm/orc/orc
