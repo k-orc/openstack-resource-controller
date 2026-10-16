@@ -366,28 +366,20 @@ make fmt           # Format code
 
 `GetResourceReconcilers` returns a list of reconciler functions. There are two types:
 
-1. **`updateResource`**: Handles general mutable field updates via the resource's Update API. Uses `handleXXXUpdate()` helpers to build an `UpdateOpts` struct, then makes a single API call. Returns a terminal error when `spec.resource` is nil. Examples: securitygroup, volumetype, trunk, router.
+1. **`updateResource`**: Handles general mutable field updates via the resource's Update API. Uses `handleXXXUpdate()` helpers to build an `UpdateOpts` struct, then makes a single API call. Examples: securitygroup, volumetype, trunk, router.
 
-2. **Single-concern reconcilers**: Handle a specific aspect of the resource using a separate API (not the resource's Update API). Named with a descriptive verb+noun (e.g., `reconcileExtraSpecs`, `reconcileSubports`, `reconcilePassword`, `updateRules`). Return `nil` (not a terminal error) when `spec.resource` is nil. May make multiple API calls within a single reconciler.
+2. **Single-concern reconcilers**: Handle a specific aspect of the resource using a separate API (not the resource's Update API). Named with a descriptive verb+noun (e.g., `reconcileExtraSpecs`, `reconcileSubports`, `reconcilePassword`, `updateRules`). May make multiple API calls within a single reconciler.
 
 ```go
 // updateResource pattern - general mutable fields via Update API
 func (actuator myActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
     resource := obj.Spec.Resource
-    if resource == nil {
-        // Terminal error: updateResource is only registered for managed resources
-        return progress.WrapError(
-            orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-    }
     // ... build UpdateOpts, make single Update API call
 }
 
 // Single-concern reconciler pattern - separate API
 func (actuator myActuator) reconcileExtraSpecs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
     resource := obj.Spec.Resource
-    if resource == nil {
-        return nil  // Not a terminal error
-    }
     // ... compute diff, make API calls (creates, deletes, etc.)
 }
 ```

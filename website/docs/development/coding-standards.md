@@ -48,6 +48,10 @@ var _ deleteResourceActuator = flavorActuator{}
 
 For detailed information on error handling patterns, including transient vs terminal errors and `ReconcileStatus`, see [Controller Implementation](controller-implementation.md#transient-and-terminal-errors).
 
+## Resource reconcilers
+
+Each resource reconciler returned by `GetResourceReconcilers` must target exactly one OpenStack API. Operations that use a separate API from the resource's Update API (e.g. Neutron tags, security group rules, flavor extra specs) must be implemented as their own reconciler, not embedded in `updateResource`. See [ReconcileResourceActuator](interfaces.md#reconcileresourceactuator) for details.
+
 ## Logging
 
 ORC uses four logging levels defined in `internal/logging/levels.go`:
