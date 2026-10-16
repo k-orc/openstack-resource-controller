@@ -180,15 +180,6 @@ func TestReconcilePassword(t *testing.T) {
 			wantErr:        false,
 		},
 		{
-			name: "Resource is nil",
-			orcObject: &orcv1alpha1.User{
-				Spec: orcv1alpha1.UserSpec{},
-			},
-			osResource:     &users.User{ID: "user-id"},
-			wantReschedule: false,
-			wantErr:        false,
-		},
-		{
 			name: "Password ref unchanged",
 			orcObject: &orcv1alpha1.User{
 				Spec: orcv1alpha1.UserSpec{

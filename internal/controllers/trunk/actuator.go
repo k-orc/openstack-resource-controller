@@ -300,9 +300,6 @@ func handleAdminStateUpUpdate(updateOpts *trunks.UpdateOpts, resource *resourceS
 func (actuator trunkActuator) reconcileSubports(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return nil
-	}
 
 	var reconcileStatus progress.ReconcileStatus
 

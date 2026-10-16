@@ -179,9 +179,6 @@ func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT
 func (actuator flavorActuator) reconcileExtraSpecs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return nil
-	}
 
 	desiredExtraSpecs := extraSpecsToMap(resource.ExtraSpecs)
 	currentExtraSpecs := osResource.ExtraSpecs

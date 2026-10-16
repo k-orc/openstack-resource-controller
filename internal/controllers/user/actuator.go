@@ -204,7 +204,7 @@ func (actuator userActuator) DeleteResource(ctx context.Context, _ orcObjectPT, 
 func (actuator userActuator) reconcilePassword(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil || resource.PasswordRef == nil {
+	if resource.PasswordRef == nil {
 		return nil
 	}
 

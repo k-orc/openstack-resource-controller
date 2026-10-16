@@ -110,11 +110,6 @@ func Test_securityGroupActuator_updateRules(t *testing.T) {
 		wantErrs       []error
 	}{
 		{
-			name:       "ignore nil resource spec",
-			orcObject:  &orcv1alpha1.SecurityGroup{},
-			osResource: osResourceWithRules(nil),
-		},
-		{
 			name:       "no rules exist, no rules defined",
 			orcObject:  orcObjectWithRules(nil),
 			osResource: osResourceWithRules(nil),
