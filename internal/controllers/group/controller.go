@@ -69,6 +69,24 @@ var domainDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.GroupL
 	finalizer, externalObjectFieldOwner,
 )
 
+var userDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.GroupList, *orcv1alpha1.User](
+	"spec.resource.userRefs",
+	func(group *orcv1alpha1.Group) []string {
+		resource := group.Spec.Resource
+		if resource == nil || len(resource.UserRefs) == 0 {
+			return nil
+		}
+
+		users := make([]string, 0, len(resource.UserRefs))
+		for _, u := range resource.UserRefs {
+			users = append(users, string(u))
+		}
+
+		return users
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
 var domainImportDependency = dependency.NewDependency[*orcv1alpha1.GroupList, *orcv1alpha1.Domain](
 	"spec.import.filter.domainRef",
 	func(group *orcv1alpha1.Group) []string {
@@ -90,6 +108,11 @@ func (c *groupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		return err
 	}
 
+	userWatchEventHandler, err := userDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
+
 	domainImportWatchEventHandler, err := domainImportDependency.WatchEventHandler(log, k8sClient)
 	if err != nil {
 		return err
@@ -100,6 +123,9 @@ func (c *groupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 		Watches(&orcv1alpha1.Domain{}, domainWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
 		).
+		Watches(&orcv1alpha1.User{}, userWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.User{})),
+		).
 		// A second watch is necessary because we need a different handler that omits deletion guards
 		Watches(&orcv1alpha1.Domain{}, domainImportWatchEventHandler,
 			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Domain{})),
@@ -108,6 +134,7 @@ func (c *groupReconcilerConstructor) SetupWithManager(ctx context.Context, mgr c
 
 	if err := errors.Join(
 		domainDependency.AddToManager(ctx, mgr),
+		userDependency.AddToManager(ctx, mgr),
 		domainImportDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
