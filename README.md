@@ -70,6 +70,7 @@ kubectl delete -f $ORC_RELEASE
 | application credential      |         |    ◐    |     ◐    |
 | domain                      |         |    ✔    |     ✔    |
 | dns zone                    |         |         |     ◐    |
+| dns zone share              |         |         |     ◐    |
 | endpoint                    |         |    ◐    |     ✔    |
 | flavor                      |         |    ✔    |     ✔    |
 | floating ip                 |         |    ◐    |     ◐    |
