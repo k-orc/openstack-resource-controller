@@ -142,12 +142,6 @@ func (actuator flavorActuator) listOSResources(ctx context.Context, filters []os
 func (actuator flavorActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*flavors.Flavor, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
-
 	createOpts := flavors.CreateOpts{
 		Name:        getResourceName(obj),
 		RAM:         int(resource.RAM),
@@ -179,9 +173,6 @@ func (actuator flavorActuator) DeleteResource(ctx context.Context, _ orcObjectPT
 func (actuator flavorActuator) reconcileExtraSpecs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		return nil
-	}
 
 	desiredExtraSpecs := extraSpecsToMap(resource.ExtraSpecs)
 	currentExtraSpecs := osResource.ExtraSpecs

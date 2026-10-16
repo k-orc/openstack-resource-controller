@@ -102,12 +102,6 @@ func (actuator servergroupActuator) listOSResources(ctx context.Context, filters
 func (actuator servergroupActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*servergroups.ServerGroup, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
-
 	var rules *servergroups.Rules
 	if resource.Rules != nil {
 		rules = &servergroups.Rules{

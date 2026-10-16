@@ -112,10 +112,6 @@ func (actuator imageActuator) ListOSResourcesForImport(ctx context.Context, obj 
 
 func (actuator imageActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Image) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 
 	if resource.Content == nil {
 		// Should have been caught by API validation

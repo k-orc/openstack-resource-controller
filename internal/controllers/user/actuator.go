@@ -125,11 +125,6 @@ func (actuator userActuator) ListOSResourcesForImport(ctx context.Context, obj o
 func (actuator userActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 	var reconcileStatus progress.ReconcileStatus
 
 	var domainID string
@@ -204,7 +199,7 @@ func (actuator userActuator) DeleteResource(ctx context.Context, _ orcObjectPT, 
 func (actuator userActuator) reconcilePassword(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil || resource.PasswordRef == nil {
+	if resource.PasswordRef == nil {
 		return nil
 	}
 

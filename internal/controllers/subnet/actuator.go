@@ -161,11 +161,6 @@ func (actuator subnetActuator) ListOSResourcesForImport(ctx context.Context, obj
 
 func (actuator subnetActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 
 	network, reconcileStatus := networkDependency.RequireDependency(
 		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,

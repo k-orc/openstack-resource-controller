@@ -245,11 +245,6 @@ func (actuator serverActuator) getSchedulerHints(ctx context.Context, obj *orcv1
 
 func (actuator serverActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Server) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 
 	reconcileStatus := progress.NewReconcileStatus()
 

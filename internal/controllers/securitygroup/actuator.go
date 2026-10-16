@@ -286,9 +286,6 @@ func rulesMatch(orcRule *orcv1alpha1.SecurityGroupRule, osRule *rules.SecGroupRu
 
 func (actuator securityGroupActuator) updateRules(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	resource := orcObject.Spec.Resource
-	if resource == nil {
-		return nil
-	}
 
 	var projectID string
 	if resource.ProjectRef != nil {

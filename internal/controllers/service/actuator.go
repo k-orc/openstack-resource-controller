@@ -92,12 +92,6 @@ func (actuator serviceActuator) ListOSResourcesForImport(ctx context.Context, ob
 func (actuator serviceActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
-
 	extra := map[string]any{
 		"name":        getResourceName(obj),
 		"description": resource.Description,
