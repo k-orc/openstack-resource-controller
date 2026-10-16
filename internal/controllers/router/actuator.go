@@ -126,11 +126,6 @@ func (actuator routerActuator) ListOSResourcesForImport(ctx context.Context, obj
 
 func (actuator routerActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Router) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 
 	var reconcileStatus progress.ReconcileStatus
 

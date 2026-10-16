@@ -92,11 +92,6 @@ func (actuator domainActuator) ListOSResourcesForImport(ctx context.Context, obj
 func (actuator domainActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 	createOpts := domains.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),

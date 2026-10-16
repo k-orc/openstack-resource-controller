@@ -196,10 +196,6 @@ func (actuator portActuator) ListOSResourcesForImport(ctx context.Context, obj o
 
 func (actuator portActuator) CreateResource(ctx context.Context, obj *orcv1alpha1.Port) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 
 	// Fetch all dependencies and ensure they have our finalizer
 	network, networkDepRS := networkDependency.RequireDependency(

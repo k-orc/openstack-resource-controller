@@ -206,11 +206,6 @@ func (actuator limitActuator) CreateResource(ctx context.Context, obj orcObjectP
 	logger := ctrl.LoggerFrom(ctx).WithValues("limitName", obj.Name)
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
 	var reconcileStatus progress.ReconcileStatus
 
 	var serviceID string
