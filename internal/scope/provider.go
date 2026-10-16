@@ -254,6 +254,10 @@ func (s *providerScope) NewDNSZoneClient() (clients.DNSZoneClient, error) {
 	return client, err
 }
 
+func (s *providerScope) NewRecordSetClient() (clients.RecordSetClient, error) {
+	return clients.NewRecordSetClient(s.providerClient, s.providerClientOpts)
+}
+
 func (s *providerScope) NewEndpointClient() (clients.EndpointClient, error) {
 	client, err := clients.NewEndpointClient(s.providerClient, s.providerClientOpts)
 	s.checkNewClientError(err)

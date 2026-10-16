@@ -1,0 +1,27 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: RecordSet
+      name: recordset-update
+      ref: recordset
+assertAll:
+    - celExpr: "!has(recordset.status.resource.description)"
+    - celExpr: "recordset.status.resource.records == ['192.0.2.1']"
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-update
+status:
+  resource:
+    name: www.recordset-update.example.com.
+    type: A
+  conditions:
+  - type: Available
+    status: "True"
+    reason: Success
+  - type: Progressing
+    status: "False"
+    reason: Success

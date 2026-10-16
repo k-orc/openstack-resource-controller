@@ -16,6 +16,12 @@ nameReference:
     path: spec/resource/addressScopeRef
   kind: AddressScope
 - fieldSpecs:
+  - kind: RecordSet
+    path: spec/import/filter/zoneRef
+  - kind: RecordSet
+    path: spec/resource/zoneRef
+  kind: DNSZone
+- fieldSpecs:
   - kind: Group
     path: spec/import/filter/domainRef
   - kind: Group
@@ -201,6 +207,8 @@ nameReference:
   - kind: Port
     path: spec/cloudCredentialsRef/secretName
   - kind: Project
+    path: spec/cloudCredentialsRef/secretName
+  - kind: RecordSet
     path: spec/cloudCredentialsRef/secretName
   - kind: Region
     path: spec/cloudCredentialsRef/secretName
