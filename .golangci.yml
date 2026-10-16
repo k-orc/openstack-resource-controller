@@ -96,6 +96,12 @@ linters:
       - linters:
           - kubeapilinter
         path-except: ^api/*
+      # RBACPolicy.TargetProjectID is an ID by design: the target project is often not
+      # managed by ORC.
+      - linters:
+          - kubeapilinter
+        path: api/v1alpha1/rbacpolicy_types\.go
+        text: noopenstackidref
     paths:
       - third_party$
       - builtin$

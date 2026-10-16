@@ -29,6 +29,7 @@ rules:
   - networks
   - ports
   - projects
+  - rbacpolicies
   - regions
   - registeredlimits
   - roles
@@ -67,6 +68,7 @@ rules:
   - networks/status
   - ports/status
   - projects/status
+  - rbacpolicies/status
   - regions/status
   - registeredlimits/status
   - roles/status

@@ -1,0 +1,25 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: rbacpolicy-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RBACPolicy
+metadata:
+  name: rbacpolicy-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: rbacpolicy-create-full
+    action: access_as_external
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000012"
