@@ -127,12 +127,6 @@ func (actuator leaseActuator) ListOSResourcesForImport(ctx context.Context, obj 
 func (actuator leaseActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
-
 	// spec.resource.name is validated by the API, but the object name it
 	// falls back to may be longer than Blazar allows.
 	name := getResourceName(obj)
