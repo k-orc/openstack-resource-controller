@@ -38,6 +38,9 @@ jobs:
   helm:
     needs: push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Required for cosign keyless signing
 
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag=v7.0.1
@@ -65,12 +68,31 @@ jobs:
           sed -i "s/^appVersion: .*/appVersion: \"${APP_VERSION}\"/" "${chart}/Chart.yaml"
         done
 
+    - name: Install cosign
+      uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # tag=v3.8.2
+
     - name: Package and push charts
+      id: push
       env:
         CHART_VERSION: ${{ steps.version.outputs.version }}
       run: |
         helm registry login quay.io -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_TOKEN }}" # zizmor: ignore[secrets-outside-env]
         helm package charts/orc-crds
         helm package charts/orc
-        helm push "orc-crds-${CHART_VERSION}.tgz" oci://quay.io/orc/helm
-        helm push "orc-${CHART_VERSION}.tgz" oci://quay.io/orc/helm
+
+        ORC_CRDS_OUTPUT=$(helm push "orc-crds-${CHART_VERSION}.tgz" oci://quay.io/orc/helm 2>&1)
+        ORC_OUTPUT=$(helm push "orc-${CHART_VERSION}.tgz" oci://quay.io/orc/helm 2>&1)
+
+        echo "${ORC_CRDS_OUTPUT}"
+        echo "${ORC_OUTPUT}"
+
+        echo "orc_crds_digest=$(echo "${ORC_CRDS_OUTPUT}" | awk '/Digest:/{print $2}')" >> "$GITHUB_OUTPUT"
+        echo "orc_digest=$(echo "${ORC_OUTPUT}" | awk '/Digest:/{print $2}')" >> "$GITHUB_OUTPUT"
+
+    - name: Sign charts with cosign
+      env:
+        ORC_CRDS_DIGEST: ${{ steps.push.outputs.orc_crds_digest }}
+        ORC_DIGEST: ${{ steps.push.outputs.orc_digest }}
+      run: |
+        cosign sign --yes "quay.io/orc/helm/orc-crds@${ORC_CRDS_DIGEST}"
+        cosign sign --yes "quay.io/orc/helm/orc@${ORC_DIGEST}"
