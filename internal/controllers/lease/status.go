@@ -21,6 +21,7 @@ import (
 
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
@@ -109,10 +110,11 @@ func (leaseStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osReso
 		if reservation.ServerGroupID != nil {
 			reservationStatus.WithServerGroupID(*reservation.ServerGroupID)
 		}
-		if reservation.HypervisorProperties != nil {
+		// Blazar returns an empty string rather than null for an unset filter
+		if ptr.Deref(reservation.HypervisorProperties, "") != "" {
 			reservationStatus.WithHypervisorProperties(*reservation.HypervisorProperties)
 		}
-		if reservation.ResourceProperties != nil {
+		if ptr.Deref(reservation.ResourceProperties, "") != "" {
 			reservationStatus.WithResourceProperties(*reservation.ResourceProperties)
 		}
 		if reservation.BeforeEnd != nil {

@@ -38,7 +38,13 @@ assertAll:
     - celExpr: "lease.status.resource.projectID != ''"
     - celExpr: "lease.status.resource.userID != ''"
     - celExpr: "has(lease.status.resource.createdAt)"
+    - celExpr: "lease.status.resource.trustID != ''"
+    # Blazar schedules start_lease, before_end_lease and end_lease
+    - celExpr: "size(lease.status.resource.events) == 3"
     - celExpr: "lease.status.resource.reservations[0].id != ''"
+    - celExpr: "lease.status.resource.reservations[0].resourceID != ''"
+    - celExpr: "lease.status.resource.reservations[0].beforeEnd == 'default'"
+    - celExpr: "!has(lease.status.resource.reservations[0].aggregateID)"
     # Host reservations have no flavor, server group or instance fields
     - celExpr: "!has(lease.status.resource.reservations[0].flavorID)"
     - celExpr: "!has(lease.status.resource.reservations[0].serverGroupID)"

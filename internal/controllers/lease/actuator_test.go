@@ -247,15 +247,19 @@ func TestApplyResourceStatusReservations(t *testing.T) {
 		Reservations: []leases.Reservation{
 			{
 				ID:                   "host-reservation",
+				ResourceID:           "host-resource",
 				ResourceType:         leases.ResourceTypeHost,
 				Min:                  ptr.To(1),
 				Max:                  ptr.To(2),
 				HypervisorProperties: ptr.To(`[">=", "$vcpus", "4"]`),
 				ResourceProperties:   ptr.To(""),
+				BeforeEnd:            ptr.To("default"),
 			},
 			{
 				ID:                 "instance-reservation",
+				ResourceID:         "instance-resource",
 				ResourceType:       leases.ResourceTypeInstance,
+				AggregateID:        ptr.To(7),
 				MissingResources:   true,
 				FlavorID:           ptr.To("instance-reservation"),
 				ServerGroupID:      ptr.To("server-group"),
@@ -293,6 +297,10 @@ func TestApplyResourceStatusReservations(t *testing.T) {
 		"host min":                    ptr.Deref(host.Min, 0) == 1,
 		"host max":                    ptr.Deref(host.Max, 0) == 2,
 		"host hypervisorProperties":   ptr.Deref(host.HypervisorProperties, "") == `[">=", "$vcpus", "4"]`,
+		"host has no resourceProps":   host.ResourceProperties == nil,
+		"host resourceID":             ptr.Deref(host.ResourceID, "") == "host-resource",
+		"host beforeEnd":              ptr.Deref(host.BeforeEnd, "") == "default",
+		"host has no aggregateID":     host.AggregateID == nil,
 		"host has no amount":          host.Amount == nil,
 		"host missingResources":       !ptr.Deref(host.MissingResources, true),
 		"instance amount":             ptr.Deref(instance.Amount, 0) == 3,
@@ -303,6 +311,10 @@ func TestApplyResourceStatusReservations(t *testing.T) {
 		"instance resourceProperties": ptr.Deref(instance.ResourceProperties, "") == `["==", "$gpu", "a100"]`,
 		"instance missingResources":   ptr.Deref(instance.MissingResources, false),
 		"instance has no min":         instance.Min == nil,
+		"instance resourceID":         ptr.Deref(instance.ResourceID, "") == "instance-resource",
+		"instance aggregateID":        ptr.Deref(instance.AggregateID, 0) == 7,
+		"instance has no beforeEnd":   instance.BeforeEnd == nil,
+		"instance has no hypervisor":  instance.HypervisorProperties == nil,
 	} {
 		if !check {
 			t.Errorf("unexpected status for %s", name)
@@ -356,6 +368,38 @@ func TestApplyResourceStatusDates(t *testing.T) {
 				t.Errorf("updatedAt: expected set: %v, got %v", tt.wantUpdatedAt, resource.UpdatedAt)
 			}
 		})
+	}
+}
+
+func TestApplyResourceStatusEvents(t *testing.T) {
+	start := time.Date(2030, 1, 1, 10, 0, 0, 0, time.UTC)
+	osResource := &osResourceT{
+		TrustID: "trust",
+		Events: []leases.Event{
+			{ID: "start", EventType: "start_lease", Status: "DONE", Time: start},
+			{ID: "end", EventType: "end_lease", Status: "UNDONE", Time: start.Add(time.Hour)},
+		},
+	}
+
+	statusApply := orcapplyconfigv1alpha1.LeaseStatus()
+	leaseStatusWriter{}.ApplyResourceStatus(logr.Discard(), osResource, statusApply)
+
+	resource := statusApply.Resource
+	if ptr.Deref(resource.TrustID, "") != "trust" {
+		t.Errorf("trustID: expected %q, got %v", "trust", resource.TrustID)
+	}
+	if len(resource.Events) != len(osResource.Events) {
+		t.Fatalf("expected %d events, got %d", len(osResource.Events), len(resource.Events))
+	}
+	for i, want := range osResource.Events {
+		got := resource.Events[i]
+		if ptr.Deref(got.ID, "") != want.ID ||
+			ptr.Deref(got.EventType, "") != want.EventType ||
+			ptr.Deref(got.Status, "") != want.Status ||
+			got.Time == nil || !got.Time.Equal(&metav1.Time{Time: want.Time}) {
+			t.Errorf("event %d: expected %+v, got id=%v type=%v status=%v time=%v",
+				i, want, got.ID, got.EventType, got.Status, got.Time)
+		}
 	}
 }
 
