@@ -17,6 +17,8 @@ limitations under the License.
 package dnszone
 
 import (
+	"slices"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -65,7 +67,9 @@ func (dnszoneStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRe
 		resourceStatus.WithTTL(int32(osResource.TTL))
 	}
 	if len(osResource.Masters) > 0 {
-		resourceStatus.WithMasters(osResource.Masters...)
+		masters := slices.Clone(osResource.Masters)
+		slices.Sort(masters)
+		resourceStatus.WithMasters(masters...)
 	}
 	// TransferredAt only has meaning for a SECONDARY zone that has actually synced from its
 	// masters at least once - a PRIMARY zone (or a SECONDARY that hasn't transferred yet) reports
