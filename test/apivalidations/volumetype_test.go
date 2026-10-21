@@ -103,4 +103,22 @@ var _ = Describe("ORC VolumeType API validations", func() {
 				WithName("key").WithValue("value")))
 		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
 	})
+
+	It("should reject projectRefs on a public volumetype", func(ctx context.Context) {
+		volumeType := volumeTypeStub(namespace)
+		patch := baseVolumeTypePatch(volumeType)
+		patch.Spec.WithResource(applyconfigv1alpha1.VolumeTypeResourceSpec().
+			WithIsPublic(true).
+			WithProjectRefs("projectid"))
+		Expect(applyObj(ctx, volumeType, patch)).NotTo(Succeed())
+	})
+
+	It("should accept projectRefs on a private volumetype", func(ctx context.Context) {
+		volumeType := volumeTypeStub(namespace)
+		patch := baseVolumeTypePatch(volumeType)
+		patch.Spec.WithResource(applyconfigv1alpha1.VolumeTypeResourceSpec().
+			WithIsPublic(false).
+			WithProjectRefs("projectid"))
+		Expect(applyObj(ctx, volumeType, patch)).To(Succeed())
+	})
 })

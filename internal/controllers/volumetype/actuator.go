@@ -19,9 +19,11 @@ package volumetype
 import (
 	"context"
 	"iter"
+	"slices"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,7 +38,7 @@ import (
 
 // OpenStack resource types
 type (
-	osResourceT = volumetypes.VolumeType
+	osResourceT = osclients.VolumeTypeExt
 
 	createResourceActuator    = interfaces.CreateResourceActuator[orcObjectPT, orcObjectT, filterT, osResourceT]
 	deleteResourceActuator    = interfaces.DeleteResourceActuator[orcObjectPT, orcObjectT, osResourceT]
@@ -76,14 +78,14 @@ func (actuator volumetypeActuator) ListOSResourcesForAdoption(ctx context.Contex
 
 	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
 	filters = append(filters,
-		func(f *volumetypes.VolumeType) bool {
+		func(f *osclients.VolumeTypeExt) bool {
 			name := getResourceName(orcObject)
 			// Compare non-pointer values
 			return f.Name == name
 		},
 	)
 	if resourceSpec.Description != nil {
-		filters = append(filters, func(f *volumetypes.VolumeType) bool {
+		filters = append(filters, func(f *osclients.VolumeTypeExt) bool {
 			return f.Description == *resourceSpec.Description
 		})
 	}
@@ -109,12 +111,12 @@ func (actuator volumetypeActuator) ListOSResourcesForImport(ctx context.Context,
 
 	// NOTE: The API doesn't allow filtering by name or description, we'll have to do it client-side.
 	if filter.Name != nil {
-		filters = append(filters, func(f *volumetypes.VolumeType) bool {
+		filters = append(filters, func(f *osclients.VolumeTypeExt) bool {
 			return f.Name == string(*filter.Name)
 		})
 	}
 	if filter.Description != nil {
-		filters = append(filters, func(f *volumetypes.VolumeType) bool {
+		filters = append(filters, func(f *osclients.VolumeTypeExt) bool {
 			return f.Description == *filter.Description
 		})
 	}
@@ -135,7 +137,7 @@ func (actuator volumetypeActuator) ListOSResourcesForImport(ctx context.Context,
 	return actuator.listOSResources(ctx, filters, listOpts), nil
 }
 
-func (actuator volumetypeActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts volumetypes.ListOptsBuilder) iter.Seq2[*volumetypes.VolumeType, error] {
+func (actuator volumetypeActuator) listOSResources(ctx context.Context, filters []osclients.ResourceFilter[osResourceT], listOpts volumetypes.ListOptsBuilder) iter.Seq2[*osclients.VolumeTypeExt, error] {
 	volumetypes := actuator.osClient.ListVolumeTypes(ctx, listOpts)
 	return osclients.Filter(volumetypes, filters...)
 }
@@ -238,9 +240,80 @@ func handleIsPublicUpdate(updateOpts *volumetypes.UpdateOpts, resource *resource
 	}
 }
 
+func (actuator volumetypeActuator) reconcileProjectRefs(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
+	log := ctrl.LoggerFrom(ctx)
+
+	orcProjects, projectsDepRS := projectDependency.RequireDependencies(
+		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
+	)
+
+	reconcileStatus := progress.NewReconcileStatus().WithReconcileStatus(projectsDepRS)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return reconcileStatus
+	}
+
+	// This may remove access for projects that were added to the volume type out-of-band.
+	toAdd, toDelete := handleProjectRefsUpdate(orcProjects, osResource.ProjectIDs)
+
+	log.V(logging.Debug).Info("project ref changes", "toAdd", toAdd, "toDelete", toDelete)
+	for existingProjectID := range toDelete {
+		if err := actuator.osClient.RemoveAccess(ctx, osResource.ID, volumetypes.RemoveAccessOpts{Project: existingProjectID}); err != nil {
+			if !orcerrors.IsRetryable(err) {
+				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "error removing access for project from volume type: "+err.Error(), err)
+			}
+			return progress.WrapError(err)
+		}
+		log.V(logging.Debug).Info("project removed from volume type", "projectID", existingProjectID)
+	}
+
+	for expectedProjectID := range toAdd {
+		if err := actuator.osClient.AddAccess(ctx, osResource.ID, volumetypes.AddAccessOpts{Project: expectedProjectID}); err != nil {
+			if !orcerrors.IsRetryable(err) {
+				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "error adding access for project to volume type: "+err.Error(), err)
+			}
+			return progress.WrapError(err)
+		}
+		log.V(logging.Debug).Info("project access added to volume type", "projectID", expectedProjectID)
+	}
+
+	if len(toAdd) > 0 || len(toDelete) > 0 {
+		osProjects, err := actuator.osClient.ListAccesses(ctx, osResource.ID)
+		if err != nil {
+			if !orcerrors.IsRetryable(err) {
+				err = orcerrors.Terminal(orcv1alpha1.ConditionReasonUnrecoverableError, "error listing access for projects in volume type: "+err.Error(), err)
+			}
+			return progress.WrapError(err)
+		}
+
+		projectIDs := make([]string, 0, len(osProjects))
+		for _, p := range osProjects {
+			projectIDs = append(projectIDs, p.ProjectID)
+		}
+		slices.Sort(projectIDs)
+		osResource.ProjectIDs = projectIDs
+	}
+
+	return nil
+}
+
+func handleProjectRefsUpdate(orcResources map[string]*orcv1alpha1.Project, osResources []string) (sets.Set[string], sets.Set[string]) {
+	expectedResoucesMap := sets.New[string]()
+	for _, r := range orcResources {
+		expectedResoucesMap.Insert(ptr.Deref(r.Status.ID, ""))
+	}
+
+	existingResourcesMap := sets.New[string]()
+	for _, r := range osResources {
+		existingResourcesMap.Insert(r)
+	}
+
+	return expectedResoucesMap.Difference(existingResourcesMap), existingResourcesMap.Difference(expectedResoucesMap)
+}
+
 func (actuator volumetypeActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
 		actuator.updateResource,
+		actuator.reconcileProjectRefs,
 	}, nil
 }
 

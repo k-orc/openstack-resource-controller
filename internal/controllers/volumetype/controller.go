@@ -22,6 +22,7 @@ import (
 	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
@@ -29,6 +30,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/reconciler"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/scope"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/credentials"
+	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
+	"github.com/k-orc/openstack-resource-controller/v3/pkg/predicates"
 )
 
 const controllerName = "volumetype"
@@ -53,15 +56,43 @@ func (c *volumetypeReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration
 	c.defaultResyncPeriod = d
 }
 
+var projectDependency = dependency.NewDeletionGuardDependency[*orcv1alpha1.VolumeTypeList, *orcv1alpha1.Project](
+	"spec.resource.projectRefs",
+	func(group *orcv1alpha1.VolumeType) []string {
+		resource := group.Spec.Resource
+		if resource == nil || len(resource.ProjectRefs) == 0 {
+			return nil
+		}
+
+		projects := make([]string, 0, len(resource.ProjectRefs))
+		for _, u := range resource.ProjectRefs {
+			projects = append(projects, string(u))
+		}
+
+		return projects
+	},
+	finalizer, externalObjectFieldOwner,
+)
+
 // SetupWithManager sets up the controller with the Manager.
 func (c *volumetypeReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
+	k8sClient := mgr.GetClient()
+
+	projectWatchEventHandler, err := projectDependency.WatchEventHandler(log, k8sClient)
+	if err != nil {
+		return err
+	}
 
 	builder := ctrl.NewControllerManagedBy(mgr).
 		WithOptions(options).
+		Watches(&orcv1alpha1.Project{}, projectWatchEventHandler,
+			builder.WithPredicates(predicates.NewBecameAvailable(log, &orcv1alpha1.Project{})),
+		).
 		For(&orcv1alpha1.VolumeType{})
 
 	if err := errors.Join(
+		projectDependency.AddToManager(ctx, mgr),
 		credentialsDependency.AddToManager(ctx, mgr),
 		credentials.AddCredentialsWatch(log, mgr.GetClient(), builder, credentialsDependency),
 	); err != nil {
