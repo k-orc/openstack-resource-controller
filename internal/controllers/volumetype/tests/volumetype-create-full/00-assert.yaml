@@ -26,5 +26,10 @@ resourceRefs:
       kind: VolumeType
       name: volumetype-create-full
       ref: volumetype
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: volumetype-create-full
+      ref: project
 assertAll:
     - celExpr: "volumetype.status.id != ''"
+    - celExpr: "project.status.id in volumetype.status.resource.projectIDs"

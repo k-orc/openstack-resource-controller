@@ -148,6 +148,8 @@ nameReference:
     path: spec/resource/projectRef
   - kind: User
     path: spec/resource/defaultProjectRef
+  - kind: VolumeType
+    path: spec/resource/projectRefs[]
   kind: Project
 - fieldSpecs:
   - kind: Endpoint

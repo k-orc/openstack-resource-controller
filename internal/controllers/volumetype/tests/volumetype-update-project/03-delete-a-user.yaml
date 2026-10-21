@@ -1,0 +1,10 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: VolumeType
+metadata:
+  name: volumetype-update-project
+spec:
+  resource:
+    isPublic: false
+    projectRefs:
+      - volumetype-update-project2
