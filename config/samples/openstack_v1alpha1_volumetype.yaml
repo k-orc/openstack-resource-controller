@@ -16,3 +16,5 @@ spec:
       value: foo
     - name: spec2
       value: bar
+    projectRefs:
+    - project-sample

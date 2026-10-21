@@ -191,7 +191,20 @@ spec:
                     minLength: 1
                     pattern: ^[^,]+$
                     type: string
+                  projectRefs:
+                    description: projectRefs contains ORC Projects which have access
+                      to this volume type.
+                    items:
+                      maxLength: 253
+                      minLength: 1
+                      type: string
+                    maxItems: 4096
+                    type: array
+                    x-kubernetes-list-type: set
                 type: object
+                x-kubernetes-validations:
+                - message: projectRefs may only be specified on a private volume type
+                  rule: (!has(self.projectRefs) || (has(self.isPublic) && !self.isPublic))
               resyncPeriod:
                 description: |-
                   resyncPeriod defines how frequently the controller will re-reconcile
@@ -341,6 +354,15 @@ spec:
                       not be unique.
                     maxLength: 1024
                     type: string
+                  projectIDs:
+                    description: projectIDs lists the IDs of the Projects which have
+                      access to this volume type.
+                    items:
+                      maxLength: 4096
+                      type: string
+                    maxItems: 4096
+                    type: array
+                    x-kubernetes-list-type: set
                 type: object
             type: object
         required:

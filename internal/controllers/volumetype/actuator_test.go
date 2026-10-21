@@ -21,6 +21,7 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes"
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/utils/ptr"
 )
 
@@ -73,7 +74,7 @@ func TestHandleNameUpdate(t *testing.T) {
 			resource.Spec = orcv1alpha1.VolumeTypeSpec{
 				Resource: &orcv1alpha1.VolumeTypeResourceSpec{Name: tt.newValue},
 			}
-			osResource := &osResourceT{Name: tt.existingValue}
+			osResource := &osResourceT{VolumeType: volumetypes.VolumeType{Name: tt.existingValue}}
 
 			updateOpts := volumetypes.UpdateOpts{}
 			handleNameUpdate(&updateOpts, resource, osResource)
@@ -104,7 +105,7 @@ func TestHandleDescriptionUpdate(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			resource := &orcv1alpha1.VolumeTypeResourceSpec{Description: tt.newValue}
-			osResource := &osResourceT{Description: tt.existingValue}
+			osResource := &osResourceT{VolumeType: volumetypes.VolumeType{Description: tt.existingValue}}
 
 			updateOpts := volumetypes.UpdateOpts{}
 			handleDescriptionUpdate(&updateOpts, resource, osResource)
@@ -134,12 +135,170 @@ func TestHandleIsPublicUpdate(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			resource := &orcv1alpha1.VolumeTypeResourceSpec{IsPublic: tt.newValue}
-			osResource := &volumetypes.VolumeType{IsPublic: tt.existingValue}
+			osResource := &osResourceT{VolumeType: volumetypes.VolumeType{IsPublic: tt.existingValue}}
 			updateOpts := volumetypes.UpdateOpts{}
 			handleIsPublicUpdate(&updateOpts, resource, osResource)
 			got, _ := needsUpdate(updateOpts)
 			if got != tt.expectChange {
 				t.Errorf("Expected change: %v, got: %v", tt.expectChange, got)
+			}
+		})
+	}
+}
+
+func TestHandleProjectRefsUpdate(t *testing.T) {
+	projectName1 := "project1"
+	projectID1 := "05648b1ac8c44e699de20c378c3f8cc7"
+	projectName2 := "project2"
+	projectID2 := "7df7160f73d64c6ab6a08de445aae10b"
+
+	testCases := []struct {
+		name string
+
+		orcProjects map[string]*orcv1alpha1.Project
+		osProjects  []string
+
+		expectedToAdd    sets.Set[string]
+		expectedToDelete sets.Set[string]
+	}{
+		{
+			name:             "Both empty",
+			orcProjects:      map[string]*orcv1alpha1.Project{},
+			osProjects:       []string{},
+			expectedToAdd:    sets.New[string](),
+			expectedToDelete: sets.New[string](),
+		},
+		{
+			name:             "Both nil",
+			orcProjects:      nil,
+			osProjects:       nil,
+			expectedToAdd:    sets.New[string](),
+			expectedToDelete: sets.New[string](),
+		},
+		{
+			name: "Equal",
+			orcProjects: map[string]*orcv1alpha1.Project{
+				projectName1: {
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To(projectID1),
+					},
+				},
+			},
+			osProjects: []string{
+				projectID1,
+			},
+			expectedToAdd:    sets.New[string](),
+			expectedToDelete: sets.New[string](),
+		},
+		{
+			name: "New project",
+			orcProjects: map[string]*orcv1alpha1.Project{
+				projectName1: {
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To(projectID1),
+					},
+				},
+			},
+			osProjects: []string{},
+			expectedToAdd: func() sets.Set[string] {
+				s := sets.New[string]()
+				s.Insert(projectID1)
+				return s
+			}(),
+			expectedToDelete: sets.New[string](),
+		},
+		{
+			name:        "Remove project",
+			orcProjects: map[string]*orcv1alpha1.Project{},
+			osProjects: []string{
+				projectID1,
+			},
+			expectedToAdd: sets.New[string](),
+			expectedToDelete: func() sets.Set[string] {
+				s := sets.New[string]()
+				s.Insert(projectID1)
+				return s
+			}(),
+		},
+		{
+			name: "Add more projects",
+			orcProjects: map[string]*orcv1alpha1.Project{
+				projectName1: {
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To(projectID1),
+					},
+				},
+				projectName2: {
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To(projectID2),
+					},
+				},
+			},
+			osProjects: []string{
+				projectID1,
+			},
+			expectedToAdd: func() sets.Set[string] {
+				s := sets.New[string]()
+				s.Insert(projectID2)
+				return s
+			}(),
+			expectedToDelete: sets.New[string](),
+		},
+		{
+			name: "Delete a project when there are more than one",
+			orcProjects: map[string]*orcv1alpha1.Project{
+				projectName1: {
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To(projectID1),
+					},
+				},
+			},
+			osProjects: []string{
+				projectID1,
+				projectID2,
+			},
+			expectedToAdd: sets.New[string](),
+			expectedToDelete: func() sets.Set[string] {
+				s := sets.New[string]()
+				s.Insert(projectID2)
+				return s
+			}(),
+		},
+		{
+			name: "Add/delete projects at the same time",
+			orcProjects: map[string]*orcv1alpha1.Project{
+				projectName1: {
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To(projectID1),
+					},
+				},
+			},
+			osProjects: []string{
+				projectID2,
+			},
+			expectedToAdd: func() sets.Set[string] {
+				s := sets.New[string]()
+				s.Insert(projectID1)
+				return s
+			}(),
+			expectedToDelete: func() sets.Set[string] {
+				s := sets.New[string]()
+				s.Insert(projectID2)
+				return s
+			}(),
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			toAdd, toDelete := handleProjectRefsUpdate(tt.orcProjects, tt.osProjects)
+
+			if !tt.expectedToAdd.Equal(toAdd) {
+				t.Errorf("Expected change: %v, got: %v", tt.expectedToAdd, toAdd)
+			}
+
+			if !tt.expectedToDelete.Equal(toDelete) {
+				t.Errorf("Expected change: %v, got: %v", tt.expectedToDelete, toDelete)
 			}
 		})
 	}

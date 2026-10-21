@@ -2474,6 +2474,7 @@ _Appears in:_
 - [UserFilter](#userfilter)
 - [UserResourceSpec](#userresourcespec)
 - [VolumeResourceSpec](#volumeresourcespec)
+- [VolumeTypeResourceSpec](#volumetyperesourcespec)
 
 
 
@@ -6574,6 +6575,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `extraSpecs` _[VolumeTypeExtraSpec](#volumetypeextraspec) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
 | `isPublic` _boolean_ | isPublic indicates whether the volume type is public. |  | Optional: \{\} <br /> |
+| `projectRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | projectRefs contains ORC Projects which have access to this volume type. |  | MaxItems: 4096 <br />MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### VolumeTypeResourceStatus
@@ -6593,6 +6595,7 @@ _Appears in:_
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `extraSpecs` _[VolumeTypeExtraSpecStatus](#volumetypeextraspecstatus) array_ | extraSpecs is a map of key-value pairs that define extra specifications for the volume type. |  | MaxItems: 64 <br />Optional: \{\} <br /> |
 | `isPublic` _boolean_ | isPublic indicates whether the VolumeType is public. |  | Optional: \{\} <br /> |
+| `projectIDs` _string array_ | projectIDs lists the IDs of the Projects which have access to this volume type. |  | MaxItems: 4096 <br />items:MaxLength: 4096 <br />Optional: \{\} <br /> |
 
 
 #### VolumeTypeSpec
