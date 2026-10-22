@@ -5,12 +5,12 @@ metadata:
   name: recordset-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: recordset-create-minimal.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: RecordSet
@@ -18,11 +18,12 @@ metadata:
   name: recordset-create-minimal
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Only add the mandatory fields. It's possible the resource
-  # doesn't have mandatory fields, in that case, leave it empty.
   resource:
-    dNSZoneRef: recordset-create-minimal
+    name: www.recordset-create-minimal.example.com.
+    zoneRef: recordset-create-minimal
+    type: A
+    records:
+      - 192.0.2.1

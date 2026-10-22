@@ -17,9 +17,12 @@ limitations under the License.
 package recordset
 
 import (
+	"time"
+
 	"context"
 	"iter"
 
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/dns/v2/recordsets"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/utils/ptr"
@@ -33,6 +36,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	orcslices "github.com/k-orc/openstack-resource-controller/v3/internal/util/slices"
 )
 
 // OpenStack resource types
@@ -45,9 +49,15 @@ type (
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
 
+// The frequency to poll when waiting for the resource to become available
+const recordsetAvailablePollingPeriod = 15 * time.Second
+
 type recordsetActuator struct {
 	osClient  osclients.RecordSetClient
 	k8sClient client.Client
+
+	// statusZoneID is the zone from status.resource, for getting the recordset by ID.
+	statusZoneID string
 }
 
 var _ createResourceActuator = recordsetActuator{}
@@ -57,12 +67,30 @@ func (recordsetActuator) GetResourceID(osResource *osResourceT) string {
 	return osResource.ID
 }
 
+// Designate's /v2/recordsets/{id} redirect can't be used to get a recordset without its zone: its
+// location is built from the API's own host URL.
 func (actuator recordsetActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetRecordSet(ctx, id)
+	if actuator.statusZoneID == "" {
+		return actuator.findRecordSetByID(ctx, id)
+	}
+	resource, err := actuator.osClient.GetRecordSet(ctx, actuator.statusZoneID, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
 	return resource, nil
+}
+
+// findRecordSetByID searches all zones, as /v2/recordsets has no id filter.
+func (actuator recordsetActuator) findRecordSetByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
+	for resource, err := range actuator.osClient.ListRecordSets(ctx, "", recordsets.ListOpts{}) {
+		if err != nil {
+			return nil, progress.WrapError(err)
+		}
+		if resource.ID == id {
+			return resource, nil
+		}
+	}
+	return nil, progress.WrapError(gophercloud.ErrResourceNotFound{Name: id, ResourceType: "recordset"})
 }
 
 func (actuator recordsetActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
@@ -71,75 +99,68 @@ func (actuator recordsetActuator) ListOSResourcesForAdoption(ctx context.Context
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	var rs progress.ReconcileStatus
-
-	dNSZone, rs1 := dependency.FetchDependency[*orcv1alpha1.DNSZone](
-		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.DNSZoneRef, "DNSZone",
-		orcv1alpha1.IsAvailable,
+	zone, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.ZoneRef, "DNSZone",
+		func(dep *orcv1alpha1.DNSZone) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
 	)
-	rs = rs.WithReconcileStatus(rs1)
-
 	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 		return nil, false
 	}
 
 	listOpts := recordsets.ListOpts{
 		Name:        getResourceName(orcObject),
+		Type:        string(resourceSpec.Type),
 		Description: ptr.Deref(resourceSpec.Description, ""),
-		DNSZoneID:   ptr.Deref(dNSZone.Status.ID, ""),
-		// TODO(scaffolding): Add more adoption filters
+		TTL:         int(ptr.Deref(resourceSpec.TTL, 0)),
+	}
+	records := func(r *osResourceT) bool {
+		return orcslices.EqualAsSets(r.Records, resourceSpec.Records)
 	}
 
-	return actuator.osClient.ListRecordSets(ctx, listOpts), true
+	return osclients.Filter(actuator.osClient.ListRecordSets(ctx, *zone.Status.ID, listOpts), records), true
 }
 
 func (actuator recordsetActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
+	// Without a zoneRef, all zones in the project are searched.
+	zone, rs := dependency.FetchDependency[*orcv1alpha1.DNSZone](
+		ctx, actuator.k8sClient, obj.Namespace, filter.ZoneRef, "DNSZone",
+		orcv1alpha1.IsAvailable,
+	)
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, rs
+	}
 
 	listOpts := recordsets.ListOpts{
 		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+		Type:        string(ptr.Deref(filter.Type, "")),
+		Description: ptr.Deref(filter.Description, ""),
+		TTL:         int(ptr.Deref(filter.TTL, 0)),
 	}
 
-	return actuator.osClient.ListRecordSets(ctx, listOpts), nil
+	return actuator.osClient.ListRecordSets(ctx, ptr.Deref(zone.Status.ID, ""), listOpts), nil
 }
 
 func (actuator recordsetActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
-	var reconcileStatus progress.ReconcileStatus
-
-	var dNSZoneID string
-	dNSZone, dNSZoneDepRS := dNSZoneDependency.RequireDependency(
-		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(dNSZoneDepRS)
-	if dNSZone != nil {
-		dNSZoneID = ptr.Deref(dNSZone.Status.ID, "")
-	}
-	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
-		return nil, reconcileStatus
-	}
 	createOpts := recordsets.CreateOpts{
 		Name:        getResourceName(obj),
 		Description: ptr.Deref(resource.Description, ""),
-		DNSZoneID:   dNSZoneID,
-		// TODO(scaffolding): Add more fields
+		Type:        string(resource.Type),
+		Records:     resource.Records,
+	}
+	if resource.TTL != nil {
+		createOpts.TTL = int(*resource.TTL)
 	}
 
-	osResource, err := actuator.osClient.CreateRecordSet(ctx, createOpts)
+	zone, reconcileStatus := zoneDependency.RequireDependency(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
+		return nil, reconcileStatus
+	}
+
+	osResource, err := actuator.osClient.CreateRecordSet(ctx, ptr.Deref(zone.Status.ID, ""), createOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -151,37 +172,40 @@ func (actuator recordsetActuator) CreateResource(ctx context.Context, obj orcObj
 }
 
 func (actuator recordsetActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteRecordSet(ctx, resource.ID))
+	return progress.WrapError(actuator.osClient.DeleteRecordSet(ctx, resource.ZoneID, resource.ID))
 }
 
 func (actuator recordsetActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
 	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
 
 	updateOpts := recordsets.UpdateOpts{}
+	needsUpdate := false
 
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
+	description := ptr.Deref(resource.Description, "")
+	if osResource.Description != description {
+		updateOpts.Description = &description
+		needsUpdate = true
 	}
+
+	// Designate reports an unset TTL as 0; setting 0 sends null, back to the zone's TTL.
+	ttl := int(ptr.Deref(resource.TTL, 0))
+	if osResource.TTL != ttl {
+		updateOpts.TTL = &ttl
+		needsUpdate = true
+	}
+
+	if !orcslices.EqualAsSets(osResource.Records, resource.Records) {
+		updateOpts.Records = resource.Records
+		needsUpdate = true
+	}
+
 	if !needsUpdate {
 		log.V(logging.Debug).Info("No changes")
 		return nil
 	}
 
-	_, err = actuator.osClient.UpdateRecordSet(ctx, osResource.ID, updateOpts)
-
+	_, err := actuator.osClient.UpdateRecordSet(ctx, osResource.ZoneID, osResource.ID, updateOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
@@ -190,34 +214,6 @@ func (actuator recordsetActuator) updateResource(ctx context.Context, obj orcObj
 	}
 
 	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts recordsets.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToRecordSetUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["record_set"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *recordsets.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *recordsets.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
 }
 
 func (actuator recordsetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
@@ -239,6 +235,11 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.RecordSet, controll
 		return recordsetActuator{}, reconcileStatus
 	}
 
+	statusZoneID := ""
+	if orcObject.Status.Resource != nil {
+		statusZoneID = orcObject.Status.Resource.ZoneID
+	}
+
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return recordsetActuator{}, progress.WrapError(err)
@@ -249,8 +250,9 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.RecordSet, controll
 	}
 
 	return recordsetActuator{
-		osClient:  osClient,
-		k8sClient: controller.GetK8sClient(),
+		osClient:     osClient,
+		k8sClient:    controller.GetK8sClient(),
+		statusZoneID: statusZoneID,
 	}, nil
 }
 

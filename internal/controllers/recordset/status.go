@@ -17,6 +17,8 @@ limitations under the License.
 package recordset
 
 import (
+	"slices"
+
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -25,6 +27,8 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
 )
+
+const recordsetStatusActive = "ACTIVE"
 
 type recordsetStatusWriter struct{}
 
@@ -45,19 +49,32 @@ func (recordsetStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.Reco
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	return metav1.ConditionTrue, nil
+
+	if osResource.Status == recordsetStatusActive {
+		return metav1.ConditionTrue, nil
+	}
+
+	// Otherwise we should continue to poll
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, recordsetAvailablePollingPeriod)
 }
 
 func (recordsetStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.RecordSetResourceStatus().
-		WithDNSZoneID(osResource.DNSZoneID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the RecordSetResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
+		WithName(osResource.Name).
+		WithZoneID(osResource.ZoneID).
+		WithType(osResource.Type).
+		WithProjectID(osResource.ProjectID).
+		WithStatus(osResource.Status).
+		WithTTL(int32(osResource.TTL))
 
 	if osResource.Description != "" {
 		resourceStatus.WithDescription(osResource.Description)
+	}
+	if len(osResource.Records) > 0 {
+		// Designate does not guarantee record order within a recordset; sort for a stable status.
+		records := slices.Clone(osResource.Records)
+		slices.Sort(records)
+		resourceStatus.WithRecords(records...)
 	}
 
 	statusApply.WithResource(resourceStatus)
