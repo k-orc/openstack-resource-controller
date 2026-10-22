@@ -671,6 +671,7 @@ _Appears in:_
 | `serial` _integer_ | serial is the zone's current SOA serial number. |  | Optional: \{\} <br /> |
 | `transferredAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | transferredAt is the last time this SECONDARY zone's records were refreshed from its<br />masters. Unset for PRIMARY zones. |  | Optional: \{\} <br /> |
 | `projectID` _string_ | projectID is the ID of the OpenStack project that owns this zone. Not to be confused with<br />a DNSZoneShare's targetProjectID, which grants a *different* project access without<br />changing ownership. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the status of the zone in Designate, e.g. ACTIVE, PENDING or ERROR. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### DNSZoneSpec

@@ -19,6 +19,7 @@ package dnszone
 import (
 	"context"
 	"iter"
+	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones"
 	corev1 "k8s.io/api/core/v1"
@@ -44,6 +45,9 @@ type (
 	resourceReconciler     = interfaces.ResourceReconciler[orcObjectPT, osResourceT]
 	helperFactory          = interfaces.ResourceHelperFactory[orcObjectPT, orcObjectT, resourceSpecT, filterT, osResourceT]
 )
+
+// The frequency to poll when waiting for the resource to become available
+const dnszoneAvailablePollingPeriod = 15 * time.Second
 
 type dnszoneActuator struct {
 	osClient  osclients.DNSZoneClient

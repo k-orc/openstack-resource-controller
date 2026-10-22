@@ -6,6 +6,7 @@ metadata:
 status:
   resource:
     name: dnszone-create-full-secondary.example.com.
+    status: ERROR
     description: DNSZone from "create full" test
     type: SECONDARY
     masters:
@@ -13,11 +14,13 @@ status:
       - 192.0.2.2
   conditions:
   - type: Available
-    status: "True"
-    reason: Success
-  - type: Progressing
+    message: Waiting for OpenStack resource to be ready
     status: "False"
-    reason: Success
+    reason: Progressing
+  - type: Progressing
+    message: Waiting for OpenStack resource to be ready
+    status: "True"
+    reason: Progressing
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestAssert

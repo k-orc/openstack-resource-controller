@@ -386,6 +386,11 @@ spec:
                     description: serial is the zone's current SOA serial number.
                     format: int64
                     type: integer
+                  status:
+                    description: status is the status of the zone in Designate, e.g.
+                      ACTIVE, PENDING or ERROR.
+                    maxLength: 1024
+                    type: string
                   transferredAt:
                     description: |-
                       transferredAt is the last time this SECONDARY zone's records were refreshed from its

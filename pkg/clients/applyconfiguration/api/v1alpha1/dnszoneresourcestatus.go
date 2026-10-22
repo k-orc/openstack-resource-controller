@@ -34,6 +34,7 @@ type DNSZoneResourceStatusApplyConfiguration struct {
 	Serial        *int64   `json:"serial,omitempty"`
 	TransferredAt *v1.Time `json:"transferredAt,omitempty"`
 	ProjectID     *string  `json:"projectID,omitempty"`
+	Status        *string  `json:"status,omitempty"`
 }
 
 // DNSZoneResourceStatusApplyConfiguration constructs a declarative configuration of the DNSZoneResourceStatus type for use with
@@ -113,5 +114,13 @@ func (b *DNSZoneResourceStatusApplyConfiguration) WithTransferredAt(value v1.Tim
 // If called multiple times, the ProjectID field is set to the value of the last call.
 func (b *DNSZoneResourceStatusApplyConfiguration) WithProjectID(value string) *DNSZoneResourceStatusApplyConfiguration {
 	b.ProjectID = &value
+	return b
+}
+
+// WithStatus sets the Status field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the Status field is set to the value of the last call.
+func (b *DNSZoneResourceStatusApplyConfiguration) WithStatus(value string) *DNSZoneResourceStatusApplyConfiguration {
+	b.Status = &value
 	return b
 }
