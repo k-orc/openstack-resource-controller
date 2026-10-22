@@ -2042,6 +2042,13 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_DNSZoneResourceStatus(
 							Format:      "",
 						},
 					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "status is the status of the zone in Designate, e.g. ACTIVE, PENDING or ERROR.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},

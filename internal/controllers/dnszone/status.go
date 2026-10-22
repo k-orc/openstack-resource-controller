@@ -28,6 +28,8 @@ import (
 	orcapplyconfigv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/pkg/clients/applyconfiguration/api/v1alpha1"
 )
 
+const dnszoneStatusActive = "ACTIVE"
+
 type dnszoneStatusWriter struct{}
 
 type objectApplyT = orcapplyconfigv1alpha1.DNSZoneApplyConfiguration
@@ -47,7 +49,13 @@ func (dnszoneStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.DNSZon
 			return metav1.ConditionUnknown, nil
 		}
 	}
-	return metav1.ConditionTrue, nil
+
+	if osResource.Status == dnszoneStatusActive {
+		return metav1.ConditionTrue, nil
+	}
+
+	// Otherwise we should continue to poll
+	return metav1.ConditionFalse, progress.WaitingOnOpenStack(progress.WaitingOnReady, dnszoneAvailablePollingPeriod)
 }
 
 func (dnszoneStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
@@ -55,6 +63,7 @@ func (dnszoneStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osRe
 		WithName(osResource.Name).
 		WithType(osResource.Type).
 		WithProjectID(osResource.ProjectID).
+		WithStatus(osResource.Status).
 		WithSerial(int64(osResource.Serial))
 
 	if osResource.Email != "" {

@@ -6,6 +6,7 @@ metadata:
 status:
   resource:
     name: dnszone-create-minimal.example.com.
+    status: ACTIVE
     email: admin@example.com
     type: PRIMARY
   conditions:

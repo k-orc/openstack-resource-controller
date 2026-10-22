@@ -152,4 +152,9 @@ type DNSZoneResourceStatus struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
 	ProjectID string `json:"projectID,omitempty"`
+
+	// status is the status of the zone in Designate, e.g. ACTIVE, PENDING or ERROR.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	Status string `json:"status,omitempty"`
 }

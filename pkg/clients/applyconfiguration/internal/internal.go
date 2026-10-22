@@ -490,6 +490,9 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: serial
       type:
         scalar: numeric
+    - name: status
+      type:
+        scalar: string
     - name: transferredAt
       type:
         namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time

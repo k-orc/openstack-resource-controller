@@ -6,6 +6,7 @@ metadata:
 status:
   resource:
     name: dnszone-create-full-primary.example.com.
+    status: ACTIVE
     email: admin@example.com
     description: DNSZone from "create full" test
     ttl: 300
