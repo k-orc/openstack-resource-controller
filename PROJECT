@@ -126,6 +126,7 @@ resources:
   domain: k-orc.cloud
   group: openstack
   kind: RecordSet
+  kind: RBACPolicy
   path: github.com/k-orc/openstack-resource-controller/api/v1alpha1
   version: v1alpha1
 - api:

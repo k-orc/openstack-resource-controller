@@ -17,6 +17,7 @@ testDirs:
 - ./internal/controllers/port/tests/
 - ./internal/controllers/project/tests/
 - ./internal/controllers/recordset/tests/
+- ./internal/controllers/rbacpolicy/tests/
 - ./internal/controllers/region/tests/
 - ./internal/controllers/registeredlimit/tests/
 - ./internal/controllers/role/tests/
