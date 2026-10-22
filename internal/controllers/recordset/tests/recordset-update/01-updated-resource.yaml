@@ -1,0 +1,12 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-update
+spec:
+  resource:
+    description: recordset-update-updated
+    records:
+      - 192.0.2.2
+      - 192.0.2.3
+    ttl: 300

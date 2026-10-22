@@ -1,0 +1,47 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: recordset-import-error
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: recordset-import-error.example.com.
+    email: admin@example.com
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-import-error-external-1
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: dup1.recordset-import-error.example.com.
+    description: RecordSet from "import error" test
+    zoneRef: recordset-import-error
+    type: A
+    records:
+      - 192.0.2.1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-import-error-external-2
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: dup2.recordset-import-error.example.com.
+    description: RecordSet from "import error" test
+    zoneRef: recordset-import-error
+    type: A
+    records:
+      - 192.0.2.2

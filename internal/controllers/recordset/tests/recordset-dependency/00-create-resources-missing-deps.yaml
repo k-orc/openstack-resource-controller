@@ -1,0 +1,45 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: recordset-dependency
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: recordset-dependency.example.com.
+    email: admin@example.com
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-dependency-no-dnszone
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: www.recordset-dependency-pending.example.com.
+    zoneRef: recordset-dependency-pending
+    type: A
+    records:
+      - 192.0.2.1
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-dependency-no-secret
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: recordset-dependency
+  managementPolicy: managed
+  resource:
+    name: www.recordset-dependency.example.com.
+    zoneRef: recordset-dependency
+    type: A
+    records:
+      - 192.0.2.1

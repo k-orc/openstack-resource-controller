@@ -1,0 +1,18 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-sample
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: www.example.com.
+    description: Sample RecordSet
+    zoneRef: dnszone-sample
+    type: A
+    records:
+      - 192.0.2.10
+    ttl: 300

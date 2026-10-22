@@ -1,0 +1,29 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: recordset-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: recordset-create-minimal.example.com.
+    email: admin@example.com
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: RecordSet
+metadata:
+  name: recordset-create-minimal
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: www.recordset-create-minimal.example.com.
+    zoneRef: recordset-create-minimal
+    type: A
+    records:
+      - 192.0.2.1
