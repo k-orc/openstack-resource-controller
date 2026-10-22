@@ -298,6 +298,20 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ProviderPropertiesStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ProviderSegmentSpec"):
 		return &apiv1alpha1.ProviderSegmentSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicy"):
+		return &apiv1alpha1.RBACPolicyApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicyFilter"):
+		return &apiv1alpha1.RBACPolicyFilterApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicyImport"):
+		return &apiv1alpha1.RBACPolicyImportApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicyResourceSpec"):
+		return &apiv1alpha1.RBACPolicyResourceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicyResourceStatus"):
+		return &apiv1alpha1.RBACPolicyResourceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicySpec"):
+		return &apiv1alpha1.RBACPolicySpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("RBACPolicyStatus"):
+		return &apiv1alpha1.RBACPolicyStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RecordSet"):
 		return &apiv1alpha1.RecordSetApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("RecordSetFilter"):

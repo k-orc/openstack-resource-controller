@@ -42,6 +42,7 @@ type OpenstackV1alpha1Interface interface {
 	NetworksGetter
 	PortsGetter
 	ProjectsGetter
+	RBACPoliciesGetter
 	RecordSetsGetter
 	RegionsGetter
 	RegisteredLimitsGetter
@@ -121,6 +122,10 @@ func (c *OpenstackV1alpha1Client) Ports(namespace string) PortInterface {
 
 func (c *OpenstackV1alpha1Client) Projects(namespace string) ProjectInterface {
 	return newProjects(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) RBACPolicies(namespace string) RBACPolicyInterface {
+	return newRBACPolicies(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) RecordSets(namespace string) RecordSetInterface {
