@@ -1,0 +1,31 @@
+---
+# The lease starts immediately, so its end date is computed at run time: a
+# fixed date would either be in the past or overlap the windows reserved by
+# the other lease tests.
+# kuttl allows a single TestStep per step, so the secret is created here
+# rather than in a separate 00-secret.yaml.
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - command: kubectl create secret generic openstack-clouds --from-file=clouds.yaml=${E2E_KUTTL_OSCLOUDS} ${E2E_KUTTL_CACERT_OPT}
+    namespaced: true
+  - script: |
+      cat <<EOT | kubectl apply -n $NAMESPACE -f -
+      apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Lease
+      metadata:
+        name: lease-create-minimal
+      spec:
+        cloudCredentialsRef:
+          cloudName: openstack
+          secretName: openstack-clouds
+        managementPolicy: managed
+        resource:
+          endDate: "$(date -u -d '+1 day' +%Y-%m-%dT%H:%M:00Z)"
+          reservations:
+            - instance:
+                amount: 1
+                vcpus: 1
+                memoryMB: 128
+                diskGB: 1
+      EOT

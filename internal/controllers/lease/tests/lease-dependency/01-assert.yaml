@@ -1,0 +1,48 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-dependency-no-secret
+status:
+  resource:
+    status: PENDING
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be ready
+      status: "True"
+      reason: Progressing
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Lease
+metadata:
+  name: lease-dependency-no-flavor
+status:
+  resource:
+    status: PENDING
+    reservations:
+      - resourceType: flavor:instance
+        amount: 1
+  conditions:
+    - type: Available
+      message: Waiting for OpenStack resource to be ready
+      status: "False"
+      reason: Progressing
+    - type: Progressing
+      message: Waiting for OpenStack resource to be ready
+      status: "True"
+      reason: Progressing
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Lease
+      name: lease-dependency-no-flavor
+      ref: lease
+assertAll:
+    # Blazar creates a reservation flavor named after the reservation
+    - celExpr: "lease.status.resource.reservations[0].flavorID == lease.status.resource.reservations[0].id"

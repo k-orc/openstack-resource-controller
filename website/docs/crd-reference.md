@@ -20,6 +20,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Group](#group)
 - [Image](#image)
 - [KeyPair](#keypair)
+- [Lease](#lease)
 - [Limit](#limit)
 - [Network](#network)
 - [Port](#port)
@@ -481,6 +482,23 @@ _Appears in:_
 
 
 
+#### BlazarName
+
+_Underlying type:_ _string_
+
+BlazarName is the name of a Blazar resource. 80 is the length of the name
+column of Blazar's leases table.
+
+_Validation:_
+- MaxLength: 80
+- MinLength: 1
+
+_Appears in:_
+- [LeaseFilter](#leasefilter)
+- [LeaseResourceSpec](#leaseresourcespec)
+
+
+
 #### CIDR
 
 _Underlying type:_ _string_
@@ -524,6 +542,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LeaseSpec](#leasespec)
 - [LimitSpec](#limitspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
@@ -2413,6 +2432,7 @@ _Appears in:_
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
 - [HostID](#hostid)
+- [LeaseFlavorInstanceReservation](#leaseflavorinstancereservation)
 - [LimitFilter](#limitfilter)
 - [LimitResourceSpec](#limitresourcespec)
 - [NetworkFilter](#networkfilter)
@@ -2450,6 +2470,286 @@ _Appears in:_
 - [UserResourceSpec](#userresourcespec)
 - [VolumeResourceSpec](#volumeresourcespec)
 
+
+
+#### Lease
+
+
+
+Lease is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `Lease` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[LeaseSpec](#leasespec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[LeaseStatus](#leasestatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### LeaseEventStatus
+
+
+
+LeaseEventStatus represents a state transition scheduled for a lease.
+
+
+
+_Appears in:_
+- [LeaseResourceStatus](#leaseresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the event. |  | MaxLength: 36 <br />Optional: \{\} <br /> |
+| `eventType` _string_ | eventType is the transition the event performs, such as `start_lease`,<br />`end_lease` or `before_end_lease`. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the status of the event. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `time` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | time is the time at which the event fires. |  | Optional: \{\} <br /> |
+
+
+#### LeaseFilter
+
+
+
+LeaseFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [LeaseImport](#leaseimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[BlazarName](#blazarname)_ | name of the existing resource |  | MaxLength: 80 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LeaseFlavorInstanceReservation
+
+
+
+LeaseFlavorInstanceReservation reserves capacity for instances of an
+existing flavor for the duration of the lease.
+
+
+
+_Appears in:_
+- [LeaseReservation](#leasereservation)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `amount` _integer_ | amount is the number of instances to reserve capacity for. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `flavorRef` _[KubernetesNameRef](#kubernetesnameref)_ | flavorRef is a reference to the ORC Flavor to reserve instances of.<br />Blazar derives the size and the resource properties of the<br />reservation from the flavor when the lease is created. |  | MaxLength: 253 <br />MinLength: 1 <br />Required: \{\} <br /> |
+
+
+#### LeaseHostReservation
+
+
+
+LeaseHostReservation reserves whole compute hosts for the duration of the
+lease.
+
+
+
+_Appears in:_
+- [LeaseReservation](#leasereservation)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `min` _integer_ | min is the smallest number of hosts the lease can be satisfied with. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `max` _integer_ | max is the largest number of hosts to reserve. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `hypervisorProperties` _string_ | hypervisorProperties filters the candidate hosts on the properties Nova<br />reports, e.g. `[">=", "$vcpus", "4"]`. |  | MaxLength: 1024 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `resourceProperties` _string_ | resourceProperties filters the candidate hosts on their extra<br />capabilities, e.g. `["==", "$gpu", "a100"]`. |  | MaxLength: 1024 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LeaseImport
+
+
+
+LeaseImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [LeaseSpec](#leasespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[LeaseFilter](#leasefilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### LeaseInstanceReservation
+
+
+
+LeaseInstanceReservation reserves capacity for instances of a given size
+for the duration of the lease.
+
+
+
+_Appears in:_
+- [LeaseReservation](#leasereservation)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `amount` _integer_ | amount is the number of instances to reserve capacity for. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `vcpus` _integer_ | vcpus is the number of virtual CPUs per instance. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `memoryMB` _integer_ | memoryMB is the amount of memory per instance, in megabytes. |  | Minimum: 1 <br />Required: \{\} <br /> |
+| `diskGB` _integer_ | diskGB is the amount of disk per instance, in gigabytes. |  | Minimum: 0 <br />Required: \{\} <br /> |
+| `affinity` _boolean_ | affinity places the instances on the same host if true, or on distinct<br />hosts if false. If not specified, placement is left to Nova. |  | Optional: \{\} <br /> |
+| `resourceProperties` _string_ | resourceProperties filters the candidate hosts on their extra<br />capabilities, e.g. `["==", "$gpu", "a100"]`. |  | MaxLength: 1024 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LeaseReservation
+
+
+
+LeaseReservation is a single reservation within a lease. Exactly one of
+host, instance or flavorInstance must be specified.
+
+
+
+_Appears in:_
+- [LeaseResourceSpec](#leaseresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `host` _[LeaseHostReservation](#leasehostreservation)_ | host reserves whole compute hosts. |  | Optional: \{\} <br /> |
+| `instance` _[LeaseInstanceReservation](#leaseinstancereservation)_ | instance reserves capacity for instances of a given size. |  | Optional: \{\} <br /> |
+| `flavorInstance` _[LeaseFlavorInstanceReservation](#leaseflavorinstancereservation)_ | flavorInstance reserves capacity for instances of an existing flavor. |  | Optional: \{\} <br /> |
+
+
+#### LeaseReservationStatus
+
+
+
+LeaseReservationStatus represents the observed state of a reservation
+within a lease.
+
+
+
+_Appears in:_
+- [LeaseResourceStatus](#leaseresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the ID of the reservation. For host reservations it is passed to<br />Nova as the `reservation` scheduler hint. |  | MaxLength: 36 <br />Optional: \{\} <br /> |
+| `resourceType` _string_ | resourceType is the type of resource reserved: `physical:host`,<br />`virtual:instance` or `flavor:instance`. |  | MaxLength: 66 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the status of the reservation. |  | MaxLength: 13 <br />Optional: \{\} <br /> |
+| `flavorID` _string_ | flavorID is the ID of the flavor Blazar created for an instance<br />reservation. Instances must be created with this flavor to consume the<br />reservation. |  | MaxLength: 36 <br />Optional: \{\} <br /> |
+| `serverGroupID` _string_ | serverGroupID is the ID of the server group Blazar created for an<br />instance reservation. |  | MaxLength: 36 <br />Optional: \{\} <br /> |
+| `resourceID` _string_ | resourceID is the ID of the resource Blazar created to back the<br />reservation. |  | MaxLength: 36 <br />Optional: \{\} <br /> |
+| `aggregateID` _integer_ | aggregateID is the ID of the Nova host aggregate holding the reserved<br />hosts of an instance reservation. |  | Optional: \{\} <br /> |
+| `missingResources` _boolean_ | missingResources is true if some of the reserved resources are no<br />longer available. |  | Optional: \{\} <br /> |
+| `resourcesChanged` _boolean_ | resourcesChanged is true if some of the reserved resources were<br />replaced. |  | Optional: \{\} <br /> |
+| `min` _integer_ | min is the smallest number of hosts of a host reservation. |  | Optional: \{\} <br /> |
+| `max` _integer_ | max is the largest number of hosts of a host reservation. |  | Optional: \{\} <br /> |
+| `hypervisorProperties` _string_ | hypervisorProperties filters the candidate hosts of a host reservation<br />on the properties Nova reports. |  | MaxLength: 4096 <br />Optional: \{\} <br /> |
+| `resourceProperties` _string_ | resourceProperties filters the candidate hosts on their extra<br />capabilities. |  | MaxLength: 4096 <br />Optional: \{\} <br /> |
+| `beforeEnd` _string_ | beforeEnd is the action Blazar takes before a host reservation ends. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `amount` _integer_ | amount is the number of instances of an instance reservation. |  | Optional: \{\} <br /> |
+| `vcpus` _integer_ | vcpus is the number of virtual CPUs per instance of an instance<br />reservation. |  | Optional: \{\} <br /> |
+| `memoryMB` _integer_ | memoryMB is the amount of memory per instance of an instance<br />reservation, in megabytes. |  | Optional: \{\} <br /> |
+| `diskGB` _integer_ | diskGB is the amount of disk per instance of an instance reservation,<br />in gigabytes. |  | Optional: \{\} <br /> |
+| `affinity` _boolean_ | affinity is the placement policy of the instances of an instance<br />reservation: on the same host if true, on distinct hosts if false. |  | Optional: \{\} <br /> |
+
+
+#### LeaseResourceSpec
+
+
+
+LeaseResourceSpec contains the desired state of the resource.
+
+A lease is only Available while Blazar reports it as ACTIVE. A lease which
+starts in the future is created immediately but stays Progressing until its
+start date. A lease which has ended (TERMINATED) or failed (ERROR) can no
+longer become Available, and is reported as a terminal error.
+
+
+
+_Appears in:_
+- [LeaseSpec](#leasespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[BlazarName](#blazarname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used, which must then be at most 80<br />characters long. |  | MaxLength: 80 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `startDate` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | startDate is the time at which the lease starts. If not specified, the<br />lease starts as soon as it is created. Blazar truncates it to the<br />minute. |  | Optional: \{\} <br /> |
+| `endDate` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | endDate is the time at which the lease ends. Blazar truncates it to the<br />minute. |  | Required: \{\} <br /> |
+| `reservations` _[LeaseReservation](#leasereservation) array_ | reservations are the resources reserved for the duration of the lease. |  | MaxItems: 32 <br />MinItems: 1 <br />Required: \{\} <br /> |
+
+
+#### LeaseResourceStatus
+
+
+
+LeaseResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [LeaseStatus](#leasestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `status` _string_ | status is the status of the lease. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `degraded` _boolean_ | degraded is true if some of the reserved resources are unavailable. |  | Optional: \{\} <br /> |
+| `startDate` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | startDate is the time at which the lease starts. |  | Optional: \{\} <br /> |
+| `endDate` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | endDate is the time at which the lease ends. |  | Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the project that owns the lease. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `userID` _string_ | userID is the ID of the user that created the lease. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `trustID` _string_ | trustID is the ID of the Keystone trust Blazar uses to act on behalf of<br />the lease owner. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `createdAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | createdAt shows the date and time when the resource was created. |  | Optional: \{\} <br /> |
+| `updatedAt` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | updatedAt shows the date and time when the resource was updated. |  | Optional: \{\} <br /> |
+| `reservations` _[LeaseReservationStatus](#leasereservationstatus) array_ | reservations are the reservations within the lease. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `events` _[LeaseEventStatus](#leaseeventstatus) array_ | events are the state transitions Blazar has scheduled for the lease. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+
+
+#### LeaseSpec
+
+
+
+LeaseSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [Lease](#lease)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[LeaseImport](#leaseimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[LeaseResourceSpec](#leaseresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### LeaseStatus
+
+
+
+LeaseStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [Lease](#lease)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[LeaseResourceStatus](#leaseresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
 
 
 #### Limit
@@ -2646,6 +2946,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LeaseSpec](#leasespec)
 - [LimitSpec](#limitspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)
@@ -2692,6 +2993,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LeaseSpec](#leasespec)
 - [LimitSpec](#limitspec)
 - [NetworkSpec](#networkspec)
 - [PortSpec](#portspec)

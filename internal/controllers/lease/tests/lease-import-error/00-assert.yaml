@@ -1,0 +1,16 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Lease
+      name: lease-import-error-external-1
+      ref: lease1
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Lease
+      name: lease-import-error-external-2
+      ref: lease2
+assertAll:
+    - celExpr: "lease1.status.id != ''"
+    - celExpr: "lease2.status.id != ''"
+    - celExpr: "lease1.status.id != lease2.status.id"
