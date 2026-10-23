@@ -89,11 +89,11 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	// We still want to reconcile router interface for routers that are scheduled for deletion
 	// so that we can clear the finalizer
+	var reconcileStatus progress.ReconcileStatus
 	deletingOnly := false
 	if router.Status.ID == nil || (!orcv1alpha1.IsAvailable(router) && router.GetDeletionTimestamp().IsZero()) {
 		log.V(logging.Verbose).Info("Not reconciling interfaces for not-Available router")
 
-		var reconcileStatus progress.ReconcileStatus
 		var err error
 		reconcileStatus, deletingOnly, err = r.waitOnNotReadyRouter(ctx, router)
 		if err != nil {
@@ -114,7 +114,6 @@ func (r *orcRouterInterfaceReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, nil
 	}
 
-	var reconcileStatus progress.ReconcileStatus
 	routerInterfacesToReconcile := make([]*orcv1alpha1.RouterInterface, 0, len(routerInterfaces))
 	for i := range routerInterfaces {
 		routerInterface := &routerInterfaces[i]
