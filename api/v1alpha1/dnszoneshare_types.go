@@ -16,70 +16,53 @@ limitations under the License.
 
 package v1alpha1
 
-// DNSZoneShareResourceSpec contains the desired state of the resource.
+// DNSZoneShareResourceSpec contains the desired state of the resource: a Designate zone share,
+// which lets another project manage the zone's recordsets while the zone's project keeps owning it.
 type DNSZoneShareResourceSpec struct {
-	// name will be the name of the created resource. If not specified, the
-	// name of the ORC object will be used.
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
-
-	// description is a human-readable description for the resource.
-	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
-	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// dNSZoneRef is a reference to the ORC DNSZone which this resource is associated with.
+	// zoneRef is a reference to the ORC DNSZone to share.
 	// +required
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="dNSZoneRef is immutable"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="zoneRef is immutable"
 	// +orc:kustomize:ref=DNSZone
-	DNSZoneRef KubernetesNameRef `json:"dNSZoneRef,omitempty"`
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the CreateOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones
-	//
-	// Until you have implemented mutability for the field, you must add a CEL validation
-	// preventing the field being modified:
-	// `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="<fieldname> is immutable"`
+	// targetProjectID is the ID of the project to share the zone with.
+	// +required
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="targetProjectID is immutable"
+	// +kubebuilder:validation:MinLength:=1
+	// +kubebuilder:validation:MaxLength:=64
+	TargetProjectID string `json:"targetProjectID,omitempty"`
 }
 
 // DNSZoneShareFilter defines an existing resource by its properties
 // +kubebuilder:validation:MinProperties:=1
 type DNSZoneShareFilter struct {
-	// name of the existing resource
-	// +optional
-	Name *OpenStackName `json:"name,omitempty"`
+	// zoneRef is a reference to the ORC DNSZone the share belongs to. Designate lists shares per
+	// zone only.
+	// +required
+	// +orc:kustomize:ref=DNSZone
+	ZoneRef KubernetesNameRef `json:"zoneRef,omitempty"`
 
-	// description of the existing resource
+	// targetProjectID of the existing resource
 	// +kubebuilder:validation:MinLength:=1
-	// +kubebuilder:validation:MaxLength:=255
+	// +kubebuilder:validation:MaxLength:=64
 	// +optional
-	Description *string `json:"description,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ListOpts structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones
+	TargetProjectID *string `json:"targetProjectID,omitempty"`
 }
 
 // DNSZoneShareResourceStatus represents the observed state of the resource.
 type DNSZoneShareResourceStatus struct {
-	// name is a Human-readable name for the resource. Might not be unique.
+	// zoneID is the ID of the DNSZone this share applies to.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Name string `json:"name,omitempty"`
+	ZoneID string `json:"zoneID,omitempty"`
 
-	// description is a human-readable description for the resource.
+	// targetProjectID is the OpenStack project ID this share grants access to.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	Description string `json:"description,omitempty"`
+	TargetProjectID string `json:"targetProjectID,omitempty"`
 
-	// dNSZoneID is the ID of the DNSZone to which the resource is associated.
+	// projectID is the ID of the project that owns the zone.
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	DNSZoneID string `json:"dNSZoneID,omitempty"`
-
-	// TODO(scaffolding): Add more types.
-	// To see what is supported, you can take inspiration from the ZoneShare structure from
-	// github.com/gophercloud/gophercloud/v2/openstack/dns/v2/zones
+	ProjectID string `json:"projectID,omitempty"`
 }

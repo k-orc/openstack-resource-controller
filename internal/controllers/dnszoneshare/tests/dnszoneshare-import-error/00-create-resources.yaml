@@ -1,16 +1,19 @@
 ---
+# One zone, two shares to different target projects: the import filter below matches on zoneRef
+# alone (no targetProjectID), which is ambiguous whenever a zone has more than one share - both
+# are valid OpenStack resources and both match the filter.
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZone
 metadata:
   name: dnszoneshare-import-error
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: dnszoneshare-import-error.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
@@ -18,14 +21,12 @@ metadata:
   name: dnszoneshare-import-error-external-1
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: DNSZoneShare from "import error" test
-    dNSZoneRef: dnszoneshare-import-error
-    # TODO(scaffolding): add any required field
+    zoneRef: dnszoneshare-import-error
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000025"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
@@ -33,11 +34,9 @@ metadata:
   name: dnszoneshare-import-error-external-2
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    description: DNSZoneShare from "import error" test
-    dNSZoneRef: dnszoneshare-import-error
-    # TODO(scaffolding): add any required field
+    zoneRef: dnszoneshare-import-error
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000026"

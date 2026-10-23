@@ -71,6 +71,7 @@ kubectl delete -f $ORC_RELEASE
 | domain                      |         |    ✔    |     ✔    |
 | dns recordset               |         |         |     ◐    |
 | dns zone                    |         |         |     ◐    |
+| dns zone share              |         |         |     ◐    |
 | endpoint                    |         |    ◐    |     ✔    |
 | flavor                      |         |    ✔    |     ✔    |
 | floating ip                 |         |    ◐    |     ◐    |

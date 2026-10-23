@@ -29,7 +29,6 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/interfaces"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/progress"
-	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
@@ -48,6 +47,12 @@ type (
 type dnszoneshareActuator struct {
 	osClient  osclients.DNSZoneShareClient
 	k8sClient client.Client
+
+	// For getting a share by ID, which Designate scopes under its zone: the zone from
+	// status.resource, else the zoneRef of the spec or the import filter.
+	namespace    string
+	statusZoneID string
+	zoneRef      *orcv1alpha1.KubernetesNameRef
 }
 
 var _ createResourceActuator = dnszoneshareActuator{}
@@ -58,7 +63,22 @@ func (dnszoneshareActuator) GetResourceID(osResource *osResourceT) string {
 }
 
 func (actuator dnszoneshareActuator) GetOSResourceByID(ctx context.Context, id string) (*osResourceT, progress.ReconcileStatus) {
-	resource, err := actuator.osClient.GetDNSZoneShare(ctx, id)
+	zoneID := actuator.statusZoneID
+	if zoneID == "" {
+		if actuator.zoneRef == nil {
+			return nil, progress.WrapError(orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration,
+				"a DNSZoneShare can't be imported by ID, as Designate needs its zone: use import.filter"))
+		}
+		zone, rs := dependency.FetchDependency[*orcv1alpha1.DNSZone](
+			ctx, actuator.k8sClient, actuator.namespace, actuator.zoneRef, "DNSZone", orcv1alpha1.IsAvailable,
+		)
+		if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+			return nil, rs
+		}
+		zoneID = ptr.Deref(zone.Status.ID, "")
+	}
+
+	resource, err := actuator.osClient.GetZoneShare(ctx, zoneID, id)
 	if err != nil {
 		return nil, progress.WrapError(err)
 	}
@@ -66,80 +86,58 @@ func (actuator dnszoneshareActuator) GetOSResourceByID(ctx context.Context, id s
 }
 
 func (actuator dnszoneshareActuator) ListOSResourcesForAdoption(ctx context.Context, orcObject orcObjectPT) (iter.Seq2[*osResourceT, error], bool) {
-	resourceSpec := orcObject.Spec.Resource
-	if resourceSpec == nil {
+	resource := orcObject.Spec.Resource
+	if resource == nil {
 		return nil, false
 	}
 
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	var rs progress.ReconcileStatus
-
-	dNSZone, rs1 := dependency.FetchDependency[*orcv1alpha1.DNSZone](
-		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.DNSZoneRef, "DNSZone",
-		orcv1alpha1.IsAvailable,
+	zone, rs := dependency.FetchDependency(
+		ctx, actuator.k8sClient, orcObject.Namespace, &resource.ZoneRef, "DNSZone",
+		func(dep *orcv1alpha1.DNSZone) bool {
+			return orcv1alpha1.IsAvailable(dep) && dep.Status.ID != nil
+		},
 	)
-	rs = rs.WithReconcileStatus(rs1)
-
 	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
 		return nil, false
 	}
 
-	listOpts := zones.ListOpts{
-		Name:        getResourceName(orcObject),
-		Description: ptr.Deref(resourceSpec.Description, ""),
-		DNSZoneID:  ptr.Deref(dNSZone.Status.ID, ""),
-		// TODO(scaffolding): Add more adoption filters
-	}
-
-	return actuator.osClient.ListDNSZoneShares(ctx, listOpts), true
+	shares := actuator.osClient.ListZoneShares(ctx, *zone.Status.ID)
+	return osclients.Filter(shares, func(share *osResourceT) bool {
+		return share.TargetProjectID == resource.TargetProjectID
+	}), true
 }
 
+// Designate's share list takes no filters, so targetProjectID is matched client-side.
 func (actuator dnszoneshareActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {
-	// TODO(scaffolding) If you need to filter resources on fields that the List() function
-	// of gophercloud does not support, it's possible to perform client-side filtering.
-	// Check osclients.ResourceFilter
-
-	listOpts := zones.ListOpts{
-		Name:        string(ptr.Deref(filter.Name, "")),
-		Description: string(ptr.Deref(filter.Description, "")),
-		// TODO(scaffolding): Add more import filters
+	zone, rs := dependency.FetchDependency[*orcv1alpha1.DNSZone](
+		ctx, actuator.k8sClient, obj.Namespace, &filter.ZoneRef, "DNSZone", orcv1alpha1.IsAvailable,
+	)
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, rs
 	}
 
-	return actuator.osClient.ListDNSZoneShares(ctx, listOpts), nil
+	shares := actuator.osClient.ListZoneShares(ctx, ptr.Deref(zone.Status.ID, ""))
+	if filter.TargetProjectID == nil {
+		return shares, nil
+	}
+	return osclients.Filter(shares, func(share *osResourceT) bool {
+		return share.TargetProjectID == *filter.TargetProjectID
+	}), nil
 }
 
 func (actuator dnszoneshareActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
 	resource := obj.Spec.Resource
 
-	if resource == nil {
-		// Should have been caught by API validation
-		return nil, progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Creation requested, but spec.resource is not set"))
-	}
-	var reconcileStatus progress.ReconcileStatus
-
-	var dNSZoneID string
-	dNSZone, dNSZoneDepRS := dNSZoneDependency.RequireDependency(
-		ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable,
-	)
-	reconcileStatus = reconcileStatus.WithReconcileStatus(dNSZoneDepRS)
-	if dNSZone != nil {
-		dNSZoneID = ptr.Deref(dNSZone.Status.ID, "")
-	}
+	zone, reconcileStatus := zoneDependency.RequireDependency(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
 	if needsReschedule, _ := reconcileStatus.NeedsReschedule(); needsReschedule {
 		return nil, reconcileStatus
 	}
-	createOpts := zones.CreateOpts{
-		Name:        getResourceName(obj),
-		Description: ptr.Deref(resource.Description, ""),
-		DNSZoneID:  dNSZoneID,
-		// TODO(scaffolding): Add more fields
+
+	createOpts := zones.ShareZoneOpts{
+		TargetProjectID: resource.TargetProjectID,
 	}
 
-	osResource, err := actuator.osClient.CreateDNSZoneShare(ctx, createOpts)
+	osResource, err := actuator.osClient.CreateZoneShare(ctx, ptr.Deref(zone.Status.ID, ""), createOpts)
 	if err != nil {
 		if !orcerrors.IsRetryable(err) {
 			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration creating resource: "+err.Error(), err)
@@ -150,80 +148,13 @@ func (actuator dnszoneshareActuator) CreateResource(ctx context.Context, obj orc
 	return osResource, nil
 }
 
-func (actuator dnszoneshareActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
-	return progress.WrapError(actuator.osClient.DeleteDNSZoneShare(ctx, resource.ID))
+func (actuator dnszoneshareActuator) DeleteResource(ctx context.Context, obj orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
+	return progress.WrapError(actuator.osClient.DeleteZoneShare(ctx, resource.ZoneID, resource.ID))
 }
 
-func (actuator dnszoneshareActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
-	log := ctrl.LoggerFrom(ctx)
-	resource := obj.Spec.Resource
-	if resource == nil {
-		// Should have been caught by API validation
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "Update requested, but spec.resource is not set"))
-	}
-
-	updateOpts := zones.UpdateOpts{}
-
-	handleNameUpdate(&updateOpts, obj, osResource)
-	handleDescriptionUpdate(&updateOpts, resource, osResource)
-
-	// TODO(scaffolding): add handler for all fields supporting mutability
-
-	needsUpdate, err := needsUpdate(updateOpts)
-	if err != nil {
-		return progress.WrapError(
-			orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err))
-	}
-	if !needsUpdate {
-		log.V(logging.Debug).Info("No changes")
-		return nil
-	}
-
-	_, err = actuator.osClient.UpdateDNSZoneShare(ctx, osResource.ID, updateOpts)
-
-	if err != nil {
-		if !orcerrors.IsRetryable(err) {
-			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-		}
-		return progress.WrapError(err)
-	}
-
-	return progress.NeedsRefresh()
-}
-
-func needsUpdate(updateOpts zones.UpdateOpts) (bool, error) {
-	updateOptsMap, err := updateOpts.ToZoneShareUpdateMap()
-	if err != nil {
-		return false, err
-	}
-
-	updateMap, ok := updateOptsMap["dns_zone_share"].(map[string]any)
-	if !ok {
-		updateMap = make(map[string]any)
-	}
-
-	return len(updateMap) > 0, nil
-}
-
-func handleNameUpdate(updateOpts *zones.UpdateOpts, obj orcObjectPT, osResource *osResourceT) {
-	name := getResourceName(obj)
-	if osResource.Name != name {
-		updateOpts.Name = &name
-	}
-}
-
-func handleDescriptionUpdate(updateOpts *zones.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
-	description := ptr.Deref(resource.Description, "")
-	if osResource.Description != description {
-		updateOpts.Description = &description
-	}
-}
-
+// Designate has no update for zone shares.
 func (actuator dnszoneshareActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
-	return []resourceReconciler{
-		actuator.updateResource,
-	}, nil
+	return []resourceReconciler{}, nil
 }
 
 type dnszoneshareHelperFactory struct{}
@@ -239,6 +170,18 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.DNSZoneShare, contr
 		return dnszoneshareActuator{}, reconcileStatus
 	}
 
+	statusZoneID := ""
+	if orcObject.Status.Resource != nil {
+		statusZoneID = orcObject.Status.Resource.ZoneID
+	}
+	var zoneRef *orcv1alpha1.KubernetesNameRef
+	switch {
+	case orcObject.Spec.Resource != nil:
+		zoneRef = &orcObject.Spec.Resource.ZoneRef
+	case orcObject.Spec.Import != nil && orcObject.Spec.Import.Filter != nil:
+		zoneRef = &orcObject.Spec.Import.Filter.ZoneRef
+	}
+
 	clientScope, err := controller.GetScopeFactory().NewClientScopeFromObject(ctx, controller.GetK8sClient(), log, orcObject)
 	if err != nil {
 		return dnszoneshareActuator{}, progress.WrapError(err)
@@ -249,8 +192,11 @@ func newActuator(ctx context.Context, orcObject *orcv1alpha1.DNSZoneShare, contr
 	}
 
 	return dnszoneshareActuator{
-		osClient:  osClient,
-		k8sClient: controller.GetK8sClient(),
+		osClient:     osClient,
+		k8sClient:    controller.GetK8sClient(),
+		namespace:    orcObject.Namespace,
+		statusZoneID: statusZoneID,
+		zoneRef:      zoneRef,
 	}, nil
 }
 
