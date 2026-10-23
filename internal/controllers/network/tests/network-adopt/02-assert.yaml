@@ -1,0 +1,10 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+resourceRefs:
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Project
+      name: network-adopt
+      ref: project
+assertAll:
+    - celExpr: "!('openstack.k-orc.cloud/network' in project.metadata.finalizers)"
