@@ -56,32 +56,37 @@ express declaratively instead.
   member's behalf (some custom `policy.yaml` configurations allow this via an elevated role). The
   design below assumes Glance's documented default policy, where accept requires the member's own
   token - the safer, more portable assumption.
-- Clouds whose Glance member policy is keyed on `user_id` instead of the documented default
-  `project_id` - raised during review (both would resolve to the same single Glance `member_id`
-  field, so adding it later is one optional field on each side, not a second implementation).
-  Deferred until a real deployment needs it, rather than carrying the extra validation surface now.
 
 ## Proposal
 
 ### Grant: a `members` field on `Image`
 
 ```go
-// ImageMemberGrant identifies a project an image is shared with.
+// ImageMemberGrant identifies a project or user an image is shared with.
+// +kubebuilder:validation:XValidation:rule="has(self.projectRef) != has(self.userRef)",message="exactly one of projectRef or userRef must be set"
 type ImageMemberGrant struct {
     // projectRef is a reference to a Project ORC object to share this image with.
-    // +required
-    ProjectRef KubernetesNameRef `json:"projectRef,omitempty"`
+    // +optional
+    ProjectRef *KubernetesNameRef `json:"projectRef,omitempty"`
+
+    // userRef is a reference to a User ORC object to share this image with, for clouds whose
+    // Glance member policy is keyed on user_id instead of project_id.
+    // +optional
+    UserRef *KubernetesNameRef `json:"userRef,omitempty"`
 }
 ```
+
+Both resolve to Glance's single `member_id`. The first implementation supports `projectRef` only;
+`userRef` is part of the API so that adding it later doesn't change it.
 
 Added to `ImageResourceSpec`:
 
 ```go
-// members specifies the list of projects this image is shared with.
+// members specifies the list of projects or users this image is shared with.
 // The image visibility must be set to "shared" for members to be effective.
 // +kubebuilder:validation:MaxItems:=256
-// +listType=map
-// +listMapKey=projectRef
+// +kubebuilder:validation:XValidation:rule="self.all(x, self.exists_one(y, y == x))",message="members must be unique"
+// +listType=atomic
 // +optional
 Members []ImageMemberGrant `json:"members,omitempty"`
 ```
@@ -97,10 +102,11 @@ Added to `ImageResourceStatus`, so the owner side can see each member's real acc
 without needing cluster access to the member's own project/namespace:
 
 ```go
-// ImageMemberStatus reports one member project's real Glance acceptance state.
+// ImageMemberStatus reports one member's real Glance acceptance state.
 type ImageMemberStatus struct {
-    // projectID is the Keystone project id this entry refers to.
-    ProjectID string `json:"projectID,omitempty"`
+    // memberID is the Glance member id: a Keystone project id, or a user id on clouds keyed on
+    // users.
+    MemberID string `json:"memberID,omitempty"`
 
     // status is this member's current acceptance status in Glance:
     //   - pending: Glance already grants access, but the image won't appear when the member
@@ -171,8 +177,8 @@ spec:
 
 The controller resolves `imageRef` to the owning `Image` object (same-namespace reference, the
 existing `dependency.FetchDependency` pattern used throughout the codebase) to get its
-`status.id`, resolves its own credential's project id (from the auth token's scope, the same
-mechanism already used for `ProjectRef` resolution elsewhere), and calls Glance's member-status
+`status.id`, resolves its own member id from its credential's auth token (the project id; the
+user id once `userRef` is supported), and calls Glance's member-status
 endpoint (`PUT .../members/{member_id}`, `{"status": "<spec.status>"}`) using its **own**
 credential - the same single API call sets either `accepted` or `rejected`, so `Status` drives it
 directly with no branching logic needed in the reconciler itself.
@@ -235,9 +241,9 @@ member-`DELETE` at all).
   a second resource type, and mixes the owner's and every member's failure/permission domains into
   one reconcile loop instead of keeping them independently owned and independently failing.
 
-- **Supporting `userRef` alongside `projectRef` from the start** (for Glance deployments keyed on
-  `user_id`) - raised during review. Deferred to Non-Goals instead: no real deployment needs it
-  yet, and adding it later is additive, not a redesign.
+- **Leaving `userRef` out of the design** (for Glance deployments keyed on `user_id`) until a
+  deployment needs it. Rejected on review: it belongs in the API from the start, even though the
+  first implementation only supports `projectRef`.
 
 ## Implementation History
 
