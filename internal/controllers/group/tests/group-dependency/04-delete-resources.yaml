@@ -8,3 +8,6 @@ delete:
 - apiVersion: openstack.k-orc.cloud/v1alpha1
   kind: Group
   name: group-dependency-no-domain
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: Group
+  name: group-dependency-no-user

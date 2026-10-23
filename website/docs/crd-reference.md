@@ -1571,6 +1571,7 @@ _Appears in:_
 | `name` _[KeystoneName](#keystonename)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 64 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 | `domainRef` _[KubernetesNameRef](#kubernetesnameref)_ | domainRef is a reference to the ORC Domain which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `userRefs` _[KubernetesNameRef](#kubernetesnameref) array_ | userRefs contains ORC Users that belong to this group. |  | MaxItems: 1024 <br />MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
 
 #### GroupResourceStatus
@@ -1589,6 +1590,7 @@ _Appears in:_
 | `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `domainID` _string_ | domainID is the ID of the Domain to which the resource is associated. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `userIDs` _string array_ | userIDs lists the IDs of the Users in this group. |  | MaxItems: 1024 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
 
 
 #### GroupSpec

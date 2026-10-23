@@ -172,6 +172,15 @@ spec:
                     maxLength: 64
                     minLength: 1
                     type: string
+                  userRefs:
+                    description: userRefs contains ORC Users that belong to this group.
+                    items:
+                      maxLength: 253
+                      minLength: 1
+                      type: string
+                    maxItems: 1024
+                    type: array
+                    x-kubernetes-list-type: set
                 type: object
               resyncPeriod:
                 description: |-
@@ -307,6 +316,14 @@ spec:
                       not be unique.
                     maxLength: 1024
                     type: string
+                  userIDs:
+                    description: userIDs lists the IDs of the Users in this group.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 1024
+                    type: array
+                    x-kubernetes-list-type: set
                 type: object
             type: object
         required:
