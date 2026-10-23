@@ -1,0 +1,19 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: LoadBalancer
+  name: loadbalancer-dependency-no-secret
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: LoadBalancer
+  name: loadbalancer-dependency-no-subnet
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: LoadBalancer
+  name: loadbalancer-dependency-no-network
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: LoadBalancer
+  name: loadbalancer-dependency-no-port
+- apiVersion: openstack.k-orc.cloud/v1alpha1
+  kind: LoadBalancer
+  name: loadbalancer-dependency-no-project
