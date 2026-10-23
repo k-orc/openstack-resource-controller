@@ -30,6 +30,7 @@ type RoleAssignmentResourceSpecApplyConfiguration struct {
 	GroupRef   *apiv1alpha1.KubernetesNameRef `json:"groupRef,omitempty"`
 	ProjectRef *apiv1alpha1.KubernetesNameRef `json:"projectRef,omitempty"`
 	DomainRef  *apiv1alpha1.KubernetesNameRef `json:"domainRef,omitempty"`
+	System     *apiv1alpha1.KeystoneSystem    `json:"system,omitempty"`
 }
 
 // RoleAssignmentResourceSpecApplyConfiguration constructs a declarative configuration of the RoleAssignmentResourceSpec type for use with
@@ -75,5 +76,13 @@ func (b *RoleAssignmentResourceSpecApplyConfiguration) WithProjectRef(value apiv
 // If called multiple times, the DomainRef field is set to the value of the last call.
 func (b *RoleAssignmentResourceSpecApplyConfiguration) WithDomainRef(value apiv1alpha1.KubernetesNameRef) *RoleAssignmentResourceSpecApplyConfiguration {
 	b.DomainRef = &value
+	return b
+}
+
+// WithSystem sets the System field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the System field is set to the value of the last call.
+func (b *RoleAssignmentResourceSpecApplyConfiguration) WithSystem(value apiv1alpha1.KeystoneSystem) *RoleAssignmentResourceSpecApplyConfiguration {
+	b.System = &value
 	return b
 }

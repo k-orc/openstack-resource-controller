@@ -26,6 +26,7 @@ type RoleAssignmentResourceStatusApplyConfiguration struct {
 	GroupID   *string `json:"groupID,omitempty"`
 	ProjectID *string `json:"projectID,omitempty"`
 	DomainID  *string `json:"domainID,omitempty"`
+	System    *string `json:"system,omitempty"`
 }
 
 // RoleAssignmentResourceStatusApplyConfiguration constructs a declarative configuration of the RoleAssignmentResourceStatus type for use with
@@ -71,5 +72,13 @@ func (b *RoleAssignmentResourceStatusApplyConfiguration) WithProjectID(value str
 // If called multiple times, the DomainID field is set to the value of the last call.
 func (b *RoleAssignmentResourceStatusApplyConfiguration) WithDomainID(value string) *RoleAssignmentResourceStatusApplyConfiguration {
 	b.DomainID = &value
+	return b
+}
+
+// WithSystem sets the System field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the System field is set to the value of the last call.
+func (b *RoleAssignmentResourceStatusApplyConfiguration) WithSystem(value string) *RoleAssignmentResourceStatusApplyConfiguration {
+	b.System = &value
 	return b
 }
