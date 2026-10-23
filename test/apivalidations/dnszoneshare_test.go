@@ -42,7 +42,8 @@ func dnszoneshareStub(namespace *corev1.Namespace) *orcv1alpha1.DNSZoneShare {
 
 func testDNSZoneShareResource() *applyconfigv1alpha1.DNSZoneShareResourceSpecApplyConfiguration {
 	return applyconfigv1alpha1.DNSZoneShareResourceSpec().
-		WithDNSZoneRef("dnszone")
+		WithZoneRef("dnszone").
+		WithTargetProjectID("3fac9d0b0e0e4b0e9b0e000000000001")
 }
 
 func baseDNSZoneSharePatch(obj client.Object) *applyconfigv1alpha1.DNSZoneShareApplyConfiguration {
@@ -79,7 +80,7 @@ var _ = Describe("ORC DNSZoneShare API validations", func() {
 			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneShareImport().WithFilter(applyconfigv1alpha1.DNSZoneShareFilter()))
 		},
 		applyValidFilter: func(p *applyconfigv1alpha1.DNSZoneShareApplyConfiguration) {
-			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneShareImport().WithFilter(applyconfigv1alpha1.DNSZoneShareFilter().WithName("foo")))
+			p.Spec.WithImport(applyconfigv1alpha1.DNSZoneShareImport().WithFilter(applyconfigv1alpha1.DNSZoneShareFilter().WithZoneRef("dnszone").WithTargetProjectID("foo")))
 		},
 		applyManaged: func(p *applyconfigv1alpha1.DNSZoneShareApplyConfiguration) {
 			p.Spec.WithManagementPolicy(orcv1alpha1.ManagementPolicyManaged)
@@ -105,24 +106,30 @@ var _ = Describe("ORC DNSZoneShare API validations", func() {
 		Expect(applyObj(ctx, obj, patch)).NotTo(Succeed())
 	})
 
-	It("should have immutable dNSZoneRef", func(ctx context.Context) {
+	It("should have immutable zoneRef", func(ctx context.Context) {
 		obj := dnszoneshareStub(namespace)
 		patch := baseDNSZoneSharePatch(obj)
 		patch.Spec.WithResource(testDNSZoneShareResource().
-			WithDNSZoneRef("dnszone-a"))
+			WithZoneRef("dnszone-a"))
 		Expect(applyObj(ctx, obj, patch)).To(Succeed())
 
 		patch.Spec.WithResource(testDNSZoneShareResource().
-			WithDNSZoneRef("dnszone-b"))
-		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("dNSZoneRef is immutable")))
+			WithZoneRef("dnszone-b"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("zoneRef is immutable")))
 	})
 
-	// TODO(scaffolding): Add more resource-specific validation tests.
-	// Some common things to test:
-	// - Immutability of fields with `self == oldSelf` validation
-	// - Enum validation (valid and invalid values)
-	// - Numeric range validation (min/max bounds)
-	// - Tag uniqueness (if the resource has tags with listType=set)
-	// - Format validation (CIDR, UUID, etc.)
-	// - Cross-field validation rules
+	It("should have immutable targetProjectID", func(ctx context.Context) {
+		obj := dnszoneshareStub(namespace)
+		patch := baseDNSZoneSharePatch(obj)
+		patch.Spec.WithResource(testDNSZoneShareResource().
+			WithTargetProjectID("3fac9d0b0e0e4b0e9b0e000000000001"))
+		Expect(applyObj(ctx, obj, patch)).To(Succeed())
+
+		// Unlike RBACPolicy's analogous field, Designate's zone-share API has no update
+		// operation at all - confirmed via gophercloud (only List/Get/Share/Unshare) - so
+		// targetProjectID is immutable here, not mutable like RBACPolicy's.
+		patch.Spec.WithResource(testDNSZoneShareResource().
+			WithTargetProjectID("4fac9d0b0e0e4b0e9b0e000000000002"))
+		Expect(applyObj(ctx, obj, patch)).To(MatchError(ContainSubstring("targetProjectID is immutable")))
+	})
 })

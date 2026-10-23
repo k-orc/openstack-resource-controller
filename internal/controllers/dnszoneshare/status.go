@@ -50,15 +50,9 @@ func (dnszoneshareStatusWriter) ResourceAvailableStatus(orcObject *orcv1alpha1.D
 
 func (dnszoneshareStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osResourceT, statusApply *statusApplyT) {
 	resourceStatus := orcapplyconfigv1alpha1.DNSZoneShareResourceStatus().
-		WithDNSZoneID(osResource.DNSZoneID).
-		WithName(osResource.Name)
-
-	// TODO(scaffolding): add all of the fields supported in the DNSZoneShareResourceStatus struct
-	// If a zero-value isn't expected in the response, place it behind a conditional
-
-	if osResource.Description != "" {
-		resourceStatus.WithDescription(osResource.Description)
-	}
+		WithZoneID(osResource.ZoneID).
+		WithTargetProjectID(osResource.TargetProjectID).
+		WithProjectID(osResource.ProjectID)
 
 	statusApply.WithResource(resourceStatus)
 }

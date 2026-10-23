@@ -5,12 +5,12 @@ metadata:
   name: dnszoneshare-dependency
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
-  resource: {}
+  resource:
+    name: dnszoneshare-dependency.example.com.
+    email: admin@example.com
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
@@ -18,14 +18,12 @@ metadata:
   name: dnszoneshare-dependency-no-dnszone
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: openstack-clouds
   managementPolicy: managed
   resource:
-    dNSZoneRef: dnszoneshare-dependency-pending
-    # TODO(scaffolding): Add the necessary fields to create the resource
-
+    zoneRef: dnszoneshare-dependency-pending
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000023"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: DNSZoneShare
@@ -33,10 +31,9 @@ metadata:
   name: dnszoneshare-dependency-no-secret
 spec:
   cloudCredentialsRef:
-    # TODO(scaffolding): Use openstack-admin if the resource needs admin credentials to be created
     cloudName: openstack
     secretName: dnszoneshare-dependency
   managementPolicy: managed
-  # TODO(scaffolding): Add the necessary fields to create the resource
   resource:
-    dNSZoneRef: dnszoneshare-dependency
+    zoneRef: dnszoneshare-dependency
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000024"

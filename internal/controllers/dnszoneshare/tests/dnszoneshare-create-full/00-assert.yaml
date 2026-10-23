@@ -5,9 +5,7 @@ metadata:
   name: dnszoneshare-create-full
 status:
   resource:
-    name: dnszoneshare-create-full-override
-    description: DNSZoneShare from "create full" test
-    # TODO(scaffolding): Add all fields the resource supports
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000022"
   conditions:
   - type: Available
     status: "True"
@@ -26,8 +24,8 @@ resourceRefs:
     - apiVersion: openstack.k-orc.cloud/v1alpha1
       kind: DNSZone
       name: dnszoneshare-create-full
-      ref: dNSZone
+      ref: dnszone
 assertAll:
     - celExpr: "dnszoneshare.status.id != ''"
-    - celExpr: "dnszoneshare.status.resource.dNSZoneID == dNSZone.status.id"
-    # TODO(scaffolding): Add more checks
+    - celExpr: "dnszoneshare.status.resource.zoneID == dnszone.status.id"
+    - celExpr: "dnszoneshare.status.resource.projectID != ''"
