@@ -93,7 +93,7 @@ func (c applicationcredentialClient) GetApplicationCredential(ctx context.Contex
 
 	for user, userErr := range userIterator {
 		if userErr != nil {
-			continue
+			return nil, userErr
 		}
 
 		appCred, appCredErr := applicationcredentials.Get(ctx, c.client, user.ID, resourceID).Extract()
