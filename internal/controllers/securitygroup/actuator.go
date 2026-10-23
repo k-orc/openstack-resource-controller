@@ -102,9 +102,11 @@ func (actuator securityGroupActuator) ListOSResourcesForAdoption(ctx context.Con
 	listOpts := groups.ListOpts{
 		Name:      getResourceName(obj),
 		ProjectID: projectID,
-		Stateful:  resource.Stateful,
 	}
-	return actuator.osClient.ListSecGroup(ctx, listOpts), true
+	// Neutron releases before Hibiscus do not support filtering by stateful.
+	return osclients.Filter(actuator.osClient.ListSecGroup(ctx, listOpts), func(group *osResourceT) bool {
+		return resource.Stateful == nil || group.Stateful == *resource.Stateful
+	}), true
 }
 
 func (actuator securityGroupActuator) ListOSResourcesForImport(ctx context.Context, obj orcObjectPT, filter filterT) (iter.Seq2[*osResourceT, error], progress.ReconcileStatus) {

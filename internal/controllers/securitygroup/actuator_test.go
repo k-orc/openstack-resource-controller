@@ -19,6 +19,8 @@ package securitygroup
 import (
 	"context"
 	"errors"
+	"iter"
+	"slices"
 	"testing"
 	"time"
 
@@ -27,8 +29,166 @@ import (
 	orcv1alpha1 "github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients/mock"
 	"go.uber.org/mock/gomock"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
+
+func TestListOSResourcesForAdoption(t *testing.T) {
+	listErr := errors.New("listing failed")
+	candidates := []groups.SecGroup{
+		{ID: "stateless", Stateful: false},
+		{ID: "stateful", Stateful: true},
+		{ID: "another-stateless", Stateful: false},
+	}
+	for _, tc := range []struct {
+		name           string
+		stateful       *bool
+		candidates     []groups.SecGroup
+		listErr        error
+		resourceName   *orcv1alpha1.OpenStackName
+		withProject    bool
+		stopAfterFirst bool
+		wantIDs        []string
+	}{
+		{
+			name: "stateful candidates", stateful: ptr.To(true), candidates: candidates,
+			wantIDs: []string{"stateful"},
+		},
+		{
+			name: "stateless candidates", stateful: ptr.To(false), candidates: candidates,
+			wantIDs: []string{"stateless", "another-stateless"},
+		},
+		{
+			name: "unset statefulness", candidates: candidates,
+			wantIDs: []string{"stateless", "stateful", "another-stateless"},
+		},
+		{
+			name: "no matching candidates", stateful: ptr.To(true), candidates: candidates[:1],
+		},
+		{
+			name: "empty listing", stateful: ptr.To(false),
+		},
+		{
+			name: "initial list error", stateful: ptr.To(true), listErr: listErr,
+		},
+		{
+			name: "error after filtered candidate", stateful: ptr.To(true),
+			candidates: candidates[:1], listErr: listErr,
+		},
+		{
+			name: "error after matching candidate", stateful: ptr.To(true),
+			candidates: candidates, listErr: listErr, wantIDs: []string{"stateful"},
+		},
+		{
+			name: "stop after first match", stateful: ptr.To(true),
+			candidates: candidates, listErr: listErr, stopAfterFirst: true,
+			wantIDs: []string{"stateful"},
+		},
+		{
+			name: "preserve name and project filters", stateful: ptr.To(false),
+			resourceName: ptr.To(orcv1alpha1.OpenStackName("overridden-name")), withProject: true,
+			candidates: candidates, wantIDs: []string{"stateless", "another-stateless"},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx := t.Context()
+			networkClient := mock.NewMockNetworkClient(gomock.NewController(t))
+			actuator := securityGroupActuator{osClient: networkClient}
+			obj := &orcv1alpha1.SecurityGroup{
+				ObjectMeta: metav1.ObjectMeta{Name: "object-name", Namespace: "namespace"},
+				Spec: orcv1alpha1.SecurityGroupSpec{
+					Resource: &orcv1alpha1.SecurityGroupResourceSpec{
+						Name: tc.resourceName, Stateful: tc.stateful,
+					},
+				},
+			}
+			wantOpts := groups.ListOpts{Name: string(ptr.Deref(tc.resourceName, "object-name"))}
+			if tc.withProject {
+				scheme := runtime.NewScheme()
+				if err := orcv1alpha1.AddToScheme(scheme); err != nil {
+					t.Fatal(err)
+				}
+				project := &orcv1alpha1.Project{
+					ObjectMeta: metav1.ObjectMeta{Name: "project", Namespace: obj.Namespace},
+					Status: orcv1alpha1.ProjectStatus{
+						ID: ptr.To("project-id"),
+						Conditions: []metav1.Condition{{
+							Type: orcv1alpha1.ConditionAvailable, Status: metav1.ConditionTrue,
+						}},
+					},
+				}
+				actuator.k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(project).Build()
+				obj.Spec.Resource.ProjectRef = ptr.To(orcv1alpha1.KubernetesNameRef(project.Name))
+				wantOpts.ProjectID = *project.Status.ID
+			}
+			visited := 0
+			var seq iter.Seq2[*groups.SecGroup, error] = func(yield func(*groups.SecGroup, error) bool) {
+				for i := range tc.candidates {
+					visited++
+					if !yield(&tc.candidates[i], nil) {
+						return
+					}
+				}
+				if tc.listErr != nil {
+					yield(nil, tc.listErr)
+				}
+			}
+			// Stateful must be omitted from the server-side list options.
+			networkClient.EXPECT().ListSecGroup(ctx, wantOpts).Return(seq)
+			resourceIter, canAdopt := actuator.ListOSResourcesForAdoption(ctx, obj)
+			if !canAdopt {
+				t.Fatal("expected adoption to be supported")
+			}
+			var ids []string
+			var gotErrors []error
+			for group, err := range resourceIter {
+				if err != nil {
+					if group != nil {
+						t.Errorf("error yielded with resource: %v", group)
+					}
+					gotErrors = append(gotErrors, err)
+					continue
+				}
+				ids = append(ids, group.ID)
+				if tc.stopAfterFirst {
+					break
+				}
+			}
+			if !slices.Equal(ids, tc.wantIDs) {
+				t.Errorf("IDs = %v, want %v", ids, tc.wantIDs)
+			}
+			wantErrors := 0
+			if tc.listErr != nil && !tc.stopAfterFirst {
+				wantErrors = 1
+			}
+			if len(gotErrors) != wantErrors {
+				t.Fatalf("errors = %v, want %d errors", gotErrors, wantErrors)
+			}
+			if wantErrors != 0 && !errors.Is(gotErrors[0], tc.listErr) {
+				t.Errorf("error = %v, want %v", gotErrors[0], tc.listErr)
+			}
+			wantVisited := len(tc.candidates)
+			if tc.stopAfterFirst {
+				wantVisited = 2
+			}
+			if visited != wantVisited {
+				t.Errorf("visited %d candidates, want %d", visited, wantVisited)
+			}
+			if tc.withProject {
+				project := &orcv1alpha1.Project{}
+				if err := actuator.k8sClient.Get(ctx, client.ObjectKey{Namespace: obj.Namespace, Name: "project"}, project); err != nil {
+					t.Fatal(err)
+				}
+				if len(project.Finalizers) != 0 {
+					t.Errorf("adoption added project finalizers: %v", project.Finalizers)
+				}
+			}
+		})
+	}
+}
 
 func TestNeedsUpdate(t *testing.T) {
 	testCases := []struct {
