@@ -1,7 +1,8 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
-delete:
-  - apiVersion: openstack.k-orc.cloud/v1alpha1
-    kind: Network
-    name: network-adopt-detached
+commands:
+  # Save the network's ID to check that step 03 adopts it rather than creating a new one.
+  - script: kubectl create configmap network-adopt --namespace $NAMESPACE --from-literal=id=$(kubectl get network.openstack.k-orc.cloud network-adopt-detached --namespace $NAMESPACE -o jsonpath='{.status.id}')
+  - command: kubectl delete network.openstack.k-orc.cloud network-adopt-detached
+    namespaced: true

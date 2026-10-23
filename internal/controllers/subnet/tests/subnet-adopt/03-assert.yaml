@@ -6,7 +6,16 @@ resourceRefs:
       kind: Network
       name: subnet-adopt
       ref: network
+    - apiVersion: openstack.k-orc.cloud/v1alpha1
+      kind: Subnet
+      name: subnet-adopt
+      ref: subnet
+    - apiVersion: v1
+      kind: ConfigMap
+      name: subnet-adopt
+      ref: saved
 assertAll:
+    - celExpr: "subnet.status.id == saved.data.id"
     - celExpr: "'openstack.k-orc.cloud/subnet' in network.metadata.finalizers"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1

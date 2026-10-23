@@ -10,7 +10,12 @@ resourceRefs:
       kind: Network
       name: network-adopt
       ref: network
+    - apiVersion: v1
+      kind: ConfigMap
+      name: network-adopt
+      ref: saved
 assertAll:
+    - celExpr: "network.status.id == saved.data.id"
     - celExpr: "'openstack.k-orc.cloud/network' in project.metadata.finalizers"
     - celExpr: "network.status.resource.projectID == project.status.id"
 ---
