@@ -53,9 +53,7 @@ func NewLimitClient(providerClient *gophercloud.ProviderClient, providerClientOp
 
 func (c limitClient) ListLimits(ctx context.Context, listOpts limits.ListOptsBuilder) iter.Seq2[*limits.Limit, error] {
 	pager := limits.List(c.client, listOpts)
-	return func(yield func(*limits.Limit, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(limits.ExtractLimits, yield))
-	}
+	return listResources(ctx, pager, limits.ExtractLimits)
 }
 
 func (c limitClient) CreateLimit(ctx context.Context, opts limits.BatchCreateOptsBuilder) (*limits.Limit, error) {

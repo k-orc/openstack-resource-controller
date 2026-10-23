@@ -57,9 +57,7 @@ func (c recordsetClient) ListRecordSets(ctx context.Context, zoneID string, list
 	if zoneID != "" {
 		pager = recordsets.ListByZone(c.client, zoneID, listOpts)
 	}
-	return func(yield func(*recordsets.RecordSet, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(recordsets.ExtractRecordSets, yield))
-	}
+	return listResources(ctx, pager, recordsets.ExtractRecordSets)
 }
 
 func (c recordsetClient) CreateRecordSet(ctx context.Context, zoneID string, opts recordsets.CreateOptsBuilder) (*recordsets.RecordSet, error) {

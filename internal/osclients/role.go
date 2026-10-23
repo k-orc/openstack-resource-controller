@@ -53,9 +53,7 @@ func NewRoleClient(providerClient *gophercloud.ProviderClient, providerClientOpt
 
 func (c roleClient) ListRoles(ctx context.Context, listOpts roles.ListOptsBuilder) iter.Seq2[*roles.Role, error] {
 	pager := roles.List(c.client, listOpts)
-	return func(yield func(*roles.Role, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(roles.ExtractRoles, yield))
-	}
+	return listResources(ctx, pager, roles.ExtractRoles)
 }
 
 func (c roleClient) CreateRole(ctx context.Context, opts roles.CreateOptsBuilder) (*roles.Role, error) {

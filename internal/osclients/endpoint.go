@@ -53,9 +53,7 @@ func NewEndpointClient(providerClient *gophercloud.ProviderClient, providerClien
 
 func (c endpointClient) ListEndpoints(ctx context.Context, listOpts endpoints.ListOptsBuilder) iter.Seq2[*endpoints.Endpoint, error] {
 	pager := endpoints.List(c.client, listOpts)
-	return func(yield func(*endpoints.Endpoint, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(endpoints.ExtractEndpoints, yield))
-	}
+	return listResources(ctx, pager, endpoints.ExtractEndpoints)
 }
 
 func (c endpointClient) CreateEndpoint(ctx context.Context, opts endpoints.CreateOptsBuilder) (*endpoints.Endpoint, error) {

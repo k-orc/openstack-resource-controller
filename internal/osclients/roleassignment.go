@@ -51,9 +51,7 @@ func NewRoleAssignmentClient(providerClient *gophercloud.ProviderClient, provide
 
 func (c roleassignmentClient) ListRoleAssignments(ctx context.Context, listOpts roles.ListAssignmentsOpts) iter.Seq2[*roles.RoleAssignment, error] {
 	pager := roles.ListAssignments(c.client, listOpts)
-	return func(yield func(*roles.RoleAssignment, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(roles.ExtractRoleAssignments, yield))
-	}
+	return listResources(ctx, pager, roles.ExtractRoleAssignments)
 }
 
 func (c roleassignmentClient) AssignRole(ctx context.Context, roleID string, opts roles.AssignOpts) error {

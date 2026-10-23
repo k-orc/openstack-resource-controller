@@ -53,9 +53,7 @@ func NewGroupClient(providerClient *gophercloud.ProviderClient, providerClientOp
 
 func (c groupClient) ListGroups(ctx context.Context, listOpts groups.ListOptsBuilder) iter.Seq2[*groups.Group, error] {
 	pager := groups.List(c.client, listOpts)
-	return func(yield func(*groups.Group, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(groups.ExtractGroups, yield))
-	}
+	return listResources(ctx, pager, groups.ExtractGroups)
 }
 
 func (c groupClient) CreateGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.Group, error) {

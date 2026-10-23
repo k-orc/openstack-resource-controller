@@ -53,9 +53,7 @@ func NewShareNetworkClient(providerClient *gophercloud.ProviderClient, providerC
 
 func (c sharenetworkClient) ListShareNetworks(ctx context.Context, listOpts sharenetworks.ListOptsBuilder) iter.Seq2[*sharenetworks.ShareNetwork, error] {
 	pager := sharenetworks.ListDetail(c.client, listOpts)
-	return func(yield func(*sharenetworks.ShareNetwork, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(sharenetworks.ExtractShareNetworks, yield))
-	}
+	return listResources(ctx, pager, sharenetworks.ExtractShareNetworks)
 }
 
 func (c sharenetworkClient) CreateShareNetwork(ctx context.Context, opts sharenetworks.CreateOptsBuilder) (*sharenetworks.ShareNetwork, error) {

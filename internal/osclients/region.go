@@ -53,9 +53,7 @@ func NewRegionClient(providerClient *gophercloud.ProviderClient, providerClientO
 
 func (c regionClient) ListRegions(ctx context.Context, listOpts regions.ListOptsBuilder) iter.Seq2[*regions.Region, error] {
 	pager := regions.List(c.client, listOpts)
-	return func(yield func(*regions.Region, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(regions.ExtractRegions, yield))
-	}
+	return listResources(ctx, pager, regions.ExtractRegions)
 }
 
 func (c regionClient) CreateRegion(ctx context.Context, opts regions.CreateOptsBuilder) (*regions.Region, error) {

@@ -53,9 +53,7 @@ func NewVolumeTypeClient(providerClient *gophercloud.ProviderClient, providerCli
 
 func (c volumetypeClient) ListVolumeTypes(ctx context.Context, listOpts volumetypes.ListOptsBuilder) iter.Seq2[*volumetypes.VolumeType, error] {
 	pager := volumetypes.List(c.client, listOpts)
-	return func(yield func(*volumetypes.VolumeType, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(volumetypes.ExtractVolumeTypes, yield))
-	}
+	return listResources(ctx, pager, volumetypes.ExtractVolumeTypes)
 }
 
 func (c volumetypeClient) CreateVolumeType(ctx context.Context, opts volumetypes.CreateOptsBuilder) (*volumetypes.VolumeType, error) {

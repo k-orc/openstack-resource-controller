@@ -53,9 +53,7 @@ func NewDNSZoneClient(providerClient *gophercloud.ProviderClient, providerClient
 
 func (c dnszoneClient) ListDNSZones(ctx context.Context, listOpts zones.ListOptsBuilder) iter.Seq2[*zones.Zone, error] {
 	pager := zones.List(c.client, listOpts)
-	return func(yield func(*zones.Zone, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(zones.ExtractZones, yield))
-	}
+	return listResources(ctx, pager, zones.ExtractZones)
 }
 
 func (c dnszoneClient) CreateDNSZone(ctx context.Context, opts zones.CreateOptsBuilder) (*zones.Zone, error) {
