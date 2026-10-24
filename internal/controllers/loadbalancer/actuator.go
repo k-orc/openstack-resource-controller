@@ -153,9 +153,24 @@ func (actuator loadbalancerActuator) ListOSResourcesForImport(ctx context.Contex
 		ProjectID:        ptr.Deref(project.Status.ID, ""),
 		VipSubnetID:      ptr.Deref(vipSubnet.Status.ID, ""),
 		VipPortID:        ptr.Deref(vipPort.Status.ID, ""),
+		Tags:             tagsToStrings(filter.Tags),
+		TagsAny:          tagsToStrings(filter.TagsAny),
+		TagsNot:          tagsToStrings(filter.NotTags),
+		TagsNotAny:       tagsToStrings(filter.NotTagsAny),
 	}
 
 	return actuator.osClient.ListLoadBalancers(ctx, listOpts), reconcileStatus
+}
+
+func tagsToStrings(tags []orcv1alpha1.LoadBalancerTag) []string {
+	if len(tags) == 0 {
+		return nil
+	}
+	out := make([]string, len(tags))
+	for i := range tags {
+		out[i] = string(tags[i])
+	}
+	return out
 }
 
 func (actuator loadbalancerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
