@@ -76,11 +76,11 @@ var loadBalancerImportDependency = dependency.NewDependency[*orcv1alpha1.Listene
 	},
 )
 
-// SetupWithManager sets up the controller with the Manager.
 func (c *listenerReconcilerConstructor) SetDefaultResyncPeriod(d time.Duration) {
 	c.defaultResyncPeriod = d
 }
 
+// SetupWithManager sets up the controller with the Manager.
 func (c *listenerReconcilerConstructor) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	log := ctrl.LoggerFrom(ctx)
 	k8sClient := mgr.GetClient()

@@ -250,27 +250,18 @@ spec:
                     - OPTIONAL
                     - MANDATORY
                     type: string
-                    x-kubernetes-validations:
-                    - message: clientAuthentication is immutable
-                      rule: self == oldSelf
-                  clientCATLSContainerRef:
+                  clientCATLSContainerURL:
                     description: |-
-                      clientCATLSContainerRef is a reference to a secret containing the CA certificate
-                      for client authentication.
+                      clientCATLSContainerURL is the URL of a Barbican secret with the CA
+                      certificate for client authentication.
                     maxLength: 255
                     type: string
-                    x-kubernetes-validations:
-                    - message: clientCATLSContainerRef is immutable
-                      rule: self == oldSelf
-                  clientCRLContainerRef:
+                  clientCRLContainerURL:
                     description: |-
-                      clientCRLContainerRef is a reference to a secret containing the CA revocation list
-                      for client authentication.
+                      clientCRLContainerURL is the URL of a Barbican secret with the CA
+                      revocation list for client authentication.
                     maxLength: 255
                     type: string
-                    x-kubernetes-validations:
-                    - message: clientCRLContainerRef is immutable
-                      rule: self == oldSelf
                   connectionLimit:
                     description: |-
                       connectionLimit is the maximum number of connections permitted for this listener.
@@ -278,24 +269,12 @@ spec:
                     format: int32
                     minimum: -1
                     type: integer
-                  defaultPoolRef:
-                    description: defaultPoolRef is a reference to the default Pool
-                      for this listener.
-                    maxLength: 253
-                    minLength: 1
-                    type: string
-                    x-kubernetes-validations:
-                    - message: defaultPoolRef is immutable
-                      rule: self == oldSelf
-                  defaultTLSContainerRef:
+                  defaultTLSContainerURL:
                     description: |-
-                      defaultTLSContainerRef is a reference to a secret containing a PKCS12 format
-                      certificate/key bundle for TERMINATED_HTTPS listeners.
+                      defaultTLSContainerURL is the URL of a Barbican secret or container with the
+                      PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners.
                     maxLength: 255
                     type: string
-                    x-kubernetes-validations:
-                    - message: defaultTLSContainerRef is immutable
-                      rule: self == oldSelf
                   description:
                     description: description is a human-readable description for the
                       resource.
@@ -369,10 +348,10 @@ spec:
                     x-kubernetes-validations:
                     - message: protocolPort is immutable
                       rule: self == oldSelf
-                  sniContainerRefs:
+                  sniContainerURLs:
                     description: |-
-                      sniContainerRefs is a list of references to secrets containing PKCS12 format
-                      certificate/key bundles for TERMINATED_HTTPS listeners using SNI.
+                      sniContainerURLs are the URLs of Barbican secrets or containers with the
+                      PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI.
                     items:
                       maxLength: 255
                       type: string
@@ -423,7 +402,13 @@ spec:
                     description: tlsVersions is a list of TLS protocol versions to
                       be used by the listener.
                     items:
-                      maxLength: 32
+                      description: ListenerTLSVersion is a TLS protocol version.
+                      enum:
+                      - SSLv3
+                      - TLSv1
+                      - TLSv1.1
+                      - TLSv1.2
+                      - TLSv1.3
                       type: string
                     maxItems: 10
                     type: array
@@ -566,6 +551,29 @@ spec:
                     maxItems: 256
                     type: array
                     x-kubernetes-list-type: atomic
+                  alpnProtocols:
+                    description: alpnProtocols is the list of ALPN protocols.
+                    items:
+                      maxLength: 32
+                      type: string
+                    maxItems: 10
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  clientAuthentication:
+                    description: clientAuthentication is the TLS client authentication
+                      mode.
+                    maxLength: 64
+                    type: string
+                  clientCATLSContainerURL:
+                    description: clientCATLSContainerURL is the URL of the client
+                      authentication CA certificate.
+                    maxLength: 1024
+                    type: string
+                  clientCRLContainerURL:
+                    description: clientCRLContainerURL is the URL of the client authentication
+                      revocation list.
+                    maxLength: 1024
+                    type: string
                   connectionLimit:
                     description: connectionLimit is the maximum number of connections
                       permitted for this listener.
@@ -576,11 +584,32 @@ spec:
                       listener.
                     maxLength: 1024
                     type: string
+                  defaultTLSContainerURL:
+                    description: defaultTLSContainerURL is the URL of the default
+                      TLS certificate bundle.
+                    maxLength: 1024
+                    type: string
                   description:
                     description: description is a human-readable description for the
                       resource.
                     maxLength: 1024
                     type: string
+                  hsts:
+                    description: hsts is the HTTP Strict Transport Security configuration.
+                    properties:
+                      includeSubDomains:
+                        description: includeSubDomains is whether HSTS applies to
+                          subdomains.
+                        type: boolean
+                      maxAge:
+                        description: maxAge is the HSTS max-age in seconds.
+                        format: int32
+                        type: integer
+                      preload:
+                        description: preload is whether the domain may be included
+                          in the browsers' preload list.
+                        type: boolean
+                    type: object
                   insertHeaders:
                     additionalProperties:
                       type: string
@@ -613,6 +642,15 @@ spec:
                       the listener.
                     maxLength: 1024
                     type: string
+                  sniContainerURLs:
+                    description: sniContainerURLs are the URLs of the SNI certificate
+                      bundles.
+                    items:
+                      maxLength: 1024
+                      type: string
+                    maxItems: 25
+                    type: array
+                    x-kubernetes-list-type: atomic
                   tags:
                     description: tags is the list of tags on the resource.
                     items:
@@ -641,6 +679,18 @@ spec:
                       TCP packets in milliseconds.
                     format: int32
                     type: integer
+                  tlsCiphers:
+                    description: tlsCiphers is the colon-separated list of TLS ciphers.
+                    maxLength: 2048
+                    type: string
+                  tlsVersions:
+                    description: tlsVersions is the list of TLS protocol versions.
+                    items:
+                      maxLength: 32
+                      type: string
+                    maxItems: 10
+                    type: array
+                    x-kubernetes-list-type: atomic
                 type: object
             type: object
         required:

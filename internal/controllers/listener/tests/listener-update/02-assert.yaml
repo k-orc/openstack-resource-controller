@@ -8,6 +8,9 @@ resourceRefs:
       ref: listener
 assertAll:
     - celExpr: "!has(listener.status.resource.description) || listener.status.resource.description == ''"
+    - celExpr: "!has(listener.status.resource.tags)"
+    - celExpr: "!has(listener.status.resource.allowedCIDRs)"
+    - celExpr: "!has(listener.status.resource.insertHeaders) || size(listener.status.resource.insertHeaders) == 0"
 ---
 apiVersion: openstack.k-orc.cloud/v1alpha1
 kind: Listener
@@ -16,6 +19,8 @@ metadata:
 status:
   resource:
     name: listener-update
+    adminStateUp: true
+    connectionLimit: -1
   conditions:
   - type: Available
     status: "True"

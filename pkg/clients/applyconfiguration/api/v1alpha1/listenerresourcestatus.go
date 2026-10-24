@@ -21,23 +21,32 @@ package v1alpha1
 // ListenerResourceStatusApplyConfiguration represents a declarative configuration of the ListenerResourceStatus type for use
 // with apply.
 type ListenerResourceStatusApplyConfiguration struct {
-	Name                 *string           `json:"name,omitempty"`
-	Description          *string           `json:"description,omitempty"`
-	LoadBalancerID       *string           `json:"loadBalancerID,omitempty"`
-	Protocol             *string           `json:"protocol,omitempty"`
-	ProtocolPort         *int32            `json:"protocolPort,omitempty"`
-	AdminStateUp         *bool             `json:"adminStateUp,omitempty"`
-	ConnectionLimit      *int32            `json:"connectionLimit,omitempty"`
-	DefaultPoolID        *string           `json:"defaultPoolID,omitempty"`
-	ProvisioningStatus   *string           `json:"provisioningStatus,omitempty"`
-	OperatingStatus      *string           `json:"operatingStatus,omitempty"`
-	AllowedCIDRs         []string          `json:"allowedCIDRs,omitempty"`
-	TimeoutClientData    *int32            `json:"timeoutClientData,omitempty"`
-	TimeoutMemberConnect *int32            `json:"timeoutMemberConnect,omitempty"`
-	TimeoutMemberData    *int32            `json:"timeoutMemberData,omitempty"`
-	TimeoutTCPInspect    *int32            `json:"timeoutTCPInspect,omitempty"`
-	InsertHeaders        map[string]string `json:"insertHeaders,omitempty"`
-	Tags                 []string          `json:"tags,omitempty"`
+	Name                    *string                               `json:"name,omitempty"`
+	Description             *string                               `json:"description,omitempty"`
+	LoadBalancerID          *string                               `json:"loadBalancerID,omitempty"`
+	Protocol                *string                               `json:"protocol,omitempty"`
+	ProtocolPort            *int32                                `json:"protocolPort,omitempty"`
+	AdminStateUp            *bool                                 `json:"adminStateUp,omitempty"`
+	ConnectionLimit         *int32                                `json:"connectionLimit,omitempty"`
+	DefaultPoolID           *string                               `json:"defaultPoolID,omitempty"`
+	ProvisioningStatus      *string                               `json:"provisioningStatus,omitempty"`
+	OperatingStatus         *string                               `json:"operatingStatus,omitempty"`
+	AllowedCIDRs            []string                              `json:"allowedCIDRs,omitempty"`
+	TimeoutClientData       *int32                                `json:"timeoutClientData,omitempty"`
+	TimeoutMemberConnect    *int32                                `json:"timeoutMemberConnect,omitempty"`
+	TimeoutMemberData       *int32                                `json:"timeoutMemberData,omitempty"`
+	TimeoutTCPInspect       *int32                                `json:"timeoutTCPInspect,omitempty"`
+	InsertHeaders           map[string]string                     `json:"insertHeaders,omitempty"`
+	DefaultTLSContainerURL  *string                               `json:"defaultTLSContainerURL,omitempty"`
+	SNIContainerURLs        []string                              `json:"sniContainerURLs,omitempty"`
+	TLSCiphers              *string                               `json:"tlsCiphers,omitempty"`
+	TLSVersions             []string                              `json:"tlsVersions,omitempty"`
+	ALPNProtocols           []string                              `json:"alpnProtocols,omitempty"`
+	ClientAuthentication    *string                               `json:"clientAuthentication,omitempty"`
+	ClientCATLSContainerURL *string                               `json:"clientCATLSContainerURL,omitempty"`
+	ClientCRLContainerURL   *string                               `json:"clientCRLContainerURL,omitempty"`
+	HSTS                    *ListenerHSTSStatusApplyConfiguration `json:"hsts,omitempty"`
+	Tags                    []string                              `json:"tags,omitempty"`
 }
 
 // ListenerResourceStatusApplyConfiguration constructs a declarative configuration of the ListenerResourceStatus type for use with
@@ -179,6 +188,84 @@ func (b *ListenerResourceStatusApplyConfiguration) WithInsertHeaders(entries map
 	for k, v := range entries {
 		b.InsertHeaders[k] = v
 	}
+	return b
+}
+
+// WithDefaultTLSContainerURL sets the DefaultTLSContainerURL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the DefaultTLSContainerURL field is set to the value of the last call.
+func (b *ListenerResourceStatusApplyConfiguration) WithDefaultTLSContainerURL(value string) *ListenerResourceStatusApplyConfiguration {
+	b.DefaultTLSContainerURL = &value
+	return b
+}
+
+// WithSNIContainerURLs adds the given value to the SNIContainerURLs field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the SNIContainerURLs field.
+func (b *ListenerResourceStatusApplyConfiguration) WithSNIContainerURLs(values ...string) *ListenerResourceStatusApplyConfiguration {
+	for i := range values {
+		b.SNIContainerURLs = append(b.SNIContainerURLs, values[i])
+	}
+	return b
+}
+
+// WithTLSCiphers sets the TLSCiphers field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the TLSCiphers field is set to the value of the last call.
+func (b *ListenerResourceStatusApplyConfiguration) WithTLSCiphers(value string) *ListenerResourceStatusApplyConfiguration {
+	b.TLSCiphers = &value
+	return b
+}
+
+// WithTLSVersions adds the given value to the TLSVersions field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the TLSVersions field.
+func (b *ListenerResourceStatusApplyConfiguration) WithTLSVersions(values ...string) *ListenerResourceStatusApplyConfiguration {
+	for i := range values {
+		b.TLSVersions = append(b.TLSVersions, values[i])
+	}
+	return b
+}
+
+// WithALPNProtocols adds the given value to the ALPNProtocols field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ALPNProtocols field.
+func (b *ListenerResourceStatusApplyConfiguration) WithALPNProtocols(values ...string) *ListenerResourceStatusApplyConfiguration {
+	for i := range values {
+		b.ALPNProtocols = append(b.ALPNProtocols, values[i])
+	}
+	return b
+}
+
+// WithClientAuthentication sets the ClientAuthentication field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ClientAuthentication field is set to the value of the last call.
+func (b *ListenerResourceStatusApplyConfiguration) WithClientAuthentication(value string) *ListenerResourceStatusApplyConfiguration {
+	b.ClientAuthentication = &value
+	return b
+}
+
+// WithClientCATLSContainerURL sets the ClientCATLSContainerURL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ClientCATLSContainerURL field is set to the value of the last call.
+func (b *ListenerResourceStatusApplyConfiguration) WithClientCATLSContainerURL(value string) *ListenerResourceStatusApplyConfiguration {
+	b.ClientCATLSContainerURL = &value
+	return b
+}
+
+// WithClientCRLContainerURL sets the ClientCRLContainerURL field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the ClientCRLContainerURL field is set to the value of the last call.
+func (b *ListenerResourceStatusApplyConfiguration) WithClientCRLContainerURL(value string) *ListenerResourceStatusApplyConfiguration {
+	b.ClientCRLContainerURL = &value
+	return b
+}
+
+// WithHSTS sets the HSTS field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the HSTS field is set to the value of the last call.
+func (b *ListenerResourceStatusApplyConfiguration) WithHSTS(value *ListenerHSTSStatusApplyConfiguration) *ListenerResourceStatusApplyConfiguration {
+	b.HSTS = value
 	return b
 }
 
