@@ -70,6 +70,7 @@ type Scope interface {
 	NewUserClient() (osclients.UserClient, error)
 	NewVolumeClient() (osclients.VolumeClient, error)
 	NewVolumeTypeClient() (osclients.VolumeTypeClient, error)
+	NewListenerClient() (osclients.ListenerClient, error)
 	NewLoadBalancerClient() (osclients.LoadBalancerClient, error)
 	ExtractToken() (*tokens.Token, error)
 	NewLimitClient() (osclients.LimitClient, error)

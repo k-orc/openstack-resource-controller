@@ -68,6 +68,12 @@ nameReference:
     path: spec/resource/keypairRef
   kind: KeyPair
 - fieldSpecs:
+  - kind: Listener
+    path: spec/import/filter/loadBalancerRef
+  - kind: Listener
+    path: spec/resource/loadBalancerRef
+  kind: LoadBalancer
+- fieldSpecs:
   - kind: FloatingIP
     path: spec/import/filter/floatingNetworkRef
   - kind: FloatingIP
@@ -213,6 +219,8 @@ nameReference:
   - kind: KeyPair
     path: spec/cloudCredentialsRef/secretName
   - kind: Limit
+    path: spec/cloudCredentialsRef/secretName
+  - kind: Listener
     path: spec/cloudCredentialsRef/secretName
   - kind: LoadBalancer
     path: spec/cloudCredentialsRef/secretName
