@@ -52,9 +52,7 @@ func NewIdentityClient(providerClient *gophercloud.ProviderClient, providerClien
 
 func (c identityClient) ListProjects(ctx context.Context, opts projects.ListOptsBuilder) iter.Seq2[*projects.Project, error] {
 	pager := projects.List(c.client, opts)
-	return func(yield func(*projects.Project, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(projects.ExtractProjects, yield))
-	}
+	return listResources(ctx, pager, projects.ExtractProjects)
 }
 
 func (c identityClient) CreateProject(ctx context.Context, opts projects.CreateOptsBuilder) (*projects.Project, error) {

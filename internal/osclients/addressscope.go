@@ -53,9 +53,7 @@ func NewAddressScopeClient(providerClient *gophercloud.ProviderClient, providerC
 
 func (c addressscopeClient) ListAddressScopes(ctx context.Context, listOpts addressscopes.ListOptsBuilder) iter.Seq2[*addressscopes.AddressScope, error] {
 	pager := addressscopes.List(c.client, listOpts)
-	return func(yield func(*addressscopes.AddressScope, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(addressscopes.ExtractAddressScopes, yield))
-	}
+	return listResources(ctx, pager, addressscopes.ExtractAddressScopes)
 }
 
 func (c addressscopeClient) CreateAddressScope(ctx context.Context, opts addressscopes.CreateOptsBuilder) (*addressscopes.AddressScope, error) {

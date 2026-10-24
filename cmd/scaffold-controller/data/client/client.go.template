@@ -53,9 +53,7 @@ func New{{ .Kind }}Client(providerClient *gophercloud.ProviderClient, providerCl
 
 func (c {{ .PackageName }}Client) List{{ .Kind | plural }}(ctx context.Context, listOpts {{ .GophercloudPackage }}.ListOptsBuilder) iter.Seq2[*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error] {
 	pager := {{ .GophercloudPackage }}.List(c.client, listOpts)
-	return func(yield func(*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage({{ .GophercloudPackage }}.Extract{{ .GophercloudType | plural }}, yield))
-	}
+	return listResources(ctx, pager, {{ .GophercloudPackage }}.Extract{{ .GophercloudType | plural }})
 }
 
 func (c {{ .PackageName }}Client) Create{{ .Kind }}(ctx context.Context, opts {{ .GophercloudPackage }}.CreateOptsBuilder) (*{{ .GophercloudPackage }}.{{ .GophercloudType }}, error) {

@@ -53,9 +53,7 @@ func NewServiceClient(providerClient *gophercloud.ProviderClient, providerClient
 
 func (c serviceClient) ListServices(ctx context.Context, listOpts services.ListOptsBuilder) iter.Seq2[*services.Service, error] {
 	pager := services.List(c.client, listOpts)
-	return func(yield func(*services.Service, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(services.ExtractServices, yield))
-	}
+	return listResources(ctx, pager, services.ExtractServices)
 }
 
 func (c serviceClient) CreateService(ctx context.Context, opts services.CreateOptsBuilder) (*services.Service, error) {

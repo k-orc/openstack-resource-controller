@@ -53,9 +53,7 @@ func NewUserClient(providerClient *gophercloud.ProviderClient, providerClientOpt
 
 func (c userClient) ListUsers(ctx context.Context, listOpts users.ListOptsBuilder) iter.Seq2[*users.User, error] {
 	pager := users.List(c.client, listOpts)
-	return func(yield func(*users.User, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(users.ExtractUsers, yield))
-	}
+	return listResources(ctx, pager, users.ExtractUsers)
 }
 
 func (c userClient) CreateUser(ctx context.Context, opts users.CreateOptsBuilder) (*users.User, error) {

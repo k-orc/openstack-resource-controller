@@ -184,16 +184,12 @@ func (c networkClient) ReplaceAllAttributesTags(ctx context.Context, resourceTyp
 
 func (c networkClient) ListRouter(ctx context.Context, opts routers.ListOpts) iter.Seq2[*routers.Router, error] {
 	pager := routers.List(c.serviceClient, opts)
-	return func(yield func(*routers.Router, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(routers.ExtractRouters, yield))
-	}
+	return listResources(ctx, pager, routers.ExtractRouters)
 }
 
 func (c networkClient) ListFloatingIP(ctx context.Context, opts floatingips.ListOptsBuilder) iter.Seq2[*floatingips.FloatingIP, error] {
 	pager := floatingips.List(c.serviceClient, opts)
-	return func(yield func(*floatingips.FloatingIP, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(floatingips.ExtractFloatingIPs, yield))
-	}
+	return listResources(ctx, pager, floatingips.ExtractFloatingIPs)
 }
 
 func (c networkClient) CreateFloatingIP(ctx context.Context, opts floatingips.CreateOptsBuilder) (*floatingips.FloatingIP, error) {
@@ -227,9 +223,7 @@ func (c networkClient) ListPort(ctx context.Context, opts ports.ListOptsBuilder)
 	}
 
 	pager := ports.List(c.serviceClient, opts)
-	return func(yield func(*PortExt, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(extractPortExt, yield))
-	}
+	return listResources(ctx, pager, extractPortExt)
 }
 
 func (c networkClient) CreatePort(ctx context.Context, opts ports.CreateOptsBuilder) (*PortExt, error) {
@@ -279,9 +273,7 @@ func (c networkClient) UpdateRouter(ctx context.Context, id string, opts routers
 
 func (c networkClient) ListSecGroup(ctx context.Context, opts groups.ListOpts) iter.Seq2[*groups.SecGroup, error] {
 	pager := groups.List(c.serviceClient, opts)
-	return func(yield func(*groups.SecGroup, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(groups.ExtractGroups, yield))
-	}
+	return listResources(ctx, pager, groups.ExtractGroups)
 }
 
 func (c networkClient) CreateSecGroup(ctx context.Context, opts groups.CreateOptsBuilder) (*groups.SecGroup, error) {
@@ -330,9 +322,7 @@ func (c networkClient) ListNetwork(ctx context.Context, opts networks.ListOptsBu
 		return resources, nil
 	}
 	pager := networks.List(c.serviceClient, opts)
-	return func(yield func(*NetworkExt, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(extractNetworkExt, yield))
-	}
+	return listResources(ctx, pager, extractNetworkExt)
 }
 
 func (c networkClient) CreateNetwork(ctx context.Context, opts networks.CreateOptsBuilder) (*NetworkExt, error) {
@@ -366,9 +356,7 @@ func (c networkClient) UpdateNetwork(ctx context.Context, id string, opts networ
 
 func (c networkClient) ListSubnet(ctx context.Context, opts subnets.ListOptsBuilder) iter.Seq2[*subnets.Subnet, error] {
 	pager := subnets.List(c.serviceClient, opts)
-	return func(yield func(*subnets.Subnet, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(subnets.ExtractSubnets, yield))
-	}
+	return listResources(ctx, pager, subnets.ExtractSubnets)
 }
 
 func (c networkClient) CreateSubnet(ctx context.Context, opts subnets.CreateOptsBuilder) (*subnets.Subnet, error) {
@@ -397,9 +385,7 @@ func (c networkClient) ListExtensions(ctx context.Context) ([]extensions.Extensi
 
 func (c networkClient) ListTrunks(ctx context.Context, listOpts trunks.ListOptsBuilder) iter.Seq2[*trunks.Trunk, error] {
 	pager := trunks.List(c.serviceClient, listOpts)
-	return func(yield func(*trunks.Trunk, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(trunks.ExtractTrunks, yield))
-	}
+	return listResources(ctx, pager, trunks.ExtractTrunks)
 }
 
 func (c networkClient) CreateTrunk(ctx context.Context, opts trunks.CreateOptsBuilder) (*trunks.Trunk, error) {

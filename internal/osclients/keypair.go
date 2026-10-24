@@ -53,9 +53,7 @@ func NewKeyPairClient(providerClient *gophercloud.ProviderClient, providerClient
 
 func (c keypairClient) ListKeyPairs(ctx context.Context, listOpts keypairs.ListOptsBuilder) iter.Seq2[*keypairs.KeyPair, error] {
 	pager := keypairs.List(c.client, listOpts)
-	return func(yield func(*keypairs.KeyPair, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(keypairs.ExtractKeyPairs, yield))
-	}
+	return listResources(ctx, pager, keypairs.ExtractKeyPairs)
 }
 
 func (c keypairClient) CreateKeyPair(ctx context.Context, opts keypairs.CreateOptsBuilder) (*keypairs.KeyPair, error) {

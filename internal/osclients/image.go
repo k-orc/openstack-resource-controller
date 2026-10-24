@@ -58,9 +58,7 @@ func NewImageClient(providerClient *gophercloud.ProviderClient, providerClientOp
 
 func (c imageClient) ListImages(ctx context.Context, listOpts images.ListOptsBuilder) iter.Seq2[*images.Image, error] {
 	pager := images.List(c.client, listOpts)
-	return func(yield func(*images.Image, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(images.ExtractImages, yield))
-	}
+	return listResources(ctx, pager, images.ExtractImages)
 }
 
 func (c imageClient) GetImage(ctx context.Context, id string) (*images.Image, error) {

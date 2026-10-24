@@ -56,9 +56,7 @@ func NewApplicationCredentialClient(providerClient *gophercloud.ProviderClient, 
 
 func (c applicationcredentialClient) ListApplicationCredentials(ctx context.Context, userID string, listOpts applicationcredentials.ListOptsBuilder) iter.Seq2[*applicationcredentials.ApplicationCredential, error] {
 	pager := applicationcredentials.List(c.client, userID, listOpts)
-	return func(yield func(*applicationcredentials.ApplicationCredential, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(applicationcredentials.ExtractApplicationCredentials, yield))
-	}
+	return listResources(ctx, pager, applicationcredentials.ExtractApplicationCredentials)
 }
 
 func (c applicationcredentialClient) CreateApplicationCredential(ctx context.Context, userID string, opts applicationcredentials.CreateOptsBuilder) (*applicationcredentials.ApplicationCredential, error) {
@@ -91,13 +89,11 @@ func (c applicationcredentialClient) GetApplicationCredential(ctx context.Contex
 
 	// If not found in currently authenticated user, try iterating over all users
 	userPager := users.List(c.client, nil)
-	userIterator := func(yield func(*users.User, error) bool) {
-		_ = userPager.EachPage(ctx, yieldPage(users.ExtractUsers, yield))
-	}
+	userIterator := listResources(ctx, userPager, users.ExtractUsers)
 
 	for user, userErr := range userIterator {
 		if userErr != nil {
-			continue
+			return nil, userErr
 		}
 
 		appCred, appCredErr := applicationcredentials.Get(ctx, c.client, user.ID, resourceID).Extract()

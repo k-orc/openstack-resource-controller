@@ -53,9 +53,7 @@ func NewVolumeClient(providerClient *gophercloud.ProviderClient, providerClientO
 
 func (c volumeClient) ListVolumes(ctx context.Context, listOpts volumes.ListOptsBuilder) iter.Seq2[*volumes.Volume, error] {
 	pager := volumes.List(c.client, listOpts)
-	return func(yield func(*volumes.Volume, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(volumes.ExtractVolumes, yield))
-	}
+	return listResources(ctx, pager, volumes.ExtractVolumes)
 }
 
 func (c volumeClient) CreateVolume(ctx context.Context, opts volumes.CreateOptsBuilder) (*volumes.Volume, error) {

@@ -123,9 +123,7 @@ func (c computeClient) DeleteFlavorExtraSpec(ctx context.Context, id, key string
 
 func (c computeClient) ListFlavors(ctx context.Context, opts flavors.ListOptsBuilder) iter.Seq2[*flavors.Flavor, error] {
 	pager := flavors.ListDetail(c.client, opts)
-	return func(yield func(*flavors.Flavor, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(flavors.ExtractFlavors, yield))
-	}
+	return listResources(ctx, pager, flavors.ExtractFlavors)
 }
 
 func (c computeClient) CreateServer(ctx context.Context, createOpts servers.CreateOptsBuilder, schedulerHints servers.SchedulerHintOptsBuilder) (*servers.Server, error) {
@@ -142,9 +140,7 @@ func (c computeClient) GetServer(ctx context.Context, serverID string) (*servers
 
 func (c computeClient) ListServers(ctx context.Context, opts servers.ListOptsBuilder) iter.Seq2[*servers.Server, error] {
 	pager := servers.List(c.client, opts)
-	return func(yield func(*servers.Server, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(servers.ExtractServers, yield))
-	}
+	return listResources(ctx, pager, servers.ExtractServers)
 }
 
 func (c computeClient) UpdateServer(ctx context.Context, id string, opts servers.UpdateOptsBuilder) (*servers.Server, error) {
@@ -181,9 +177,7 @@ func (c computeClient) GetServerGroup(ctx context.Context, serverGroupID string)
 
 func (c computeClient) ListServerGroups(ctx context.Context, opts servergroups.ListOptsBuilder) iter.Seq2[*servergroups.ServerGroup, error] {
 	pager := servergroups.List(c.client, opts)
-	return func(yield func(*servergroups.ServerGroup, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(servergroups.ExtractServerGroups, yield))
-	}
+	return listResources(ctx, pager, servergroups.ExtractServerGroups)
 }
 
 func (c computeClient) CreateVolumeAttachment(ctx context.Context, serverID string, createOpts volumeattach.CreateOptsBuilder) (*volumeattach.VolumeAttachment, error) {

@@ -53,9 +53,7 @@ func NewDomainClient(providerClient *gophercloud.ProviderClient, providerClientO
 
 func (c domainClient) ListDomains(ctx context.Context, listOpts domains.ListOptsBuilder) iter.Seq2[*domains.Domain, error] {
 	pager := domains.List(c.client, listOpts)
-	return func(yield func(*domains.Domain, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(domains.ExtractDomains, yield))
-	}
+	return listResources(ctx, pager, domains.ExtractDomains)
 }
 
 func (c domainClient) CreateDomain(ctx context.Context, opts domains.CreateOptsBuilder) (*domains.Domain, error) {

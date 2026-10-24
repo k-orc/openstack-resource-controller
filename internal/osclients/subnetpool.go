@@ -55,9 +55,7 @@ func NewSubnetPoolClient(providerClient *gophercloud.ProviderClient, providerCli
 
 func (c subnetpoolClient) ListSubnetPools(ctx context.Context, listOpts subnetpools.ListOptsBuilder) iter.Seq2[*subnetpools.SubnetPool, error] {
 	pager := subnetpools.List(c.client, listOpts)
-	return func(yield func(*subnetpools.SubnetPool, error) bool) {
-		_ = pager.EachPage(ctx, yieldPage(subnetpools.ExtractSubnetPools, yield))
-	}
+	return listResources(ctx, pager, subnetpools.ExtractSubnetPools)
 }
 
 func (c subnetpoolClient) CreateSubnetPool(ctx context.Context, opts subnetpools.CreateOptsBuilder) (*subnetpools.SubnetPool, error) {

@@ -1,11 +1,6 @@
 package osclients
 
-import (
-	"context"
-	"iter"
-
-	"github.com/gophercloud/gophercloud/v2/pagination"
-)
+import "iter"
 
 type result[T any] struct {
 	ok  T
@@ -65,27 +60,4 @@ func JustOne[T any, R Result[*T]](in <-chan R, duplicateError error) (*T, error)
 		found = ok
 	}
 	return found, nil
-}
-
-func yieldPage[osResourcePT *osResourceT, osResourceT any](extracter func(pagination.Page) ([]osResourceT, error), yield func(osResourcePT, error) bool) func(context.Context, pagination.Page) (bool, error) {
-	return func(ctx context.Context, page pagination.Page) (bool, error) {
-		pageItems, err := extracter(page)
-		if err != nil {
-			_ = yield(nil, err)
-			return false, err
-		}
-		for i := range pageItems {
-			select {
-			case <-ctx.Done():
-				err := ctx.Err()
-				_ = yield(nil, err)
-				return false, err
-			default:
-				if !yield(&pageItems[i], nil) {
-					return false, nil
-				}
-			}
-		}
-		return true, nil
-	}
 }
