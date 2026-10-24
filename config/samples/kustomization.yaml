@@ -12,6 +12,7 @@ resources:
 - openstack_v1alpha1_image.yaml
 - openstack_v1alpha1_keypair.yaml
 - openstack_v1alpha1_limit.yaml
+- openstack_v1alpha1_listener.yaml
 - openstack_v1alpha1_loadbalancer.yaml
 - openstack_v1alpha1_network.yaml
 - openstack_v1alpha1_port.yaml

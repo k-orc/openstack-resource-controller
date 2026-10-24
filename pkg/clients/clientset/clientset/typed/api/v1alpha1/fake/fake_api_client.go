@@ -72,6 +72,10 @@ func (c *FakeOpenstackV1alpha1) Limits(namespace string) v1alpha1.LimitInterface
 	return newFakeLimits(c, namespace)
 }
 
+func (c *FakeOpenstackV1alpha1) Listeners(namespace string) v1alpha1.ListenerInterface {
+	return newFakeListeners(c, namespace)
+}
+
 func (c *FakeOpenstackV1alpha1) LoadBalancers(namespace string) v1alpha1.LoadBalancerInterface {
 	return newFakeLoadBalancers(c, namespace)
 }

@@ -25,6 +25,7 @@ rules:
   - images
   - keypairs
   - limits
+  - listeners
   - loadbalancers
   - networks
   - ports
