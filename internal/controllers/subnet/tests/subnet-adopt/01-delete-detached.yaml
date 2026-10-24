@@ -1,0 +1,8 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Save the subnet's ID to check that step 03 adopts it rather than creating a new one.
+  - script: kubectl create configmap subnet-adopt --namespace $NAMESPACE --from-literal=id=$(kubectl get subnet.openstack.k-orc.cloud subnet-adopt-detached --namespace $NAMESPACE -o jsonpath='{.status.id}')
+  - command: kubectl delete subnet.openstack.k-orc.cloud subnet-adopt-detached
+    namespaced: true

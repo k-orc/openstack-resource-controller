@@ -1,0 +1,6 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+commands:
+- script: "! kubectl get subnet subnet-adopt-detached --namespace $NAMESPACE"
+  skipLogOutput: true

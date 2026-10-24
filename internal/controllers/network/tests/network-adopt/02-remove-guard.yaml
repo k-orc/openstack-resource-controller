@@ -1,0 +1,8 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Leave the project without the network deletion guard: the guard isn't removed when the
+  # network object is deleted, only when the project itself is.
+  - command: kubectl patch project.openstack.k-orc.cloud network-adopt --type=merge -p '{"metadata":{"finalizers":["openstack.k-orc.cloud/project"]}}'
+    namespaced: true

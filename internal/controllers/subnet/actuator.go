@@ -462,10 +462,23 @@ var _ reconcileResourceActuator = subnetActuator{}
 
 func (actuator subnetActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.reconcileDependencyGuards,
 		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "subnets", osResource.ID)),
 		actuator.ensureRouterInterface,
 		actuator.updateResource,
 	}, nil
+}
+
+// reconcileDependencyGuards adds the deletion guards to the subnet's dependencies. CreateResource
+// adds them before creating; this also covers an adopted subnet.
+func (actuator subnetActuator) reconcileDependencyGuards(ctx context.Context, obj orcObjectPT, _ *osResourceT) progress.ReconcileStatus {
+	var reconcileStatus progress.ReconcileStatus
+	_, rs := networkDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	_, rs = routerDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	reconcileStatus = reconcileStatus.WithReconcileStatus(rs)
+	_, rs = projectDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	return reconcileStatus.WithReconcileStatus(rs)
 }
 
 func (actuator subnetActuator) ensureRouterInterface(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {

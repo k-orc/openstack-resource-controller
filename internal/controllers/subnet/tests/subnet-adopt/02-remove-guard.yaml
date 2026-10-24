@@ -1,0 +1,8 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  # Leave the network without the subnet deletion guard: the guard isn't removed when the
+  # subnet object is deleted, only when the network itself is.
+  - command: kubectl patch network.openstack.k-orc.cloud subnet-adopt --type=merge -p '{"metadata":{"finalizers":["openstack.k-orc.cloud/network"]}}'
+    namespaced: true

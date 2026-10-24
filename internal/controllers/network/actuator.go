@@ -231,9 +231,17 @@ func (actuator networkActuator) DeleteResource(ctx context.Context, _ orcObjectP
 
 func (actuator networkActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {
 	return []resourceReconciler{
+		actuator.reconcileDependencyGuards,
 		tags.ReconcileTags[orcObjectPT, osResourceT](orcObject.Spec.Resource.Tags, osResource.Tags, tags.NewNeutronTagReplacer(actuator.osClient, "networks", osResource.ID)),
 		actuator.updateResource,
 	}, nil
+}
+
+// reconcileDependencyGuards adds the deletion guards to the network's dependencies. CreateResource
+// adds them before creating; this also covers an adopted network.
+func (actuator networkActuator) reconcileDependencyGuards(ctx context.Context, obj orcObjectPT, _ *osResourceT) progress.ReconcileStatus {
+	_, reconcileStatus := projectDependency.RequireDependencies(ctx, actuator.k8sClient, obj, orcv1alpha1.IsAvailable)
+	return reconcileStatus
 }
 
 func (actuator networkActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
