@@ -1,0 +1,36 @@
+---
+# The zone the import filter in 00-import-resource.yaml references - created here (not in
+# 00-) so the import object spends a step genuinely waiting on it, and created alongside the
+# trap share below so both land before 02- creates the real target share.
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZone
+metadata:
+  name: dnszoneshare-import
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: dnszoneshare-import.example.com.
+    email: admin@example.com
+---
+# This `dnszoneshare-import-not-this-one` resource serves two purposes:
+# - ensure that we can successfully create another resource with a different targetProjectID
+#   (i.e. it's not being adopted)
+# - ensure that importing a resource with the filter's targetProjectID will not pick this one,
+#   since it was created under the SAME zone but with a different targetProjectID - this is what
+#   actually exercises the client-side targetProjectID filter (Designate's zone-share list API
+#   has no server-side filter, see ListOSResourcesForImport's doc comment).
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: DNSZoneShare
+metadata:
+  name: dnszoneshare-import-not-this-one
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    zoneRef: dnszoneshare-import
+    targetProjectID: "3fac9d0b0e0e4b0e9b0e000000000027"

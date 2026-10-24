@@ -231,6 +231,10 @@ var resources []templateFields = []templateFields{
 		Name: "RecordSet",
 	},
 	{
+		Name:       "DNSZoneShare",
+		IsNotNamed: true,
+	},
+	{
 		Name:       "RegisteredLimit",
 		IsNotNamed: true,
 	},
