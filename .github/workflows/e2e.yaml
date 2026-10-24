@@ -33,19 +33,29 @@ jobs:
       with:
         persist-credentials: false
 
+    - name: Download pre-built amphora image
+      run: |
+        wget -q "https://tarballs.opendev.org/openstack/octavia/test-images/test-only-amphora-x64-haproxy-ubuntu-noble.qcow2" -O /tmp/amphora-x64-haproxy.qcow2
+
     - name: Deploy devstack
       uses: gophercloud/devstack-action@60ca1042045c0c9e3e001c64575d381654ffcba1 # tag=v0.19
       with:
         enable_workaround_docker_io: 'false'
         branch: ${{ matrix.openstack_version }}
-        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,neutron-uplink-status-propagation"
+        enabled_services: "openstack-cli-server,neutron-trunk,neutron-port-trusted-vif,neutron-uplink-status-propagation,octavia,o-api,o-cw,o-hm,o-hk,o-da"
         conf_overrides: |
           enable_plugin neutron https://github.com/openstack/neutron ${{ matrix.openstack_version }}
           enable_plugin manila https://github.com/openstack/manila ${{ matrix.openstack_version }}
           enable_plugin designate https://github.com/openstack/designate ${{ matrix.openstack_version }}
           DESIGNATE_BACKEND_DRIVER=bind9
+          enable_plugin octavia https://github.com/openstack/octavia ${{ matrix.openstack_version }}
+          OCTAVIA_AMP_IMAGE_FILE=/tmp/amphora-x64-haproxy.qcow2
+          LIBVIRT_CPU_MODE=host-passthrough
 
           [[post-config|/etc/nova/nova.conf]]
+          [quota]
+          instances = 50
+
           [filter_scheduler]
           enabled_filters = ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,SimpleCIDRAffinityFilter,JsonFilter
 
