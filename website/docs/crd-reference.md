@@ -2713,6 +2713,24 @@ _Appears in:_
 | `preload` _boolean_ | preload specifies whether the domain should be included in browsers' preload list. |  | Optional: \{\} <br /> |
 
 
+#### ListenerHSTSStatus
+
+
+
+ListenerHSTSStatus is the observed HTTP Strict Transport Security configuration.
+
+
+
+_Appears in:_
+- [ListenerResourceStatus](#listenerresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `maxAge` _integer_ | maxAge is the HSTS max-age in seconds. |  | Optional: \{\} <br /> |
+| `includeSubDomains` _boolean_ | includeSubDomains is whether HSTS applies to subdomains. |  | Optional: \{\} <br /> |
+| `preload` _boolean_ | preload is whether the domain may be included in the browsers' preload list. |  | Optional: \{\} <br /> |
+
+
 #### ListenerImport
 
 
@@ -2777,9 +2795,8 @@ _Appears in:_
 | `protocolPort` _integer_ | protocolPort is the port on which the listener will accept connections. |  | Maximum: 65535 <br />Minimum: 1 <br />Required: \{\} <br /> |
 | `adminStateUp` _boolean_ | adminStateUp is the administrative state of the listener, which is up (true) or down (false). |  | Optional: \{\} <br /> |
 | `connectionLimit` _integer_ | connectionLimit is the maximum number of connections permitted for this listener.<br />Default value is -1 which represents infinite connections. |  | Minimum: -1 <br />Optional: \{\} <br /> |
-| `defaultTLSContainerRef` _string_ | defaultTLSContainerRef is a reference to a secret containing a PKCS12 format<br />certificate/key bundle for TERMINATED_HTTPS listeners. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `sniContainerRefs` _string array_ | sniContainerRefs is a list of references to secrets containing PKCS12 format<br />certificate/key bundles for TERMINATED_HTTPS listeners using SNI. |  | MaxItems: 25 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
-| `defaultPoolRef` _[KubernetesNameRef](#kubernetesnameref)_ | defaultPoolRef is a reference to the default Pool for this listener. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `defaultTLSContainerURL` _string_ | defaultTLSContainerURL is the URL of a Barbican secret or container with the<br />PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `sniContainerURLs` _string array_ | sniContainerURLs are the URLs of Barbican secrets or containers with the<br />PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI. |  | MaxItems: 25 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 | `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of optional headers to insert into the request<br />before it is sent to the backend member. |  | Optional: \{\} <br /> |
 | `timeoutClientData` _integer_ | timeoutClientData is the frontend client inactivity timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
 | `timeoutMemberConnect` _integer_ | timeoutMemberConnect is the backend member connection timeout in milliseconds. |  | Minimum: 0 <br />Optional: \{\} <br /> |
@@ -2787,11 +2804,11 @@ _Appears in:_
 | `timeoutTCPInspect` _integer_ | timeoutTCPInspect is the time in milliseconds to wait for additional TCP packets<br />for content inspection. |  | Minimum: 0 <br />Optional: \{\} <br /> |
 | `allowedCIDRs` _string array_ | allowedCIDRs is a list of IPv4/IPv6 CIDRs that are permitted to connect to this listener. |  | MaxItems: 256 <br />items:MaxLength: 64 <br />Optional: \{\} <br /> |
 | `tlsCiphers` _string_ | tlsCiphers is a colon-separated list of ciphers for TLS-terminated listeners. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
-| `tlsVersions` _string array_ | tlsVersions is a list of TLS protocol versions to be used by the listener. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `tlsVersions` _[ListenerTLSVersion](#listenertlsversion) array_ | tlsVersions is a list of TLS protocol versions to be used by the listener. |  | Enum: [SSLv3 TLSv1 TLSv1.1 TLSv1.2 TLSv1.3] <br />MaxItems: 10 <br />Optional: \{\} <br /> |
 | `alpnProtocols` _string array_ | alpnProtocols is a list of ALPN protocols for TLS-enabled listeners. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
 | `clientAuthentication` _[ListenerClientAuthentication](#listenerclientauthentication)_ | clientAuthentication is the TLS client authentication mode. |  | Enum: [NONE OPTIONAL MANDATORY] <br />Optional: \{\} <br /> |
-| `clientCATLSContainerRef` _string_ | clientCATLSContainerRef is a reference to a secret containing the CA certificate<br />for client authentication. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
-| `clientCRLContainerRef` _string_ | clientCRLContainerRef is a reference to a secret containing the CA revocation list<br />for client authentication. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `clientCATLSContainerURL` _string_ | clientCATLSContainerURL is the URL of a Barbican secret with the CA<br />certificate for client authentication. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `clientCRLContainerURL` _string_ | clientCRLContainerURL is the URL of a Barbican secret with the CA<br />revocation list for client authentication. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
 | `hsts` _[ListenerHSTS](#listenerhsts)_ | hsts is the HTTP Strict Transport Security configuration. |  | Optional: \{\} <br /> |
 | `tags` _[ListenerTag](#listenertag) array_ | tags is a list of tags which will be applied to the listener. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
 
@@ -2825,6 +2842,15 @@ _Appears in:_
 | `timeoutMemberData` _integer_ | timeoutMemberData is the backend member inactivity timeout in milliseconds. |  | Optional: \{\} <br /> |
 | `timeoutTCPInspect` _integer_ | timeoutTCPInspect is the time to wait for additional TCP packets in milliseconds. |  | Optional: \{\} <br /> |
 | `insertHeaders` _object (keys:string, values:string)_ | insertHeaders is a dictionary of headers inserted into the request. |  | Optional: \{\} <br /> |
+| `defaultTLSContainerURL` _string_ | defaultTLSContainerURL is the URL of the default TLS certificate bundle. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `sniContainerURLs` _string array_ | sniContainerURLs are the URLs of the SNI certificate bundles. |  | MaxItems: 25 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `tlsCiphers` _string_ | tlsCiphers is the colon-separated list of TLS ciphers. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
+| `tlsVersions` _string array_ | tlsVersions is the list of TLS protocol versions. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `alpnProtocols` _string array_ | alpnProtocols is the list of ALPN protocols. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `clientAuthentication` _string_ | clientAuthentication is the TLS client authentication mode. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `clientCATLSContainerURL` _string_ | clientCATLSContainerURL is the URL of the client authentication CA certificate. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `clientCRLContainerURL` _string_ | clientCRLContainerURL is the URL of the client authentication revocation list. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `hsts` _[ListenerHSTSStatus](#listenerhstsstatus)_ | hsts is the HTTP Strict Transport Security configuration. |  | Optional: \{\} <br /> |
 | `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
 
 
@@ -2866,6 +2892,20 @@ _Appears in:_
 | `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
 | `resource` _[ListenerResourceStatus](#listenerresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
 | `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### ListenerTLSVersion
+
+_Underlying type:_ _string_
+
+ListenerTLSVersion is a TLS protocol version.
+
+_Validation:_
+- Enum: [SSLv3 TLSv1 TLSv1.1 TLSv1.2 TLSv1.3]
+
+_Appears in:_
+- [ListenerResourceSpec](#listenerresourcespec)
+
 
 
 #### ListenerTag

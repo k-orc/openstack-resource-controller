@@ -10,7 +10,7 @@ Update all mutable fields.
 
 ## Step 02
 
-Revert the resource to its original value and verify that the resulting object matches its state when first created.
+Revert the resource to its original value and verify that the resulting object matches its state when first created. Timeouts are not reset: their defaults depend on the Octavia deployment.
 
 ## Reference
 

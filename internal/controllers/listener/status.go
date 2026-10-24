@@ -100,6 +100,45 @@ func (listenerStatusWriter) ApplyResourceStatus(log logr.Logger, osResource *osR
 		resourceStatus.WithInsertHeaders(osResource.InsertHeaders)
 	}
 
+	if osResource.DefaultTlsContainerRef != "" {
+		resourceStatus.WithDefaultTLSContainerURL(osResource.DefaultTlsContainerRef)
+	}
+
+	if len(osResource.SniContainerRefs) > 0 {
+		resourceStatus.WithSNIContainerURLs(osResource.SniContainerRefs...)
+	}
+
+	if osResource.TLSCiphers != "" {
+		resourceStatus.WithTLSCiphers(osResource.TLSCiphers)
+	}
+
+	if len(osResource.TLSVersions) > 0 {
+		resourceStatus.WithTLSVersions(osResource.TLSVersions...)
+	}
+
+	if len(osResource.ALPNProtocols) > 0 {
+		resourceStatus.WithALPNProtocols(osResource.ALPNProtocols...)
+	}
+
+	if osResource.ClientAuthentication != "" {
+		resourceStatus.WithClientAuthentication(osResource.ClientAuthentication)
+	}
+
+	if osResource.ClientCATLSContainerRef != "" {
+		resourceStatus.WithClientCATLSContainerURL(osResource.ClientCATLSContainerRef)
+	}
+
+	if osResource.ClientCRLContainerRef != "" {
+		resourceStatus.WithClientCRLContainerURL(osResource.ClientCRLContainerRef)
+	}
+
+	if osResource.HSTSMaxAge != 0 || osResource.HSTSIncludeSubdomains || osResource.HSTSPreload {
+		resourceStatus.WithHSTS(orcapplyconfigv1alpha1.ListenerHSTSStatus().
+			WithMaxAge(int32(osResource.HSTSMaxAge)).
+			WithIncludeSubDomains(osResource.HSTSIncludeSubdomains).
+			WithPreload(osResource.HSTSPreload))
+	}
+
 	if len(osResource.Tags) > 0 {
 		resourceStatus.WithTags(osResource.Tags...)
 	}

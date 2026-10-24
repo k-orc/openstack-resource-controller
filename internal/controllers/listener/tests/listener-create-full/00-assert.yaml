@@ -9,7 +9,11 @@ status:
     description: Listener from create full test
     protocol: HTTPS
     protocolPort: 443
+    adminStateUp: true
     connectionLimit: 1000
+    timeoutClientData: 50000
+    timeoutMemberConnect: 5000
+    timeoutMemberData: 50000
     provisioningStatus: ACTIVE
   conditions:
   - type: Available
@@ -34,3 +38,5 @@ assertAll:
     # Dynamic checks that require CEL
     - celExpr: "listener.status.id != ''"
     - celExpr: "listener.status.resource.loadBalancerID == loadBalancer.status.id"
+    - celExpr: "size(listener.status.resource.allowedCIDRs) == 2 && '10.0.0.0/8' in listener.status.resource.allowedCIDRs && '192.168.0.0/16' in listener.status.resource.allowedCIDRs"
+    - celExpr: "size(listener.status.resource.tags) == 2 && 'test' in listener.status.resource.tags && 'listener' in listener.status.resource.tags"

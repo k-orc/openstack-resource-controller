@@ -1881,6 +1881,18 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: preload
       type:
         scalar: boolean
+- name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ListenerHSTSStatus
+  map:
+    fields:
+    - name: includeSubDomains
+      type:
+        scalar: boolean
+    - name: maxAge
+      type:
+        scalar: numeric
+    - name: preload
+      type:
+        scalar: boolean
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ListenerImport
   map:
     fields:
@@ -1911,19 +1923,16 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: clientAuthentication
       type:
         scalar: string
-    - name: clientCATLSContainerRef
+    - name: clientCATLSContainerURL
       type:
         scalar: string
-    - name: clientCRLContainerRef
+    - name: clientCRLContainerURL
       type:
         scalar: string
     - name: connectionLimit
       type:
         scalar: numeric
-    - name: defaultPoolRef
-      type:
-        scalar: string
-    - name: defaultTLSContainerRef
+    - name: defaultTLSContainerURL
       type:
         scalar: string
     - name: description
@@ -1949,7 +1958,7 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: protocolPort
       type:
         scalar: numeric
-    - name: sniContainerRefs
+    - name: sniContainerURLs
       type:
         list:
           elementType:
@@ -1994,15 +2003,36 @@ var schemaYAML = typed.YAMLObject(`types:
           elementType:
             scalar: string
           elementRelationship: atomic
+    - name: alpnProtocols
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
+    - name: clientAuthentication
+      type:
+        scalar: string
+    - name: clientCATLSContainerURL
+      type:
+        scalar: string
+    - name: clientCRLContainerURL
+      type:
+        scalar: string
     - name: connectionLimit
       type:
         scalar: numeric
     - name: defaultPoolID
       type:
         scalar: string
+    - name: defaultTLSContainerURL
+      type:
+        scalar: string
     - name: description
       type:
         scalar: string
+    - name: hsts
+      type:
+        namedType: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ListenerHSTSStatus
     - name: insertHeaders
       type:
         map:
@@ -2026,6 +2056,12 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: provisioningStatus
       type:
         scalar: string
+    - name: sniContainerURLs
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
     - name: tags
       type:
         list:
@@ -2044,6 +2080,15 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: timeoutTCPInspect
       type:
         scalar: numeric
+    - name: tlsCiphers
+      type:
+        scalar: string
+    - name: tlsVersions
+      type:
+        list:
+          elementType:
+            scalar: string
+          elementRelationship: atomic
 - name: com.github.k-orc.openstack-resource-controller.v3.api.v1alpha1.ListenerSpec
   map:
     fields:

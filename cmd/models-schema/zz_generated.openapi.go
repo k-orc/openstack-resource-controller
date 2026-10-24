@@ -149,6 +149,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.Listener":                              schema_openstack_resource_controller_v3_api_v1alpha1_Listener(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerFilter":                        schema_openstack_resource_controller_v3_api_v1alpha1_ListenerFilter(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTS":                          schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTS(ref),
+		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTSStatus":                    schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTSStatus(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerImport":                        schema_openstack_resource_controller_v3_api_v1alpha1_ListenerImport(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerList":                          schema_openstack_resource_controller_v3_api_v1alpha1_ListenerList(ref),
 		"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerResourceSpec":                  schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(ref),
@@ -6529,6 +6530,40 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTS(ref commo
 	}
 }
 
+func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerHSTSStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ListenerHSTSStatus is the observed HTTP Strict Transport Security configuration.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"maxAge": {
+						SchemaProps: spec.SchemaProps{
+							Description: "maxAge is the HSTS max-age in seconds.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"includeSubDomains": {
+						SchemaProps: spec.SchemaProps{
+							Description: "includeSubDomains is whether HSTS applies to subdomains.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"preload": {
+						SchemaProps: spec.SchemaProps{
+							Description: "preload is whether the domain may be included in the browsers' preload list.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerImport(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -6664,21 +6699,21 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(r
 							Format:      "int32",
 						},
 					},
-					"defaultTLSContainerRef": {
+					"defaultTLSContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "defaultTLSContainerRef is a reference to a secret containing a PKCS12 format certificate/key bundle for TERMINATED_HTTPS listeners.",
+							Description: "defaultTLSContainerURL is the URL of a Barbican secret or container with the PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"sniContainerRefs": {
+					"sniContainerURLs": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
 								"x-kubernetes-list-type": "set",
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "sniContainerRefs is a list of references to secrets containing PKCS12 format certificate/key bundles for TERMINATED_HTTPS listeners using SNI.",
+							Description: "sniContainerURLs are the URLs of Barbican secrets or containers with the PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -6689,13 +6724,6 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(r
 									},
 								},
 							},
-						},
-					},
-					"defaultPoolRef": {
-						SchemaProps: spec.SchemaProps{
-							Description: "defaultPoolRef is a reference to the default Pool for this listener.",
-							Type:        []string{"string"},
-							Format:      "",
 						},
 					},
 					"insertHeaders": {
@@ -6816,16 +6844,16 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceSpec(r
 							Format:      "",
 						},
 					},
-					"clientCATLSContainerRef": {
+					"clientCATLSContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "clientCATLSContainerRef is a reference to a secret containing the CA certificate for client authentication.",
+							Description: "clientCATLSContainerURL is the URL of a Barbican secret with the CA certificate for client authentication.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"clientCRLContainerRef": {
+					"clientCRLContainerURL": {
 						SchemaProps: spec.SchemaProps{
-							Description: "clientCRLContainerRef is a reference to a secret containing the CA revocation list for client authentication.",
+							Description: "clientCRLContainerURL is the URL of a Barbican secret with the CA revocation list for client authentication.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -7006,6 +7034,107 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceStatus
 							},
 						},
 					},
+					"defaultTLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "defaultTLSContainerURL is the URL of the default TLS certificate bundle.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sniContainerURLs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "sniContainerURLs are the URLs of the SNI certificate bundles.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"tlsCiphers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsCiphers is the colon-separated list of TLS ciphers.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tlsVersions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "tlsVersions is the list of TLS protocol versions.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"alpnProtocols": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "alpnProtocols is the list of ALPN protocols.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"clientAuthentication": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientAuthentication is the TLS client authentication mode.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientCATLSContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientCATLSContainerURL is the URL of the client authentication CA certificate.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientCRLContainerURL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "clientCRLContainerURL is the URL of the client authentication revocation list.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"hsts": {
+						SchemaProps: spec.SchemaProps{
+							Description: "hsts is the HTTP Strict Transport Security configuration.",
+							Ref:         ref("github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTSStatus"),
+						},
+					},
 					"tags": {
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
@@ -7029,6 +7158,8 @@ func schema_openstack_resource_controller_v3_api_v1alpha1_ListenerResourceStatus
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/k-orc/openstack-resource-controller/v3/api/v1alpha1.ListenerHSTSStatus"},
 	}
 }
 

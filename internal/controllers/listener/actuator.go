@@ -19,6 +19,8 @@ package listener
 import (
 	"context"
 	"iter"
+	"maps"
+	"slices"
 	"time"
 
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/listeners"
@@ -34,6 +36,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/osclients"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/util/dependency"
 	orcerrors "github.com/k-orc/openstack-resource-controller/v3/internal/util/errors"
+	orcslices "github.com/k-orc/openstack-resource-controller/v3/internal/util/slices"
 )
 
 // OpenStack resource types
@@ -80,10 +83,19 @@ func (actuator listenerActuator) ListOSResourcesForAdoption(ctx context.Context,
 		return nil, false
 	}
 
+	loadBalancer, rs := dependency.FetchDependency[*orcv1alpha1.LoadBalancer](
+		ctx, actuator.k8sClient, orcObject.Namespace, &resourceSpec.LoadBalancerRef, "LoadBalancer",
+		orcv1alpha1.IsAvailable,
+	)
+	if needsReschedule, _ := rs.NeedsReschedule(); needsReschedule {
+		return nil, false
+	}
+
 	listOpts := listeners.ListOpts{
-		Name:         getResourceName(orcObject),
-		Protocol:     string(resourceSpec.Protocol),
-		ProtocolPort: int(resourceSpec.ProtocolPort),
+		Name:           getResourceName(orcObject),
+		LoadbalancerID: ptr.Deref(loadBalancer.Status.ID, ""),
+		Protocol:       string(resourceSpec.Protocol),
+		ProtocolPort:   int(resourceSpec.ProtocolPort),
 	}
 
 	return actuator.osClient.ListListeners(ctx, listOpts), true
@@ -106,9 +118,56 @@ func (actuator listenerActuator) ListOSResourcesForImport(ctx context.Context, o
 	listOpts := listeners.ListOpts{
 		Name:           string(ptr.Deref(filter.Name, "")),
 		LoadbalancerID: ptr.Deref(loadBalancer.Status.ID, ""),
+		Protocol:       string(ptr.Deref(filter.Protocol, "")),
+		ProtocolPort:   int(ptr.Deref(filter.ProtocolPort, 0)),
+		Tags:           tagsToStrings(filter.Tags),
 	}
 
-	return actuator.osClient.ListListeners(ctx, listOpts), reconcileStatus
+	// The listener API has no server-side filter for these.
+	var filters []osclients.ResourceFilter[osResourceT]
+	if filter.Description != nil {
+		filters = append(filters, func(l *osResourceT) bool { return l.Description == *filter.Description })
+	}
+	if len(filter.TagsAny) > 0 {
+		filters = append(filters, func(l *osResourceT) bool { return hasAnyTag(l.Tags, filter.TagsAny) })
+	}
+	if len(filter.NotTags) > 0 {
+		filters = append(filters, func(l *osResourceT) bool { return !hasAllTags(l.Tags, filter.NotTags) })
+	}
+	if len(filter.NotTagsAny) > 0 {
+		filters = append(filters, func(l *osResourceT) bool { return !hasAnyTag(l.Tags, filter.NotTagsAny) })
+	}
+
+	return osclients.Filter(actuator.osClient.ListListeners(ctx, listOpts), filters...), reconcileStatus
+}
+
+func tagsToStrings(tags []orcv1alpha1.ListenerTag) []string {
+	if len(tags) == 0 {
+		return nil
+	}
+	out := make([]string, len(tags))
+	for i := range tags {
+		out[i] = string(tags[i])
+	}
+	return out
+}
+
+func hasAllTags(have []string, want []orcv1alpha1.ListenerTag) bool {
+	for _, tag := range want {
+		if !slices.Contains(have, string(tag)) {
+			return false
+		}
+	}
+	return true
+}
+
+func hasAnyTag(have []string, want []orcv1alpha1.ListenerTag) bool {
+	for _, tag := range want {
+		if slices.Contains(have, string(tag)) {
+			return true
+		}
+	}
+	return false
 }
 
 func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObjectPT) (*osResourceT, progress.ReconcileStatus) {
@@ -131,50 +190,33 @@ func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObje
 	}
 
 	createOpts := listeners.CreateOpts{
-		Name:                   getResourceName(obj),
-		Description:            ptr.Deref(resource.Description, ""),
-		LoadbalancerID:         loadBalancerID,
-		Protocol:               listeners.Protocol(resource.Protocol),
-		ProtocolPort:           int(resource.ProtocolPort),
-		AdminStateUp:           resource.AdminStateUp,
-		DefaultTlsContainerRef: ptr.Deref(resource.DefaultTLSContainerRef, ""),
+		Name:                    getResourceName(obj),
+		Description:             ptr.Deref(resource.Description, ""),
+		LoadbalancerID:          loadBalancerID,
+		Protocol:                listeners.Protocol(resource.Protocol),
+		ProtocolPort:            int(resource.ProtocolPort),
+		AdminStateUp:            resource.AdminStateUp,
+		ConnLimit:               int32PtrToInt(resource.ConnectionLimit),
+		TimeoutClientData:       int32PtrToInt(resource.TimeoutClientData),
+		TimeoutMemberConnect:    int32PtrToInt(resource.TimeoutMemberConnect),
+		TimeoutMemberData:       int32PtrToInt(resource.TimeoutMemberData),
+		TimeoutTCPInspect:       int32PtrToInt(resource.TimeoutTCPInspect),
+		InsertHeaders:           resource.InsertHeaders,
+		AllowedCIDRs:            resource.AllowedCIDRs,
+		DefaultTlsContainerRef:  ptr.Deref(resource.DefaultTLSContainerURL, ""),
+		SniContainerRefs:        resource.SNIContainerURLs,
+		TLSCiphers:              ptr.Deref(resource.TLSCiphers, ""),
+		TLSVersions:             tlsVersions(resource.TLSVersions),
+		ALPNProtocols:           resource.ALPNProtocols,
+		ClientAuthentication:    listeners.ClientAuthentication(ptr.Deref(resource.ClientAuthentication, "")),
+		ClientCATLSContainerRef: ptr.Deref(resource.ClientCATLSContainerURL, ""),
+		ClientCRLContainerRef:   ptr.Deref(resource.ClientCRLContainerURL, ""),
+		Tags:                    tagsToStrings(resource.Tags),
 	}
-
-	if resource.ConnectionLimit != nil {
-		connLimit := int(*resource.ConnectionLimit)
-		createOpts.ConnLimit = &connLimit
-	}
-	if resource.TimeoutClientData != nil {
-		timeout := int(*resource.TimeoutClientData)
-		createOpts.TimeoutClientData = &timeout
-	}
-	if resource.TimeoutMemberConnect != nil {
-		timeout := int(*resource.TimeoutMemberConnect)
-		createOpts.TimeoutMemberConnect = &timeout
-	}
-	if resource.TimeoutMemberData != nil {
-		timeout := int(*resource.TimeoutMemberData)
-		createOpts.TimeoutMemberData = &timeout
-	}
-	if resource.TimeoutTCPInspect != nil {
-		timeout := int(*resource.TimeoutTCPInspect)
-		createOpts.TimeoutTCPInspect = &timeout
-	}
-
-	if len(resource.Tags) > 0 {
-		tags := make([]string, len(resource.Tags))
-		for i := range resource.Tags {
-			tags[i] = string(resource.Tags[i])
-		}
-		createOpts.Tags = tags
-	}
-
-	if len(resource.AllowedCIDRs) > 0 {
-		createOpts.AllowedCIDRs = resource.AllowedCIDRs
-	}
-
-	if resource.InsertHeaders != nil {
-		createOpts.InsertHeaders = resource.InsertHeaders
+	if hsts := resource.HSTS; hsts != nil {
+		createOpts.HSTSMaxAge = int(ptr.Deref(hsts.MaxAge, 0))
+		createOpts.HSTSIncludeSubdomains = ptr.Deref(hsts.IncludeSubDomains, false)
+		createOpts.HSTSPreload = ptr.Deref(hsts.Preload, false)
 	}
 
 	osResource, err := actuator.osClient.CreateListener(ctx, createOpts)
@@ -196,17 +238,17 @@ func (actuator listenerActuator) CreateResource(ctx context.Context, obj orcObje
 func (actuator listenerActuator) DeleteResource(ctx context.Context, _ orcObjectPT, resource *osResourceT) progress.ReconcileStatus {
 	switch resource.ProvisioningStatus {
 	case ListenerProvisioningStatusPendingDelete:
-		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerDeletingPollingPeriod)
+		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, listenerDeletingPollingPeriod)
 	case ListenerProvisioningStatusPendingCreate, ListenerProvisioningStatusPendingUpdate:
-		// We can't delete a loadbalancer that's in a pending state, so we need to wait for it to become ACTIVE
+		// We can't delete a listener that's in a pending state, so we need to wait for it to become ACTIVE
 		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerDeletingPollingPeriod)
 	}
 
 	err := actuator.osClient.DeleteListener(ctx, resource.ID)
-	// 409 Conflict means the loadbalancer is already in PENDING_DELETE state.
-	// Treat this as success and let the controller poll for deletion completion.
+	// 409 Conflict means the listener or its load balancer is in a pending state.
+	// Let the controller poll for deletion completion.
 	if orcerrors.IsConflict(err) {
-		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerDeletingPollingPeriod)
+		return progress.WaitingOnOpenStack(progress.WaitingOnDeletion, listenerDeletingPollingPeriod)
 	}
 
 	return progress.WrapError(err)
@@ -214,12 +256,29 @@ func (actuator listenerActuator) DeleteResource(ctx context.Context, _ orcObject
 
 func (actuator listenerActuator) updateResource(ctx context.Context, obj orcObjectPT, osResource *osResourceT) progress.ReconcileStatus {
 	log := ctrl.LoggerFrom(ctx)
+
+	// Octavia rejects updates to a listener in a pending state
+	switch osResource.ProvisioningStatus {
+	case ListenerProvisioningStatusPendingCreate,
+		ListenerProvisioningStatusPendingUpdate,
+		ListenerProvisioningStatusPendingDelete:
+		return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerAvailablePollingPeriod)
+	}
+
 	resource := obj.Spec.Resource
 
 	updateOpts := listeners.UpdateOpts{}
 
 	handleNameUpdate(&updateOpts, obj, osResource)
 	handleDescriptionUpdate(&updateOpts, resource, osResource)
+	handleAdminStateUpdate(&updateOpts, resource, osResource)
+	handleConnectionLimitUpdate(&updateOpts, resource, osResource)
+	handleTimeoutsUpdate(&updateOpts, resource, osResource)
+	handleInsertHeadersUpdate(&updateOpts, resource, osResource)
+	handleAllowedCIDRsUpdate(&updateOpts, resource, osResource)
+	handleTLSUpdate(&updateOpts, resource, osResource)
+	handleHSTSUpdate(&updateOpts, resource, osResource)
+	handleTagsUpdate(&updateOpts, resource, osResource)
 
 	needsUpdate, err := needsUpdate(updateOpts)
 	if err != nil {
@@ -232,13 +291,14 @@ func (actuator listenerActuator) updateResource(ctx context.Context, obj orcObje
 	}
 
 	_, err = actuator.osClient.UpdateListener(ctx, osResource.ID, updateOpts)
-
-	// We should require the spec to be updated before retrying an update which returned a conflict
-	if orcerrors.IsConflict(err) {
-		err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
-	}
-
 	if err != nil {
+		// 409 Conflict means the listener or its load balancer is in a pending state.
+		if orcerrors.IsConflict(err) {
+			return progress.WaitingOnOpenStack(progress.WaitingOnReady, listenerAvailablePollingPeriod)
+		}
+		if !orcerrors.IsRetryable(err) {
+			err = orcerrors.Terminal(orcv1alpha1.ConditionReasonInvalidConfiguration, "invalid configuration updating resource: "+err.Error(), err)
+		}
 		return progress.WrapError(err)
 	}
 
@@ -271,6 +331,135 @@ func handleDescriptionUpdate(updateOpts *listeners.UpdateOpts, resource *resourc
 	if osResource.Description != description {
 		updateOpts.Description = &description
 	}
+}
+
+func handleAdminStateUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default to true if not specified (OpenStack default)
+	adminStateUp := ptr.Deref(resource.AdminStateUp, true)
+	if osResource.AdminStateUp != adminStateUp {
+		updateOpts.AdminStateUp = &adminStateUp
+	}
+}
+
+func handleConnectionLimitUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	// Default to -1 (unlimited) if not specified (OpenStack default)
+	connLimit := int(ptr.Deref(resource.ConnectionLimit, -1))
+	if osResource.ConnLimit != connLimit {
+		updateOpts.ConnLimit = &connLimit
+	}
+}
+
+// Timeout defaults are set by the Octavia deployment, so we only update the ones that are set.
+func handleTimeoutsUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	updateIfSet := func(desired *int32, current int, opt **int) {
+		if desired != nil && int(*desired) != current {
+			*opt = ptr.To(int(*desired))
+		}
+	}
+	updateIfSet(resource.TimeoutClientData, osResource.TimeoutClientData, &updateOpts.TimeoutClientData)
+	updateIfSet(resource.TimeoutMemberConnect, osResource.TimeoutMemberConnect, &updateOpts.TimeoutMemberConnect)
+	updateIfSet(resource.TimeoutMemberData, osResource.TimeoutMemberData, &updateOpts.TimeoutMemberData)
+	updateIfSet(resource.TimeoutTCPInspect, osResource.TimeoutTCPInspect, &updateOpts.TimeoutTCPInspect)
+}
+
+func handleInsertHeadersUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if !maps.Equal(resource.InsertHeaders, osResource.InsertHeaders) {
+		insertHeaders := resource.InsertHeaders
+		if insertHeaders == nil {
+			insertHeaders = map[string]string{}
+		}
+		updateOpts.InsertHeaders = &insertHeaders
+	}
+}
+
+func handleAllowedCIDRsUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	if !orcslices.EqualAsSets(resource.AllowedCIDRs, osResource.AllowedCIDRs) {
+		allowedCIDRs := append([]string{}, resource.AllowedCIDRs...)
+		updateOpts.AllowedCIDRs = &allowedCIDRs
+	}
+}
+
+// The TLS settings only apply to TERMINATED_HTTPS listeners, and some have deployment defaults,
+// so apart from the SNI list we only update the ones that are set.
+func handleTLSUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	updateIfSet := func(desired *string, current string, opt **string) {
+		if desired != nil && *desired != current {
+			*opt = ptr.To(*desired)
+		}
+	}
+	updateIfSet(resource.DefaultTLSContainerURL, osResource.DefaultTlsContainerRef, &updateOpts.DefaultTlsContainerRef)
+	updateIfSet(resource.TLSCiphers, osResource.TLSCiphers, &updateOpts.TLSCiphers)
+	updateIfSet(resource.ClientCATLSContainerURL, osResource.ClientCATLSContainerRef, &updateOpts.ClientCATLSContainerRef)
+	updateIfSet(resource.ClientCRLContainerURL, osResource.ClientCRLContainerRef, &updateOpts.ClientCRLContainerRef)
+
+	if !orcslices.EqualAsSets(resource.SNIContainerURLs, osResource.SniContainerRefs) {
+		sniContainerRefs := append([]string{}, resource.SNIContainerURLs...)
+		updateOpts.SniContainerRefs = &sniContainerRefs
+	}
+
+	if resource.TLSVersions != nil {
+		desired := tlsVersions(resource.TLSVersions)
+		current := make([]listeners.TLSVersion, len(osResource.TLSVersions))
+		for i := range osResource.TLSVersions {
+			current[i] = listeners.TLSVersion(osResource.TLSVersions[i])
+		}
+		if !orcslices.EqualAsSets(desired, current) {
+			updateOpts.TLSVersions = &desired
+		}
+	}
+
+	if resource.ALPNProtocols != nil && !orcslices.EqualAsSets(resource.ALPNProtocols, osResource.ALPNProtocols) {
+		alpnProtocols := append([]string{}, resource.ALPNProtocols...)
+		updateOpts.ALPNProtocols = &alpnProtocols
+	}
+
+	if resource.ClientAuthentication != nil && string(*resource.ClientAuthentication) != osResource.ClientAuthentication {
+		updateOpts.ClientAuthentication = ptr.To(listeners.ClientAuthentication(*resource.ClientAuthentication))
+	}
+}
+
+func handleHSTSUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	hsts := resource.HSTS
+	if hsts == nil {
+		return
+	}
+	if hsts.MaxAge != nil && int(*hsts.MaxAge) != osResource.HSTSMaxAge {
+		updateOpts.HSTSMaxAge = ptr.To(int(*hsts.MaxAge))
+	}
+	if hsts.IncludeSubDomains != nil && *hsts.IncludeSubDomains != osResource.HSTSIncludeSubdomains {
+		updateOpts.HSTSIncludeSubdomains = ptr.To(*hsts.IncludeSubDomains)
+	}
+	if hsts.Preload != nil && *hsts.Preload != osResource.HSTSPreload {
+		updateOpts.HSTSPreload = ptr.To(*hsts.Preload)
+	}
+}
+
+func handleTagsUpdate(updateOpts *listeners.UpdateOpts, resource *resourceSpecT, osResource *osResourceT) {
+	desiredTags := tagsToStrings(resource.Tags)
+	if !orcslices.EqualAsSets(desiredTags, osResource.Tags) {
+		if desiredTags == nil {
+			desiredTags = []string{}
+		}
+		updateOpts.Tags = &desiredTags
+	}
+}
+
+func int32PtrToInt(v *int32) *int {
+	if v == nil {
+		return nil
+	}
+	return ptr.To(int(*v))
+}
+
+func tlsVersions(versions []orcv1alpha1.ListenerTLSVersion) []listeners.TLSVersion {
+	if len(versions) == 0 {
+		return nil
+	}
+	out := make([]listeners.TLSVersion, len(versions))
+	for i := range versions {
+		out[i] = listeners.TLSVersion(versions[i])
+	}
+	return out
 }
 
 func (actuator listenerActuator) GetResourceReconcilers(ctx context.Context, orcObject orcObjectPT, osResource *osResourceT, controller interfaces.ResourceController) ([]resourceReconciler, progress.ReconcileStatus) {

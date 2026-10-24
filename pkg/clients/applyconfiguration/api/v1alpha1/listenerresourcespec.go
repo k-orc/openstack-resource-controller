@@ -32,9 +32,8 @@ type ListenerResourceSpecApplyConfiguration struct {
 	ProtocolPort            *int32                                    `json:"protocolPort,omitempty"`
 	AdminStateUp            *bool                                     `json:"adminStateUp,omitempty"`
 	ConnectionLimit         *int32                                    `json:"connectionLimit,omitempty"`
-	DefaultTLSContainerRef  *string                                   `json:"defaultTLSContainerRef,omitempty"`
-	SNIContainerRefs        []string                                  `json:"sniContainerRefs,omitempty"`
-	DefaultPoolRef          *apiv1alpha1.KubernetesNameRef            `json:"defaultPoolRef,omitempty"`
+	DefaultTLSContainerURL  *string                                   `json:"defaultTLSContainerURL,omitempty"`
+	SNIContainerURLs        []string                                  `json:"sniContainerURLs,omitempty"`
 	InsertHeaders           map[string]string                         `json:"insertHeaders,omitempty"`
 	TimeoutClientData       *int32                                    `json:"timeoutClientData,omitempty"`
 	TimeoutMemberConnect    *int32                                    `json:"timeoutMemberConnect,omitempty"`
@@ -42,11 +41,11 @@ type ListenerResourceSpecApplyConfiguration struct {
 	TimeoutTCPInspect       *int32                                    `json:"timeoutTCPInspect,omitempty"`
 	AllowedCIDRs            []string                                  `json:"allowedCIDRs,omitempty"`
 	TLSCiphers              *string                                   `json:"tlsCiphers,omitempty"`
-	TLSVersions             []string                                  `json:"tlsVersions,omitempty"`
+	TLSVersions             []apiv1alpha1.ListenerTLSVersion          `json:"tlsVersions,omitempty"`
 	ALPNProtocols           []string                                  `json:"alpnProtocols,omitempty"`
 	ClientAuthentication    *apiv1alpha1.ListenerClientAuthentication `json:"clientAuthentication,omitempty"`
-	ClientCATLSContainerRef *string                                   `json:"clientCATLSContainerRef,omitempty"`
-	ClientCRLContainerRef   *string                                   `json:"clientCRLContainerRef,omitempty"`
+	ClientCATLSContainerURL *string                                   `json:"clientCATLSContainerURL,omitempty"`
+	ClientCRLContainerURL   *string                                   `json:"clientCRLContainerURL,omitempty"`
 	HSTS                    *ListenerHSTSApplyConfiguration           `json:"hsts,omitempty"`
 	Tags                    []apiv1alpha1.ListenerTag                 `json:"tags,omitempty"`
 }
@@ -113,29 +112,21 @@ func (b *ListenerResourceSpecApplyConfiguration) WithConnectionLimit(value int32
 	return b
 }
 
-// WithDefaultTLSContainerRef sets the DefaultTLSContainerRef field in the declarative configuration to the given value
+// WithDefaultTLSContainerURL sets the DefaultTLSContainerURL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the DefaultTLSContainerRef field is set to the value of the last call.
-func (b *ListenerResourceSpecApplyConfiguration) WithDefaultTLSContainerRef(value string) *ListenerResourceSpecApplyConfiguration {
-	b.DefaultTLSContainerRef = &value
+// If called multiple times, the DefaultTLSContainerURL field is set to the value of the last call.
+func (b *ListenerResourceSpecApplyConfiguration) WithDefaultTLSContainerURL(value string) *ListenerResourceSpecApplyConfiguration {
+	b.DefaultTLSContainerURL = &value
 	return b
 }
 
-// WithSNIContainerRefs adds the given value to the SNIContainerRefs field in the declarative configuration
+// WithSNIContainerURLs adds the given value to the SNIContainerURLs field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the SNIContainerRefs field.
-func (b *ListenerResourceSpecApplyConfiguration) WithSNIContainerRefs(values ...string) *ListenerResourceSpecApplyConfiguration {
+// If called multiple times, values provided by each call will be appended to the SNIContainerURLs field.
+func (b *ListenerResourceSpecApplyConfiguration) WithSNIContainerURLs(values ...string) *ListenerResourceSpecApplyConfiguration {
 	for i := range values {
-		b.SNIContainerRefs = append(b.SNIContainerRefs, values[i])
+		b.SNIContainerURLs = append(b.SNIContainerURLs, values[i])
 	}
-	return b
-}
-
-// WithDefaultPoolRef sets the DefaultPoolRef field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the DefaultPoolRef field is set to the value of the last call.
-func (b *ListenerResourceSpecApplyConfiguration) WithDefaultPoolRef(value apiv1alpha1.KubernetesNameRef) *ListenerResourceSpecApplyConfiguration {
-	b.DefaultPoolRef = &value
 	return b
 }
 
@@ -206,7 +197,7 @@ func (b *ListenerResourceSpecApplyConfiguration) WithTLSCiphers(value string) *L
 // WithTLSVersions adds the given value to the TLSVersions field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
 // If called multiple times, values provided by each call will be appended to the TLSVersions field.
-func (b *ListenerResourceSpecApplyConfiguration) WithTLSVersions(values ...string) *ListenerResourceSpecApplyConfiguration {
+func (b *ListenerResourceSpecApplyConfiguration) WithTLSVersions(values ...apiv1alpha1.ListenerTLSVersion) *ListenerResourceSpecApplyConfiguration {
 	for i := range values {
 		b.TLSVersions = append(b.TLSVersions, values[i])
 	}
@@ -231,19 +222,19 @@ func (b *ListenerResourceSpecApplyConfiguration) WithClientAuthentication(value 
 	return b
 }
 
-// WithClientCATLSContainerRef sets the ClientCATLSContainerRef field in the declarative configuration to the given value
+// WithClientCATLSContainerURL sets the ClientCATLSContainerURL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ClientCATLSContainerRef field is set to the value of the last call.
-func (b *ListenerResourceSpecApplyConfiguration) WithClientCATLSContainerRef(value string) *ListenerResourceSpecApplyConfiguration {
-	b.ClientCATLSContainerRef = &value
+// If called multiple times, the ClientCATLSContainerURL field is set to the value of the last call.
+func (b *ListenerResourceSpecApplyConfiguration) WithClientCATLSContainerURL(value string) *ListenerResourceSpecApplyConfiguration {
+	b.ClientCATLSContainerURL = &value
 	return b
 }
 
-// WithClientCRLContainerRef sets the ClientCRLContainerRef field in the declarative configuration to the given value
+// WithClientCRLContainerURL sets the ClientCRLContainerURL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the ClientCRLContainerRef field is set to the value of the last call.
-func (b *ListenerResourceSpecApplyConfiguration) WithClientCRLContainerRef(value string) *ListenerResourceSpecApplyConfiguration {
-	b.ClientCRLContainerRef = &value
+// If called multiple times, the ClientCRLContainerURL field is set to the value of the last call.
+func (b *ListenerResourceSpecApplyConfiguration) WithClientCRLContainerURL(value string) *ListenerResourceSpecApplyConfiguration {
+	b.ClientCRLContainerURL = &value
 	return b
 }
 

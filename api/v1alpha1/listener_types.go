@@ -40,6 +40,10 @@ const (
 	ListenerClientAuthMandatory ListenerClientAuthentication = "MANDATORY"
 )
 
+// ListenerTLSVersion is a TLS protocol version.
+// +kubebuilder:validation:Enum=SSLv3;TLSv1;TLSv1.1;TLSv1.2;TLSv1.3
+type ListenerTLSVersion string
+
 // +kubebuilder:validation:MinLength:=1
 // +kubebuilder:validation:MaxLength:=255
 type ListenerTag string
@@ -102,25 +106,19 @@ type ListenerResourceSpec struct {
 	// +optional
 	ConnectionLimit *int32 `json:"connectionLimit,omitempty"`
 
-	// defaultTLSContainerRef is a reference to a secret containing a PKCS12 format
-	// certificate/key bundle for TERMINATED_HTTPS listeners.
+	// defaultTLSContainerURL is the URL of a Barbican secret or container with the
+	// PKCS12 certificate/key bundle for TERMINATED_HTTPS listeners.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="defaultTLSContainerRef is immutable"
-	DefaultTLSContainerRef *string `json:"defaultTLSContainerRef,omitempty"`
+	DefaultTLSContainerURL *string `json:"defaultTLSContainerURL,omitempty"`
 
-	// sniContainerRefs is a list of references to secrets containing PKCS12 format
-	// certificate/key bundles for TERMINATED_HTTPS listeners using SNI.
+	// sniContainerURLs are the URLs of Barbican secrets or containers with the
+	// PKCS12 certificate/key bundles for TERMINATED_HTTPS listeners using SNI.
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:MaxItems:=25
 	// +kubebuilder:validation:items:MaxLength=255
-	SNIContainerRefs []string `json:"sniContainerRefs,omitempty"`
-
-	// defaultPoolRef is a reference to the default Pool for this listener.
-	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="defaultPoolRef is immutable"
-	DefaultPoolRef *KubernetesNameRef `json:"defaultPoolRef,omitempty"`
+	SNIContainerURLs []string `json:"sniContainerURLs,omitempty"`
 
 	// insertHeaders is a dictionary of optional headers to insert into the request
 	// before it is sent to the backend member.
@@ -164,8 +162,7 @@ type ListenerResourceSpec struct {
 	// +listType=set
 	// +optional
 	// +kubebuilder:validation:MaxItems:=10
-	// +kubebuilder:validation:items:MaxLength=32
-	TLSVersions []string `json:"tlsVersions,omitempty"`
+	TLSVersions []ListenerTLSVersion `json:"tlsVersions,omitempty"`
 
 	// alpnProtocols is a list of ALPN protocols for TLS-enabled listeners.
 	// +listType=set
@@ -176,22 +173,19 @@ type ListenerResourceSpec struct {
 
 	// clientAuthentication is the TLS client authentication mode.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="clientAuthentication is immutable"
 	ClientAuthentication *ListenerClientAuthentication `json:"clientAuthentication,omitempty"`
 
-	// clientCATLSContainerRef is a reference to a secret containing the CA certificate
-	// for client authentication.
+	// clientCATLSContainerURL is the URL of a Barbican secret with the CA
+	// certificate for client authentication.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="clientCATLSContainerRef is immutable"
-	ClientCATLSContainerRef *string `json:"clientCATLSContainerRef,omitempty"`
+	ClientCATLSContainerURL *string `json:"clientCATLSContainerURL,omitempty"`
 
-	// clientCRLContainerRef is a reference to a secret containing the CA revocation list
-	// for client authentication.
+	// clientCRLContainerURL is the URL of a Barbican secret with the CA
+	// revocation list for client authentication.
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="clientCRLContainerRef is immutable"
-	ClientCRLContainerRef *string `json:"clientCRLContainerRef,omitempty"`
+	ClientCRLContainerURL *string `json:"clientCRLContainerURL,omitempty"`
 
 	// hsts is the HTTP Strict Transport Security configuration.
 	// +optional
@@ -339,10 +333,75 @@ type ListenerResourceStatus struct {
 	// +optional
 	InsertHeaders map[string]string `json:"insertHeaders,omitempty"`
 
+	// defaultTLSContainerURL is the URL of the default TLS certificate bundle.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	DefaultTLSContainerURL string `json:"defaultTLSContainerURL,omitempty"`
+
+	// sniContainerURLs are the URLs of the SNI certificate bundles.
+	// +listType=atomic
+	// +optional
+	// +kubebuilder:validation:MaxItems:=25
+	// +kubebuilder:validation:items:MaxLength=1024
+	SNIContainerURLs []string `json:"sniContainerURLs,omitempty"`
+
+	// tlsCiphers is the colon-separated list of TLS ciphers.
+	// +kubebuilder:validation:MaxLength=2048
+	// +optional
+	TLSCiphers string `json:"tlsCiphers,omitempty"`
+
+	// tlsVersions is the list of TLS protocol versions.
+	// +listType=atomic
+	// +optional
+	// +kubebuilder:validation:MaxItems:=10
+	// +kubebuilder:validation:items:MaxLength=32
+	TLSVersions []string `json:"tlsVersions,omitempty"`
+
+	// alpnProtocols is the list of ALPN protocols.
+	// +listType=atomic
+	// +optional
+	// +kubebuilder:validation:MaxItems:=10
+	// +kubebuilder:validation:items:MaxLength=32
+	ALPNProtocols []string `json:"alpnProtocols,omitempty"`
+
+	// clientAuthentication is the TLS client authentication mode.
+	// +kubebuilder:validation:MaxLength=64
+	// +optional
+	ClientAuthentication string `json:"clientAuthentication,omitempty"`
+
+	// clientCATLSContainerURL is the URL of the client authentication CA certificate.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ClientCATLSContainerURL string `json:"clientCATLSContainerURL,omitempty"`
+
+	// clientCRLContainerURL is the URL of the client authentication revocation list.
+	// +kubebuilder:validation:MaxLength=1024
+	// +optional
+	ClientCRLContainerURL string `json:"clientCRLContainerURL,omitempty"`
+
+	// hsts is the HTTP Strict Transport Security configuration.
+	// +optional
+	HSTS *ListenerHSTSStatus `json:"hsts,omitempty"`
+
 	// tags is the list of tags on the resource.
 	// +listType=atomic
 	// +optional
 	// +kubebuilder:validation:MaxItems:=64
 	// +kubebuilder:validation:items:MaxLength=255
 	Tags []string `json:"tags,omitempty"`
+}
+
+// ListenerHSTSStatus is the observed HTTP Strict Transport Security configuration.
+type ListenerHSTSStatus struct {
+	// maxAge is the HSTS max-age in seconds.
+	// +optional
+	MaxAge int32 `json:"maxAge,omitempty"`
+
+	// includeSubDomains is whether HSTS applies to subdomains.
+	// +optional
+	IncludeSubDomains bool `json:"includeSubDomains,omitempty"`
+
+	// preload is whether the domain may be included in the browsers' preload list.
+	// +optional
+	Preload bool `json:"preload,omitempty"`
 }

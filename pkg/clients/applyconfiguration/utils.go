@@ -248,6 +248,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &apiv1alpha1.ListenerFilterApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ListenerHSTS"):
 		return &apiv1alpha1.ListenerHSTSApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("ListenerHSTSStatus"):
+		return &apiv1alpha1.ListenerHSTSStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ListenerImport"):
 		return &apiv1alpha1.ListenerImportApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("ListenerResourceSpec"):
