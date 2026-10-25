@@ -69,6 +69,27 @@ referencing resources, and filters for importing resources:
 
 These constraints ensure that tests can safely run concurrently.
 
+#### Admin credentials
+
+A test that uses the `openstack-admin` cloud must contain a `00-test-case.yaml`
+with this `TestCase`, so that runs against clouds without admin credentials
+can skip it with `E2E_KUTTL_SKIP_ADMIN=true`:
+
+```yaml
+apiVersion: kuttl.dev/v1beta1
+kind: TestCase
+testRunSelector:
+  matchExpressions:
+  - key: admin
+    operator: NotIn
+    values: ["false"]
+```
+
+If the test also selects on OpenStack versions, put both expressions in the same
+`testRunSelector`.
+
+`make test` checks this.
+
 Also, to make things easier when debugging, we require that all tests are named
 differently. In kuttl, the test name is the name of the directory containing
 the test files. For this reason, we prefix all the test names with the name of
@@ -333,6 +354,7 @@ We use environment variables to configure how the tests run.
 | `E2E_KUTTL_TEST`                 | Run a specific kuttl test                       |                              |
 | `E2E_KUTTL_FLAVOR`               | Flavor name to use for tests                    | `m1.tiny`                    |
 | `E2E_KUTTL_TIMEOUT`              | Override default timeout for tests              |                              |
+| `E2E_KUTTL_SKIP_ADMIN`           | Skip the tests that need admin credentials      | `false`                      |
 | `E2E_KUTTL_DELETE_OPTION`        | Delete resources based on case results. See delete flag for more info in kuttl [docs](https://github.com/kudobuilder/kuttl/blob/main/docs/cli.md#flags) |  `success` |
 
 For example, to run the `import-dependency` test from the `subnet` controller:

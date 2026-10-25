@@ -140,6 +140,8 @@ test: envtest
 # - E2E_OPENSTACK_VERSION: if set, the known OpenStack versions range covering
 #   this version will be passed as a test run label `--test-run-labels min-version1=true,min-version2=true,max-version2=true,max-version3=true,`.
 #	See ./hack/e2e.sh . Test cases can be run/skipped with `testRunSelector` in `TestCase` based on it.
+# - E2E_KUTTL_SKIP_ADMIN: if set to true, skip the tests that need admin
+#   credentials, for clouds where we don't have them.
 .PHONY: test-e2e  # Run the e2e tests against a Kind k8s instance that is spun up.
 test-e2e: kuttl
 	# go test ./test/e2e/ -v -ginkgo.v

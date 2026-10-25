@@ -47,10 +47,9 @@ fi
 # 2025.2 Flamingo
 # 2025.1 Epoxy
 KNOWN_RELEASES=("2025.1" "2025.2" "2026.1" "2026.2" "2027.1")
-E2E_KUTTL_TEST_RUN_LABELS=
+labels=
 if [ -n "${E2E_OPENSTACK_VERSION:-}" ]; then
     OS_RELEASE="$E2E_OPENSTACK_VERSION"
-    labels=
 
     for release in "${KNOWN_RELEASES[@]}"; do
         if [[ ! "$OS_RELEASE" < "$release" ]]; then
@@ -60,10 +59,17 @@ if [ -n "${E2E_OPENSTACK_VERSION:-}" ]; then
             labels="${labels:+$labels,}max-${release}=true"
         fi
     done
+fi
 
-    if [ -n "$labels" ]; then
-        E2E_KUTTL_TEST_RUN_LABELS="--test-run-labels $labels"
-    fi
+# Skip the tests that need admin credentials (their TestCase selects on admin)
+E2E_KUTTL_SKIP_ADMIN=${E2E_KUTTL_SKIP_ADMIN:-false}
+if [ "$E2E_KUTTL_SKIP_ADMIN" = "true" ]; then
+    labels="${labels:+$labels,}admin=false"
+fi
+
+E2E_KUTTL_TEST_RUN_LABELS=
+if [ -n "$labels" ]; then
+    E2E_KUTTL_TEST_RUN_LABELS="--test-run-labels $labels"
 fi
 
 # Export variables referenced in kuttl tests.
