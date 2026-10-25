@@ -19,6 +19,7 @@ package reconciler
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -34,6 +35,7 @@ import (
 	"github.com/k-orc/openstack-resource-controller/v3/internal/controllers/generic/status"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/logging"
 	"github.com/k-orc/openstack-resource-controller/v3/internal/scope"
+	orcstrings "github.com/k-orc/openstack-resource-controller/v3/internal/util/strings"
 )
 
 type ResourceController interface {
@@ -194,6 +196,15 @@ func ShouldReconcile(obj orcv1alpha1.ObjectWithConditions, lastSyncTime *metav1.
 	return false
 }
 
+// ShouldReconcileWithFinalizer is ShouldReconcile for an object which should carry the
+// given finalizer. An object which has lost its finalizer, e.g. to `kubectl
+// replace`, is reconciled even if it is up to date: removing a finalizer
+// doesn't change the generation, and without it deleting the object would leave
+// the OpenStack resource behind.
+func ShouldReconcileWithFinalizer(obj orcv1alpha1.ObjectWithConditions, finalizer string, lastSyncTime *metav1.Time, resyncPeriod time.Duration) bool {
+	return !slices.Contains(obj.GetFinalizers(), finalizer) || ShouldReconcile(obj, lastSyncTime, resyncPeriod)
+}
+
 func (c *Controller[
 	orcObjectPT, orcObjectT,
 	resourceSpecT, filterT,
@@ -207,7 +218,8 @@ func (c *Controller[
 	// a single watch. Doing it here means we cover all sources of
 	// reconciliation, including our dependencies.
 	effectiveResyncPeriod := resync.DetermineResyncPeriod(objAdapter.GetResyncPeriod(), c.defaultResyncPeriod)
-	if !ShouldReconcile(objAdapter.GetObject(), objAdapter.GetLastSyncTime(), effectiveResyncPeriod) {
+	finalizer := orcstrings.GetFinalizerName(c.GetName())
+	if !ShouldReconcileWithFinalizer(objAdapter.GetObject(), finalizer, objAdapter.GetLastSyncTime(), effectiveResyncPeriod) {
 		log.V(logging.Verbose).Info("Status is up to date: not reconciling")
 		if remaining := resync.RemainingUntilNextSync(objAdapter.GetLastSyncTime(), effectiveResyncPeriod); remaining > 0 {
 			// Apply jitter so that watch-triggered reconciliations
