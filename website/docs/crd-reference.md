@@ -20,6 +20,7 @@ Package v1alpha1 contains API Schema definitions for the openstack v1alpha1 API 
 - [Group](#group)
 - [Image](#image)
 - [KeyPair](#keypair)
+- [LBPool](#lbpool)
 - [Limit](#limit)
 - [Listener](#listener)
 - [LoadBalancer](#loadbalancer)
@@ -527,6 +528,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LBPoolSpec](#lbpoolspec)
 - [LimitSpec](#limitspec)
 - [ListenerSpec](#listenerspec)
 - [LoadBalancerSpec](#loadbalancerspec)
@@ -1797,6 +1799,7 @@ _Appears in:_
 - [FloatingIPFilter](#floatingipfilter)
 - [FloatingIPResourceSpec](#floatingipresourcespec)
 - [HostRoute](#hostroute)
+- [LBPoolMemberSpec](#lbpoolmemberspec)
 - [LoadBalancerFilter](#loadbalancerfilter)
 - [LoadBalancerResourceSpec](#loadbalancerresourcespec)
 - [RouterRoute](#routerroute)
@@ -2442,6 +2445,9 @@ _Appears in:_
 - [GroupFilter](#groupfilter)
 - [GroupResourceSpec](#groupresourcespec)
 - [HostID](#hostid)
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolMemberSpec](#lbpoolmemberspec)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
 - [LimitFilter](#limitfilter)
 - [LimitResourceSpec](#limitresourcespec)
 - [ListenerFilter](#listenerfilter)
@@ -2484,6 +2490,326 @@ _Appears in:_
 - [UserFilter](#userfilter)
 - [UserResourceSpec](#userresourcespec)
 - [VolumeResourceSpec](#volumeresourcespec)
+
+
+
+#### LBPool
+
+
+
+LBPool is the Schema for an ORC resource.
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `openstack.k-orc.cloud/v1alpha1` | | |
+| `kind` _string_ | `LBPool` | | |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  | Optional: \{\} <br /> |
+| `spec` _[LBPoolSpec](#lbpoolspec)_ | spec specifies the desired state of the resource. |  | Required: \{\} <br /> |
+| `status` _[LBPoolStatus](#lbpoolstatus)_ | status defines the observed state of the resource. |  | Optional: \{\} <br /> |
+
+
+#### LBPoolFilter
+
+
+
+LBPoolFilter defines an existing resource by its properties
+
+_Validation:_
+- MinProperties: 1
+
+_Appears in:_
+- [LBPoolImport](#lbpoolimport)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description of the existing resource |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `loadBalancerRef` _[KubernetesNameRef](#kubernetesnameref)_ | loadBalancerRef filters by the LoadBalancer this pool is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `listenerRef` _[KubernetesNameRef](#kubernetesnameref)_ | listenerRef filters by the Listener this pool is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef filters by the Project this pool is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `lbAlgorithm` _[LBPoolLBAlgorithm](#lbpoollbalgorithm)_ | lbAlgorithm filters by the load balancing algorithm. |  | Enum: [LEAST_CONNECTIONS ROUND_ROBIN SOURCE_IP SOURCE_IP_PORT] <br />Optional: \{\} <br /> |
+| `protocol` _[LBPoolProtocol](#lbpoolprotocol)_ | protocol filters by the protocol used by the pool. |  | Enum: [HTTP HTTPS PROXY PROXYV2 SCTP TCP UDP] <br />Optional: \{\} <br /> |
+| `tags` _[LBPoolTag](#lbpooltag) array_ | tags is a list of tags to filter by. If specified, the resource must<br />have all of the tags specified to be included in the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `tagsAny` _[LBPoolTag](#lbpooltag) array_ | tagsAny is a list of tags to filter by. If specified, the resource<br />must have at least one of the tags specified to be included in the<br />result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTags` _[LBPoolTag](#lbpooltag) array_ | notTags is a list of tags to filter by. If specified, resources which<br />contain all of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `notTagsAny` _[LBPoolTag](#lbpooltag) array_ | notTagsAny is a list of tags to filter by. If specified, resources<br />which contain any of the given tags will be excluded from the result. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+
+
+#### LBPoolImport
+
+
+
+LBPoolImport specifies an existing resource which will be imported instead of
+creating a new one
+
+_Validation:_
+- MaxProperties: 1
+- MinProperties: 1
+
+_Appears in:_
+- [LBPoolSpec](#lbpoolspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id contains the unique identifier of an existing OpenStack resource. Note<br />that when specifying an import by ID, the resource MUST already exist.<br />The ORC object will enter an error state if the resource does not exist. |  | Format: uuid <br />MaxLength: 36 <br />Optional: \{\} <br /> |
+| `filter` _[LBPoolFilter](#lbpoolfilter)_ | filter contains a resource query which is expected to return a single<br />result. The controller will continue to retry if filter returns no<br />results. If filter returns multiple results the controller will set an<br />error state and will not continue to retry. |  | MinProperties: 1 <br />Optional: \{\} <br /> |
+
+
+#### LBPoolLBAlgorithm
+
+_Underlying type:_ _string_
+
+LBPoolLBAlgorithm represents the load balancing algorithm used by a pool.
+
+_Validation:_
+- Enum: [LEAST_CONNECTIONS ROUND_ROBIN SOURCE_IP SOURCE_IP_PORT]
+
+_Appears in:_
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `LEAST_CONNECTIONS` |  |
+| `ROUND_ROBIN` |  |
+| `SOURCE_IP` |  |
+| `SOURCE_IP_PORT` |  |
+
+
+#### LBPoolMemberSpec
+
+
+
+LBPoolMemberSpec defines a member of an LB pool.
+
+
+
+_Appears in:_
+- [LBPoolResourceSpec](#lbpoolresourcespec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a human-readable name for the member. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `address` _[IPvAny](#ipvany)_ | address is the IP address of the member to receive traffic. |  | MaxLength: 45 <br />MinLength: 1 <br />Required: \{\} <br /> |
+| `protocolPort` _integer_ | protocolPort is the port on which the member application is listening. |  | Maximum: 65535 <br />Minimum: 1 <br />Required: \{\} <br /> |
+| `subnetRef` _[KubernetesNameRef](#kubernetesnameref)_ | subnetRef is a reference to the ORC Subnet where the member resides. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `weight` _integer_ | weight is the relative portion of traffic this member should receive.<br />A member with weight 10 receives 5x the traffic of a member with weight 2.<br />Default is 1. |  | Maximum: 256 <br />Minimum: 0 <br />Optional: \{\} <br /> |
+| `backup` _boolean_ | backup indicates whether this is a backup member. Backup members only<br />receive traffic when all non-backup members are down. |  | Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the member (up=true, down=false). |  | Optional: \{\} <br /> |
+
+
+#### LBPoolMemberStatus
+
+
+
+LBPoolMemberStatus represents the observed state of a pool member.
+
+
+
+_Appears in:_
+- [LBPoolResourceStatus](#lbpoolresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `id` _string_ | id is the unique identifier of the member in OpenStack. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `name` _string_ | name is the human-readable name for the member. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `address` _string_ | address is the IP address of the member. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `protocolPort` _integer_ | protocolPort is the port on which the member is listening. |  | Optional: \{\} <br /> |
+| `subnetID` _string_ | subnetID is the ID of the subnet the member is on. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `weight` _integer_ | weight is the weight of the member for load balancing. |  | Optional: \{\} <br /> |
+| `backup` _boolean_ | backup indicates whether this is a backup member. |  | Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the member. |  | Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the member. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the member. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+
+
+#### LBPoolProtocol
+
+_Underlying type:_ _string_
+
+LBPoolProtocol represents the protocol used by a pool.
+
+_Validation:_
+- Enum: [HTTP HTTPS PROXY PROXYV2 SCTP TCP UDP]
+
+_Appears in:_
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
+
+| Field | Description |
+| --- | --- |
+| `HTTP` |  |
+| `HTTPS` |  |
+| `PROXY` |  |
+| `PROXYV2` |  |
+| `SCTP` |  |
+| `TCP` |  |
+| `UDP` |  |
+
+
+#### LBPoolResourceSpec
+
+
+
+LBPoolResourceSpec contains the desired state of the resource.
+
+
+
+_Appears in:_
+- [LBPoolSpec](#lbpoolspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _[OpenStackName](#openstackname)_ | name will be the name of the created resource. If not specified, the<br />name of the ORC object will be used. |  | MaxLength: 255 <br />MinLength: 1 <br />Pattern: `^[^,]+$` <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `lbAlgorithm` _[LBPoolLBAlgorithm](#lbpoollbalgorithm)_ | lbAlgorithm is the load balancing algorithm used to distribute traffic<br />to the pool's members. |  | Enum: [LEAST_CONNECTIONS ROUND_ROBIN SOURCE_IP SOURCE_IP_PORT] <br />Required: \{\} <br /> |
+| `protocol` _[LBPoolProtocol](#lbpoolprotocol)_ | protocol is the protocol used by the pool and its members for traffic. |  | Enum: [HTTP HTTPS PROXY PROXYV2 SCTP TCP UDP] <br />Required: \{\} <br /> |
+| `loadBalancerRef` _[KubernetesNameRef](#kubernetesnameref)_ | loadBalancerRef is a reference to the ORC LoadBalancer which this pool<br />is associated with. Either loadBalancerRef or listenerRef must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `listenerRef` _[KubernetesNameRef](#kubernetesnameref)_ | listenerRef is a reference to the ORC Listener which this pool is<br />associated with as the default pool. Either loadBalancerRef or listenerRef<br />must be specified. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `projectRef` _[KubernetesNameRef](#kubernetesnameref)_ | projectRef is a reference to the ORC Project which this resource is associated with. |  | MaxLength: 253 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the pool, which is up (true)<br />or down (false). |  | Optional: \{\} <br /> |
+| `sessionPersistence` _[LBPoolSessionPersistence](#lbpoolsessionpersistence)_ | sessionPersistence is the session persistence configuration for the pool. |  | Optional: \{\} <br /> |
+| `tlsEnabled` _boolean_ | tlsEnabled enables backend re-encryption when set to true. Requires<br />TERMINATED_HTTPS or HTTPS protocol on the listener. |  | Optional: \{\} <br /> |
+| `tlsContainerRef` _string_ | tlsContainerRef is a reference to a secret containing a PKCS12 format<br />certificate/key bundle for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `caTLSContainerRef` _string_ | caTLSContainerRef is a reference to a secret containing the CA<br />certificate for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `crlContainerRef` _string_ | crlContainerRef is a reference to a secret containing the CA<br />revocation list for backend re-encryption. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+| `tlsCiphers` _string_ | tlsCiphers is a colon-separated list of ciphers for backend TLS connections. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
+| `tlsVersions` _string array_ | tlsVersions is a list of TLS protocol versions to be used for backend<br />TLS connections. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `alpnProtocols` _string array_ | alpnProtocols is a list of ALPN protocols for backend TLS connections.<br />Available protocols: h2, http/1.0, http/1.1. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `tags` _[LBPoolTag](#lbpooltag) array_ | tags is a list of tags which will be applied to the pool. |  | MaxItems: 64 <br />MaxLength: 255 <br />MinLength: 1 <br />Optional: \{\} <br /> |
+| `members` _[LBPoolMemberSpec](#lbpoolmemberspec) array_ | members is a list of backend members for this pool. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+
+
+#### LBPoolResourceStatus
+
+
+
+LBPoolResourceStatus represents the observed state of the resource.
+
+
+
+_Appears in:_
+- [LBPoolStatus](#lbpoolstatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | name is a Human-readable name for the resource. Might not be unique. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `description` _string_ | description is a human-readable description for the resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `lbAlgorithm` _string_ | lbAlgorithm is the load balancing algorithm used by the pool. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `protocol` _string_ | protocol is the protocol used by the pool. |  | MaxLength: 64 <br />Optional: \{\} <br /> |
+| `loadBalancerIDs` _string array_ | loadBalancerIDs is the list of LoadBalancer IDs this pool is associated with. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `listenerIDs` _string array_ | listenerIDs is the list of Listener IDs this pool is associated with. |  | MaxItems: 64 <br />items:MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `projectID` _string_ | projectID is the ID of the Project this pool is associated with. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `adminStateUp` _boolean_ | adminStateUp is the administrative state of the pool,<br />which is up (true) or down (false). |  | Optional: \{\} <br /> |
+| `provisioningStatus` _string_ | provisioningStatus is the provisioning status of the pool. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `operatingStatus` _string_ | operatingStatus is the operating status of the pool. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `healthMonitorID` _string_ | healthMonitorID is the ID of the health monitor associated with this pool. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `members` _[LBPoolMemberStatus](#lbpoolmemberstatus) array_ | members is the list of members in this pool with their details. |  | MaxItems: 256 <br />Optional: \{\} <br /> |
+| `sessionPersistence` _[LBPoolSessionPersistence](#lbpoolsessionpersistence)_ | sessionPersistence is the session persistence configuration. |  | Optional: \{\} <br /> |
+| `tlsEnabled` _boolean_ | tlsEnabled indicates whether backend re-encryption is enabled. |  | Optional: \{\} <br /> |
+| `tlsContainerRef` _string_ | tlsContainerRef is the reference to the TLS container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `caTLSContainerRef` _string_ | caTLSContainerRef is the reference to the CA TLS container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `crlContainerRef` _string_ | crlContainerRef is the reference to the CRL container. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `tlsCiphers` _string_ | tlsCiphers is the list of TLS ciphers for backend connections. |  | MaxLength: 2048 <br />Optional: \{\} <br /> |
+| `tlsVersions` _string array_ | tlsVersions is the list of TLS versions for backend connections. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `alpnProtocols` _string array_ | alpnProtocols is the list of ALPN protocols for backend connections. |  | MaxItems: 10 <br />items:MaxLength: 32 <br />Optional: \{\} <br /> |
+| `tags` _string array_ | tags is the list of tags on the resource. |  | MaxItems: 64 <br />items:MaxLength: 255 <br />Optional: \{\} <br /> |
+
+
+#### LBPoolSessionPersistence
+
+
+
+LBPoolSessionPersistence represents session persistence configuration for a pool.
+
+
+
+_Appears in:_
+- [LBPoolResourceSpec](#lbpoolresourcespec)
+- [LBPoolResourceStatus](#lbpoolresourcestatus)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `type` _[LBPoolSessionPersistenceType](#lbpoolsessionpersistencetype)_ | type is the type of session persistence. |  | Enum: [APP_COOKIE HTTP_COOKIE SOURCE_IP] <br />Required: \{\} <br /> |
+| `cookieName` _string_ | cookieName is the name of the cookie if persistence type is APP_COOKIE.<br />Required when type is APP_COOKIE. |  | MaxLength: 255 <br />Optional: \{\} <br /> |
+
+
+#### LBPoolSessionPersistenceType
+
+_Underlying type:_ _string_
+
+LBPoolSessionPersistenceType represents the type of session persistence.
+
+_Validation:_
+- Enum: [APP_COOKIE HTTP_COOKIE SOURCE_IP]
+
+_Appears in:_
+- [LBPoolSessionPersistence](#lbpoolsessionpersistence)
+
+| Field | Description |
+| --- | --- |
+| `APP_COOKIE` | LBPoolSessionPersistenceAppCookie relies on a cookie established by the backend application.<br /> |
+| `HTTP_COOKIE` | LBPoolSessionPersistenceHTTPCookie causes the load balancer to create a cookie on first request.<br /> |
+| `SOURCE_IP` | LBPoolSessionPersistenceSourceIP routes connections from the same source IP to the same member.<br /> |
+
+
+#### LBPoolSpec
+
+
+
+LBPoolSpec defines the desired state of an ORC object.
+
+
+
+_Appears in:_
+- [LBPool](#lbpool)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `import` _[LBPoolImport](#lbpoolimport)_ | import refers to an existing OpenStack resource which will be imported instead of<br />creating a new one. |  | MaxProperties: 1 <br />MinProperties: 1 <br />Optional: \{\} <br /> |
+| `resource` _[LBPoolResourceSpec](#lbpoolresourcespec)_ | resource specifies the desired state of the resource.<br />resource may not be specified if the management policy is `unmanaged`.<br />resource must be specified if the management policy is `managed`. |  | Optional: \{\} <br /> |
+| `managementPolicy` _[ManagementPolicy](#managementpolicy)_ | managementPolicy defines how ORC will treat the object. Valid values are<br />`managed`: ORC will create, update, and delete the resource; `unmanaged`:<br />ORC will import an existing resource, and will not apply updates to it or<br />delete it. | managed | Enum: [managed unmanaged] <br />Optional: \{\} <br /> |
+| `managedOptions` _[ManagedOptions](#managedoptions)_ | managedOptions specifies options which may be applied to managed objects. |  | Optional: \{\} <br /> |
+| `resyncPeriod` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | resyncPeriod defines how frequently the controller will re-reconcile<br />this resource even when no changes have been detected. This overrides<br />the global default resync period. The value must be a valid Go duration<br />string, e.g. "10m", "1h". Set to "0s" to disable periodic resync for<br />this resource. Very low values may cause excessive OpenStack API load. |  | Optional: \{\} <br /> |
+| `cloudCredentialsRef` _[CloudCredentialsReference](#cloudcredentialsreference)_ | cloudCredentialsRef points to a secret containing OpenStack credentials |  | Required: \{\} <br /> |
+
+
+#### LBPoolStatus
+
+
+
+LBPoolStatus defines the observed state of an ORC resource.
+
+
+
+_Appears in:_
+- [LBPool](#lbpool)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#condition-v1-meta) array_ | conditions represents the observed status of the object.<br />Known .status.conditions.type are: "Available", "Progressing"<br />Available represents the availability of the OpenStack resource. If it is<br />true then the resource is ready for use.<br />Progressing indicates whether the controller is still attempting to<br />reconcile the current state of the OpenStack resource to the desired<br />state. Progressing will be False either because the desired state has<br />been achieved, or because some terminal error prevents it from ever being<br />achieved and the controller is no longer attempting to reconcile. If<br />Progressing is True, an observer waiting on the resource should continue<br />to wait. |  | MaxItems: 32 <br />Optional: \{\} <br /> |
+| `id` _string_ | id is the unique identifier of the OpenStack resource. |  | MaxLength: 1024 <br />Optional: \{\} <br /> |
+| `resource` _[LBPoolResourceStatus](#lbpoolresourcestatus)_ | resource contains the observed state of the OpenStack resource. |  | Optional: \{\} <br /> |
+| `lastSyncTime` _[Time](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#time-v1-meta)_ | lastSyncTime is the timestamp of the last successful reconciliation<br />that fetched state from OpenStack. It is updated each time the<br />controller successfully reads the resource state from the OpenStack<br />API. |  | Optional: \{\} <br /> |
+
+
+#### LBPoolTag
+
+_Underlying type:_ _string_
+
+
+
+_Validation:_
+- MaxLength: 255
+- MinLength: 1
+
+_Appears in:_
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
 
 
 
@@ -3153,6 +3479,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LBPoolSpec](#lbpoolspec)
 - [LimitSpec](#limitspec)
 - [ListenerSpec](#listenerspec)
 - [LoadBalancerSpec](#loadbalancerspec)
@@ -3202,6 +3529,7 @@ _Appears in:_
 - [GroupSpec](#groupspec)
 - [ImageSpec](#imagespec)
 - [KeyPairSpec](#keypairspec)
+- [LBPoolSpec](#lbpoolspec)
 - [LimitSpec](#limitspec)
 - [ListenerSpec](#listenerspec)
 - [LoadBalancerSpec](#loadbalancerspec)
@@ -3523,6 +3851,8 @@ _Appears in:_
 - [ImageResourceSpec](#imageresourcespec)
 - [KeyPairFilter](#keypairfilter)
 - [KeyPairResourceSpec](#keypairresourcespec)
+- [LBPoolFilter](#lbpoolfilter)
+- [LBPoolResourceSpec](#lbpoolresourcespec)
 - [ListenerFilter](#listenerfilter)
 - [ListenerResourceSpec](#listenerresourcespec)
 - [LoadBalancerFilter](#loadbalancerfilter)

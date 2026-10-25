@@ -38,6 +38,7 @@ type OpenstackV1alpha1Interface interface {
 	GroupsGetter
 	ImagesGetter
 	KeyPairsGetter
+	LBPoolsGetter
 	LimitsGetter
 	ListenersGetter
 	LoadBalancersGetter
@@ -107,6 +108,10 @@ func (c *OpenstackV1alpha1Client) Images(namespace string) ImageInterface {
 
 func (c *OpenstackV1alpha1Client) KeyPairs(namespace string) KeyPairInterface {
 	return newKeyPairs(c, namespace)
+}
+
+func (c *OpenstackV1alpha1Client) LBPools(namespace string) LBPoolInterface {
+	return newLBPools(c, namespace)
 }
 
 func (c *OpenstackV1alpha1Client) Limits(namespace string) LimitInterface {

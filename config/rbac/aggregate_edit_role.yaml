@@ -24,6 +24,7 @@ rules:
   - groups
   - images
   - keypairs
+  - lbpools
   - limits
   - listeners
   - loadbalancers
