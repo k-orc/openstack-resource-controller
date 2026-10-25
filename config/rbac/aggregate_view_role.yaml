@@ -27,6 +27,7 @@ rules:
   - groups
   - images
   - keypairs
+  - lbpools
   - limits
   - listeners
   - loadbalancers
@@ -68,6 +69,7 @@ rules:
   - groups/status
   - images/status
   - keypairs/status
+  - lbpools/status
   - limits/status
   - listeners/status
   - loadbalancers/status

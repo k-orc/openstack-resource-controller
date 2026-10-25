@@ -1,0 +1,70 @@
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Network
+metadata:
+  name: lbpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource: {}
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: Subnet
+metadata:
+  name: lbpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    networkRef: lbpool-create-full
+    ipVersion: 4
+    cidr: 10.0.1.0/24
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: lbpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    vipSubnetRef: lbpool-create-full
+---
+apiVersion: openstack.k-orc.cloud/v1alpha1
+kind: LBPool
+metadata:
+  name: lbpool-create-full
+spec:
+  cloudCredentialsRef:
+    cloudName: openstack
+    secretName: openstack-clouds
+  managementPolicy: managed
+  resource:
+    name: lbpool-create-full-override
+    description: LBPool from create full test
+    loadBalancerRef: lbpool-create-full
+    protocol: HTTP
+    lbAlgorithm: LEAST_CONNECTIONS
+    adminStateUp: true
+    sessionPersistence:
+      type: SOURCE_IP
+    tags:
+      - "test"
+      - "lbpool"
+    members:
+      - name: member-1
+        address: 10.0.1.10
+        protocolPort: 80
+        weight: 5
+        adminStateUp: true
+      - name: member-2
+        address: 10.0.1.11
+        protocolPort: 80
+        weight: 3
+        backup: true

@@ -47,6 +47,7 @@ type MockScopeFactory struct {
 	KeyPairClient               *mock.MockKeyPairClient
 	LoadBalancerClient          *mock.MockLoadBalancerClient
 	ListenerClient              *mock.MockListenerClient
+	LBPoolClient                *mock.MockLBPoolClient
 	NetworkClient               *mock.MockNetworkClient
 	RegionClient                *mock.MockRegionClient
 	RegisteredLimitClient       *mock.MockRegisteredLimitClient
@@ -77,6 +78,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 	keypairClient := mock.NewMockKeyPairClient(mockCtrl)
 	loadBalancerClient := mock.NewMockLoadBalancerClient(mockCtrl)
 	listenerClient := mock.NewMockListenerClient(mockCtrl)
+	lbPoolClient := mock.NewMockLBPoolClient(mockCtrl)
 	networkClient := mock.NewMockNetworkClient(mockCtrl)
 	regionClient := mock.NewMockRegionClient(mockCtrl)
 	registeredLimitClient := mock.NewMockRegisteredLimitClient(mockCtrl)
@@ -104,6 +106,7 @@ func NewMockScopeFactory(mockCtrl *gomock.Controller) *MockScopeFactory {
 		KeyPairClient:               keypairClient,
 		LoadBalancerClient:          loadBalancerClient,
 		ListenerClient:              listenerClient,
+		LBPoolClient:                lbPoolClient,
 		NetworkClient:               networkClient,
 		RegionClient:                regionClient,
 		RegisteredLimitClient:       registeredLimitClient,
@@ -224,6 +227,10 @@ func (f *MockScopeFactory) NewLoadBalancerClient() (osclients.LoadBalancerClient
 
 func (f *MockScopeFactory) NewListenerClient() (osclients.ListenerClient, error) {
 	return f.ListenerClient, nil
+}
+
+func (f *MockScopeFactory) NewLBPoolClient() (osclients.LBPoolClient, error) {
+	return f.LBPoolClient, nil
 }
 
 func (f *MockScopeFactory) ExtractToken() (*tokens.Token, error) {
